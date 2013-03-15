@@ -22,6 +22,536 @@ from MEDCoupling import *
 import unittest
 
 class MEDCouplingBasicsTest(unittest.TestCase):
+    def testExample_DataArrayInt_(self):
+#! [PySnippet_DataArrayInt__1]
+        pass
+
+    def testExample_DataArrayInt_getTuple(self):
+#! [Snippet_DataArrayInt_getTuple_1]
+        dv=DataArrayInt.New();
+        dv.alloc( 6, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+        print dv.getTuple( 1 )
+#! [Snippet_DataArrayInt_getTuple_1]
+#! [Snippet_DataArrayInt_getTuple_2]
+        for tpl in dv:
+            print tpl
+#! [Snippet_DataArrayInt_getTuple_2]
+        pass
+
+    def testExample_DataArrayInt_buildPermutationArr(self):
+#! [PySnippet_DataArrayInt_buildPermutationArr_1]
+        a=DataArrayInt.New()
+        a.setValues([4,5,6,7,8],5,1)
+        b=DataArrayInt.New()
+        b.setValues([5,4,8,6,7],5,1)
+        c=a.buildPermutationArr(b)
+#! [PySnippet_DataArrayInt_buildPermutationArr_1]
+        self.assertEqual([1,0,4,2,3],c.getValues())
+        pass
+
+    def testExample_DataArrayInt_invertArrayO2N2N2O(self):
+#! [PySnippet_DataArrayInt_invertArrayO2N2N2O_1]
+        arr1=[2,0,4,1,5,3]
+        da=DataArrayInt.New();
+        da.setValues(arr1,6,1);
+        da2=da.invertArrayO2N2N2O(6);
+        expected1=[1,3,0,5,2,4]
+        for i in xrange(6):
+            self.assertEqual(expected1[i],da2.getIJ(i,0));
+            pass
+#! [PySnippet_DataArrayInt_invertArrayO2N2N2O_1]
+        pass
+
+    def testExample_DataArrayInt_invertArrayN2O2O2N(self):
+#! [PySnippet_DataArrayInt_invertArrayN2O2O2N_1]
+        arr1=[2,0,4,1,5,3]
+        da=DataArrayInt.New();
+        da.setValues(arr1,6,1);
+        da2=da.invertArrayN2O2O2N(7);
+        expected1=[1,3,0,5,2,4,-1]
+        for i in xrange(6):
+            self.assertEqual(expected1[i],da2.getIJ(i,0));
+            pass
+#! [PySnippet_DataArrayInt_invertArrayN2O2O2N_1]
+        pass
+
+
+    def testExample_DataArrayDouble_getIdsInRange(self):
+#! [PySnippet_DataArrayDouble_getIdsInRange_1]
+        da=DataArrayDouble.New()
+        da.alloc( 10, 1 )
+        da[ :, :] = range(10)
+        da2 = da.getIdsInRange( 2.5, 6 )
+#! [PySnippet_DataArrayDouble_getIdsInRange_1]
+        pass
+
+    def testExample_DataArrayDouble_setPartOfValues2(self):
+#! [Snippet_DataArrayDouble_setPartOfValues2_1]
+        da=DataArrayDouble.New()
+        da.alloc( 4, 7 )
+        #
+        dv=DataArrayDouble.New();
+        dv.alloc( 6, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+#! [Snippet_DataArrayDouble_setPartOfValues2_1]
+#! [Snippet_DataArrayDouble_setPartOfValues2_2]
+        da.fillWithZero()
+        da[ [0,1,2], [1,3] ] = dv
+#! [Snippet_DataArrayDouble_setPartOfValues2_2]
+#! [Snippet_DataArrayDouble_setPartOfValues2_3]
+        da.fillWithZero()
+        dv.rearrange( 6 )
+        da[ [0,2,3], [0,2,3,4,5,6]] = dv
+#! [Snippet_DataArrayDouble_setPartOfValues2_3]
+        pass
+
+    def testExample_DataArrayInt_setPartOfValues2(self):
+#! [Snippet_DataArrayInt_setPartOfValues2_1]
+        da=DataArrayInt.New()
+        da.alloc( 4, 7 )
+        #
+        dv=DataArrayInt.New();
+        dv.alloc( 6, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+#! [Snippet_DataArrayInt_setPartOfValues2_1]
+#! [Snippet_DataArrayInt_setPartOfValues2_2]
+        da.fillWithZero()
+        da[ [0,1,2], [1,3] ] = dv
+#! [Snippet_DataArrayInt_setPartOfValues2_2]
+#! [Snippet_DataArrayInt_setPartOfValues2_3]
+        da.fillWithZero()
+        dv.rearrange( 6 )
+        da[ [0,2,3], [0,2,3,4,5,6]] = dv
+#! [Snippet_DataArrayInt_setPartOfValues2_3]
+        pass
+
+    def testExample_DataArrayDouble_setPartOfValues3(self):
+#! [Snippet_DataArrayDouble_setPartOfValues3_1]
+        da=DataArrayDouble.New()
+        da.alloc( 4, 7 )
+        #
+        dv=DataArrayDouble.New();
+        dv.alloc( 6, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+#! [Snippet_DataArrayDouble_setPartOfValues3_1]
+#! [Snippet_DataArrayDouble_setPartOfValues3_2]
+        da.fillWithZero()
+        da[ 0:3, [1,3] ] = dv
+#! [Snippet_DataArrayDouble_setPartOfValues3_2]
+#! [Snippet_DataArrayDouble_setPartOfValues3_3]
+        da.fillWithZero()
+        dv.rearrange( 6 )
+        da[ 0:4:2, [0,2,3,4,5,6]] = dv
+#! [Snippet_DataArrayDouble_setPartOfValues3_3]
+        pass
+
+    def testExample_DataArrayInt_setPartOfValues3(self):
+#! [Snippet_DataArrayInt_setPartOfValues3_1]
+        da=DataArrayInt.New()
+        da.alloc( 4, 7 )
+        #
+        dv=DataArrayInt.New();
+        dv.alloc( 6, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+#! [Snippet_DataArrayInt_setPartOfValues3_1]
+#! [Snippet_DataArrayInt_setPartOfValues3_2]
+        da.fillWithZero()
+        da[ 0:3, [1,3] ] = dv
+#! [Snippet_DataArrayInt_setPartOfValues3_2]
+#! [Snippet_DataArrayInt_setPartOfValues3_3]
+        da.fillWithZero()
+        dv.rearrange( 6 )
+        da[ 0:4:2, [0,2,3,4,5,6]] = dv
+#! [Snippet_DataArrayInt_setPartOfValues3_3]
+        pass
+
+    def testExample_DataArrayDouble_setPartOfValues1(self):
+#! [Snippet_DataArrayDouble_setPartOfValues1_1]
+        da=DataArrayDouble.New()
+        da.alloc( 4, 4 )
+        da.setInfoOnComponents( ["v1","v2","v3","v4"])
+        #
+        dv=DataArrayDouble.New();
+        dv.alloc( 4, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+        dv.setInfoOnComponents( ["a1","a2"])
+#! [Snippet_DataArrayDouble_setPartOfValues1_1]
+#! [Snippet_DataArrayDouble_setPartOfValues1_2]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 1,3,1, 1,3,1, True )
+#! [Snippet_DataArrayDouble_setPartOfValues1_2]
+#! [Snippet_DataArrayDouble_setPartOfValues1_3]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 0,4,1, 1,2,1, False )
+#! [Snippet_DataArrayDouble_setPartOfValues1_3]
+#! [Snippet_DataArrayDouble_setPartOfValues1_4]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 1,2,1, 0,4,1, False )
+#! [Snippet_DataArrayDouble_setPartOfValues1_4]
+#! [Snippet_DataArrayDouble_setPartOfValues1_5]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 0,3,2, 1,4,2, True )
+#! [Snippet_DataArrayDouble_setPartOfValues1_5]
+#! [Snippet_DataArrayDouble_setPartOfValues1_6]
+        da2 = da.deepCpy()
+        da2.fillWithZero()
+        da2[ 0:3:2, 1:4:2 ] = dv
+        self.assertTrue( da.isEqual( da2, 1e-20 ))
+#! [Snippet_DataArrayDouble_setPartOfValues1_6]
+        pass
+
+    def testExample_DataArrayInt_setPartOfValues1(self):
+#! [Snippet_DataArrayInt_setPartOfValues1_1]
+        da=DataArrayInt.New()
+        da.alloc( 4, 4 )
+        da.setInfoOnComponents( ["v1","v2","v3","v4"])
+        #
+        dv=DataArrayInt.New();
+        dv.alloc( 4, 1 )
+        dv.iota(7)
+        dv.rearrange( 2 )
+        dv.setInfoOnComponents( ["a1","a2"])
+#! [Snippet_DataArrayInt_setPartOfValues1_1]
+#! [Snippet_DataArrayInt_setPartOfValues1_2]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 1,3,1, 1,3,1, True )
+#! [Snippet_DataArrayInt_setPartOfValues1_2]
+#! [Snippet_DataArrayInt_setPartOfValues1_3]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 0,4,1, 1,2,1, False )
+#! [Snippet_DataArrayInt_setPartOfValues1_3]
+#! [Snippet_DataArrayInt_setPartOfValues1_4]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 1,2,1, 0,4,1, False )
+#! [Snippet_DataArrayInt_setPartOfValues1_4]
+#! [Snippet_DataArrayInt_setPartOfValues1_5]
+        da.fillWithZero()
+        da.setPartOfValues1( dv, 0,3,2, 1,4,2, True )
+#! [Snippet_DataArrayInt_setPartOfValues1_5]
+#! [Snippet_DataArrayInt_setPartOfValues1_6]
+        da2 = da.deepCpy()
+        da2.fillWithZero()
+        da2[ 0:3:2, 1:4:2 ] = dv
+        self.assertTrue( da.isEqual( da2 ))
+#! [Snippet_DataArrayInt_setPartOfValues1_6]
+        pass
+
+    def testExample_DataArrayDouble_setPartOfValuesSimple1(self):
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_1]
+        da=DataArrayDouble.New()
+        da.alloc( 4, 4 )
+        dv = 7
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_1]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_2]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 1,3,1, 1,3,1 )
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_2]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_3]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 0,4,1, 1,2,1 )
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_3]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_4]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 1,2,1, 0,4,1 )
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_4]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_5]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 0,3,2, 1,4,2 )
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_5]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_6]
+        da2 = da.deepCpy()
+        da2.fillWithZero()
+        da2[ 0:3:2, 1:4:2 ] = dv
+        self.assertTrue( da.isEqual( da2, 1e-20 ))
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple1_6]
+        pass
+
+    def testExample_DataArrayInt_setPartOfValuesSimple1(self):
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_1]
+        da=DataArrayInt.New()
+        da.alloc( 4, 4 )
+        dv = 7
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_1]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_2]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 1,3,1, 1,3,1 )
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_2]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_3]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 0,4,1, 1,2,1 )
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_3]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_4]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 1,2,1, 0,4,1 )
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_4]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_5]
+        da.fillWithZero()
+        da.setPartOfValuesSimple1( dv, 0,3,2, 1,4,2 )
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_5]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_6]
+        da2 = da.deepCpy()
+        da2.fillWithZero()
+        da2[ 0:3:2, 1:4:2 ] = dv
+        self.assertTrue( da.isEqual( da2 ))
+#! [Snippet_DataArrayInt_setPartOfValuesSimple1_6]
+        pass
+
+    def testExample_DataArrayDouble_setPartOfValuesSimple2(self):
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_1]
+        da=DataArrayDouble.New()
+        da.alloc( 4, 4 )
+        dv = 7
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_1]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_2]
+        da.fillWithZero()
+        da[[1,2], [1,2]] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_2]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_3]
+        da.fillWithZero()
+        da[[0,1,2,3], [1]] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_3]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_4]
+        da.fillWithZero()
+        da[[1], [0,1,2,3]] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_4]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_5]
+        da.fillWithZero()
+        da[[0,2], [1,3]] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple2_5]
+        pass
+
+    def testExample_DataArrayInt_setPartOfValuesSimple2(self):
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_1]
+        da=DataArrayInt.New()
+        da.alloc( 4, 4 )
+        dv = 7
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_1]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_2]
+        da.fillWithZero()
+        da[[1,2], [1,2]] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_2]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_3]
+        da.fillWithZero()
+        da[[0,1,2,3], [1]] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_3]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_4]
+        da.fillWithZero()
+        da[[1], [0,1,2,3]] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_4]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_5]
+        da.fillWithZero()
+        da[[0,2], [1,3]] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple2_5]
+        pass
+
+    def testExample_DataArrayDouble_setPartOfValuesSimple3(self):
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_1]
+        da=DataArrayDouble.New()
+        da.alloc( 4, 4 )
+        dv = 7
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_1]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_2]
+        da.fillWithZero()
+        da[[1,2], 1:3] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_2]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_3]
+        da.fillWithZero()
+        da[[0,1,2,3], 1:2] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_3]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_4]
+        da.fillWithZero()
+        da[[1], 0:4] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_4]
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_5]
+        da.fillWithZero()
+        da[[0,2], 1:4:2] = dv
+#! [Snippet_DataArrayDouble_setPartOfValuesSimple3_5]
+        pass
+
+    def testExample_DataArrayInt_setPartOfValuesSimple3(self):
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_1]
+        da=DataArrayInt.New()
+        da.alloc( 4, 4 )
+        dv = 7
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_1]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_2]
+        da.fillWithZero()
+        da[[1,2], 1:3] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_2]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_3]
+        da.fillWithZero()
+        da[[0,1,2,3], 1:2] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_3]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_4]
+        da.fillWithZero()
+        da[[1], 0:4] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_4]
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_5]
+        da.fillWithZero()
+        da[[0,2], 1:4:2] = dv
+#! [Snippet_DataArrayInt_setPartOfValuesSimple3_5]
+        pass
+
+    def testExample_DataArrayDouble_setSelectedComponents(self):
+#! [Snippet_DataArrayDouble_setSelectedComponents1]
+        da=DataArrayDouble.New();
+        array1=[1.,2., 3.,4., 5.,6.]
+        da.setValues(array1,3,2)
+        da.setInfoOnComponents( ["a1","a2"])
+#! [Snippet_DataArrayDouble_setSelectedComponents1]
+#! [Snippet_DataArrayDouble_setSelectedComponents2]
+        dv=DataArrayDouble.New();
+        dv.alloc( 4, 4 )
+        dv.fillWithZero()
+        dv.setInfoOnComponents( ["v1","v2","v3","v4"])
+        dv2 = dv.deepCpy()
+        dv.setSelectedComponents( da, [1,0] )
+#! [Snippet_DataArrayDouble_setSelectedComponents2]
+#! [Snippet_DataArrayDouble_setSelectedComponents3]
+        dv2[:3,[1,0]] = da
+        self.assertTrue( dv.isEqualWithoutConsideringStr( dv2, 1e-20 ))
+#! [Snippet_DataArrayDouble_setSelectedComponents3]
+        pass
+
+    def testExample_DataArrayInt_setSelectedComponents(self):
+#! [Snippet_DataArrayInt_setSelectedComponents1]
+        da=DataArrayInt.New();
+        array1=[1,2, 3,4, 5,6]
+        da.setValues(array1,3,2)
+        da.setInfoOnComponents( ["a1","a2"])
+#! [Snippet_DataArrayInt_setSelectedComponents1]
+#! [Snippet_DataArrayInt_setSelectedComponents2]
+        dv=DataArrayInt.New();
+        dv.alloc( 4, 4 )
+        dv.fillWithZero()
+        dv.setInfoOnComponents( ["v1","v2","v3","v4"])
+        dv2 = dv.deepCpy()
+        dv.setSelectedComponents( da, [1,0] )
+#! [Snippet_DataArrayInt_setSelectedComponents2]
+#! [Snippet_DataArrayInt_setSelectedComponents3]
+        dv2[:3,[1,0]] = da
+        self.assertTrue( dv.isEqualWithoutConsideringStr( dv2 ))
+#! [Snippet_DataArrayInt_setSelectedComponents3]
+        pass
+
+    def testExample_DataArrayDouble_getDifferentValues(self):
+#! [Snippet_DataArrayDouble_getDifferentValues1]
+        da=DataArrayDouble.New();
+        array1=[2.3,1.2,1.3,2.3,2.301,0.8]
+        da.setValues(array1,6,1)
+        #
+        dv=da.getDifferentValues(2e-1);
+        expected2=[2.301,1.3,0.8]
+        self.assertEqual(3,dv.getNbOfElems());
+        for i in xrange(3):
+            self.assertAlmostEqual(expected2[i],dv.getIJ(i,0),14);
+            pass
+#! [Snippet_DataArrayDouble_getDifferentValues1]
+        pass
+
+    def testExample_DataArrayDouble_findCommonTuples1(self):
+#! [PySnippet_DataArrayDouble_findCommonTuples1]
+        da=DataArrayDouble.New();
+        array2=[2.3,2.3, 1.2,1.2, 1.3,1.3, 2.3,2.3, 2.301,2.301, 0.8,0.8]
+        da.setValues(array2,6,2)
+#! [PySnippet_DataArrayDouble_findCommonTuples1]
+#! [PySnippet_DataArrayDouble_findCommonTuples2]
+        c,cI=da.findCommonTuples(1e-1);
+        expected3=[0,3,4,1,2]
+        expected4=[0,3,5]
+        self.assertEqual(expected3,c.getValues())
+        self.assertEqual(expected4,cI.getValues())
+#! [PySnippet_DataArrayDouble_findCommonTuples2]
+        pass
+
+    def testExampleDataArrayDoubleMeldWith(self):
+#! [PySnippet_DataArrayDouble_Meld1_1]
+        da1=DataArrayDouble.New();
+        da1.alloc(7,2);
+        da2=DataArrayDouble.New();
+        da2.alloc(7,1);
+        #
+        da1.fillWithValue(7.);
+        da2.iota(0.);
+        da3=da2.applyFunc(3,"10*x*IVec+100*x*JVec+1000*x*KVec");
+        #
+        da1.setInfoOnComponent(0,"c0da1");
+        da1.setInfoOnComponent(1,"c1da1");
+        da3.setInfoOnComponent(0,"c0da3");
+        da3.setInfoOnComponent(1,"c1da3");
+        da3.setInfoOnComponent(2,"c2da3");
+        #
+        da1C=da1.deepCpy();
+        da1.meldWith(da3);
+#! [PySnippet_DataArrayDouble_Meld1_1]
+
+    def testExampleDataArrayIntMeldWith(self):
+#! [PySnippet_DataArrayInt_Meld1_1]
+        da1=DataArrayInt.New();
+        da1.alloc(7,2);
+        da2=DataArrayInt.New();
+        da2.alloc(7,1);
+        #
+        da1.fillWithValue(7);
+        da2.iota(0);
+        #
+        da1.setInfoOnComponent(0,"c0da1");
+        da1.setInfoOnComponent(1,"c1da1");
+        da2.setInfoOnComponent(0,"c0da2");
+        #
+        da1.meldWith(da2);
+#! [PySnippet_DataArrayInt_Meld1_1]
+
+    def testExampleDataArrayDoubleKeepSelectedComponents1(self):
+#! [SnippeDataArrayDoubleKeepSelectedComponents1_1]
+        arr1=[1.,2.,3.,4.,     # tuple 0
+              11.,12.,13.,14., # tuple 1
+              21.,22.,23.,24., # ...
+              31.,32.,33.,34.,
+              41.,42.,43.,44.]
+        a1=DataArrayDouble.New()
+        a1.setValues(arr1,5,4)
+        a1.setInfoOnComponent(0,"a");
+        a1.setInfoOnComponent(1,"b");
+        a1.setInfoOnComponent(2,"c");
+        a1.setInfoOnComponent(3,"d");
+#! [SnippeDataArrayDoubleKeepSelectedComponents1_1]
+#! [SnippeDataArrayDoubleKeepSelectedComponents1_2]
+        arr2V=[1,2,1,2,0,0]
+        a2=a1.keepSelectedComponents(arr2V)
+#! [SnippeDataArrayDoubleKeepSelectedComponents1_2]
+        pass
+
+    def testExampleDataArrayIntKeepSelectedComponents1(self):
+#! [SnippeDataArrayIntKeepSelectedComponents1_1]
+        arr1=[1,2,3,4,     # tuple 0
+              11,12,13,14, # tuple 1
+              21,22,23,24, # 
+              31,32,33,34,
+              41,42,43,44]
+        a1=DataArrayInt.New()
+        a1.setValues(arr1,5,4)
+        a1.setInfoOnComponent(0,"a");
+        a1.setInfoOnComponent(1,"b");
+        a1.setInfoOnComponent(2,"c");
+        a1.setInfoOnComponent(3,"d");
+#! [SnippeDataArrayIntKeepSelectedComponents1_1]
+#! [SnippeDataArrayIntKeepSelectedComponents1_2]
+        arr2V=[1,2,1,2,0,0]
+        a2=a1.keepSelectedComponents(arr2V)
+#! [SnippeDataArrayIntKeepSelectedComponents1_2]
+#! [SnippeDataArrayIntKeepSelectedComponents1_3]
+        a3=a1[:,arr2V ]
+#! [SnippeDataArrayIntKeepSelectedComponents1_3]
+        pass
+
     def testExampleFieldDoubleBuildSubPart1(self):
         from MEDCouplingDataForTest import MEDCouplingDataForTest
 #! [PySnippetFieldDoubleBuildSubPart1_1]

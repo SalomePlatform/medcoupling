@@ -2190,11 +2190,12 @@ void MEDCouplingBasicsTest3::testGetDifferentValues1()
   const int arr[12]={1,2,3,2,2,3,5,1,5,5,2,2};
   da1->alloc(4,3);
   std::copy(arr,arr+12,da1->getPointer());
-  std::set<int> s=da1->getDifferentValues();
+  DataArrayInt *s=da1->getDifferentValues();
   const int expected1[4]={1,2,3,5};
-  CPPUNIT_ASSERT_EQUAL(4,(int)s.size());
-  CPPUNIT_ASSERT(std::equal(expected1,expected1+4,s.begin()));
+  CPPUNIT_ASSERT_EQUAL(4,s->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+4,s->begin()));
   da1->decrRef();
+  s->decrRef();
 }
 
 void MEDCouplingBasicsTest3::testDAIBuildPermutationArr1()

@@ -24,6 +24,8 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
+#include <set>
+
 using namespace ParaMEDMEM;
 
 MEDFileParameter1TS::MEDFileParameter1TS(int iteration, int order, double time):_iteration(iteration),_order(order),_time(time)

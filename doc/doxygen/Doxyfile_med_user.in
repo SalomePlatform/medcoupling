@@ -71,6 +71,7 @@ WARN_LOGFILE           = log_user
 #---------------------------------------------------------------------------
 INPUT                  = @builddir@ \
 		         @srcdir@ \
+		         @srcdir@/fakesources \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
 			 @srcdir@/../../src/INTERP_KERNEL/Bases \
@@ -91,7 +92,7 @@ FILE_PATTERNS          = MEDMEM_GMesh.* \
 			 OverlapDEC.* \
                          DEC.* \
                          DisjointDEC.* \
-                        MPIProcessorGroup.* \
+                         MPIProcessorGroup.* \
                          StructuredCoincidentDEC.* \
                          ExplicitCoincidentDEC.* \
                          NonCoincidentDEC.* \

@@ -26,6 +26,157 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
 
+void CppExample_DataArrayInt_buildPermutationArr()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayInt_buildPermutationArr_1]
+  DataArrayInt *a=DataArrayInt::New();
+  const int vala[5]={4,5,6,7,8};
+  a->alloc(5,1);
+  std::copy(vala,vala+5,a->getPointer());
+  DataArrayInt *b=DataArrayInt::New();
+  const int valb[5]={5,4,8,6,7};
+  b->alloc(5,1);
+  std::copy(valb,valb+5,b->getPointer());
+  DataArrayInt *c=a->buildPermutationArr(*b);
+  //! [CppSnippet_DataArrayInt_buildPermutationArr_1]
+  const int expect1[5]={1,0,4,2,3};
+  CPPUNIT_ASSERT_EQUAL(5,c->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,c->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expect1,expect1+5,c->getConstPointer()));
+  CPPUNIT_ASSERT(a->isEqualWithoutConsideringStrAndOrder(*b));
+  a->decrRef();
+  b->decrRef();
+  c->decrRef();
+}
+
+void CppExample_DataArrayInt_invertArrayO2N2N2O()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayInt_invertArrayO2N2N2O_1]
+  const int arr1[6]={2,0,4,1,5,3};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(6,1);
+  std::copy(arr1,arr1+6,da->getPointer());
+  DataArrayInt *da2=da->invertArrayO2N2N2O(6);
+  const int expected1[6]={1,3,0,5,2,4};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(i,0));
+  //! [CppSnippet_DataArrayInt_invertArrayO2N2N2O_1]
+  da->decrRef();
+  da2->decrRef();
+}
+
+void CppExample_DataArrayInt_invertArrayN2O2O2N()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayInt_invertArrayN2O2O2N_1]
+  const int arr1[6]={2,0,4,1,5,3};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(6,1);
+  std::copy(arr1,arr1+6,da->getPointer());
+  DataArrayInt *da2=da->invertArrayN2O2O2N(6);
+  const int expected1[6]={1,3,0,5,2,4};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(i,0));
+  //! [CppSnippet_DataArrayInt_invertArrayN2O2O2N_1]
+  da->decrRef();
+  da2->decrRef();
+}
+
+void CppExample_DataArrayDouble_getIdsInRange()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayDouble_getIdsInRange_1]
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(10,1);
+  da->iota();
+
+  DataArrayInt* da2 = da->getIdsInRange( 2.5, 6 );
+  //! [CppSnippet_DataArrayDouble_getIdsInRange_1]
+  da->decrRef();
+  da2->decrRef();
+}
+
+void CppExample_DataArrayDouble_findCommonTuples()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayDouble_findCommonTuples1]
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(6,2);
+  const double array2[12]={2.3,2.3, // 0
+                           1.2,1.2, // 1
+                           1.3,1.3, // 2
+                           2.3,2.3, // 3
+                           2.301,   // 4
+                           2.301,   // 5
+                           0.8,0.8};// 6
+  std::copy(array2,array2+12,da->getPointer());
+  //! [CppSnippet_DataArrayDouble_findCommonTuples1]
+  //! [CppSnippet_DataArrayDouble_findCommonTuples2]
+  DataArrayInt *c=0,*cI=0;
+  da->findCommonTuples(1e-1,-1,c,cI);
+
+  const int expected3[5]={0,3,4,1,2};
+  const int expected4[3]={0,3,5};
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  da->decrRef();
+  //! [CppSnippet_DataArrayDouble_findCommonTuples2]
+}
+
+void CppExample_DataArrayDouble_Meld1()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayDouble_Meld1_1]
+  const int sameNbTuples = 7;
+
+  DataArrayDouble *da1=DataArrayDouble::New();
+  da1->alloc(sameNbTuples,2);
+  da1->fillWithValue(7.);
+  da1->setInfoOnComponent(0,"c0da1");
+  da1->setInfoOnComponent(1,"c1da1");
+
+  DataArrayDouble *da2=DataArrayDouble::New();
+  da2->alloc(sameNbTuples,1);
+  da2->iota(0.);
+  da2->setInfoOnComponent(0,"c0da2");
+
+  da1->meldWith(da2);
+  //! [CppSnippet_DataArrayDouble_Meld1_1]
+  //! [CppSnippet_DataArrayDouble_Meld1_2]
+  da1->decrRef();
+  da2->decrRef();
+  //! [CppSnippet_DataArrayDouble_Meld1_2]
+}
+
+void CppExample_DataArrayInt_Meld1()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_DataArrayInt_Meld1_1]
+  const int sameNbTuples = 7;
+
+  DataArrayInt *da1=DataArrayInt::New();
+  da1->alloc(sameNbTuples,2);
+  da1->fillWithValue(7);
+  da1->setInfoOnComponent(0,"c0da1");
+  da1->setInfoOnComponent(1,"c1da1");
+
+  DataArrayInt *da2=DataArrayInt::New();
+  da2->alloc(sameNbTuples,1);
+  da2->iota(0);
+  da2->setInfoOnComponent(0,"c0da2");
+
+  da1->meldWith(da2);
+  //! [CppSnippet_DataArrayInt_Meld1_1]
+  //! [CppSnippet_DataArrayInt_Meld1_2]
+  da1->decrRef();
+  da2->decrRef();
+  //! [CppSnippet_DataArrayInt_Meld1_2]
+}
+
 void CppExampleFieldDoubleBuildSubPart1()
 {
   //! [CppSnippetFieldDoubleBuildSubPart1_1]
@@ -221,7 +372,7 @@ void CppSnippetDataArrayBuild1()
   myCoords->useArray(coords,false,ParaMEDMEM::CPP_DEALLOC,nbOfNodes,3);
   //now use myCoords as you need
   //...
-  //myCoords is no more usefully here : release it
+  //myCoords is no more useful here : release it
   myCoords->decrRef();
   //! [CppSnippetDataArrayBuild1_1]
   //! [CppSnippetDataArrayBuild1_2]
@@ -231,7 +382,7 @@ void CppSnippetDataArrayBuild1()
   myCoords->useArray(tmp,true,ParaMEDMEM::CPP_DEALLOC,nbOfNodes,3);
   //now use myCoords as you need
   //...
-  //myCoords is no more usefully, release it
+  //myCoords is no more useful, release it
   myCoords->decrRef();
   //! [CppSnippetDataArrayBuild1_2]
   //! [CppSnippetDataArrayBuild1_3]
@@ -241,7 +392,7 @@ void CppSnippetDataArrayBuild1()
   myCoords->useArray(tmp,true,ParaMEDMEM::C_DEALLOC,nbOfNodes,3);
   //now use myCoords as you need
   //...
-  //myCoords is no more usefully here : release it
+  //myCoords is no more useful here : release it
   myCoords->decrRef();
   //! [CppSnippetDataArrayBuild1_3]
   //! [CppSnippetDataArrayBuild1_4]
@@ -252,7 +403,7 @@ void CppSnippetDataArrayBuild1()
   myCoords->declareAsNew();//you have modified data pointed by internal pointer notify object
   //now use myCoords as you need
   //...
-  //myCoords is no more usefully here : release it
+  //myCoords is no more useful here : release it
   myCoords->decrRef();
   //! [CppSnippetDataArrayBuild1_4]
   myCoords=ParaMEDMEM::DataArrayDouble::New();
@@ -304,6 +455,7 @@ void CppSnippetDataArrayBuild1()
   myCoordsCpy->decrRef();
   //! [CppSnippetDataArrayBuild1_14]
   myCoords->decrRef();
+  //! [CppSnippetDataArrayBuild1_14]
 }
 
 void CppSnippetFieldDoubleBuild1()
@@ -326,7 +478,7 @@ void CppSnippetFieldDoubleBuild1()
   array->decrRef();
   // fieldOnCells is now usable
   // ...
-  // fieldOnCells is no more usefully here : release it
+  // fieldOnCells is no more useful here : release it
   fieldOnCells->decrRef();
   //! [CppSnippetFieldDoubleBuild1_1]
   arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
@@ -348,7 +500,7 @@ void CppSnippetFieldDoubleBuild1()
   //! [CppSnippetFieldDoubleBuild1_2]
   mesh->decrRef();
   //! [CppSnippetFieldDoubleBuild1_3]
-  // f1, f2, f2bis, f3, f4, f5 are no more usefully here : release them
+  // f1, f2, f2bis, f3, f4, f5 are no more useful here : release them
   f1->decrRef();
   f2->decrRef();
   f2bis->decrRef();
@@ -378,7 +530,7 @@ void CppSnippetFieldDoubleBuild2()
   array->decrRef();
   // fieldOnNodes is now usable
   // ...
-  // fieldOnNodes is no more usefully here : release it
+  // fieldOnNodes is no more useful here : release it
   fieldOnNodes->decrRef();
   //! [CppSnippetFieldDoubleBuild2_1]
 }
@@ -405,7 +557,7 @@ void CppSnippetFieldDoubleBuild3()
   array->decrRef();
   // fieldOnCells is now usable
   // ...
-  // fieldOnCells is no more usefully here : release it
+  // fieldOnCells is no more useful here : release it
   fieldOnCells->decrRef();
   //! [CppSnippetFieldDoubleBuild3_1]
 }
@@ -433,13 +585,19 @@ void CppSnippetFieldDoubleBuild4()
   array->decrRef();
   // fieldOnNodes is now usable
   // ...
-  // fieldOnNodes is no more usefully here : release it
+  // fieldOnNodes is no more useful here : release it
   fieldOnNodes->decrRef();
   //! [CppSnippetFieldDoubleBuild4_1]
 }
 
 int main(int argc, char *argv[])
 {
+  CppExample_DataArrayInt_buildPermutationArr();
+  CppExample_DataArrayInt_invertArrayO2N2N2O();
+  CppExample_DataArrayInt_invertArrayN2O2O2N();
+  CppExample_DataArrayDouble_getIdsInRange();
+  CppExample_DataArrayDouble_findCommonTuples();
+  CppExample_DataArrayDouble_Meld1();
   CppExampleFieldDoubleBuildSubPart1();
   CppSnippetUMeshStdBuild1();
   CppSnippetUMeshAdvBuild1();

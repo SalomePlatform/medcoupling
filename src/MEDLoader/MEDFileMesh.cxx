@@ -660,9 +660,9 @@ void MEDFileMesh::createGroupOnAll(int meshDimRelToMaxExt, const char *groupName
   const DataArrayInt *fieldFamIds=getFamilyFieldAtLevel(meshDimRelToMaxExt);
   if(fieldFamIds==0)
     throw INTERP_KERNEL::Exception("MEDFileMesh::createGroupOnAll : Family field arr ids is not defined for this level !");
-  std::set<int> famIds=fieldFamIds->getDifferentValues();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famIds=fieldFamIds->getDifferentValues();
   std::vector<std::string> familiesOnWholeGroup;
-  for(std::set<int>::const_iterator it=famIds.begin();it!=famIds.end();it++)
+  for(const int *it=famIds->begin();it!=famIds->end();it++)
     {
       bool tmp;
       familiesOnWholeGroup.push_back(findOrCreateAndGiveFamilyWithId(*it,tmp));
@@ -694,9 +694,9 @@ bool MEDFileMesh::keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std
       const DataArrayInt *fieldFamIds=getFamilyFieldAtLevel(*it);
       if(fieldFamIds)
         {
-          std::set<int> famIds3=fieldFamIds->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famIds3=fieldFamIds->getDifferentValues();
           std::vector<int> tmp;
-          std::set_intersection(famIds3.begin(),famIds3.end(),famIds2.begin(),famIds2.end(),std::back_insert_iterator< std::vector<int> >(tmp));
+          std::set_intersection(famIds3->begin(),famIds3->end(),famIds2.begin(),famIds2.end(),std::back_insert_iterator< std::vector<int> >(tmp));
           for(std::vector<int>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
             {
               ret=false;
@@ -940,13 +940,13 @@ bool MEDFileMesh::ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception
       const DataArrayInt *fam=getFamilyFieldAtLevel(*it);
       if(fam)
         {
-          std::set<int> tmp=fam->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=fam->getDifferentValues();
           std::set<int> r2;
-          std::set_intersection(tmp.begin(),tmp.end(),allFamIds.begin(),allFamIds.end(),std::inserter(r2,r2.end()));
+          std::set_intersection(tmp->begin(),tmp->end(),allFamIds.begin(),allFamIds.end(),std::inserter(r2,r2.end()));
           if(!r2.empty())
             famIdsToRenum[*it].insert(famIdsToRenum[*it].end(),r2.begin(),r2.end());
           std::set<int> r3;
-          std::set_union(tmp.begin(),tmp.end(),allFamIds.begin(),allFamIds.end(),std::inserter(r3,r3.end()));
+          std::set_union(tmp->begin(),tmp->end(),allFamIds.begin(),allFamIds.end(),std::inserter(r3,r3.end()));
         }
     }
   if(famIdsToRenum.empty())
@@ -999,15 +999,15 @@ void MEDFileMesh::normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception)
       if(fam)
         {
           int refId=1;
-          std::set<int> tmp=fam->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=fam->getDifferentValues();
           std::map<int,int> ren;
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId++)
+          for(const int *it=tmp->begin();it!=tmp->end();it++,refId++)
             ren[*it]=refId;
           int nbOfTuples=fam->getNumberOfTuples();
           int *start=const_cast<DataArrayInt *>(fam)->getPointer();
           for(int *w=start;w!=start+nbOfTuples;w++)
             *w=ren[*w];
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+          for(const int *it=tmp->begin();it!=tmp->end();it++)
             {
               if(allIds->presenceOfValue(*it))
                 {
@@ -1025,15 +1025,15 @@ void MEDFileMesh::normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception)
       if(fam)
         {
           int refId=-1;
-          std::set<int> tmp=fam->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=fam->getDifferentValues();
           std::map<int,int> ren;
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId--)
+          for(const int *it=tmp->begin();it!=tmp->end();it++,refId--)
             ren[*it]=refId;
           int nbOfTuples=fam->getNumberOfTuples();
           int *start=const_cast<DataArrayInt *>(fam)->getPointer();
           for(int *w=start;w!=start+nbOfTuples;w++)
             *w=ren[*w];
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+          for(const int *it=tmp->begin();it!=tmp->end();it++)
             {
               if(allIds->presenceOfValue(*it))
                 {
@@ -1049,9 +1049,9 @@ void MEDFileMesh::normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception)
       DataArrayInt *fam=const_cast<DataArrayInt*>(getFamilyFieldAtLevel(*it2));
       if(fam)
         {
-          std::set<int> tmp=fam->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=fam->getDifferentValues();
           fam->fillWithZero();
-          for(std::set<int>::const_iterator it3=tmp.begin();it3!=tmp.end();it3++)
+          for(const int *it3=tmp->begin();it3!=tmp->end();it3++)
             if(allIds->presenceOfValue(*it3))
               {
                 std::string famName=getFamilyNameGivenId(*it3);
@@ -1091,15 +1091,15 @@ void MEDFileMesh::normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception)
       const DataArrayInt *fam=getFamilyFieldAtLevel(1);
       if(fam)
         {
-          std::set<int> tmp=fam->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=fam->getDifferentValues();
           std::map<int,int> ren;
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId++)
+          for(const int *it=tmp->begin();it!=tmp->end();it++,refId++)
             ren[*it]=refId;
           int nbOfTuples=fam->getNumberOfTuples();
           int *start=const_cast<DataArrayInt *>(fam)->getPointer();
           for(int *w=start;w!=start+nbOfTuples;w++)
             *w=ren[*w];
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+          for(const int *it=tmp->begin();it!=tmp->end();it++)
             {
               if(allIds->presenceOfValue(*it))
                 {
@@ -1116,15 +1116,15 @@ void MEDFileMesh::normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception)
       const DataArrayInt *fam=getFamilyFieldAtLevel(1);
       if(fam)
         {
-          std::set<int> tmp=fam->getDifferentValues();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=fam->getDifferentValues();
           std::map<int,int> ren;
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId--)
+          for(const int *it=tmp->begin();it!=tmp->end();it++,refId--)
             ren[*it]=refId;
           int nbOfTuples=fam->getNumberOfTuples();
           int *start=const_cast<DataArrayInt *>(fam)->getPointer();
           for(int *w=start;w!=start+nbOfTuples;w++)
             *w=ren[*w];
-          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+          for(const int *it=tmp->begin();it!=tmp->end();it++)
             {
               if(allIds->presenceOfValue(*it))
                 {
@@ -1257,7 +1257,7 @@ void MEDFileMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<con
   if(!_families.empty())
     offset=getMaxFamilyId()+1;
   TranslateFamilyIds(offset,fam,fidsOfGroups);
-  std::set<int> ids=fam->getDifferentValues();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=fam->getDifferentValues();
   appendFamilyEntries(ids,fidsOfGroups,grpsName2);
   setFamilyFieldArr(meshDimRelToMaxExt,fam);
 }
@@ -1267,10 +1267,10 @@ void MEDFileMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<con
  * not in '_families'. Groups information are given in parameters in order to give to families representative names.
  * For the moment, the two last input parameters are not taken into account.
  */
-void MEDFileMesh::appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames)
+void MEDFileMesh::appendFamilyEntries(const DataArrayInt *famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames)
 {
   std::map<int,std::string> famInv;
-  for(std::set<int>::const_iterator it=famIds.begin();it!=famIds.end();it++)
+  for(const int *it=famIds->begin();it!=famIds->end();it++)
     {
       std::ostringstream oss;
       oss << "Family_" << (*it);
@@ -2175,9 +2175,9 @@ void MEDFileUMesh::optimizeFamilies() throw(INTERP_KERNEL::Exception)
   for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
     {
       const DataArrayInt *ffield=getFamilyFieldAtLevel(*it);
-      std::set<int> ids=ffield->getDifferentValues();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=ffield->getDifferentValues();
       std::set<int> res;
-      std::set_union(ids.begin(),ids.end(),allFamsIds.begin(),allFamsIds.end(),std::inserter(res,res.begin()));
+      std::set_union(ids->begin(),ids->end(),allFamsIds.begin(),allFamsIds.end(),std::inserter(res,res.begin()));
       allFamsIds=res;
     }
   std::set<std::string> famNamesToKill;
@@ -2474,7 +2474,7 @@ void MEDFileUMesh::addGroupUnderground(const DataArrayInt *ids, DataArrayInt *fa
   std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > allFamIds=getAllNonNullFamilyIds();
   allFamIds.erase(std::find(allFamIds.begin(),allFamIds.end(),famArrTmp));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famIds=famArr->selectByTupleIdSafe(ids->begin(),ids->end());
-  std::set<int> diffFamIds=famIds->getDifferentValues();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diffFamIds=famIds->getDifferentValues();
   std::vector<int> familyIds;
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerfamiliyIds;
   int maxVal=getTheMaxFamilyId()+1;
@@ -2482,7 +2482,7 @@ void MEDFileUMesh::addGroupUnderground(const DataArrayInt *ids, DataArrayInt *fa
   std::map<std::string, std::vector<std::string> > groups(_groups);
   std::vector<std::string> fams;
   bool created(false);
-  for(std::set<int>::const_iterator famId=diffFamIds.begin();famId!=diffFamIds.end();famId++)
+  for(const int *famId=diffFamIds->begin();famId!=diffFamIds->end();famId++)
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2Tmp=famIds->getIdsEqual(*famId);
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=ids->selectByTupleId(ids2Tmp->begin(),ids2Tmp->end());

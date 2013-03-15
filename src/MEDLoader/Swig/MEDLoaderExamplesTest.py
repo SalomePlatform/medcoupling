@@ -167,7 +167,7 @@ class MEDLoaderBasicsTest(unittest.TestCase):
 #! [PySnippetMeshAdvAPI1_2]
         self.assertTrue(isinstance(myMesh,MEDCouplingUMesh))
         myMesh.setName(meshName)
-        MEDLoader.WriteUMesh("wFile1.med",myMesh,True)
+        MEDLoader.WriteUMesh("wFile1.med",myMesh,False)
 #! [PySnippetMeshAdvAPI1_2]
         f=myMesh.getMeasureField(ON_CELLS)
         f=f.buildNewTimeReprFromThis(ONE_TIME,False)

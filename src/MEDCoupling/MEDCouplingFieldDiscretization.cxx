@@ -101,7 +101,7 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
     }
 }
 
-TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception)
+TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception)
 {
   std::string reprCpp(repr);
   if(reprCpp==MEDCouplingFieldDiscretizationP0::REPR)
@@ -399,7 +399,7 @@ bool MEDCouplingFieldDiscretizationP0::isEqualIfNotWhy(const MEDCouplingFieldDis
   return ret;
 }
 
-int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
   return mesh->getNumberOfCells();
 }
@@ -555,7 +555,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const MEDCou
   return ret;
 }
 
-int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
   return mesh->getNumberOfNodes();
 }
@@ -988,9 +988,11 @@ const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
   return REPR;
 }
 
-int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const throw(INTERP_KERNEL::Exception)
 {
   int ret=0;
+  if (_discr_per_cell == 0)
+    throw INTERP_KERNEL::Exception("Discretization is not initialized!");
   const int *dcPtr=_discr_per_cell->getConstPointer();
   int nbOfTuples=_discr_per_cell->getNumberOfTuples();
   for(const int *w=dcPtr;w!=dcPtr+nbOfTuples;w++)
@@ -1446,7 +1448,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellFie
 /*!
  * This method makes the assumption that _discr_per_cell is set.
  * This method reduces as much as possible number size of _loc.
- * This method is usefull when several set on same cells has been done and that some Gauss Localization are no more used.
+ * This method is useful when several set on same cells has been done and that some Gauss Localization are no more used.
  */
 void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
 {
@@ -1476,7 +1478,7 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
 }
 
 /*!
- * This method is usefull when 'this' describes a field discretization with several gauss discretization on a \b same cell type.
+ * This method is useful when 'this' describes a field discretization with several gauss discretization on a \b same cell type.
  * For example same NORM_TRI3 cells having 6 gauss points and others with 12 gauss points.
  * This method returns 2 arrays with same size : the return value and 'locIds' output parameter.
  * For a given i into [0,locIds.size) ret[i] represents the set of cell ids of i_th set an locIds[i] represents the set of discretisation of the set.
@@ -1525,7 +1527,7 @@ bool MEDCouplingFieldDiscretizationGaussNE::isEqualIfNotWhy(const MEDCouplingFie
   return ret;
 }
 
-int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
   int ret=0;
   int nbOfCells=mesh->getNumberOfCells();
@@ -1602,6 +1604,9 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscVal
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+/*!
+ * Reimplemented from MEDCouplingFieldDiscretization::integral for performance reason. The default implementation is valid too for GAUSS_NE spatial discretization.
+ */
 void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
 {
   if(!mesh || !arr)
@@ -1609,7 +1614,7 @@ void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh
   int nbOfCompo=arr->getNumberOfComponents();
   std::fill(res,res+nbOfCompo,0.);
   //
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=getMeasureField(mesh,isWAbs);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isWAbs);
   std::set<INTERP_KERNEL::NormalizedCellType> types=mesh->getAllGeoTypes();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
   nbOfNodesPerCell->computeOffsets2();
@@ -1723,7 +1728,35 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getMeasureField(c
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getMeasureField : mesh instance specified is NULL !");
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isAbs);
+  const double *volPtr=vol->getArray()->begin();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_NE);
+  ret->setMesh(mesh);
+  //
+  std::set<INTERP_KERNEL::NormalizedCellType> types=mesh->getAllGeoTypes();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
+  int nbTuples=nbOfNodesPerCell->accumulate(0);
+  nbOfNodesPerCell->computeOffsets2();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(nbTuples,1);
+  ret->setArray(arr);
+  double *arrPtr=arr->getPointer();
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=types.begin();it!=types.end();it++)
+    {
+      std::size_t wArrSz=-1;
+      const double *wArr=GetWeightArrayFromGeometricType(*it,wArrSz);
+      INTERP_KERNEL::AutoPtr<double> wArr2=new double[wArrSz];
+      double sum=std::accumulate(wArr,wArr+wArrSz,0.);
+      std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind2nd(std::multiplies<double>(),1./sum));      
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=mesh->giveCellsWithType(*it);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
+      const int *ptIds2=ids2->begin(),*ptIds=ids->begin();
+      int nbOfCellsWithCurGeoType=ids->getNumberOfTuples();
+      for(int i=0;i<nbOfCellsWithCurGeoType;i++,ptIds++)
+        for(std::size_t j=0;j<wArrSz;j++,ptIds2++)
+          arrPtr[*ptIds2]=wArr2[j]*volPtr[*ptIds];
+    }
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const

@@ -275,7 +275,9 @@ namespace ParaMEDMEM
     DataArrayInt *convertLinearCellsToQuadratic1D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertLinearCellsToQuadratic2DAnd3D0(const MEDCouplingUMesh *m1D, const DataArrayInt *desc, const DataArrayInt *descI, DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertLinearCellsToQuadratic2D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertLinearCellsToQuadratic2D1(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertLinearCellsToQuadratic3D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertLinearCellsToQuadratic3D1(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;

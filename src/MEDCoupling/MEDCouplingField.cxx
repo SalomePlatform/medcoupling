@@ -344,14 +344,18 @@ MEDCouplingField::MEDCouplingField(TypeOfField type):_nature(NoNature),_mesh(0),
 {
 }
 
-MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):RefCountObject(other),_name(other._name),_desc(other._desc),_nature(other._nature),
-                                                                  _mesh(0),_type(other._type->clone())
+MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy):RefCountObject(other),_name(other._name),_desc(other._desc),_nature(other._nature),
+                                                                                 _mesh(0),_type(0)
 {
   if(other._mesh)
     {
       _mesh=other._mesh;
       _mesh->incrRef();
     }
+  if(deepCopy)
+    _type=other._type->clone();
+  else
+    _type=other._type;
 }
 
 /*!

@@ -400,6 +400,10 @@ void MEDCouplingPointSet::rotate(const double *center, const double *vector, dou
  */
 void MEDCouplingPointSet::translate(const double *vector)
 {
+  if(!vector)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::translate : NULL input vector !");
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::translate : no coordinates set !");
   double *coords=_coords->getPointer();
   int nbNodes=getNumberOfNodes();
   int dim=getSpaceDimension();
@@ -417,6 +421,10 @@ void MEDCouplingPointSet::translate(const double *vector)
  */
 void MEDCouplingPointSet::scale(const double *point, double factor)
 {
+  if(!point)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::scale : NULL input point !");
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::scale : no coordinates set !");
   double *coords=_coords->getPointer();
   int nbNodes=getNumberOfNodes();
   int dim=getSpaceDimension();
@@ -803,6 +811,8 @@ void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, 
   double matrix[9];
   double matrixTmp[9];
   double norm=sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]);
+  if(norm<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::Rotate3DAlg : magnitude of input vector is too close of 0. !");
   std::transform(vect,vect+3,vectorNorm,std::bind2nd(std::multiplies<double>(),1/norm));
   //rotation matrix computation
   matrix[0]=cosa; matrix[1]=0.; matrix[2]=0.; matrix[3]=0.; matrix[4]=cosa; matrix[5]=0.; matrix[6]=0.; matrix[7]=0.; matrix[8]=cosa;
@@ -843,7 +853,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end
  * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end') \b and potentially reduces the nodes set
  * behind returned mesh. This cause an overhead but it is lesser in memory.
  * This method returns an array too. This array allows to the caller to know the mapping between nodeids in 'this' and nodeids in 
- * returned mesh. This is quite usefull for MEDCouplingFieldDouble on nodes for example...
+ * returned mesh. This is quite useful for MEDCouplingFieldDouble on nodes for example...
  * 'arr' is in old2New format of size ret->getNumberOfCells like MEDCouplingUMesh::zipCoordsTraducer is.
  * The returned mesh has to be managed by the caller.
  */

@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
   }
 
   template<class TrueMainInterpolator>
-  void Interpolation<TrueMainInterpolator>::checkAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception)
+  void Interpolation<TrueMainInterpolator>::CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception)
   {
     const int NB_OF_METH_MANAGED=4;
     const char *METH_MANAGED[NB_OF_METH_MANAGED]={"P0P0","P0P1","P1P0","P1P1"};
@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
       found=(methodC==METH_MANAGED[i]);
     if(!found)
       {
-        std::string msg("The interpolation method : \'"); msg+=method; msg+="\' not managed !";
+        std::string msg("The interpolation method : \'"); msg+=method; msg+="\' not managed by INTERP_KERNEL interpolators ! Supported are \"P0P0\", \"P0P1\", \"P1P0\" and \"P1P1\".";
         throw INTERP_KERNEL::Exception(msg.c_str());
       }
     srcMeth=methodC.substr(0,2);

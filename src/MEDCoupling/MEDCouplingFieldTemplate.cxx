@@ -27,7 +27,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception)
 {
   return new MEDCouplingFieldTemplate(f);
 }
@@ -40,8 +40,9 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(TypeOfField type)
   return new MEDCouplingFieldTemplate(type);
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception):MEDCouplingField(*f) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception):MEDCouplingField(f,false) 
 {
+  forceTimeOfThis(f);
   checkCoherency();
 }
 

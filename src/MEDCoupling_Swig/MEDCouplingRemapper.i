@@ -42,6 +42,14 @@ using namespace INTERP_KERNEL;
 
 namespace ParaMEDMEM
 {
+  typedef enum
+    {
+      IK_ONLY_PREFERED = 0,
+      NOT_IK_ONLY_PREFERED = 1,
+      IK_ONLY_FORCED = 2,
+      NOT_IK_ONLY_FORCED =3
+    } InterpolationMatrixPolicy;
+
   class MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
     {
     private:
@@ -56,16 +64,18 @@ namespace ParaMEDMEM
       void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
       MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception);
       MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
-      bool setOptionInt(const std::string& key, int value);
-      bool setOptionDouble(const std::string& key, double value);
-      bool setOptionString(const std::string& key, const std::string& value);
+      bool setOptionInt(const std::string& key, int value) throw(INTERP_KERNEL::Exception);
+      bool setOptionDouble(const std::string& key, double value) throw(INTERP_KERNEL::Exception);
+      bool setOptionString(const std::string& key, const std::string& value) throw(INTERP_KERNEL::Exception);
+      int getInterpolationMatrixPolicy() const throw(INTERP_KERNEL::Exception);
+      void setInterpolationMatrixPolicy(int newInterpMatPol) throw(INTERP_KERNEL::Exception);
       //
       int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception);
       int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception);
       double getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception);
       %extend
          {
-           PyObject *getCrudeMatrix() const
+           PyObject *getCrudeMatrix() const throw(INTERP_KERNEL::Exception)
            {
              const std::vector<std::map<int,double> >& m=self->getCrudeMatrix();
              std::size_t sz=m.size();

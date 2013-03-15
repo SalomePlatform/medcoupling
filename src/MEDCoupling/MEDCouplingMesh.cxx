@@ -110,6 +110,7 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const t
  * This method checks geo equivalence between two meshes : 'this' and 'other'.
  * If no exception is throw 'this' and 'other' are geometrically equivalent regarding 'levOfCheck' level.
  * This method is typically used to change the mesh of a field "safely" depending the 'levOfCheck' level considered.
+ * So in case of success cell \c other[i] is equal to cell \c this[cellCor[i]]. If \a cellCor is null it means that for all i cell \c other[i] is equal to cell \c this[i].
  * 
  * @param levOfCheck input that specifies the level of check specified. The possible values are listed below.
  * @param prec input that specifies precision for double float data used for comparison in meshes.

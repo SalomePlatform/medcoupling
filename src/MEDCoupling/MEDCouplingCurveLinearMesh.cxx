@@ -638,6 +638,8 @@ void MEDCouplingCurveLinearMesh::rotate(const double *center, const double *vect
 
 void MEDCouplingCurveLinearMesh::translate(const double *vector)
 {
+  if(!vector)
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::translate : NULL input point !");
   if(!((DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::translate : no coordinates set !");
   double *coords=_coords->getPointer();
@@ -652,6 +654,8 @@ void MEDCouplingCurveLinearMesh::translate(const double *vector)
 
 void MEDCouplingCurveLinearMesh::scale(const double *point, double factor)
 {
+  if(!point)
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::scale : NULL input point !");
   if(!((DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::scale : no coordinates set !");
   double *coords=_coords->getPointer();

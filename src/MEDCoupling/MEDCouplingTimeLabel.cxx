@@ -48,3 +48,12 @@ void TimeLabel::updateTimeWith(const TimeLabel& other) const
   if(_time<other._time)
     _time=other._time;
 }
+
+/*!
+ * This method has to be called with a lot of care. It set agressively the time in this with the
+ * time in \a other.
+ */
+void TimeLabel::forceTimeOfThis(const TimeLabel& other) const
+{
+  _time=other._time;
+}

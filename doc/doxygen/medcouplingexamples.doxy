@@ -1,11 +1,708 @@
 /*!
 \page medcouplingcppexamples <br><h1> MEDCoupling C++ examples </h1>
 
+
+\anchor cpp_mcdataarrayint_
+<br><h2>  </h2>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_
+\snippet MEDCouplingExamplesTest.py PySnippet_DataArrayInt_
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_
+
+
+\anchor cpp_mcdataarrayint_getTuple
+<br><h2> Getting a tuple of DataArrayInt </h2>
+
+In this simple example we create an array of integers arranged into 3
+tuples per 2 components, and finally print the second tuple.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_getTuple_1
+The output is
+<pre> [9, 10] </pre>
+Note that we can traverse all tuples in the array by simply iterating
+over it as the code below does.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_getTuple_2
+Its output follows.
+<pre>
+(7, 8)
+(9, 10)
+(11, 12)
+</pre>
+
+\anchor cpp_mcdataarrayint_buildpermutationarr
+<br><h2> Building a permutation array </h2>
+
+Here we create two arrays containing same values but in different order and then we use
+\ref ParaMEDMEM::DataArrayInt::buildPermutationArr "DataArrayInt::buildPermutationArr()" to get
+an array showing in what places the values of \b b array are located in \b a array.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_buildPermutationArr_1
+The result array \b c contains [1,0,4,2,3].
+
+<br><h2> Inverting renumbering maps </h2>
+\anchor cpp_mcdataarrayint_invertarrayo2n2n2o
+<h3> invertArrayO2N2N2O() </h3>
+
+In this example we create a DataArrayInt containing a renumbering map in 
+"Old to New" mode, convert it into the renumbering map in "New to Old" mode and check the
+result.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_invertArrayO2N2N2O_1
+
+\anchor cpp_mcdataarrayint_invertarrayn2o2o2n
+<br><h3> invertArrayN2O2O2N() </h3>
+
+In this example we create a DataArrayInt containing a renumbering map in 
+"New to Old" mode, convert it into the renumbering map in "Old to New" mode and check the
+result.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_invertArrayN2O2O2N_1
+
+
+
+\anchor cpp_mcdataarraydouble_getidsinrange
+<br><h2> Finding values in range in  DataArrayDouble</h2>
+
+In this example we create an array \b da containing same values as ones returned by
+\c range( \c 10 ). Then we get an array of indices of values of \b da being in
+range [ 2.5, 6 ].
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayDouble_getIdsInRange_1
+As result contents of the array \b da2 are as follows.
+<pre>
+    Tuple #0 : 3
+    Tuple #1 : 4
+    Tuple #2 : 5
+    Tuple #3 : 6
+</pre>
+
+
+\anchor cpp_mcdataarraydouble_setselectedcomponents
+<br><h2> Set part of values of DataArrayDouble </h2>
+<h3> setSelectedComponents() </h3>
+First, we create a 'source' array.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setSelectedComponents1
+Now we create a larger zero array and assign the array \b da into it.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setSelectedComponents2
+As result contents of the array \b dv are as follows.
+<pre>
+Info of components : "a2"   "a1"   "v3"   "v4"   
+    Tuple #0 : 2 1 0 0 
+    Tuple #1 : 4 3 0 0 
+    Tuple #2 : 6 5 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+The same result can be achieved other way (except that component info
+is not copied):
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setSelectedComponents3
+
+\anchor cpp_mcdataarraydouble_setpartofvalues1
+<br><h3> setPartOfValues1() </h3>
+We create two arrays: 
+- a "large" (4x4) zero array \b da to assign to and
+- a smaller (2x2) array \b dv filled with values [7.,8.,9.,10].
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_1
+Now we copy \b dv to the middle of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_2
+As result contents of the array \b da are as follows.
+<pre>
+    Info of components :"v1"   "v2"   "v3"   "v4"
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 8 0 
+    Tuple #2 : 0 9 10 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and copy \b dv into a component of \b da.
+
+Note that the last parameter \a strictCompoCompare should be \a False
+in this case, else \ref ParaMEDMEM::DataArrayDouble::setPartOfValues1() 
+throws an exception because \b da has 2 components but only one target
+component is specified.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 8 0 0 
+    Tuple #2 : 0 9 0 0 
+    Tuple #3 : 0 10 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 8 9 10 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_5
+<pre>
+    Tuple #0 : 0 7 0 8 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 9 0 10 
+    Tuple #3 : 0 0 0 0 
+</pre>
+The same result can be achieved other way:
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_6
+
+
+
+\anchor cpp_mcdataarraydouble_setpartofvaluessimple1
+<br><h3> setPartOfValuesSimple1() </h3>
+We create an array (4x4) \b da to assign to and define a value \b dv to assign.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_1
+Now we assign \b dv to the middle of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 7 0 
+    Tuple #2 : 0 7 7 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and assign \b dv to a component of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 7 0 0 
+    Tuple #2 : 0 7 0 0 
+    Tuple #3 : 0 7 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 7 7 7 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_5
+<pre>
+    Tuple #0 : 0 7 0 7 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 7 0 7 
+    Tuple #3 : 0 0 0 0 
+</pre>
+The same result can be achieved other way:
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_6
+
+
+\anchor cpp_mcdataarraydouble_setpartofvaluessimple2
+<br><h3> setPartOfValuesSimple2() </h3>
+We create an array (4x4) \b da to assign to and define a value \b dv to assign.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple2_1
+Now we assign \b dv to the middle of \b da.
+We explicitly specify tuples and component to assign to by a list [1,2].
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple2_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 7 0 
+    Tuple #2 : 0 7 7 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and assign \b dv to a component of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple2_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 7 0 0 
+    Tuple #2 : 0 7 0 0 
+    Tuple #3 : 0 7 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple2_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 7 7 7 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple2_5
+<pre>
+    Tuple #0 : 0 7 0 7 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 7 0 7 
+    Tuple #3 : 0 0 0 0 
+</pre>
+\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValuesSimple2() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarraydouble_setpartofvaluessimple3
+<br><h3> setPartOfValuesSimple3() </h3>
+We create an array (4x4) \b da to assign to and define a value \b dv to assign.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple3_1
+Now we assign \b dv to the middle of \b da.
+We explicitly specify tuples to assign to by a list [1,2]. And we specify
+components to assign to using slicing: 1:3.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple3_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 7 0 
+    Tuple #2 : 0 7 7 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and assign \b dv to a component of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple3_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 7 0 0 
+    Tuple #2 : 0 7 0 0 
+    Tuple #3 : 0 7 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple3_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 7 7 7 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple3_5
+<pre>
+    Tuple #0 : 0 7 0 7 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 7 0 7 
+    Tuple #3 : 0 0 0 0 
+</pre>
+\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValuesSimple3() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarraydouble_setpartofvalues2
+<br><h3> setPartOfValues2() </h3>
+We create two arrays: 
+- a "large" (4x7) zero array \b da to assign to,
+- a smaller (3x2) array \b dv filled with values [7.,8.,9.,10.,11.,12.].
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues2_1
+Now we assign the two components of \b dv to the components of \b da
+with indices [1,3], and the 3 tuples of \b dv to the 3 tuples of \b da with
+  indices [0,1,2]. This is the first mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues2_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0  7  0  8  0  0  0  
+    Tuple #1 : 0  9  0 10  0  0  0 
+    Tuple #2 : 0 11  0 12  0  0  0 
+    Tuple #3 : 0  0  0  0  0  0  0
+</pre>
+Every value of \b dv has been assigned to its own location within \b da.
+
+Now we re-fill \b da with zeros and rearrange \b dv to have 6 components.
+And we assign \b dv to the tuples of \b da with indices [0,2,3] .
+This is the second mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues2_3
+The contents of \b dv have been assigned to each of specified tuples of \b da.
+Every value of \b dv is repeated in the 3 specified tuples within \b da.
+<pre>
+    Tuple #0 : 7  0  8  9 10 11 12
+    Tuple #1 : 0  0  0  0  0  0  0   
+    Tuple #2 : 7  0  8  9 10 11 12
+    Tuple #3 : 7  0  8  9 10 11 12
+</pre>
+\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValues2() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarraydouble_setpartofvalues3
+<br><h3> setPartOfValues3() </h3>
+We create two arrays: 
+- a "large" (4x7) zero array \b da to assign to,
+- a smaller (3x2) array \b dv filled with values [7.,8.,9.,10.,11.,12.].
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues3_1
+Now we assign the two components of \b dv to the components of \b da
+with indices [1,3], and the 3 tuples of \b dv to the 3 tuples of \b da with
+indices [0,1,2] which are specified using slicing: "0:3". 
+This is the first mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues3_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0  7  0  8  0  0  0  
+    Tuple #1 : 0  9  0 10  0  0  0 
+    Tuple #2 : 0 11  0 12  0  0  0 
+    Tuple #3 : 0  0  0  0  0  0  0
+</pre>
+Every value of \b dv has been assigned to its own location within \b da.
+
+Now we re-fill \b da with zeros and rearrange \b dv to have 6 components.
+And we assign \b dv to the tuples of \b da with indices [0,2] using \a
+slice notation "0:4:2". This is the second mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues3_3
+The contents of \b dv have been assigned to each of specified tuples of \b da.
+Every value of \b dv is repeated in the 3 specified tuples within \b da.
+<pre>
+    Tuple #0 : 7  0  8  9 10 11 12
+    Tuple #1 : 0  0  0  0  0  0  0   
+    Tuple #2 : 7  0  8  9 10 11 12
+    Tuple #3 : 0  0  0  0  0  0  0   
+</pre>
+\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValues3() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarrayint_setselectedcomponents
+<br><h2> Set part of values of DataArrayInt </h2>
+<h3> setSelectedComponents() </h3>
+First, we create a 'source' array.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setSelectedComponents1
+Now we create a larger zero array and assign the array \b da to it.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setSelectedComponents2
+As result contents of the array \b dv are as follows.
+<pre>
+Info of components : "a2"   "a1"   "v3"   "v4"   
+    Tuple #0 : 2 1 0 0 
+    Tuple #1 : 4 3 0 0 
+    Tuple #2 : 6 5 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+The same result can be achieved other way (except that component info
+is not copied):
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setSelectedComponents3
+
+\anchor cpp_mcdataarrayint_setpartofvalues1
+<br><h3> setPartOfValues1() </h3>
+We create two arrays: 
+- a "large" (4x4) zero array \b da to assign to and
+- a smaller (2x2) array \b dv filled with values [7,8,9,10].
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_1
+Now we copy \b dv to the middle of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_2
+As result contents of the array \b da are as follows.
+<pre>
+    Info of components :"v1"   "v2"   "v3"   "v4"
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 8 0 
+    Tuple #2 : 0 9 10 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and copy \b dv into a component of \b da.
+
+Note that the last parameter \a strictCompoCompare should be \a False
+in this case, else \ref ParaMEDMEM::DataArrayInt::setPartOfValues1() 
+throws an exception because \b da has 2 components but only one target
+component is specified.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 8 0 0 
+    Tuple #2 : 0 9 0 0 
+    Tuple #3 : 0 10 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 8 9 10 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_5
+<pre>
+    Tuple #0 : 0 7 0 8 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 9 0 10 
+    Tuple #3 : 0 0 0 0 
+</pre>
+The same result can be achieved other way:
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_6
+
+
+
+\anchor cpp_mcdataarrayint_setpartofvaluessimple1
+<br><h3> setPartOfValuesSimple1() </h3>
+We create an array (4x4) \b da to assign to and define a value \b dv to assign.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_1
+Now we assign \b dv to the middle of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 7 0 
+    Tuple #2 : 0 7 7 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and assign \b dv to a component of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 7 0 0 
+    Tuple #2 : 0 7 0 0 
+    Tuple #3 : 0 7 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 7 7 7 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_5
+<pre>
+    Tuple #0 : 0 7 0 7 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 7 0 7 
+    Tuple #3 : 0 0 0 0 
+</pre>
+The same result can be achieved other way:
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_6
+
+
+\anchor cpp_mcdataarrayint_setpartofvaluessimple2
+<br><h3> setPartOfValuesSimple2() </h3>
+We create an array (4x4) \b da to assign to and define a value \b dv to assign.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple2_1
+Now we assign \b dv to the middle of \b da.
+We explicitly specify tuples and component to assign to by a list [1,2].
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple2_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 7 0 
+    Tuple #2 : 0 7 7 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and assign \b dv to a component of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple2_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 7 0 0 
+    Tuple #2 : 0 7 0 0 
+    Tuple #3 : 0 7 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple2_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 7 7 7 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple2_5
+<pre>
+    Tuple #0 : 0 7 0 7 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 7 0 7 
+    Tuple #3 : 0 0 0 0 
+</pre>
+\note \ref ParaMEDMEM::DataArrayInt::setPartOfValuesSimple2() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarrayint_setpartofvaluessimple3
+<br><h3> setPartOfValuesSimple3() </h3>
+We create an array (4x4) \b da to assign to and define a value \b dv to assign.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple3_1
+Now we assign \b dv to the middle of \b da.
+We explicitly specify tuples to assign to by a list [1,2]. And we specify
+components to assign to using slicing: 1:3.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple3_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 0 7 7 0 
+    Tuple #2 : 0 7 7 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+Here we re-fill \b da with zeros and assign \b dv to a component of \b da.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple3_3
+<pre>
+    Tuple #0 : 0 7 0 0 
+    Tuple #1 : 0 7 0 0 
+    Tuple #2 : 0 7 0 0 
+    Tuple #3 : 0 7 0 0 
+</pre>
+Below more two variants of location of target values are shown.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple3_4
+<pre>
+    Tuple #0 : 0 0 0 0 
+    Tuple #1 : 7 7 7 7 
+    Tuple #2 : 0 0 0 0 
+    Tuple #3 : 0 0 0 0 
+</pre>
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple3_5
+<pre>
+    Tuple #0 : 0 7 0 7 
+    Tuple #1 : 0 0 0 0 
+    Tuple #2 : 0 7 0 7 
+    Tuple #3 : 0 0 0 0 
+</pre>
+\note \ref ParaMEDMEM::DataArrayInt::setPartOfValuesSimple3() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarrayint_setpartofvalues2
+<br><h3> setPartOfValues2() </h3>
+We create two arrays: 
+- a "large" (4x7) zero array \b da to assign to,
+- a smaller (3x2) array \b dv filled with values [7,8,9,10,11,12].
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues2_1
+Now we assign the two components of \b dv to the components of \b da
+with indices [1,3], and the 3 tuples of \b dv to the 3 tuples of \b da with
+  indices [0,1,2]. This is the first mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues2_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0  7  0  8  0  0  0  
+    Tuple #1 : 0  9  0 10  0  0  0 
+    Tuple #2 : 0 11  0 12  0  0  0 
+    Tuple #3 : 0  0  0  0  0  0  0
+</pre>
+Every value of \b dv has been assigned to its own location within \b da.
+
+Now we re-fill \b da with zeros and rearrange \b dv to have 6 components.
+And we assign \b dv to the tuples of \b da with indices [0,2,3] .
+This is the second mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues2_3
+The contents of \b dv have been assigned to each of specified tuples of \b da.
+Every value of \b dv is repeated in the 3 specified tuples within \b da.
+<pre>
+    Tuple #0 : 7  0  8  9 10 11 12
+    Tuple #1 : 0  0  0  0  0  0  0   
+    Tuple #2 : 7  0  8  9 10 11 12
+    Tuple #3 : 7  0  8  9 10 11 12
+</pre>
+\note \ref ParaMEDMEM::DataArrayInt::setPartOfValues2() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarrayint_setpartofvalues3
+<br><h3> setPartOfValues3() </h3>
+We create two arrays: 
+- a "large" (4x7) zero array \b da to assign to,
+- a smaller (3x2) array \b dv filled with values [7,8,9,10,11,12].
+
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues3_1
+Now we assign the two components of \b dv to the components of \b da
+with indices [1,3], and the 3 tuples of \b dv to the 3 tuples of \b da with
+indices [0,1,2] which are specified using slicing: "0:3". 
+This is the first mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues3_2
+As result contents of the array \b da are as follows.
+<pre>
+    Tuple #0 : 0  7  0  8  0  0  0  
+    Tuple #1 : 0  9  0 10  0  0  0 
+    Tuple #2 : 0 11  0 12  0  0  0 
+    Tuple #3 : 0  0  0  0  0  0  0
+</pre>
+Every value of \b dv has been assigned to its own location within \b da.
+
+Now we re-fill \b da with zeros and rearrange \b dv to have 6 components.
+And we assign \b dv to the tuples of \b da with indices [0,2] using \a
+slice notation "0:4:2". This is the second mode of usage.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues3_3
+The contents of \b dv have been assigned to each of specified tuples of \b da.
+Every value of \b dv is repeated in the 3 specified tuples within \b da.
+<pre>
+    Tuple #0 : 7  0  8  9 10 11 12
+    Tuple #1 : 0  0  0  0  0  0  0   
+    Tuple #2 : 7  0  8  9 10 11 12
+    Tuple #3 : 0  0  0  0  0  0  0   
+</pre>
+\note \ref ParaMEDMEM::DataArrayInt::setPartOfValues3() can't
+be explicitly called in Python.
+
+
+\anchor cpp_mcdataarraydouble_getdifferentvalues
+<br><h2> Excluding coincident tuples from DataArrayDouble</h2>
+
+The code below creates an array of real values and than an array of
+  unique values, not closer one to another than 0.2, is retrieved from it.
+\snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_getDifferentValues1
+
+
+\anchor cpp_mcdataarraydouble_findcommontuples
+<br><h2> Finding coincident tuples in DataArrayDouble</h2>
+
+Let's create an array of 6 tuples and 2 components that can be
+  considered as coordinates of 6 points in 2D space.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayDouble_findCommonTuples1
+Now we find points that are not far each from other than 1e-1.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayDouble_findCommonTuples2
+As we can realize from the above code, a hardcoded array \b expected3 is equal
+  to the raw data of a DataArrayInt \b c and a hardcoded array \b expected4 is equal
+  to the raw data of the DataArrayInt \b cI.
+
+The array \b c contains indices of 5 coincident points. The array \b
+  cI shows us boundaries of (cI->getNumberOfTuples()-1) = 2 groups of coincident points: 
+- The first group starts at index 0 and includes (3 - 0) = 3 points: 0,3,4.
+- The second group starts at index 3 and includes (5 - 3) = 2 points: 1,2.
+
+\anchor cpp_mcdataarraydouble_meldwith
+<br><h2> Concatenating DataArrayDouble's by appending components </h2>
+
+In this example we create two data arrays including \b same number of
+tuples and then we concatenate them using \ref
+ParaMEDMEM::DataArrayDouble::meldWith "meldWith()".
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayDouble_Meld1_1
+Now the array \b da1 includes 7 tuples (as before) of 3 components
+each. Its components are: "c0da1","c1da1","c0da2".
+
+
+\anchor cpp_mcdataarrayint_meldwith
+<br><h2> Concatenating DataArrayInt's by appending components </h2>
+
+In this example we create two data arrays including \b same number of
+tuples and then we concatenate them using \ref
+ParaMEDMEM::DataArrayInt::meldWith "meldWith()".
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_Meld1_1
+Now the array \b da1 includes 7 tuples (as before) of 3 components
+each. Its components are: "c0da1","c1da1","c0da2".
+
+
+\anchor cpp_mcdataarraydouble_KeepSelectedComponents
+
+<br><h2>Creation of a sub-part of the DataArrayDouble by selecting components</h2>
+
+\snippet MEDCouplingExamplesTest.py SnippeDataArrayDoubleKeepSelectedComponents1_1
+We created an array \b a1 containing 5 tuples of 4 components each (20
+values). Now we are going to create an array \b a2 containing some
+components of \b a1.
+\snippet MEDCouplingExamplesTest.py SnippeDataArrayDoubleKeepSelectedComponents1_2
+Now each tuple of \b a2 includes components named "b","c","b","c","a","a". Thus
+the result array \b a2 includes 30 elements (5 tuples per 6 components).
+
 \anchor cpp_mcfielddouble_subpart1
+
+\anchor cpp_mcdataarrayint_keepselectedcomponents
+
+<br><h2>Creation of a sub-part of the DataArrayInt by selecting components</h2>
+
+\snippet MEDCouplingExamplesTest.py SnippeDataArrayIntKeepSelectedComponents1_1
+We created an array \b a1 containing 5 tuples of 4 components each (20
+values). Now we are going to create an array \b a2 containing some
+components of \b a1.
+\snippet MEDCouplingExamplesTest.py SnippeDataArrayIntKeepSelectedComponents1_2
+Now each tuple of \b a2 includes components named "b","c","b","c","a","a". Thus
+the result array \b a2 includes 30 elements (5 tuples per 6 components).
+
+Note that
+\ref ParaMEDMEM::DataArrayInt::keepSelectedComponents() "DataArrayInt::keepSelectedComponents()" 
+is called, providing the same result, by the following python code:
+\snippet MEDCouplingExamplesTest.py SnippeDataArrayIntKeepSelectedComponents1_3
+
+\anchor cpp_mcfielddouble_subpart1
+
+
 <br><h2>Creation of a sub part of a field</h2>
 <br><h3>Creation of a sub part of a field on cells</h3>
 \snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_1
-The field on cells \b f1 lies on a mesh containg 5 cells and 9 nodes.		
+The field on cells \b f1 lies on a mesh containing 5 cells and 9 nodes.		
 So this field \b f1 contains 5 tuples of 2 components each (10 values).
 Now let's create a subfield on cells \b f2 from \b f1.
 \snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_2
@@ -26,7 +723,7 @@ The underlying mesh of \b f2 contains a newly created mesh with 3 cells (not as 
 
 <br><h3>Creation of a sub part of a field on nodes</h3>
 \snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_3
-The field on nodes \b f1 lies on a mesh containg 5 cells and 9 nodes.
+The field on nodes \b f1 lies on a mesh containing 5 cells and 9 nodes.
 So this field \b f1 contains 9 tuples of 2 components each (18 values).
 Now let's create a subfield on nodes \b f2 from \b f1.
 \snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_4
@@ -84,7 +781,7 @@ At this level the connectivity part of the mesh \b mesh as been defined. Now let
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_4
 
-At this level mesh is usable. When this mesh is no more needed simply call decrRef to decrement its reference counter.
+At this level mesh is usable. When this mesh is no more needed simply call decrRef() to decrement its reference counter.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_5
 
@@ -101,7 +798,7 @@ Firstly retrieve for each direction the discretization and build a \ref ParaMEDM
 
 Then create ParaMEDMEM::MEDCouplingCMesh instance giving the 2 instances of \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" obtained above.
 
-There are 2 technics to get it.
+There are 2 techniques to get it.
 
 Either :
 

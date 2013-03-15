@@ -342,8 +342,8 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& oth
     {
       if((const MEDCouplingFieldDouble *)other._fs[i])
         {
-          MEDCouplingFieldTemplate *tmp=MEDCouplingFieldTemplate::New(other._fs[i]);
-          _fs[i]=MEDCouplingFieldDouble::New(tmp,other._fs[i]->getTimeDiscretization());
+          MEDCouplingFieldTemplate *tmp=MEDCouplingFieldTemplate::New(*other._fs[i]);
+          _fs[i]=MEDCouplingFieldDouble::New(*tmp,other._fs[i]->getTimeDiscretization());
           tmp->decrRef();
           if(refs[i]!=-1)
             _fs[i]->setMesh(ms2[refs[i]]);
@@ -437,7 +437,7 @@ void MEDCouplingMultiFields::finishUnserialization(const std::vector<int>& tinyI
   int offD=0;
   for(int i=0;i<sz;i++)
     {
-      _fs[i]=MEDCouplingFieldDouble::New(ft[i],(TypeOfTimeDiscretization)tinyInfoI[2*sz+3+i]);
+      _fs[i]=MEDCouplingFieldDouble::New(*ft[i],(TypeOfTimeDiscretization)tinyInfoI[2*sz+3+i]);
       int sz3=tinyInfoI[sz+i+3];
       std::vector<DataArrayDouble *> tmp(sz3);
       for(int j=0;j<sz3;j++,k++)

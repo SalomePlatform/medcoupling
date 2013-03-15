@@ -545,6 +545,22 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(fs[2]=="Field3");
         self.assertTrue(fs[3]=="Field8");
         pass
+
+    def testBigNbOfCompoNonReg(self):
+        fileName="Pyfile57.med"
+        m=MEDLoader.MEDCouplingCMesh() ; m.setCoords(MEDLoader.DataArrayDouble([0,1,2,3]),MEDLoader.DataArrayDouble([0,1]),MEDLoader.DataArrayDouble([0,1]))
+        m=m.buildUnstructured() ; m.setName("TinyMesh")
+        f=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_CELLS) ; f.setMesh(m)
+        nbOfCompo=4100
+        arr=MEDLoader.DataArrayDouble(nbOfCompo*3) ; arr.iota()
+        arr.rearrange(nbOfCompo)
+        arr.setInfoOnComponents(["c%i"%(i) for i in xrange(nbOfCompo)])
+        f.setArray(arr)
+        f.setName("FieldBigCompo")
+        MEDLoader.MEDLoader.WriteField(fileName,f,True)
+        f2=MEDLoader.MEDLoader.ReadFieldCell(fileName,m.getName(),0,f.getName(),-1,-1)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        pass
     pass
 
 unittest.main()

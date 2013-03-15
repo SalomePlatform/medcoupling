@@ -86,7 +86,7 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySize() const;
   protected:
     MEDCouplingField(TypeOfField type);
-    MEDCouplingField(const MEDCouplingField& other);
+    MEDCouplingField(const MEDCouplingField& other, bool deepCopy=true);
     MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature=NoNature);
     virtual ~MEDCouplingField();
   protected:

@@ -831,7 +831,7 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesEltIdsAllGather=DataArrayInt::Aggregate(newGeoTypesPerChunk2); newGeoTypesPerChunk.clear(); newGeoTypesPerChunk2.clear();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesEltIdsAllGather2=DataArrayInt::Aggregate(newGeoTypesPerChunk3); newGeoTypesPerChunk_bis.clear(); newGeoTypesPerChunk3.clear();
-  std::set<int> diffVals=newGeoTypesEltIdsAllGather->getDifferentValues();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diffVals=newGeoTypesEltIdsAllGather->getDifferentValues();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumEltIds=newGeoTypesEltIdsAllGather->buildPermArrPerLevel();
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumTupleIds=newGeoTypesPerChunk4->buildPermArrPerLevel();
@@ -840,10 +840,10 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
   arrPart->renumberInPlace(renumTupleIds->begin());
   arr->setPartOfValues1(arrPart,offset,offset+szTuples,1,0,arrPart->getNumberOfComponents(),1);
   bool ret=false;
-  std::set<int>::const_iterator idIt=diffVals.begin();
+  const int *idIt=diffVals->begin();
   std::list<const MEDFileFieldPerMeshPerTypePerDisc *> li(entriesOnSameDisc.begin(),entriesOnSameDisc.end());
   int offset2=0;
-  for(std::size_t i=0;i<diffVals.size();i++,idIt++)
+  for(int i=0;i<diffVals->getNumberOfTuples();i++,idIt++)
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=newGeoTypesEltIdsAllGather->getIdsEqual(*idIt);
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> subIds=newGeoTypesEltIdsAllGather2->selectByTupleId(ids->begin(),ids->end());
@@ -1064,10 +1064,10 @@ std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessaryGauss(const M
     throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : invalid call to this method ! Internal Error !");
   const DataArrayInt *da=disc2->getArrayOfDiscIds();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=da->selectByTupleId2(offset,offset+nbOfCells,1);
-  std::set<int> retTmp=da2->getDifferentValues();
-  if(retTmp.find(-1)!=retTmp.end())
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> retTmp=da2->getDifferentValues();
+  if(retTmp->presenceOfValue(-1))
     throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : some cells have no dicretization description !");
-  std::vector<int> ret(retTmp.begin(),retTmp.end());
+  std::vector<int> ret(retTmp->begin(),retTmp->end());
   return ret;
 }
 
@@ -1134,10 +1134,10 @@ std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessaryGauss(const M
     throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : invalid call to this method ! Internal Error !");
   const DataArrayInt *da=disc2->getArrayOfDiscIds();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=da->selectByTupleIdSafe(subCells->getConstPointer(),subCells->getConstPointer()+subCells->getNumberOfTuples());
-  std::set<int> retTmp=da2->getDifferentValues();
-  if(retTmp.find(-1)!=retTmp.end())
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> retTmp=da2->getDifferentValues();
+  if(retTmp->presenceOfValue(-1))
     throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : some cells have no dicretization description !");
-  std::vector<int> ret(retTmp.begin(),retTmp.end());
+  std::vector<int> ret(retTmp->begin(),retTmp->end());
   return ret;
 }
 

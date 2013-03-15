@@ -138,7 +138,7 @@ namespace ParaMEDMEM
     void dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeTinyInfoOnLeaves() const = 0;
     void getFamilyRepr(std::ostream& oss) const;
-    virtual void appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
+    virtual void appendFamilyEntries(const DataArrayInt *famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
     virtual void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception) = 0;
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
     static void ChangeAllGroupsContainingFamily(std::map<std::string, std::vector<std::string> >& groups, const char *familyNameToChange, const std::vector<std::string>& newFamiliesNames) throw(INTERP_KERNEL::Exception);

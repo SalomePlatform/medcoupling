@@ -37,7 +37,7 @@ public:
   typedef int MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
-  MEDCouplingNormalizedCartesianMesh(ParaMEDMEM::MEDCouplingCMesh *mesh);
+  MEDCouplingNormalizedCartesianMesh(const ParaMEDMEM::MEDCouplingCMesh *mesh);
   //void getBoundingBox(double *boundingBox) const;
   //INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
   //unsigned char getNumberOfNodesOfElement(int eltId) const;
@@ -47,7 +47,7 @@ public:
   const double * getCoordsAlongAxis(int axis) const;
   ~MEDCouplingNormalizedCartesianMesh();
 private:
-  ParaMEDMEM::MEDCouplingCMesh *_mesh;
+  const ParaMEDMEM::MEDCouplingCMesh *_mesh;
 };
 
 #endif

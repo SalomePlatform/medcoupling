@@ -63,10 +63,12 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT NormalizedCellType getReverseExtrudedType() const { return _reverse_extruded_type; }
     INTERPKERNEL_EXPORT NormalizedCellType getLinearType() const { return _linear_type; }
     INTERPKERNEL_EXPORT NormalizedCellType getQuadraticType() const { return _quadratic_type; }
+    INTERPKERNEL_EXPORT NormalizedCellType getQuadraticType2() const { return _quadratic_type2; }
     INTERPKERNEL_EXPORT NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
     INTERPKERNEL_EXPORT NormalizedCellType getSonType2(unsigned sonId) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
+    INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity4(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
     INTERPKERNEL_EXPORT unsigned fillSonEdgesNodalConnectivity3D(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
   private:
     bool _dyn;
@@ -82,6 +84,7 @@ namespace INTERP_KERNEL
     NormalizedCellType _reverse_extruded_type;
     NormalizedCellType _linear_type;
     NormalizedCellType _quadratic_type;
+    NormalizedCellType _quadratic_type2;
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];
     unsigned _little_sons_con[MAX_NB_OF_LITTLE_SONS][3];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];

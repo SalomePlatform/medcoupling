@@ -564,6 +564,17 @@ private:
   const INTERP_KERNEL::CellModel& _cm;
 };
 
+class MinusOneSonsGeneratorBiQuadratic
+{
+public:
+  MinusOneSonsGeneratorBiQuadratic(const INTERP_KERNEL::CellModel& cm):_cm(cm) { }
+  unsigned getNumberOfSons2(const int *conn, int lgth) const { return _cm.getNumberOfSons2(conn,lgth); }
+  unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, INTERP_KERNEL::NormalizedCellType& typeOfSon) const { return _cm.fillSonCellNodalConnectivity4(sonId,nodalConn,lgth,sonNodalConn,typeOfSon); }
+  static const int DELTA=1;
+private:
+  const INTERP_KERNEL::CellModel& _cm;
+};
+
 class MinusTwoSonsGenerator
 {
 public:
@@ -708,6 +719,8 @@ void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
 template<class SonsGenerator>
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivityGen(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx, DimM1DescNbrer nbrer) const throw(INTERP_KERNEL::Exception)
 {
+  if(!desc || !descIndx || !revDesc || !revDescIndx)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildDescendingConnectivityGen : present of a null pointer in input !");
   checkConnectivityFullyDefined();
   int nbOfCells=getNumberOfCells();
   int nbOfNodes=getNumberOfNodes();
@@ -939,7 +952,7 @@ void MEDCouplingUMesh::convertAllToPoly()
  * When called 'this' is an invalid mesh on MED sense. This method will correct that for polyhedra.
  * In case of presence of polyhedron that has not the extruded aspect (2 faces with the same number of nodes) an exception is thrown and 'this'
  * remains unchanged.
- * This method is usefull only for users that wants to build extruded unstructured mesh.
+ * This method is useful only for users that wants to build extruded unstructured mesh.
  * This method is a convenient one that avoids boring polyhedra setting during insertNextCell process.
  * In case of success, 'this' has be corrected contains the same number of cells and is valid in MED sense.
  */
@@ -2830,8 +2843,9 @@ void MEDCouplingUMesh::computeTypes()
       const int *conn=_nodal_connec->getConstPointer();
       const int *connIndex=_nodal_connec_index->getConstPointer();
       int nbOfElem=_nodal_connec_index->getNbOfElems()-1;
-      for(const int *pt=connIndex;pt!=connIndex+nbOfElem;pt++)
-        _types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
+      if (nbOfElem > 0)
+        for(const int *pt=connIndex;pt !=connIndex+nbOfElem;pt++)
+          _types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
     }
 }
 
@@ -3129,7 +3143,7 @@ DataArrayDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const int *be
 }
 
 /*!
- * This methods returns a field on nodes and no time. This method is usefull to check "P1*" conservative interpolators.
+ * This methods returns a field on nodes and no time. This method is useful to check "P1*" conservative interpolators.
  * This field returns the getMeasureField of the dualMesh in P1 sens of 'this'.
  */
 MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) const
@@ -4452,21 +4466,40 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic(int conversionType
         case 1:
           ret=convertLinearCellsToQuadratic1D0(conn,connI,coords,types);
           connSafe=conn; connISafe=connI; coordsSafe=coords;
-	  break;
+          break;
         case 2:
           ret=convertLinearCellsToQuadratic2D0(conn,connI,coords,types);
           connSafe=conn; connISafe=connI; coordsSafe=coords;
-	  break;
+          break;
         case 3:
           ret=convertLinearCellsToQuadratic3D0(conn,connI,coords,types);
           connSafe=conn; connISafe=connI; coordsSafe=coords;
-	  break;
+          break;
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion of type 0 mesh dimensions available are [1,2,3] !");
         }
       break;
-      //case 1:
-      //return convertLinearCellsToQuadratic1();
+    case 1:
+      {
+        switch(meshDim)
+        {
+        case 1:
+          ret=convertLinearCellsToQuadratic1D0(conn,connI,coords,types);//it is not a bug. In 1D policy 0 and 1 are equals
+          connSafe=conn; connISafe=connI; coordsSafe=coords;
+          break;
+        case 2:
+          ret=convertLinearCellsToQuadratic2D1(conn,connI,coords,types);
+          connSafe=conn; connISafe=connI; coordsSafe=coords;
+          break;
+        case 3:
+          ret=convertLinearCellsToQuadratic3D1(conn,connI,coords,types);
+          connSafe=conn; connISafe=connI; coordsSafe=coords;
+          break;
+        default:
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion of type 1 mesh dimensions available are [1,2,3] !");
+        }
+        break;
+      }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion type available are 0 (default, the simplest) and 1 (the most complex) !");
     }
@@ -4501,7 +4534,7 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic1D0(DataArrayInt *&
           newConn->pushBackSilent((int)INTERP_KERNEL::NORM_SEG3);
           newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[0]+3);
           newConn->pushBackSilent(offset++);
-	  lastVal+=4;
+          lastVal+=4;
           newConnI->pushBackSilent(lastVal);
           ret->pushBackSilent(i);
         }
@@ -4514,7 +4547,7 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic1D0(DataArrayInt *&
         }
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp=bary->selectByTupleIdSafe(ret->begin(),ret->end());
-  conn=newConn.retn(); connI=newConnI.retn(); coords=DataArrayDouble::Aggregate(getCoords(),tmp);
+  coords=DataArrayDouble::Aggregate(getCoords(),tmp); conn=newConn.retn(); connI=newConnI.retn();
   return ret.retn();
 }
 
@@ -4548,8 +4581,8 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2DAnd3D0(const MEDC
           newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[1]);
           for(const int *d=descPtr+descIPtr[0];d!=descPtr+descIPtr[1];d++)
             newConn->pushBackSilent(c1DPtr[c1DIPtr[*d]+3]);
-	  lastVal+=(icPtr[1]-icPtr[0])+(descIPtr[1]-descIPtr[0]);
-	  newConnI->pushBackSilent(lastVal);
+          lastVal+=(icPtr[1]-icPtr[0])+(descIPtr[1]-descIPtr[0]);
+          newConnI->pushBackSilent(lastVal);
           ret->pushBackSilent(i);
         }
       else
@@ -4577,6 +4610,58 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2D0(DataArrayInt *&
   return convertLinearCellsToQuadratic2DAnd3D0(m1D,desc,descI,conn,connI,coords,types);
 }
 
+DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2D1(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc(DataArrayInt::New()),descI(DataArrayInt::New()),tmp2(DataArrayInt::New()),tmp3(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1D=buildDescendingConnectivity(desc,descI,tmp2,tmp3); tmp2=0; tmp3=0;
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(0,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New(); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(0,1);
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bary=getBarycenterAndOwner();
+  const int *descPtr(desc->begin()),*descIPtr(descI->begin());
+  DataArrayInt *conn1D=0,*conn1DI=0;
+  std::set<INTERP_KERNEL::NormalizedCellType> types1D;
+  DataArrayDouble *coordsTmp=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsTmpSafe(coordsTmp);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn1DSafe(conn1D),conn1DISafe(conn1DI);
+  const int *c1DPtr=conn1D->begin();
+  const int *c1DIPtr=conn1DI->begin();
+  int nbOfCells=getNumberOfCells();
+  const int *cPtr=_nodal_connec->getConstPointer();
+  const int *icPtr=_nodal_connec_index->getConstPointer();
+  int lastVal=0,offset=coordsTmpSafe->getNumberOfTuples();
+  for(int i=0;i<nbOfCells;i++,icPtr++,descIPtr++)
+    {
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
+      if(!cm.isQuadratic())
+        {
+          INTERP_KERNEL::NormalizedCellType typ2=cm.getQuadraticType2();
+          types.insert(typ2); newConn->pushBackSilent(typ2);
+          newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[1]);
+          for(const int *d=descPtr+descIPtr[0];d!=descPtr+descIPtr[1];d++)
+            newConn->pushBackSilent(c1DPtr[c1DIPtr[*d]+3]);
+          newConn->pushBackSilent(offset+ret->getNumberOfTuples());
+          lastVal+=(icPtr[1]-icPtr[0])+(descIPtr[1]-descIPtr[0])+1;
+          newConnI->pushBackSilent(lastVal);
+          ret->pushBackSilent(i);
+        }
+      else
+        {
+          types.insert(typ);
+          lastVal+=(icPtr[1]-icPtr[0]);
+          newConnI->pushBackSilent(lastVal);
+          newConn->pushBackValsSilent(cPtr+icPtr[0],cPtr+icPtr[1]);
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp=bary->selectByTupleIdSafe(ret->begin(),ret->end());
+  coords=DataArrayDouble::Aggregate(coordsTmpSafe,tmp); conn=newConn.retn(); connI=newConnI.retn();
+  return ret.retn();
+}
+
 /*!
  * Implementes \a conversionType 0 for meshes with meshDim = 3, of MEDCouplingUMesh::convertLinearCellsToQuadratic method.
  * \return a newly created DataArrayInt instance that the caller should deal with containing cell ids of converted cells.
@@ -4587,6 +4672,85 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic3D0(DataArrayInt *&
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc(DataArrayInt::New()),descI(DataArrayInt::New()),tmp2(DataArrayInt::New()),tmp3(DataArrayInt::New());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1D=explode3DMeshTo1D(desc,descI,tmp2,tmp3); tmp2=0; tmp3=0;
   return convertLinearCellsToQuadratic2DAnd3D0(m1D,desc,descI,conn,connI,coords,types);
+}
+
+DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc2(DataArrayInt::New()),desc2I(DataArrayInt::New()),tmp2(DataArrayInt::New()),tmp3(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m2D=buildDescendingConnectivityGen<MinusOneSonsGeneratorBiQuadratic>(desc2,desc2I,tmp2,tmp3,MEDCouplingFastNbrer); tmp2=0; tmp3=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1(DataArrayInt::New()),desc1I(DataArrayInt::New()),tmp4(DataArrayInt::New()),tmp5(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1D=explode3DMeshTo1D(desc1,desc1I,tmp4,tmp5); tmp4=0; tmp5=0;
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(0,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New(); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(),ret2=DataArrayInt::New(); ret->alloc(0,1); ret2->alloc(0,1);
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bary=getBarycenterAndOwner();
+  const int *descPtr(desc1->begin()),*descIPtr(desc1I->begin()),*desc2Ptr(desc2->begin()),*desc2IPtr(desc2I->begin());
+  DataArrayInt *conn1D=0,*conn1DI=0,*conn2D=0,*conn2DI=0;
+  std::set<INTERP_KERNEL::NormalizedCellType> types1D,types2D;
+  DataArrayDouble *coordsTmp=0,*coordsTmp2=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=DataArrayInt::New(); ret1D->alloc(0,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn1DSafe(conn1D),conn1DISafe(conn1DI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsTmpSafe(coordsTmp);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2D=m2D->convertLinearCellsToQuadratic2D1(conn2D,conn2DI,coordsTmp2,types2D); ret2D=DataArrayInt::New(); ret2D->alloc(0,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsTmp2Safe(coordsTmp2);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn2DSafe(conn2D),conn2DISafe(conn2DI);
+  const int *c1DPtr=conn1D->begin(),*c1DIPtr=conn1DI->begin(),*c2DPtr=conn2D->begin(),*c2DIPtr=conn2DI->begin();
+  int nbOfCells=getNumberOfCells();
+  const int *cPtr=_nodal_connec->getConstPointer();
+  const int *icPtr=_nodal_connec_index->getConstPointer();
+  int lastVal=0,offset=coordsTmpSafe->getNumberOfTuples();
+  for(int i=0;i<nbOfCells;i++,icPtr++,descIPtr++,desc2IPtr++)
+    {
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
+      if(!cm.isQuadratic())
+        {
+          INTERP_KERNEL::NormalizedCellType typ2=cm.getQuadraticType2();
+          if(typ2==INTERP_KERNEL::NORM_ERROR)
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::convertLinearCellsToQuadratic3D1 : On cell #" << i << " the linear cell type does not support advanced quadratization !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          types.insert(typ2); newConn->pushBackSilent(typ2);
+          newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[1]);
+          for(const int *d=descPtr+descIPtr[0];d!=descPtr+descIPtr[1];d++)
+            newConn->pushBackSilent(c1DPtr[c1DIPtr[*d]+3]);
+          for(const int *d=desc2Ptr+desc2IPtr[0];d!=desc2Ptr+desc2IPtr[1];d++)
+            {
+              int nodeId2=c2DPtr[c2DIPtr[(*d)+1]-1];
+              int tmpPos=newConn->getNumberOfTuples();
+              newConn->pushBackSilent(nodeId2);
+              ret2D->pushBackSilent(nodeId2); ret1D->pushBackSilent(tmpPos);
+            }
+          newConn->pushBackSilent(offset+ret->getNumberOfTuples());
+          lastVal+=(icPtr[1]-icPtr[0])+(descIPtr[1]-descIPtr[0])+(desc2IPtr[1]-desc2IPtr[0])+1;
+          newConnI->pushBackSilent(lastVal);
+          ret->pushBackSilent(i);
+        }
+      else
+        {
+          types.insert(typ);
+          lastVal+=(icPtr[1]-icPtr[0]);
+          newConnI->pushBackSilent(lastVal);
+          newConn->pushBackValsSilent(cPtr+icPtr[0],cPtr+icPtr[1]);
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diffRet2D=ret2D->getDifferentValues();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2nRet2D=diffRet2D->invertArrayN2O2O2N(coordsTmp2Safe->getNumberOfTuples());
+  coordsTmp2Safe=coordsTmp2Safe->selectByTupleId(diffRet2D->begin(),diffRet2D->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp=bary->selectByTupleIdSafe(ret->begin(),ret->end());
+  std::vector<const DataArrayDouble *> v(3); v[0]=coordsTmpSafe; v[1]=coordsTmp2Safe; v[2]=tmp;
+  int *c=newConn->getPointer();
+  const int *cI(newConnI->begin());
+  for(const int *elt=ret1D->begin();elt!=ret1D->end();elt++)
+    c[*elt]=o2nRet2D->getIJ(c[*elt],0)+offset;
+  offset=coordsTmp2Safe->getNumberOfTuples();
+  for(const int *elt=ret->begin();elt!=ret->end();elt++)
+    c[cI[(*elt)+1]-1]+=offset;
+  coords=DataArrayDouble::Aggregate(v); conn=newConn.retn(); connI=newConnI.retn();
+  return ret.retn();
 }
 
 /*!
@@ -5038,7 +5202,7 @@ void MEDCouplingUMesh::subDivide2DMesh(const int *nodeSubdived, const int *nodeI
  * nodal connectivity will be transform to a NORM_TRI3 cell.
  * This method works \b only \b on \b linear cells.
  * This method works on nodes ids, that is to say a call to ParaMEDMEM::MEDCouplingUMesh::mergeNodes
- * method could be usefull before calling this method in case of presence of several pair of nodes located on same position.
+ * method could be useful before calling this method in case of presence of several pair of nodes located on same position.
  * This method throws an exception if 'this' is not fully defined (connectivity).
  * This method throws an exception too if a "too" degenerated cell is detected. For example a NORM_TRI3 with 3 times the same node id.
  */
@@ -5824,7 +5988,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1
 
 /*!
  * This method sorts cell in this so that cells are sorted by cell type specified by MEDMEM and so for MED file.
- * It avoids to deal with renum in MEDLoader so it is usefull for MED file R/W with multi types.
+ * It avoids to deal with renum in MEDLoader so it is useful for MED file R/W with multi types.
  * This method returns a newly allocated array old2New.
  * This method expects that connectivity of this is set. If not an exception will be thrown. Coordinates are not taken into account.
  */
@@ -5871,7 +6035,9 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesForMEDFileFrmt() const throw(INT
 
 /*!
  * This method performs the same job as checkConsecutiveCellTypes except that the order of types sequence is analyzed to check
- * that the order is specified in array defined by [orderBg,orderEnd). 
+ * that the order is specified in array defined by [orderBg,orderEnd).
+ * If there is some geo types in \a this \b NOT in [ \a orderBg, \a orderEnd ) it is OK (return true) if contiguous.
+ * If there is some geo types in [ \a orderBg, \a orderEnd ) \b NOT in \a this it is OK too (return true) if contiguous.
  */
 bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const
 {
@@ -5879,15 +6045,32 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::No
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   int nbOfCells=getNumberOfCells();
+  if(nbOfCells==0)
+    return true;
   int lastPos=-1;
+  std::set<INTERP_KERNEL::NormalizedCellType> sg;
   for(const int *i=connI;i!=connI+nbOfCells;)
     {
       INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
-      int pos=(int)std::distance(orderBg,std::find(orderBg,orderEnd,curType));
-      if(pos<=lastPos)
-        return false;
-      lastPos=pos;
-      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+      const INTERP_KERNEL::NormalizedCellType *isTypeExists=std::find(orderBg,orderEnd,curType);
+      if(isTypeExists!=orderEnd)
+        {
+          int pos=(int)std::distance(orderBg,isTypeExists);
+          if(pos<=lastPos)
+            return false;
+          lastPos=pos;
+          i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+        }
+      else
+        {
+          if(sg.find(curType)==sg.end())
+            {
+              i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+              sg.insert(curType);
+            }
+          else
+            return false;
+        }
     }
   return true;
 }
@@ -6493,7 +6676,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
  * But mesh in \b meshes \b can \b have \b different \b mesh \b dimension \b each \b other.
  *
  * This method performs nothing if size of \b meshes is in [0,1].
- * This method is particulary usefull in MEDLoader context to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
+ * This method is particulary useful in MEDLoader context to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
  * coordinates DataArrayDouble instance.
  *
  * \param [in,out] meshes : vector containing no null instance of MEDCouplingUMesh that in case of success of this method will be modified.
@@ -6548,7 +6731,7 @@ void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCou
  * If \b meshes share the same instance of DataArrayDouble as coordinates and that this instance is null, this method do nothing and no exception will be thrown.
  *
  * This method performs nothing if size of \b meshes is empty.
- * This method is particulary usefull in MEDLoader context to perform a treatment of a MEDFileUMesh instance on different levels.
+ * This method is particulary useful in MEDLoader context to perform a treatment of a MEDFileUMesh instance on different levels.
  * coordinates DataArrayDouble instance.
  *
  * \param [in,out] meshes :vector containing no null instance of MEDCouplingUMesh sharing the same DataArrayDouble instance of coordinates, that in case of success of this method will be modified.
@@ -7103,7 +7286,7 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   int nbOfCells=getNumberOfCells();
   if(nbOfCells<=0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::writeVTK : the unstructured mesh has no cells !");
-  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,-1,23,-1,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,-1,-1,-1,25,42,-1,4};
+  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,-1,4};
   ofs << "  <" << getVTKDataSetType() << ">\n";
   ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << nbOfCells << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;
@@ -7907,7 +8090,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, c
  * This method start from id 0 that will be contained in output DataArrayInt. It searches then all neighbors of id0 regarding arrIn[arrIndxIn[0]:arrIndxIn[0+1]].
  * Then it is repeated recursively until either all ids are fetched or no more ids are reachable step by step.
  * A negative value in \b arrIn means that it is ignored.
- * This method is usefull to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.
+ * This method is useful to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.
  * 
  * \param [in] arrIn arr origin array from which the extraction will be done.
  * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
@@ -7926,7 +8109,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGradually(const DataArrayInt *a
  * This method start from id 0 that will be contained in output DataArrayInt. It searches then all neighbors of id0 regarding arrIn[arrIndxIn[0]:arrIndxIn[0+1]].
  * Then it is repeated recursively until either all ids are fetched or no more ids are reachable step by step.
  * A negative value in \b arrIn means that it is ignored.
- * This method is usefull to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.
+ * This method is useful to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.
  * \param [in] seedBg the begin pointer (included) of an array containing the seed of the search zone
  * \param [in] seedEnd the end pointer (not included) of an array containing the seed of the search zone
  * \param [in] arrIn arr origin array from which the extraction will be done.

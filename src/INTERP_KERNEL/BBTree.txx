@@ -52,7 +52,9 @@ public:
     \param elems array to the indices of the elements contained in the BBTree
     \param level level in the BBTree recursive structure
     \param nbelems nb of elements in the BBTree
-    \param epsilon precision to which points are decided to be coincident
+    \param epsilon precision to which points are decided to be coincident. Epsilon can be positive or negative.
+           If \a epsilon is positive the request method will enlarge the computed bounding box (more matching elems return).
+           If negative the given bounding box will be tighten (less matching elems return).
 
     Parameters \a elems and \a level are used only by BBTree itself for creating trees recursively. A typical use is therefore :
     \code
@@ -64,7 +66,7 @@ public:
     \endcode
   */
 
-  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
+  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1e-12):
     _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)

@@ -25,9 +25,9 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
+#include "BBTreePts.txx"
 #include "BBTree.txx"
 
-#include <set>
 #include <string>
 #include <vector>
 #include <iterator>
@@ -193,7 +193,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
-    //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
@@ -214,8 +213,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double minimalDistanceTo(const DataArrayDouble *other, int& thisTupleId, int& otherTupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *getDifferentValues(double prec, int limitTupleId=-1) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *findClosestTupleId(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayDouble *a, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
@@ -306,7 +307,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayDouble *Divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() const { }
   public:
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
@@ -316,6 +316,8 @@ namespace ParaMEDMEM
   public:
     template<int SPACEDIM>
     void findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const;
+    template<int SPACEDIM>
+    static void FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,int>& myTree, double dist, const double *pos, int nbOfTuples, const double *thisPt, int thisNbOfTuples, int *res);
     template<int SPACEDIM>
     static void FindTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
                                           DataArrayInt *c, DataArrayInt *cI);
@@ -411,7 +413,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
-    //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *convertToDblArr() const;
     MEDCOUPLING_EXPORT DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
@@ -508,7 +509,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT std::set<int> getDifferentValues() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getDifferentValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::vector<DataArrayInt *> partitionByDifferentValues(std::vector<int>& differentIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void MEDCOUPLING_EXPORT useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo);
@@ -525,7 +526,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
-    //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() const { }
   public:
     MEDCOUPLING_EXPORT static int *CheckAndPreparePermutation(const int *start, const int *end);

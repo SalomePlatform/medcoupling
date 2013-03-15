@@ -2664,3 +2664,15 @@ void MEDCouplingBasicsTest1::testChangeSpaceDimension()
   m1->decrRef();
   m2->decrRef();
 }
+
+void MEDCouplingBasicsTest1::testSetConnectivity()
+{
+  MEDCouplingUMesh *m1 = build1DTargetMesh_1();
+
+  DataArrayInt * conn = DataArrayInt::New();
+  DataArrayInt * connI = DataArrayInt::New();
+  m1->setConnectivity(conn, connI, true); // was SEG-Faulting with empty arrays
+  conn->decrRef();
+  connI->decrRef();
+  m1->decrRef();
+}

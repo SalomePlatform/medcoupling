@@ -86,6 +86,12 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getOffsetArr;
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::clone;
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::clonePart;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getMeasureField;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getOffsetArr;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getLocalizationOfDiscValues;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getValueOnMulti;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::computeTupleIdsToSelectFromCellIds;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::buildSubMeshData;
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingField::getLocalizationOfDiscr;
 %newobject ParaMEDMEM::MEDCouplingField::computeTupleIdsToSelectFromCellIds;
@@ -180,6 +186,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::duplicateEachTupleNTimes;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
 %newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
+%newobject ParaMEDMEM::DataArrayInt::getDifferentValues;
 %newobject ParaMEDMEM::DataArrayInt::__neg__;
 %newobject ParaMEDMEM::DataArrayInt::__add__;
 %newobject ParaMEDMEM::DataArrayInt::__radd__;
@@ -238,6 +245,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
 %newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
+%newobject ParaMEDMEM::DataArrayDouble::findClosestTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::duplicateEachTupleNTimes;
 %newobject ParaMEDMEM::DataArrayDouble::__neg__;
 %newobject ParaMEDMEM::DataArrayDouble::__add__;
@@ -903,10 +911,12 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayInt
 {
-  PyObject *getDifferentValues() const throw(INTERP_KERNEL::Exception)
+  void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
   {
-    std::set<int> ret=self->getDifferentValues();
-    return convertIntArrToPyList3(ret);
+    int szArr,sw,iTypppArr;
+    std::vector<int> stdvecTyyppArr;
+    const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+    self->pushBackValsSilent(tmp,tmp+szArr);
   }
 
   PyObject *partitionByDifferentValues() const throw(INTERP_KERNEL::Exception)
@@ -951,7 +961,6 @@ namespace ParaMEDMEM
 }
 
 %ignore ParaMEDMEM::DataArray::getInfoOnComponents;
-%ignore ParaMEDMEM::DataArrayInt::getDifferentValues;
 %ignore ParaMEDMEM::DataArrayInt::partitionByDifferentValues;
 %ignore ParaMEDMEM::MEDCouplingFieldDiscretizationPerCell::getArrayOfDiscIds;
 %ignore ParaMEDMEM::MEDCouplingFieldDiscretization::clonePart;
@@ -960,8 +969,8 @@ namespace ParaMEDMEM
 %include "NormalizedUnstructuredMesh.hxx"
 %include "MEDCouplingNatureOfField.hxx"
 %include "MEDCouplingTimeDiscretization.hxx"
-%include "MEDCouplingFieldDiscretization.hxx"
 %include "MEDCouplingGaussLocalization.hxx"
+%include "MEDCouplingFieldDiscretization.hxx"
 
 namespace ParaMEDMEM
 {
@@ -2954,6 +2963,16 @@ namespace ParaMEDMEM
      return ParaMEDMEM_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
    }
 
+   void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     double val;
+     std::vector<double> bb;
+     int sw,nbTuples=-1;
+     const char msg[]="Python wrap of DataArrayDouble::pushBackValsSilent : ";
+     const double *tmp=convertObjToPossibleCpp5_SingleCompo(li,sw,val,bb,msg,true,nbTuples);
+     self->pushBackValsSilent(tmp,tmp+nbTuples);
+   }
+
    std::string __str__() const
    {
      return self->repr();
@@ -3236,6 +3255,17 @@ namespace ParaMEDMEM
          da2->checkAllocated();
          return self->selectByTupleIdSafe(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
        }
+   }
+
+   PyObject *minimalDistanceTo(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception)
+   {
+     int thisTupleId,otherTupleId;
+     double r0=self->minimalDistanceTo(other,thisTupleId,otherTupleId);
+     PyObject *ret=PyTuple_New(3);
+     PyTuple_SetItem(ret,0,PyFloat_FromDouble(r0));
+     PyTuple_SetItem(ret,1,PyInt_FromLong(thisTupleId));
+     PyTuple_SetItem(ret,2,PyInt_FromLong(otherTupleId));
+     return ret;
    }
 
    PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
@@ -6494,7 +6524,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
-    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td=ONE_TIME);
+    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
     void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
@@ -6564,7 +6594,8 @@ namespace ParaMEDMEM
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
     double norm2() const throw(INTERP_KERNEL::Exception);
     double normMax() const throw(INTERP_KERNEL::Exception);
-    double getWeightedAverageValue() const throw(INTERP_KERNEL::Exception);
+    //do not put a default value to isWAbs because confusion in python with overloaded getWeightedAverageValue method
+    double getWeightedAverageValue(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId) const throw(INTERP_KERNEL::Exception);
@@ -6593,7 +6624,7 @@ namespace ParaMEDMEM
         return MEDCouplingFieldDouble::New(type,td);
       }
 
-      MEDCouplingFieldDouble(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td=ONE_TIME)
+      MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME)
       {
         return MEDCouplingFieldDouble::New(ft,td);
       }
@@ -6786,32 +6817,35 @@ namespace ParaMEDMEM
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->accumulate(tmp);
-        PyObject *ret=convertDblArrToPyList(tmp,sz);
-        return ret;
+        return convertDblArrToPyList(tmp,sz);
       }
       PyObject *integral(bool isWAbs) const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->integral(isWAbs,tmp);
-        PyObject *ret=convertDblArrToPyList(tmp,sz);
-        return ret;
+        return convertDblArrToPyList(tmp,sz);
+      }
+      PyObject *getWeightedAverageValue(bool isWAbs=true) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz=self->getNumberOfComponents();
+        INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
+        self->getWeightedAverageValue(tmp,isWAbs);
+        return convertDblArrToPyList(tmp,sz);
       }
       PyObject *normL1() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL1(tmp);
-        PyObject *ret=convertDblArrToPyList(tmp,sz);
-        return ret;
+        return convertDblArrToPyList(tmp,sz);
       }
       PyObject *normL2() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
         self->normL2(tmp);
-        PyObject *ret=convertDblArrToPyList(tmp,sz);
-        return ret;
+        return convertDblArrToPyList(tmp,sz);
       }
       void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
       {
@@ -7014,14 +7048,14 @@ namespace ParaMEDMEM
   class MEDCouplingFieldTemplate : public ParaMEDMEM::MEDCouplingField
   {
   public:
-    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
     void updateTime() const;
     %extend
        {
-         MEDCouplingFieldTemplate(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception)
+         MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception)
          {
            return MEDCouplingFieldTemplate::New(f);
          }

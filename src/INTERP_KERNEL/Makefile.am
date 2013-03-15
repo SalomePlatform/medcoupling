@@ -28,6 +28,7 @@ lib_LTLIBRARIES = libinterpkernel.la
 
 salomeinclude_HEADERS = 		\
 BBTree.txx				\
+BBTreePts.txx				\
 BoundingBox.hxx				\
 CellModel.hxx				\
 ConvexIntersector.hxx			\

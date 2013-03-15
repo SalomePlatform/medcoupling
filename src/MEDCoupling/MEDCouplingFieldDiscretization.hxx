@@ -47,7 +47,7 @@ namespace ParaMEDMEM
     void setPrecision(double val) { _precision=val; }
     void updateTime() const;
     std::size_t getHeapMemorySize() const;
-    static TypeOfField getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
+    static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
@@ -56,7 +56,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
     virtual std::string getStringRepr() const = 0;
     virtual const char *getRepr() const = 0;
-    virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
+    virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
     virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
     virtual void normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
@@ -115,7 +115,7 @@ namespace ParaMEDMEM
     std::string getStringRepr() const;
     const char *getRepr() const;
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
@@ -142,7 +142,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationOnNodes : public MEDCouplingFieldDiscretization
   {
   public:
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
@@ -217,7 +217,7 @@ namespace ParaMEDMEM
     std::string getStringRepr() const;
     const char *getRepr() const;
     std::size_t getHeapMemorySize() const;
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
@@ -280,7 +280,7 @@ namespace ParaMEDMEM
     std::string getStringRepr() const;
     const char *getRepr() const;
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,

@@ -42,6 +42,7 @@ namespace ParaMEDMEM
     TimeLabel();
     virtual ~TimeLabel();
     void updateTimeWith(const TimeLabel& other) const;
+    void forceTimeOfThis(const TimeLabel& other) const;
   private:
     static unsigned int GLOBAL_TIME;
     mutable unsigned int _time;

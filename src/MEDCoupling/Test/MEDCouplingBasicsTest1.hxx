@@ -91,6 +91,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFindNodeOnPlane );
     CPPUNIT_TEST( testRenumberCells );
     CPPUNIT_TEST( testChangeSpaceDimension );
+    CPPUNIT_TEST( testSetConnectivity );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
@@ -148,6 +149,7 @@ namespace ParaMEDMEM
     void testFindNodeOnPlane();
     void testRenumberCells();
     void testChangeSpaceDimension();
+    void testSetConnectivity();
   };
 }
 

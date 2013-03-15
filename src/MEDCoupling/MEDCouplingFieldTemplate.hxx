@@ -30,7 +30,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingFieldTemplate : public MEDCouplingField
   {
   public:
-    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
@@ -44,7 +44,7 @@ namespace ParaMEDMEM
     void serialize(DataArrayInt *&dataInt) const;
     //
   private:
-    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldTemplate(TypeOfField type);
   };
 }
