@@ -1,14 +1,127 @@
 /*!
-\page medcouplingcppexamples <br><h1> MEDCoupling C++ examples </h1>
+\page medcouplingcppexamples MEDCoupling C++ examples
 
 
-\anchor cpp_mcdataarrayint_
+\anchor cpp_mcpointset_
 <br><h2>  </h2>
 
-\snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_
-\snippet MEDCouplingExamplesTest.py PySnippet_DataArrayInt_
-\snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_
+\snippet MEDCouplingExamplesTest.py PySnippet_MEDCouplingPointSet_
+\snippet MEDCouplingExamplesTest.py Snippet_MEDCouplingPointSet_
 
+
+\anchor cpp_mcpointset_scale
+<br><h2> Scaling the mesh </h2>
+
+First, we create a 2D mesh with 4 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_scale_1
+Then we scale it by a factor of 2 with a center (0.,0.).
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_scale_2
+Finally we check that all node coordinates have changed by more than 0.9.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_scale_3
+
+
+
+
+\anchor cpp_mcpointset_translate
+<br><h2> Translating the mesh </h2>
+
+First, we create a 2D mesh with 4 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_translate_1
+Then we translate it by a vector (1.,1.).
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_translate_2
+Finally we check that all node coordinates have changed by more than 0.9.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_translate_3
+
+
+
+\anchor cpp_mcpointset_rotate
+<br><h2> Rotating the mesh </h2>
+
+First, we create a 2D mesh with 4 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_rotate_1
+Then we rotate it around a point (0.,0.) by 90 degrees clockwise.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_rotate_2
+Next, we make a 3D mesh from the 2D one and rotate it around the Z axis by 90 degrees
+counter-clockwise. 
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_rotate_3
+Finally we transform the mesh back to 2D space and check that all nodes get back to the
+initial location.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_rotate_4
+
+\anchor cpp_mcpointset_getBoundingBox
+<br><h2> Getting a minimum box bounding nodes </h2>
+
+First, we create a 3D mesh with 2 nodes, so that the first one has minimal coordinates and
+the second one has maximal coordinates.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getBoundingBox_1
+Now we get a bounding box enclosing these nodes. This bounding box should contain
+coordinates of our two nodes (but in "no interlace" mode), as the nodes coincide with
+points returned by the bounding box.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getBoundingBox_2
+
+
+\anchor cpp_mcpointset_getnodeidsnearpoint
+<br><h2> Getting nodes close to a point </h2>
+
+The following code creates a 2D \ref ParaMEDMEM::MEDCouplingUMesh
+"MEDCouplingUMesh" with 5 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_1
+Now we define an array of coordinates of a point close to nodes #0, #2 and #4.
+
+Thus we expect that 
+\ref ParaMEDMEM::MEDCouplingPointSet::getNodeIdsNearPoint "getNodeIdsNearPoint()" that
+we are going to use,
+if called with \b eps = 0.003, would return ids of nodes #0, #2 and #4.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2
+
+
+\anchor cpp_mcpointset_getnodeidsnearpoints
+<br><h2> Getting nodes close to some points </h2>
+
+The following code creates a 2D \ref ParaMEDMEM::MEDCouplingUMesh
+"MEDCouplingUMesh" with 7 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1
+Now we define an array of coordinates of 3 points near which we want to find nodes of the mesh.
+- Point #0 is at distance 0.001 from the node #1.
+- Point #1 is rather far from all nodes.
+- Point #2 is close to nodes #3, #4 and #5.
+
+Thus we expect that 
+\ref ParaMEDMEM::MEDCouplingPointSet::getNodeIdsNearPoints "getNodeIdsNearPoints()" that
+we are going to use,
+if called with \b eps = 0.003, would return ids of close nodes #1, #3, #4 and #5.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2
+\b idsIndex returns [0, 1, 1, 4] which means that:
+- Point #0 is close to 1 (== \b idsIndex[1] - \b idsIndex[0]) node whose id is 
+\b ids[ \b idsIndex[ 0 ]].
+- Point #1 is close to 0 (== \b idsIndex[2] - \b idsIndex[1]) nodes.
+- Point #2 is close to 3 (== \b idsIndex[3] - \b idsIndex[2]) nodes whose ids are
+\b ids[ \b idsIndex[ 2 ]], \b ids[ \b idsIndex[ 2 ] + 1 ] and \b ids[ \b idsIndex[ 2 ] + 2 ].
+
+
+\anchor cpp_mcpointset_findcommonnodes
+<br><h2> Finding coincident nodes </h2>
+
+First, we create a mesh with 6 nodes, of which two nodes (#3 and #4) are fully coincident
+and 3 nodes (#0, #2 and #5) have distance less than 0.004 between them.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_findCommonNodes_1
+Then, we use \ref ParaMEDMEM::MEDCouplingPointSet::findCommonNodes() "findCommonNodes()" to find
+coincident nodes, and check that (1) calling 
+\ref ParaMEDMEM::MEDCouplingPointSet::findCommonNodes() "findCommonNodes()" with \b prec
+== 1e-13 finds the two fully coincident nodes only and (2)
+\ref ParaMEDMEM::MEDCouplingPointSet::findCommonNodes() "findCommonNodes"(0.004) finds 5
+equal nodes.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_findCommonNodes_2
+
+\anchor cpp_mcpointset_getcoordinatesofnode
+<br><h2> Getting coordinates of a node </h2>
+
+The following code creates a 2D \ref ParaMEDMEM::MEDCouplingUMesh
+"MEDCouplingUMesh" with 3 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_1
+Here we get coordinates of the second node and check its two coordinates.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_2
 
 \anchor cpp_mcdataarrayint_getTuple
 <br><h2> Getting a tuple of DataArrayInt </h2>

@@ -206,8 +206,8 @@ void MEDCouplingUMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Ex
 
 void MEDCouplingUMesh::setMeshDimension(int meshDim)
 {
-  if(meshDim<-1)
-    throw INTERP_KERNEL::Exception("Invalid meshDim specified ! Must be greater or equal to -1 !");
+  if(meshDim<-1 || meshDim>3)
+    throw INTERP_KERNEL::Exception("Invalid meshDim specified ! Must be greater or equal to -1 and lower or equal to 3 !");
   _mesh_dim=meshDim;
   declareAsNew();
 }

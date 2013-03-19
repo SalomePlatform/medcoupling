@@ -52,7 +52,8 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \
 	MEDCouplingNatureOfField.cxx MEDCouplingMultiFields.cxx                             \
 	MEDCouplingDefinitionTime.cxx MEDCouplingFieldOverTime.cxx                          \
-	MEDCouplingCurveLinearMesh.cxx MEDCouplingStructuredMesh.cxx
+	MEDCouplingCurveLinearMesh.cxx MEDCouplingStructuredMesh.cxx                        \
+	MEDCouplingMemArrayChar.cxx
 
 libmedcoupling_la_LDFLAGS= 
 

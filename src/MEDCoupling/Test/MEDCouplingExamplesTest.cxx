@@ -26,6 +26,231 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
 
+
+void CppExample_MEDCouplingPointSet_scale()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_scale_1]
+  double coords[4*2]={0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0}; // 2D coordinates of 4 nodes
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  DataArrayDouble *initCoords = coordsArr->deepCpy();
+  //! [CppSnippet_MEDCouplingPointSet_scale_1]
+  //! [CppSnippet_MEDCouplingPointSet_scale_2]
+  const double center[2] = {0.,0.};
+  const double factor = 2.;
+  mesh->scale( center, factor );
+  //! [CppSnippet_MEDCouplingPointSet_scale_2]
+  //! [CppSnippet_MEDCouplingPointSet_scale_3]
+  const DataArrayDouble * coordsArr2 = mesh->getCoords();
+  CPPUNIT_ASSERT( coordsArr2->isEqualWithoutConsideringStr( *initCoords, 1.0 ));
+  CPPUNIT_ASSERT( !coordsArr2->isEqualWithoutConsideringStr( *initCoords, 0.9 ));
+  // release data
+  mesh->decrRef();
+  coordsArr->decrRef();
+  initCoords->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_scale_3]
+}
+
+void CppExample_MEDCouplingPointSet_translate()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_translate_1]
+  double coords[4*2]={0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0}; // 2D coordinates of 4 nodes
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  DataArrayDouble *initCoords = coordsArr->deepCpy();
+  //! [CppSnippet_MEDCouplingPointSet_translate_1]
+  //! [CppSnippet_MEDCouplingPointSet_translate_2]
+  double vector[2] = {1.,1.};
+  mesh->translate( vector );
+  //! [CppSnippet_MEDCouplingPointSet_translate_2]
+  //! [CppSnippet_MEDCouplingPointSet_translate_3]
+  const DataArrayDouble * coordsArr2 = mesh->getCoords();
+  CPPUNIT_ASSERT( coordsArr2->isEqualWithoutConsideringStr( *initCoords, 1.0 ));
+  CPPUNIT_ASSERT( !coordsArr2->isEqualWithoutConsideringStr( *initCoords, 0.9 ));
+  // release data
+  mesh->decrRef();
+  coordsArr->decrRef();
+  initCoords->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_translate_3]
+}
+
+void CppExample_MEDCouplingPointSet_rotate()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_rotate_1]
+  double coords[4*2]={0.0,0.0, 0.1,0.0, 0.1,0.1, 0.0,0.1}; // 2D coordinates of 4 nodes
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  //! [CppSnippet_MEDCouplingPointSet_rotate_1]
+  //! [CppSnippet_MEDCouplingPointSet_rotate_2]
+  double center[3] = {0.,0.,0.}; // it suits for 2D as well
+  double vector[3] = {0.,0.,1.}; // it is not used in 2D
+  mesh->rotate( center, vector, -M_PI/2);
+  //! [CppSnippet_MEDCouplingPointSet_rotate_2]
+  //! [CppSnippet_MEDCouplingPointSet_rotate_3]
+  mesh->changeSpaceDimension(3);
+  mesh->rotate( center, vector, +M_PI/2);
+  //! [CppSnippet_MEDCouplingPointSet_rotate_3]
+  //! [CppSnippet_MEDCouplingPointSet_rotate_4]
+  mesh->changeSpaceDimension(2);
+  const DataArrayDouble * coordsArr2 = mesh->getCoords();
+  CPPUNIT_ASSERT( coordsArr2->isEqualWithoutConsideringStr( *coordsArr, 1e-13 ));
+  // release data
+  mesh->decrRef();
+  coordsArr->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_rotate_4]
+}
+
+void CppExample_MEDCouplingPointSet_getBoundingBox()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_1]
+  double cc[2*3]={0.0, 0.1, 0.2, // 3D coordinates of 2 nodes
+                  2.0, 2.1, 2.2};
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(cc, 2,3);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  coordsArr->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_1]
+  //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_2]
+  double bbox[3][2];
+  mesh->getBoundingBox( (double*) bbox );
+  mesh->decrRef();
+
+  // check the returned coordinates of extremum points of the bounding box
+  for ( int i = 0; i < 2; ++i )   // point id
+    for ( int j = 0; j < 3; ++j ) // component
+      CPPUNIT_ASSERT_DOUBLES_EQUAL( cc[ i*3 + j ], bbox[j][i], 1e-13);
+  //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_2]
+}
+
+void CppExample_MEDCouplingPointSet_getNodeIdsNearPoint()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_1]
+  // 2D coordinates of 5 nodes
+  double coords[5*2]={0.3,-0.301, // #0
+                      0.2,-0.3,   // #1
+                      0.3,-0.302, // #2
+                      1.1,0.0,    // #3
+                      0.3,-0.303};// #4
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 5,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  coordsArr->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_1]
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2]
+  double point [2]={0.3, -0.3}; // point close to nodes #0, #2 and #4
+  DataArrayInt *ids = mesh->getNodeIdsNearPoint(point, 1e-13);
+
+  // check found ids
+  const int expectedIDs[3] = {0,2,4};
+  DataArrayInt * okIDs = ids->getIdsEqualList ( expectedIDs, expectedIDs+3 );
+  CPPUNIT_ASSERT_EQUAL(3, okIDs->getNumberOfTuples());
+
+  // release data
+  mesh->decrRef();
+  ids->decrRef();
+  okIDs->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2]
+}
+void CppExample_MEDCouplingPointSet_getNodeIdsNearPoints()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1]
+  // 2D coordinates of 7 nodes
+  double coords[7*2]={0.3,-0.301, // #0
+                      0.2,-0.3,   // #1
+                      0.3,-0.302, // #2
+                      1.1,0.0,    // #3
+                      1.1,0.0,    // #4
+                      1.1,0.002,  // #5
+                      0.3,-0.303};// #6
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 7,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  coordsArr->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1]
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2]
+  const int nbOfPoints = 3;
+  double points [nbOfPoints*2]={0.2,-0.301,  // ~ node #1
+                                0.0, 0.0,
+                                1.1, 0.002}; // ~ nodes #3, #4 and #5
+  DataArrayInt *ids, *idsIndex;
+  mesh->getNodeIdsNearPoints(points, nbOfPoints, 1e-13,ids,idsIndex);
+
+  // check found ids (i.e. contents of 'ids' array)
+  const int expectedIDs[4] = {1, 3, 4, 5};
+  DataArrayInt * okIDs = ids->getIdsEqualList ( expectedIDs, expectedIDs+4 );
+  CPPUNIT_ASSERT_EQUAL(4, okIDs->getNumberOfTuples());
+
+  // release data
+  mesh->decrRef();
+  ids->decrRef();
+  idsIndex->decrRef();
+  okIDs->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2]
+}
+
+void CppExample_MEDCouplingPointSet_findCommonNodes()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_1]
+  double coords[6*2]={0.3,-0.301, // 0
+                      0.2,-0.3,   // 1
+                      0.3,-0.302, // 2
+                      1.1,0.0,    // 3
+                      1.1,0.0,    // 4
+                      0.3,-0.303};// 5
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 6,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  coordsArr->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_1]
+  //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_2]
+  DataArrayInt *com, *comI;
+  mesh->findCommonNodes(1e-13,-1,com,comI);
+  CPPUNIT_ASSERT_EQUAL(2, com->getNumberOfTuples());
+  mesh->findCommonNodes(0.004,-1,com,comI);
+  CPPUNIT_ASSERT_EQUAL(5, com->getNumberOfTuples());
+  //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_2]
+  mesh->decrRef();
+  com->decrRef();
+  comI->decrRef();
+}
+
+void CppExample_MEDCouplingPointSet_getCoordinatesOfNode()
+{
+  using namespace ParaMEDMEM;
+  //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
+  double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3};
+  DataArrayDouble *coordsArr=DataArrayDouble::New();
+  coordsArr->useExternalArrayWithRWAccess(coords, 3,2);
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setCoords(coordsArr);
+  coordsArr->decrRef();
+  //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
+  //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_2]
+  std::vector<double> coords2;
+  mesh->getCoordinatesOfNode(1,coords2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(coords[0],coords2[0],1e-13);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(coords[1],coords2[1],1e-13);
+  //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_2]
+  mesh->decrRef();
+}
+
 void CppExample_DataArrayInt_buildPermutationArr()
 {
   using namespace ParaMEDMEM;

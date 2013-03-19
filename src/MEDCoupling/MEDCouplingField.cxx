@@ -45,7 +45,7 @@ bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double mes
     }
   if(_nature!=other->_nature)
     {
-      oss << "Field nature differ : this nature = \"" << MEDCouplingNatureOfField::getRepr(_nature) << "\" and other nature = \"" << MEDCouplingNatureOfField::getRepr(other->_nature) << "\" !";
+      oss << "Field nature differ : this nature = \"" << MEDCouplingNatureOfField::GetRepr(_nature) << "\" and other nature = \"" << MEDCouplingNatureOfField::GetRepr(other->_nature) << "\" !";
       reason=oss.str();
       return false;
     }

@@ -2669,6 +2669,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(nodeCor==None);
         cellCor=0;
         self.assertTrue(nodeCor==None);
+        a,b=mesh1.checkDeepEquivalWith(mesh2,0,1e-12);
+        self.assertEqual(renum,list(a.getValues()))
+        self.assertTrue(b==None);
+        mesh2.setCoords(mesh1.getCoords())
+        a=mesh1.checkDeepEquivalOnSameNodesWith(mesh2,0,1e-12);
+        self.assertEqual(renum,list(a.getValues()))
         #4th test : cell and node permutation by keeping the first the middle and the last as it is.
         mesh2=MEDCouplingDataForTest.build2DTargetMesh_3();
         renum2=[0,2,1,3,4,5,6,8,7,9,10]
@@ -11443,6 +11449,167 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         res6=f.integral(False)
         self.assertAlmostEqual(res6[0],4.*integExp0,12)
         self.assertAlmostEqual(res6[1],4.*integExp1,11)
+        pass
+
+    def testSwig2SlowDADFindClosestTupleId(self):
+        nbPts=[10,]
+        for nbPt in nbPts:
+            d=DataArrayDouble(nbPt) ; d.iota() ; d*=1./(nbPt-1)
+            c=MEDCouplingCMesh() ; c.setCoords(d,d) ; m=c.buildUnstructured() ; pts=m.getCoords() ; del m
+            #
+            d0=DataArrayDouble((nbPt-1)*(nbPt-1)) ; d0.iota() ; d0*=(3./((nbPt-1)*(nbPt-1))) ; d0=d0.applyFunc("exp(x)-1")
+            d1=DataArrayDouble((nbPt-1)*(nbPt-1)) ; d1.iota()
+            d2=DataArrayDouble.Meld(d0,d1) ; d2=d2.fromPolarToCart() ; d2+=[0.32,0.73]
+            ids=pts.findClosestTupleId(d2)
+            #print "Start of costly computation"
+            idsExpected=DataArrayInt(len(d2))
+            tmp=1e300
+            for i,elt in enumerate(d2):
+                l,m=(pts-elt).magnitude().getMinValue()
+                idsExpected.setIJSilent(i,0,m)
+                if l<tmp:
+                    tmp=l ; tmp1=m ; tmp2=i
+                    pass
+                pass
+            #print "End of costly computation"
+            self.assertTrue(idsExpected.isEqual(ids))
+            a,b,c=pts.minimalDistanceTo(d2)
+            self.assertEqual(tmp,a)
+            self.assertEqual(tmp1,b)
+            self.assertEqual(tmp2,c)
+            #
+            l=[d2[:,i] for i in [0,1]]
+            for elt in l: elt.reverse()
+            d2i=DataArrayDouble.Meld(l)
+            ids1=pts.findClosestTupleId(d2i)
+            idsExpectedI=idsExpected.deepCpy() ; idsExpectedI.reverse()
+            self.assertTrue(idsExpectedI.isEqual(ids1))
+            #
+            l=[pts[:,i] for i in [0,1]]
+            for elt in l: elt.reverse()
+            ptsi=DataArrayDouble.Meld(l)
+            ids2=ptsi.findClosestTupleId(d2)
+            idsExpected2=nbPt*nbPt-1-ids
+            self.assertTrue(idsExpected2.isEqual(ids2))
+            #
+            ids3=ptsi.findClosestTupleId(d2i)
+            idsExpected3=idsExpected2.deepCpy() ; idsExpected3.reverse()
+            self.assertTrue(idsExpected3.isEqual(ids3))
+            pass
+
+    def testSwig2DataArrayAsciiChar1(self):
+        alpha=DataArrayInt(26) ; alpha.iota(ord("A"))
+        d=DataArrayAsciiChar(alpha.getValues(),2,13)
+        d.setInfoOnComponents(["c%i"%(v) for v in xrange(13)])
+        self.assertEqual('ABCDEFGHIJKLM',d.getTuple(0))
+        self.assertEqual('NOPQRSTUVWXYZ',d.getTuple(1))
+        self.assertEqual(2,d.getNumberOfTuples())
+        self.assertEqual(26,d.getNbOfElems())
+        self.assertEqual(13,d.getNumberOfComponents())
+        dd=d.deepCpy()
+        self.assertTrue(d.isEqual(dd))
+        dd.setIJ(0,3,'d')
+        self.assertTrue(not d.isEqual(dd))
+        d.setIJ(0,3,ord('d'))
+        self.assertTrue(d.isEqual(dd))
+        d.rearrange(1)
+        d.reserve(20)
+        self.assertEqual(20,d.getNumberOfTuples())
+        self.assertEqual(20,d.getNbOfElems())
+        self.assertEqual(1,d.getNumberOfComponents())
+        #
+        d0=DataArrayAsciiChar([ord('a')],1,1)
+        self.assertEqual('a',d0.asciiCharValue())
+        self.assertTrue(not d0.empty())
+        d0=DataArrayAsciiChar(0,3)
+        self.assertTrue(d0.empty())
+        d.pushBackSilent("U") ; d.pushBackSilent("V") ; d.pushBackSilent("W")
+        self.assertEqual("W",d.popBackSilent())
+        d.rearrange(2)
+        self.assertEqual(['AB','Cd','EF','GH','IJ','KL','MN','OP','QR','ST','UV'],d.toStrList())
+        d.fillWithZero()
+        self.assertEqual(11*[''],d.toStrList())
+        d.fillWithValue('T')
+        self.assertEqual(11*["TT"],d.toStrList())
+        d.rearrange(1)
+        self.assertTrue(d.isUniform("T"))
+        d.rearrange(2)
+        #
+        dd.rearrange(2)
+        dd2=dd.deepCpy()
+        dd.renumberInPlace([3,1,2,4,0,11,10,9,8,7,5,12,6])
+        self.assertEqual(dd.toStrList(),['IJ','Cd','EF','AB','GH','UV','YZ','ST','QR','OP','MN','KL','WX'])
+        dd.renumberInPlaceR([3,1,2,4,0,11,10,9,8,7,5,12,6])
+        self.assertEqual(['AB','Cd','EF','GH','IJ','KL','MN','OP','QR','ST','UV','WX','YZ'],dd.toStrList())
+        e=dd.renumber([3,1,2,4,0,11,10,9,8,7,5,12,6])
+        self.assertEqual(e.toStrList(),['IJ','Cd','EF','AB','GH','UV','YZ','ST','QR','OP','MN','KL','WX'])
+        e=dd.renumberR([3,1,2,4,0,11,10,9,8,7,5,12,6])
+        self.assertEqual(e.toStrList(),['GH','Cd','EF','IJ','AB','WX','UV','ST','QR','OP','KL','YZ','MN'])
+        e=dd.renumberAndReduce([1,1,1,1,1,1,1,2,0,0,0,0,0],3)
+        self.assertEqual(['YZ','MN','OP'],e.toStrList())
+        self.assertEqual(['GH','IJ'],dd.selectByTupleIdSafe([3,4]).toStrList())
+        self.assertEqual(['AB','GH','MN','ST','YZ'],dd.selectByTupleId2(0,13,3).toStrList())
+        dd3=dd.changeNbOfComponents(3,"G")
+        self.assertEqual(['ABG','CdG','EFG','GHG','IJG','KLG','MNG','OPG','QRG','STG','UVG','WXG','YZG'],dd3.toStrList())
+        dd3.rearrange(1) ; self.assertEqual("G",dd3.back()) ; dd3.rearrange(3)
+        self.assertTrue(dd3.changeNbOfComponents(2,"\0").isEqual(dd))
+        self.assertEqual(len(dd),13)
+        d=DataArrayAsciiChar(13,2) ; d.fillWithValue('Y')
+        dd3.meldWith(d)
+        self.assertEqual(['ABGYY','CdGYY','EFGYY','GHGYY','IJGYY','KLGYY','MNGYY','OPGYY','QRGYY','STGYY','UVGYY','WXGYY','YZGYY'],dd3.toStrList())
+        self.assertEqual("d",dd3.getIJ(0,6))
+        self.assertRaises(InterpKernelException,dd3.getIJSafe,0,6)
+        self.assertEqual("d",dd3.getIJSafe(1,1))
+        dd3.rearrange(1)
+        e=dd3.getIdsEqual("Y")
+        self.assertTrue(e.isEqual(DataArrayInt([3,4,8,9,13,14,18,19,23,24,28,29,33,34,38,39,43,44,48,49,53,54,58,59,60,63,64])))
+        e=dd3.getIdsNotEqual("Y")
+        self.assertTrue(e.isEqual(DataArrayInt([0,1,2,5,6,7,10,11,12,15,16,17,20,21,22,25,26,27,30,31,32,35,36,37,40,41,42,45,46,47,50,51,52,55,56,57,61,62])))
+        self.assertEqual(("d",6),dd3.getMaxValue())
+        self.assertEqual(("A",0),dd3.getMinValue())
+        self.assertEqual(26,dd3.search("LGYYM"))
+        self.assertEqual(-1,dd3.search("LGYYN"))
+        dd3.rearrange(5)
+        self.assertEqual(7,dd3.locateTuple("OPGYY"))
+        self.assertTrue("OPGYY" in dd3)
+        self.assertEqual(7,dd3.index("OPGYY"))
+        self.assertEqual(-1,dd3.locateTuple("OPGYP"))
+        dd3.rearrange(1)
+        self.assertEqual(2,dd3.locateValue("OPGYY"))
+        self.assertTrue(dd3.presenceOfValue("OPGYY"))
+        self.assertTrue("O" in dd3)
+        self.assertTrue(not dd3.presenceOfValue("z"))
+        self.assertTrue("z" not in dd3)
+        dd3.rearrange(5)
+        l=list(dd3)
+        self.assertEqual([e.buildDAAsciiChar().toStrList()[0] for e in list(dd3)],dd3.toStrList())
+        dd3.reAlloc(5)
+        dd4=DataArrayChar.Aggregate(dd3,dd3)
+        self.assertEqual(['ABGYY','CdGYY','EFGYY','GHGYY','IJGYY','ABGYY','CdGYY','EFGYY','GHGYY','IJGYY'],dd4.toStrList())
+        dd5=DataArrayChar.Aggregate([dd4,dd3,dd4])
+        self.assertEqual(['ABGYY','CdGYY','EFGYY','GHGYY','IJGYY','ABGYY','CdGYY','EFGYY','GHGYY','IJGYY','ABGYY','CdGYY','EFGYY','GHGYY','IJGYY','ABGYY','CdGYY','EFGYY','GHGYY','IJGYY','ABGYY','CdGYY','EFGYY','GHGYY','IJGYY'],dd5.toStrList())
+        # getitem, __iter__,__setitem__
+        a=list(dd3)
+        self.assertEqual("ABGYY",str(a[0]))
+        dd4=dd3[::2]
+        self.assertEqual(['ABGYY','EFGYY','IJGYY'],dd4.toStrList())
+        dd4=dd3[(3,2,1)]
+        self.assertEqual(['GHGYY','EFGYY','CdGYY'],dd4.toStrList())
+        dd4=dd3[:]
+        dd4[::2]=["12","345","67890"]
+        self.assertEqual(['12   ','CdGYY','345  ','GHGYY','67890'],dd4.toStrList())
+        dd4=dd3[:]
+        dd4[[1,2]]=" "
+        self.assertEqual(['ABGYY','     ','     ','GHGYY','IJGYY'],dd4.toStrList())
+        dd4=dd3[:]
+        dd4[4]='12345'
+        self.assertEqual(['ABGYY','CdGYY','EFGYY','GHGYY','12345'],dd4.toStrList())
+        dd4[0]=dd4[1]
+        self.assertEqual(['CdGYY','CdGYY','EFGYY','GHGYY','12345'],dd4.toStrList())
+        dd4=DataArrayAsciiChar(["abc","de","fghi"])
+        self.assertEqual(['abc ','de  ','fghi'],dd4.toStrList())
+        dd4=DataArrayAsciiChar(["abc","de","fghi"],"t")
+        self.assertEqual(['abct','dett','fghi'],dd4.toStrList())
         pass
 
     def setUp(self):

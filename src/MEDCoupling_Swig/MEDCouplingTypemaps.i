@@ -17,6 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "InterpKernelAutoPtr.hxx"
+
 #ifdef WITH_NUMPY2
 #include <numpy/arrayobject.h>
 #endif
@@ -52,6 +54,18 @@ static PyObject *convertFieldDiscretization(ParaMEDMEM::MEDCouplingFieldDiscreti
     ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationKriging,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of field discretization on downcast !");
+  return ret;
+}
+
+static PyObject *convertDataArrayChar(ParaMEDMEM::DataArrayChar *dac, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(dynamic_cast<ParaMEDMEM::DataArrayByte *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,owner);
+  if(dynamic_cast<ParaMEDMEM::DataArrayAsciiChar *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of DataArrayChar on downcast !");
   return ret;
 }
 
@@ -476,6 +490,40 @@ static std::vector<int> fillArrayWithPyListInt2(PyObject *pyLi, int& nbOfTuples,
   return ret;
 }
 
+static bool fillStringVector(PyObject *pyLi, std::vector<std::string>& vec) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(pyLi))
+    {
+      Py_ssize_t sz=PyList_Size(pyLi);
+      vec.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyString_Check(o))
+            vec[i]=PyString_AsString(o);
+          else
+            return false;
+        }
+      return true;
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      Py_ssize_t sz=PyTuple_Size(pyLi);
+      vec.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyString_Check(o))
+            vec[i]=PyString_AsString(o);
+          else
+            return false;
+        }
+      return true;
+    }
+  else
+    return false;
+}
+
 static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=PyList_New(size);
@@ -502,6 +550,18 @@ static PyObject *convertDblArrToPyListOfTuple(const double *vals, int nbOfComp, 
       for(int j=0;j<nbOfComp;j++)
         PyTuple_SetItem(t,j,PyFloat_FromDouble(vals[i*nbOfComp+j]));
       PyList_SetItem(ret,i,t);
+    }
+  return ret;
+}
+
+static PyObject *convertCharArrToPyListOfTuple(const char *vals, int nbOfComp, int nbOfTuples) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=PyList_New(nbOfTuples);
+  INTERP_KERNEL::AutoPtr<char> tmp=new char[nbOfComp+1]; tmp[nbOfComp]='\0';
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      std::copy(vals+i*nbOfComp,vals+(i+1)*nbOfComp,(char *)tmp);
+      PyList_SetItem(ret,i,PyString_FromString(tmp));
     }
   return ret;
 }
@@ -933,8 +993,8 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
  * if python int -> cpp int sw=1
  * if python list[int] -> cpp vector<int> sw=2
  * if python tuple[int] -> cpp vector<int> sw=2
- * if python slicp -> cpp pair sw=3
- * if python DataArrayInt -> cpp DataArrayInt sw=4
+ * if python slicp -> cpp pair sw=3 (begin,end,step)
+ * if python DataArrayInt -> cpp DataArrayInt sw=4 . The returned pointer cannot be the null pointer ! If null an exception is thrown.
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
@@ -1013,7 +1073,7 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
       sw=4;
       return ;
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);;
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
   if(SWIG_IsOK(status))
     {
       ParaMEDMEM::DataArrayIntTuple *tmp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
@@ -1030,6 +1090,13 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
   throw INTERP_KERNEL::Exception(msg);
 }
 
+/*!
+ * if python int -> cpp int sw=1
+ * if python tuple[int] -> cpp vector<int> sw=2
+ * if python list[int] -> cpp vector<int> sw=2
+ * if python slice -> cpp pair sw=3
+ * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4 . WARNING The returned pointer can be the null pointer !
+ */
 static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayIntTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
@@ -1097,6 +1164,86 @@ static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int&
     throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, slice, DataArrayIntTuple");
   daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
   sw=4;
+}
+
+/*!
+ * if python string with size one -> cpp char sw=1
+ * if python string with size different from one -> cpp string sw=2
+ * if python tuple[string] or list[string] -> vector<string> sw=3
+ * if python not null pointer of DataArrayChar -> cpp DataArrayChar sw=4
+ * switch between (int,string,vector<string>,DataArrayChar)
+ */
+static void convertObjToPossibleCpp6(PyObject *value, int& sw, char& cTyp, std::string& sType, std::vector<std::string>& vsType, ParaMEDMEM::DataArrayChar *& dacType) throw(INTERP_KERNEL::Exception)
+{
+  const char *msg="4 types accepted : string, list or tuple of strings having same size, not null DataArrayChar instance.";
+  sw=-1;
+  if(PyString_Check(value))
+    {
+      const char *pt=PyString_AsString(value);
+      Py_ssize_t sz=PyString_Size(value);
+      if(sz==1)
+        {
+          cTyp=pt[0];
+          sw=1;
+          return;
+        }
+      else
+        {
+          sType=pt;
+          sw=2;
+          return;
+        }
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      vsType.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyString_Check(o))
+            vsType[i]=PyString_AsString(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not a string ! only tuples of strings accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=3;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      vsType.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyString_Check(o))
+            vsType[i]=PyString_AsString(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not string ! only lists of strings accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=3;
+      return;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayChar,0|0);
+  if(SWIG_IsOK(status))
+    {
+      dacType=reinterpret_cast< ParaMEDMEM::DataArrayChar * >(argp);
+      if(!dacType)
+        {
+          std::ostringstream oss; oss << msg << " Instance in null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      sw=4;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception(msg);
 }
 
 /*!

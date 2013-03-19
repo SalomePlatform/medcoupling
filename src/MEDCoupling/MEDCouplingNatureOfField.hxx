@@ -38,7 +38,7 @@ namespace ParaMEDMEM
   class MEDCouplingNatureOfField
   {
   public:
-    MEDCOUPLING_EXPORT static const char *getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static const char *GetRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
   private:
     static const int NB_OF_POSSIBILITIES=5;
     static const char *REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];

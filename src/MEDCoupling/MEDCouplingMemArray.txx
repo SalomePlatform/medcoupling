@@ -167,12 +167,13 @@ namespace ParaMEDMEM
         }
     return true;
   }
-  
+
   /*!
    * \param [in] sl is typically the number of components
+   * \return True if a not null pointer is present, False if not.
    */
   template<class T>
-  void MemArray<T>::repr(int sl, std::ostream& stream) const
+  bool MemArray<T>::reprHeader(int sl, std::ostream& stream) const
   {
     stream << "Number of tuples : ";
     if(!_pointer.isNull())
@@ -186,9 +187,21 @@ namespace ParaMEDMEM
       stream << "No data";
     stream << "\n";
     stream << "Data content :\n";
-    const T *data=getConstPointer();
-    if(!_pointer.isNull())
+    bool ret=!_pointer.isNull();
+    if(!ret)
+      stream << "No data !\n";
+    return ret;
+  }
+  
+  /*!
+   * \param [in] sl is typically the number of components
+   */
+  template<class T>
+  void MemArray<T>::repr(int sl, std::ostream& stream) const
+  {
+    if(reprHeader(sl,stream))
       {
+        const T *data=getConstPointer();
         if(_nb_of_elem!=0 && sl!=0)
           {
             int nbOfTuples=_nb_of_elem/sl;
@@ -203,8 +216,6 @@ namespace ParaMEDMEM
         else
           stream << "Empty Data\n";
       }
-    else
-      stream << "No data !\n";
   }
   
   /*!

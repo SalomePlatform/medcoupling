@@ -1,11 +1,6 @@
-// This file contains some code used for
+// This file contains some code used only for
 // 1) generation of documentation for inline methods of array classes
 // 2) grouping all methods into 3 lists" "Basic API", "Advanced API" and "Others..."
-
-/* class ParaMEDMEM::DataArray
- * @defgroup basic_api Basic API
- * @defgroup adv_api   Advanced API
- */
 
 namespace ParaMEDMEM
 {
@@ -290,7 +285,6 @@ DataArrayDouble::back() const;
 DataArrayDouble::getIJSafe(int tupleId, int compoId) const;
 DataArrayDouble::setIJ(int tupleId, int compoId, double newVal);
 DataArrayDouble::setIJSilent(int tupleId, int compoId, double newVal);
-DataArrayDouble::useExternalArrayWithRWAccess(const double* array, int nbOfTuple, int nbOfCompo);
 DataArrayDouble::writeOnPlace(int id, double element0, const double* others, int sizeOfOthers);
 DataArrayDouble::checkNoNullValues() const;
 DataArrayDouble::getMinMaxPerComponent(double* bounds) const;
@@ -385,6 +379,7 @@ DataArrayDouble::getConstPointer() const;
 DataArrayDouble::begin() const;
 DataArrayDouble::end() const;
 DataArrayDouble::useArray(const double* array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+DataArrayDouble::useExternalArrayWithRWAccess(const double* array, int nbOfTuple, int nbOfCompo);
 DataArrayDouble::insertAtTheEnd(InputIterator first, InputIterator last);
 DataArrayDouble::computeBBoxPerTuple(double epsilon=0.0) const;
 DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble* other, double eps, DataArrayInt *& c, DataArrayInt *& cI) const;

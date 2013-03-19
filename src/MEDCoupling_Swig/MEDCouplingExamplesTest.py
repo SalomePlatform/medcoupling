@@ -20,10 +20,178 @@
 
 from MEDCoupling import *
 import unittest
+from math import pi
 
 class MEDCouplingBasicsTest(unittest.TestCase):
-    def testExample_DataArrayInt_(self):
-#! [PySnippet_DataArrayInt__1]
+    def testExample_MEDCouplingPointSet_(self):
+        #! [PySnippet_MEDCouplingPointSet__1]
+        pass
+        # mesh.allocateCells(1);
+        # mesh.insertNextCell(NORM_QUAD4,4,range(4));
+        # mesh.finishInsertingCells();
+
+    def testExample_MEDCouplingPointSet_scale(self):
+        #! [PySnippet_MEDCouplingPointSet_scale_1]
+        coords=[0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0] # 2D coordinates of 4 nodes
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,4,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        initCoords = coordsArr.deepCpy()
+        #! [PySnippet_MEDCouplingPointSet_scale_1]
+        #! [PySnippet_MEDCouplingPointSet_scale_2]
+        center = [0.,0.]
+        factor = 2.
+        mesh.scale(center,factor)
+        #! [PySnippet_MEDCouplingPointSet_scale_2]
+        #! [PySnippet_MEDCouplingPointSet_scale_3]
+        coords2 = mesh.getCoords()
+        assert coords2.isEqualWithoutConsideringStr( initCoords, 1.0 )
+        assert not coords2.isEqualWithoutConsideringStr( initCoords, 0.9 )
+        #! [PySnippet_MEDCouplingPointSet_scale_3]
+        pass
+
+    def testExample_MEDCouplingPointSet_translate(self):
+        #! [PySnippet_MEDCouplingPointSet_translate_1]
+        coords=[0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0] # 2D coordinates of 4 nodes
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,4,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        initCoords = coordsArr.deepCpy()
+        #! [PySnippet_MEDCouplingPointSet_translate_1]
+        #! [PySnippet_MEDCouplingPointSet_translate_2]
+        vector = [1.,1.]
+        mesh.translate(vector)
+        #! [PySnippet_MEDCouplingPointSet_translate_2]
+        #! [PySnippet_MEDCouplingPointSet_translate_3]
+        coords2 = mesh.getCoords()
+        assert coords2.isEqualWithoutConsideringStr( initCoords, 1 )
+        assert not coords2.isEqualWithoutConsideringStr( initCoords, 0.9 )
+        #! [PySnippet_MEDCouplingPointSet_translate_3]
+        pass
+
+    def testExample_MEDCouplingPointSet_rotate(self):
+        #! [PySnippet_MEDCouplingPointSet_rotate_1]
+        coords=[0.0,0.0, 0.1,0.0, 0.1,0.1, 0.0,0.1] # 2D coordinates of 4 nodes
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,4,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingPointSet_rotate_1]
+        #! [PySnippet_MEDCouplingPointSet_rotate_2]
+        center = [0.,0.]
+        mesh.rotate(center,-pi/2)
+        #! [PySnippet_MEDCouplingPointSet_rotate_2]
+        #! [PySnippet_MEDCouplingPointSet_rotate_3]
+        mesh.changeSpaceDimension(3)
+        center = [0.,0.,0.]
+        vector = [0.,0.,1.]
+        mesh.rotate(center,vector,pi/2)
+        #! [PySnippet_MEDCouplingPointSet_rotate_3]
+        #! [PySnippet_MEDCouplingPointSet_rotate_4]
+        mesh.changeSpaceDimension(2)
+        coords2 = mesh.getCoords().getValues()
+        for i,c in enumerate( coords ):
+            self.assertAlmostEqual( c, coords2[i], 13 )
+        #! [PySnippet_MEDCouplingPointSet_rotate_4]
+        pass
+
+    def testExample_MEDCouplingPointSet_getBoundingBox(self):
+        #! [PySnippet_MEDCouplingPointSet_getBoundingBox_1]
+        cc=[0.0, 0.1, 0.2, # 3D coordinates of 2 nodes
+            2.0, 2.1, 2.2]
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(cc,2,3);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingPointSet_getBoundingBox_1]
+        #! [PySnippet_MEDCouplingPointSet_getBoundingBox_2]
+        bbox=mesh.getBoundingBox()
+        assert bbox == [( cc[0], cc[3] ), # NOTE: list of 3 tuples is retirned!
+                        ( cc[1], cc[4] ),
+                        ( cc[2], cc[5] )]
+        #! [PySnippet_MEDCouplingPointSet_getBoundingBox_2]
+
+    def testExample_MEDCouplingPointSet_getNodeIdsNearPoint(self):
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoint_1]
+        # 2D coordinates of 5 nodes
+        coords=[0.3,-0.301, # 0
+                0.2,-0.3,   # 1
+                0.3,-0.302, # 2
+                1.1,0.0,    # 3
+                0.3,-0.303];# 4
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,5,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoint_1]
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2]
+        point=[0.3, -0.3]   # point close to nodes #0, #2 and #4
+        ids=mesh.getNodeIdsNearPoint(point,0.003);
+        assert ids.getValues() == [0,2,4]
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2]
+        pass
+
+    def testExample_MEDCouplingPointSet_getNodeIdsNearPoints(self):
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1]
+        # 2D coordinates of 7 nodes
+        coords=[0.3,-0.301, # 0
+                0.2,-0.3,   # 1
+                0.3,-0.302, # 2
+                1.1,0.0,    # 3
+                1.1,0.0,    # 4
+                1.1,0.002,  # 5
+                0.3,-0.303];# 6
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,7,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1]
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2]
+        points=[0.2,-0.301,   # ~ node #1
+                0.0, 0.0,
+                1.1, 0.002]   # ~ nodes #3, #4 and #5
+        ids,idsIndex=mesh.getNodeIdsNearPoints(points,3,0.003);
+        assert ids.getValues() == [1, 3, 4, 5]
+        print idsIndex.getValues()
+        #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2]
+        pass
+
+    def testExample_MEDCouplingPointSet_findCommonNodes(self):
+        #! [PySnippet_MEDCouplingPointSet_findCommonNodes_1]
+        coords=[0.3,-0.301, # 0
+                0.2,-0.3,   # 1
+                0.3,-0.302, # 2
+                1.1,0.0,    # 3
+                1.1,0.0,    # 4
+                0.3,-0.303];# 5
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,6,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingPointSet_findCommonNodes_1]
+        #! [PySnippet_MEDCouplingPointSet_findCommonNodes_2]
+        comm,commI=mesh.findCommonNodes(1e-13)
+        assert comm.getValues() == [3,4]
+        comm,commI=mesh.findCommonNodes(0.004)
+        assert comm.getValues() == [0,2,5,3,4]
+        #! [PySnippet_MEDCouplingPointSet_findCommonNodes_2]
+        pass
+
+    def testExample_MEDCouplingPointSet_getCoordinatesOfNode(self):
+        #! [PySnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,3,2);
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+#! [PySnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
+#! [PySnippet_MEDCouplingPointSet_getCoordinatesOfNode_2]
+        nodeCoords=mesh.getCoordinatesOfNode(1)
+        self.assertAlmostEqual(0.2, nodeCoords[0],13);
+        self.assertAlmostEqual(-0.3,nodeCoords[1],13);
+#! [PySnippet_MEDCouplingPointSet_getCoordinatesOfNode_2]
         pass
 
     def testExample_DataArrayInt_getTuple(self):

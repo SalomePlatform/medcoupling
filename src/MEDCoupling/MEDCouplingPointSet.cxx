@@ -96,6 +96,11 @@ void MEDCouplingPointSet::setCoords(const DataArrayDouble *coords)
     }
 }
 
+/*!
+ * Returns a pointer to the array of point coordinates held by \a this.
+ *  \return DataArrayDouble * - the pointer to the array of point coordinates. The
+ *          caller is to delete this array using decrRef() as it is no more needed.
+ */
 DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
 {
   if(_coords)
@@ -104,8 +109,13 @@ DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
 }
 
 /*!
- * This method copyies all tiny strings from other (name and components name).
- * @throw if other and this have not same mesh type.
+ * Copies string attributes from an \a other mesh. The copied strings are
+ * - mesh name
+ * - mesh description
+ * - time units
+ * - textual data of the coordinates array (name and components info)
+ *
+ *  \param [in] other - the mesh to copy string attributes from.
  */
 void MEDCouplingPointSet::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
 {
@@ -134,6 +144,13 @@ bool MEDCouplingPointSet::isEqualIfNotWhy(const MEDCouplingMesh *other, double p
   return true;
 }
 
+/*!
+ * Checks equality of point coordinates with coordinates of an \a other mesh.
+ *        None textual data is considered.
+ *  \param [in] other - the mesh to compare coordinates with \a this one.
+ *  \param [in] prec - precision value to compare coordinates.
+ *  \return bool - \a true if coordinates of points are equal, \a false else.
+ */
 bool MEDCouplingPointSet::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
 {
   const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
@@ -161,12 +178,26 @@ bool MEDCouplingPointSet::areCoordsEqualIfNotWhy(const MEDCouplingPointSet& othe
   return ret;
 }
 
+/*!
+ * Checks equality of point coordinates with \a other point coordinates.
+ *        Textual data (name and components info) \b is compared as well.
+ *  \param [in] other - the point coordinates to compare with \a this one.
+ *  \param [in] prec - precision value to compare coordinates.
+ *  \return bool - \a true if coordinates of points are equal, \a false else.
+ */
 bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, double prec) const
 {
   std::string tmp;
   return areCoordsEqualIfNotWhy(other,prec,tmp);
 }
 
+/*!
+ * Checks equality of point coordinates with \a other point coordinates.
+ *        None textual data is considered.
+ *  \param [in] other - the point coordinates to compare with \a this one.
+ *  \param [in] prec - precision value to compare coordinates.
+ *  \return bool - \a true if coordinates of points are equal, \a false else.
+ */
 bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const
 {
   if(_coords==0 && other._coords==0)
@@ -179,7 +210,16 @@ bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingP
 }
 
 /*!
- * Returns coordinates of node with id 'nodeId' and append it in 'coo'.
+ * Returns coordinates of \a nodeId-th node.
+ *  \param [in] nodeId - the ID of the node of interest.
+ *  \param [in, out] coo - the array filled with coordinates of the \a nodeId-th
+ *         node. This array is not cleared before filling in, the coordinates are
+ *         appended to its end.
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a nodeId is not a valid index for the coordinates array.
+ *
+ *  \ref cpp_mcpointset_getcoordinatesofnode "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_getcoordinatesofnode "Here is a Python example".
  */
 void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
 {
@@ -200,12 +240,19 @@ void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& 
 }
 
 /*!
- * This method is typically the base method used for implementation of mergeNodes. This method computes this permutation array using as input,
- * This method is const ! So this method simply computes the array, no permutation of nodes is done.
- * a precision 'precision' and a 'limitNodeId' that is the node id so that every nodes which id is strictly lower than 'limitNodeId' will not be merged.
- * To desactivate this advanced feature put -1 to this argument.
- * @param areNodesMerged output parameter that states if some nodes have been "merged" in returned array
- * @param newNbOfNodes output parameter too this is the maximal id in returned array to avoid to recompute it.
+ * Finds nodes equal within \a precision and returns an array describing the 
+ * permutation to remove duplicated nodes.
+ *  \param [in] precision - minimal absolute distance between two nodes at which they are
+ *              considered not coincident.
+ *  \param [in] limitNodeId - limit node id. Nodes with id strictly lower than \a 
+ *              limitTupleId are \b not considered. Put -1 to this parameter to have
+ *              all nodes treated.
+ *  \param [out] areNodesMerged - is set to \a true if any coincident nodes found.
+ *  \param [out] newNbOfNodes - returns number of unique nodes.
+ *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
+ *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
+ *          is to delete this array using decrRef() as it is no more needed.
+ *  \throw If the coordinates array is not set.
  */
 DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, int limitNodeId, bool& areNodesMerged, int& newNbOfNodes) const
 {
@@ -220,11 +267,29 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, 
 }
 
 /*!
- * This methods searches for each node if there are any nodes in _coords that are less far than 'prec' from n1. if any, these nodes are stored in out params
- * comm and commIndex.
- * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged each other.
- * @param comm out parameter (not inout)
- * @param commIndex out parameter (not inout)
+ * Finds nodes coincident within \a prec tolerance.
+ * Ids of coincident nodes are stored in output arrays.
+ * A pair of arrays (\a comm, \a commIndex) is called "Surjective Format 2".
+ *  \param [in] prec - minimal absolute distance between two nodes at which they are
+ *              considered not coincident.
+ *  \param [in] limitNodeId - limit node id. Nodes with id strictly lower than \a 
+ *              limitTupleId are \b not considered. Put -1 to this parameter to have
+ *              all nodes treated.
+ *  \param [out] comm - the array holding ids of coincident nodes.
+ *               \a comm->getNumberOfComponents() == 1. 
+ *               \a comm->getNumberOfTuples() == \a commIndex->back(). The caller
+ *               is to delete this array using decrRef() as it is no more needed.
+ *  \param [out] commIndex - the array dividing all ids stored in \a comm into
+ *               groups of (ids of) coincident nodes. Its every value is a tuple
+ *               index where a next group of nodes begins. For example the second
+ *               group of nodes in \a comm is described by following range of indices:
+ *               [ \a commIndex[1], \a commIndex[2] ). \a commIndex->getNumberOfTuples()-1
+ *               gives the number of groups of coincident nodes. The caller
+ *               is to delete this array using decrRef() as it is no more needed.
+ *  \throw If the coordinates array is not set.
+ *
+ *  \ref cpp_mcpointset_findcommonnodes "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_findcommonnodes "Here is a Python example".
  */
 void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const
 {
@@ -233,6 +298,21 @@ void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArra
   _coords->findCommonTuples(prec,limitNodeId,comm,commIndex);
 }
 
+/*!
+ * Finds nodes located at distances lower that \a eps from a given point.
+ *  \param [in] pos - pointer to coordinates of the point.  This array is expected to
+ *         be of length \a this->getSpaceDimension() at least, else the
+ *         behavior is not warranted.
+ *  \param [in] eps - the lowest distance between a point and a node at which the node is
+ *          not returned by this method.
+ *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of nodes
+ *          close to the point. The caller is to delete this
+ *          array using decrRef() as it is no more needed.
+ *  \throw If the coordinates array is not set.
+ *
+ *  \ref cpp_mcpointset_getnodeidsnearpoint "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_getnodeidsnearpoint "Here is a Python example".
+ */
 DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception)
 {
   DataArrayInt *c=0,*cI=0;
@@ -242,17 +322,37 @@ DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double
 }
 
 /*!
- * Given a point given by its position 'pos' this method finds the set of node ids that are a a distance lower than eps.
- * Position 'pos' is expected to be of size getSpaceDimension()*nbOfNodes. If not the behabiour is not warranted.
- * This method throws an exception if no coordiantes are set.
+ * Finds nodes located at distances lower that \a eps from given points.
+ *  \param [in] pos - pointer to coordinates of the points. This array is expected to
+ *         be of length \a nbOfPoints * \a this->getSpaceDimension() at least, else the
+ *         behavior is not warranted.
+ *  \param [in] nbOfPoints - number of points whose coordinates are given by \a pos
+ *         parameter. 
+ *  \param [in] eps - the lowest distance between a point and a node at which the node is
+ *         not returned by this method.
+ *  \param [out] c - array returning ids of nodes located closer than \a eps to the
+ *         given points. The caller
+ *         is to delete this array using decrRef() as it is no more needed.
+ *  \param [out] cI - for each i-th given point, the array specifies tuples of \a c
+ *         holding ids of nodes close to the i-th point. <br>The i-th value of \a cI is an 
+ *         index of tuple of \a c holding id of a first (if any) node close to the
+ *         i-th given point. Difference between the i-th and (i+1)-th value of \a cI
+ *         (i.e. \a cI[ i+1 ] - \a cI[ i ]) defines number of nodes close to the i-th
+ *         point (that can be zero!). For example, the group of nodes close to the
+ *         second point is described by following range of indices [ \a cI[1], \a cI[2] ).
+ *         The caller is to delete this array using decrRef() as it is no more needed.
+ *  \throw If the coordinates array is not set.
+ *
+ *  \ref cpp_mcpointset_getnodeidsnearpoints "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_getnodeidsnearpoints "Here is a Python example".
  */
-void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, DataArrayInt *& c, DataArrayInt *& cI) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfPoints, double eps, DataArrayInt *& c, DataArrayInt *& cI) const throw(INTERP_KERNEL::Exception)
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
   int spaceDim=getSpaceDimension();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> points=DataArrayDouble::New();
-  points->useArray(pos,false,CPP_DEALLOC,nbOfNodes,spaceDim);
+  points->useArray(pos,false,CPP_DEALLOC,nbOfPoints,spaceDim);
   _coords->computeTupleIdsNearTuples(points,eps,c,cI);
 }
 
@@ -317,9 +417,17 @@ void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfN
 }
 
 /*!
- * This method fills bbox params like that : bbox[0]=XMin, bbox[1]=XMax, bbox[2]=YMin...
- * The returned bounding box is arranged along trihedron.
- * @param bbox out array of size 2*this->getSpaceDimension().
+ * Computes the minimum box bounding all nodes. The edges of the box are parallel to
+ * the Cartesian coordinate axes. The bounding box is described by coordinates of its
+ * two extremum points with minimal and maximal coordinates.
+ *  \param [out] bbox - array filled with coordinates of extremum points in "no
+ *         interlace" mode, i.e. xMin, xMax, yMin, yMax, zMin, zMax (if in 3D). This
+ *         array, of length 2 * \a this->getSpaceDimension() at least, is to be
+ *         pre-allocated by the caller.
+ *  \throw If the coordinates array is not set.
+ *
+ *  \ref cpp_mcpointset_getBoundingBox "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_getBoundingBox "Here is a Python example".
  */
 void MEDCouplingPointSet::getBoundingBox(double *bbox) const throw(INTERP_KERNEL::Exception)
 {
@@ -329,7 +437,9 @@ void MEDCouplingPointSet::getBoundingBox(double *bbox) const throw(INTERP_KERNEL
 }
 
 /*!
- * This method removes useless nodes in coords.
+ * Removes "free" nodes, i.e. nodes not used to define any element.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the elements are not defined.
  */
 void MEDCouplingPointSet::zipCoords()
 {
@@ -344,9 +454,9 @@ struct MEDCouplingCompAbs
 };
 
 /*!
- * This method expects that _coords attribute is set.
- * @return the carateristic dimension of point set. This caracteristic dimension is the max of difference 
- * @exception If _coords attribute not set.
+ * Returns the carateristic dimension of \a this point set, that is a maximal
+ * absolute values of node coordinates.
+ *  \throw If the coordinates array is not set.
  */
 double MEDCouplingPointSet::getCaracteristicDimension() const
 {
@@ -374,12 +484,22 @@ void MEDCouplingPointSet::recenterForMaxPrecision(double eps) throw(INTERP_KERNE
 }
 
 /*!
- * Non const method that operates a rotation of 'this'.
- * If spaceDim==2 'vector' parameter is ignored (and could be 0) and the rotation is done around 'center' with angle specified by 'angle'.
- * If spaceDim==3 the rotation axe is defined by ('center','vector') and the angle is 'angle'.
- * @param center an array of size getSpaceDimension().
- * @param vector in array of size getSpaceDimension().
- * @param angle angle of rotation in radian.
+ * Rotates \a this set of nodes by \a angle around either an axis (in 3D) or a point
+ * (in 2D). 
+ *  \param [in] center - coordinates either of an origin of rotation axis (in 3D) or
+ *         of center of rotation (in 2D). This array is to be of size \a
+ *         this->getSpaceDimension() at least.
+ *  \param [in] vector - 3 components of a vector defining direction of the rotation
+ *         axis in 3D. In 2D this parameter is not used.
+ *  \param [in] angle - the rotation angle in radians.
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a this->getSpaceDimension() != 2 && \a this->getSpaceDimension() != 3.
+ *  \throw If \a center == NULL
+ *  \throw If \a vector == NULL && \a this->getSpaceDimension() == 3.
+ *  \throw If Magnitude of \a vector is zero.
+ *
+ *  \ref cpp_mcpointset_rotate "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_rotate "Here is a Python example".
  */
 void MEDCouplingPointSet::rotate(const double *center, const double *vector, double angle)
 {
@@ -395,8 +515,14 @@ void MEDCouplingPointSet::rotate(const double *center, const double *vector, dou
 }
 
 /*!
- * Non const method that operates a translation of 'this'.
- * @param vector in array of size getSpaceDimension().
+ * Translates \a this set of nodes. 
+ *  \param [in] vector - components of a translation vector. This array is to be of
+ *         size \a this->getSpaceDimension() at least. 
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a vector == NULL.
+ *
+ *  \ref cpp_mcpointset_translate "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_translate "Here is a Python example".
  */
 void MEDCouplingPointSet::translate(const double *vector)
 {
@@ -414,10 +540,17 @@ void MEDCouplingPointSet::translate(const double *vector)
   updateTime();
 }
 
+
 /*!
- * Non const method that operates a scale on 'this' with 'point' as reference point of scale and with factor 'factor'.
- * @param point in array of size getSpaceDimension().
- * @param factor factor of the scaling
+ * Applies scaling transformation to \a this set of nodes. 
+ *  \param [in] point - coordinates of a scaling center. This array is to be of
+ *         size \a this->getSpaceDimension() at least.
+ *  \param [in] factor - a scale factor.
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a point == NULL.
+ *
+ *  \ref cpp_mcpointset_scale "Here is a C++ example".<br>
+ *  \ref  py_mcpointset_scale "Here is a Python example".
  */
 void MEDCouplingPointSet::scale(const double *point, double factor)
 {
@@ -439,12 +572,15 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
 }
 
 /*!
- * This method is only available for already defined coordinates.
- * If not an INTERP_KERNEL::Exception is thrown. The 'newSpaceDim' input must be greater or equal to 1.
- * This method simply convert this to newSpaceDim space :
- * - by putting a 0. for each \f$ i^{th} \f$ components of each coord of nodes so that i>=getSpaceDim(), if 'newSpaceDim'>getSpaceDimsion()
- * - by ignoring each \f$ i^{th} \f$ components of each coord of nodes so that i >= 'newSpaceDim', 'newSpaceDim'<getSpaceDimension()
- * If newSpaceDim==getSpaceDim() nothing is done by this method.
+ * Converts \a this set of points to an other dimension by changing number of
+ * components of point coordinates. If the dimension increases, added components
+ * are filled with \a dftValue. If the dimension decreases, last components are lost.
+ * If the new dimension is same as \a this->getSpaceDimension(), nothing is done.
+ *  \param [in] newSpaceDim - the new space dimension.
+ *  \param [in] dftValue - the value to assign to added components of point coordinates
+ *         (if the dimension increases).
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a newSpaceDim < 1.
  */
 void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim, double dftValue) throw(INTERP_KERNEL::Exception)
 {
@@ -462,8 +598,14 @@ void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim, double dftValue)
 }
 
 /*!
- * This method try to substitute this->_coords with other._coords if arrays match.
- * This method potentially modifies 'this' if it succeeds, otherway an exception is thrown.
+ * Substitutes \a this->_coords with \a other._coords provided that coordinates of
+ * the two point sets match with a specified precision, else an exception is thrown.
+ *  \param [in] other - the other point set whose coordinates array will be used by
+ *         \a this point set in case of their equality.
+ *  \param [in] epsilon - the precision used to compare coordinates.
+ *  \throw If the coordinates array of \a this is not set.
+ *  \throw If the coordinates array of \a other is not set.
+ *  \throw If the coordinates of \a this and \a other do not match.
  */
 void MEDCouplingPointSet::tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
 {
@@ -495,21 +637,33 @@ void MEDCouplingPointSet::duplicateNodesInCoords(const int *nodeIdsToDuplicateBg
 }
 
 /*!
- * This method is expecting to be called for meshes so that getSpaceDimension() returns 3.
- * This method returns in 'nodes' output all the nodes that are at a distance lower than epsilon from plane
- * defined by the point 'pt' and the vector 'vec'.
- * @param pt points to an array of size 3 and represents a point that owns to plane.
- * @param vec points to an array of size 3 and represents the normal vector of the plane. The norm of the vector is not compulsory equal to 1. But norm must be greater than 10*abs(eps)
- * @param eps is the maximal distance around the plane where node in this->_coords will be picked.
- * @param nodes is the output of the method. The vector is not compulsory empty before call. The nodes that fulfills the condition will be added at the end of the nodes.
+ * Finds nodes located at distance lower that \a eps from a specified plane.
+ *  \param [in] pt - 3 components of a point defining location of the plane.
+ *  \param [in] vec - 3 components of a normal vector to the plane. Vector magnitude
+ *         must be greater than 10*\a eps.
+ *  \param [in] eps - maximal distance of a node from the plane at which the node is
+ *         considered to lie on the plane.
+ *  \param [in,out] nodes - a vector returning ids of found nodes. This vector is not
+ *         cleared before filling in.
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a pt == NULL.
+ *  \throw If \a vec == NULL.
+ *  \throw If the magnitude of \a vec is zero.
+ *  \throw If \a this->getSpaceDimension() != 3.
  */
 void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception)
 {
   if(getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : Invalid spacedim to be applied on this ! Must be equal to 3 !");
+  if(!pt)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : NULL point pointer specified !");
+  if(!vec)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : NULL vector pointer specified !");
   int nbOfNodes=getNumberOfNodes();
   double a=vec[0],b=vec[1],c=vec[2],d=-pt[0]*vec[0]-pt[1]*vec[1]-pt[2]*vec[2];
   double deno=sqrt(a*a+b*b+c*c);
+  if(deno<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : vector pointer specified has norm equal to 0. !");
   const double *work=_coords->getConstPointer();
   for(int i=0;i<nbOfNodes;i++)
     {
@@ -520,20 +674,31 @@ void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, 
 }
 
 /*!
- * This method is expecting to be called for meshes so that getSpaceDimension() returns 2 or 3.
- * This method returns in 'nodes' output all the nodes that are at a distance lower than epsilon from a line
- * defined by the point 'pt' and the vector 'vec'. 'pt' and 'vec' are expected to have a dimension equal to space dimension of 'this'
- * @param pt points to an array of size this->getSpaceDimension and represents a point that owns to plane.
- * @param vec points to an array of size this->getSpaceDimension and represents the direction vector of the line. The norm of the vector is not compulsory equal to 1.
- *            But norm must be greater than 10*abs(eps)
- * @param eps is the maximal distance around the plane where node in this->_coords will be picked.
- * @param nodes is the output of the method. The vector is not compulsory empty before call. The nodes that fulfills the condition will be added at the end of the nodes.
+ * Finds nodes located at distance lower that \a eps from a specified line in 2D and 3D.
+ *  \param [in] pt - components of coordinates of an initial point of the line. This
+ *         array is to be of size \a this->getSpaceDimension() at least.
+ *  \param [in] vec - components of a vector defining the line direction. This array
+ *         is to be of size \a this->getSpaceDimension() at least. Vector magnitude 
+ *         must be greater than 10*\a eps.
+ *  \param [in] eps - maximal distance of a node from the line at which the node is
+ *         considered to lie on the line.
+ *  \param [in,out] nodes - a vector returning ids of found nodes. This vector is not
+ *         cleared before filling in.
+ *  \throw If the coordinates array is not set.
+ *  \throw If \a pt == NULL.
+ *  \throw If \a vec == NULL.
+ *  \throw If the magnitude of \a vec is zero.
+ *  \throw If ( \a this->getSpaceDimension() != 3 && \a this->getSpaceDimension() != 2 ).
  */
 void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=getSpaceDimension();
   if(spaceDim!=2 && spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : Invalid spacedim to be applied on this ! Must be equal to 2 or 3 !");
+  if(!pt)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : NULL point pointer specified !");
+  if(!vec)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : NULL vector pointer specified !");
   int nbOfNodes=getNumberOfNodes();
   double den=0.;
   for(int i=0;i<spaceDim;i++)
@@ -569,7 +734,19 @@ void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, d
 }
 
 /*!
- * merge _coords arrays of m1 and m2 and returns the union. The returned instance is newly created with ref count == 1.
+ * Returns a new array of node coordinates by concatenating node coordinates of two
+ * given point sets, so that (1) the number of nodes in the result array is a sum of the
+ * number of nodes of given point sets and (2) the number of component in the result array
+ * is same as that of each of given point sets. Info on components is copied from the first
+ * of the given point set. Space dimension of the given point sets must be the same. 
+ *  \param [in] m1 - a point set whose coordinates will be included in the result array.
+ *  \param [in] m2 - another point set whose coordinates will be included in the
+ *         result array. 
+ *  \return DataArrayDouble * - the new instance of DataArrayDouble.
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If both \a m1 and \a m2 are NULL.
+ *  \throw If \a m1->getSpaceDimension() != \a m2->getSpaceDimension().
  */
 DataArrayDouble *MEDCouplingPointSet::MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception)
 {
@@ -838,10 +1015,14 @@ void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, 
 }
 
 /*!
- * This method implements pure virtual method MEDCouplingMesh::buildPart.
- * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end').
- * The coords are kept unchanged contrary to pure virtual method MEDCouplingMesh::buildPartAndReduceNodes.
- * The returned mesh has to be managed by the caller.
+ * Creates a new MEDCouplingMesh containing a part of cells of \a this mesh. The new
+ * mesh shares a coordinates array with \a this one. The cells to include to the
+ * result mesh are specified by an array of cell ids.
+ *  \param [in] start - an array of cell ids to include to the result mesh.
+ *  \param [in] end - specifies the end of the array \a start, so that
+ *              the last value of \a start is \a end[ -1 ].
+ *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *         delete this mesh using decrRef() as it is no more needed. 
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end) const
 {
@@ -849,13 +1030,17 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end
 }
 
 /*!
- * This method implements pure virtual method MEDCouplingMesh::buildPartAndReduceNodes.
- * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end') \b and potentially reduces the nodes set
- * behind returned mesh. This cause an overhead but it is lesser in memory.
- * This method returns an array too. This array allows to the caller to know the mapping between nodeids in 'this' and nodeids in 
- * returned mesh. This is quite useful for MEDCouplingFieldDouble on nodes for example...
- * 'arr' is in old2New format of size ret->getNumberOfCells like MEDCouplingUMesh::zipCoordsTraducer is.
- * The returned mesh has to be managed by the caller.
+ * Creates a new MEDCouplingMesh containing a part of cells of \a this mesh. The
+ * cells to include to the result mesh are specified by an array of cell ids. 
+ * <br> This method additionally returns a renumbering map in "Old to New" mode
+ * which allows the caller to know the mapping between nodes in \a this and the result mesh.
+ *  \param [in] start - an array of cell ids to include to the result mesh.
+ *  \param [in] end - specifies the end of the array \a start, so that
+ *              the last value of \a start is \a end[ -1 ].
+ *  \param [out] arr - a new DataArrayInt that is the "Old to New" renumbering
+ *         map. The caller is to delete this array using decrRef() as it is no more needed.
+ *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *         delete this mesh using decrRef() as it is no more needed. 
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
 {

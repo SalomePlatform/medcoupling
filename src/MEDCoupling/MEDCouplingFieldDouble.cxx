@@ -214,7 +214,7 @@ std::string MEDCouplingFieldDouble::simpleRepr() const
   ret << "Description of field is : \"" << getDescription() << "\"\n";
   ret << "FieldDouble space discretization is : " << _type->getStringRepr() << "\n";
   ret << "FieldDouble time discretization is : " << _time_discr->getStringRepr() << "\n";
-  ret << "FieldDouble nature of field is : " << MEDCouplingNatureOfField::getRepr(_nature) << "\n";
+  ret << "FieldDouble nature of field is : " << MEDCouplingNatureOfField::GetRepr(_nature) << "\n";
   if(getArray())
     {
       int nbOfCompo=getArray()->getNumberOfComponents();

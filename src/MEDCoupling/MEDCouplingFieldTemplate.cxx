@@ -62,7 +62,7 @@ std::string MEDCouplingFieldTemplate::simpleRepr() const
   ret << "FieldTemplate with name : \"" << getName() << "\"\n";
   ret << "Description of field is : \"" << getDescription() << "\"\n";
   ret << "FieldTemplate space discretization is : " << _type->getStringRepr() << "\n";
-  ret << "FieldTemplate nature of field is : " << MEDCouplingNatureOfField::getRepr(_nature) << "\n";
+  ret << "FieldTemplate nature of field is : " << MEDCouplingNatureOfField::GetRepr(_nature) << "\n";
   if(_mesh)
     ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
   else

@@ -33,7 +33,7 @@ namespace ParaMEDMEM
   
   const int MEDCouplingNatureOfField::POS_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]={17,26,32,35,37};
 
-  const char *MEDCouplingNatureOfField::getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception)
+  const char *MEDCouplingNatureOfField::GetRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception)
   {
     const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
     if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
