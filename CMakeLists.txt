@@ -25,7 +25,7 @@ ENDIF(COMMAND cmake_policy)
 
 ENABLE_TESTING()
 SET(VERSION "7.1.0")
-SET(VERSION_DEV "0")
+SET(VERSION_DEV "1")
 SET(WITH_MEDMEMGUI "0")
 
 #Defining all options first
