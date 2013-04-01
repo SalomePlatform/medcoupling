@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,9 @@ INCLUDE(${SWIG_USE_FILE})
 SET_SOURCE_FILES_PROPERTIES(MEDCouplingCorba.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(MEDCouplingCorba.i PROPERTIES SWIG_DEFINITIONS "-shadow")
 
+SET(MEDCouplingCorba_SWIG_DPYS_FILES
+    MEDCouplingCorbaTypemaps.i)
+
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIRS}
@@ -40,6 +43,12 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
   )
 
+# _ABR_ Ensure dependency mechanism on all SWIG files and headers
+SET (SWIG_MODULE_MEDCouplingCorba_EXTRA_DEPS ${MEDCouplingCorba_SWIG_DPYS_FILES} 
+    ${medcouplingcorba_HEADERS_HXX} 
+    ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
+    ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
+    
 SWIG_ADD_MODULE(MEDCouplingCorba python MEDCouplingCorba.i)
 SWIG_LINK_LIBRARIES(MEDCouplingCorba ${PYTHON_LIBS} medcouplingcorba ${PLATFORM_LIBS})
 SET_TARGET_PROPERTIES(_MEDCouplingCorba PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -50,6 +50,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTime
 
 /*!
  * Creates a new instance of MEDCouplingFieldDouble of given type. The caller is responsable for the returned field.
+ * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference) is done for mesh and spatial discretization ! **
  *
  * \param [in] ft \ref MEDCouplingFieldTemplatesPage "field template" defining its spatial discretization and supporting mesh.
  * \param [in] td type of time discretization of a created field (\ref ParaMEDMEM::NO_TIME "NO_TIME", \ref ParaMEDMEM::ONE_TIME "ONE_TIME", \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL")
@@ -515,7 +516,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, 
   MEDCouplingFieldDouble *ret=clone(false);//quick shallow copy.
   const MEDCouplingFieldDiscretization *disc=getDiscretization();
   if(disc)
-    ret->setDiscretization(disc->clonePart(partBg,partEnd));
+    ret->setDiscretization(MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization>(disc->clonePart(partBg,partEnd)));
   ret->setMesh(m);
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
@@ -546,7 +547,10 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscr
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingField(ft),
+/*!
+ * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference) is done for mesh and spatial discretization ! **
+ */
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingField(ft,false),
                                                                                                                 _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }

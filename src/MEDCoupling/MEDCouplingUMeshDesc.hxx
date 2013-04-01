@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -90,12 +90,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer();
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingUMeshDesc();
     ~MEDCouplingUMeshDesc();
     void computeTypes();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception);
+    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
     std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
   private:
     int _mesh_dim;

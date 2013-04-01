@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -650,6 +650,11 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   return ret;
 }
 
+DataArrayDouble *MEDCouplingCMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  return MEDCouplingCMesh::getBarycenterAndOwner();
+}
+
 void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CMesh !");
@@ -766,6 +771,11 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   ofs << "      </Coordinates>\n";
   ofs << "    </Piece>\n";
   ofs << "  </" << getVTKDataSetType() << ">\n";
+}
+
+void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingCMesh C++ instance at " << this << ".";
 }
 
 std::string MEDCouplingCMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)

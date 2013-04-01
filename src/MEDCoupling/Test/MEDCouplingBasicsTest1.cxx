@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -147,7 +147,7 @@ void MEDCouplingBasicsTest1::testMesh()
   for(int i=0;i<nbOfCells;i++,curConn+=4)
     mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,curConn);
   mesh->finishInsertingCells();
-  CPPUNIT_ASSERT_EQUAL(30,mesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)30,mesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(nbOfCells,mesh->getNumberOfCells());
   //test 0 - no copy no ownership
   DataArrayDouble *myCoords=DataArrayDouble::New();
@@ -358,8 +358,8 @@ void MEDCouplingBasicsTest1::testRevNodal()
   mesh->getReverseNodalConnectivity(revNodal,revNodalIndx);
   const int revNodalExpected[18]={0,0,1,1,2,0,3,0,1,2,3,4,2,4,3,3,4,4};
   const int revNodalIndexExpected[10]={0,1,3,5,7,12,14,15,17,18};
-  CPPUNIT_ASSERT_EQUAL(18,revNodal->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(10,revNodalIndx->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)18,revNodal->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)10,revNodalIndx->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(revNodalExpected,revNodalExpected+18,revNodal->getPointer()));
   CPPUNIT_ASSERT(std::equal(revNodalIndexExpected,revNodalIndexExpected+10,revNodalIndx->getPointer()));
   //
@@ -410,10 +410,10 @@ void MEDCouplingBasicsTest1::testDescConn2D()
   mesh2->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(1,mesh2->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(13,mesh2->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(14,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(14,revDescIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(6,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(6,descIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(18,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,desc->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(18,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,revDesc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)14,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(14,revDescIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)6,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(6,descIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)18,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,desc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)18,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,revDesc->getNumberOfTuples());
   const int expected1[18]={0,1,2,3, 2,4,5, 6,7,4, 8,9,1,10, 11,12,6,9};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+18,desc->getConstPointer()));
   const int expected2[6]={0,4,7,10,14,18};
@@ -449,10 +449,10 @@ void MEDCouplingBasicsTest1::testDescConn2D()
   mesh2->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(1,mesh2->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(13,mesh2->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(14,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(14,revDescIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(6,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(6,descIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(18,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,desc->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(18,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,revDesc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)14,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(14,revDescIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)6,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(6,descIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)18,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,desc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)18,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(18,revDesc->getNumberOfTuples());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+18,desc->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+6,descIndx->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected3,expected3+14,revDescIndx->getConstPointer()));
@@ -482,10 +482,10 @@ void MEDCouplingBasicsTest1::testDescConn3D()
   mesh2->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(2,mesh2->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(36,mesh2->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(37,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(37,revDescIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(9,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(9,descIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(48,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,desc->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(48,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,revDesc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)37,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(37,revDescIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)9,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(9,descIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)48,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,desc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)48,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,revDesc->getNumberOfTuples());
   const int expected1[9]={0, 6, 12, 18, 24, 30, 36, 42, 48};
   const int expected2[48]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 3, 11, 12, 4, 13, 14, 15, 16, 17, 10, 18, 19, 13, 1, 20, 21, 22, 23, 24, 7, 25, 26, 27, 28, 22, 12, 29, 23, 30, 31, 32, 17, 33, 28, 34, 35, 30};
   const int expected3[37]={0, 1, 3, 4, 6, 8, 9, 10, 12, 13, 14, 16, 17, 19, 21, 22, 23, 24, 26, 27, 28, 29, 30, 32, 34, 35, 36, 37, 38, 40, 41, 43, 44, 45, 46, 47, 48};
@@ -525,10 +525,10 @@ void MEDCouplingBasicsTest1::testDescConn3D()
   mesh2->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(2,mesh2->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(36,mesh2->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(37,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(37,revDescIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(9,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(9,descIndx->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(48,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,desc->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(48,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,revDesc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)37,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(37,revDescIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)9,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(9,descIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)48,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,desc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)48,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,revDesc->getNumberOfTuples());
   CPPUNIT_ASSERT(std::equal(expected1,expected1+9,descIndx->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+48,desc->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected3,expected3+37,revDescIndx->getConstPointer()));
@@ -587,8 +587,8 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelf()
   CPPUNIT_ASSERT_EQUAL(2,subMesh->getNumberOfCells());
   const int subConn[10]={4,0,3,4,1,4,7,8,5,4};
   const int subConnIndex[3]={0,5,10};
-  CPPUNIT_ASSERT_EQUAL(10,subMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(3,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)10,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)3,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(subConn,subConn+10,subMesh->getNodalConnectivity()->getPointer()));
   CPPUNIT_ASSERT(std::equal(subConnIndex,subConnIndex+3,subMesh->getNodalConnectivityIndex()->getPointer()));
   subMesh->decrRef();
@@ -605,8 +605,8 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelf()
   CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
   const int subConn2[14]={4,0,3,4,1,3,4,5,2,4,6,7,4,3};
   const int subConnIndex2[4]={0,5,9,14};
-  CPPUNIT_ASSERT_EQUAL(14,subMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)14,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(subConn2,subConn2+14,subMesh->getNodalConnectivity()->getPointer()));
   CPPUNIT_ASSERT(std::equal(subConnIndex2,subConnIndex2+4,subMesh->getNodalConnectivityIndex()->getPointer()));
   const int tab3[3]={0,1,2};
@@ -629,8 +629,8 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
   CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllTypes().size());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
   CPPUNIT_ASSERT_EQUAL(1,subMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(5,subMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(2,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)5,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)2,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   const int subConn[5]={4,7,8,5,4};
   const int subConnIndex[3]={0,5};
   CPPUNIT_ASSERT(std::equal(subConn,subConn+5,subMesh->getNodalConnectivity()->getPointer()));
@@ -645,8 +645,8 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllTypes().begin()));
   CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(14,subMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)14,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   const int subConn2[14]={3,4,5,2,4,6,7,4,3,4,7,8,5,4};
   const int subConnIndex2[4]={0,4,9,14};
   CPPUNIT_ASSERT(std::equal(subConn2,subConn2+14,subMesh->getNodalConnectivity()->getPointer()));
@@ -704,8 +704,8 @@ void MEDCouplingBasicsTest1::testZipCoords()
   const int subConn[10]={4,0,2,3,1,4,5,6,4,3};
   const int subConnIndex[3]={0,5,10};
   CPPUNIT_ASSERT_EQUAL(7,subMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(10,subMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(3,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)10,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)3,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(subConn,subConn+10,subMesh->getNodalConnectivity()->getPointer()));
   CPPUNIT_ASSERT(std::equal(subConnIndex,subConnIndex+3,subMesh->getNodalConnectivityIndex()->getPointer()));
   subMesh->decrRef();
@@ -716,8 +716,8 @@ void MEDCouplingBasicsTest1::testZipCoords()
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
   CPPUNIT_ASSERT_EQUAL(2,subMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(7,subMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(10,subMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(3,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)10,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)3,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(subConn,subConn+10,subMesh->getNodalConnectivity()->getPointer()));
   CPPUNIT_ASSERT(std::equal(subConnIndex,subConnIndex+3,subMesh->getNodalConnectivityIndex()->getPointer()));
   subMesh->decrRef();

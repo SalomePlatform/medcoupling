@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -529,3 +529,12 @@ std::string MEDCouplingUMeshDesc::getVTKDataSetType() const throw(INTERP_KERNEL:
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getVTKDataSetType : not implemented yet !");
 }
 
+DataArrayDouble *MEDCouplingUMeshDesc::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeIsoBarycenterOfNodesPerCell : not implemented yet !");
+}
+
+void MEDCouplingUMeshDesc::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingUMeshDesc C++ instance at " << this << ".";
+}

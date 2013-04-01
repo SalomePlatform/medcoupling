@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -837,7 +837,6 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   dbl2->alloc(7,2);
   CPPUNIT_ASSERT_THROW(dbl2->isUniform(10.,1e-15),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl2->sort(),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT_THROW(dbl2->reverse(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl2->iota(10.),INTERP_KERNEL::Exception);
   
   DataArrayDouble *dbl=DataArrayDouble::New();
@@ -2104,12 +2103,12 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   da1->iota(0);
   const int *ptr=da1->getConstPointer();
   //
-  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da1->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(1,da1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(12,da1->getNumberOfTuples());
   da1->rearrange(4);
   CPPUNIT_ASSERT(ptr==da1->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da1->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2117,7 +2116,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   //
   da1->rearrange(6);
   CPPUNIT_ASSERT(ptr==da1->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da1->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(6,da1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(2,da1->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2127,7 +2126,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   //
   da1->rearrange(12);
   CPPUNIT_ASSERT(ptr==da1->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da1->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(12,da1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(1,da1->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2135,7 +2134,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   //
   da1->rearrange(3);
   CPPUNIT_ASSERT(ptr==da1->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da1->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2145,12 +2144,12 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   da1->decrRef();
   const double *ptr2=da2->getConstPointer();
   //
-  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da2->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
   da2->rearrange(4);
   CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da2->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2158,7 +2157,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   //
   da2->rearrange(6);
   CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da2->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(6,da2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(2,da2->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2168,7 +2167,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   //
   da2->rearrange(1);
   CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da2->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(12,da2->getNumberOfTuples());
   for(int i=0;i<12;i++)
@@ -2176,7 +2175,7 @@ void MEDCouplingBasicsTest3::testDARearrange1()
   //
   da2->rearrange(3);
   CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
-  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)12,da2->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
   for(int i=0;i<12;i++)

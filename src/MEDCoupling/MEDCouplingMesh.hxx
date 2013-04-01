@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -84,6 +84,7 @@ namespace ParaMEDMEM
     virtual int getMeshDimension() const = 0;
     virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
     virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
+    virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
@@ -134,6 +135,7 @@ namespace ParaMEDMEM
     void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const throw(INTERP_KERNEL::Exception);
     /// @endcond
     virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCouplingMesh();
     MEDCouplingMesh(const MEDCouplingMesh& other);

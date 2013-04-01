@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -33,6 +33,9 @@ def ParaMEDMEMDataArrayDoubleImul(self,*args):
 def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDouble____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleIpow(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayDouble____ipow___(self, self, *args)
 def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -60,6 +63,9 @@ def ParaMEDMEMDataArrayIntIdiv(self,*args):
 def ParaMEDMEMDataArrayIntImod(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayInt____imod___(self, self, *args)
+def ParaMEDMEMDataArrayIntIpow(self,*args):
+    import _MEDLoader
+    return _MEDLoader.DataArrayInt____ipow___(self, self, *args)
 def ParaMEDMEMDataArrayDoubleTupleIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDoubleTuple____iadd___(self, self, *args)

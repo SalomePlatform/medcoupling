@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -375,6 +375,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(('DALLE','DALQ1','DALQ2','DALT3','MESH'),m.getGroupsOnSpecifiedLev(0))
         #
         m.write(fileName,2)
+        self.assertRaises(InterpKernelException,MEDFileField1TS,fileName)#throw because no field in file fileName
         pass
 
     def funcToTestDelItem(self,ff):
@@ -424,6 +425,12 @@ class MEDLoaderTest(unittest.TestCase):
         f=ff.getFieldAtLevel(ON_GAUSS_PT,0)
         f2=MEDLoader.ReadFieldGauss("Pyfile13.med",'2DMesh_2',0,'MyFirstFieldOnGaussPoint',1,5)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        ff3=MEDFileField1TS.New("Pyfile13.med","MyFirstFieldOnGaussPoint")
+        f3=ff3.getFieldAtLevel(ON_GAUSS_PT,0)
+        self.assertTrue(f.isEqual(f3,1e-12,1e-12))
+        ff4=MEDFileField1TS.New("Pyfile13.med")
+        f4=ff4.getFieldAtLevel(ON_GAUSS_PT,0)
+        self.assertTrue(f.isEqual(f4,1e-12,1e-12))
         pass
 
     #gauss NE
@@ -2057,6 +2064,110 @@ class MEDLoaderTest(unittest.TestCase):
         data2=MEDFileData(fname)
         self.assertEqual(2,data2.getNumberOfParams())
         self.assertAlmostEqual(data2.getParams()["B"][1,2].getValue(),567.89,13)
+        pass
+
+    def testNamesOnCellAndNodesInMeshes1(self):
+        fname="Pyfile58.med"
+        fname2="Pyfile59.med"
+        m=MEDLoaderDataForTest.build3DSurfMesh_1()
+        m1=m.buildDescendingConnectivity()[0]
+        m1.sortCellsInMEDFileFrmt()
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        mm.setMeshAtLevel(-1,m1)
+        namesCellL0=DataArrayAsciiChar(6,16)
+        namesCellL0[:]=["CellL0#%.3d      "%(i) for i in xrange(6)]
+        mm.setNameFieldAtLevel(0,namesCellL0)
+        namesCellL1=DataArrayAsciiChar.Aggregate([namesCellL0,namesCellL0,namesCellL0.substr(2)])
+        namesCellL1[:]=["CellLM1#%.3d     "%(i) for i in xrange(16)]
+        mm.setNameFieldAtLevel(-1,namesCellL1)
+        namesNodes=namesCellL1.substr(4,16)
+        namesNodes[:]=["Node#%.3d        "%(i) for i in xrange(12)]
+        mm.setNameFieldAtLevel(1,namesNodes)
+        mm.write(fname,2)
+        #
+        mmr=MEDFileMesh.New(fname)
+        self.assertTrue(mm.getNameFieldAtLevel(0).isEqual(DataArrayAsciiChar(["CellL0#%.3d      "%(i) for i in xrange(6)])))
+        self.assertTrue(mm.getNameFieldAtLevel(-1).isEqual(DataArrayAsciiChar(["CellLM1#%.3d     "%(i) for i in xrange(16)])))
+        self.assertTrue(mm.getNameFieldAtLevel(1).isEqual(DataArrayAsciiChar(["Node#%.3d        "%(i) for i in xrange(12)])))
+        self.assertTrue(mm.isEqual(mmr,1e-12)[0])
+        mmr.getNameFieldAtLevel(1).setIJ(0,0,'M')
+        self.assertTrue(not mm.isEqual(mmr,1e-12)[0])
+        mmr.getNameFieldAtLevel(1).setIJ(0,0,'N')
+        self.assertTrue(mm.isEqual(mmr,1e-12)[0])
+        mmCpy=mm.deepCpy()
+        self.assertTrue(mm.isEqual(mmCpy,1e-12)[0])
+        # remove names on nodes
+        mmCpy.setNameFieldAtLevel(1,None)
+        self.assertTrue(not mm.isEqual(mmCpy,1e-12)[0])
+        mm.setNameFieldAtLevel(1,None)
+        self.assertTrue(mm.isEqual(mmCpy,1e-12)[0])
+        mm.setNameFieldAtLevel(-1,None)
+        mm.write(fname,2)
+        mmr=MEDFileMesh.New(fname)
+        self.assertEqual(mmr.getNameFieldAtLevel(1),None)
+        self.assertTrue(mmr.getNameFieldAtLevel(0).isEqual(DataArrayAsciiChar(["CellL0#%.3d      "%(i) for i in xrange(6)])))
+        self.assertEqual(mmr.getNameFieldAtLevel(-1),None)
+        #
+        c=MEDCouplingCMesh()
+        arr=DataArrayDouble([0.,1.1,2.3])
+        c.setCoords(arr,arr)
+        c.setName("cmesh")
+        cc=MEDFileCMesh()
+        cc.setMesh(c)
+        cc.setNameFieldAtLevel(0,DataArrayAsciiChar(["Cell#%.3d        "%(i) for i in xrange(4)]))
+        cc.setNameFieldAtLevel(1,DataArrayAsciiChar(["Node#%.3d        "%(i) for i in xrange(9)]))
+        cc.write(fname2,2)
+        ccr=MEDFileMesh.New(fname2)
+        self.assertTrue(ccr.getNameFieldAtLevel(0).isEqual(DataArrayAsciiChar(["Cell#%.3d        "%(i) for i in xrange(4)])))
+        self.assertTrue(ccr.getNameFieldAtLevel(1).isEqual(DataArrayAsciiChar(["Node#%.3d        "%(i) for i in xrange(9)])))
+        self.assertTrue(cc.isEqual(ccr,1e-12)[0])
+        ccr.getNameFieldAtLevel(1).setIJ(0,0,'M')
+        self.assertTrue(not cc.isEqual(ccr,1e-12)[0])
+        ccr.getNameFieldAtLevel(1).setIJ(0,0,'N')
+        self.assertTrue(cc.isEqual(ccr,1e-12)[0])
+        ccCpy=cc.deepCpy()
+        self.assertTrue(cc.isEqual(ccCpy,1e-12)[0])
+        pass
+
+    def testToExportInExamples1(self):
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble([0.,1.,2.,3.,4.])
+        m.setCoords(arr,arr)
+        m=m.buildUnstructured() ; m.setName("mesh")
+        grp1=DataArrayInt([0,1,2,4,5,6,8,9,10,12,13,14]) ; grp1.setName("grp1")
+        grp2=DataArrayInt([3,7,11,15]) ; grp2.setName("grp2")
+        m2=m.computeSkin()
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        mm.setMeshAtLevel(-1,m2)
+        mm.setGroupsAtLevel(0,[grp1,grp2])
+        mm.write("example.med",2)
+        #
+        m0=mm.getMeshAtLevel(0)
+        m1=mm.getMeshAtLevel(-1)
+        grp1=mm.getGroupArr(0,"grp1")
+        grp2=mm.getGroupArr(0,"grp2")
+        grps=[grp1,grp2]
+        whichGrp=DataArrayInt(m0.getNumberOfCells())
+        whichGrp.fillWithValue(-1)
+        for grpId,grp in enumerate(grps):
+            whichGrp[grp]=grpId
+            pass
+        a,b,bI,c,cI=m0.buildDescendingConnectivity()
+        e,f=a.areCellsIncludedIn(m1,2)
+        self.assertTrue(e)
+        c2,c2I=MEDCouplingUMesh.ExtractFromIndexedArrays(f,c,cI)
+        self.assertTrue(c2I.deltaShiftIndex().isUniform(1))
+        c2.transformWithIndArr(whichGrp)
+        splitOfM1=len(grps)*[None]
+        for grpId,grp in enumerate(grps):
+            tmp=c2.getIdsEqual(grpId)
+            splitOfM1[grpId]=tmp
+            pass
+        splitOfM1[0].isEqual(DataArrayInt([0,1,2,3,6,8,10,11,12,13]))
+        splitOfM1[1].isEqual(DataArrayInt([4,5,7,9,14,15]))
         pass
     pass
 

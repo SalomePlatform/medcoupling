@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -66,7 +66,7 @@ namespace ParaMEDMEM
     DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
     const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
-    void setDiscretization(MEDCouplingFieldDiscretization *newDisc) { _type=newDisc; }
+    void setDiscretization(MEDCouplingFieldDiscretization *newDisc);
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     // Gauss point specific methods

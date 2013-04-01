@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -72,10 +72,12 @@ namespace ParaMEDMEM
     const std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >& getLev(int levId) const { return _per_type_mesh[levId]; }
     bool isFamDefinedOnLev(int levId) const;
     bool isNumDefinedOnLev(int levId) const;
+    bool isNamesDefinedOnLev(int levId) const;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> getCoords() const { return _coords; }
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> getCoordsFamily() const { return _fam_coords; }
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> getCoordsNum() const { return _num_coords; }
-    static void WriteCoords(med_idt fid, const char *mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords);
+    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> getCoordsName() const { return _name_coords; }
+    static void WriteCoords(med_idt fid, const char *mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords);
   private:
     void sortTypes();
   private:
@@ -83,6 +85,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_coords;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _name_coords;
   };
 
   class MEDFileStrMeshL2 : public MEDFileMeshL2
@@ -153,6 +156,7 @@ namespace ParaMEDMEM
     DataArrayInt *getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getFamilyField() const;
     const DataArrayInt *getNumberField() const;
+    const DataArrayAsciiChar *getNameField() const;
     const DataArrayInt *getRevNumberField() const;
     void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
@@ -161,6 +165,7 @@ namespace ParaMEDMEM
     //
     void setFamilyArr(DataArrayInt *famArr);
     void setRenumArr(DataArrayInt *renumArr);
+    void setNameArr(DataArrayAsciiChar *nameArr);
     void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     //
     void renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception);
@@ -179,6 +184,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m_by_types;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num;
     MEDFileUMeshPermCompute _m;
   };

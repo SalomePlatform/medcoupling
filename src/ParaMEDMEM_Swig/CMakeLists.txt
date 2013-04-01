@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,9 @@ INCLUDE(${SWIG_USE_FILE})
 SET_SOURCE_FILES_PROPERTIES(ParaMEDMEM.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(ParaMEDMEM.i PROPERTIES SWIG_DEFINITIONS "-shadow")
 
+SET (ParaMEDMEM_SWIG_DPYS_FILES
+    ParaMEDMEM.typemap)
+
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
   ${MED3_INCLUDE_DIRS}
@@ -39,6 +42,12 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
   )
 
+SET (SWIG_MODULE_ParaMEDMEM_EXTRA_DEPS ${ParaMEDMEM_SWIG_DPYS_FILES}
+    ${paramedmem_HEADERS_HXX}
+    ${medloader_HEADERS_HXX}
+    ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
+    ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
+    
 SWIG_ADD_MODULE(ParaMEDMEM python ParaMEDMEM.i)
 SWIG_LINK_LIBRARIES(ParaMEDMEM ${PYTHON_LIBS} paramedmem medloader)
 

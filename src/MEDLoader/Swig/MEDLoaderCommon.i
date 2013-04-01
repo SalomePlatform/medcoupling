@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -437,6 +437,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
     virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
+    virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -523,6 +524,14 @@ namespace ParaMEDMEM
            if(tmp)
              tmp->incrRef();
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+         }
+         
+         PyObject *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         {
+           const DataArrayAsciiChar *tmp=self->getNameFieldAtLevel(meshDimRelToMaxExt);
+           if(tmp)
+             tmp->incrRef();
+           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar, SWIG_POINTER_OWN | 0 );
          }
 
          PyObject *findOrCreateAndGiveFamilyWithId(int id, bool& created) throw(INTERP_KERNEL::Exception)
@@ -946,14 +955,16 @@ namespace ParaMEDMEM
        PyObject *getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
        {
          const MEDFileFieldLoc *loc=&self->getLocalizationFromId(locId);
-         loc->incrRef();
+         if(loc)
+           loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
        
        PyObject *getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
        {
          const MEDFileFieldLoc *loc=&self->getLocalization(locName);
-         loc->incrRef();
+         if(loc)
+           loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
        
@@ -1011,6 +1022,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -1039,6 +1052,16 @@ namespace ParaMEDMEM
     void setTime(int iteration, int order, double val) throw(INTERP_KERNEL::Exception);
     %extend
        {
+         MEDFileField1TS(const char *fileName) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileField1TS::New(fileName);
+         }
+         
+         MEDFileField1TS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileField1TS::New(fileName,fieldName);
+         }
+
          MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
          {
            return MEDFileField1TS::New(fileName,fieldName,iteration,order);

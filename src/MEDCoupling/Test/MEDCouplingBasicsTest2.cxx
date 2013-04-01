@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -1277,12 +1277,12 @@ void MEDCouplingBasicsTest2::testGetIdsInRange1()
   //
   f1->checkCoherency();
   DataArrayInt *da=f1->getIdsInRange(2.9,7.1);
-  CPPUNIT_ASSERT_EQUAL(5,da->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)5,da->getNbOfElems());
   const int expected1[5]={2,3,5,7,9};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+5,da->getConstPointer()));
   da->decrRef();
   da=f1->getIdsInRange(8.,12.);
-  CPPUNIT_ASSERT_EQUAL(4,da->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)4,da->getNbOfElems());
   const int expected2[4]={1,4,6,8};
   CPPUNIT_ASSERT(std::equal(expected2,expected2+4,da->getConstPointer()));
   da->decrRef();

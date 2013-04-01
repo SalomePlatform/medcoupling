@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -55,3 +55,6 @@ INSTALL(TARGETS medloader DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB medloader_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${medloader_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+
+# To allow usage as SWIG dependencies:
+SET(medloader_HEADERS_HXX PARENT_SCOPE)

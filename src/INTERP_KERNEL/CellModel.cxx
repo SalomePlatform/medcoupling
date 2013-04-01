@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -365,9 +365,9 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=3; _sons_con[0][4]=8; _sons_con[0][5]=9; _sons_con[0][6]=10; _sons_con[0][7]=11; _nb_of_sons_con[0]=8;
           _sons_con[1][0]=4; _sons_con[1][1]=7; _sons_con[1][2]=6; _sons_con[1][3]=5; _sons_con[1][4]=15; _sons_con[1][5]=14; _sons_con[1][6]=13; _sons_con[1][7]=12; _nb_of_sons_con[1]=8;
           _sons_con[2][0]=0; _sons_con[2][1]=4; _sons_con[2][2]=5; _sons_con[2][3]=1; _sons_con[2][4]=16; _sons_con[2][5]=12; _sons_con[2][6]=17; _sons_con[2][7]=8; _nb_of_sons_con[2]=8;
-          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][3]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9;_nb_of_sons_con[3]=8;
-          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][3]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _nb_of_sons_con[4]=8;
-          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][3]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _nb_of_sons_con[5]=8; _quadratic=true;
+          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][2]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9;_nb_of_sons_con[3]=8;
+          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][2]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _nb_of_sons_con[4]=8;
+          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][2]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _nb_of_sons_con[5]=8; _quadratic=true;
           _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _little_sons_con[0][2]=8; _nb_of_little_sons=12;
           _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;  _little_sons_con[1][2]=9;
           _little_sons_con[2][0]=2; _little_sons_con[2][1]=3;  _little_sons_con[2][2]=10;
@@ -389,9 +389,9 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=3; _sons_con[0][4]=8; _sons_con[0][5]=9; _sons_con[0][6]=10; _sons_con[0][7]=11; _sons_con[0][8]=20; _nb_of_sons_con[0]=9;
           _sons_con[1][0]=4; _sons_con[1][1]=7; _sons_con[1][2]=6; _sons_con[1][3]=5; _sons_con[1][4]=15; _sons_con[1][5]=14; _sons_con[1][6]=13; _sons_con[1][7]=12; _sons_con[1][8]=25; _nb_of_sons_con[1]=9;
           _sons_con[2][0]=0; _sons_con[2][1]=4; _sons_con[2][2]=5; _sons_con[2][3]=1; _sons_con[2][4]=16; _sons_con[2][5]=12; _sons_con[2][6]=17; _sons_con[2][7]=8; _sons_con[2][8]=21; _nb_of_sons_con[2]=9;   
-          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][3]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9; _sons_con[3][8]=22; _nb_of_sons_con[3]=9;
-          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][3]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _sons_con[4][8]=23; _nb_of_sons_con[4]=9;
-          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][3]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _sons_con[5][8]=24; _nb_of_sons_con[5]=9;
+          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][2]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9; _sons_con[3][8]=22; _nb_of_sons_con[3]=9;
+          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][2]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _sons_con[4][8]=23; _nb_of_sons_con[4]=9;
+          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][2]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _sons_con[5][8]=24; _nb_of_sons_con[5]=9;
           _quadratic=true;
         }
         break;
@@ -529,7 +529,7 @@ namespace INTERP_KERNEL
   {
     if(_type==NORM_HEXA8)
       {
-        static const int permutation[6]={0,2,3,4,1};
+        static const int permutation[6]={0,2,3,4,5,1};
         return fillSonCellNodalConnectivity2(permutation[sonId],nodalConn,lgth,sonNodalConn,typeOfSon);
       }
     else

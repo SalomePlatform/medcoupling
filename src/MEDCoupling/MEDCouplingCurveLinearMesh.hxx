@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -74,6 +74,7 @@ namespace ParaMEDMEM
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
+    DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     //some useful methods
     void getSplitCellValues(int *res) const;
@@ -85,6 +86,7 @@ namespace ParaMEDMEM
     void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                          const std::vector<std::string>& littleStrings);
+    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   private:
     void getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception);
     void getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception);

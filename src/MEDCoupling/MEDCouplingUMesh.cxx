@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -1295,7 +1295,7 @@ int MEDCouplingUMesh::AreCellsEqual(const int *conn, const int *connI, int cell1
     case 7:
       return AreCellsEqual7(conn,connI,cell1,cell2);
     }
-  throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1,2 or 3.");
+  throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1,2,3 or 7.");
 }
 
 /*!
@@ -2552,7 +2552,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
 {
   const int *ptI=_nodal_connec_index->getConstPointer();
   const int *pt=_nodal_connec->getConstPointer();
-  if(cellId>=0 && cellId<_nodal_connec_index->getNbOfElems()-1)
+  if(cellId>=0 && cellId<(int)_nodal_connec_index->getNbOfElems()-1)
     return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
   else
     {
@@ -3205,8 +3205,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
         }
       else
         {
-          for(int i=0;i<nbOfCells;i++)
-            { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> isAbs=getMeasureField(false);
+          const double *isAbsPtr=isAbs->getArray()->begin();
+          for(int i=0;i<nbOfCells;i++,isAbsPtr++)
+            { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=*isAbsPtr>0.?1.:-1.; }
         }
     }
   else//meshdimension==1
@@ -6382,9 +6384,13 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
 }
 
 /*!
- * Returns an array with this->getNumberOfCells() tuples and this->getSpaceDimension() dimension.
- * The false barycenter is computed that is to say barycenter of a cell is computed using average on each
- * components of coordinates of the cell.
+ * This method is ** very badly named ** : This method computes the center of inertia of each cells in \a this.
+ * So this method is not a right choice for degnerated meshes (not well oriented, cells with measure close to zero).
+ *
+ * \return a newly allocated DataArrayDouble instance that the caller has to deal with. The returned 
+ *          DataArrayDouble instance will have \c this->getNumberOfCells() tuples and \c this->getSpaceDimension() components.
+ * 
+ * \sa MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell
  */
 DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
 {
@@ -6402,6 +6408,80 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)nodal[nodalI[i]];
       INTERP_KERNEL::computeBarycenter2<int,INTERP_KERNEL::ALL_C_MODE>(type,nodal+nodalI[i]+1,nodalI[i+1]-nodalI[i]-1,coor,spaceDim,ptToFill);
       ptToFill+=spaceDim;
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method computes for each cell in \a this, the location of the iso barycenter of nodes constituting
+ * the cell. Contrary to badly named MEDCouplingUMesh::getBarycenterAndOwner method that returns the center of inertia of the 
+ * 
+ * \return a newly allocated DataArrayDouble instance that the caller has to deal with. The returned 
+ *          DataArrayDouble instance will have \c this->getNumberOfCells() tuples and \c this->getSpaceDimension() components.
+ * 
+ * \sa MEDCouplingUMesh::getBarycenterAndOwner
+ * \throw If \a this is not fully defined (coordinates and connectivity)
+ * \throw If there is presence in nodal connectivity in \a this of node ids not in [0, \c this->getNumberOfNodes() )
+ */
+DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  int nbOfCells=getNumberOfCells();
+  int nbOfNodes=getNumberOfNodes();
+  ret->alloc(nbOfCells,spaceDim);
+  double *ptToFill=ret->getPointer();
+  const int *nodal=_nodal_connec->getConstPointer();
+  const int *nodalI=_nodal_connec_index->getConstPointer();
+  const double *coor=_coords->getConstPointer();
+  for(int i=0;i<nbOfCells;i++,ptToFill+=spaceDim)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)nodal[nodalI[i]];
+      std::fill(ptToFill,ptToFill+spaceDim,0.);
+      if(type!=INTERP_KERNEL::NORM_POLYHED)
+        {
+          for(const int *conn=nodal+nodalI[i]+1;conn!=nodal+nodalI[i+1];conn++)
+            {
+              if(*conn>=0 && *conn<nbOfNodes)
+                std::transform(coor+spaceDim*conn[0],coor+spaceDim*(conn[0]+1),ptToFill,ptToFill,std::plus<double>());
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of nodeId #" << *conn << " should be in [0," <<   nbOfNodes << ") !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          int nbOfNodesInCell=nodalI[i+1]-nodalI[i]-1;
+          if(nbOfNodesInCell>0)
+            std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(double)nbOfNodesInCell));
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of cell with no nodes !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::set<int> s(nodal+nodalI[i]+1,nodal+nodalI[i+1]);
+          s.erase(-1);
+          for(std::set<int>::const_iterator it=s.begin();it!=s.end();it++)
+            {
+              if(*it>=0 && *it<nbOfNodes)
+                std::transform(coor+spaceDim*(*it),coor+spaceDim*((*it)+1),ptToFill,ptToFill,std::plus<double>());
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on cell polyhedron cell #" << i << " presence of nodeId #" << *it << " should be in [0," <<   nbOfNodes << ") !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          if(!s.empty())
+            std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(double)s.size()));
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell : on polyhedron cell #" << i << " there are no nodes !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
     }
   return ret.retn();
 }
@@ -7358,6 +7438,31 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   ofs << "      </Cells>\n";
   ofs << "    </Piece>\n";
   ofs << "  </" << getVTKDataSetType() << ">\n";
+}
+
+void MEDCouplingUMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingUMesh C++ instance at " << this << ".";
+  if(_mesh_dim==-2)
+    { stream << " Not set !"; return ; }
+  stream << " Mesh dimension : " << _mesh_dim << ".";
+  if(_mesh_dim==-1)
+    return ;
+  if(!_coords)
+    { stream << " No coordinates set !"; return ; }
+  if(!_coords->isAllocated())
+    { stream << " Coordinates set but not allocated !"; return ; }
+  stream << " Space dimension : " << _coords->getNumberOfComponents() << "." << std::endl;
+  stream << "Number of nodes : " << _coords->getNumberOfTuples() << ".";
+  if(!_nodal_connec_index)
+    { stream << std::endl << "Nodal connectivity NOT set !"; return ; }
+  if(!_nodal_connec_index->isAllocated())
+    { stream << std::endl << "Nodal connectivity set but not allocated !"; return ; }
+  int lgth=_nodal_connec_index->getNumberOfTuples();
+  int cpt=_nodal_connec_index->getNumberOfComponents();
+  if(cpt!=1 || lgth<1)
+    return ;
+  stream << std::endl << "Number of cells : " << lgth-1 << ".";
 }
 
 std::string MEDCouplingUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -272,10 +272,10 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
           if (splitMeshes[inew][i]->getNumberOfCells()>0)
             meshes.push_back(splitMeshes[inew][i]);
 
-      if (!isParallelMode()||_domain_selector->isMyDomain(inew))
-        {
-          if (meshes.size()==0) 
+           if (!isParallelMode()||_domain_selector->isMyDomain(inew))
             {
+              if (meshes.size()==0) 
+                {
               _mesh[inew]=CreateEmptyMEDCouplingUMesh();
               std::cout << "WARNING : castCellMeshes fusing : no meshes try another number of processors" << std::endl;
             }
@@ -561,9 +561,9 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
               }
             if (!initialCollection._domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew))
               _domain_selector->recvMesh(splitMeshes[inew][iold], _domain_selector->getProcessorID(iold));
-              int nb=0;
-              if (splitMeshes[inew][iold])
-                nb=splitMeshes[inew][iold]->getNumberOfCells();
+              //int nb=0;
+              //if (splitMeshes[inew][iold])
+              //  nb=splitMeshes[inew][iold]->getNumberOfCells();
               //std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes recv "<<inew<<" "<<iold<<" "<<nb<<std::endl;//" "<<splitMeshes[inew][iold]->getNumberOfCells()<<std::endl;
           }
       empty->decrRef();
@@ -1557,13 +1557,139 @@ void MEDPARTITIONER::MeshCollection::setTopology(Topology* topo)
     _topology = topo;
 }
 
-/*! Method creating the cell graph
+/*! Method creating the cell graph in serial mode 
  * 
  * \param array returns the pointer to the structure that contains the graph 
  * \param edgeweight returns the pointer to the table that contains the edgeweights
  *        (only used if indivisible regions are required)
  */
 void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray* & array, int *& edgeweights )
+{
+
+  using std::map;
+  using std::vector;
+  using std::make_pair;
+  using std::pair;
+
+  if (_topology->nbDomain()>1) throw INTERP_KERNEL::Exception("buildCellGraph should be used for one domain only");
+  const ParaMEDMEM::MEDCouplingUMesh* mesh=_mesh[0];
+  if (MyGlobals::_Verbose>50)
+    std::cout<<"getting nodal connectivity"<<std::endl;
+  
+  //looking for reverse nodal connectivity i global numbering
+  if (isParallelMode() && !_domain_selector->isMyDomain(0))
+     {
+        vector<int> value;
+        vector<int> index(1,0);
+        
+        array=new MEDPARTITIONER::SkyLineArray(index,value);
+        return;
+     }
+  
+  int meshDim = mesh->getMeshDimension();
+  
+   ParaMEDMEM::DataArrayInt* indexr=ParaMEDMEM::DataArrayInt::New();
+   ParaMEDMEM::DataArrayInt* revConn=ParaMEDMEM::DataArrayInt::New();
+   int nbNodes=mesh->getNumberOfNodes();
+   mesh->getReverseNodalConnectivity(revConn,indexr);
+   //problem saturation over 1 000 000 nodes for 1 proc
+   if (MyGlobals::_Verbose>100)
+      std::cout << "proc " << MyGlobals::_Rank << " : getReverseNodalConnectivity done on " << nbNodes << " nodes" << std::endl;
+   const int* indexr_ptr=indexr->getConstPointer();
+   const int* revConn_ptr=revConn->getConstPointer();
+   
+   const ParaMEDMEM::DataArrayInt* index;
+   const ParaMEDMEM::DataArrayInt* conn;
+   conn=mesh->getNodalConnectivity();
+   index=mesh->getNodalConnectivityIndex();
+   int nbCells=mesh->getNumberOfCells();
+ 
+    if (MyGlobals::_Verbose>100)
+      std::cout << "proc " << MyGlobals::_Rank << " : getNodalConnectivity done on " << nbNodes << " nodes" << std::endl;
+   const int* index_ptr=index->getConstPointer();
+   const int* conn_ptr=conn->getConstPointer();
+ 
+  //creating graph arcs (cell to cell relations)
+  //arcs are stored in terms of (index,value) notation
+  // 0 3 5 6 6
+  // 1 2 3 2 3 3 
+  // means 6 arcs (0,1), (0,2), (0,3), (1,2), (1,3), (2,3)
+  // in present version arcs are not doubled but reflexive (1,1) arcs are present for each cell
+ 
+  //warning here one node have less than or equal effective number of cell with it
+  //but cell could have more than effective nodes
+  //because other equals nodes in other domain (with other global inode)
+  if (MyGlobals::_Verbose>50)
+    std::cout<< "proc " << MyGlobals::_Rank << " : creating graph arcs on nbNodes " << _topology->nbNodes() << std::endl;
+ 
+ vector <int> cell2cell_index(nbCells+1,0);
+ vector <int> cell2cell;
+ cell2cell.reserve(3*nbCells);
+
+ for (int icell=0; icell<nbCells;icell++)
+   {
+      map<int,int > counter;
+      for (int iconn=index_ptr[icell]; iconn<index_ptr[icell+1];iconn++)
+      {
+          int inode=conn_ptr[iconn];
+          for (int iconnr=indexr_ptr[inode]; iconnr<indexr_ptr[inode+1];iconnr++)
+          {
+              int icell2=revConn_ptr[iconnr];
+              map<int,int>::iterator iter=counter.find(icell2); 
+              if (iter!=counter.end()) (iter->second)++;
+              else counter.insert(make_pair(icell2,1));
+          }
+      }
+      for (map<int,int>::const_iterator iter=counter.begin();
+              iter!=counter.end();
+              iter++)
+            if (iter->second >= meshDim)
+              {
+                cell2cell_index[icell+1]++;
+                cell2cell.push_back(iter->first);
+            }
+                    
+           
+   }
+ indexr->decrRef();
+ revConn->decrRef();
+
+ cell2cell_index[0]=0;  
+ for (int icell=0; icell<nbCells;icell++)
+     cell2cell_index[icell+1]=cell2cell_index[icell]+cell2cell_index[icell+1];
+   
+  
+  if (MyGlobals::_Verbose>50)
+    std::cout << "proc " << MyGlobals::_Rank << " : create skylinearray" << std::endl;
+
+  //filling up index and value to create skylinearray structure
+  array=new MEDPARTITIONER::SkyLineArray(cell2cell_index,cell2cell);
+
+  if (MyGlobals::_Verbose>100)
+    {
+      std::cout << "\nproc " << _domain_selector->rank() << " : end MeshCollection::buildCellGraph " <<
+        cell2cell_index.size()-1 << " " << cell2cell.size() << std::endl;
+      int max=cell2cell_index.size()>15?15:cell2cell_index.size();
+      if (cell2cell_index.size()>1)
+        {
+          for (int i=0; i<max; ++i)
+            std::cout<<cell2cell_index[i]<<" ";
+          std::cout << "... " << cell2cell_index[cell2cell_index.size()-1] << std::endl;
+          for (int i=0; i<max; ++i)
+            std::cout<< cell2cell[i] << " ";
+          int ll=cell2cell_index[cell2cell_index.size()-1]-1;
+          std::cout << "... (" << ll << ") " << cell2cell[ll-1] << " " << cell2cell[ll] << std::endl;
+        }
+    }
+  
+}
+/*! Method creating the cell graph in multidomain mode
+ * 
+ * \param array returns the pointer to the structure that contains the graph 
+ * \param edgeweight returns the pointer to the table that contains the edgeweights
+ *        (only used if indivisible regions are required)
+ */
+void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDPARTITIONER::SkyLineArray* & array, int *& edgeweights )
 {
   using std::multimap;
   using std::vector;
@@ -1772,7 +1898,11 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
     throw INTERP_KERNEL::Exception("Number of subdomains must be > 0");
   MEDPARTITIONER::SkyLineArray* array=0;
   int* edgeweights=0;
-  buildCellGraph(array,edgeweights);
+
+  if (_topology->nbDomain()>1 || isParallelMode())
+    buildParallelCellGraph(array,edgeweights);
+  else
+    buildCellGraph(array,edgeweights);
   
   Graph* cellGraph = 0;
   switch (split)
@@ -1843,7 +1973,11 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(const 
   MEDPARTITIONER::SkyLineArray* array=0;
   int* edgeweights=0;
 
-  buildCellGraph(array,edgeweights);
+  if ( _topology->nbDomain()>1)
+    buildParallelCellGraph(array,edgeweights);
+  else
+    buildCellGraph(array,edgeweights);
+
   Graph* cellGraph;
   std::set<int> domains;
   for (int i=0; i<_topology->nbCells(); i++)

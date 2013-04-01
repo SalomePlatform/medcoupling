@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -22,12 +22,14 @@ DataArrayDouble.__iadd__=ParaMEDMEMDataArrayDoubleIadd
 DataArrayDouble.__isub__=ParaMEDMEMDataArrayDoubleIsub
 DataArrayDouble.__imul__=ParaMEDMEMDataArrayDoubleImul
 DataArrayDouble.__idiv__=ParaMEDMEMDataArrayDoubleIdiv
+DataArrayDouble.__ipow__=ParaMEDMEMDataArrayDoubleIpow
 
 DataArrayInt.__iadd__=ParaMEDMEMDataArrayIntIadd
 DataArrayInt.__isub__=ParaMEDMEMDataArrayIntIsub
 DataArrayInt.__imul__=ParaMEDMEMDataArrayIntImul
 DataArrayInt.__idiv__=ParaMEDMEMDataArrayIntIdiv
 DataArrayInt.__imod__=ParaMEDMEMDataArrayIntImod
+DataArrayInt.__ipow__=ParaMEDMEMDataArrayIntIpow
 
 MEDCouplingFieldDouble.__iadd__=ParaMEDMEMMEDCouplingFieldDoubleIadd
 MEDCouplingFieldDouble.__isub__=ParaMEDMEMMEDCouplingFieldDoubleIsub

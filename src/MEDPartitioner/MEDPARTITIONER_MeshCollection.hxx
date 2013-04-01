@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -76,6 +76,9 @@ namespace MEDPARTITIONER
 
     //creation of the cell graph
     void buildCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
+   //creation of the cell graph
+    void buildParallelCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
+
     //creation and partition of the associated graph
     Topology* createPartition(int nbdomain, Graph::splitter_type type = Graph::METIS,
                               const std::string& ="", int* edgeweights=0, int* verticesweights=0);

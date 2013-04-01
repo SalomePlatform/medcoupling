@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -706,6 +706,11 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::getBarycenterAndOwner() const
     }
 }
 
+DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  return MEDCouplingCurveLinearMesh::getBarycenterAndOwner();
+}
+
 /*!
  * \param [in,out] bary Barycenter array feeded with good values.
  * \sa MEDCouplingCurveLinearMesh::getBarycenterAndOwner
@@ -871,6 +876,11 @@ void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string
   ofs << "      </Points>\n";
   ofs << "    </Piece>\n";
   ofs << "  </" << getVTKDataSetType() << ">\n";
+}
+
+void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingCurveLinearMesh C++ instance at " << this << ".";
 }
 
 std::string MEDCouplingCurveLinearMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)

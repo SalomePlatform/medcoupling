@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -91,6 +91,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
     //tools
     MEDCOUPLING_EXPORT static int AreCellsEqual(const int *conn, const int *connI, int cell1, int cell2, int compType);
     MEDCOUPLING_EXPORT static int AreCellsEqual0(const int *conn, const int *connI, int cell1, int cell2);
@@ -212,6 +213,7 @@ namespace ParaMEDMEM
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *getPartBarycenterAndOwner(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);

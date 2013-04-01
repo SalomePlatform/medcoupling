@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -734,8 +734,12 @@ DataArrayDouble *MEDCouplingExtrudedMesh::getCoordinatesAndOwner() const
 
 DataArrayDouble *MEDCouplingExtrudedMesh::getBarycenterAndOwner() const
 {
-  //not yet implemented
-  return 0;
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::getBarycenterAndOwner : not yet implemented !");
+}
+
+DataArrayDouble *MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell: not yet implemented !");
 }
 
 void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
@@ -913,6 +917,11 @@ void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& c
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
   m->writeVTKLL(ofs,cellData,pointData);
+}
+
+void MEDCouplingExtrudedMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingExtrudedMesh C++ instance at " << this << ".";
 }
 
 std::string MEDCouplingExtrudedMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
