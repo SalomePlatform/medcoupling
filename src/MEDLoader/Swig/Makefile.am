@@ -53,7 +53,7 @@ _MEDLoader_la_LDFLAGS  = -module $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS)
 
 CLEANFILES = MEDLoader_wrap.cxx MEDLoader.py
 
-dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py libMEDLoader_Swig.py
+dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py libMEDLoader_Swig.py med2sauv sauv2med medutilities.py
 nodist_salomescript_DATA = MEDLoader.py
 
 UNIT_TEST_PROG = MEDLoaderTest.py MEDLoaderTest2.py

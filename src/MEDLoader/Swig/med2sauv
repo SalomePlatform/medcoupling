@@ -23,6 +23,7 @@
 
 from sys import argv,path
 from os.path import dirname,abspath,sep
+from medutilities import med2sauv
 
 d = argv[0]
 d = dirname(d)

@@ -23,6 +23,14 @@
 
 from MEDLoader import *
 
+def my_remove(f):
+    from os import remove
+    try:
+        remove(f)
+    except OSError:
+        pass
+    return
+
 def convert(file_in, driver_in, driver_out, format=1, file_out=None):
     #
     print file_in
@@ -56,6 +64,8 @@ def convert(file_in, driver_in, driver_out, format=1, file_out=None):
         sw.setMEDFileDS(mfd,0);#0 ?
         sw.write(file_out)
         #
+        mesh = mfd.getMeshes()[0]
+        mesh_dim = mesh.getSpaceDimension()
         if mesh_dim >= 3:
             from sys import platform
             if platform in ["win32"]:
