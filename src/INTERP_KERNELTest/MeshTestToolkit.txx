@@ -206,11 +206,11 @@ namespace INTERP_TEST
         for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             int j = iter2->first;
-            if(m2.at(j-1).count(i+1) == 0)
+            if(m2.at(j).count(i) == 0)
               {
                 if(!epsilonEqual(iter2->second, 0.0, _precision))
                   {
-                    LOG(2, "V1( " << i << ", " << j << ") exists, but V2( " << j - 1 << ", " << i + 1 << ") " << " does not " );
+                    LOG(2, "V1( " << i << ", " << j << ") exists, but V2( " << j << ", " << i << ") " << " does not " );
                     LOG(2, "(" << i << ", " << j << ") fails");
                     compatitable = false;
                   }
@@ -251,11 +251,11 @@ namespace INTERP_TEST
             const double v1 = fabs(iter2->second);
             //if(m2[j - 1].count(i+1) > 0)
             //  {
-            std::map<int, double> theMap =  m2.at(j-1);
-            const double v2 = fabs(theMap[i + 1]); 
+            std::map<int, double> theMap =  m2.at(j);
+            const double v2 = fabs(theMap[i]); 
             if(v1 != v2)
               {
-                LOG(2, "V1( " << i << ", " << j << ") = " << v1 << " which is different from V2( " << j - 1 << ", " << i + 1 << ") = " << v2 << " | diff = " << v1 - v2 );
+                LOG(2, "V1( " << i << ", " << j << ") = " << v1 << " which is different from V2( " << j << ", " << i << ") = " << v2 << " | diff = " << v1 - v2 );
                 if(!epsilonEqualRelative(v1, v2, _precision))
                   {
                     LOG(2, "(" << i << ", " << j << ") fails");
@@ -293,7 +293,7 @@ namespace INTERP_TEST
             const double vol = iter2->second;
             if(vol != 0.0 && (i != j))
               {
-                LOG(2, "V( " << i - 1 << ", " << j << ") = " << vol << " which is not zero" );
+                LOG(2, "V( " << i << ", " << j << ") = " << vol << " which is not zero" );
                 if(!epsilonEqual(vol, 0.0, _precision))
                   {
                     LOG(2, "(" << i << ", " << j << ") fails");
