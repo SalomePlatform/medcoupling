@@ -16,8 +16,6 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 
-#  MED MEDMEM : MED files in memory
-
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 # this directory must be recompiled before Test folder
@@ -53,13 +51,13 @@ endif
 
 librenumber_la_CPPFLAGS= $(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	$(BOOST_CPPFLAGS) \
-	-I$(srcdir)/../MEDMEM -I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDLoader -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../INTERP_KERNEL/GaussPoints \
 	-I$(srcdir)/../INTERP_KERNEL
 
 librenumber_la_LDFLAGS= 
 #libmedsplitter_la_LDFLAGS= $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(STDLIB) \
-#	../MEDMEM/libmedmem.la
+#	../MEDLoader/libmedloader.la
 
 if MED_ENABLE_METIS
   librenumber_la_CPPFLAGS+= $(METIS_CPPFLAGS)
@@ -75,7 +73,7 @@ if MED_ENABLE_KERNEL
 endif
 
 librenumber_la_LDFLAGS+= $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(STDLIB) \
-	../MEDMEM/libmedmem.la ../INTERP_KERNEL/libinterpkernel.la
+	../MEDLoader/libmedloader.la ../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la
 
 # Executables targets
 bin_PROGRAMS= renumber

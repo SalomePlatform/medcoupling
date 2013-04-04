@@ -17,12 +17,13 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef RENUMBERINGFACTORY_HXX_
-#define RENUMBERINGFACTORY_HXX_
+#ifndef __RENUMBERINGFACTORY_HXX__
+#define __RENUMBERINGFACTORY_HXX__
 
-#include <string>
 #include "RENUMBERDefines.hxx"
 #include "RENUMBER_Renumbering.hxx"
+
+#include <string>
 
 namespace MED_RENUMBER
 {
