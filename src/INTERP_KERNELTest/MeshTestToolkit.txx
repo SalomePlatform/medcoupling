@@ -160,7 +160,7 @@ namespace INTERP_TEST
 
     for(int i = 0; i < sMesh.getNumberOfCells(); ++i)
       {
-        const double sum_row = sumRow(m, i+1);
+        const double sum_row = sumRow(m, i);
         if(!epsilonEqualRelative(sum_row, fabs(sVol[i]), _precision))
           {
             LOG(1, "Source volume inconsistent : vol of cell " << i << " = " << sVol[i] << " but the row sum is " << sum_row );
@@ -283,7 +283,7 @@ namespace INTERP_TEST
   bool MeshTestToolkit<SPACEDIM,MESHDIM>::testDiagonal(const IntersectionMatrix& m) const
   {
     LOG(1, "Checking if matrix is diagonal" );
-    int i = 1;
+    int i = 0;
     bool isDiagonal = true;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
