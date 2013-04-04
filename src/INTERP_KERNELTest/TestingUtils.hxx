@@ -21,7 +21,8 @@
 #define _TESTING_UTILS_HXX_
 
 #include "Interpolation3D.hxx"
-#include "MEDMEM_Mesh.hxx"
+#include "MEDFileMesh.hxx"
+#include "MEDCouplingUMesh.hxx"
 
 #include <iostream>
 #include <map>
@@ -39,9 +40,8 @@
 // 5 - misc
 #include "Log.hxx"
 
-using namespace MEDMEM;
+using namespace ParaMEDMEM;
 using namespace INTERP_KERNEL;
-using namespace MED_EN;
 
 
 double sumVolume(const IntersectionMatrix& m) 
@@ -212,14 +212,17 @@ void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char
   LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
 
   LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-  const MESH sMesh(MED_DRIVER, dataDir+mesh1path, mesh1);
-  const int numSrcElems = sMesh.getNumberOfElements(MED_CELL, MED_ALL_ELEMENTS);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> sMeshML=MEDFileUMesh::New((dataDir+mesh1path).c_str(),mesh1);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
+
+  const int numSrcElems = sMesh->getNumberOfCells();
   LOG(1, "Source mesh has " << numSrcElems << " elements");
 
 
   LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-  const MESH tMesh(MED_DRIVER, dataDir+mesh2path, mesh2);
-  const int numTargetElems = tMesh.getNumberOfElements(MED_CELL, MED_ALL_ELEMENTS);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> tMeshML=MEDFileUMesh::New((dataDir+mesh2path).c_str(),mesh2);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
+  const int numTargetElems = tMesh->getNumberOfCells();
 
   LOG(1, "Target mesh has " << numTargetElems << " elements");
 

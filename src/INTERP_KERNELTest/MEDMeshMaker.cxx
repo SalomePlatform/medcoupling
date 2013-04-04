@@ -17,85 +17,32 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDCouplingCMesh.hxx"
+
 #include "MEDMeshMaker.hxx"
 
-#include "MEDMEM_Mesh.hxx"
-#include "MEDMEM_Meshing.hxx"
+using namespace ParaMEDMEM;
 
-MEDMEM::MESH* MEDMeshMaker(int dim, int nbedge, MED_EN::medGeometryElement type)
+ParaMEDMEM::MEDCouplingUMesh *MEDMeshMaker(int dim, int nbedge)
 {
-  MEDMEM::MESHING* mesh=new MEDMEM::MESHING();
-  int nbnodes;
-  int nbelems;
-  switch (dim)
-    {
-    case 2: 
-      nbnodes=(nbedge+1)*(nbedge+1);
-      if(type==MED_EN::MED_QUAD4)
-        nbelems=(nbedge*nbedge);
-      else
-        throw MEDMEM::MEDEXCEPTION("MEDMeshMaker: type not impletmented");
-      break;
-    case 3:
-      nbnodes=(nbedge+1)*(nbedge+1)*(nbedge+1);
-      if (type==MED_EN::MED_HEXA8)
-        nbelems= nbedge*nbedge*nbedge;
-      else
-        throw MEDMEM::MEDEXCEPTION("MEDMeshMaker: type not impletmented");
-      break;
-    }
-  double* coords = new double[dim*nbnodes];
-  int nz;
-  if (dim==2) nz =1; else nz=nbedge+1;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> c=MEDCouplingCMesh::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New();
+  arr->alloc(nbedge+1,1); arr->iota(0.); arr->applyLin(1./double(nbedge),0.);
+  switch(dim)
   {
-    for (int ix=0; ix < nbedge+1; ix++)
-      for (int iy=0; iy<nbedge+1; iy++)
-        for (int iz=0; iz<nz;iz++)
-          {
-            int inode=(ix*(nbedge+1)*nz+iy*nz+iz);
-            coords[inode*dim]=double(ix)/double(nbedge);
-            coords[inode*dim+1]=double(iy)/double(nbedge);
-            if (dim==3)
-              coords[inode*dim+2]=double(iz)/double(nbedge);
-          }
+  case 2:
+    {
+      c->setCoords(arr,arr);
+      break;
+    }
+  case 3:
+    {
+      c->setCoords(arr,arr,arr);
+      break;
+    }
+  default:
+    throw INTERP_KERNEL::Exception("MEDMeshMaker : only dim 2 or 3 supported !");
   }
-  mesh->setCoordinates(dim, nbnodes,coords,"CARTESIAN",MED_EN::MED_FULL_INTERLACE);
-  delete [] coords;
-  mesh->setNumberOfTypes(1,MED_EN::MED_CELL);
-  mesh->setTypes(&type,MED_EN::MED_CELL);
-  mesh->setNumberOfElements(&nbelems,MED_EN::MED_CELL);
-  
-  int* conn = new int [nbelems*(type%100)];
-  if (dim==2)
-    {
-      for (int ix=0; ix<nbedge; ix++)
-        for (int iy=0; iy<nbedge; iy++)
-          {
-            int ielem=(ix*nbedge+iy);
-            conn [ielem*4]=ix*(nbedge+1)+iy+1;
-            conn [ielem*4+1]=ix*(nbedge+1)+iy+1+1;
-            conn [ielem*4+2]=(ix+1)*(nbedge+1)+iy+1+1;
-            conn [ielem*4+3]=(ix+1)*(nbedge+1)+iy+1;                               
-          }
-    }
-  if (dim==3)
-    {
-      for (int ix=0; ix<nbedge; ix++)
-        for (int iy=0; iy<nbedge; iy++)
-          for (int iz=0; iz<nbedge; iz++)
-            {
-              int ielem=(ix*nbedge*nbedge+iy*nbedge+iz);
-              conn [ielem*8]=ix*(nbedge+1)*(nbedge+1)+iy*(nbedge+1)+iz+1;
-              conn [ielem*8+1]=(ix+1)*(nbedge+1)*(nbedge+1)+iy*(nbedge+1)+iz+1;
-              conn [ielem*8+2]=(ix+1)*(nbedge+1)*(nbedge+1)+(iy+1)*(nbedge+1)+iz+1;
-              conn [ielem*8+3]=ix*(nbedge+1)*(nbedge+1)+(iy+1)*(nbedge+1)+iz+1;
-              conn [ielem*8+4]=ix*(nbedge+1)*(nbedge+1)+iy*(nbedge+1)+iz+1+1;
-              conn [ielem*8+5]=(ix+1)*(nbedge+1)*(nbedge+1)+iy*(nbedge+1)+iz+1+1;
-              conn [ielem*8+6]=(ix+1)*(nbedge+1)*(nbedge+1)+(iy+1)*(nbedge+1)+iz+1+1;
-              conn [ielem*8+7]=ix*(nbedge+1)*(nbedge+1)+(iy+1)*(nbedge+1)+iz+1+1;
-            }
-    }
-  mesh->setConnectivity(MED_EN::MED_CELL,type,conn);
-  delete [] conn;
-  return mesh;
+  return c->buildUnstructured();
 }

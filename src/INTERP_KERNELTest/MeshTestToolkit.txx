@@ -18,22 +18,23 @@
 //
 #include "TestInterpKernelUtils.hxx"
 
-#include "MEDNormalizedUnstructuredMesh.hxx"
-#include "MEDNormalizedUnstructuredMesh.txx"
-
 #include "MeshTestToolkit.hxx"
-#include "MEDMEM_Mesh.hxx"
-#include "MEDMEM_Field.hxx"
-#include "MEDMEM_Support.hxx"
+
+#include "MEDFileMesh.hxx"
+
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "MEDCouplingFieldDouble.hxx"
 
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3D.txx"
 
-#include <iostream>
 #include <map>
-#include <vector>
 #include <cmath>
+#include <vector>
+#include <cstring>
+#include <iostream>
 #include <algorithm>
 
 
@@ -48,9 +49,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 //#define VOL_PREC 1.0e-6
-
-using namespace MEDMEM;
-using namespace MED_EN;
+using namespace ParaMEDMEM;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
@@ -105,22 +104,10 @@ namespace INTERP_TEST
    * @param tab    pointer to double[no. elements of mesh] array in which to store the volumes
    */
   template <int SPACEDIM, int MESHDIM>
-  void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(MEDMEM::MESH& mesh, double* tab) const
+  void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double *tab) const
   {
-    const SUPPORT *sup=mesh.getSupportOnAll( MED_CELL );
-    FIELD<double>* f;
-    switch (MESHDIM)
-      {
-      case 2:
-        f=mesh.getArea(sup);
-        break;
-      case 3:
-        f=mesh.getVolume(sup);
-        break;
-      }
-    const double *tabS = f->getValue();
-    std::copy(tabS,tabS+mesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS),tab);
-    f->removeReference();
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh.getMeasureField(true);
+    std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
   }
 
   /**
@@ -163,15 +150,15 @@ namespace INTERP_TEST
    * @return true if the condition is verified, false if not.
    */
   template <int SPACEDIM, int MESHDIM>
-  bool MeshTestToolkit<SPACEDIM,MESHDIM>::testVolumes(const IntersectionMatrix& m,  MEDMEM::MESH& sMesh,  MEDMEM::MESH& tMesh) const
+  bool MeshTestToolkit<SPACEDIM,MESHDIM>::testVolumes(const IntersectionMatrix& m,  ParaMEDMEM::MEDCouplingUMesh& sMesh,  ParaMEDMEM::MEDCouplingUMesh& tMesh) const
   {
     bool ok = true;
 
     // source elements
-    double* sVol = new double[sMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)];
+    double* sVol = new double[sMesh.getNumberOfCells()];
     getVolumes(sMesh, sVol);
 
-    for(int i = 0; i < sMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS); ++i)
+    for(int i = 0; i < sMesh.getNumberOfCells(); ++i)
       {
         const double sum_row = sumRow(m, i+1);
         if(!epsilonEqualRelative(sum_row, fabs(sVol[i]), _precision))
@@ -183,9 +170,9 @@ namespace INTERP_TEST
       }
 
     // target elements
-    double* tVol = new double[tMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)];
+    double* tVol = new double[tMesh.getNumberOfCells()];
     getVolumes(tMesh, tVol);
-    for(int i = 0; i < tMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS); ++i)
+    for(int i = 0; i < tMesh.getNumberOfCells(); ++i)
       {
         const double sum_col = sumCol(m, i);
         if(!epsilonEqualRelative(sum_col,fabs(tVol[i]), _precision))
@@ -300,7 +287,7 @@ namespace INTERP_TEST
     bool isDiagonal = true;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             int j = iter2->first;
             const double vol = iter2->second;
@@ -332,12 +319,12 @@ namespace INTERP_TEST
   void MeshTestToolkit<SPACEDIM,MESHDIM>::dumpIntersectionMatrix(const IntersectionMatrix& m) const
   {
     int i = 0;
-    std::cout << "Intersection matrix is " << endl;
+    std::cout << "Intersection matrix is " << std::endl;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
-            std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << endl;
+            std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << std::endl;
           }
         ++i;
       }
@@ -360,13 +347,15 @@ namespace INTERP_TEST
     LOG(1, std::endl << "=== -> intersecting src = " << mesh1path << ", target = " << mesh2path );
 
     LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-    MESH sMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh1path), mesh1);
+    MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
 
     LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-    MESH tMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh2path), mesh2);
+    MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
 
-    MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> sMesh_wrapper(&sMesh);
-    MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> tMesh_wrapper(&tMesh);
+    MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> sMesh_wrapper(sMesh);
+    MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> tMesh_wrapper(tMesh);
 
     if (SPACEDIM==2 && MESHDIM==2)
       {
@@ -387,12 +376,12 @@ namespace INTERP_TEST
       }
     else
       {
-        throw MEDEXCEPTION("Wrong dimensions");
+        throw INTERP_KERNEL::Exception("Wrong dimensions");
       }
     // if reflexive, check volumes
     if(strcmp(mesh1path,mesh2path) == 0)
       {
-        const bool row_and_col_sums_ok = testVolumes(m, sMesh, tMesh);
+        const bool row_and_col_sums_ok = testVolumes(m, *sMesh, *tMesh);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Row or column sums incorrect", true, row_and_col_sums_ok);
         const bool is_diagonal =testDiagonal(m);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Self intersection matrix is not diagonal", true, is_diagonal);
@@ -485,9 +474,9 @@ namespace INTERP_TEST
   template <int SPACEDIM, int MESHDIM>
   void MeshTestToolkit<SPACEDIM,MESHDIM>::intersectMeshes(const char* mesh1, const char* mesh2, const double correctVol, const double prec, bool doubleTest) const
   {
-    const string path1 = string(mesh1) + string(".med");
+    const std::string path1 = std::string(mesh1) + std::string(".med");
     std::cout << "here :" << path1 << std::endl;
-    const string path2 = string(mesh2) + string(".med");
+    const std::string path2 = std::string(mesh2) + std::string(".med");
 
     intersectMeshes(path1.c_str(), mesh1, path2.c_str(), mesh2, correctVol, prec, doubleTest);
   }

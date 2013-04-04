@@ -18,18 +18,18 @@
 //
 
 #include "Interpolation3DTest.hxx"
-#include "MEDMEM_Mesh.hxx"
 
-#include <iostream>
+#include "MEDFileMesh.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+
 #include <map>
-#include <vector>
 #include <cmath>
+#include <vector>
+#include <iostream>
 #include <algorithm>
 
 #include "VectorUtils.hxx"
-
-#include "MEDMEM_Field.hxx"
-#include "MEDMEM_Support.hxx"
 
 // levels : 
 // 1 - titles and volume results
@@ -42,9 +42,8 @@
 
 //#define VOL_PREC 1.0e-6
 
-using namespace MEDMEM;
+using namespace ParaMEDMEM;
 using namespace INTERP_KERNEL;
-using namespace MED_EN;
 
 double Interpolation3DTest::sumRow(const IntersectionMatrix& m, int i) const
 {
@@ -72,13 +71,10 @@ double Interpolation3DTest::sumCol(const IntersectionMatrix& m, int i) const
 }
 
 
-void Interpolation3DTest::getVolumes(MESH& mesh, double* tab) const
+void Interpolation3DTest::getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double *tab) const
 {
-  SUPPORT *sup=new SUPPORT(&mesh,"dummy",MED_CELL);
-  FIELD<double>* f=mesh.getVolume(sup);
-  const double *tabS=f->getValue();
-  std::copy(tabS,tabS+mesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS),tab)
-    delete sup;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(true);
+  std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
 }
 
 double Interpolation3DTest::sumVolume(const IntersectionMatrix& m) const
@@ -102,15 +98,15 @@ double Interpolation3DTest::sumVolume(const IntersectionMatrix& m) const
   return vol;
 }
 
-bool Interpolation3DTest::testVolumes(const IntersectionMatrix& m,  MESH& sMesh,  MESH& tMesh) const
+bool Interpolation3DTest::testVolumes(const IntersectionMatrix& m,  MEDCouplingUMesh& sMesh,  MEDCouplingUMesh& tMesh) const
 {
   bool ok = true;
 
   // source elements
-  double* sVol = new double[sMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)];
+  double* sVol = new double[sMesh.getNumberOfCells()];
   getVolumes(sMesh, sVol);
 
-  for(int i = 0; i < sMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS); ++i)
+  for(int i = 0; i < sMesh.getNumberOfCells(); ++i)
     {
       const double sum_row = sumRow(m, i+1);
       if(!epsilonEqualRelative(sum_row, sVol[i], VOL_PREC))
@@ -122,9 +118,9 @@ bool Interpolation3DTest::testVolumes(const IntersectionMatrix& m,  MESH& sMesh,
     }
 
   // target elements
-  double* tVol = new double[tMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)];
+  double* tVol = new double[tMesh.getNumberOfCells()];
   getVolumes(tMesh, tVol);
-  for(int i = 0; i < tMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS); ++i)
+  for(int i = 0; i < tMesh.getNumberOfCells(); ++i)
     {
       const double sum_col = sumCol(m, i);
       if(!epsilonEqualRelative(sum_col, tVol[i], VOL_PREC))

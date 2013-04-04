@@ -27,20 +27,17 @@
 #include "UnitTetraIntersectionBaryTest.hxx"
 #include "UnitTetra3D2DIntersectionTest.hxx"
 
-#ifdef DISABLE_MICROMED
 #include "HexaTests.hxx"
 #include "InterpolationOptionsTest.hxx"
 #include "MultiElement2DTests.hxx"
 #include "MultiElementTetraTests.hxx"
-#include "PointLocatorTest.hxx"
 #include "SingleElementTetraTests.hxx"
-#endif
 
 using namespace INTERP_TEST;
 
 //--- Registers the fixture into the 'registry'
 
-CPPUNIT_TEST_SUITE_REGISTRATION( BBTreeTest);
+CPPUNIT_TEST_SUITE_REGISTRATION( BBTreeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ExprEvalInterpTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( QuadraticPlanarInterpTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementPlanarTests );
@@ -49,14 +46,11 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UnitTetraIntersectionBaryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UnitTetra3D2DIntersectionTest );
 
-#ifdef DISABLE_MICROMED
-CPPUNIT_TEST_SUITE_REGISTRATION( HexaTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( InterpolationOptionsTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( HexaTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElement2DTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElementTetraTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( PointLocatorTest);
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementTetraTests );
-#endif
 
 // --- generic Main program from KERNEL_SRC/src/Basics/Test
 

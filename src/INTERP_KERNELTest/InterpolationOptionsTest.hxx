@@ -24,7 +24,6 @@
 
 #include "InterpKernelTestExport.hxx"
 #include "InterpolationOptions.hxx"
-#include "MEDMEM_Field.hxx"
 
 namespace INTERP_TEST
 {

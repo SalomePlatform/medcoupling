@@ -17,12 +17,18 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "MEDFileMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+
 #include "InterpolationOptionsTest.hxx"
-#include "MEDNormalizedUnstructuredMesh.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "Interpolation2D.txx"
 #include "TestInterpKernelUtils.hxx"
+
 #include <iostream>
 #include <vector>
+
+using namespace ParaMEDMEM;
 
 namespace INTERP_TEST
 {
@@ -45,34 +51,40 @@ namespace INTERP_TEST
    */
   void InterpolationOptionsTest::test_InterpolationOptions() 
   {
-    string sourcename=INTERP_TEST::getResourceFile("square1.med");
-    MEDMEM::MESH *source_mesh=new MEDMEM::MESH(MED_DRIVER,sourcename,"Mesh_2");
+    std::string sourcename=INTERP_TEST::getResourceFile("square1.med");
+    MEDFileUMesh *source_mesh=MEDFileUMesh::New(sourcename.c_str(),"Mesh_2");
 
-    string targetname=INTERP_TEST::getResourceFile("square2.med");
-    MEDMEM::MESH *target_mesh=new MEDMEM::MESH(MED_DRIVER,targetname,"Mesh_3");
+    std::string targetname=INTERP_TEST::getResourceFile("square2.med");
+    MEDFileUMesh *target_mesh=MEDFileUMesh::New(targetname.c_str(),"Mesh_3");
 
-    const MEDMEM::SUPPORT *source_support=source_mesh->getSupportOnAll(MED_EN::MED_CELL);
-    MEDMEM::FIELD<double> *source_field=new FIELD<double>(source_support,1);
-    double* value=const_cast<double*>(source_field->getValue());
-    for (int i=0; i<source_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
+    MEDCouplingUMesh *source_mesh_mc=source_mesh->getMeshAtLevel(0);
+    MEDCouplingFieldDouble *source_field=MEDCouplingFieldDouble::New(ON_CELLS);
+    source_field->setMesh(source_mesh_mc); source_mesh_mc->decrRef();
+    DataArrayDouble *arr=DataArrayDouble::New(); arr->alloc(source_mesh_mc->getNumberOfCells(),1);
+    source_field->setArray(arr); arr->decrRef();
+    double *value=arr->getPointer();
+    for(int i=0; i<source_mesh_mc->getNumberOfCells(); i++)
       value[i]=1.0;
-    const MEDMEM::SUPPORT *target_support=target_mesh->getSupportOnAll(MED_EN::MED_CELL);
-    MEDMEM::FIELD<double> *target_field=new FIELD<double>(target_support,1);
-    double* targetvalue=const_cast<double*>(target_field->getValue());
-    for (int i=0; i<target_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
+    MEDCouplingUMesh *target_mesh_mc=target_mesh->getMeshAtLevel(0);
+    MEDCouplingFieldDouble *target_field=MEDCouplingFieldDouble::New(ON_CELLS);
+    target_field->setMesh(target_mesh_mc); target_mesh_mc->decrRef();
+    arr=DataArrayDouble::New(); arr->alloc(target_mesh_mc->getNumberOfCells(),1);
+    target_field->setArray(arr); arr->decrRef();
+    double* targetvalue=arr->getPointer();
+    for(int i=0; i<target_mesh_mc->getNumberOfCells(); i++)
       targetvalue[i]=0.0;
     // Ok at this point we have our mesh in MED-Memory format.
     // Go to wrap med_source_mesh and med_target_mesh.
-    MEDNormalizedUnstructuredMesh<2,2> wrap_source_mesh(source_mesh);
-    MEDNormalizedUnstructuredMesh<2,2> wrap_target_mesh(target_mesh);
+    MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_source_mesh(source_mesh_mc);
+    MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_target_mesh(target_mesh_mc);
     // Go for interpolation...
     INTERP_KERNEL::Interpolation2D myInterpolator;
     //optionnal call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
     myInterpolator.setPrecision(1e-7);
     myInterpolator.setPrintLevel(1);
-    source_mesh->removeReference();
-    source_field->removeReference();
-    target_field->removeReference();
-    target_mesh->removeReference();
+    source_mesh->decrRef();
+    source_field->decrRef();
+    target_field->decrRef();
+    target_mesh->decrRef();
   }
 }

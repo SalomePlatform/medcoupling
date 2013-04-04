@@ -25,9 +25,6 @@
 
 #define ERR_TOL 1.0e-8
 
-using MEDMEM::Interpolation3D;
-class MEDMEM::MESH;
-
 /// \brief OBSOLETE - renamed Interpolation3DTestSuite
 class Interpolation3DTest : public CppUnit::TestFixture
 {

@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     }
   // Reading file structure
   cout << "Reading : " << flush;
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> fd=MEDFileData::New(filename_in);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> fd=MEDFileData::New(filename_in.c_str());
   MEDFileMesh *m=fd->getMeshes()->getMeshWithName(meshname.c_str());
   MEDFileUMesh *mc=dynamic_cast<MEDFileUMesh *>(m);
   if(!mc)
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
   // Compute permutation iperm->new2old perm->old2new
   vector<int> iperm,perm;
   Renumbering *renumb=RenumberingFactory(type_renum);
-  renumb->renumber(graph,graph_index,nb_cell,iperm,perm);
+  renumb->renumber(graph,graph_index,workMesh->getNumberOfCells(),iperm,perm);
   delete renumb;
   t_compute_graph=clock();
   cout << " : " << (t_compute_graph-t_read_st)/(double) CLOCKS_PER_SEC << "s" << endl;
@@ -100,8 +100,10 @@ int main(int argc, char** argv)
   // Fields
   cout << "Reordering fields and writing : " << flush;
   MEDFileFields *fs=fd->getFields();
-  fs->renumberEntitiesLyingOnMesh(meshname.c_str(),code,code,&perm[0]);
-  fs->write();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
+  o2n->useArray(&perm[0],false,CPP_DEALLOC,perm.size(),1);
+  fs->renumberEntitiesLyingOnMesh(meshname.c_str(),code,code,o2n);
+  fs->write(filename_out.c_str(),0);
   t_field=clock();
   cout << " : " << (t_field-t_family)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   return 0;

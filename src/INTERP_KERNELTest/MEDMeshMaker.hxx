@@ -17,10 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDMEM_define.hxx"
-namespace MEDMEM
-{
-  class MESH;
-}
+#include "MEDCouplingUMesh.hxx"
 
-MEDMEM::MESH* MEDMeshMaker(int dim, int nbedge, MED_EN::medGeometryElement type);
+ParaMEDMEM::MEDCouplingUMesh *MEDMeshMaker(int dim, int nbedge);

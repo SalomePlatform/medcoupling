@@ -24,14 +24,10 @@
 #include "VectorUtils.hxx"
 #include "TestInterpKernelUtils.hxx"
 
-#include "MEDMEM_Mesh.hxx"
-#include "MEDNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 
 #include <cassert>
 #include <string>
-
-using namespace MEDMEM;
-using namespace MED_EN;
 
 /**
  * \file PerfTest.cxx
@@ -71,14 +67,16 @@ namespace INTERP_TEST
       LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
       
       LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-      const MESH sMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh1path), mesh1);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
     
     
       LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-      const MESH tMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh2path), mesh2);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
       
-      MEDNormalizedUnstructuredMesh<3,3> sMesh_wrapper(&sMesh);
-      MEDNormalizedUnstructuredMesh<3,3> tMesh_wrapper(&tMesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> sMesh_wrapper(sMesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> tMesh_wrapper(tMesh);
       
       Interpolation3D interpolator;
       interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper,m,"P0P0");
@@ -108,7 +106,7 @@ namespace INTERP_TEST
       for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
         {
           numElems += iter->size();
-          for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+          for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
             {
               if(!INTERP_KERNEL::epsilonEqual(iter2->second, 0.0, VOL_PREC))
                 {
@@ -137,11 +135,11 @@ int main(int argc, char** argv)
   assert(argc == 3);
   
   // load meshes
-  const string mesh1 = argv[1];
-  const string mesh2 = argv[2];
+  const std::string mesh1 = argv[1];
+  const std::string mesh2 = argv[2];
 
-  const string mesh1path = mesh1 + ".med";
-  const string mesh2path = mesh2 + ".med";
+  const std::string mesh1path = mesh1 + ".med";
+  const std::string mesh2path = mesh2 + ".med";
 
   IntersectionMatrix m;
 

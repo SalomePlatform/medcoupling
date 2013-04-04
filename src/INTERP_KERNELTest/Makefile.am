@@ -25,8 +25,7 @@ lib_LTLIBRARIES = libInterpKernelTest.la
 UNUSED_FILES =                               \
 	Interpolation3DTest.cxx              \
 	Interpolation3DTest.hxx              \
-	MultiElement3DSurfTests.hxx          \
-	TestingUtils.hxx
+	MultiElement3DSurfTests.hxx
 
 EXTRA_DIST +=                                \
 	perf_test.sh                         \
