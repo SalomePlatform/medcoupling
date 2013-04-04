@@ -27,8 +27,6 @@
 
 #define ERR_TOL 1.0e-8
 
-using INTERP_KERNEL::TransformedTriangle;
-
 namespace INTERP_TEST
 {
 
@@ -75,8 +73,8 @@ namespace INTERP_TEST
     double stable_c2[24];
   
   private:
-    TransformedTriangle* tri1;
-    TransformedTriangle* tri2;
+    INTERP_KERNEL::TransformedTriangle* tri1;
+    INTERP_KERNEL::TransformedTriangle* tri2;
 
   };
 

@@ -27,8 +27,6 @@
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 
-using namespace INTERP_KERNEL;
-
 namespace INTERP_TEST
 {
   class INTERPKERNELTEST_EXPORT QuadraticPlanarInterpTest : public CppUnit::TestFixture
@@ -197,10 +195,10 @@ namespace INTERP_TEST
     void checkNormalize();
     void checkMakePartitionAbs1();
   private:
-    QuadraticPolygon *buildQuadraticPolygonCoarseInfo(const double *coords, const int *conn, int lgth);
-    EdgeArcCircle *buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd);
-    double btw2NodesAndACenter(const Node& n1, const Node& n2, const double *center);
-    void checkBasicsOfPolygons(QuadraticPolygon& pol1, QuadraticPolygon& pol2, bool checkDirection);
+    INTERP_KERNEL::QuadraticPolygon *buildQuadraticPolygonCoarseInfo(const double *coords, const int *conn, int lgth);
+    INTERP_KERNEL::EdgeArcCircle *buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd);
+    double btw2NodesAndACenter(const INTERP_KERNEL::Node& n1, const INTERP_KERNEL::Node& n2, const double *center);
+    void checkBasicsOfPolygons(INTERP_KERNEL::QuadraticPolygon& pol1, INTERP_KERNEL::QuadraticPolygon& pol2, bool checkDirection);
   };
 }
 
