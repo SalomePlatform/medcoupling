@@ -94,10 +94,11 @@ if !MED_ENABLE_MICROMED
    libInterpKernelTest_la_CPPFLAGS +=            \
 	-DDISABLE_MICROMED                       \
 	$(MED3_INCLUDES) $(HDF5_INCLUDES)        \
-	-I$(srcdir)/../MEDMEM
+	-I$(srcdir)/../MEDLoader                 \
+	-I$(srcdir)/../MEDCoupling
 
    libInterpKernelTest_la_LDFLAGS +=             \
-	../MEDMEM/libmedmem.la -lm 
+	../MEDLoader/libmedloader.la ../MEDCoupling/libmedcoupling.la -lm 
 endif
 
 if MED_ENABLE_KERNEL
