@@ -28,8 +28,6 @@ INCLUDE_DIRECTORIES(
 
 SET(SalomeIDLMED_IDLSOURCES
   MED.idl
-  MED_Gen.idl
-  Compo1Py.idl
   MEDCouplingCorbaServant.idl
   ParaMEDCouplingCorbaServant.idl
   MEDDataManager.idl
