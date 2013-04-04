@@ -20,14 +20,13 @@
 INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQT4EXT.cmake)
 
 SET(MEDGUI_SOURCES
-  MEDGUI.cxx
   MEDGUIFileContentDial.cxx
   MEDGUISelection.cxx
   MEDGUISelectComponents.cxx
   MEDGUIDataBaseDockWidget.cxx
 )
 
-SET(MEDGUI_HEADERS MEDGUI.h MEDGUIFileContentDial.h MEDGUISelectComponents.h)
+SET(MEDGUI_HEADERS MEDGUIFileContentDial.h MEDGUISelectComponents.h)
 SET(MEDGUI_FORMS MEDGUIFileContentDial.ui MEDGUISelectComponents.ui)
 #SET(MEDGUI_RESOURCES images.qrc)
 
