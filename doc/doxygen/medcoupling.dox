@@ -20,8 +20,6 @@
 - integrate HPC constraints (compact structures, limitation of copies and launching of CPU consuming algorithms only when absolutely needed ).
 - compliant with ICOCO API
 
-The \ref medcoupling "MEDCoupling" data structure is \b fully \b independant from those implemented in MEDMEM.
-
 \ref medcoupling "MEDCoupling" implements a set of algorithms linked to the data structure.
 
 \section MEDCouplingMainConc Main Concepts
@@ -56,10 +54,6 @@ In MEDCoupling library there is no presence of faces nor edges.
 
 As a mesh has one dimension and only once, that is to say every cells in
 mesh have the same dimension called MeshDimension.
-
-That is to say the
-MEDMEM vocabulary of faces and edges \b do \b not \b exist \b anymore here in
-MEDCoupling.
 
 For exemple a mesh with a meshDimension equal to 1, have \b cells of type
 NORM_SEG2. An another exemple, a mesh with a meshDimension equal

@@ -54,7 +54,7 @@ GENERATE_TODOLIST      = YES
 GENERATE_TESTLIST      = YES
 GENERATE_BUGLIST       = YES
 ALIASES                = 
-ENABLED_SECTIONS       = user MEDMEM_ug
+ENABLED_SECTIONS       = user MEDCOUPLING_ug
 MAX_INITIALIZER_LINES  = 30
 OPTIMIZE_OUTPUT_FOR_C  = NO
 SHOW_USED_FILES        = NO
@@ -77,18 +77,9 @@ INPUT                  = @builddir@ \
 			 @srcdir@/../../src/INTERP_KERNEL/Bases \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDCoupling \
-			 @srcdir@/../../src/MEDLoader \
-                         @srcdir@/../../src/MEDMEM
+			 @srcdir@/../../src/MEDLoader
 
-FILE_PATTERNS          = MEDMEM_GMesh.* \
-                         MEDMEM_Mesh.* \
-                         MEDMEM_Grid.* \
-                         MEDMEM_Meshing.* \
-                         MEDMEM_Support.* \
-                         MEDMEM_Field.* \
-                         MEDMEM_MedFileBrowser.* \
-                         MEDMEM_Remapper.* \
-                         InterpKernelDEC.* \
+FILE_PATTERNS          = InterpKernelDEC.* \
 			 OverlapDEC.* \
                          DEC.* \
                          DisjointDEC.* \
@@ -143,10 +134,7 @@ EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM \
 		         @srcdir@/../../src/MEDCoupling/Test \
 			 @srcdir@/../../src/MEDCoupling_Swig \
-			 @srcdir@/../../src/MEDLoader/Swig \
-                         @srcdir@/../../doc/MEDMEM \
-                         @srcdir@/../../src/MEDMEMBinTest \
-                         @srcdir@/../../src/MEDMEM
+			 @srcdir@/../../src/MEDLoader/Swig
 EXAMPLE_PATTERNS       = *.cxx *.py
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = @srcdir@/figures

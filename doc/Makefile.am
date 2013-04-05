@@ -19,7 +19,7 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS = MEDMEM salome doxygen
+SUBDIRS = salome doxygen
 
 dev_docs:
 	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)

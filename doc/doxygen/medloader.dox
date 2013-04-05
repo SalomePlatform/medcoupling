@@ -348,13 +348,13 @@ same mesh "mesh1" in one shot :
 
 \section MEDLoaderWriteMain Writing a MED file with MEDLoader
 
-As MEDMEM and MED file do, MEDLoader write process separates clearly
+As MED file does, MEDLoader write process separates clearly
 meshes from fields. The reason is that a common use case in write mode
 is to write in a first time a mesh and then writes several time steps
 of a same field in appended mode.
 
 The fact that the write process is rarely in a one shot put a
-constraint on API (as MEDMEM does) to precise to MEDLoader if you intend
+constraint on API to precise to MEDLoader if you intend
 to append data to an existing file, or if you want to create a new
 file from scratch. This explains the presence of boolean parameter \b
 writeFromScratch in API of MEDLoader starting with \b
@@ -369,8 +369,7 @@ exists MEDLoader will enter in appended mode.
 Two classes of MEDLoader write methods exists when \b writeFromScratch
 is set to \b false :
 
--  Methods \b MEDLoader::Write*Dep : The behaviour is as MEDMEM, that
-   is to say, the write is done without any question in file. The
+-  Methods \b MEDLoader::Write*Dep : The write operation is performed without any question in file. The
    responsability is let to the user because the MED file could be
    corrupted. The advantage of this method is that it is faster
    because no check is done.

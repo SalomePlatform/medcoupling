@@ -28,8 +28,6 @@ sourceField->decrRef();
 med_target_mesh->decrRef();
 \endcode
 
-(Note that the same API can be used with \ref medmem field instead of \ref medcoupling fields using  another remapper class \ref medmemremapper.)
-
 
 \section InterpKerMidLevUsage Middle-level usage
 

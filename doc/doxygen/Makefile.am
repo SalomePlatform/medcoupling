@@ -17,8 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#  MED MEDMEM : MED files in memory
-#
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
@@ -57,24 +55,14 @@ EXTRA_DIST += figures \
 	      Geometric2D.dox \
 	      biblio.dox \
 	      barycoords.dox \
-	      dualmesh.dox \
-	      extractor.dox \
-	      field.dox \
-	      grid.dox \
 	      interpkernel.dox \
 	      interptheory.dox \
 	      interptools.dox \
 	      intersectors.dox \
 	      medcoupling.dox \
-	      medfilebrowser.dox \
 	      medloader.dox \
-	      medmem.dox \
-	      medsplitter.dox \
-	      mesh.dox \
-	      meshing.dox \
-	      polygon.dox \
+	      medpartitioner.dox \
 	      remapper.dox \
-	      support.dox \
 	      tools.dox \
 	      static/footer.html \
 	      static/doxygen.css \
