@@ -86,8 +86,6 @@ if !MED_ENABLE_MICROMED
 	MeshTestToolkit.txx                  \
 	MultiElement2DTests.hxx              \
 	MultiElementTetraTests.hxx           \
-	PointLocatorTest.hxx                 \
-	PointLocatorTest.cxx                 \
 	SingleElementTetraTests.hxx
 
    libInterpKernelTest_la_CPPFLAGS +=            \
