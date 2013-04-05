@@ -37,17 +37,12 @@ void BOOSTRenumbering::renumber(const int* graph,const int* index_graph,int nb_c
   typedef boost::graph_traits<Graph>::vertices_size_type size_type;
   Graph G(nb_cell);
   for (int i=0;i<nb_cell;++i)
-    for (int j=index_graph[i]-1;j<index_graph[i+1]-1;++j)
-      add_edge(i,graph[j]-1,G);
+    for (int j=index_graph[i];j<index_graph[i+1];++j)
+      add_edge(i,graph[j],G);
   boost::property_map<Graph, boost::vertex_index_t>::type
     index_map = boost::get(boost::vertex_index, G);
   boost::cuthill_mckee_ordering(G, iperm.rbegin(), boost::get(boost::vertex_color, G),
                            boost::make_degree_map(G));
   for (size_type c = 0; c != iperm.size(); ++c)
     perm[index_map[iperm[c]]] = c;
-  for(int i=0;i<nb_cell;++i)
-    {
-      perm[i]+=1;
-      iperm[i]+=1;
-    }
 }

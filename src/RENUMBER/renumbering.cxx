@@ -81,6 +81,7 @@ int main(int argc, char** argv)
   Renumbering *renumb=RenumberingFactory(type_renum);
   renumb->renumber(graph,graph_index,workMesh->getNumberOfCells(),iperm,perm);
   delete renumb;
+  iperm.clear();//erase new2old, we are using only old 2 new
   t_compute_graph=clock();
   cout << " : " << (t_compute_graph-t_read_st)/(double) CLOCKS_PER_SEC << "s" << endl;
   cout.flush();
