@@ -60,7 +60,7 @@ rules :
   -# \code void releaseTempArrays() \endcode
 - Formats of arrays
   - the array returned by \c getCoordinatesPtr must be a \b full \b interlace array.
-  - the arrays returned by \c getConnectivityPtr and \c getConnectivityIndexPtr must be with the same principle as it is \ref MEDCouplingUMeshNodalConnectivity "MEDCouplingUMesh does". Of course the numbering format may change according to \a My_numPol policy.
+  - the arrays returned by \c getConnectivityPtr and \c getConnectivityIndexPtr must be with the same principle as it is \ref MEDCouplingUMeshNodalConnectivity "implemented in MEDCouplingUMesh". Of course the numbering format may change according to \a My_numPol policy.
 
 Note that the array format for connectivity is kept close to MED. It is
 close to VTK format too but slightly different. So it may require for the VTK side a copy
