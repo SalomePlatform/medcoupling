@@ -101,10 +101,24 @@ int main(int argc, char** argv)
   // Fields
   cout << "Reordering fields and writing : " << flush;
   MEDFileFields *fs=fd->getFields();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
-  o2n->useArray(&perm[0],false,CPP_DEALLOC,perm.size(),1);
-  fs->renumberEntitiesLyingOnMesh(meshname.c_str(),code,code,o2n);
-  fs->write(filename_out.c_str(),0);
+  if(fs)
+    {
+      for(int i=0;i<fs->getNumberOfFields();i++)
+        {
+          MEDFileFieldMultiTS *fmts=fs->getFieldAtPos(i);
+          if(fmts->getMeshName()==meshname)
+            {
+              for(int j=0;j<fmts->getNumberOfTS();j++)
+                {
+                  MEDFileField1TS *f1ts=fmts->getTimeStepAtPos(j);
+                  DataArrayDouble *arr=f1ts->getUndergroundDataArray();
+                  arr->renumberInPlace(&perm[0]);
+                }
+            }
+        }
+      fs->write(filename_out.c_str(),0);
+      //fs->renumberEntitiesLyingOnMesh(meshname.c_str(),code,code,o2n); bugged
+    }
   t_field=clock();
   cout << " : " << (t_field-t_family)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   return 0;
