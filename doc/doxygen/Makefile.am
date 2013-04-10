@@ -65,7 +65,7 @@ EXTRA_DIST += figures \
 	      remapper.dox \
 	      tools.dox \
 	      static/footer.html \
-	      static/doxygen.css \
+	      static/salome_extra.css \
 	      images \
 	      BuildPyExamplesFromCPP.py
 
