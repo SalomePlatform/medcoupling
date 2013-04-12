@@ -48,6 +48,9 @@ def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
 def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____idiv___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
+    import _MEDLoader
+    return _MEDLoader.MEDCouplingFieldDouble____ipow___(self, self, *args)
 def ParaMEDMEMDataArrayIntIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayInt____iadd___(self, self, *args)

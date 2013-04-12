@@ -1063,6 +1063,8 @@ std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessaryGauss(const M
   if(!disc2)
     throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : invalid call to this method ! Internal Error !");
   const DataArrayInt *da=disc2->getArrayOfDiscIds();
+  if(!da)
+    throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss (no profile) : no localization ids per cell array available ! The input Gauss node field is maybe invalid !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=da->selectByTupleId2(offset,offset+nbOfCells,1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> retTmp=da2->getDifferentValues();
   if(retTmp->presenceOfValue(-1))
@@ -1133,6 +1135,8 @@ std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessaryGauss(const M
   if(!disc2)
     throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : invalid call to this method ! Internal Error !");
   const DataArrayInt *da=disc2->getArrayOfDiscIds();
+  if(!da)
+    throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : no localization ids per cell array available ! The input Gauss node field is maybe invalid !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=da->selectByTupleIdSafe(subCells->getConstPointer(),subCells->getConstPointer()+subCells->getNumberOfTuples());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> retTmp=da2->getDifferentValues();
   if(retTmp->presenceOfValue(-1))

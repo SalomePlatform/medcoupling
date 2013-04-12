@@ -921,7 +921,7 @@ void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& c
 
 void MEDCouplingExtrudedMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
 {
-  stream << "MEDCouplingExtrudedMesh C++ instance at " << this << ".";
+  stream << "MEDCouplingExtrudedMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
 }
 
 std::string MEDCouplingExtrudedMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)

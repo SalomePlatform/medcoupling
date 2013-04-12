@@ -51,6 +51,91 @@ void SauvLoaderTest::testSauv2Med()
   CPPUNIT_ASSERT_EQUAL(17,int(m->getGroupsNames().size()));
 }
 
+void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
+{
+  // Create a mesh with 2 quads.
+  const int spaceDim = 2;
+  const int nbOfNodes = 6;
+  double coords[nbOfNodes*spaceDim] = {0,0, 1,0, 1,1, 0,1, 2,0, 2,1};
+  int conn[8]={0,1,2,3, 1,4,5,2};
+  MEDCouplingUMesh *mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
+  mesh2d->allocateCells(2);
+  mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
+  mesh2d->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(nbOfNodes,spaceDim);
+  std::copy(coords,coords+nbOfNodes*spaceDim,myCoords->getPointer());
+  mesh2d->setCoords(myCoords);
+  myCoords->decrRef();
+
+  // create a MedFileUMesh
+  MEDFileUMesh* m= MEDFileUMesh::New();
+  m->setMeshAtLevel(0,mesh2d);
+
+  // Create families and groups
+
+  DataArrayInt *fam = DataArrayInt::New();
+  fam->alloc(2,1);
+  int elemsFams[2] = {-2,-3};
+  std::copy(elemsFams,elemsFams+2,fam->getPointer());
+
+  m->setFamilyFieldArr(0,fam);
+
+  std::map<std::string,int> theFamilies;
+  theFamilies["FAM_-1"]=-1;
+  theFamilies["FAM_-2"]=-2;
+  theFamilies["FAM_-3"]=-3;
+
+  std::map<std::string, std::vector<std::string> > theGroups;
+  theGroups["Group1"].push_back("FAM_-2");
+  theGroups["Group2"].push_back("FAM_-3");
+  theGroups["Grouptot"].push_back("FAM_-1");
+  theGroups["Grouptot"].push_back("FAM_-2");
+  theGroups["Grouptot"].push_back("FAM_-3");
+  m->setFamilyInfo(theFamilies);
+  m->setGroupInfo(theGroups);
+
+  // write to MED for visual check
+  //const char* medFile = "mesh_with_void_family.med";
+  //m->write(medFile, 2);
+
+  // write to SAUV
+  const char* sauvFile = "mesh_with_void_family.sauv";
+  MEDFileData* medData = MEDFileData::New();
+  MEDFileMeshes* medMeshes = MEDFileMeshes::New();
+  SauvWriter* sw=SauvWriter::New();
+  medMeshes->setMeshAtPos(0, m);
+  medData->setMeshes(medMeshes);
+  sw->setMEDFileDS(medData);
+  sw->write(sauvFile);
+
+  // read SAUV and check groups
+  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  MEDFileUMesh * m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
+  std::vector<std::string > groups = m->getGroupsNames();
+  std::cout << "Number of groups: " << groups.size() << std::endl;
+  CPPUNIT_ASSERT_EQUAL(3,(int)groups.size());
+  MEDCouplingUMesh * grp1 = m2->getGroup(0, "Group1");
+  CPPUNIT_ASSERT_EQUAL(1,(int)grp1->getNumberOfCells());
+  MEDCouplingUMesh * grp2 = m2->getGroup(0, "Group2");
+  CPPUNIT_ASSERT_EQUAL(1,(int)grp2->getNumberOfCells());
+  MEDCouplingUMesh * grptot = m2->getGroup(0, "Grouptot");
+  CPPUNIT_ASSERT_EQUAL(2,(int)grptot->getNumberOfCells());
+
+  // clean
+  mesh2d->decrRef();
+  medData->decrRef();
+  medMeshes->decrRef();
+  fam->decrRef();
+  m->decrRef();
+  sw->decrRef();
+  grp1->decrRef();
+  grp2->decrRef();
+  grptot->decrRef();
+}
+
 void SauvLoaderTest::testMed2Sauv()
 {
   // read pointe.med
@@ -201,8 +286,8 @@ void SauvLoaderTest::testMed2Sauv()
 
 void SauvLoaderTest::tearDown()
 {
-  const int nbFilesToRemove = 2;
-  const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv" };
+  const int nbFilesToRemove = 3;
+  const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv", "mesh_with_void_family.sauv" };
   for ( int i = 0; i < nbFilesToRemove; ++i )
     {
 #ifdef WIN32

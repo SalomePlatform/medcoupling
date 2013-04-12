@@ -193,6 +193,12 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
   idsPerType.push_back(profile->deepCpy());
 }
 
+/*!
+ * Creates a new unstructured mesh (MEDCouplingUMesh) from \a this structured one.
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
+ * delete this array using decrRef() as it is no more needed. 
+ *  \throw If \a this->getMeshDimension() is not among [1,2,3].
+ */
 MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
   int meshDim=getMeshDimension();
@@ -217,6 +223,16 @@ MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INT
   return ret;
 }
 
+/*!
+ * Creates a new MEDCouplingUMesh containing a part of cells of \a this mesh.
+ * The cells to include to the
+ * result mesh are specified by an array of cell ids.
+ *  \param [in] start - an array of cell ids to include to the result mesh.
+ *  \param [in] end - specifies the end of the array \a start, so that
+ *              the last value of \a start is \a end[ -1 ].
+ *  \return MEDCouplingMesh * - a new instance of MEDCouplingUMesh. The caller is to
+ *         delete this mesh using decrRef() as it is no more needed. 
+ */
 MEDCouplingMesh *MEDCouplingStructuredMesh::buildPart(const int *start, const int *end) const
 {
   MEDCouplingUMesh *um=buildUnstructured();
@@ -238,6 +254,14 @@ DataArrayInt *MEDCouplingStructuredMesh::simplexize(int policy) throw(INTERP_KER
   throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::simplexize : not available for Cartesian mesh !");
 }
 
+/*!
+ * Returns a new MEDCouplingFieldDouble holding normal vectors to cells of \a this
+ * 2D mesh. The computed vectors have 3 components and are normalized.
+ *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on
+ *          cells and one time. The caller is to delete this field using decrRef() as
+ *          it is no more needed.
+ *  \throw If \a this->getMeshDimension() != 2.
+ */
 MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
 {
   if(getMeshDimension()!=2)
@@ -344,6 +368,14 @@ void MEDCouplingStructuredMesh::fill3DUnstructuredMesh(MEDCouplingUMesh *m) cons
   connI->decrRef();
 }
 
+/*!
+ * Returns a cell id by its (i,j,k) index. The cell is located between the i-th and
+ * ( i + 1 )-th nodes along X axis etc.
+ *  \param [in] i - a index of node coordinates array along X axis.
+ *  \param [in] j - a index of node coordinates array along Y axis.
+ *  \param [in] k - a index of node coordinates array along Z axis.
+ *  \return int - a cell id in \a this mesh.
+ */
 int MEDCouplingStructuredMesh::getCellIdFromPos(int i, int j, int k) const
 {
   int tmp[3]={i,j,k};
@@ -354,6 +386,13 @@ int MEDCouplingStructuredMesh::getCellIdFromPos(int i, int j, int k) const
   return std::accumulate(tmp,tmp+meshDim,0);
 }
 
+/*!
+ * Returns a node id by its (i,j,k) index.
+ *  \param [in] i - a index of node coordinates array along X axis.
+ *  \param [in] j - a index of node coordinates array along Y axis.
+ *  \param [in] k - a index of node coordinates array along Z axis.
+ *  \return int - a node id in \a this mesh.
+ */
 int MEDCouplingStructuredMesh::getNodeIdFromPos(int i, int j, int k) const
 {
   int tmp[3]={i,j,k};

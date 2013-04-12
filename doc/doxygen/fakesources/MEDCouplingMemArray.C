@@ -17,6 +17,11 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+// This file contains some code used only for
+// * generation of documentation for inline methods of DataArray* classes
+// * groupping methods into "Basic API", "Advanced" and "Others..." sections
+
+
 namespace ParaMEDMEM
 {
 /*!

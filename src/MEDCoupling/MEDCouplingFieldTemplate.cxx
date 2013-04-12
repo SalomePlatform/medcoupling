@@ -61,8 +61,11 @@ std::string MEDCouplingFieldTemplate::simpleRepr() const
   std::ostringstream ret;
   ret << "FieldTemplate with name : \"" << getName() << "\"\n";
   ret << "Description of field is : \"" << getDescription() << "\"\n";
-  ret << "FieldTemplate space discretization is : " << _type->getStringRepr() << "\n";
-  ret << "FieldTemplate nature of field is : " << MEDCouplingNatureOfField::GetRepr(_nature) << "\n";
+  if(_type)
+    { ret << "FieldTemplate space discretization is : " << _type->getStringRepr() << "\n"; }
+  else
+    { ret << "FieldTemplate has no spatial discretization !\n"; }
+  ret << "FieldTemplate nature of field is : \"" << MEDCouplingNatureOfField::GetReprNoThrow(_nature) << "\"\n";
   if(_mesh)
     ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
   else
@@ -77,6 +80,8 @@ std::string MEDCouplingFieldTemplate::advancedRepr() const
 
 void MEDCouplingFieldTemplate::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
 {
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getTinySerializationIntInformation !");
   tinyInfo.clear();
   tinyInfo.push_back((int)_type->getEnum());
   tinyInfo.push_back((int)_nature);
@@ -88,6 +93,8 @@ void MEDCouplingFieldTemplate::getTinySerializationIntInformation(std::vector<in
 
 void MEDCouplingFieldTemplate::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
 {
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform getTinySerializationDbleInformation !");
   tinyInfo.clear();
   _type->getTinySerializationDbleInformation(tinyInfo);
 }
@@ -101,6 +108,8 @@ void MEDCouplingFieldTemplate::getTinySerializationStrInformation(std::vector<st
 
 void MEDCouplingFieldTemplate::resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt)
 {
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
   dataInt=0;
   std::vector<int> tinyInfoITmp(tinyInfoI.begin()+2,tinyInfoI.end());
   _type->resizeForUnserialization(tinyInfoITmp,dataInt);
@@ -108,6 +117,8 @@ void MEDCouplingFieldTemplate::resizeForUnserialization(const std::vector<int>& 
 
 void MEDCouplingFieldTemplate::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform finishUnserialization !");
   _nature=(NatureOfField)tinyInfoI[1];
   _type->finishUnserialization(tinyInfoD);
   _name=tinyInfoS[0];
@@ -119,3 +130,30 @@ void MEDCouplingFieldTemplate::serialize(DataArrayInt *&dataInt) const
   _type->getSerializationIntArray(dataInt);
 }
 
+void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingFieldTemplate C++ instance at " << this << ". Name : \"" << _name << "\"." << std::endl;
+  const char *nat=0;
+  try
+    {
+      nat=MEDCouplingNatureOfField::GetRepr(_nature);
+      stream << "Nature of field template : " << nat << ".\n";
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {  }
+  const MEDCouplingFieldDiscretization *fd(_type);
+  if(!fd)
+    stream << "No spatial discretization set !";
+  else
+    fd->reprQuickOverview(stream);
+  stream << std::endl;
+  if(!_mesh)
+    stream << "\nNo mesh support defined !";
+  else
+    {
+      std::ostringstream oss;
+      _mesh->reprQuickOverview(oss);
+      std::string tmp(oss.str());
+      stream << "\nMesh info : " << tmp.substr(0,tmp.find('\n'));
+    }
+}

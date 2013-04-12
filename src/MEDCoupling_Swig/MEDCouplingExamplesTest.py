@@ -20,15 +20,884 @@
 
 from MEDCoupling import *
 import unittest
-from math import pi
+from math import pi, sqrt
 
 class MEDCouplingBasicsTest(unittest.TestCase):
-    def testExample_MEDCouplingPointSet_(self):
-        #! [PySnippet_MEDCouplingPointSet__1]
-        pass
-        # mesh.allocateCells(1);
-        # mesh.insertNextCell(NORM_QUAD4,4,range(4));
-        # mesh.finishInsertingCells();
+    def testExample_MEDCouplingUMesh_(self):
+        #! [PySnippet_MEDCouplingUMesh__1]
+        return
+
+    def testExample_MEDCouplingMesh_fillFromAnalytic3(self):
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_1]
+        coords = [0.,2.,4.,6.] #  6. is not used
+        x=DataArrayDouble.New(coords[:3],3,1)
+        y=DataArrayDouble.New(coords[:2],2,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(x,y)
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_1]
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_2]
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        varNames=["a","b"] # names used to refer to X and Y coord components
+        field=mesh.fillFromAnalytic3(ON_CELLS,3,varNames,func)
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_2]
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_3]
+        vals1 = field.getArray().getTuple(1) # values of the cell #1
+        assert len( vals1 ) == 3 # 3 components in the field
+        #
+        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc1 = bc.getTuple(1) # coordinates of the second point
+        #
+        dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
+        self.assertAlmostEqual( vals1[0], 10 + bc1[1], 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vals1[1], 10 + bc1[0], 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vals1[2], 10 + dist  , 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_3]
+        return
+
+    def testExample_MEDCouplingMesh_fillFromAnalytic2(self):
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_1]
+        coords = [0.,2.,4.,6.] #  6. is not used
+        x=DataArrayDouble.New(coords[:3],3,1)
+        y=DataArrayDouble.New(coords[:2],2,1)
+        x.setInfoOnComponent(0,"a") # name used to refer to X coordinate within a function
+        y.setInfoOnComponent(0,"b") # name used to refer to Y coordinate within a function
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(x,y)
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_1]
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_2]
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        field=mesh.fillFromAnalytic2(ON_CELLS,3,func)
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_2]
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_3]
+        vals1 = field.getArray().getTuple(1) # values of the cell #1
+        assert len( vals1 ) == 3 # 3 components in the field
+        #
+        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc1 = bc.getTuple(1) # coordinates of the second point
+        #
+        dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
+        self.assertAlmostEqual( vals1[0], 10 + bc1[1], 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vals1[1], 10 + bc1[0], 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vals1[2], 10 + dist  , 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_3]
+        return
+
+    def testExample_MEDCouplingMesh_fillFromAnalytic(self):
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic_1]
+        coords = [0.,2.,4.,6.] #  6. is not used
+        x=DataArrayDouble.New(coords[:3],3,1)
+        y=DataArrayDouble.New(coords[:2],2,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(x,y)
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic_1]
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic_2]
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        field=mesh.fillFromAnalytic(ON_CELLS,3,func)
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic_2]
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic_3]
+        vals1 = field.getArray().getTuple(1) # values of the cell #1
+        assert len( vals1 ) == 3 # 3 components in the field
+        #
+        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc1 = bc.getTuple(1) # coordinates of the second point
+        #
+        dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
+        self.assertAlmostEqual( vals1[0], 10 + bc1[1], 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vals1[1], 10 + bc1[0], 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vals1[2], 10 + dist  , 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingMesh_fillFromAnalytic_3]
+        return
+
+    def testExample_MEDCouplingCMesh_getCoordsAt(self):
+        #! [PySnippet_MEDCouplingCMesh_getCoordsAt_1]
+        coords = [1.,2.,4.]
+        x=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoordsAt(0,x)
+        x2=mesh.getCoordsAt(0)
+        assert coords == x2.getValues()
+        #! [PySnippet_MEDCouplingCMesh_getCoordsAt_1]
+        return
+
+    def testExample_MEDCouplingUMesh_areCellsIncludedIn(self):
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_1]
+        mesh1=MEDCouplingUMesh.New();
+        mesh1.setMeshDimension(2);
+        mesh1.allocateCells(5);
+        conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh1.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh1.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh1.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh1.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh1.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh1.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh1.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_1]
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_2]
+        cells2 = [ 4,2,0 ]
+        mesh2 = mesh1.buildPartOfMySelf(cells2, True ) # even cells selected
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_2]
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_3]
+        compType = 0 # the strongest policy
+        isOk, corr2to1 = mesh1.areCellsIncludedIn( mesh2, compType )
+        assert isOk # a larger mesh1 includes a smaller mesh2
+        assert corr2to1.getValues() == cells2
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_3]
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_4]
+        isOk, corr1to2 = mesh2.areCellsIncludedIn( mesh1, compType )
+        assert not isOk # the smaller mesh2 does NOT include the larger mesh1
+        assert corr1to2.getValues() == [2, 3, 1, 4, 0]
+        #! [PySnippet_MEDCouplingUMesh_areCellsIncludedIn_4]
+
+    def testExample_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells(self):
+        #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_1]
+        # 2D coordinates of 5 base nodes
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,5,2);
+        # coordinates of 5 top nodes
+        coordsArr2 = coordsArr.deepCpy()
+        # 3D coordinates of base + top nodes
+        coordsArr  = coordsArr.changeNbOfComponents( 3, 0 )
+        coordsArr2 = coordsArr2.changeNbOfComponents( 3, 1 )
+        coordsArr = DataArrayDouble.Aggregate([coordsArr,coordsArr2])
+        # mesh
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        mesh.setMeshDimension(3);
+        mesh.allocateCells(2);
+        # connectivity of reversed HEXA8 and PENTA6
+        conn=[0,1,4,3, 5,6,9,8, 1,2,4, 6,7,9]
+        mesh.insertNextCell(NORM_HEXA8, 8,conn[0:0+8])
+        mesh.insertNextCell(NORM_PENTA6,6,conn[8:8+6])
+        mesh.finishInsertingCells();
+        #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_1]
+        #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_2]
+        fixedCells = mesh.findAndCorrectBadOriented3DExtrudedCells()
+        assert len( fixedCells.getValues() ) == 2 # 2 cells fixed
+        fixedCells = mesh.findAndCorrectBadOriented3DExtrudedCells()
+        assert len( fixedCells.getValues() ) == 0 # no bad cells
+        #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_2]
+        return
+
+    def testExample_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented(self):
+        #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_1]
+        # 2D coordinates of 5 base nodes
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,5,2);
+        # coordinates of 5 top nodes
+        coordsArr2 = coordsArr.deepCpy()
+        # 3D coordinates of base + top nodes
+        coordsArr  = coordsArr.changeNbOfComponents( 3, 0 )
+        coordsArr2 = coordsArr2.changeNbOfComponents( 3, 1 )
+        coordsArr = DataArrayDouble.Aggregate([coordsArr,coordsArr2])
+        # mesh
+        mesh=MEDCouplingUMesh.New();
+        mesh.setCoords(coordsArr);
+        mesh.setMeshDimension(3);
+        mesh.allocateCells(2);
+        # connectivity of a HEXA8 + a reversed PENTA6
+        conn=[0,3,4,1, 5,8,9,6, 1,2,4, 6,7,9]
+        mesh.insertNextCell(NORM_POLYHED, 8,conn[0:0+8]) # "extruded" polyhedron
+        mesh.insertNextCell(NORM_POLYHED,6,conn[8:8+6])
+        mesh.finishInsertingCells();
+        # fix connectivity of NORM_POLYHED's
+        mesh.convertExtrudedPolyhedra()
+        #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_1]
+        #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_2]
+        badCells = mesh.arePolyhedronsNotCorrectlyOriented()
+        assert len( badCells.getValues() ) == 1 # one polyhedron is KO
+        # fix invalid rolyherdons
+        mesh.orientCorrectlyPolyhedrons()
+        # re-check the orientation
+        badCells = mesh.arePolyhedronsNotCorrectlyOriented()
+        assert len( badCells.getValues() ) == 0 # connectivity is OK
+        #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_2]
+        return
+
+    def testExample_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented(self):
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        mesh.changeSpaceDimension(3)
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_1]
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_2]
+        vec = [0.,0.,-1.]
+        badCellIds=mesh.are2DCellsNotCorrectlyOriented( vec, False )
+        assert len( badCellIds ) == 1 # one cell is reversed
+        # fix orientation
+        mesh.orientCorrectly2DCells( vec, False )
+        # re-check orientation
+        badCellIds=mesh.are2DCellsNotCorrectlyOriented( vec, False )
+        assert len( badCellIds ) == 0 # the orientation is OK
+        #! [PySnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_2]
+        return
+
+    def testExample_MEDCouplingUMesh_getCellsContainingPoints(self):
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoints_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoints_1]
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoints_2]
+        pos = [ 10., 10,              # point out of the mesh
+                0.3, 0.3,             # point located somewhere inside the mesh
+                coords[2], coords[3]] # point at the node #1
+        eps = 1e-4 # ball radius
+        cells,cellsIndex=mesh.getCellsContainingPoints( pos, 3, eps )
+        assert cells.getValues() == [4, 0, 1]
+        assert cellsIndex.getValues() == [0, 0, 1, 3]
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoints_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_getCellsContainingPoint(self):
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoint_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoint_1]
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoint_2]
+        pos4 = coords[ 4*2 : ] # coordinates of the node #4
+        eps = 1e-4 # ball radius
+        pos = [ pos4[0]+eps, pos4[1]-eps ] # ball center
+        cellIds=mesh.getCellsContainingPoint( pos, eps )
+        assert len( cellIds ) == mesh.getNumberOfCells()
+        #! [PySnippet_MEDCouplingUMesh_getCellsContainingPoint_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_buildPartOrthogonalField(self):
+        #! [PySnippet_MEDCouplingUMesh_buildPartOrthogonalField_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildPartOrthogonalField_1]
+        #! [PySnippet_MEDCouplingUMesh_buildPartOrthogonalField_2]
+        part = DataArrayInt([1,2,3,4],4,1) # cell #0 is omitted
+        vecField=mesh.buildPartOrthogonalField( part )
+        vecArr = vecField.getArray()
+        assert len( vecArr ) == len( part )
+        assert vecArr.getNumberOfComponents() == 3
+        #! [PySnippet_MEDCouplingUMesh_buildPartOrthogonalField_2]
+        return
+
+    def testExample_MEDCouplingUMesh_getPartMeasureField(self):
+        #! [PySnippet_MEDCouplingUMesh_getPartMeasureField_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getPartMeasureField_1]
+        #! [PySnippet_MEDCouplingUMesh_getPartMeasureField_2]
+        isAbs = True
+        part = DataArrayInt([1,2,3,4],4,1) # cell #0 is omitted
+        areaArr=mesh.getPartMeasureField( isAbs, part )
+        assert areaArr[0] > 0 # orientation ignored
+        areaArr=mesh.getPartMeasureField( not isAbs, part )
+        assert areaArr[0] < 0 # orientation considered
+        assert len( areaArr ) == len( part )
+        #! [PySnippet_MEDCouplingUMesh_getPartMeasureField_2]
+        #! [PySnippet_MEDCouplingUMesh_getPartMeasureField_3]
+        part = DataArrayInt([1,2,3,4],4,1) # cell #0 is omitted
+        baryCenters = mesh.getPartBarycenterAndOwner( part )
+        assert len( baryCenters ) == len( part )
+        assert baryCenters.getNumberOfComponents() == mesh.getSpaceDimension()
+        #! [PySnippet_MEDCouplingUMesh_getPartMeasureField_3]
+        return
+
+    def testExample_MEDCouplingUMesh_getCellsInBoundingBox(self):
+        #! [PySnippet_MEDCouplingUMesh_getCellsInBoundingBox_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        coords=[0.,0., 0.,1., 1.,1];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,3,2);
+        mesh.setCoords(coordsArr);
+        mesh.allocateCells(1);
+        conn=[0,1,2];
+        mesh.insertNextCell(NORM_TRI3,3,conn);
+        mesh.finishInsertingCells();
+        #! [PySnippet_MEDCouplingUMesh_getCellsInBoundingBox_1]
+        #! [PySnippet_MEDCouplingUMesh_getCellsInBoundingBox_2]
+        bbox = [1., 1., 1.001,1.001] # xMin, xMax, yMin, yMax
+        cellsInBox = mesh.getCellsInBoundingBox( bbox, 0.0 )
+        assert cellsInBox.getValues() == []
+        cellsInBox = mesh.getCellsInBoundingBox( bbox, 0.1 )
+        assert cellsInBox.getValues() == [0]
+        #! [PySnippet_MEDCouplingUMesh_getCellsInBoundingBox_2]
+
+
+    def testExample_MEDCouplingUMesh_renumberNodesInConn(self):
+        #! [PySnippet_MEDCouplingUMesh_renumberNodesInConn_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(1);
+        conn=[4,3,2,1];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);
+        mesh.finishInsertingCells();
+        #! [PySnippet_MEDCouplingUMesh_renumberNodesInConn_1]
+        #! [PySnippet_MEDCouplingUMesh_renumberNodesInConn_2]
+        old2newIds = [-1,3,2,1,0]
+        mesh.renumberNodesInConn( old2newIds )
+        nodes0 = mesh.getNodeIdsOfCell( 0 )
+        assert nodes0 == [0,1,2,3]
+        #! [PySnippet_MEDCouplingUMesh_renumberNodesInConn_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_renumberNodes(self):
+        #! [PySnippet_MEDCouplingUMesh_renumberNodes_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.3];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,4,2);
+        mesh.setCoords(coordsArr);
+        mesh.allocateCells(0);
+        mesh.finishInsertingCells();
+        #! [PySnippet_MEDCouplingUMesh_renumberNodes_1]
+        #! [PySnippet_MEDCouplingUMesh_renumberNodes_2]
+        mesh.renumberNodes([ 2,1,0,-1 ], 3);
+        coordsArr = mesh.getCoords() # get a shorten array
+        assert coordsArr.getValues() == [0.7,-0.3, 0.2,-0.3, -0.3,-0.3]
+        #! [PySnippet_MEDCouplingUMesh_renumberNodes_2]
+        #! [PySnippet_MEDCouplingUMesh_renumberNodes_3]
+        coordsArr.setValues(coords,4,2); # restore old nodes
+        mesh.renumberNodes2([ 2,1,0,2 ], 3);
+        coordsArr = mesh.getCoords() # get a shorten array
+        assert coordsArr.getValues() == [0.7,-0.3, 0.2,-0.3, -0.3,0.0]
+        #! [PySnippet_MEDCouplingUMesh_renumberNodes_3]
+        return
+
+    def testExample_MEDCouplingUMesh_findBoundaryNodes(self):
+        #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_1]
+        #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_2]
+        nodeIdsArr=mesh.findBoundaryNodes()
+        assert nodeIdsArr.getNumberOfTuples() == mesh.getNumberOfNodes() - 1 
+        #! [PySnippet_MEDCouplingUMesh_findBoundaryNodes_2]
+        return
+
+    def testExample_MEDCouplingUMesh_buildBoundaryMesh(self):
+        #! [PySnippet_MEDCouplingUMesh_buildBoundaryMesh_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildBoundaryMesh_1]
+        #! [PySnippet_MEDCouplingUMesh_buildBoundaryMesh_2]
+        mesh1=mesh.buildBoundaryMesh(True)
+        mesh2=mesh.buildBoundaryMesh(False)
+        assert coordsArr.isEqual( mesh1.getCoords(), 1e-13 )  # same nodes
+        assert not coordsArr.isEqual( mesh2.getCoords(), 1e-13 ) # different nodes
+        #! [PySnippet_MEDCouplingUMesh_buildBoundaryMesh_2]
+        return
+
+    def testExample_MEDCouplingUMesh_buildFacePartOfMySelfNode(self):
+        #! [PySnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_1]
+        #! [PySnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_2]
+        nodeIds = mesh.getNodeIdsOfCell( 0 )
+        allNodes = True
+        mesh1 = mesh.buildFacePartOfMySelfNode( nodeIds, allNodes )
+        assert mesh1.getNumberOfCells() == 4 # 4 segments bounding QUAD4 #0 only
+        mesh2 = mesh.buildFacePartOfMySelfNode( nodeIds, not allNodes )
+        assert mesh2.getNumberOfCells() >  4 # more segments added
+        #! [PySnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_buildPartOfMySelfNode(self):
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelfNode_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelfNode_1]
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelfNode_2]
+        nodeIds = mesh.getNodeIdsOfCell( 0 )
+        allNodes = True
+        mesh1 = mesh.buildPartOfMySelfNode( nodeIds, allNodes )
+        mesh2 = mesh.buildPartOfMySelfNode( nodeIds, not allNodes )
+        assert mesh1.getNumberOfCells() == 1 # cell #0 is found only
+        assert mesh2.getNumberOfCells() == mesh.getNumberOfCells() # all cells are found
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelfNode_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_getCellIdsLyingOnNodes(self):
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_1]
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_2]
+        nodeIds = mesh.getNodeIdsOfCell( 0 )
+        allNodes = True
+        cellIdsArr1 = mesh.getCellIdsLyingOnNodes( nodeIds, allNodes )
+        cellIdsArr2 = mesh.getCellIdsLyingOnNodes( nodeIds, not allNodes )
+        assert cellIdsArr1.getNumberOfTuples() == 1 # cell #0 is found only
+        assert cellIdsArr2.getNumberOfTuples() == mesh.getNumberOfCells() # all cells are found
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds(self):
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_1]
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_2]
+        cellIds = [1,2]
+        nodeIds =  mesh.getNodeIdsOfCell( cellIds[0] )
+        nodeIds += mesh.getNodeIdsOfCell( cellIds[1] )
+        cellIdsArr = mesh.getCellIdsFullyIncludedInNodeIds( nodeIds )
+        assert cellIdsArr.getValues() == cellIds
+        #! [PySnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_2]
+        return
+
+
+    def testExample_MEDCouplingUMesh_buildPartOfMySelf(self):
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelf_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelf_1]
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelf_2]
+        cellIds=[1,2]
+        mesh2=mesh.buildPartOfMySelf(cellIds, True)
+        mesh3=mesh.buildPartOfMySelf(cellIds, False)
+        coordsArr2 = mesh2.getCoords()
+        assert coordsArr.isEqual( coordsArr2, 1e-13 )  # same nodes
+        coordsArr3 = mesh3.getCoords()
+        assert not coordsArr.isEqual( coordsArr3, 1e-13 ) # different nodes
+        assert mesh2.getNodeIdsOfCell(0) == mesh.getNodeIdsOfCell( cellIds[0]) # cell #1 was copied
+        assert mesh2.getNodeIdsOfCell(1) == mesh.getNodeIdsOfCell( cellIds[1]) # cell #2 was copied
+        #! [PySnippet_MEDCouplingUMesh_buildPartOfMySelf_2]
+        return
+
+    def testExample_MEDCouplingUMesh_mergeNodes(self):
+        #! [PySnippet_MEDCouplingUMesh_mergeNodes_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]); 
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]); 
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);
+        mesh.finishInsertingCells();
+        coords=[0.3,-0.301, # 0
+                0.2,-0.3,   # 1
+                0.3,-0.302, # 2 ~~ 0
+                1.1,0.0,    # 3
+                1.1,0.0,    # 4 == 3
+                0.3,-0.303];# 5 ~~ 0
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,6,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_mergeNodes_1]
+        #! [PySnippet_MEDCouplingUMesh_mergeNodes_2]
+        arr,areNodesMerged,newNbOfNodes=mesh.mergeNodes(0.004)
+        assert arr.getValues() == [0, 1, 0, 2, 2, 0]
+        assert areNodesMerged
+        assert newNbOfNodes == 3
+        #! [PySnippet_MEDCouplingUMesh_mergeNodes_2]
+        #! [PySnippet_MEDCouplingUMesh_mergeNodes_3]
+        baryCoords2 = coords[2*2:] # initial coordinates of node #2
+        coordsArr = mesh.getCoords() # retrieve a new shorten coord array
+        self.assertNotAlmostEqual( baryCoords2[1], coordsArr.getIJ(0,1), 13 ) # Y of node #0 differs from that of baryCoords2
+        # restore coordinates
+        coordsArr = DataArrayDouble(coords,6,2);
+        mesh.setCoords(coordsArr);
+        # call mergeNodes2()
+        mesh.mergeNodes2(0.004)
+        coordsArr = mesh.getCoords() # retrieve a new shorten coord array
+        self.assertAlmostEqual( baryCoords2[1], coordsArr.getIJ(0,1), 13 ) # Y of node #0 equals to that of baryCoords2
+        #! [PySnippet_MEDCouplingUMesh_mergeNodes_3]
+        return
+
+    def testExample_MEDCouplingUMesh_zipConnectivityTraducer(self):
+        #! [PySnippet_MEDCouplingUMesh_zipConnectivityTraducer_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);           # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);           # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);           # 2 == 1
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);           # 3 == 0
+        mesh.insertNextCell(NORM_QUAD4,4,conn[2:4]+conn[0:2]); # 4 ~~ 0
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_zipConnectivityTraducer_1]
+        #! [PySnippet_MEDCouplingUMesh_zipConnectivityTraducer_2]
+        oldNbCells = mesh.getNumberOfCells()
+        arr = mesh.zipConnectivityTraducer(0)
+        assert mesh.getNumberOfCells() == oldNbCells-2
+        assert arr.getValues() == [0, 1, 1, 0, 2]
+        #! [PySnippet_MEDCouplingUMesh_zipConnectivityTraducer_2]
+        return
+
+    def testExample_MEDCouplingUMesh_zipCoordsTraducer(self):
+        #! [PySnippet_MEDCouplingUMesh_zipCoordsTraducer_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_zipCoordsTraducer_1]
+        #! [PySnippet_MEDCouplingUMesh_zipCoordsTraducer_2]
+        cellIds=[1,2]
+        mesh2=mesh.buildPartOfMySelf(cellIds,True);
+        arr=mesh2.zipCoordsTraducer();
+        assert mesh2.getNumberOfNodes() == 4 # nb of nodes decreased
+        assert arr.getValues() == [-1,0,1,-1,2,3,-1,-1,-1] # -1 for unused nodes
+        #! [PySnippet_MEDCouplingUMesh_zipCoordsTraducer_2]
+        return
+
+    def testExample_MEDCouplingUMesh_getNodeIdsInUse(self):
+        #! [PySnippet_MEDCouplingUMesh_getNodeIdsInUse_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getNodeIdsInUse_1]
+        #! [PySnippet_MEDCouplingUMesh_getNodeIdsInUse_2]
+        cellIds=[1,2]
+        mesh2=mesh.buildPartOfMySelf(cellIds,True);
+        arr,newNbOfNodes=mesh2.getNodeIdsInUse();
+        assert arr.getValues() == [-1,0,1,-1,2,3,-1,-1,-1]
+        #! [PySnippet_MEDCouplingUMesh_getNodeIdsInUse_2]
+        #! [PySnippet_MEDCouplingUMesh_getNodeIdsInUse_3]
+        arr2=arr.invertArrayO2N2N2O(newNbOfNodes);
+        assert arr2.getValues() == [1,2,4,5]
+        #! [PySnippet_MEDCouplingUMesh_getNodeIdsInUse_3]
+        return
+
+    def testExample_MEDCouplingUMesh_convertToPolyTypes(self):
+        #! [PySnippet_MEDCouplingUMesh_convertToPolyTypes_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_convertToPolyTypes_1]
+        #! [PySnippet_MEDCouplingUMesh_convertToPolyTypes_2]
+        cells=[1,3];
+        mesh.convertToPolyTypes(cells);
+        assert mesh.getTypeOfCell(0) == NORM_QUAD4
+        assert mesh.getTypeOfCell(1) == NORM_POLYGON, mesh.getTypeOfCell(1)
+        assert mesh.getTypeOfCell(2) == NORM_TRI3
+        assert mesh.getTypeOfCell(3) == NORM_POLYGON
+        #! [PySnippet_MEDCouplingUMesh_convertToPolyTypes_2]
+        return
+
+    def testExample_MEDCouplingUMesh_buildDescendingConnectivity2(self):
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity2_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity2_1]
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity2_2]
+        desc=DataArrayInt.New();
+        descIndx=DataArrayInt.New();
+        revDesc=DataArrayInt.New();
+        revDescIndx=DataArrayInt.New();
+        mesh2=mesh.buildDescendingConnectivity2(desc,descIndx,revDesc,revDescIndx);
+        assert desc.getValues()        == [1,2,3,4,-3,5,6, 7,8,-5,9,10,-2,11, 12,13,-7,-10]
+        assert descIndx.getValues()    == [0,4,7,10,14,18]
+        assert revDesc.getValues()     == [0, 0,3, 0,1, 0, 1,2, 1, 2,4, 2, 3, 3,4, 3, 4, 4]
+        assert revDescIndx.getValues() == [0,1,3,5,6,8,9,11,12,13,15,16,17,18]
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity2_2]
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity2_3]
+        assert mesh2.getNodeIdsOfCell( 3-1 ) == [4, 1]  # cell #3 in FORTRAN mode
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity2_3]
+        return
+
+    def testExample_MEDCouplingUMesh_buildDescendingConnectivity(self):
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity_1]
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity_2]
+        desc=DataArrayInt.New();
+        descIndx=DataArrayInt.New();
+        revDesc=DataArrayInt.New();
+        revDescIndx=DataArrayInt.New();
+        mesh2=mesh.buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+        assert desc.getValues()        == [0,1,2,3, 2,4,5, 6,7,4, 8,9,1,10, 11,12,6,9]
+        assert descIndx.getValues()    == [0,4,7,10,14,18]
+        assert revDesc.getValues()     == [0, 0,3, 0,1, 0, 1,2, 1, 2,4, 2, 3, 3,4, 3, 4, 4]
+        assert revDescIndx.getValues() == [0,1,3,5,6,8,9,11,12,13,15,16,17,18]
+        #! [PySnippet_MEDCouplingUMesh_buildDescendingConnectivity_2]
+        return
+
+    def testExample_MEDCouplingUMesh_getReverseNodalConnectivity(self):
+        #! [PySnippet_MEDCouplingUMesh_getReverseNodalConnectivity_1]
+        mesh=MEDCouplingUMesh.New();
+        mesh.setMeshDimension(2);
+        mesh.allocateCells(5);
+        conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.finishInsertingCells();
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coordsArr=DataArrayDouble.New();
+        coordsArr.setValues(coords,9,2);
+        mesh.setCoords(coordsArr);
+        #! [PySnippet_MEDCouplingUMesh_getReverseNodalConnectivity_1]
+        #! [PySnippet_MEDCouplingUMesh_getReverseNodalConnectivity_2]
+        revNodal,revNodalIndx=mesh.getReverseNodalConnectivity();
+        assert revNodal.getValues()     == [0,0,1,1,2,0,3,0,1,2,3,4,2,4,3,3,4,4];
+        assert revNodalIndx.getValues() == [0,1,3,5,7,12,14,15,17,18];
+        #! [PySnippet_MEDCouplingUMesh_getReverseNodalConnectivity_2]
+        return
+
+    def testExample_MEDCouplingUMesh_checkDeepEquivalWith(self):
+        #! [PySnippet_MEDCouplingUMesh_checkDeepEquivalWith_1]
+        # mesh 1
+        mesh1=MEDCouplingUMesh.New();
+        mesh1.setMeshDimension(2);
+        coords=[0.0,0.0, #0
+                1.0,0.0, #1
+                1.0,1.0, #2
+                0.0,1.0] #3
+        coordsArr=DataArrayDouble.New(coords,4,2);
+        mesh1.setCoords(coordsArr);
+        mesh1.allocateCells(2);
+        mesh1.insertNextCell(NORM_TRI3,3,[0,1,2]); #0
+        mesh1.insertNextCell(NORM_TRI3,3,[1,2,3]); #1
+        mesh1.finishInsertingCells();
+        # mesh 2
+        mesh2=MEDCouplingUMesh.New();
+        mesh2.setMeshDimension(2);
+        coords=[0.0,1.0,    #0 = #3
+                0.0,0.0,    #1 = #0
+                1.0,0.0,    #2 = #1
+                1.0,1.001]  #3 ~ #2
+        coordsArr2=DataArrayDouble.New(coords,4,2)
+        mesh2.setCoords(coordsArr2);
+        mesh2.allocateCells(2);
+        mesh2.insertNextCell(NORM_TRI3,3,[2,3,0]); #0 = #1
+        mesh2.insertNextCell(NORM_TRI3,3,[3,1,2]); #1 ~ #0
+        mesh2.finishInsertingCells();
+        #! [PySnippet_MEDCouplingUMesh_checkDeepEquivalWith_1]
+        #! [PySnippet_MEDCouplingUMesh_checkDeepEquivalWith_2]
+        cellCompPol = 1 # "permuted same orientation" - policy of medium severity
+        cOld2New, nOld2New = mesh1.checkDeepEquivalWith( mesh2, cellCompPol, 0.002 )
+        assert nOld2New.getValues() == [3, 0, 1, 2]
+        assert cOld2New.getValues() == [1, 0]
+        #! [PySnippet_MEDCouplingUMesh_checkDeepEquivalWith_2]
+        #! [PySnippet_MEDCouplingUMesh_checkDeepEquivalWith_3]
+        self.assertRaises( InterpKernelException, mesh1.checkDeepEquivalOnSameNodesWith, mesh2, cellCompPol, 0.002)
+        mesh2.setCoords(coordsArr) # make meshes share the same coordinates array
+        mesh2.allocateCells(2);
+        mesh2.insertNextCell(NORM_TRI3,3,[1,2,3]); #0 = #1
+        mesh2.insertNextCell(NORM_TRI3,3,[1,0,2]); #1 ~ #0
+        mesh2.finishInsertingCells();
+        cellCompPol = 2 # the weakest policy
+        mesh1.checkDeepEquivalOnSameNodesWith( mesh2, cellCompPol, 0 )
+        #! [PySnippet_MEDCouplingUMesh_checkDeepEquivalWith_3]
+        return
 
     def testExample_MEDCouplingPointSet_scale(self):
         #! [PySnippet_MEDCouplingPointSet_scale_1]
@@ -49,7 +918,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         assert coords2.isEqualWithoutConsideringStr( initCoords, 1.0 )
         assert not coords2.isEqualWithoutConsideringStr( initCoords, 0.9 )
         #! [PySnippet_MEDCouplingPointSet_scale_3]
-        pass
+        return
 
     def testExample_MEDCouplingPointSet_translate(self):
         #! [PySnippet_MEDCouplingPointSet_translate_1]
@@ -69,7 +938,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         assert coords2.isEqualWithoutConsideringStr( initCoords, 1 )
         assert not coords2.isEqualWithoutConsideringStr( initCoords, 0.9 )
         #! [PySnippet_MEDCouplingPointSet_translate_3]
-        pass
+        return
 
     def testExample_MEDCouplingPointSet_rotate(self):
         #! [PySnippet_MEDCouplingPointSet_rotate_1]
@@ -95,7 +964,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i,c in enumerate( coords ):
             self.assertAlmostEqual( c, coords2[i], 13 )
         #! [PySnippet_MEDCouplingPointSet_rotate_4]
-        pass
+        return
 
     def testExample_MEDCouplingPointSet_getBoundingBox(self):
         #! [PySnippet_MEDCouplingPointSet_getBoundingBox_1]
@@ -120,7 +989,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                 0.2,-0.3,   # 1
                 0.3,-0.302, # 2
                 1.1,0.0,    # 3
-                0.3,-0.303];# 4
+                0.3,-0.30299999999999];# 4
         coordsArr=DataArrayDouble.New();
         coordsArr.setValues(coords,5,2);
         mesh=MEDCouplingUMesh.New();
@@ -131,7 +1000,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ids=mesh.getNodeIdsNearPoint(point,0.003);
         assert ids.getValues() == [0,2,4]
         #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2]
-        pass
+        return
 
     def testExample_MEDCouplingPointSet_getNodeIdsNearPoints(self):
         #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1]
@@ -154,9 +1023,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                 1.1, 0.002]   # ~ nodes #3, #4 and #5
         ids,idsIndex=mesh.getNodeIdsNearPoints(points,3,0.003);
         assert ids.getValues() == [1, 3, 4, 5]
-        print idsIndex.getValues()
+        assert idsIndex.getValues() == [0, 1, 1, 4]
         #! [PySnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2]
-        pass
+        return
 
     def testExample_MEDCouplingPointSet_findCommonNodes(self):
         #! [PySnippet_MEDCouplingPointSet_findCommonNodes_1]
@@ -177,7 +1046,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         comm,commI=mesh.findCommonNodes(0.004)
         assert comm.getValues() == [0,2,5,3,4]
         #! [PySnippet_MEDCouplingPointSet_findCommonNodes_2]
-        pass
+        return
 
     def testExample_MEDCouplingPointSet_getCoordinatesOfNode(self):
         #! [PySnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
@@ -192,7 +1061,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.2, nodeCoords[0],13);
         self.assertAlmostEqual(-0.3,nodeCoords[1],13);
 #! [PySnippet_MEDCouplingPointSet_getCoordinatesOfNode_2]
-        pass
+        return
 
     def testExample_DataArrayInt_getTuple(self):
 #! [Snippet_DataArrayInt_getTuple_1]
@@ -200,13 +1069,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.alloc( 6, 1 )
         dv.iota(7)
         dv.rearrange( 2 )
-        print dv.getTuple( 1 )
+        assert dv.getTuple( 1 ) == [9,10]
 #! [Snippet_DataArrayInt_getTuple_1]
 #! [Snippet_DataArrayInt_getTuple_2]
         for tpl in dv:
             print tpl
 #! [Snippet_DataArrayInt_getTuple_2]
-        pass
+        return
 
     def testExample_DataArrayInt_buildPermutationArr(self):
 #! [PySnippet_DataArrayInt_buildPermutationArr_1]
@@ -217,7 +1086,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         c=a.buildPermutationArr(b)
 #! [PySnippet_DataArrayInt_buildPermutationArr_1]
         self.assertEqual([1,0,4,2,3],c.getValues())
-        pass
+        return
 
     def testExample_DataArrayInt_invertArrayO2N2N2O(self):
 #! [PySnippet_DataArrayInt_invertArrayO2N2N2O_1]
@@ -230,7 +1099,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],da2.getIJ(i,0));
             pass
 #! [PySnippet_DataArrayInt_invertArrayO2N2N2O_1]
-        pass
+        return
 
     def testExample_DataArrayInt_invertArrayN2O2O2N(self):
 #! [PySnippet_DataArrayInt_invertArrayN2O2O2N_1]
@@ -243,7 +1112,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],da2.getIJ(i,0));
             pass
 #! [PySnippet_DataArrayInt_invertArrayN2O2O2N_1]
-        pass
+        return
 
 
     def testExample_DataArrayDouble_getIdsInRange(self):
@@ -253,7 +1122,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da[ :, :] = range(10)
         da2 = da.getIdsInRange( 2.5, 6 )
 #! [PySnippet_DataArrayDouble_getIdsInRange_1]
-        pass
+        return
 
     def testExample_DataArrayDouble_setPartOfValues2(self):
 #! [Snippet_DataArrayDouble_setPartOfValues2_1]
@@ -274,7 +1143,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.rearrange( 6 )
         da[ [0,2,3], [0,2,3,4,5,6]] = dv
 #! [Snippet_DataArrayDouble_setPartOfValues2_3]
-        pass
+        return
 
     def testExample_DataArrayInt_setPartOfValues2(self):
 #! [Snippet_DataArrayInt_setPartOfValues2_1]
@@ -295,7 +1164,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.rearrange( 6 )
         da[ [0,2,3], [0,2,3,4,5,6]] = dv
 #! [Snippet_DataArrayInt_setPartOfValues2_3]
-        pass
+        return
 
     def testExample_DataArrayDouble_setPartOfValues3(self):
 #! [Snippet_DataArrayDouble_setPartOfValues3_1]
@@ -316,7 +1185,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.rearrange( 6 )
         da[ 0:4:2, [0,2,3,4,5,6]] = dv
 #! [Snippet_DataArrayDouble_setPartOfValues3_3]
-        pass
+        return
 
     def testExample_DataArrayInt_setPartOfValues3(self):
 #! [Snippet_DataArrayInt_setPartOfValues3_1]
@@ -337,7 +1206,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.rearrange( 6 )
         da[ 0:4:2, [0,2,3,4,5,6]] = dv
 #! [Snippet_DataArrayInt_setPartOfValues3_3]
-        pass
+        return
 
     def testExample_DataArrayDouble_setPartOfValues1(self):
 #! [Snippet_DataArrayDouble_setPartOfValues1_1]
@@ -373,7 +1242,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2, 1e-20 ))
 #! [Snippet_DataArrayDouble_setPartOfValues1_6]
-        pass
+        return
 
     def testExample_DataArrayInt_setPartOfValues1(self):
 #! [Snippet_DataArrayInt_setPartOfValues1_1]
@@ -409,7 +1278,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2 ))
 #! [Snippet_DataArrayInt_setPartOfValues1_6]
-        pass
+        return
 
     def testExample_DataArrayDouble_setPartOfValuesSimple1(self):
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple1_1]
@@ -439,7 +1308,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2, 1e-20 ))
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple1_6]
-        pass
+        return
 
     def testExample_DataArrayInt_setPartOfValuesSimple1(self):
 #! [Snippet_DataArrayInt_setPartOfValuesSimple1_1]
@@ -469,7 +1338,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2 ))
 #! [Snippet_DataArrayInt_setPartOfValuesSimple1_6]
-        pass
+        return
 
     def testExample_DataArrayDouble_setPartOfValuesSimple2(self):
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple2_1]
@@ -493,7 +1362,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.fillWithZero()
         da[[0,2], [1,3]] = dv
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple2_5]
-        pass
+        return
 
     def testExample_DataArrayInt_setPartOfValuesSimple2(self):
 #! [Snippet_DataArrayInt_setPartOfValuesSimple2_1]
@@ -517,7 +1386,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.fillWithZero()
         da[[0,2], [1,3]] = dv
 #! [Snippet_DataArrayInt_setPartOfValuesSimple2_5]
-        pass
+        return
 
     def testExample_DataArrayDouble_setPartOfValuesSimple3(self):
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple3_1]
@@ -541,7 +1410,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.fillWithZero()
         da[[0,2], 1:4:2] = dv
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple3_5]
-        pass
+        return
 
     def testExample_DataArrayInt_setPartOfValuesSimple3(self):
 #! [Snippet_DataArrayInt_setPartOfValuesSimple3_1]
@@ -565,7 +1434,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.fillWithZero()
         da[[0,2], 1:4:2] = dv
 #! [Snippet_DataArrayInt_setPartOfValuesSimple3_5]
-        pass
+        return
 
     def testExample_DataArrayDouble_setSelectedComponents(self):
 #! [Snippet_DataArrayDouble_setSelectedComponents1]
@@ -586,7 +1455,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv2[:3,[1,0]] = da
         self.assertTrue( dv.isEqualWithoutConsideringStr( dv2, 1e-20 ))
 #! [Snippet_DataArrayDouble_setSelectedComponents3]
-        pass
+        return
 
     def testExample_DataArrayInt_setSelectedComponents(self):
 #! [Snippet_DataArrayInt_setSelectedComponents1]
@@ -607,7 +1476,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv2[:3,[1,0]] = da
         self.assertTrue( dv.isEqualWithoutConsideringStr( dv2 ))
 #! [Snippet_DataArrayInt_setSelectedComponents3]
-        pass
+        return
 
     def testExample_DataArrayDouble_getDifferentValues(self):
 #! [Snippet_DataArrayDouble_getDifferentValues1]
@@ -622,7 +1491,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected2[i],dv.getIJ(i,0),14);
             pass
 #! [Snippet_DataArrayDouble_getDifferentValues1]
-        pass
+        return
 
     def testExample_DataArrayDouble_findCommonTuples1(self):
 #! [PySnippet_DataArrayDouble_findCommonTuples1]
@@ -631,13 +1500,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setValues(array2,6,2)
 #! [PySnippet_DataArrayDouble_findCommonTuples1]
 #! [PySnippet_DataArrayDouble_findCommonTuples2]
-        c,cI=da.findCommonTuples(1e-1);
+        c,cI=da.findCommonTuples(1.01e-1);
         expected3=[0,3,4,1,2]
         expected4=[0,3,5]
         self.assertEqual(expected3,c.getValues())
         self.assertEqual(expected4,cI.getValues())
 #! [PySnippet_DataArrayDouble_findCommonTuples2]
-        pass
+        return
 
     def testExampleDataArrayDoubleMeldWith(self):
 #! [PySnippet_DataArrayDouble_Meld1_1]
@@ -695,7 +1564,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr2V=[1,2,1,2,0,0]
         a2=a1.keepSelectedComponents(arr2V)
 #! [SnippeDataArrayDoubleKeepSelectedComponents1_2]
-        pass
+        return
 
     def testExampleDataArrayIntKeepSelectedComponents1(self):
 #! [SnippeDataArrayIntKeepSelectedComponents1_1]
@@ -718,7 +1587,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 #! [SnippeDataArrayIntKeepSelectedComponents1_3]
         a3=a1[:,arr2V ]
 #! [SnippeDataArrayIntKeepSelectedComponents1_3]
-        pass
+        return
 
     def testExampleFieldDoubleBuildSubPart1(self):
         from MEDCouplingDataForTest import MEDCouplingDataForTest
@@ -832,7 +1701,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[0:4])
         self.assertEqual(expected3[8:13],list(m2C.getNodalConnectivity().getValues())[8:13])
         self.assertEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
-        pass
+        return
 
     def testExampleUMeshStdBuild1(self):
 # ! [PySnippetUMeshStdBuild1_1]
@@ -853,13 +1722,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.finishInsertingCells()
 # ! [PySnippetUMeshStdBuild1_3]
 # ! [PySnippetUMeshStdBuild1_4]
-        myCoords=DataArrayDouble.New(coords,9,3)#here myCoords are declared to have 3 components, mesh will deduce that its spaceDim==3. 
-        mesh.setCoords(myCoords)#myCorrds contains 9 tuples, that is to say mesh contains 9 nodes.
+        coordsArr=DataArrayDouble.New(coords,9,3)#here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+        mesh.setCoords(coordsArr)#coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
 # ! [PySnippetUMeshStdBuild1_4]
 # ! [PySnippetUMeshStdBuild1_5]
 # ! [PySnippetUMeshStdBuild1_5]
         mesh.checkCoherency()
-        pass
+        return
 
     def testExampleCMeshStdBuild1(self):
 # ! [PySnippetCMeshStdBuild1_1]
@@ -889,7 +1758,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(9*7,mesh.getNumberOfNodes())
         self.assertEqual(2,mesh.getSpaceDimension())
         self.assertEqual(2,mesh.getMeshDimension())
-        pass
+        return
 
     def testExampleUMeshAdvBuild1(self):
 # ! [PySnippetUMeshAdvBuild1_1]
@@ -907,13 +1776,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setConnectivity(nodalConn,nodalConnI,True)
 # ! [PySnippetUMeshAdvBuild1_3]
 # ! [PySnippetUMeshAdvBuild1_4]
-        myCoords=DataArrayDouble.New(coords,9,3)#here myCoords are declared to have 3 components, mesh will deduce that its spaceDim==3. 
-        mesh.setCoords(myCoords)#myCorrds contains 9 tuples, that is to say mesh contains 9 nodes.
+        coordsArr=DataArrayDouble.New(coords,9,3)#here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3.
+        mesh.setCoords(coordsArr)#coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
 # ! [PySnippetUMeshAdvBuild1_4]
 # ! [PySnippetUMeshAdvBuild1_5]
 # ! [PySnippetUMeshAdvBuild1_5]
         mesh.checkCoherency()
-        pass
+        return
 
     def testExampleDataArrayBuild1(self):
 # ! [PySnippetDataArrayBuild1_0]
@@ -936,7 +1805,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 # ! [PySnippetDataArrayBuild1_3bis]
         arrayInt=DataArrayInt.New(dataInt,5,3)
 # ! [PySnippetDataArrayBuild1_3bis]
-        pass
+        return
 
     def testExampleFieldDoubleBuild1(self):
         XCoords=[-0.3,0.07,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
@@ -968,7 +1837,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 # ! [PySnippetFieldDoubleBuild1_2]
 # ! [PySnippetFieldDoubleBuild1_3]
 # ! [PySnippetFieldDoubleBuild1_3]
-        pass
+        return
 
     def testExampleFieldDoubleBuild2(self):
         XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
@@ -986,7 +1855,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # fieldOnNodes is now usable
         # ...
 # ! [PySnippetFieldDoubleBuild2_1]
-        pass
+        return
 
     def testExampleFieldDoubleBuild3(self):
         XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
@@ -1006,7 +1875,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # fieldOnCells is now usable
         # ...
 # ! [PySnippetFieldDoubleBuild3_1]
-        pass
+        return
 
     def testExampleFieldDoubleBuild4(self):
         XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
@@ -1027,7 +1896,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # fieldOnNodes is now usable
         # ...
 # ! [PySnippetFieldDoubleBuild4_1]
-        pass
+        return
 
     def testExampleDataArrayApplyFunc1(self):
 # ! [PySnippetDataArrayApplyFunc1_1]
@@ -1066,7 +1935,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ddd1=ddd.applyFunc3(1,["X","Y","Z"],"X+Z")
         self.assertTrue(ddd1.isEqual(DataArrayDouble([4.,24.,44.,64.],4,1),1e-12))
 # ! [PySnippetDataArrayApplyFunc1_9]
-        pass
+        return
 
     pass
 

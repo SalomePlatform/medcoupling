@@ -31,10 +31,12 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE(SauvLoaderTest);
     CPPUNIT_TEST( testSauv2Med );
     CPPUNIT_TEST( testMed2Sauv );
+    CPPUNIT_TEST( testMed2SauvOnAMeshWithVoidFamily );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testSauv2Med();
     void testMed2Sauv();
+    void testMed2SauvOnAMeshWithVoidFamily();
 
   public:
     void tearDown();

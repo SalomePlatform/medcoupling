@@ -580,7 +580,7 @@ DataArrayChar *DataArrayChar::selectByTupleId2(int bg, int end2, int step) const
   checkAllocated();
   MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=GetNumberOfItemGivenBES(bg,end2,step,"DataArrayInt::selectByTupleId2 : ");
+  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayInt::selectByTupleId2 : ");
   ret->alloc(newNbOfTuples,nbComp);
   char *pt=ret->getPointer();
   const char *srcPt=getConstPointer()+bg*nbComp;
@@ -1898,41 +1898,48 @@ void DataArrayByte::reprQuickOverview(std::ostream& stream) const throw(INTERP_K
         {
           int nbOfTuples=getNumberOfTuples();
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
-          const char *data=begin();
-          std::ostringstream oss2; oss2 << "[";
-          std::string oss2Str(oss2.str());
-          bool isFinished=true;
-          for(int i=0;i<nbOfTuples && isFinished;i++)
-            {
-              if(nbOfCompo>1)
-                {
-                  oss2 << "(";
-                  for(int j=0;j<nbOfCompo;j++,data++)
-                    {
-                      oss2 << (int)*data;
-                      if(j!=nbOfCompo-1) oss2 << ", ";
-                    }
-                  oss2 << ")";
-                }
-              else
-                { oss2 << (int)*data; data++; }
-              if(i!=nbOfTuples-1) oss2 << ", ";
-              std::string oss3Str(oss2.str());
-              if(oss3Str.length()<MAX_NB_OF_BYTE_IN_REPR)
-                oss2Str=oss3Str;
-              else
-                isFinished=false;
-            }
-          stream << oss2Str;
-          if(!isFinished)
-            stream << "... ";
-          stream << "]";
+          reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
       else
         stream << "Number of components : 0.";
     }
   else
     stream << "*** No data allocated ****";
+}
+
+void DataArrayByte::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const throw(INTERP_KERNEL::Exception)
+{
+  const char *data=begin();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfCompo=(int)_info_on_compo.size();
+  std::ostringstream oss2; oss2 << "[";
+  std::string oss2Str(oss2.str());
+  bool isFinished=true;
+  for(int i=0;i<nbOfTuples && isFinished;i++)
+    {
+      if(nbOfCompo>1)
+        {
+          oss2 << "(";
+          for(int j=0;j<nbOfCompo;j++,data++)
+            {
+              oss2 << (int)*data;
+              if(j!=nbOfCompo-1) oss2 << ", ";
+            }
+          oss2 << ")";
+        }
+      else
+        { oss2 << (int)*data; data++; }
+      if(i!=nbOfTuples-1) oss2 << ", ";
+      std::string oss3Str(oss2.str());
+      if(oss3Str.length()<maxNbOfByteInRepr)
+        oss2Str=oss3Str;
+      else
+        isFinished=false;
+    }
+  stream << oss2Str;
+  if(!isFinished)
+    stream << "... ";
+  stream << "]";
 }
 
 bool DataArrayByte::isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const throw(INTERP_KERNEL::Exception)
@@ -2223,49 +2230,56 @@ void DataArrayAsciiChar::reprQuickOverview(std::ostream& stream) const throw(INT
         {
           int nbOfTuples=getNumberOfTuples();
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
-          const char *data=begin();
-          std::ostringstream oss2; oss2 << "[";
-          std::string oss2Str(oss2.str());
-          bool isFinished=true;
-          for(int i=0;i<nbOfTuples && isFinished;i++)
-            {
-              bool isAscii=true;
-              for(int j=0;j<nbOfCompo;j++)
-                if(data[j]<32) isAscii=false;
-              if(isAscii)
-                {
-                  oss2 << "\'";
-                  for(int j=0;j<nbOfCompo;j++,data++)
-                    oss2 << *data;
-                  oss2 << "\'";
-                }
-              else
-                {
-                  oss2 << "(";
-                  for(int j=0;j<nbOfCompo;j++,data++)
-                    {
-                      oss2 << (int)*data;
-                      if(j!=nbOfCompo-1) oss2 << ", ";
-                    }
-                  oss2 << ")";
-                }
-              if(i!=nbOfTuples-1) oss2 << ", ";
-              std::string oss3Str(oss2.str());
-              if(oss3Str.length()<MAX_NB_OF_BYTE_IN_REPR)
-                oss2Str=oss3Str;
-              else
-                isFinished=false;
-            }
-          stream << oss2Str;
-          if(!isFinished)
-            stream << "... ";
-          stream << "]";
+          reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
       else
         stream << "Number of components : 0.";
     }
   else
     stream << "*** No data allocated ****";
+}
+
+void DataArrayAsciiChar::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const throw(INTERP_KERNEL::Exception)
+{
+  const char *data=begin();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfCompo=(int)_info_on_compo.size();
+  std::ostringstream oss2; oss2 << "[";
+  std::string oss2Str(oss2.str());
+  bool isFinished=true;
+  for(int i=0;i<nbOfTuples && isFinished;i++)
+    {
+      bool isAscii=true;
+      for(int j=0;j<nbOfCompo;j++)
+        if(data[j]<32) isAscii=false;
+      if(isAscii)
+        {
+          oss2 << "\'";
+          for(int j=0;j<nbOfCompo;j++,data++)
+            oss2 << *data;
+          oss2 << "\'";
+        }
+      else
+        {
+          oss2 << "(";
+          for(int j=0;j<nbOfCompo;j++,data++)
+            {
+              oss2 << (int)*data;
+              if(j!=nbOfCompo-1) oss2 << ", ";
+            }
+          oss2 << ")";
+        }
+      if(i!=nbOfTuples-1) oss2 << ", ";
+      std::string oss3Str(oss2.str());
+      if(oss3Str.length()<maxNbOfByteInRepr)
+        oss2Str=oss3Str;
+      else
+        isFinished=false;
+    }
+  stream << oss2Str;
+  if(!isFinished)
+    stream << "... ";
+  stream << "]";
 }
 
 bool DataArrayAsciiChar::isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const throw(INTERP_KERNEL::Exception)

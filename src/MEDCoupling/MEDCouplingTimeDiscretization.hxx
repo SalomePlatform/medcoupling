@@ -75,6 +75,8 @@ namespace ParaMEDMEM
     virtual void multiplyEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const = 0;
     virtual void divideEqual(const MEDCouplingTimeDiscretization *other) = 0;
+    virtual MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual void powEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -126,12 +128,14 @@ namespace ParaMEDMEM
     virtual MEDCouplingTimeDiscretization *trace() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *deviator() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *magnitude() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingTimeDiscretization *negate() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *maxPerTuple() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
     virtual void setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     virtual void changeNbOfComponents(int newNbOfComp, double dftValue) throw(INTERP_KERNEL::Exception);
     virtual void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     virtual void setUniformValue(int nbOfTuple, int nbOfCompo, double value);
+    virtual void setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value);
     virtual void applyLin(double a, double b, int compoId);
     virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
     virtual void applyFunc(int nbOfComp, const char *func);
@@ -177,6 +181,8 @@ namespace ParaMEDMEM
     void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    void powEqual(const MEDCouplingTimeDiscretization *other);
     bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
@@ -238,6 +244,8 @@ namespace ParaMEDMEM
     void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    void powEqual(const MEDCouplingTimeDiscretization *other);
     bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
@@ -322,6 +330,8 @@ namespace ParaMEDMEM
     void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    void powEqual(const MEDCouplingTimeDiscretization *other);
     void setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _start_time=time; _start_iteration=iteration; _start_order=order; }
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_iteration=iteration; _end_order=order; }
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_start_iteration; order=_start_order; return _start_time; }
@@ -434,6 +444,8 @@ namespace ParaMEDMEM
     void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    void powEqual(const MEDCouplingTimeDiscretization *other);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=LINEAR_TIME;
     static const char REPR[];

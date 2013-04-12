@@ -388,6 +388,17 @@ std::string MEDCouplingCMesh::advancedRepr() const
   return simpleRepr();
 }
 
+/*!
+ * Returns a DataArrayDouble holding positions of nodes along a given axis.
+ * For more info on Cartesian meshes, see \ref MEDCouplingCMeshPage.
+ *  \param [in] i - an index of axis, a value from [0,1,2].
+ *  \return const DataArrayDouble * - a pointer to the data array of node coordinates
+ *         referred by \a this mesh.
+ *  \throw If \a i is not one of [0,1,2].
+ *
+ *  \ref cpp_mccmesh_getCoordsAt "Here is a C++ example".<br>
+ *  \ref  py_mccmesh_getCoordsAt "Here is a Python example".
+ */
 const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
 {
   switch(i)
@@ -403,6 +414,17 @@ const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_K
     }
 }
 
+/*!
+ * Returns a DataArrayDouble holding positions of nodes along a given axis.
+ * For more info on Cartesian meshes, see \ref MEDCouplingCMeshPage.
+ *  \param [in] i - an index of axis, a value from [0,1,2].
+ *  \return const DataArrayDouble * - a pointer to the data array of node coordinates
+ *         referred by \a this mesh.
+ *  \throw If \a i is not one of [0,1,2].
+ *
+ *  \ref cpp_mccmesh_getCoordsAt "Here is a C++ example".<br>
+ *  \ref  py_mccmesh_getCoordsAt "Here is a Python example".
+ */
 DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) throw(INTERP_KERNEL::Exception)
 {
   switch(i)
@@ -418,6 +440,18 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) throw(INTERP_KERNEL::Excep
     }
 }
 
+/*!
+ * Sets node coordinates along a given axis. For more info on Cartesian meshes, see 
+ * \ref MEDCouplingCMeshPage.
+ *  \param [in] i - an index of axis, a value in range [0,1,2].
+ *  \param [in] arr - DataArrayDouble holding positions of nodes along the i-th
+ *         axis. It must be an array of one component.
+ *  \throw If \a arr->getNumberOfComponents() != 1.
+ *  \throw If \a i is not one of [0,1,2].
+ *
+ *  \ref medcouplingcppexamplesCmeshStdBuild1 "Here is a C++ example".<br>
+ *  \ref  medcouplingpyexamplesCmeshStdBuild1 "Here is a Python example".
+ */
 void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
 {
   if(arr)
@@ -436,6 +470,21 @@ void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr) throw(INTE
     }
 }
 
+/*!
+ * Sets node coordinates along some of the tree axes. This method updates all the
+ * three node coordinates arrays at once. For more info on Cartesian meshes, see 
+ * \ref MEDCouplingCMeshPage.
+ *  \param [in] coordsX - DataArrayDouble holding positions of nodes along the X
+ *         axis. It must be an array of one component or \c NULL.
+ *  \param [in] coordsY - DataArrayDouble holding positions of nodes along the Y
+ *         axis. It must be an array of one component or \c NULL.
+ *  \param [in] coordsZ - DataArrayDouble holding positions of nodes along the Z
+ *         axis. It must be an array of one component or \c NULL.
+ *  \throw If \a coords*->getNumberOfComponents() != 1.
+ *
+ *  \ref medcouplingcppexamplesCmeshStdBuild1 "Here is a C++ example".<br>
+ *  \ref  medcouplingpyexamplesCmeshStdBuild1 "Here is a Python example".
+ */
 void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArrayDouble *coordsY, const DataArrayDouble *coordsZ)
 {
   if(coordsX)
@@ -480,6 +529,17 @@ void MEDCouplingCMesh::getBoundingBox(double *bbox) const
     }
 }
 
+/*!
+ * Returns a new MEDCouplingFieldDouble containing volumes of cells constituting \a this
+ * mesh.<br>
+ * For 1D cells, the returned field contains lengths.<br>
+ * For 2D cells, the returned field contains areas.<br>
+ * For 3D cells, the returned field contains volumes.
+ *  \param [in] isAbs - a not used parameter.
+ *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble on cells
+ *         and one time . The caller is to delete this field using decrRef() as it is no
+ *         more needed.
+ */
 MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
 {
   std::string name="MeasureOfMesh_";
@@ -557,6 +617,12 @@ void MEDCouplingCMesh::rotate(const double *center, const double *vector, double
   throw INTERP_KERNEL::Exception("No rotation available on CMesh : Traduce it to StructuredMesh to apply it !");
 }
 
+/*!
+ * Translates all nodes of \a this mesh by a given vector. Actually, it adds each
+ * component of the \a vector to all node coordinates of a corresponding axis.
+ *  \param [in] vector - the translation vector whose size must be not less than \a
+ *         this->getSpaceDimension().
+ */
 void MEDCouplingCMesh::translate(const double *vector)
 {
   if(_x_array)
@@ -570,6 +636,12 @@ void MEDCouplingCMesh::translate(const double *vector)
                    _z_array->getPointer(),std::bind2nd(std::plus<double>(),vector[2]));
 }
 
+/*!
+ * Applies scaling transformation to all nodes of \a this mesh.
+ *  \param [in] point - coordinates of a scaling center. This array is to be of
+ *         size \a this->getSpaceDimension() at least.
+ *  \param [in] factor - a scale factor.
+ */
 void MEDCouplingCMesh::scale(const double *point, double factor)
 {
   for(int i=0;i<3;i++)
@@ -594,6 +666,13 @@ MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other)
   return 0;
 }
 
+/*!
+ * Returns a new DataArrayDouble holding coordinates of all nodes of \a this mesh.
+ *  \return DataArrayDouble * - a new instance of DataArrayDouble, of size \a
+ *          this->getNumberOfNodes() tuples per \a this->getSpaceDimension()
+ *          components. The caller is to delete this array using decrRef() as it is
+ *          no more needed.
+ */
 DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
@@ -620,6 +699,14 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
   return ret;
 }
 
+/*!
+ * Returns a new DataArrayDouble holding barycenters of all cells. The barycenter is
+ * computed by averaging coordinates of cell nodes.
+ *  \return DataArrayDouble * - a new instance of DataArrayDouble, of size \a
+ *          this->getNumberOfCells() tuples per \a this->getSpaceDimension()
+ *          components. The caller is to delete this array using decrRef() as it is
+ *          no more needed.
+ */
 DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
@@ -775,7 +862,51 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
 
 void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
 {
-  stream << "MEDCouplingCMesh C++ instance at " << this << ".";
+  stream << "MEDCouplingCMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
+  const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
+  std::ostringstream stream2[3];
+  bool isDef[3];
+  int nbOfCells=1,nbOfNodes=1;
+  for(int i=0;i<3;i++)
+    {
+      isDef[i]=thisArr[i]!=0;
+      if(isDef[i])
+        {    
+          char tmp='X'+i;
+          stream2[i] << tmp << " positions array ";
+          if(!thisArr[i]->isAllocated())
+            stream2[i] << "set but not allocated.";
+          else
+            {
+              int nbCompo=thisArr[i]->getNumberOfComponents();
+              if(nbCompo==1)
+                {
+                  int nbTuples=thisArr[i]->getNumberOfTuples();
+                  if(nbTuples<1)
+                    { stream2[i] << "set and allocated - WARNING number of elements < 1 !"; nbOfCells=-1; nbOfNodes=-1; }
+                  else
+                    {
+                      stream2[i] << "(length=" << nbTuples << ")" << ": ";
+                      thisArr[i]->reprQuickOverviewData(stream2[i],200);
+                      if(nbOfCells!=-1)
+                        { nbOfNodes*=nbTuples; nbOfCells*=nbTuples-1; }
+                    }
+                }
+              else
+                { stream2[i] << "set and allocated - WARNING number of components != 1 !"; nbOfCells=-1; nbOfNodes=-1; }
+            }
+        }
+    }
+  if(!isDef[0] && !isDef[1] && !isDef[2])
+    { stream << " No arrays set !"; return; }
+  if(nbOfCells>=0)
+    { stream << std::endl << "Number of cells : " << nbOfCells << ". Number of nodes : " << nbOfNodes << "."; }
+  for(int i=0;i<3;i++)
+    {
+      if(isDef[i])
+        stream << std::endl << stream2[i].str();
+    }
+    
 }
 
 std::string MEDCouplingCMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)

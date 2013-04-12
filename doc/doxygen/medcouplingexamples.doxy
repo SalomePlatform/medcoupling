@@ -2,13 +2,621 @@
 \page medcouplingcppexamples MEDCoupling C++ examples
 
 
-\anchor cpp_mcpointset_
+
+\anchor cpp_mcmesh_
 <br><h2>  </h2>
 
-\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingPointSet_
-\snippet MEDCouplingExamplesTest.py PySnippet_MEDCouplingPointSet_
-\snippet MEDCouplingExamplesTest.py Snippet_MEDCouplingPointSet_
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_
+\snippet MEDCouplingExamplesTest.py PySnippet_MEDCouplingUMesh_
+\snippet MEDCouplingExamplesTest.py Snippet_MEDCouplingUMesh_
 
+
+\anchor cpp_mcmesh_fillFromAnalytic3
+<br><h2> Creating a field using a formular </h2>
+
+First, we create a 2D Cartesian mesh constituted by 2 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic3_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic3 "fillFromAnalytic3()"
+to get a \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
+with values computed using a formular \b func. This formular is applied to coordinates of
+each point (barycenter) for which the field value is computed. We want to get the
+field on cells, with 3 components computed as follows. (In \b func, we refer to the
+first component of a point using the variable "a", and to the second component, using
+the variable "b").
+- Component #0 = the second coordinate of the point; hence "IVec * b" in \b func.
+- Component #1 = the first coordinate of the point; hence "JVec * a".
+- Component #2 = distance between the point and SC origin (0.,0.); hence 
+"KVec * sqrt( a*a + b*b )".
+
+In addition we want to add 10.0 to each component computed as described above, hence
+"10" in \b func.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic3_2
+Now we ascertain that the result field is as we expect. We check the second tuple of
+the \b field. We get barycenter of the cell #1 and checks that values of the second
+tuple are computed as we want.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic3_3
+
+
+
+\anchor cpp_mcmesh_fillFromAnalytic2
+<br><h2> Creating a field using a formular </h2>
+
+First, we create a 2D Cartesian mesh constituted by 2 cells.
+Note that we set names to coordinates arrays ("a" and "b" ) which will be used to refer to
+corresponding coordinates within a function.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic2_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic2 "fillFromAnalytic2()"
+to get a \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
+with values computed using a formular \b func. This formular is applied to coordinates of
+each point (barycenter) for which the field value is computed. We want to get the
+field on cells, with 3 components computed as follows. (In \b func, we refer to the
+first component of a point using the variable "a", and to the second component, using
+the variable "b").
+- Component #0 = the second coordinate of the point; hence "IVec * b" in \b func.
+- Component #1 = the first coordinate of the point; hence "JVec * a".
+- Component #2 = distance between the point and SC origin (0.,0.); hence 
+"KVec * sqrt( a*a + b*b )".
+
+In addition we want to add 10.0 to each component computed as described above, hence
+"10" in \b func.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic2_2
+Now we ascertain that the result field is as we expect. We check the second tuple of
+the \b field. We get barycenter of the cell #1 and checks that values of the second
+tuple are computed as we want.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic2_3
+
+
+\anchor cpp_mcmesh_fillFromAnalytic
+<br><h2> Creating a field using a formular </h2>
+
+First, we create a 2D Cartesian mesh constituted by 2 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic "fillFromAnalytic()"
+to get a \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled 
+with values computed using a formular \b func. This formular is applied to coordinates of
+each point (barycenter) for which the field value is computed. We want to get the
+field on cells, with 3 components computed as follows. (In \b func, we refer to the
+first component of a point using the variable "a", and to the second component, using
+the variable "b").
+- Component #0 = the second coordinate of the point; hence "IVec * b" in \b func.
+- Component #1 = the first coordinate of the point; hence "JVec * a".
+- Component #2 = distance between the point and SC origin (0.,0.); hence 
+"KVec * sqrt( a*a + b*b )".
+
+In addition we want to add 10.0 to each component computed as described above, hence
+"10" in \b func.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic_2
+Now we ascertain that the result field is as we expect. We check the second tuple of
+the \b field. We get barycenter of the cell #1 and checks that values of the second
+tuple are computed as we want.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic_3
+
+
+\anchor cpp_mccmesh_getCoordsAt
+<br><h2> Getting node coordinates </h2>
+
+We create an 1D Cartesian mesh and retrieves node coordinates using
+\ref ParaMEDMEM::MEDCouplingCMesh::getCoordsAt "getCoordsAt()".
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingCMesh_getCoordsAt_1
+
+
+
+\anchor cpp_mcumesh_areCellsIncludedIn
+<br><h2> Cells correspondence in two meshes </h2>
+
+First, we create a 2D \b mesh1 with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_1
+Then we create a \b mesh2 which includes cells #4, #2 and #0 of \b mesh1. The two meshes
+share the same node coordinates array.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_2
+Now we ascertain that
+- \ref ParaMEDMEM::MEDCouplingUMesh::areCellsIncludedIn "areCellsIncludedIn()"
+detects that all cells of \b mesh2 are present in \b mesh1,
+-  the correspondence array \b corr2to1, which gives cell ids of \b mesh2 within
+\b mesh1, is equal to the array \b cells2 which selected cells from \b mesh1 for creation
+of \b mesh2.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_3
+Now we apply
+\ref ParaMEDMEM::MEDCouplingUMesh::areCellsIncludedIn "areCellsIncludedIn()"
+in a reverse direction and ascertain that it returns \c false. 
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_4
+The contents of the correspondence
+array \b corr1to2 [2, 3, 1, 4, 0] means the following.
+- The cell #0 of \b mesh1 is equal to the cell #2 (== \b corr1to2[ 0 ]) of \b mesh2.
+- The cell #1 of \b mesh1 is missing from \b mesh2 (as \b corr1to2[ 1 ] >= \b mesh2->getNumberOfCells()).
+- The cell #2 of \b mesh1 is equal to the cell #1 (== \b corr1to2[ 2 ]) of \b mesh2.
+- The cell #3 of \b mesh1 is missing from \b mesh2 (as \b corr1to2[ 3 ] >= \b mesh2->getNumberOfCells()).
+- The cell #4 of \b mesh1 is equal to the cell #0 (== \b corr1to2[ 4 ]) of \b mesh2.
+
+
+\anchor cpp_mcumesh_checkDeepEquivalWith
+<br><h2> Deep comparison of meshes </h2>
+
+First, we create two 2D meshes with two triangles, so that 
+- their nodes are almost same but permuted,
+- the first triangle is based exactly on the same nodes (taking the permutation into account),
+- an order of nodes in the second triangle is changed.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_checkDeepEquivalWith_1
+Then we check that 
+- \ref ParaMEDMEM::MEDCouplingUMesh::checkDeepEquivalWith "checkDeepEquivalWith()"
+considers the meshes equal (i.e. it does not throw any exception) if it is called with a cell
+comparison policy \b cellCompPol == 1
+-  mapping from \b mesh1 to \b mesh2 for both nodes and cells is as expected.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_checkDeepEquivalWith_2
+Next we ascertain that 
+\ref ParaMEDMEM::MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith "checkDeepEquivalOnSameNodesWith()"
+consider \b mesh1 and \b mesh2 different as they do not share the same nodal connectivity
+array. <br>
+After that we make the meshes share the node coordinates array and insert new
+triangles based on the same nodes but in different order. This is to ascertain that
+\ref ParaMEDMEM::MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith "checkDeepEquivalOnSameNodesWith()"
+called with the weakest cell comparison policy considers the meshes equal.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_checkDeepEquivalWith_3
+
+
+
+\anchor cpp_mcumesh_getPartBarycenterAndOwner
+<br><h2> Getting barycenters of cells </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getPartMeasureField_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingUMesh::getPartBarycenterAndOwner "getPartBarycenterAndOwner()" to get
+barycenters of all but the first cell.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getPartMeasureField_3
+The returned array contains 4 tuples per 2 components.
+
+
+\anchor cpp_mcumesh_findAndCorrectBadOriented3DExtrudedCells
+<br><h2> Fixing orientation of "extruded" volumes </h2>
+
+First, we create a mesh with 2 incorrectly oriented "extruded" volumes.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_1
+Now we check that
+\ref ParaMEDMEM::MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells "findAndCorrectBadOriented3DExtrudedCells()"
+finds and fixes the reversed cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_2
+
+
+\anchor cpp_mcumesh_arePolyhedronsNotCorrectlyOriented
+<br><h2> Fixing orientation of polyhedra </h2>
+
+First, we create a mesh with 2 polyhedra, one of which is incorrectly oriented. We create
+two "extruded" polyhedra and then convert them to correctly defined polyhedra.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_1
+Now we check that
+\ref ParaMEDMEM::MEDCouplingUMesh::arePolyhedronsNotCorrectlyOriented "arePolyhedronsNotCorrectlyOriented()"
+finds one reversed cell. After that we fix it using
+\ref ParaMEDMEM::MEDCouplingUMesh::orientCorrectlyPolyhedrons "orientCorrectlyPolyhedrons()" and
+re-check the orientation of polyhedra.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_2
+
+
+\anchor cpp_mcumesh_are2DCellsNotCorrectlyOriented
+<br><h2> Fixing orientation of faces </h2>
+
+First, we create a 2D mesh in 3D space with 3 QUAD4 and 2 TRI3 cells. Orientation of the cell #1 is
+reversed comparing with others.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_1
+Now we check that
+\ref ParaMEDMEM::MEDCouplingUMesh::are2DCellsNotCorrectlyOriented "are2DCellsNotCorrectlyOriented()"
+finds one reversed face. After that we fix the incorrectly oriented cell using
+\ref ParaMEDMEM::MEDCouplingUMesh::orientCorrectly2DCells "orientCorrectly2DCells()" and
+re-check the orientation of cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_2
+
+
+\anchor cpp_mcumesh_getCellsContainingPoints
+<br><h2> Finding cells containing a point (multi-point case) </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellsContainingPoints_1
+Then we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellsContainingPoints "getCellsContainingPoints()" to
+get cells in contact with tree points. Two of them are in contact with some cells and one is not.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellsContainingPoints_2
+The contents of the result arrays \b cells ([4, 0, 1]) and \b cellsIndex ([0, 0, 1, 3])
+mean the following.
+- Point #0 is in contact with none (== \b cellsIndx[1] - \b cellsIndx[0]) cell.
+- Point #1 is in contact with 1 (== \b cellsIndx[2] - \b cellsIndx[1]) cell whose id is #4
+  (== \b cells[ \b cellsIndx[ 1 ]]).
+- Point #2 is in contact with 2 (== \b cellsIndx[3] - \b cellsIndx[2]) cells whose ids are #0 
+  (== \b cells[ \b cellsIndx[ 2 ]]) and #1 (== \b cells[ \b cellsIndx[ 2 ] + 1 ]).
+
+
+\anchor cpp_mcumesh_getCellsContainingPoint
+<br><h2> Finding cells containing a point </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellsContainingPoint_1
+Then we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellsContainingPoint "getCellsContainingPoint()" to
+get cells in contact with a small ball (point with precision) located near the node #4 and
+shifted from this node by its radius \b eps.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellsContainingPoint_2
+Since the node #4 is shared by all cells, size of the vector \b cellIds must be equal to
+the number of cells in \b mesh.
+
+\anchor cpp_mcumesh_buildPartOrthogonalField
+<br><h2> Getting normals of cells </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells. Orientation of the cell #1 is
+reversed.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildPartOrthogonalField_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingUMesh::buildPartOrthogonalField "buildPartOrthogonalField()" to get
+normal vectors to the cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildPartOrthogonalField_2
+
+
+
+\anchor cpp_mcumesh_getPartMeasureField
+<br><h2> Getting volumes of cells </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells. Orientation of the cell #1 is
+reversed.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getPartMeasureField_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingUMesh::getPartMeasureField "getPartMeasureField()" to get
+volumes of all but the first cell. If we call
+\ref ParaMEDMEM::MEDCouplingUMesh::getPartMeasureField "getPartMeasureField()" with \b
+isAbs == \c true, the area of the cell #1 is returned positive, else, negative that
+reflects its inverse orientation.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getPartMeasureField_2
+
+
+
+\anchor cpp_mcumesh_getCellsInBoundingBox
+<br><h2> Getting cells using the bounding box </h2>
+
+First, we create a 2D mesh with 1 TRI3 cell. Bounding box of this cell is [0.,0., 1.,1].
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellsInBoundingBox_1
+Now we check how 
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellsInBoundingBox "getCellsInBoundingBox()"
+searches for cells using the bounding box. We use a bounding box touching the bounding box
+of the sole cell at one point (1.,1.).
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellsInBoundingBox_2
+If \ref ParaMEDMEM::MEDCouplingUMesh::getCellsInBoundingBox "getCellsInBoundingBox()" is
+called with parameter \b eps == 0.0, the cell is not found because the two bounding boxes
+(one of the cell and the one passed as parameter) do not overlap. <br>
+If \ref ParaMEDMEM::MEDCouplingUMesh::getCellsInBoundingBox "getCellsInBoundingBox()" is
+called with parameter \b eps == 0.1, the cell is found because \b eps is used to increase
+the bounding box of the cell and thus the two bounding boxes intersect each other. <br>
+
+\anchor cpp_mcumesh_renumberNodesInConn
+<br><h2> Renumbering nodes in the connectivity array </h2>
+
+First, we create a 2D mesh with 1 QUAD4 cell and with undefined coordinates of nodes.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_renumberNodesInConn_1
+Now we use
+\ref ParaMEDMEM::MEDCouplingUMesh::renumberNodesInConn "renumberNodesInConn()"
+to get the following nodal connectivity of a sole cell: 0,1,2,3.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_renumberNodesInConn_2
+\b old2newIds array defines how node ids are changed:
+- new id of node #0 is -1,
+- new id of node #1 is 3,
+- new id of node #2 is 4,
+- new id of node #3 is 1,
+- new id of node #4 is 0.
+
+\anchor cpp_mcumesh_renumberNodes
+<br><h2> Renumbering nodes </h2>
+
+First, we create a 2D mesh with 4 nodes and no cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_renumberNodes_1
+Next, we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::renumberNodes "renumberNodes()"
+to permute nodes so that
+- old node #0 becomes #2,
+- old node #1 remains #1,
+- old node #2 becomes #0,
+- old node #3 is removed.
+
+Number of nodes becomes 3.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_renumberNodes_2
+
+Next we compare behavior of 
+\ref ParaMEDMEM::MEDCouplingUMesh::renumberNodes "renumberNodes()" and that of
+\ref ParaMEDMEM::MEDCouplingUMesh::renumberNodes2 "renumberNodes2()" which, in contrast to
+\ref ParaMEDMEM::MEDCouplingUMesh::renumberNodes "renumberNodes()",
+moves merged nodes to their barycenter.<br> 
+We set #2 as new id of old node #3 and expect that 
+\ref ParaMEDMEM::MEDCouplingUMesh::renumberNodes2 "renumberNodes2()" moves old nodes #0
+and #3 to their barycenter (-0.3,0.0) which becomes position of node #2.<br>
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_renumberNodes_3
+
+
+\anchor cpp_mcumesh_findBoundaryNodes
+<br><h2> Getting boundary nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_findBoundaryNodes_1
+Now we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::findBoundaryNodes "findBoundaryNodes()" to get ids
+of boundary nodes.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_findBoundaryNodes_2
+\ref ParaMEDMEM::MEDCouplingUMesh::findBoundaryNodes "findBoundaryNodes()" returns all
+node ids except the node #4 which is in the middle of \b mesh.
+
+
+\anchor cpp_mcumesh_buildBoundaryMesh
+<br><h2> Getting a bounding mesh </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildBoundaryMesh_1
+Now we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::buildBoundaryMesh "buildBoundaryMesh()" to get a mesh
+of lower dimension bounding \b mesh.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildBoundaryMesh_2
+Depending on the value of a parameter,
+\ref ParaMEDMEM::MEDCouplingUMesh::buildBoundaryMesh "buildBoundaryMesh()"
+creates the mesh sharing the node coordinates array with \b mesh or not.
+
+
+\anchor cpp_mcumesh_buildFacePartOfMySelfNode
+<br><h2> Retrieving a lower dimension mesh based on given nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_1
+In the following code we retrieve nodes of the cell #0 an then we call
+\ref ParaMEDMEM::MEDCouplingUMesh::buildFacePartOfMySelfNode "buildFacePartOfMySelfNode()" 
+twice with these nodes and with varying last parameter \b allNodes as input.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_2
+<br>If the last parameter is \c true 
+\ref ParaMEDMEM::MEDCouplingUMesh::buildFacePartOfMySelfNode "buildFacePartOfMySelfNode()" looks
+for segements whose all nodes are given to it, hence it finds segments bounding the cell #0 only.
+<br>If the last parameter is \c false
+\ref ParaMEDMEM::MEDCouplingUMesh::buildFacePartOfMySelfNode "buildFacePartOfMySelfNode()" looks
+for any segment whose nodes are given to it, hence it adds more segments to \b mesh2.
+
+
+\anchor cpp_mcumesh_buildPartOfMySelfNode
+<br><h2> Copying cells selected by nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildPartOfMySelfNode_1
+In the following code we retrieve nodes of the cell #0 an then we call
+\ref ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelfNode "buildPartOfMySelfNode()" 
+twice with these nodes and with varying last parameter \b allNodes as input.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildPartOfMySelfNode_2
+<br>If the last parameter is \c true 
+\ref ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelfNode "buildPartOfMySelfNode()" looks
+for cells whose all nodes are given to it, hence it finds the cell #0 only.
+<br>If the last parameter is \c false
+\ref ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelfNode "buildPartOfMySelfNode()" looks
+for any cell whose nodes are given to it, hence it finds all cells of \b mesh because all
+cells share the node #4.
+
+
+\anchor cpp_mcumesh_getCellIdsLyingOnNodes
+<br><h2> Getting cells by nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_1
+In the following code we retrieve nodes of the cell #0 an then we call
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes "getCellIdsLyingOnNodes()" 
+twice with these nodes and with varying last parameter \b allNodes as input.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_2
+<br>If the last parameter is \c true 
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes "getCellIdsLyingOnNodes()" looks
+for cells whose all nodes are given to it, hence it finds the cell #0 only.
+<br>If the last parameter is \c false
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes "getCellIdsLyingOnNodes()" looks
+for any cell whose nodes are given to it, hence it finds all cells of \b mesh because all
+cells share the node #4.
+
+
+
+\anchor cpp_mcumesh_getCellIdsFullyIncludedInNodeIds
+<br><h2> Getting cells by nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_1
+In the following code we retrieve nodes of two cells an then we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::getCellIdsFullyIncludedInNodeIds
+"getCellIdsFullyIncludedInNodeIds()" to find these cells by their nodes.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_2
+
+
+\anchor cpp_mcumesh_buildPartOfMySelf
+<br><h2> Getting a part of mesh </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildPartOfMySelf_1
+Now we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelf "buildPartOfMySelf()" to get a mesh
+containing only two cells of \b mesh. 
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildPartOfMySelf_2
+
+
+\anchor cpp_mcumesh_mergeNodes
+<br><h2> Merging equal nodes </h2>
+
+First, we create a 2D mesh with 1 QUAD4 and 2 TRI3 cells. The cells are based on 6 nodes
+of which 2 nodes fully coincide (#3 and #4) and 3 nodes are equal with precision 0.003.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_mergeNodes_1
+Now we merge node duplicates using
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes()" and check values it returns.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_mergeNodes_2
+Contents of \b arr shows ids of old nodes after the merging. The nodes considered equal
+one to the other have the same id in \b arr.
+
+Next we compare behavior of 
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes()" and that of
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes2 "mergeNodes2()" which, in contrast to
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes()",
+moves merged nodes to their barycenter.<br> We expect that 
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes2 "mergeNodes2()" moves old nodes #0, #2 
+and #5 to their barycenter equal to position of node #2.<br>
+First we check that 
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes()" does not move nodes
+coincident with the node #2 to the position of node #2, and then we check that 
+\ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes2()" does move.
+(We check only the second (Y) component of node coordinates since the first component of
+these nodes is exactly same.)
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_mergeNodes_3
+
+
+
+\anchor cpp_mcumesh_zipConnectivityTraducer
+<br><h2> Removing cell duplicates </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells, so that
+- the cell #2 has the same nodal connectivity as the cell #1 does,
+- the cell #3 has the same nodal connectivity as the cell #0 does,
+- the cell #4 is based on the same nodes as the cell #0 but nodes order is different.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_zipConnectivityTraducer_1
+Now we use 
+\ref ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer "zipConnectivityTraducer()" 
+to remove duplicate cells. Then we check that two cells, having exactly same nodal
+connectivity with other cells, have been removed.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_zipConnectivityTraducer_2
+Contents of \b arr shows ids of cells after duplicates removal. If a value (cell id)
+equals to its index in \b arr, this means that the cell is not a duplicate of any cell
+with lower id. Else, the value gives a cell id to which this cell is equal. <br>
+Thus, the cells #0 and #1 have no preceding equal cell since \b arr[i] == i.<br>
+The cell #2 equals to the cell #1 (== \b arr[2] ).<br>
+The cell #3 equals to the cell #0 (== \b arr[3] ).<br>
+The cell #4 has no equal cell. This is because the cell comparison technique specified
+when we called 
+\ref ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer "zipConnectivityTraducer()" 
+was 0 ("exact"), if we had used the technique 2 ("nodal"), \b arr[4] would be 0.
+
+
+
+\anchor cpp_mcumesh_zipCoordsTraducer
+<br><h2> Removing unused nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_zipCoordsTraducer_1
+Now we create \b mesh2 including all nodes but only two cells of \b mesh, and we use \ref
+ParaMEDMEM::MEDCouplingUMesh::zipCoordsTraducer "zipCoordsTraducer()" to remove unused
+nodes from \b mesh2. 
+\ref ParaMEDMEM::MEDCouplingUMesh::zipCoordsTraducer "zipCoordsTraducer()" returns an array
+with -1 for unused nodes and new ids for used ones.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_zipCoordsTraducer_2
+
+
+
+\anchor cpp_mcumesh_getNodeIdsInUse
+<br><h2> Retrieving unused nodes </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getNodeIdsInUse_1
+Now we create \b mesh2 including all nodes but only two cells of \b mesh, and we use \ref
+ParaMEDMEM::MEDCouplingUMesh::getNodeIdsInUse "getNodeIdsInUse()" to get nodes of \b mesh2
+used in its two cells. 
+\ref ParaMEDMEM::MEDCouplingUMesh::getNodeIdsInUse "getNodeIdsInUse()" returns an array
+with -1 for unused nodes and new ids for used ones.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getNodeIdsInUse_2
+Now we use \b newNbOfNodes returned by 
+\ref ParaMEDMEM::MEDCouplingUMesh::getNodeIdsInUse "getNodeIdsInUse()" to convert \b arr
+to "New to Old" mode.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getNodeIdsInUse_3
+
+
+\anchor cpp_mcumesh_convertToPolyTypes
+<br><h2> Conversion of cells to "poly" types </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_convertToPolyTypes_1
+Now we convert cells #1 and #3 to type POLYGON and check the result
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_convertToPolyTypes_2
+
+
+\anchor cpp_mcumesh_buildDescendingConnectivity2
+<br><h2> Retrieving the descending connectivity with orientation </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity2_1
+Now we get and check the descending connectivity.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity2_2
+Here we get connectivity of the cell #2 (#3 in FORTRAN mode) of \b mesh2 to see how
+mutual orientation of cells in \b mesh and \b mesh2 is defined.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity2_3
+The contents of the result arrays \b desc and \b descIndx mean the following.
+- The cell #0 of \b mesh (QUAD4) is bound by 4 (== \b descIndx[1] - \b descIndx[0])
+  segments (SEG2) of \b mesh2 whose ids in FORTRAN mode are
+  - #1 (== \b desc[ \b descIndx[ 0 ]]),
+  - #2 (== \b desc[ \b descIndx[ 0 ] + 1 ]), 
+  - #3 (== \b desc[ \b descIndx[ 0 ] + 2 ]) and 
+  - #4 (== \b desc[ \b descIndx[ 0 ] + 3 ]).
+  <br>Ids are positive since order of nodes in the corresponding cells of \b mesh and \b mesh2
+  are same. For example nodes of SEG2 #3 are [4,1] and nodes of QUAD4 #0 are [0,3,\b 4,\b 1].
+- The cell #1 of \b mesh (TRI3) is bound by 3 (== \b descIndx[2] - \b descIndx[1]) segements of
+  \b mesh2 whose ids in FORTRAN mode are: 
+  - #-3 (== \b desc[ \b descIndx[ 1 ]]),
+  - #5 (== \b desc[ \b descIndx[ 1 ] + 1 ]) and 
+  - #6 (== \b desc[ \b descIndx[ 1 ] + 2 ]).
+  <br>The id -3 means that order of nodes in SEG2 #3 ([4,1]) is different from the order of
+  these nodes in TRI3 #1: [\b 1,\b 4,2].
+- etc.
+
+The contents of the result arrays \b revDesc and \b revDescIndx mean the following.
+- The cell #0 of \b mesh2 (SEG2) bounds 1 (== \b revDescIndx[1] - \b revDescIndx[0]) cell of \b
+  mesh whose id is:
+  - # 0 (== \b revDesc[ \b revDescIndx[ 0 ]]).
+- The cell #1 of \b mesh2 bounds 2 (== \b revDescIndx[2] - \b revDescIndx[1]) cells of \b
+  mesh whose ids are:
+  - # 0 (== \b revDesc[ \b revDescIndx[ 1 ]]) and
+  - # 1 (== \b revDesc[ \b revDescIndx[ 1 ] + 1 ]).
+- etc.
+
+
+
+\anchor cpp_mcumesh_buildDescendingConnectivity
+<br><h2> Retrieving the descending connectivity </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity_1
+Now we get and check the descending connectivity.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity_2
+The contents of the result arrays \b desc and \b descIndx mean the following.
+- The cell #0 of \b mesh (QUAD4) is bound by 4 (== \b descIndx[1] - \b descIndx[0])
+  segments (SEG2) of \b mesh2 whose ids are 
+  - #0 (== \b desc[ \b descIndx[ 0 ]]), 
+  - #1 (== \b desc[ \b descIndx[ 0 ] + 1 ]), 
+  - #2 (== \b desc[ \b descIndx[ 0 ] + 2 ]) and 
+  - #3 (== \b desc[ \b descIndx[ 0 ] + 3 ]).
+- The cell #1 of \b mesh (TRI3) is bound by 3 (== \b descIndx[2] - \b descIndx[1]) segements of
+  \b mesh2 whose ids are: 
+  - #2 (== \b desc[ \b descIndx[ 1 ]]), 
+  - #4 (== \b desc[ \b descIndx[ 1 ] + 1 ]) and 
+  - #5 (== \b desc[ \b descIndx[ 1 ] + 2 ]).
+- etc.
+
+The contents of the result arrays \b revDesc and \b revDescIndx mean the following.
+- The cell #0 of \b mesh2 (SEG2) bounds 1 (== \b revDescIndx[1] - \b revDescIndx[0]) cell of \b
+  mesh whose id is:
+  - # 0 (== \b revDesc[ \b revDescIndx[ 0 ]]).
+- The cell #1 of \b mesh2 bounds 2 (== \b revDescIndx[2] - \b revDescIndx[1]) cells of \b
+  mesh whose ids are:
+  - # 0 (== \b revDesc[ \b revDescIndx[ 1 ]]) and
+  - # 1 (== \b revDesc[ \b revDescIndx[ 1 ] + 1 ]).
+- etc.
+
+
+\anchor cpp_mcumesh_getReverseNodalConnectivity
+<br><h2> Getting the reverse nodal connectivity </h2>
+
+First, we create a 2D mesh with 3 QUAD4 and 2 TRI3 cells.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getReverseNodalConnectivity_1
+Now we get and check its reverse nodal connectivity.
+\snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingUMesh_getReverseNodalConnectivity_2
+The contents of the result arrays mean the following.
+- Node #0 is shared by 1 (== \b revNodalIndx[1] - \b revNodalIndx[0]) cell whose id is #0 
+  (== \b revNodal[ \b revNodalIndx[ 0 ]]).
+- Node #1 is shared by 2 (== \b revNodalIndx[2] - \b revNodalIndx[1]) cells whose ids are #0 
+  (== \b revNodal[ \b revNodalIndx[ 1 ]]) and #1 (== \b revNodal[ \b revNodalIndx[ 1 ] + 1 ]).
+- etc.
 
 \anchor cpp_mcpointset_scale
 <br><h2> Scaling the mesh </h2>
@@ -224,7 +832,7 @@ As result contents of the array \b da are as follows.
 
 Here we re-fill \b da with zeros and copy \b dv into a component of \b da.
 
-Note that the last parameter \a strictCompoCompare should be \a False
+Note that the last parameter \b strictCompoCompare should be \c False
 in this case, else \ref ParaMEDMEM::DataArrayDouble::setPartOfValues1() 
 throws an exception because \b da has 2 components but only one target
 component is specified.
@@ -497,7 +1105,7 @@ As result contents of the array \b da are as follows.
 
 Here we re-fill \b da with zeros and copy \b dv into a component of \b da.
 
-Note that the last parameter \a strictCompoCompare should be \a False
+Note that the last parameter \b strictCompoCompare should be \c False
 in this case, else \ref ParaMEDMEM::DataArrayInt::setPartOfValues1() 
 throws an exception because \b da has 2 components but only one target
 component is specified.

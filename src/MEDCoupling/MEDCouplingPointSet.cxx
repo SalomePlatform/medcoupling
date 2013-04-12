@@ -244,9 +244,9 @@ void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& 
  * permutation to remove duplicated nodes.
  *  \param [in] precision - minimal absolute distance between two nodes at which they are
  *              considered not coincident.
- *  \param [in] limitNodeId - limit node id. Nodes with id strictly lower than \a 
- *              limitTupleId are \b not considered. Put -1 to this parameter to have
- *              all nodes treated.
+ *  \param [in] limitNodeId - limit node id. If all nodes within a group of coincident
+ *              nodes have id strictly lower than \a limitTupleId then they are not
+ *              returned. Put -1 to this parameter to have all nodes returned.
  *  \param [out] areNodesMerged - is set to \a true if any coincident nodes found.
  *  \param [out] newNbOfNodes - returns number of unique nodes.
  *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
@@ -259,22 +259,22 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, 
   DataArrayInt *comm,*commI;
   findCommonNodes(precision,limitNodeId,comm,commI);
   int oldNbOfNodes=getNumberOfNodes();
-  DataArrayInt *ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
   comm->decrRef();
   commI->decrRef();
-  return ret;
+  return ret.retn();
 }
 
 /*!
  * Finds nodes coincident within \a prec tolerance.
  * Ids of coincident nodes are stored in output arrays.
  * A pair of arrays (\a comm, \a commIndex) is called "Surjective Format 2".
- *  \param [in] prec - minimal absolute distance between two nodes at which they are
+ *  \param [in] prec - minimal absolute distance (using infinite norm) between two nodes at which they are
  *              considered not coincident.
- *  \param [in] limitNodeId - limit node id. Nodes with id strictly lower than \a 
- *              limitTupleId are \b not considered. Put -1 to this parameter to have
- *              all nodes treated.
+ *  \param [in] limitNodeId - limit node id. If all nodes within a group of coincident
+ *              nodes have id strictly lower than \a limitTupleId then they are not
+ *              returned. Put -1 to this parameter to have all nodes treated.
  *  \param [out] comm - the array holding ids of coincident nodes.
  *               \a comm->getNumberOfComponents() == 1. 
  *               \a comm->getNumberOfTuples() == \a commIndex->back(). The caller
@@ -303,7 +303,7 @@ void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArra
  *  \param [in] pos - pointer to coordinates of the point.  This array is expected to
  *         be of length \a this->getSpaceDimension() at least, else the
  *         behavior is not warranted.
- *  \param [in] eps - the lowest distance between a point and a node at which the node is
+ *  \param [in] eps - the lowest distance between a point and a node (using infinite norm) at which the node is
  *          not returned by this method.
  *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of nodes
  *          close to the point. The caller is to delete this
@@ -328,7 +328,7 @@ DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double
  *         behavior is not warranted.
  *  \param [in] nbOfPoints - number of points whose coordinates are given by \a pos
  *         parameter. 
- *  \param [in] eps - the lowest distance between a point and a node at which the node is
+ *  \param [in] eps - the lowest distance between (using infinite norm) a point and a node at which the node is
  *         not returned by this method.
  *  \param [out] c - array returning ids of nodes located closer than \a eps to the
  *         given points. The caller
@@ -471,9 +471,9 @@ double MEDCouplingPointSet::getCaracteristicDimension() const
  * This method recenter coordinates of nodes in \b this in order to be centered at the origin to benefit about the advantages of the precision to be around the box
  * around origin of 'radius' 1.
  *
+ * \warning this method is non const and alterates coordinates in \b this without modifying.
  * \param [in] eps absolute epsilon. under that value of delta between max and min no scale is performed.
  *
- * \warning this method is non const and alterates coordinates in \b this without modifying.
  */
 void MEDCouplingPointSet::recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception)
 {
@@ -1044,11 +1044,37 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
 {
-  MEDCouplingPointSet *ret=buildPartOfMySelf(start,end,true);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> ret=buildPartOfMySelf(start,end,true);
   arr=ret->zipCoordsTraducer();
-  return ret;
+  return ret.retn();
 }
 
+/*!
+ * This method specialized the MEDCouplingMesh::buildPartRange
+ *
+ * \sa MEDCouplingUMesh::buildPartOfMySelf2
+ */
+MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception)
+{
+  return buildPartOfMySelf2(beginCellIds,endCellIds,stepCellIds,true);
+}
+
+/*!
+ * This method specialized the MEDCouplingMesh::buildPartRangeAndReduceNodes
+ *
+ * \param [out] beginOut valid only if \a arr not NULL !
+ * \param [out] endOut valid only if \a arr not NULL !
+ * \param [out] stepOut valid only if \a arr not NULL !
+ * \param [out] arr correspondance old to new in node ids.
+ * 
+ * \sa MEDCouplingUMesh::buildPartOfMySelf2
+ */
+MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> ret=buildPartOfMySelf2(beginCellIds,endCellIds,stepCellIds,true);
+  arr=ret->zipCoordsTraducer();
+  return ret.retn();
+}
 
 /*!
  * 'This' is expected to be of spaceDim==2. Idem for 'center' and 'vect'

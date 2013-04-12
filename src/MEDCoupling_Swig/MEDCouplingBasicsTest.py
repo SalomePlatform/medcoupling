@@ -5081,7 +5081,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         c.changeSpaceDimension(2);
         #
         d=DataArrayDouble.New();
-        d.alloc(5,1);
+        d.alloc(5);
         d.iota();
         e=MEDCouplingCMesh.New();
         e.setCoordsAt(0,d);
@@ -7957,15 +7957,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(10,dai.getNbOfElems());
         self.assertEqual(159,da.getNbOfElems());
         #
-        expected1=[14, 1, 2, 3, 4,
-                   18, 5, 6, 7, 8, 9, 10, 11, 12,
-                   14, 13, 14, 15, 16,
-                   31, 17, 18, 19, -1, 20, 22, 21, -1, 17, 18, 21, 20, -1, 18, 19, 22, 21, -1, 19, 17, 20, 22,
-                   16, 23, 24, 25, 26, 27, 28,
-                   31, 29, 30, 31, 32, 33, -1, 34, 38, 37, 36, 35, -1, 29, 30, 35, 34, -1, 30, 31, 36, 35, -1, 31, 32, 37, 36, -1, 32, 33, 38, 37, -1, 33, 29, 34, 38,
-                   18, 39, 40, 41, 42, 43, 44, 45, 46,
-                   22, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
-                   31, 59, 60, 61, 62, 63, 64, 65, -1, 66, 72, 71, 70, 69, 68, 67, -1, 59, 60, 67, 66, -1, 60, 61, 68, 67, -1, 61, 62, 69, 68, -1, 62, 63, 70, 69, -1, 63, 64, 71, 70, -1, 64, 65, 72, 71, -1, 65, 59, 66, 72];
+        expected1=[14,1,2,3,4,18,5,6,7,8,9,10,11,12,14,13,14,15,16,31,17,18,19,-1,20,22,21,-1,17,20,21,18,-1,18,21,22,19,-1,19,22,20,17,16,23,24,25,26,27,28,31,29,30,31,32,33,-1,34,38,37,36,35,-1,29,34,35,30,-1,30,35,36,31,-1,31,36,37,32,-1,32,37,38,33,-1,33,38,34,29,18,39,40,41,42,43,44,45,46,22,47,48,49,50,51,52,53,54,55,56,57,58,31,59,60,61,62,63,64,65,-1,66,72,71,70,69,68,67,-1,59,66,67,60,-1,60,67,68,61,-1,61,68,69,62,-1,62,69,70,63,-1,63,70,71,64,-1,64,71,72,65,-1,65,72,66,59];
         expected2=[0,5,14,19,42,49,86,95,108,159]
         self.assertEqual(expected1,da.getValues());
         self.assertEqual(expected2,dai.getValues());
@@ -11910,6 +11902,651 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(c.isEqual(DataArrayInt([0,6])))
         self.assertTrue(d.isEqual(DataArrayInt([0,0,0,0,0,0])))
         self.assertTrue(e.isEqual(DataArrayInt([0,1,2,3,4,5,6])))
+        pass
+    
+    def testSwigAdvGauss(self):
+        f=MEDCouplingFieldTemplate(ON_GAUSS_PT)
+        f.setDiscretization(None)
+        f.__repr__() ; f.__str__()
+        #
+        f=MEDCouplingFieldTemplate(ON_GAUSS_PT)
+        d=f.getDiscretization()
+        i=DataArrayInt() ; i.alloc(10,1) ; i.iota(1)
+        d.setArrayOfDiscIds(i)
+        f.__repr__() ; f.__str__()
+        i2=d.getArrayOfDiscIds()
+        self.assertEqual(i.__repr__(),i2.__repr__())
+        #
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f.setDiscretization(None)
+        f.__repr__() ; f.__str__()
+        #
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        d=f.getDiscretization()
+        i=DataArrayInt() ; i.alloc(10,1) ; i.iota(1)
+        d.setArrayOfDiscIds(i)
+        f.__repr__() ; f.__str__()
+        #
+        gl=MEDCouplingGaussLocalization(NORM_SEG2,[0,1],[0.5],[1.])
+        gl.setWeights([3.])
+        gl.__repr__() ; gl.__str__()
+        gl=MEDCouplingGaussLocalization(NORM_ERROR)
+        gl.setWeights([3.])
+        gl.__repr__() ; gl.__str__()
+        pass
+
+    def testSwig2NonRegressionBugSubstractInPlaceDM(self):
+        m0=MEDCouplingCMesh()
+        arr=DataArrayDouble(5,1) ; arr.iota(0.)
+        m0.setCoords(arr,arr)
+        m0=m0.buildUnstructured()
+        m00=m0[::2] ; m00.simplexize(0) ; m01=m0[1::2]
+        m0=MEDCouplingUMesh.MergeUMeshes([m00,m01])
+        m0.getCoords()[:]*=1/4.
+        m0.setName("mesh")
+        #
+        NodeField=MEDCouplingFieldDouble(ON_NODES,ONE_TIME) ; NodeField.setTime(5.6,5,6) ; NodeField.setMesh(m0)
+        NodeField.setName("NodeField")
+        NodeField.fillFromAnalytic(1,"exp(-((x-1)*(x-1)+(y-1)*(y-1)))") ; NodeField.getArray().setInfoOnComponent(0,"powernode [W]")
+        proc0=m0.getCellsInBoundingBox([(0.,0.4),(0.,0.4)],1e-10)
+        proc1=proc0.buildComplement(m0.getNumberOfCells())
+        #
+        NodeField0=NodeField[proc0] ; NodeField0.getMesh().setName(m0.getName())
+        NodeField1=NodeField[proc1] ; NodeField1.getMesh().setName(m0.getName())
+        #
+        NodeField_read=MEDCouplingFieldDouble.MergeFields([NodeField0,NodeField1])
+        NodeField_read.mergeNodes(1e-10)
+        NodeFieldCpy=NodeField.deepCpy()
+        NodeFieldCpy.mergeNodes(1e-10)
+        NodeField.checkCoherency()
+        self.assertTrue(not NodeField.getArray().isUniform(0.,1e-12))
+        NodeField.substractInPlaceDM(NodeField_read,10,1e-12)
+        self.assertTrue(NodeField.getArray().isUniform(0.,1e-12))
+        pass
+
+    def testSwigFieldOperationOpen1(self):
+        ## MEDCouplingFieldDouble.__add__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__add__,2)
+        self.assertRaises(InterpKernelException,f.__add__,range(5))
+        self.assertRaises(InterpKernelException,f.__add__,arr)
+        self.assertRaises(InterpKernelException,f.__add__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__add__,2)
+        self.assertRaises(InterpKernelException,f.__add__,range(5))
+        self.assertRaises(InterpKernelException,f.__add__,arr)
+        self.assertRaises(InterpKernelException,f.__add__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=f+2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(2,9),(3,10),(4,11),(5,12),(6,13)]),1e-12))
+        ff=f+arr
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,7),(2,10),(4,13),(6,16),(8,19)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__add__,f2)
+        f2.setArray(arr)
+        ff=f+f2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,7),(2,10),(4,13),(6,16),(8,19)]),1e-12))
+        ff=f+[5,8]
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(5,15),(6,16),(7,17),(8,18),(9,19)]),1e-12))
+        ### MEDCouplingFieldDouble.__sub__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__sub__,2)
+        self.assertRaises(InterpKernelException,f.__sub__,range(5))
+        self.assertRaises(InterpKernelException,f.__sub__,arr)
+        self.assertRaises(InterpKernelException,f.__sub__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__sub__,2)
+        self.assertRaises(InterpKernelException,f.__sub__,range(5))
+        self.assertRaises(InterpKernelException,f.__sub__,arr)
+        self.assertRaises(InterpKernelException,f.__sub__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=f-2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(-2,5),(-1,6),(0,7),(1,8),(2,9)]),1e-12))
+        ff=f-arr
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,7),(0,6),(0,5),(0,4),(0,3)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__sub__,f2)
+        f2.setArray(arr)
+        ff=f-f2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,7),(0,6),(0,5),(0,4),(0,3)]),1e-12))
+        ff=f-[5,8]
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(-5,-1),(-4,0),(-3,1),(-2,2),(-1,3)]),1e-12))
+        ### MEDCouplingFieldDouble.__mul__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__mul__,2)
+        self.assertRaises(InterpKernelException,f.__mul__,range(5))
+        self.assertRaises(InterpKernelException,f.__mul__,arr)
+        self.assertRaises(InterpKernelException,f.__mul__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__mul__,2)
+        self.assertRaises(InterpKernelException,f.__mul__,range(5))
+        self.assertRaises(InterpKernelException,f.__mul__,arr)
+        self.assertRaises(InterpKernelException,f.__mul__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=f*2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,14),(2,16),(4,18),(6,20),(8,22)]),1e-12))
+        ff=f*arr
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,0),(1,16),(4,36),(9,60),(16,88)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__mul__,f2)
+        f2.setArray(arr)
+        ff=f*f2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,0),(1,16),(4,36),(9,60),(16,88)]),1e-12))
+        ff=f*[5,8]
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,56),(5,64),(10,72),(15,80),(20,88)]),1e-12))
+        ### MEDCouplingFieldDouble.__div__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(1,6) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__div__,2)
+        self.assertRaises(InterpKernelException,f.__div__,range(5))
+        self.assertRaises(InterpKernelException,f.__div__,arr)
+        self.assertRaises(InterpKernelException,f.__div__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__div__,2)
+        self.assertRaises(InterpKernelException,f.__div__,range(5))
+        self.assertRaises(InterpKernelException,f.__div__,arr)
+        self.assertRaises(InterpKernelException,f.__div__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        self.assertRaises(InterpKernelException,f.__div__,0)
+        ff=f/2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,3.5),(0.5,4),(1,4.5),(1.5,5),(2,5.5)]),1e-12))
+        ff=f/arr
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,3.5),(0.5,2),(0.6666666666666666,1.5),(0.75,1.25),(0.8,1.1)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__div__,f2)
+        f2.setArray(arr)
+        ff=f/f2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,3.5),(0.5,2),(0.6666666666666666,1.5),(0.75,1.25),(0.8,1.1)]),1e-12))
+        ff=f/[5,8]
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,0.875),(0.2,1),(0.4,1.125),(0.6,1.25),(0.8,1.375)]),1e-12))
+        ### MEDCouplingFieldDouble.__pow__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5)
+        arr[:]=[1,1,3,2,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__div__,2)
+        self.assertRaises(InterpKernelException,f.__div__,range(5))
+        self.assertRaises(InterpKernelException,f.__div__,arr)
+        self.assertRaises(InterpKernelException,f.__div__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__div__,2)
+        self.assertRaises(InterpKernelException,f.__div__,range(5))
+        self.assertRaises(InterpKernelException,f.__div__,arr)
+        self.assertRaises(InterpKernelException,f.__div__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,1)
+        f.getArray()[:]=range(2,7)
+        ff=f**2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([4,9,16,25,36]),1e-12))
+        ff=f**arr
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([2,3,64,25,1]),1e-12))
+        f2.setArray(arr)
+        ff=f**f2
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([2,3,64,25,1]),1e-12))
+        ## MEDCouplingFieldDouble.__iadd__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__iadd__,2)
+        self.assertRaises(InterpKernelException,f.__iadd__,range(5))
+        self.assertRaises(InterpKernelException,f.__iadd__,arr)
+        self.assertRaises(InterpKernelException,f.__iadd__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__iadd__,2)
+        self.assertRaises(InterpKernelException,f.__iadd__,range(5))
+        self.assertRaises(InterpKernelException,f.__iadd__,arr)
+        self.assertRaises(InterpKernelException,f.__iadd__,f2)
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        f.checkCoherency()
+        f+=2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(2,9),(3,10),(4,11),(5,12),(6,13)]),1e-12))
+        f+=arr
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(2,9),(4,12),(6,15),(8,18),(10,21)]),1e-12))
+        f2.setArray(arr)
+        f+=f2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(2,9),(5,14),(8,19),(11,24),(14,29)]),1e-12))
+        f+=[0.1,0.2]
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(2.1,9.2),(5.1,14.2),(8.1,19.2),(11.1,24.2),(14.1,29.2)]),1e-12))
+        ## MEDCouplingFieldDouble.__isub__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__isub__,2)
+        self.assertRaises(InterpKernelException,f.__isub__,range(5))
+        self.assertRaises(InterpKernelException,f.__isub__,arr)
+        self.assertRaises(InterpKernelException,f.__isub__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__isub__,2)
+        self.assertRaises(InterpKernelException,f.__isub__,range(5))
+        self.assertRaises(InterpKernelException,f.__isub__,arr)
+        self.assertRaises(InterpKernelException,f.__isub__,f2)
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        f.checkCoherency()
+        f-=2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(-2,5),(-1,6),(0,7),(1,8),(2,9)]),1e-12))
+        f-=arr
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(-2,5),(-2,4),(-2,3),(-2,2),(-2,1)]),1e-12))
+        f2.setArray(arr)
+        f-=f2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(-2,5),(-3,2),(-4,-1),(-5,-4),(-6,-7)]),1e-12))
+        f-=[0.1,0.2]
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(-2.1,4.8),(-3.1,1.8),(-4.1,-1.2),(-5.1,-4.2),(-6.1,-7.2)]),1e-12))
+        ## MEDCouplingFieldDouble.__imul__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__imul__,2)
+        self.assertRaises(InterpKernelException,f.__imul__,range(5))
+        self.assertRaises(InterpKernelException,f.__imul__,arr)
+        self.assertRaises(InterpKernelException,f.__imul__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__imul__,2)
+        self.assertRaises(InterpKernelException,f.__imul__,range(5))
+        self.assertRaises(InterpKernelException,f.__imul__,arr)
+        self.assertRaises(InterpKernelException,f.__imul__,f2)
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        f.checkCoherency()
+        f*=2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,14),(2,16),(4,18),(6,20),(8,22)]),1e-12))
+        f*=arr
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,0),(2,32),(8,72),(18,120),(32,176)]),1e-12))
+        f2.setArray(arr)
+        f*=f2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,0),(2,64),(16,288),(54,720),(128,1408)]),1e-12))
+        f*=[0.1,0.2]
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,0),(0.2,12.8),(1.6,57.6),(5.4,144),(12.8,281.6)]),1e-12))
+        ## MEDCouplingFieldDouble.__idiv__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(1,6) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__idiv__,2)
+        self.assertRaises(InterpKernelException,f.__idiv__,range(5))
+        self.assertRaises(InterpKernelException,f.__idiv__,arr)
+        self.assertRaises(InterpKernelException,f.__idiv__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__idiv__,2)
+        self.assertRaises(InterpKernelException,f.__idiv__,range(5))
+        self.assertRaises(InterpKernelException,f.__idiv__,arr)
+        self.assertRaises(InterpKernelException,f.__idiv__,f2)
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        f.checkCoherency()
+        f/=2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,3.5),(0.5,4),(1,4.5),(1.5,5),(2,5.5)]),1e-12))
+        f/=arr
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,1.75),(0.25,1),(0.3333333333333333,0.75),(0.375,0.625),(0.4,0.55)]),1e-12))
+        f2.setArray(arr)
+        f/=f2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,0.875),(0.125,0.25),(0.1111111111111111,0.125),(0.09375,0.078125),(0.08,0.055)]),1e-12))
+        f/=[0.1,0.2]
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,4.375),(1.25,1.25),(1.1111111111111111,0.625),(0.9375,0.390625),(0.8,0.275)]),1e-12))
+        ## MEDCouplingFieldDouble.__ipow__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(1,6) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__ipow__,2)
+        self.assertRaises(InterpKernelException,f.__ipow__,range(5))
+        self.assertRaises(InterpKernelException,f.__ipow__,arr)
+        self.assertRaises(InterpKernelException,f.__ipow__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__ipow__,2)
+        self.assertRaises(InterpKernelException,f.__ipow__,range(5))
+        self.assertRaises(InterpKernelException,f.__ipow__,arr)
+        self.assertRaises(InterpKernelException,f.__ipow__,f2)
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        f.checkCoherency()
+        f**=2
+        f.checkCoherency()
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([(0,49),(1,64),(4,81),(9,100),(16,121)]),1e-12))
+         ## MEDCouplingFieldDouble.__radd__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__radd__,2)
+        self.assertRaises(InterpKernelException,f.__radd__,range(5))
+        self.assertRaises(InterpKernelException,f.__radd__,arr)
+        self.assertRaises(InterpKernelException,f.__radd__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__radd__,2)
+        self.assertRaises(InterpKernelException,f.__radd__,range(5))
+        self.assertRaises(InterpKernelException,f.__radd__,arr)
+        self.assertRaises(InterpKernelException,f.__radd__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=2+f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(2,9),(3,10),(4,11),(5,12),(6,13)]),1e-12))
+        ff=arr+f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,7),(2,10),(4,13),(6,16),(8,19)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__radd__,f2)
+        ff=[5,8]+f
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(5,15),(6,16),(7,17),(8,18),(9,19)]),1e-12))
+        ### MEDCouplingFieldDouble.__rsub__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__rsub__,2)
+        self.assertRaises(InterpKernelException,f.__rsub__,range(5))
+        self.assertRaises(InterpKernelException,f.__rsub__,arr)
+        self.assertRaises(InterpKernelException,f.__rsub__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__rsub__,2)
+        self.assertRaises(InterpKernelException,f.__rsub__,range(5))
+        self.assertRaises(InterpKernelException,f.__rsub__,arr)
+        self.assertRaises(InterpKernelException,f.__rsub__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=2-f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(2,-5),(1,-6),(0,-7),(-1,-8),(-2,-9)]),1e-12))
+        ff=arr-f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,-7),(0,-6),(0,-5),(0,-4),(0,-3)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__rsub__,f2)
+        ### MEDCouplingFieldDouble.__rmul__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(5) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__rmul__,2)
+        self.assertRaises(InterpKernelException,f.__rmul__,range(5))
+        self.assertRaises(InterpKernelException,f.__rmul__,arr)
+        self.assertRaises(InterpKernelException,f.__rmul__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__rmul__,2)
+        self.assertRaises(InterpKernelException,f.__rmul__,range(5))
+        self.assertRaises(InterpKernelException,f.__rmul__,arr)
+        self.assertRaises(InterpKernelException,f.__rmul__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(5) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=2*f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,14),(2,16),(4,18),(6,20),(8,22)]),1e-12))
+        ff=arr*f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,0),(1,16),(4,36),(9,60),(16,88)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__rmul__,f2)
+        ff=f*[5,8]
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(0,56),(5,64),(10,72),(15,80),(20,88)]),1e-12))
+        ### MEDCouplingFieldDouble.__rdiv__
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2)
+        arr[:,0]=range(1,6) ; arr[:,1]=2*arr[:,0]
+        f2=f.clone(True)
+        self.assertRaises(InterpKernelException,f.__rdiv__,2)
+        self.assertRaises(InterpKernelException,f.__rdiv__,range(5))
+        self.assertRaises(InterpKernelException,f.__rdiv__,arr)
+        self.assertRaises(InterpKernelException,f.__rdiv__,f2)
+        f.setArray(DataArrayDouble())
+        self.assertRaises(InterpKernelException,f.__rdiv__,2)
+        self.assertRaises(InterpKernelException,f.__rdiv__,range(5))
+        self.assertRaises(InterpKernelException,f.__rdiv__,arr)
+        self.assertRaises(InterpKernelException,f.__rdiv__,f2)
+        self.assertRaises(InterpKernelException,f.__getitem__,(slice(None),0))
+        f.getArray().alloc(5,2)
+        f.getArray()[:,0]=range(1,6) ; f.getArray()[:,1]=f.getArray()[:,0]+7
+        ff=2/f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(2,0.25),(1,0.22222222222222221),(0.66666666666666663,0.20000000000000001),(0.5,0.18181818181818182),(0.40000000000000002,0.16666666666666666)]),1e-12))
+        ff=arr/f
+        ff.checkCoherency()
+        self.assertTrue(ff.getArray().isEqual(DataArrayDouble([(1,0.25),(1,0.44444444444444442),(1,0.59999999999999998),(1,0.72727272727272729),(1,0.83333333333333337)]),1e-12))
+        self.assertRaises(InterpKernelException,f.__rdiv__,f2)
+        pass
+    
+    def testSwig2FieldDoubleBuildSubPartRange1(self):
+        #ON_CELLS
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(m)
+        arr=DataArrayDouble(5,2) ; arr[:,0]=range(7,12) ; arr[:,1]=100+arr[:,0]
+        f.setArray(arr)
+        f.checkCoherency()
+        ff=f[1:-1:2]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([1,3],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(2,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[1,3]],1e-12))
+        #
+        a,b=f.buildSubMeshDataRange(2,5,1)
+        self.assertTrue(m.buildPartOfMySelf([2,3,4],True).isEqual(a,1e-12))
+        self.assertEqual(b,slice(2,5,1))
+        ff=f[2:]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([2,3,4],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[2,3,4]],1e-12))
+        #
+        ff=f[-2:0:-1]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([3,2,1],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[3,2,1]],1e-12))
+        self.assertTrue(f[-2:0:-1,1].getArray().isEqual(arr[[3,2,1],1],1e-12))
+        #ON_NODES
+        f=MEDCouplingFieldDouble(ON_NODES)
+        f.setMesh(m)
+        arr=DataArrayDouble(9,2) ; arr[:,0]=range(7,16) ; arr[:,1]=100+arr[:,0]
+        f.setArray(arr)
+        f.checkCoherency()
+        ff=f[1:-1:2]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([1,3],False)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(6,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(2,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[1,2,3,4,6,7]],1e-12))
+        #
+        m2=m.buildPartRange(2,5,1)
+        self.assertTrue(m.buildPartOfMySelf([2,3,4],True).isEqual(m2,1e-12))
+        m2,b=m.buildPartRangeAndReduceNodes(2,5,1)
+        self.assertTrue(m.buildPartOfMySelf([2,3,4],False).isEqual(m2,1e-12))
+        self.assertTrue(b.isEqual(DataArrayInt([-1,-1,0,1,2,3,4,5,6])))
+        a,b=f.buildSubMeshDataRange(2,5,1)
+        self.assertTrue(m.buildPartOfMySelf([2,3,4],False).isEqual(a,1e-12))
+        self.assertTrue(b.isEqual(DataArrayInt([2,3,4,5,6,7,8])))
+        ff=f[2:]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([2,3,4],False)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(7,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[2,3,4,5,6,7,8]],1e-12))
+        #
+        ff=f[-2:0:-1]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([3,2,1],False)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(7,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[1,2,3,4,5,6,7]],1e-12))
+        self.assertTrue(f[-2:0:-1,1].getArray().isEqual(arr[[1,2,3,4,5,6,7],1],1e-12))
+        #ON_GAUSS_NE
+        f=MEDCouplingFieldDouble(ON_GAUSS_NE)
+        f.setMesh(m)
+        arr=DataArrayDouble(18,2) ; arr[:,0]=range(7,25) ; arr[:,1]=100+arr[:,0]
+        f.setArray(arr)
+        f.checkCoherency()
+        ff=f[1:-1:2]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([1,3],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(2,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[4,5,6,10,11,12,13]],1e-12))
+        #
+        a,b=f.buildSubMeshDataRange(2,5,1)
+        self.assertTrue(m.buildPartOfMySelf([2,3,4],True).isEqual(a,1e-12))
+        self.assertEqual(b,slice(7,18,1))
+        ff=f[2:]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([2,3,4],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[7,8,9,10,11,12,13,14,15,16,17]],1e-12))
+        #
+        ff=f[-2:0:-1]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([3,2,1],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[10,11,12,13,7,8,9,4,5,6]],1e-12))
+        self.assertTrue(f[-2:0:-1,1].getArray().isEqual(arr[[10,11,12,13,7,8,9,4,5,6],1],1e-12))
+        #ON_GAUSS_PT
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f.setMesh(m)
+        f.setGaussLocalizationOnCells([0,4],[0,0,1,0,1,1,1,0],[1.1,1.1,2.2,2.2],[0.2,0.8]);
+        f.setGaussLocalizationOnCells([3],[0,0,1,0,1,1,1,0],[1.1,1.1,2.2,2.2,3.,3.],[0.2,0.4,0.4]);
+        f.setGaussLocalizationOnCells([1],[0,0,1,0,1,0],[1.1,1.1,2.2,2.2,3.,3.,4.,4.],[0.1,0.1,0.4,0.4]);
+        f.setGaussLocalizationOnCells([2],[0,0,1,0,1,0],[1.1,1.1,2.2,2.2,3.,3.,4.,4.,5.,5.],[0.1,0.1,0.4,0.3,0.1]);
+        arr=DataArrayDouble(16,2) ; arr[:,0]=range(7,23) ; arr[:,1]=100+arr[:,0]
+        f.setArray(arr)
+        f.checkCoherency()
+        ff=f[1:-1:2]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([1,3],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(2,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[2,3,4,5,11,12,13]],1e-12))
+        #
+        a,b=f.buildSubMeshDataRange(2,5,1)
+        self.assertTrue(m.buildPartOfMySelf([2,3,4],True).isEqual(a,1e-12))
+        self.assertEqual(b,slice(6,16,1))
+        ff=f[2:]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([2,3,4],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[6,7,8,9,10,11,12,13,14,15]],1e-12))
+        #
+        ff=f[-2:0:-1]
+        ff.checkCoherency()
+        self.assertTrue((m.buildPartOfMySelf([3,2,1],True)).isEqual(ff.getMesh(),1e-12))
+        self.assertTrue(9,ff.getMesh().getNumberOfNodes())
+        self.assertTrue(3,ff.getMesh().getNumberOfCells())
+        self.assertTrue(ff.getArray().isEqual(arr[[11,12,13,6,7,8,9,10,2,3,4,5]],1e-12))
+        self.assertTrue(f[-2:0:-1,0].getArray().isEqual(arr[[11,12,13,6,7,8,9,10,2,3,4,5],0],1e-12))
+        pass
+
+    def testSwig2FieldDoubleApplyFuncBug1(self):
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setMesh(MEDCouplingDataForTest.build2DTargetMesh_1())
+        f.applyFunc(3,700.)
+        f.checkCoherency()
+        self.assertEqual(3,f.getArray().getNumberOfComponents())
+        f.getArray().rearrange(1)
+        self.assertTrue(f.getArray().isUniform(700.,1e-10))
+        f.getArray().rearrange(3)
+        f.checkCoherency()
+        f.applyFunc(4,800.)
+        f.checkCoherency()
+        self.assertEqual(4,f.getArray().getNumberOfComponents())
+        f.getArray().rearrange(1)
+        self.assertTrue(f.getArray().isUniform(800.,1e-10))
+        f.getArray().rearrange(4)
+        f.checkCoherency()
+        pass
+
+    def testSwig2ComputeTupleIdsNearTupleBug1(self):
+        coords=[1.1,0.0, 1.1,0.0 ];
+        coordsArr=DataArrayDouble(coords,2,2);
+        mesh=MEDCouplingUMesh();
+        mesh.setCoords(coordsArr);
+        points=[1.1, 0.002]
+        c,cI=mesh.getNodeIdsNearPoints(points,0.00185);
+        self.assertTrue(c.isEqual(DataArrayInt([])))
+        self.assertTrue(cI.isEqual(DataArrayInt([0,0])))
+        c,cI=mesh.getNodeIdsNearPoints(points,0.00200000000000001);
+        self.assertTrue(c.isEqual(DataArrayInt([0,1])))
+        self.assertTrue(cI.isEqual(DataArrayInt([0,2])))
         pass
 
     def setUp(self):

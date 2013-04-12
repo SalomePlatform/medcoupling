@@ -180,7 +180,7 @@ class MEDCouplingDataForTest:
         mesh2D.insertNextCell(NORM_QUAD4,4,conn2[14:18]);
         mesh2D.insertNextCell(NORM_POLYGON,6,conn2[18:24]);
         mesh2D.insertNextCell(NORM_QUAD4,4,conn2[24:28]);
-	mesh2D.finishInsertingCells();
+        mesh2D.finishInsertingCells();
         mesh2D.setCoords(myCoords);
         return ret,mesh2D
     
@@ -584,7 +584,7 @@ class MEDCouplingDataForTest:
         m=MEDCouplingUMesh("MA1",2)
         m.setDescription("CREE PAR CODE_ASTER") ; m.setTimeUnit("SANS UNITES") ; m.setTime(-1.,-1,-1)
         m.setCoords(coo)
-        m.allocateCells(0)
+        m.allocateCells()
         conn=[[11,8,13],[11,13,12],[8,9,13],[9,14,13],[9,10,15],[9,15,14],[12,13,19],[13,16,19],[13,14,17],[13,17,16],[14,15,17],[15,18,17],[0,1,4,3],[1,2,5,4],[2,6,7,5],[3,4,8,11],[4,5,9,8],[5,7,10,9],[20,22,21,28,41,51],[21,25,20,29,42,51],[22,23,21,30,43,41],[23,27,21,31,35,43],[23,38,24,32,44,52],[24,27,23,33,31,52],[25,21,50,29,45,53],[21,39,50,34,46,45],[21,27,26,35,47,54],[26,39,21,36,34,54],[27,24,26,33,48,47],[24,40,26,37,49,48],[50,39,56,55,46,62,58,71],[39,26,57,56,36,63,59,62],[26,40,61,57,49,64,60,63],[55,56,17,18,58,65,68,72],[56,57,16,17,59,66,69,65],[57,61,19,16,60,67,70,66]]
         for i in xrange(0,12):
             m.insertNextCell(NORM_TRI3,conn[i])

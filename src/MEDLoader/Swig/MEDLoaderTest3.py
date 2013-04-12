@@ -555,6 +555,10 @@ class MEDLoaderTest(unittest.TestCase):
         #
         fname="Pyfile28.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2_Simpler();
+        f1InvalidCpy=f1.deepCpy()
+        f1InvalidCpy.setDiscretization(MEDCouplingFieldDiscretizationGauss())
+        f1InvalidCpy2=f1.deepCpy()
+        f1InvalidCpy2.setDiscretization(MEDCouplingFieldDiscretizationGauss())
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -562,6 +566,9 @@ class MEDLoaderTest(unittest.TestCase):
         mm1.setName(m1.getName())
         mm1.write(fname,2)
         ff1=MEDFileField1TS.New()
+        self.assertRaises(InterpKernelException,ff1.setFieldNoProfileSBT,f1InvalidCpy) # fails because no Gauss localization per cell set !*
+        f1InvalidCpy2.getDiscretization().setArrayOfDiscIds(f1.getDiscretization().getArrayOfDiscIds()) # fails because no Gauss localization set whereas gauss locid per cell given !
+        self.assertRaises(InterpKernelException,ff1.setFieldNoProfileSBT,f1InvalidCpy2)
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
         ff2=MEDFileField1TS.New(fname,f1.getName(),f1.getTime()[1],f1.getTime()[2])
@@ -1483,10 +1490,13 @@ class MEDLoaderTest(unittest.TestCase):
         da=DataArrayDouble(34) ; da.iota(3.)
         f.setArray(da)
         f.setName("fieldCellOnPflWithoutPfl")
+        fInvalid=f.deepCpy()
         f.setGaussLocalizationOnCells([0,1,2,3,4,5,6,7,8],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7],[0.8,0.2])
         f.setGaussLocalizationOnCells([9,10],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7,0.8,0.8],[0.8,0.07,0.13])
         f.setGaussLocalizationOnCells([11,12],[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.3,0.7,0.7,0.8,0.8,0.8,0.8,0.8,0.8],[0.8,0.07,0.1,0.01,0.02])
         f.checkCoherency()
+        fInvalid2=fInvalid.deepCpy()
+        fInvalid2.getDiscretization().setArrayOfDiscIds(f.getDiscretization().getArrayOfDiscIds())
         #
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)
@@ -1494,6 +1504,8 @@ class MEDLoaderTest(unittest.TestCase):
         #
         f1ts=MEDFileField1TS.New()
         pfl=DataArrayInt(range(13)) ; pfl.setName("pfl")
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,fInvalid,mm,0,pfl) # fails because no Gauss localization per cell set !
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,fInvalid2,mm,0,pfl) # fails because no Gauss localization set whereas gauss locid per cell given !
         f1ts.setFieldProfile(f,mm,0,pfl)
         f1ts.write(fname,0)
         #

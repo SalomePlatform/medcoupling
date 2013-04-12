@@ -39,6 +39,8 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static const char *GetRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static std::string GetReprNoThrow(NatureOfField nat);
+    MEDCOUPLING_EXPORT static std::string GetAllPossibilitiesStr();
   private:
     static const int NB_OF_POSSIBILITIES=5;
     static const char *REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];

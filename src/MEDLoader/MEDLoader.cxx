@@ -304,7 +304,7 @@ std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
 
 void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MEDLoader::MEDFieldDoublePerCellType>& data, MEDCouplingFieldDouble *f)
 {
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   char locName[MED_NAME_SIZE+1];
   int nloc=MEDnLocalization(fid);
   med_geometry_type typeGeo;
@@ -341,7 +341,6 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
         }
       offset+=(*iter).getNbOfGeoElt();
     }
-  MEDfileClose(fid);
 }
 
 /// @endcond
@@ -354,9 +353,8 @@ void MEDLoader::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exce
 std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   std::vector<std::string> ret=MEDLoaderNS::getMeshNamesFid(fid);
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -467,7 +465,7 @@ std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, co
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
   //
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -488,14 +486,13 @@ std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, co
       if(curFieldName==fieldName)
         ret.push_back(meshName);
     }
-  MEDfileClose(fid);
   return ret;
 }
 
 std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName);
   std::vector<std::string> ret(nfam);
   char nomfam[MED_NAME_SIZE+1];
@@ -512,7 +509,6 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, c
       std::string cur=MEDLoaderBase::buildStringFromFortran(nomfam,sizeof(nomfam));
       ret[i]=cur;
     }
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -520,7 +516,7 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, c
 std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *fileName, const char *meshName, const char *grpName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName);
   std::vector<std::string> ret;
   char nomfam[MED_NAME_SIZE+1];
@@ -542,14 +538,13 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *file
             ret.push_back(cur);
         }
     }
-  MEDfileClose(fid);
   return ret;
 }
 
 std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileName, const char *meshName, const char *famName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName);
   std::vector<std::string> ret;
   char nomfam[MED_NAME_SIZE+1];
@@ -573,7 +568,6 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileN
             ret.push_back(cur2);
           }
     }
-  MEDfileClose(fid);
   if(!found)
     {
       std::ostringstream oss;
@@ -587,7 +581,7 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileN
 std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName);
   std::vector<std::string> ret;
   char nomfam[MED_NAME_SIZE+1];
@@ -608,14 +602,13 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, con
             ret.push_back(cur);
         }
     }
-  MEDfileClose(fid);
   return ret;
 }
 std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
   std::vector<ParaMEDMEM::TypeOfField> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -678,7 +671,6 @@ std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const char *file
     }
   delete [] maa_ass;
   delete [] nomcha;
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -686,7 +678,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNames(const char *fileName) throw
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   med_field_type typcha;
   for(int i=0;i<nbFields;i++)
@@ -702,7 +694,6 @@ std::vector<std::string> MEDLoader::GetAllFieldNames(const char *fileName) throw
       MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
       ret.push_back(std::string(nomcha));
     }
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -710,7 +701,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const char *fileName,
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -734,7 +725,6 @@ std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const char *fileName,
     }
   delete [] maa_ass;
   delete [] nomcha;
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -756,7 +746,7 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -799,7 +789,6 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
             }
         }
     }
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -807,7 +796,7 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   char pflname[MED_NAME_SIZE+1]="";
   char locname[MED_NAME_SIZE+1]="";
@@ -841,16 +830,14 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
             }
         }
     }
-  MEDfileClose(fid);
   return ret;
 }
 
-std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIterations(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  std::string meshNameCpp(meshName);
   std::vector< std::pair< std::pair<int,int>, double > > ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -861,6 +848,7 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_bool localmesh;
   //
+  std::ostringstream oss; oss << "MEDLoader::GetAllFieldIterations : No field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
   for(int i=0;i<nbFields;i++)
     {
       med_int ncomp=MEDfieldnComponent(fid,i+1);
@@ -876,16 +864,22 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
               MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
               ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
             }
+          return ret;
+        }
+      else
+        {
+          oss << "\"" << curFieldName << "\"";
+          if(i!=nbFields-1) oss << ", ";
         }
     }
-  MEDfileClose(fid);
-  return ret;
+  oss << " !";
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
 double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -921,7 +915,6 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const ch
             }
         }
     }
-  MEDfileClose(fid);
   if(!found || !found2)
     {
       std::ostringstream oss;
@@ -950,7 +943,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
   CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -963,6 +956,8 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_bool localmesh;
   //
+  std::ostringstream oss; oss << "MEDLoader::GetCellFieldIterations : No cell Field field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
+  std::set<std::string> s2;
   for(int i=0;i<nbFields;i++)
     {
       med_int ncomp=MEDfieldnComponent(fid,i+1);
@@ -983,16 +978,35 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
                   med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
                                                             pflname,&profilesize,locname,&nbi);
                   std::string maa_ass_cpp(maa_ass);
-                  if(meshNameCpp==maa_ass_cpp && nbOfVal>0)
+                  if(nbOfVal>0)
                     {
-                      found=true;
-                      ret.push_back(std::make_pair(numdt,numo));
+                      if(meshNameCpp==maa_ass_cpp)
+                        {
+                          found=true;
+                          ret.push_back(std::make_pair(numdt,numo));
+                        }
+                      else
+                        s2.insert(maa_ass_cpp);
                     }
                 }
             }
         }
+      else
+        {
+          oss << "\"" << curFieldName << "\"";
+          if(i!=nbFields-1) oss << ", ";
+        }
     }
-  MEDfileClose(fid);
+  if(ret.empty())
+    {
+      if(!s2.empty())
+        {
+          oss << ". Cell Field \"" << fieldName << "\" exists but lies on meshes with names : \"";
+          std::copy(s2.begin(),s2.end(),std::ostream_iterator<std::string>(oss,"\", \""));
+        }
+      oss << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return ret;
 }
 
@@ -1001,7 +1015,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
   CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -1014,6 +1028,8 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_bool localmesh;
   //
+  std::ostringstream oss; oss << "MEDLoader::GetNodeFieldIterations : No node Field field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
+  std::set<std::string> s2;
   for(int i=0;i<nbFields;i++)
     {
       med_int ncomp=MEDfieldnComponent(fid,i+1);
@@ -1031,14 +1047,31 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
               med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
                                                         pflname,&profilesize,locname,&nbi);
                std::string maa_ass_cpp(maa_ass);
-               if(meshNameCpp==maa_ass_cpp && nbOfVal>0)
+               if(nbOfVal>0)
                  {
-                   ret.push_back(std::make_pair(numdt,numo));
+                   if(meshNameCpp==maa_ass_cpp)
+                     { ret.push_back(std::make_pair(numdt,numo)); }
+                   else
+                     s2.insert(maa_ass_cpp);
                  }
             }
         }
+      else
+        {
+          oss << "\"" << curFieldName << "\"";
+          if(i!=nbFields-1) oss << ", ";
+        }
     }
-  MEDfileClose(fid);
+  if(ret.empty())
+    {
+      if(!s2.empty())
+        {
+          oss << ". Node Field \"" << fieldName << "\" exists but lies on meshes with names : \"";
+          std::copy(s2.begin(),s2.end(),std::ostream_iterator<std::string>(oss,"\", \""));
+        }
+      oss << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return ret;
 }
 
@@ -1158,7 +1191,7 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
 std::vector<int> MEDLoaderNS::getIdsFromFamilies(const char *fileName, const char *meshName, const std::vector<std::string>& fams)
 {
   std::vector<int> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName);
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
@@ -1175,14 +1208,13 @@ std::vector<int> MEDLoaderNS::getIdsFromFamilies(const char *fileName, const cha
       if(std::find(fams.begin(),fams.end(),cur)!=fams.end())
         ret.push_back(numfam);
     }
-  MEDfileClose(fid);
   return ret;
 }
 
 std::vector<int> MEDLoaderNS::getIdsFromGroups(const char *fileName, const char *meshName, const std::vector<std::string>& grps)
 {
   std::vector<int> ret;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName);
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
@@ -1206,7 +1238,6 @@ std::vector<int> MEDLoaderNS::getIdsFromGroups(const char *fileName, const char 
             }
         }
     }
-  MEDfileClose(fid);
   return ret;
 }
 
@@ -1261,7 +1292,7 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
 int MEDLoaderNS::readUMeshDimFromFile(const char *fileName, const char *meshName, std::vector<int>& possibilities)
 {
   possibilities.clear();
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   int ret;
   std::set<int> poss;
   char nommaa[MED_NAME_SIZE+1];
@@ -1303,7 +1334,6 @@ int MEDLoaderNS::readUMeshDimFromFile(const char *fileName, const char *meshName
           poss.insert(curDim);
         }
     }
-  MEDfileClose(fid);
   if(!poss.empty())
     {
       ret=*poss.rbegin();
@@ -1850,7 +1880,7 @@ MEDCouplingUMesh *MEDLoaderNS::readUMeshFromFileLev1(const char *fileName, const
   if(meshDimRelToMax>0)
     throw INTERP_KERNEL::Exception("meshDimRelToMax must be <=0 !");
   //Extraction data from MED file.
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   std::string trueMeshName;
   med_int mid=getIdFromMeshName(fid,meshName,trueMeshName);
   DataArrayDouble *coords=0;
@@ -1861,7 +1891,6 @@ MEDCouplingUMesh *MEDLoaderNS::readUMeshFromFileLev1(const char *fileName, const
   meshDimExtract=meshDimExtract+meshDimRelToMax;
   MEDLoaderNS::keepSpecifiedMeshDim<MEDLoader::MEDConnOfOneElemType>(conn,meshDimExtract);
   MEDLoaderNS::keepTypes<MEDLoader::MEDConnOfOneElemType>(conn,typesToKeep);
-  MEDfileClose(fid);
   //Put data in returned data structure.
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
   ret->setName(trueMeshName.c_str());
@@ -2221,13 +2250,10 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const char *file
  */
 void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& mesh, const std::vector<const DataArrayInt *>& families, bool forceFromScratch, bool &isRenumbering)
 {
-  med_idt fid=MEDfileOpen(fileName,forceFromScratch?MED_ACC_CREAT:MED_ACC_RDWR);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,forceFromScratch?MED_ACC_CREAT:MED_ACC_RDWR);
   std::string meshName(mesh[0]->getName());
   if(meshName=="")
-    {
-      MEDfileClose(fid);
-      throw INTERP_KERNEL::Exception("MEDCouplingMesh must have a not null name !");
-    }
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh must have a not null name !");
   isRenumbering=false;
   bool isFamilies=true;
   std::vector<const DataArrayInt *> conn;
@@ -2300,7 +2326,6 @@ void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const std::vector<c
   MEDfamilyCr(fid,maa,familyName,0,0,0);
   
   MEDmeshNodeCoordinateWr(fid,maa,-1,-1,0.,MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),arr->getConstPointer());
-  MEDfileClose(fid);
 }
 
 /*!
@@ -2342,7 +2367,7 @@ void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char
             gidsOfFamilies[fid].push_back(gid);
     }
   fid=0;
-  med_idt fid2=MEDfileOpen(fileName,MED_ACC_RDWR);
+  MEDFileUtilities::AutoFid fid2=MEDfileOpen(fileName,MED_ACC_RDWR);
   for(std::set<int>::const_iterator it=familyIds.begin();it!=familyIds.end();it++,fid++)
     {
       int ngro=gidsOfFamilies[fid].size();
@@ -2354,7 +2379,6 @@ void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char
       MEDLoaderBase::safeStrCpy(oss.str().c_str(),MED_NAME_SIZE,famName,MEDLoader::_TOO_LONG_STR);
       MEDfamilyCr(fid2,maa,famName,*it,ngro,groName);
     }
-  MEDfileClose(fid2);
 }
 
 /*!
@@ -2367,7 +2391,7 @@ void MEDLoaderNS::appendNodeProfileField(const char *fileName, const ParaMEDMEM:
   med_float dt;
   INTERP_KERNEL::AutoPtr<char> nommaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   MEDLoaderBase::safeStrCpy(f->getMesh()->getName(),MED_NAME_SIZE,nommaa,MEDLoader::_TOO_LONG_STR);
-  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  MEDFileUtilities::AutoFid fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
   int nbOfNodes=f->getMesh()->getNumberOfNodes();
   const double *pt=f->getArray()->getConstPointer();
   INTERP_KERNEL::AutoPtr<int> profile=new int[nbOfNodes];
@@ -2377,7 +2401,6 @@ void MEDLoaderNS::appendNodeProfileField(const char *fileName, const ParaMEDMEM:
   std::transform(thisMeshNodeIds,thisMeshNodeIds+nbOfNodes,(int *)profile,std::bind2nd(std::plus<int>(),1));
   MEDprofileWr(fid,profileName,nbOfNodes,profile);
   MEDfieldValueWithProfileWr(fid,f->getName(),numdt,numo,dt,MED_NODE,MED_NONE,MED_COMPACT_PFLMODE,profileName,MED_NO_LOCALIZATION,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,nbOfNodes,(const unsigned char*)pt);
-  MEDfileClose(fid);
 }
 
 /*!
@@ -2389,7 +2412,7 @@ void MEDLoaderNS::appendCellProfileField(const char *fileName, const ParaMEDMEM:
   med_int numdt,numo;
   med_float dt;
   int nbComp=f->getNumberOfComponents();
-  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  MEDFileUtilities::AutoFid fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
   std::list<MEDLoader::MEDFieldDoublePerCellType> split;
   prepareCellFieldDoubleForWriting(f,thisMeshCellIdsPerType,split);
   const double *pt=f->getArray()->getConstPointer();
@@ -2409,7 +2432,6 @@ void MEDLoaderNS::appendCellProfileField(const char *fileName, const ParaMEDMEM:
                                  MED_NO_LOCALIZATION,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,(*iter).getNbOfTuple(),(const unsigned char*)pt);
       pt+=(*iter).getNbOfTuple()*nbComp;
     }
-  MEDfileClose(fid);
 }
 
 void MEDLoaderNS::appendNodeElementProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIdsPerType)
@@ -2417,7 +2439,7 @@ void MEDLoaderNS::appendNodeElementProfileField(const char *fileName, const Para
   med_int numdt,numo;
   med_float dt;
   int nbComp=f->getNumberOfComponents();
-  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  MEDFileUtilities::AutoFid fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
   std::list<MEDLoader::MEDFieldDoublePerCellType> split;
   prepareCellFieldDoubleForWriting(f,thisMeshCellIdsPerType,split);
   const double *pt=f->getArray()->getConstPointer();
@@ -2442,7 +2464,6 @@ void MEDLoaderNS::appendNodeElementProfileField(const char *fileName, const Para
                                  nbOfEntity,(const unsigned char*)pt);
       pt+=nbOfValues*nbComp;
     }
-  MEDfileClose(fid);
 }
 
 /*!
@@ -2507,7 +2528,7 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, const ParaMEDMEM::ME
     }
   //end renumbering
   int nbComp=f->getNumberOfComponents();
-  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  MEDFileUtilities::AutoFid fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
   const double *pt=f->getArray()->getConstPointer();
   INTERP_KERNEL::AutoPtr<char> nommaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   MEDLoaderBase::safeStrCpy(f->getMesh()->getName(),MED_NAME_SIZE,nommaa,MEDLoader::_TOO_LONG_STR);
@@ -2624,7 +2645,6 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, const ParaMEDMEM::ME
     default:
       throw INTERP_KERNEL::Exception("Not managed this type of FIELD !");
     }
-  MEDfileClose(fid);
   if(renum)
     f->decrRef();
 }

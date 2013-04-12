@@ -356,7 +356,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::doublyContractedPr
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->doublyContractedProduct();
@@ -364,7 +364,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::doublyContractedPr
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   ret->setArrays(arrays3,0);
   return ret;
@@ -375,7 +375,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::determinant() cons
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->determinant();
@@ -383,7 +383,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::determinant() cons
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -396,7 +396,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenValues() cons
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->eigenValues();
@@ -404,7 +404,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenValues() cons
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -417,7 +417,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenVectors() con
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->eigenVectors();
@@ -425,7 +425,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenVectors() con
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -438,7 +438,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::inverse() const th
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->inverse();
@@ -446,7 +446,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::inverse() const th
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -459,7 +459,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::trace() const thro
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->trace();
@@ -467,7 +467,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::trace() const thro
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -480,7 +480,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::deviator() const t
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->deviator();
@@ -488,7 +488,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::deviator() const t
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -501,7 +501,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::magnitude() const 
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->magnitude();
@@ -509,7 +509,28 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::magnitude() const 
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
+  ret->setArrays(arrays3,0);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::negate() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(std::size_t j=0;j<arrays.size();j++)
+    {
+      if(arrays[j])
+        arrays2[j]=arrays[j]->negate();
+      else
+        arrays2[j]=0;
+    }
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -522,7 +543,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::maxPerTuple() cons
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->maxPerTuple();
@@ -530,7 +551,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::maxPerTuple() cons
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -543,7 +564,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedCompon
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->keepSelectedComponents(compoIds);
@@ -551,7 +572,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedCompon
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
   ret->setTimeUnit(getTimeUnit());
@@ -566,7 +587,7 @@ void MEDCouplingTimeDiscretization::setSelectedComponents(const MEDCouplingTimeD
   other->getArrays(arrays2);
   if(arrays1.size()!=arrays2.size())
     throw INTERP_KERNEL::Exception("TimeDiscretization::setSelectedComponents : number of arrays mismatch !");
-  for(unsigned int i=0;i<arrays1.size();i++)
+  for(std::size_t i=0;i<arrays1.size();i++)
     {
       if(arrays1[i]!=0 && arrays2[i]!=0)
         arrays1[i]->setSelectedComponents(arrays2[i],compoIds);
@@ -580,7 +601,7 @@ void MEDCouplingTimeDiscretization::changeNbOfComponents(int newNbOfComp, double
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->changeNbOfComponents(newNbOfComp,dftValue);
@@ -588,7 +609,7 @@ void MEDCouplingTimeDiscretization::changeNbOfComponents(int newNbOfComp, double
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -597,7 +618,7 @@ void MEDCouplingTimeDiscretization::sortPerTuple(bool asc) throw(INTERP_KERNEL::
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays[j]->sortPerTuple(asc);
@@ -609,33 +630,61 @@ void MEDCouplingTimeDiscretization::setUniformValue(int nbOfTuple, int nbOfCompo
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         {
-          arrays[j]->incrRef();
-          arrays[j]->fillWithValue(value);
-          arrays2[j]=arrays[j];
+          arrays2[j]=arrays[j]->changeNbOfComponents(nbOfCompo,value);
+          arrays2[j]->fillWithValue(value);
         }
       else
         {
-          DataArrayDouble *tmp=DataArrayDouble::New();
-          tmp->alloc(nbOfTuple,nbOfCompo);
-          tmp->fillWithValue(value);
-          arrays2[j]=tmp;
+          arrays2[j]=DataArrayDouble::New();
+          arrays2[j]->alloc(nbOfTuple,nbOfCompo);
+          arrays2[j]->fillWithValue(value);
         }
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
+}
+
+void MEDCouplingTimeDiscretization::setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  bool newArr=false;
+  for(std::size_t j=0;j<arrays.size();j++)
+    {
+      if(arrays[j])
+        {
+          arrays2[j]=arrays[j]; arrays2[j]->incrRef();
+          arrays2[j]->fillWithValue(value);
+        }
+      else
+        {
+          newArr=true;
+          arrays2[j]=DataArrayDouble::New();
+          arrays2[j]->alloc(nbOfTuple,1);
+          arrays2[j]->fillWithValue(value);
+        }
+    }
+  if(newArr)
+    {
+      std::vector<DataArrayDouble *> arrays3(arrays.size());
+      for(std::size_t j=0;j<arrays.size();j++)
+        arrays3[j]=arrays2[j];
+      setArrays(arrays3,0);
+    }
 }
 
 void MEDCouplingTimeDiscretization::applyLin(double a, double b, int compoId)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays[j]->applyLin(a,b,compoId);
@@ -647,7 +696,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc(nbOfComp,func);
@@ -655,7 +704,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -665,7 +714,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc(nbOfComp,func);
@@ -673,7 +722,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -683,7 +732,7 @@ void MEDCouplingTimeDiscretization::applyFunc2(int nbOfComp, const char *func)
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc2(nbOfComp,func);
@@ -691,7 +740,7 @@ void MEDCouplingTimeDiscretization::applyFunc2(int nbOfComp, const char *func)
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -701,7 +750,7 @@ void MEDCouplingTimeDiscretization::applyFunc3(int nbOfComp, const std::vector<s
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc3(nbOfComp,varsOrder,func);
@@ -709,7 +758,7 @@ void MEDCouplingTimeDiscretization::applyFunc3(int nbOfComp, const std::vector<s
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -719,7 +768,7 @@ void MEDCouplingTimeDiscretization::applyFunc(const char *func)
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays2[j]=arrays[j]->applyFunc(func);
@@ -727,7 +776,7 @@ void MEDCouplingTimeDiscretization::applyFunc(const char *func)
         arrays2[j]=0;
     }
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -736,7 +785,7 @@ void MEDCouplingTimeDiscretization::applyFuncFast32(const char *func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays[j]->applyFuncFast32(func);
@@ -747,7 +796,7 @@ void MEDCouplingTimeDiscretization::applyFuncFast64(const char *func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     {
       if(arrays[j])
         arrays[j]->applyFuncFast64(func);
@@ -759,10 +808,10 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc,
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays2[j]=loc->applyFunc(nbOfComp,func);
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -772,10 +821,10 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc,
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays2[j]=loc->applyFunc(nbOfComp,func);
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -785,10 +834,10 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic2(const DataArrayDouble *loc
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays2[j]=loc->applyFunc2(nbOfComp,func);
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -798,10 +847,10 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic3(const DataArrayDouble *loc
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays2[j]=loc->applyFunc3(nbOfComp,varsOrder,func);
   std::vector<DataArrayDouble *> arrays3(arrays.size());
-  for(int j=0;j<(int)arrays.size();j++)
+  for(std::size_t j=0;j<arrays.size();j++)
     arrays3[j]=arrays2[j];
   setArrays(arrays3,0);
 }
@@ -1057,6 +1106,27 @@ void MEDCouplingNoTimeLabel::divideEqual(const MEDCouplingTimeDiscretization *ot
   if(!getArray())
     throw INTERP_KERNEL::Exception("MEDCouplingNoTimeLabel::divideEqual : Data Array is NULL !");
   getArray()->divideEqual(other->getArray());
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::pow(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("pow on mismatched time discretization !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::Pow(getArray(),other->getArray());
+  MEDCouplingNoTimeLabel *ret=new MEDCouplingNoTimeLabel;
+  ret->setArray(arr,0);
+  return ret;
+}
+
+void MEDCouplingNoTimeLabel::powEqual(const MEDCouplingTimeDiscretization *other)
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("NoTimeLabel::powEqual on mismatched time discretization !");
+  if(!getArray())
+    throw INTERP_KERNEL::Exception("MEDCouplingNoTimeLabel::powEqual : Data Array is NULL !");
+  getArray()->powEqual(other->getArray());
 }
 
 MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::performCpy(bool deepCpy) const
@@ -1529,6 +1599,30 @@ void MEDCouplingWithTimeStep::divideEqual(const MEDCouplingTimeDiscretization *o
   if(!getArray())
     throw INTERP_KERNEL::Exception("MEDCouplingWithTimeLabel::divideEqual : Data Array is NULL !");
   getArray()->divideEqual(other->getArray());
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::pow(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("WithTimeStep::pow on mismatched time discretization !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::Pow(getArray(),other->getArray());
+  MEDCouplingWithTimeStep *ret=new MEDCouplingWithTimeStep;
+  ret->setArray(arr,0);
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+void MEDCouplingWithTimeStep::powEqual(const MEDCouplingTimeDiscretization *other)
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("WithTimeStep::powEqual on mismatched time discretization !");
+  if(!getArray())
+    throw INTERP_KERNEL::Exception("MEDCouplingWithTimeLabel::powEqual : Data Array is NULL !");
+  getArray()->powEqual(other->getArray());
 }
 
 MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::performCpy(bool deepCpy) const
@@ -2056,6 +2150,32 @@ void MEDCouplingConstOnTimeInterval::divideEqual(const MEDCouplingTimeDiscretiza
   if(!getArray())
     throw INTERP_KERNEL::Exception("MEDCouplingConstOnTimeInterval::divideEqual : Data Array is NULL !");
   getArray()->divideEqual(other->getArray());
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::pow(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("pow on mismatched time discretization !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::Pow(getArray(),other->getArray());
+  MEDCouplingConstOnTimeInterval *ret=new MEDCouplingConstOnTimeInterval;
+  ret->setArray(arr,0);
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  tmp3=getEndTime(tmp1,tmp2);
+  ret->setEndTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+void MEDCouplingConstOnTimeInterval::powEqual(const MEDCouplingTimeDiscretization *other)
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("ConstOnTimeInterval::powEqual on mismatched time discretization !");
+  if(!getArray())
+    throw INTERP_KERNEL::Exception("MEDCouplingConstOnTimeInterval::powEqual : Data Array is NULL !");
+  getArray()->powEqual(other->getArray());
 }
 
 MEDCouplingTwoTimeSteps::MEDCouplingTwoTimeSteps(const MEDCouplingTwoTimeSteps& other, bool deepCpy):MEDCouplingTimeDiscretization(other,deepCpy),
@@ -2738,4 +2858,30 @@ void MEDCouplingLinearTime::divideEqual(const MEDCouplingTimeDiscretization *oth
     throw INTERP_KERNEL::Exception("MEDCouplingLinearTime::divideEqual : Data Array (end) is NULL !");
   getArray()->divideEqual(other->getArray());
   getEndArray()->divideEqual(other->getEndArray());
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingLinearTime::pow(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingLinearTime *otherC=dynamic_cast<const MEDCouplingLinearTime *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("LinearTime::pow on mismatched time discretization !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr1=DataArrayDouble::Pow(getArray(),other->getArray());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2=DataArrayDouble::Pow(getEndArray(),other->getEndArray());
+  MEDCouplingLinearTime *ret=new MEDCouplingLinearTime;
+  ret->setArray(arr1,0);
+  ret->setEndArray(arr2,0);
+  return ret;
+}
+
+void MEDCouplingLinearTime::powEqual(const MEDCouplingTimeDiscretization *other)
+{
+  const MEDCouplingLinearTime *otherC=dynamic_cast<const MEDCouplingLinearTime *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("LinearTime::addEqual on mismatched time discretization !");
+  if(!getArray())
+    throw INTERP_KERNEL::Exception("MEDCouplingLinearTime::powEqual : Data Array is NULL !");
+  if(!getEndArray())
+    throw INTERP_KERNEL::Exception("MEDCouplingLinearTime::powEqual : Data Array (end) is NULL !");
+  getArray()->powEqual(other->getArray());
+  getEndArray()->powEqual(other->getEndArray());
 }

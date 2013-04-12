@@ -21,6 +21,7 @@
 #include "MEDCouplingNatureOfField.hxx"
 
 #include <algorithm>
+#include <sstream>
 
 namespace ParaMEDMEM
 {
@@ -37,9 +38,33 @@ namespace ParaMEDMEM
   {
     const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
     if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
-      throw INTERP_KERNEL::Exception("MEDCouplingNatureOfField::getRepr : Unrecognized nature of field !");
+      {
+        std::ostringstream oss; oss << "MEDCouplingNatureOfField::getRepr : Unrecognized nature of field ! ";
+        oss << GetAllPossibilitiesStr() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
     std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
     return REPR_OF_NATUREOFFIELD[pos2];
   }
+
+  std::string MEDCouplingNatureOfField::GetReprNoThrow(NatureOfField nat)
+  {
+    const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
+    if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
+      return std::string("Unrecognized nature of field !");
+    std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
+    return std::string(REPR_OF_NATUREOFFIELD[pos2]);
+  }
+
+  std::string MEDCouplingNatureOfField::GetAllPossibilitiesStr()
+  {
+    std::ostringstream oss; oss << "Possibilities are : ";
+    for(int i=0;i<NB_OF_POSSIBILITIES;i++)
+      {
+        oss << REPR_OF_NATUREOFFIELD[i] << "(value=" << POS_OF_NATUREOFFIELD[i] << ")";
+        if(i!=NB_OF_POSSIBILITIES-1)
+          oss << ", ";
+      }
+    return oss.str();
+  }
 }
- 

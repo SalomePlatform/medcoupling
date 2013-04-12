@@ -536,5 +536,5 @@ DataArrayDouble *MEDCouplingUMeshDesc::computeIsoBarycenterOfNodesPerCell() cons
 
 void MEDCouplingUMeshDesc::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
 {
-  stream << "MEDCouplingUMeshDesc C++ instance at " << this << ".";
+  stream << "MEDCouplingUMeshDesc C++ instance at " << this << ". Name : \"" << getName() << "\".";
 }

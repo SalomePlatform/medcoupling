@@ -41,7 +41,7 @@ For beginners in \ref medcoupling "MEDCoupling" world, it is advisable to read t
 
 \section MEDCouplingMeshes Common concept shared by all type of Meshes in MEDCoupling
 
-A mesh has a the following properties :
+A mesh has the following properties :
 
 - name
 - **a dimension (called mesh dimension) and only one** (it implies that \b all cells constituting
@@ -744,7 +744,7 @@ You can notice that it is possible to mix cell types as long as the dimension of
 
 \subpage medcouplingpyexamplesUmeshStdBuild1 "Here is the Python implementation."
 
-\section MEDCouplingUMeshNodalConnectivity How MEDCouplingUMesh stores its nodal connectivity.
+\section MEDCouplingUMeshNodalConnectivity How MEDCouplingUMesh stores its nodal connectivity
 
 \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh class" stores its nodal connectivity into 2 arrays.
 

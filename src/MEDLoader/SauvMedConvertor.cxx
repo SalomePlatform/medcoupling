@@ -1577,9 +1577,16 @@ void IntermediateMED::orientFaces3D()
                               if ( lfIt2 != linkFacesMap.end() )
                                 {
                                   list<const Cell*> & ff = lfIt2->second;
-                                  ff.erase( find( ff.begin(), ff.end(), badFace ));
-                                  if ( ff.empty() )
-                                    linkFacesMap.erase( lfIt2 );
+                                  list<const Cell*>::iterator lfIt3 = find( ff.begin(), ff.end(), badFace );
+                                  // check if badFace has been found,
+                                  // else we can't erase it
+                                  // case of degenerated face in edge
+                                  if (lfIt3 != ff.end())
+                                    {
+                                      ff.erase( lfIt3 );
+                                      if ( ff.empty() )
+                                        linkFacesMap.erase( lfIt2 );
+                                    }
                                 }
                             }
                           badFace->_reverse = true; // reverse
@@ -2376,7 +2383,7 @@ int DoubleField::setValues( double * valPtr, const int iSub, const int elemShift
     THROW_IK_EXCEPTION("SauvMedConvertor.cxx: support size mismatches field size");
   // compute nb values in previous subs
   int valsShift = 0;
-  for ( int iS = iSub-1, shift = elemShift; shift > 0; )
+  for ( int iS = iSub-1, shift = elemShift; shift > 0; --iS)
   {
     int nbE = _sub[iS]._support->size();
     shift -= nbE;

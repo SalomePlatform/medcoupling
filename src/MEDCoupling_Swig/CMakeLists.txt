@@ -27,6 +27,7 @@ SET_SOURCE_FILES_PROPERTIES(MEDCoupling.i PROPERTIES SWIG_DEFINITIONS "-shadow")
 
 SET (MEDCoupling_SWIG_DPYS_FILES
     MEDCouplingCommon.i
+    MEDCouplingMemArray.i
     MEDCouplingFinalize.i
     MEDCouplingTypemaps.i)   
 
@@ -74,7 +75,7 @@ INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRe
 SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py ${CMAKE_CURRENT_SOURCE_DIR}/libMEDCoupling_Swig.py)
 INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON})
 
-INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${MED_salomeinclude_HEADERS})
+INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingMemArray.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${MED_salomeinclude_HEADERS})
 INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py DESTINATION ${MED_salomescript_PYTHON})
 
 ADD_TEST(MEDCouplingBasicsTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest.py)

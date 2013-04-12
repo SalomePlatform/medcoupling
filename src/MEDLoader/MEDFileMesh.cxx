@@ -2073,7 +2073,10 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
 }
 
 /*!
- * Returns a pointer to mesh at the specified level.
+ * Returns a pointer to mesh at the specified level. ** WARNING **, if the input \a meshDimRelToMaxExt is set to one (nodes),
+ * The returned mesh ** will be not valid **. It is a feature, because MEDLoader do not creates cells that do not exist !
+ * To build a valid MEDCouplingUMesh instance from the returned value when \a meshDimRelToMaxExt is equal to one, simply
+ * call MEDCouplingUMesh::Build0DMeshFromCoords.
  * 
  * \return a pointer to unstructured mesh that need to be managed by the caller.
  * \warning the returned pointer has to be managed by the caller.
