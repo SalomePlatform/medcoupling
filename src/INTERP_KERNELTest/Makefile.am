@@ -75,8 +75,7 @@ libInterpKernelTest_la_LDFLAGS  =                \
 	@CPPUNIT_LIBS@                           \
 	../INTERP_KERNEL/libinterpkernel.la
 
-if !MED_ENABLE_MICROMED
-   libInterpKernelTest_la_SOURCES +=         \
+libInterpKernelTest_la_SOURCES +=            \
 	InterpolationOptionsTest.hxx         \
 	InterpolationOptionsTest.cxx         \
 	InterpolationTestSuite.hxx           \
@@ -88,27 +87,19 @@ if !MED_ENABLE_MICROMED
 	MultiElementTetraTests.hxx           \
 	SingleElementTetraTests.hxx
 
-   libInterpKernelTest_la_CPPFLAGS +=            \
+libInterpKernelTest_la_CPPFLAGS +=            \
 	-DDISABLE_MICROMED                       \
 	$(MED3_INCLUDES) $(HDF5_INCLUDES)        \
 	-I$(srcdir)/../MEDLoader                 \
 	-I$(srcdir)/../MEDCoupling
 
-   libInterpKernelTest_la_LDFLAGS +=             \
+libInterpKernelTest_la_LDFLAGS +=             \
 	../MEDLoader/libmedloader.la ../MEDCoupling/libmedcoupling.la -lm 
-endif
-
-if MED_ENABLE_KERNEL
-    libInterpKernelTest_la_CPPFLAGS += ${KERNEL_CXXFLAGS}
-    libInterpKernelTest_la_LDFLAGS  += ${KERNEL_LDFLAGS} -lSALOMELocalTrace
-endif
 
 # Executables targets
 bin_PROGRAMS = TestINTERP_KERNEL
 
-if !MED_ENABLE_MICROMED
-   bin_PROGRAMS += PerfTest
-endif
+bin_PROGRAMS += PerfTest
 
 TestINTERP_KERNEL_SOURCES =      \
 	BasicMainTest.hxx        \
@@ -117,9 +108,7 @@ TestINTERP_KERNEL_SOURCES =      \
 TestINTERP_KERNEL_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
 TestINTERP_KERNEL_LDADD = $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
 
-if !MED_ENABLE_MICROMED
-   TestINTERP_KERNEL_SOURCES += HexaTests.hxx
-endif
+TestINTERP_KERNEL_SOURCES += HexaTests.hxx
 
 PerfTest_SOURCES =               \
 	PerfTest.cxx             \
@@ -128,11 +117,6 @@ PerfTest_SOURCES =               \
 
 PerfTest_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
 PerfTest_LDADD = $(MED3_LIBS_C_ONLY) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
-
-if MED_ENABLE_KERNEL
-     TestINTERP_KERNEL_LDADD += -lSALOMEBasics
-     PerfTest_LDADD   += -lSALOMEBasics
-endif
 
 UNIT_TEST_PROG = TestINTERP_KERNEL
 
