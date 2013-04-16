@@ -53,27 +53,28 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(MEDOPGUITS_SOURCES
-  MEDOP_msg_en.ts
-  MEDOP_msg_fr.ts
+  MED_images.ts
+  MED_msg_en.ts
+  MED_msg_fr.ts
 )
 SET(COMMON_DEFINITIONS "${MED3_DEFINITIONS} ${XDR_DEFINITIONS} ${CAS_DEFINITIONS} ${BOOST_DEFINITIONS} ${PLATFORM_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
-SET(COMMON_FLAGS 
+SET(COMMON_FLAGS
   ${CAS_KERNEL}
-  ${QT_MT_LIBS} 
-  ${OMNIORB_LIBS} 
-  ${PLATFORM_LIBS} 
+  ${QT_MT_LIBS}
+  ${OMNIORB_LIBS}
+  ${PLATFORM_LIBS}
   ${BOOST_LIBS}
-  SalomeIDLMED 
-  MEDOPGUI_dialogs 
-  MEDOPFactoryEngine 
+  SalomeIDLMED
+  MEDOPGUI_dialogs
+  MEDOPFactoryEngine
   ${qtx}
-  ${suit} 
+  ${suit}
   ${SalomeObject}
-  ${SalomeLifeCycleCORBA} 
-  ${SalomeKernelHelpers} 
-  ${SalomeApp} 
-  ${SalomeGuiHelpers} 
-  ${SalomeTreeData} 
+  ${SalomeLifeCycleCORBA}
+  ${SalomeKernelHelpers}
+  ${SalomeApp}
+  ${SalomeGuiHelpers}
+  ${SalomeTreeData}
   ${OpUtil}
   ${CAM}
   ${LightApp}
@@ -96,4 +97,3 @@ QT4_INSTALL_TS_RESOURCES("${MEDOPGUITS_SOURCES}" "${MED_salomeres_DATA}")
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
-
