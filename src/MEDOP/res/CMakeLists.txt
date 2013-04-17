@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,19 +21,21 @@ ADD_SUBDIRECTORY(testfiles)
 
 IF(MED_ENABLE_GUI)
   SET(MED_RESOURCES_FILES
+    datasource_add.png
+    datasource_changeUnderlyingMesh.png
+    datasource_expandfield.png
+    datasource_field.png
+    datasource_mesh.png
+    datasource.png
+    datasource_use.png
+    datasource_view.png
+    fileimport-32.png
+    folder.png
+    image_add.png
     MEDOP.png
     MEDOP_small.png
-    datasource_add.png
-    datasource.png
-    datasource_mesh.png
-    datasource_field.png
-    datasource_expandfield.png
-    datasource_view.png
-    datasource_use.png
-    datasource_changeUnderlyingMesh.png
-    image_add.png
-    workspace_save.png
     workspace_clean.png
+    workspace_save.png
     )
   INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${MED_salomeres_DATA})
 ENDIF(MED_ENABLE_GUI)
