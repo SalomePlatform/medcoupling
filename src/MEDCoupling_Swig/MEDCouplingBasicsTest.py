@@ -12549,6 +12549,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(cI.isEqual(DataArrayInt([0,2])))
         pass
 
+    def testSwig2NonRegressionBugChangeUnderlyingWithZeroCells(self):
+        coords1=[0.,1.,2.,3.]
+        coords2=[2.,1.,0.,3.] #0 <==> #2
+        # mesh 1
+        mesh1=MEDCouplingUMesh.New();
+        coordsArr=DataArrayDouble.New(coords1,4,1);
+        mesh1.setCoords(coordsArr);
+        mesh1.setMeshDimension(0);
+        mesh1.allocateCells(0);
+        mesh1.finishInsertingCells();
+        # mesh 2
+        mesh2=mesh1.deepCpy();
+        coordsArr=DataArrayDouble.New(coords2,4,1);
+        mesh2.setCoords(coordsArr);
+        field = mesh1.fillFromAnalytic(ON_NODES,1,"x")
+        field.checkCoherency()
+        levOfCheck = 10
+        field.changeUnderlyingMesh( mesh2, levOfCheck, 1e-13, 0 )
+        self.assertTrue( field.getArray().getValues() == coords2 )
+        pass
+
     def setUp(self):
         pass
     pass

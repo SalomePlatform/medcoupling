@@ -69,12 +69,30 @@ bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double mes
   return ret;
 }
 
+/*!
+ * Checks if \a this and another MEDCouplingField are fully equal.
+ *  \param [in] other - the field to compare with \a this one.
+ *  \param [in] meshPrec - precision used to compare node coordinates of the underlying mesh.
+ *  \param [in] valsPrec - precision used to compare field values.
+ *  \return bool - \c true if the two fields are equal, \c false else.
+ *  \throw If \a other is NULL.
+ */
 bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
 {
   std::string tmp;
   return isEqualIfNotWhy(other,meshPrec,valsPrec,tmp);
 }
 
+/*!
+ * Checks if \a this and another MEDCouplingField are equal. The textual
+ * information like names etc. is not considered.
+ *  \param [in] other - the field to compare with \a this one.
+ *  \param [in] meshPrec - precision used to compare node coordinates of the underlying mesh.
+ *  \param [in] valsPrec - precision used to compare field values.
+ *  \return bool - \c true if the two fields are equal, \c false else.
+ *  \throw If \a other is NULL.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ */
 bool MEDCouplingField::isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const
 {
   if(!other)
@@ -147,15 +165,25 @@ std::size_t MEDCouplingField::getHeapMemorySize() const
   return ret;
 }
 
+/*!
+ * Returns a type of \ref MEDCouplingSpatialDisc "spatial discretization" of \a this
+ * field in terms of enum ParaMEDMEM::TypeOfField. 
+ *  \return ParaMEDMEM::TypeOfField - the type of \a this field.
+ */
 TypeOfField MEDCouplingField::getTypeOfField() const
 {
   return _type->getEnum();
 }
 
 /*!
- * This method returns the nature of field. This information is very important during interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
- * In other context than the two mentioned before this attribute of the field is not sensitive. This attribute is not store in MED file in MEDLoader.
- * More information of the semantic, and the consequence of this attribute in the result of the interpolation, is available \ref NatureOfField "here".
+ * Returns the nature of \a this field. This information is very important during
+ * interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
+ * In other context than the two mentioned above, this attribute is unimportant. This
+ * attribute is not stored in the MED file.
+ * For more information of the semantics and the influence of this attribute to the
+ * result of interpolation, see
+ * - \ref NatureOfField
+ * - \ref TableNatureOfField "How interpolation coefficients depend on Field Nature"
  */
 NatureOfField MEDCouplingField::getNature() const
 {
@@ -163,9 +191,17 @@ NatureOfField MEDCouplingField::getNature() const
 }
 
 /*!
- * This method set the nature of field in \b this.This  information is very important during interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
- * In other context than the two mentioned before this attribute of the field is not sensitive. This attribute is not store in MED file in MEDLoader.
- * More information of the semantic, and the consequence of this attribute in the result of the interpolation, is available \ref TableNatureOfField "here".
+ * Sets the nature of \a this field. This information is very important during
+ * interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
+ * In other context than the two mentioned above, this attribute is unimportant. This
+ * attribute is not stored in the MED file.
+ * For more information of the semantics and the influence of this attribute to the
+ * result of interpolation, see
+ * - \ref NatureOfField
+ * - \ref TableNatureOfField "How interpolation coefficients depend on Field Nature"
+ *
+ *  \param [in] nat - the nature of \a this field.
+ *  \throw If \a nat has an invalid value.
  */
 void MEDCouplingField::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
 {
@@ -174,10 +210,16 @@ void MEDCouplingField::setNature(NatureOfField nat) throw(INTERP_KERNEL::Excepti
 }
 
 /*!
- * This method returns is case of success an instance of DataArrayDouble the user is in reponsability to deal with.
- * If 'this->_mesh' is not set an exception will be thrown.
- * For a field on node the array of coords will be returned. For a field on cell a ParaMEDMEM::DataArrayDouble instance
- * containing the barycenter of cells will be returned. And for a field on gauss point the explicit position of gauss points.
+ * Returns coordinates of field location points that depend on 
+ * \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field.
+ * - For a field on nodes, returns coordinates of nodes.
+ * - For a field on cells, returns barycenters of cells.
+ * - For a field on gauss points, returns coordinates of gauss points.
+ * 
+ *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
+ *          delete this array using decrRef() as it is no more needed. 
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 DataArrayDouble *MEDCouplingField::getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception)
 {
@@ -189,9 +231,22 @@ DataArrayDouble *MEDCouplingField::getLocalizationOfDiscr() const throw(INTERP_K
 }
 
 /*!
- * This method retrieves the measure field of 'this'. If no '_mesh' is defined an exception will be thrown.
- * Warning the retrieved field life cycle is the responsability of caller.
+ * Returns a new MEDCouplingFieldDouble containing volumes of cells of a dual mesh whose
+ * cells are constructed around field location points (getLocalizationOfDiscr()) of \a this
+ * field. (In case of a field on cells, the dual mesh coincides with the underlying mesh).<br>
+ * For 1D cells, the returned field contains lengths.<br>
+ * For 2D cells, the returned field contains areas.<br>
+ * For 3D cells, the returned field contains volumes.
+ *  \param [in] isAbs - if \c true, the computed cell volume does not reflect cell
+ *         orientation, i.e. the volume is always positive.
+ *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble.
+ *          The caller is to delete this array using decrRef() as
+ *          it is no more needed.
+ *  \throw If the mesh is not set.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the spatial discretization of \a this field is not well defined.
  */
+
 MEDCouplingFieldDouble *MEDCouplingField::buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
@@ -201,6 +256,11 @@ MEDCouplingFieldDouble *MEDCouplingField::buildMeasureField(bool isAbs) const th
   return _type->getMeasureField(_mesh,isAbs);
 }
 
+/*!
+ * Sets the underlying mesh of \a this field.
+ * For examples of field construction, see \ref MEDCouplingFirstSteps3.
+ *  \param [in] mesh - the new underlying mesh.
+ */
 void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
 {
   if(mesh!=_mesh)
@@ -218,12 +278,17 @@ void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
 }
 
 /*!
- * This method sets gauss localization by geometric type.
- * @param type geometric type on which the gauss localization will be set.
- * @param refCoo is the reference coordinates of the specified element. Its size has to be equal to nbOfNodesPerCell*dimOfType
- * @param gsCoo are the coordinates of Gauss points in reference element specified by 'refCoo'. Its size must be equal to wg.size()*dimOfType
- * @param wg are the weights on Gauss points. The size of this array is used to determine the number of Gauss point in the element.
- * @throw when size of 'RefCoo' is not valid regarding 'type' parameter, it throws too when the mesh is not set before or if it is not a field on Gauss points.
+ * Sets localization of Gauss points for a given geometric type of cell.
+ *  \param [in] type - the geometric type of cell for which the Gauss localization is set.
+ *  \param [in] refCoo - coordinates of points of the reference cell. Size of this vector
+ *         must be \c nbOfNodesPerCell * \c dimOfType. 
+ *  \param [in] gsCoo - coordinates of Gauss points on the reference cell. Size of this vector
+ *         must be  _wg_.size() * \c dimOfType.
+ *  \param [in] wg - the weights of Gauss points.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
+ *  \throw If size of any vector do not match the \a type.
  */
 void MEDCouplingField::setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                   const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
@@ -236,14 +301,20 @@ void MEDCouplingField::setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellT
 }
 
 /*!
- * This method sets on ids defined by [begin;end) their gauss localization. This method checks the coherency of cells ids in [begin;end) and 'refCoo' size.
- * If an incoherence appears an exception will be thrown and no seting will be performed.
- * An exception is thrown too if [begin,end) has a size lesser than 1.
- * 
- * @param refCoo is the reference coordinates of the specified element. Its size has to be equal to nbOfNodesPerCell*dimOfType
- * @param gsCoo are the coordinates of Gauss points in reference element specified by 'refCoo'. Its size must be equal to wg.size()*dimOfType
- * @param wg are the weights on Gauss points. The size of this array is used to determine the number of Gauss point in the element.
- * @throw when size of 'RefCoo' is not valid regarding cells in [begin,end) parameters, it throws too when the mesh is not set before or if it is not a field on Gauss points.
+ * Sets localization of Gauss points for given cells specified by their ids.
+ *  \param [in] begin - an array of cell ids of interest.
+ *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
+ *  \param [in] refCoo - coordinates of points of the reference cell. Size of this vector
+ *         must be \c nbOfNodesPerCell * \c dimOfType. 
+ *  \param [in] gsCoo - coordinates of Gauss points on the reference cell. Size of this vector
+ *         must be  _wg_.size() * \c dimOfType.
+ *  \param [in] wg - the weights of Gauss points.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
+ *  \throw If size of any vector do not match the type of cell # \a begin[0].
+ *  \throw If type of any cell in \a begin differs from that of cell # \a begin[0].
+ *  \throw If the range [_begin_,_end_) is empty.
  */
 void MEDCouplingField::setGaussLocalizationOnCells(const int *begin, const int *end, const std::vector<double>& refCoo,
                                                    const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
@@ -256,7 +327,10 @@ void MEDCouplingField::setGaussLocalizationOnCells(const int *begin, const int *
 }
 
 /*!
- * This method resets all Gauss loalizations if any.
+ * Clears data on Gauss points localization.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 void MEDCouplingField::clearGaussLocalizations()
 {
@@ -268,10 +342,16 @@ void MEDCouplingField::clearGaussLocalizations()
 }
 
 /*!
- * This method returns reference to the Gauss localization object corresponding to 'locId' id.
- * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss) and if 'locId' is invalid because out of range given by
- * MEDCouplingField::getNbOfGaussLocalization method.
- * Warning this method is not const, so the returned object could be modified without any problem.
+ * Returns a reference to the Gauss localization object by its id.
+ * \warning This method is not const, so the returned object can be modified without any
+ *          problem.
+ *  \param [in] locId - the id of the Gauss localization object of interest.
+ *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
+ *  \return \ref MEDCouplingGaussLocalization & - the Gauss localization object.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If \a locId is not within the valid range.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception)
 {
@@ -283,9 +363,14 @@ MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) 
 }
 
 /*!
- * This method returns reference to the Gauss localization object corresponding to 'locId' id.
- * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss) and if several localization ids have been found
- * for a type.
+ * Returns an id of the Gauss localization object corresponding to a given cell type.
+ *  \param [in] type - the cell type of interest.
+ *  \return int - the id of the Gauss localization object.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
+ *  \throw If no Gauss localization object found for the given cell \a type.
+ *  \throw If more than one Gauss localization object found for the given cell \a type.
  */
 int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
 {
@@ -296,6 +381,14 @@ int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedC
   return _type->getGaussLocalizationIdOfOneType(type);
 }
 
+/*!
+ * Returns ids of Gauss localization objects corresponding to a given cell type.
+ *  \param [in] type - the cell type of interest.
+ *  \return std::set<int> - ids of the Gauss localization object.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
+ */
 std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
@@ -306,8 +399,12 @@ std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::
 }
 
 /*!
- * This method returns number of Gauss localization available. Implicitely all ids in [0,getNbOfGaussLocalization()) is a valid Gauss localisation id.
- * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss)
+ * Returns number of Gauss localization objects available. Implicitly all ids in
+ * [0,getNbOfGaussLocalization()) are valid Gauss localization ids. 
+ *  \return int - the number of available Gauss localization objects.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 int MEDCouplingField::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
 {
@@ -319,9 +416,13 @@ int MEDCouplingField::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exce
 }
 
 /*!
- * This method returns an id of Gauss localization in [0,getNbOfGaussLocalization()) that corresponds to the localization of the cell specified by its cellId.
- * This methods throws an exception if there is no mesh, invalid FieldDescription (different from Gauss) or if at the cell with id 'cellId' in this->_mesh no
- * Gauss localization has been set.
+ * Returns an id of the Gauss localization object corresponding to a type of a given cell.
+ *  \param [in] cellId - an id of the cell of interest.
+ *  \return int - the id of the Gauss localization object.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
+ *  \throw If no Gauss localization object found for the given cell.
  */
 int MEDCouplingField::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
 {
@@ -333,11 +434,15 @@ int MEDCouplingField::getGaussLocalizationIdOfOneCell(int cellId) const throw(IN
 }
 
 /*!
- * This method returns all cellIds that share the same Gauss localization given by 'locId' parameter (in range [0,getNbOfGaussLocalization()) ).
- * If no cells fit the Gauss localization given by 'locId' cellIds will be returned empty.
- * @param locId input that specifies the id of Gauss localization.
- * @param cellIds output parameter, that will contain the result if this method succeds. This parameter is systematically cleared when called.
- * @throw  if there is no mesh, invalid FieldDescription (different from Gauss) or if locId not in [0,getNbOfGaussLocalization())
+ * Returns ids of cells that share the same Gauss localization given by its id.
+ *  \param [in] locId - the id of the Gauss localization object of interest. 
+ *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
+ *  \param [in,out] cellIds - a vector returning ids of found cells. It is cleared before
+ *         filling in. It remains empty if no cells found.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If \a locId is not within the valid range.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
 {
@@ -350,10 +455,15 @@ void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<
 }
 
 /*!
- * This method returns reference to the Gauss localization object corresponding to 'locId' id.
- * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss) and if 'locId' is invalid because out of range given by
- * MEDCouplingField::getNbOfGaussLocalization method.
- * Warning this method is const.
+ * Returns a reference to the Gauss localization object by its id.
+ * \warning This method is const, so the returned object is not apt for modification.
+ *  \param [in] locId - the id of the Gauss localization object of interest.
+ *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
+ *  \return \ref const MEDCouplingGaussLocalization & - the Gauss localization object.
+ *  \throw If \a this field is not on Gauss points.
+ *  \throw If \a locId is not within the valid range.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 const MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
 {
@@ -393,10 +503,21 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy)
 }
 
 /*!
- * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
- * @param di is an array returned that specifies entity ids (nodes, cells, Gauss points... ) in array.
- * 
- * \sa MEDCouplingField::buildSubMeshDataRange
+ * Returns a new MEDCouplingMesh constituted by some cells of the underlying mesh of \a
+ * this filed, and returns ids of entities (nodes, cells, Gauss points) lying on the 
+ * specified cells. The cells to include to the result mesh are specified by an array of
+ * cell ids. The new mesh shares the coordinates array with the underlying mesh. 
+ *  \param [in] start - an array of cell ids to include to the result mesh.
+ *  \param [in] end - specifies the end of the array \a start, so that
+ *              the last value of \a start is \a end[ -1 ].
+ *  \param [out] di - a new instance of DataArrayInt holding the ids of entities (nodes,
+ *         cells, Gauss points). The caller is to delete this array using decrRef() as it
+ *         is no more needed.  
+ *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *         delete this mesh using decrRef() as it is no more needed. 
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
+ * \sa buildSubMeshDataRange()
  */
 MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const
 {
@@ -434,8 +555,11 @@ DataArrayInt *MEDCouplingField::computeTupleIdsToSelectFromCellIds(const int *st
 }
 
 /*!
- * This method returns number of tuples expected regarding its discretization and its _mesh attribute.
- * This method expected a not null _mesh instance. If null, an exception will be thrown.
+ * Returns number of tuples expected regarding the spatial discretization of \a this
+ * field and number of entities in the underlying mesh.
+ *  \return int - the number of expected tuples.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 int MEDCouplingField::getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception)
 {
@@ -458,8 +582,11 @@ void MEDCouplingField::setDiscretization(MEDCouplingFieldDiscretization *newDisc
 }
 
 /*!
- * This method returns number of mesh placed expected regarding its discretization and its _mesh attribute.
- * This method expected a not null _mesh instance. If null, an exception will be thrown.
+ * Returns number of mesh entities in the underlying mesh of \a this field regarding the
+ * spatial discretization.
+ *  \return int - the number of mesh entities porting the field values.
+ *  \throw If the spatial discretization of \a this field is NULL.
+ *  \throw If the mesh is not set.
  */
 int MEDCouplingField::getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception)
 {

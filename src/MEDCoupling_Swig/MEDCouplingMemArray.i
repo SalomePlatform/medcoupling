@@ -284,6 +284,12 @@ namespace ParaMEDMEM
                 return ret.retn();
               }
           }
+#ifdef WITH_NUMPY
+        else if(PyArray_Check(elt0))
+          {//DataArrayDouble.New(numpyArray)
+            return BuildNewInstance<DataArrayDouble,double>(elt0,NPY_DOUBLE,&PyCallBackDataArrayDouble_RefType,"FLOAT64");
+          }
+#endif
         else
           throw INTERP_KERNEL::Exception(msg);
       }
@@ -388,6 +394,13 @@ namespace ParaMEDMEM
         const double *vals=self->getConstPointer();
         return convertDblArrToPyList(vals,self->getNbOfElems());
       }
+
+#ifdef WITH_NUMPY
+      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      {
+        return ToNumPyArray<DataArrayDouble,double>(self,NPY_DOUBLE,"DataArrayDouble");
+      }
+#endif
 
       PyObject *isEqualIfNotWhy(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception)
       {
@@ -2353,6 +2366,12 @@ namespace ParaMEDMEM
                 return ret.retn();
               }
           }
+#ifdef WITH_NUMPY
+        else if(PyArray_Check(elt0))
+          {//DataArrayInt.New(numpyArray)
+            return BuildNewInstance<DataArrayInt,int>(elt0,NPY_INT,&PyCallBackDataArrayInt_RefType,"INT32");
+          }
+#endif
         else
           throw INTERP_KERNEL::Exception(msg);
       }
@@ -2462,6 +2481,13 @@ namespace ParaMEDMEM
         const int *vals=self->getConstPointer();
         return convertIntArrToPyList(vals,self->getNbOfElems());
       }
+
+#ifdef WITH_NUMPY
+      PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      {
+        return ToNumPyArray<DataArrayInt,int>(self,NPY_INT,"DataArrayInt");
+      }
+#endif
 
       PyObject *isEqualIfNotWhy(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception)
       {

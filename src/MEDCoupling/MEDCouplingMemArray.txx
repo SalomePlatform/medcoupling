@@ -46,7 +46,7 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(CPP_DEALLOC)
+  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(0),_param_for_deallocator(0)
   {
     if(!other._pointer.isNull())
       {
@@ -68,7 +68,7 @@ namespace ParaMEDMEM
     else
       _pointer.setExternal(array);
     _ownership=ownership;
-    _dealloc=type;
+    _dealloc=BuildFromType(type);
   }
 
   template<class T>
@@ -79,7 +79,7 @@ namespace ParaMEDMEM
     destroy();
     _pointer.setInternal(const_cast<T *>(array));
     _ownership=false;
-    _dealloc=CPP_DEALLOC;
+    _dealloc=CPPDeallocator;
   }
   
   template<class T>
@@ -342,7 +342,7 @@ namespace ParaMEDMEM
     _nb_of_elem_alloc=nbOfElements;
     _pointer.setInternal(new T[_nb_of_elem_alloc]);
     _ownership=true;
-    _dealloc=CPP_DEALLOC;
+    _dealloc=CPPDeallocator;
   }
 
   /*!
@@ -364,12 +364,13 @@ namespace ParaMEDMEM
     T *pointer=new T[newNbOfElements];
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<std::size_t>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
-      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
+      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.setInternal(pointer);
     _nb_of_elem=std::min<std::size_t>(_nb_of_elem,newNbOfElements);
     _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
-    _dealloc=CPP_DEALLOC;
+    _dealloc=CPPDeallocator;
+    _param_for_deallocator=0;
   }
 
   /*!
@@ -389,43 +390,57 @@ namespace ParaMEDMEM
     T *pointer=new T[newNbOfElements];
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<std::size_t>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
-      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
+      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.setInternal(pointer);
     _nb_of_elem=newNbOfElements;
     _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
-    _dealloc=CPP_DEALLOC;
+    _dealloc=CPPDeallocator;
+    _param_for_deallocator=0;
   }
 
   template<class T>
-  void MemArray<T>::destroyPointer(T *pt, DeallocType type)
+  void MemArray<T>::CPPDeallocator(void *pt, void *param)
+  {
+    delete [] reinterpret_cast<T*>(pt);
+  }
+
+  template<class T>
+  void MemArray<T>::CDeallocator(void *pt, void *param)
+  {
+    free(pt);
+  }
+
+  template<class T>
+  typename MemArray<T>::Deallocator MemArray<T>::BuildFromType(DeallocType type) throw(INTERP_KERNEL::Exception)
   {
     switch(type)
       {
       case CPP_DEALLOC:
-        {
-          delete [] pt;
-          return ;
-        }
+        return CPPDeallocator;
       case C_DEALLOC:
-        {
-          free(pt);
-          return ;
-        }
+        return CDeallocator;
       default:
-        std::ostringstream stream;
-        stream << "Invalid deallocation requested for pointer " << pt;
-        throw INTERP_KERNEL::Exception(stream.str().c_str());
+        throw INTERP_KERNEL::Exception("Invalid deallocation requested ! Unrecognized enum DeallocType !");
       }
+  }
+
+  template<class T>
+  void MemArray<T>::destroyPointer(T *pt, typename MemArray<T>::Deallocator dealloc, void *param)
+  {
+    if(dealloc)
+      dealloc(pt,param);
   }
 
   template<class T>
   void MemArray<T>::destroy()
   {
     if(_ownership)
-      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
+      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.null();
     _ownership=false;
+    _dealloc=NULL;
+    _param_for_deallocator=NULL;
   }
   
   template<class T>

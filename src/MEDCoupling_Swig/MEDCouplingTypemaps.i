@@ -19,8 +19,292 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
-#ifdef WITH_NUMPY2
+#ifdef WITH_NUMPY
 #include <numpy/arrayobject.h>
+
+void numarrdeal(void *pt, void *wron)
+{
+  void **wronc=(void **)wron;
+  PyObject *weakRefOnOwner=reinterpret_cast<PyObject *>(wronc[0]);
+  PyObject *obj=PyWeakref_GetObject(weakRefOnOwner);
+  if(obj!=Py_None)
+    {
+      Py_XINCREF(obj);
+      PyArrayObject *objC=reinterpret_cast<PyArrayObject *>(obj);
+      objC->flags|=NPY_OWNDATA;
+      Py_XDECREF(weakRefOnOwner);
+      Py_XDECREF(obj);
+    }
+  else
+    {
+      typedef void (*MyDeallocator)(void *,void *);
+      MyDeallocator deall=(MyDeallocator)wronc[1];
+      deall(pt,NULL);
+    }
+  delete [] wronc;
+}
+
+template<class MCData>
+struct PyCallBackDataArraySt {
+    PyObject_HEAD
+    MCData *_pt_mc;
+};
+
+typedef struct PyCallBackDataArraySt<ParaMEDMEM::DataArrayInt> PyCallBackDataArrayInt;
+typedef struct PyCallBackDataArraySt<ParaMEDMEM::DataArrayDouble> PyCallBackDataArrayDouble;
+
+extern "C"
+{
+  static int callbackmcdataarray___init__(PyObject *self, PyObject *args, PyObject *kwargs) { return 0; }
+  
+  static PyObject *callbackmcdataarrayint___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+  {
+    PyCallBackDataArrayInt *self = (PyCallBackDataArrayInt *) ( type->tp_alloc(type, 0) );
+    return (PyObject *)self;
+  }
+
+  static PyObject *callbackmcdataarraydouble___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+  {
+    PyCallBackDataArrayDouble *self = (PyCallBackDataArrayDouble *) ( type->tp_alloc(type, 0) );
+    return (PyObject *)self;
+  }
+  
+  static void callbackmcdataarray_dealloc(PyObject *self)
+  {
+    Py_TYPE(self)->tp_free(self);
+  }
+  
+  static PyObject *callbackmcdataarrayint_call(PyCallBackDataArrayInt *self, PyObject *args, PyObject *kw)
+  {
+    if(self->_pt_mc)
+      {
+        ParaMEDMEM::MemArray<int>& mma=self->_pt_mc->accessToMemArray();
+        mma.destroy();
+      }
+    Py_XINCREF(Py_None);
+    return Py_None;
+  }
+
+  static PyObject *callbackmcdataarraydouble_call(PyCallBackDataArrayDouble *self, PyObject *args, PyObject *kw)
+  {
+    if(self->_pt_mc)
+      {
+        ParaMEDMEM::MemArray<double>& mma=self->_pt_mc->accessToMemArray();
+        mma.destroy();
+      }
+    Py_XINCREF(Py_None);
+    return Py_None;
+  }
+}
+
+PyTypeObject PyCallBackDataArrayInt_RefType = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "callbackmcdataarrayint",
+  sizeof(PyCallBackDataArrayInt),
+  0,
+  callbackmcdataarray_dealloc,            /*tp_dealloc*/
+  0,                          /*tp_print*/
+  0,                          /*tp_getattr*/
+  0,                          /*tp_setattr*/
+  0,                          /*tp_compare*/
+  0,                          /*tp_repr*/
+  0,                          /*tp_as_number*/
+  0,                          /*tp_as_sequence*/
+  0,                          /*tp_as_mapping*/
+  0,                          /*tp_hash*/
+  (ternaryfunc)callbackmcdataarrayint_call,  /*tp_call*/
+  0,                          /*tp_str*/
+  0,                          /*tp_getattro*/
+  0,                          /*tp_setattro*/
+  0,                          /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
+  0,                          /*tp_doc*/
+  0,                          /*tp_traverse*/
+  0,                          /*tp_clear*/
+  0,                          /*tp_richcompare*/
+  0,                          /*tp_weaklistoffset*/
+  0,                          /*tp_iter*/
+  0,                          /*tp_iternext*/
+  0,                          /*tp_methods*/
+  0,                          /*tp_members*/
+  0,                          /*tp_getset*/
+  0,                          /*tp_base*/
+  0,                          /*tp_dict*/
+  0,                          /*tp_descr_get*/
+  0,                          /*tp_descr_set*/
+  0,                          /*tp_dictoffset*/
+  callbackmcdataarray___init__,           /*tp_init*/
+  PyType_GenericAlloc,        /*tp_alloc*/
+  callbackmcdataarrayint___new__,            /*tp_new*/
+  PyObject_GC_Del,            /*tp_free*/
+};
+
+PyTypeObject PyCallBackDataArrayDouble_RefType = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+  "callbackmcdataarraydouble",
+  sizeof(PyCallBackDataArrayDouble),
+  0,
+  callbackmcdataarray_dealloc,            /*tp_dealloc*/
+  0,                          /*tp_print*/
+  0,                          /*tp_getattr*/
+  0,                          /*tp_setattr*/
+  0,                          /*tp_compare*/
+  0,                          /*tp_repr*/
+  0,                          /*tp_as_number*/
+  0,                          /*tp_as_sequence*/
+  0,                          /*tp_as_mapping*/
+  0,                          /*tp_hash*/
+  (ternaryfunc)callbackmcdataarraydouble_call,  /*tp_call*/
+  0,                          /*tp_str*/
+  0,                          /*tp_getattro*/
+  0,                          /*tp_setattro*/
+  0,                          /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
+  0,                          /*tp_doc*/
+  0,                          /*tp_traverse*/
+  0,                          /*tp_clear*/
+  0,                          /*tp_richcompare*/
+  0,                          /*tp_weaklistoffset*/
+  0,                          /*tp_iter*/
+  0,                          /*tp_iternext*/
+  0,                          /*tp_methods*/
+  0,                          /*tp_members*/
+  0,                          /*tp_getset*/
+  0,                          /*tp_base*/
+  0,                          /*tp_dict*/
+  0,                          /*tp_descr_get*/
+  0,                          /*tp_descr_set*/
+  0,                          /*tp_dictoffset*/
+  callbackmcdataarray___init__,           /*tp_init*/
+  PyType_GenericAlloc,        /*tp_alloc*/
+  callbackmcdataarraydouble___new__,            /*tp_new*/
+  PyObject_GC_Del,            /*tp_free*/
+};
+
+template<class MCData>
+void numarrdeal2(void *pt, void *obj)
+{
+  typedef struct PyCallBackDataArraySt<MCData> PyCallBackDataArray;
+  void **obj1=(void **)obj;
+  PyCallBackDataArray *cbdaic=reinterpret_cast<PyCallBackDataArray *>(obj1[0]);
+  PyObject *weakRefOnOwner=reinterpret_cast<PyObject *>(obj1[1]);
+  cbdaic->_pt_mc=0;
+  Py_XDECREF(weakRefOnOwner);
+  Py_XDECREF(cbdaic);
+  delete [] obj1;
+}
+
+template<class MCData, class T>
+MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype, const char *msg)
+{
+  int ndim=PyArray_NDIM(elt0);
+  if(ndim!=1)
+    throw INTERP_KERNEL::Exception("Input numpy array has not 1 dimension !");//to do 1 or 2.
+  if(PyArray_ObjectType(elt0,0)!=npyObjectType)
+    {
+      std::ostringstream oss; oss << "Input numpy array has not of type " << msg << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());//to do 1 or 2.
+    }
+  npy_intp stride=PyArray_STRIDE(elt0,0);
+  int itemSize=PyArray_ITEMSIZE(elt0);
+  if(itemSize<stride)
+    throw INTERP_KERNEL::Exception("Input numpy array has item size < stride !");
+  if(stride!=sizeof(T))
+    {
+      std::ostringstream oss; oss << "Input numpy array has not stride set to " << sizeof(T) << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  npy_intp sz=PyArray_DIM(elt0,0);
+  const char *data=PyArray_BYTES(elt0);
+  typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<MCData> ret=MCData::New();
+  if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order
+    {
+      PyArrayObject *elt0C=reinterpret_cast<PyArrayObject *>(elt0);
+      PyArrayObject *eltOwning=(PyArray_FLAGS(elt0C) & NPY_OWNDATA)?elt0C:NULL;
+      int mask=NPY_OWNDATA; mask=~mask;
+      elt0C->flags&=mask;
+      PyObject *deepestObj=elt0;
+      PyObject *base=elt0C->base;
+      if(base) deepestObj=base;
+      while(base)
+        {
+          if(PyArray_Check(base))
+            {
+              PyArrayObject *baseC=reinterpret_cast<PyArrayObject *>(base);
+              eltOwning=(PyArray_FLAGS(baseC) & NPY_OWNDATA)?baseC:eltOwning;
+              baseC->flags&=mask;
+              base=baseC->base;
+              if(base) deepestObj=base;
+            }
+          else
+            break;
+        }
+      typename ParaMEDMEM::MemArray<T>& mma=ret->accessToMemArray();
+      if(eltOwning==NULL)
+        {
+          PyCallBackDataArraySt<MCData> *cb=PyObject_GC_New(PyCallBackDataArraySt<MCData>,pytype);
+          cb->_pt_mc=ret;
+          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz,1);
+          PyObject *ref=PyWeakref_NewRef(deepestObj,(PyObject *)cb);
+          void **objs=new void *[2]; objs[0]=cb; objs[1]=ref;
+          mma.setParameterForDeallocator(objs);
+          mma.setSpecificDeallocator(numarrdeal2<MCData>);
+          //"Impossible to share this numpy array chunk of data, because already shared by an another non numpy array object (maybe an another DataArrayInt instance) ! Release it, or perform a copy on the input array !");
+        }
+      else
+        {
+          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz,1);
+          PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(eltOwning),NULL);
+          void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) ParaMEDMEM::MemArray<T>::CDeallocator;
+          mma.setParameterForDeallocator(objs);
+          mma.setSpecificDeallocator(numarrdeal);
+        }
+    }
+  else if(PyArray_ISBEHAVED_RO(elt0))
+    ret->useArray(reinterpret_cast<const T *>(data),false,ParaMEDMEM::CPP_DEALLOC,sz,1);
+  return ret.retn();
+}
+
+template<class MCData, class T>
+PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
+{
+  if(!self->isAllocated())
+    {
+      std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : this is not allocated !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  ParaMEDMEM::MemArray<T>& mem=self->accessToMemArray();
+  int nbComp=self->getNumberOfComponents();
+  if(nbComp!=1 && nbComp!=2)
+    {
+      std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is " << nbComp << " ! Should 1 or 2 !"; 
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::size_t sz=self->getNbOfElems();
+  npy_intp dim[2];
+  dim[0]=(npy_intp)self->getNumberOfTuples(); dim[1]=2;
+  const T *bg=self->getConstPointer();
+  PyObject *ret=PyArray_SimpleNewFromData(nbComp,dim,npyObjectType,const_cast<T *>(bg));
+  if(mem.isDeallocatorCalled())
+    {
+      if(mem.getDeallocator()!=ParaMEDMEM::MemArray<T>::CDeallocator)
+        {
+          int mask=NPY_OWNDATA; mask=~mask;
+          (reinterpret_cast<PyArrayObject *>(ret))->flags&=mask;
+          return ret;
+        }
+      else
+        {
+          PyObject *ref=PyWeakref_NewRef(ret,NULL);
+          void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) ParaMEDMEM::MemArray<T>::CDeallocator;
+          mem.setParameterForDeallocator(objs);
+          mem.setSpecificDeallocator(numarrdeal);
+          return ret;
+        }
+    }
+  return ret;
+}
+
 #endif
 
 static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw(INTERP_KERNEL::Exception)
@@ -81,33 +365,19 @@ static PyObject* convertMultiFields(ParaMEDMEM::MEDCouplingMultiFields *mfs, int
 
 static PyObject *convertIntArrToPyList(const int *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
-#ifndef WITH_NUMPY2
   PyObject *ret=PyList_New(size);
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyInt_FromLong(ptr[i]));
   return ret;
-#else
-  npy_intp dim = (npy_intp) size;
-  int *tmp=new int[size];
-  std::copy(ptr,ptr+size,tmp);
-  return PyArray_SimpleNewFromData(1,&dim,NPY_INT,const_cast<int *>(tmp));
-#endif
 }
 
 static PyObject *convertIntArrToPyList2(const std::vector<int>& v) throw(INTERP_KERNEL::Exception)
 {
-#ifndef WITH_NUMPY2
   int size=v.size();
   PyObject *ret=PyList_New(size);
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyInt_FromLong(v[i]));
   return ret;
-#else
-  npy_intp dim = (npy_intp) v.size();
-  int *tmp=new int[v.size()];
-  std::copy(v.begin(),v.end(),tmp);
-  return PyArray_SimpleNewFromData(1,&dim,NPY_INT,tmp);
-#endif
 }
 
 static PyObject *convertIntArrToPyList3(const std::set<int>& v) throw(INTERP_KERNEL::Exception)
@@ -177,21 +447,7 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL
     }
   else
     {
-#ifndef WITH_NUMPY2
       throw INTERP_KERNEL::Exception("convertPyToNewIntArr2 : not a list");
-#else
-      if(PyArray_Check(pyLi))
-        {
-          npy_intp mySize = PyArray_SIZE(pyLi);
-          int *ret=(int *)PyArray_BYTES(pyLi);
-          *size=mySize;
-          return ret;
-        }
-      else
-        {
-          throw INTERP_KERNEL::Exception("convertPyToNewIntArr2 : not a list nor PyArray");
-        }
-#endif
     }
 }
 
@@ -288,20 +544,7 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
     }
   else
     {
-#ifndef WITH_NUMPY2
       throw INTERP_KERNEL::Exception("convertPyToNewIntArr3 : not a list nor a tuple");
-#else
-      if(PyArray_Check(pyLi))
-        {
-          npy_intp mySize = PyArray_SIZE(pyLi);
-          int *ret=(int *)PyArray_BYTES(pyLi);
-          arr.resize(mySize);
-          std::copy(ret,ret+mySize,arr.begin());
-          return ;
-        }
-      else
-        throw INTERP_KERNEL::Exception("convertPyToNewIntArr3 : not a list nor a tuple nor PyArray");
-#endif
     }
 }
 

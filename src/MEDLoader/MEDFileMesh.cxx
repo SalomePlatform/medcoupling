@@ -214,9 +214,9 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroup(const char *name) const
 {
   std::string oname(name);
   std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.find(oname);
-  std::vector<std::string> grps=getGroupsNames();
   if(it==_groups.end())
     {
+      std::vector<std::string> grps=getGroupsNames();
       std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
       std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());

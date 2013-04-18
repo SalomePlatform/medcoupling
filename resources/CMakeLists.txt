@@ -205,6 +205,7 @@ SET(MED_RESOURCES_FILES
   test_2D.sauve
   allPillesTest.sauv
   BDC-714.sauv
+  portico_3subs.sauv
   )
 
 IF(MED_ENABLE_GUI)

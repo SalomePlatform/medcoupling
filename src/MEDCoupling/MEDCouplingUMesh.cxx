@@ -520,11 +520,14 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
   
   //
   da=m->zipConnectivityTraducer(cellCompPol);
-  int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
-  pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
+  int nbCells=getNumberOfCells();
+  int maxId=-1;
+  if(nbCells!=0)
+    maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+nbCells);
+  pt=std::find_if(da->getConstPointer()+nbCells,da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(getNumberOfCells(),da->getNbOfElems(),1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(nbCells,da->getNbOfElems(),1);
   nodeCor=nodeCor2->isIdentity()?0:nodeCor2.retn();
   cellCor=cellCor2->isIdentity()?0:cellCor2.retn();
 }
@@ -576,8 +579,8 @@ void MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
  * Checks if \a this and \a other meshes are geometrically equivalent with high
  * probability, else an exception is thrown. The meshes are considered equivalent if
  * (1) meshes contain the same number of nodes and the same number of elements of the
- * same types (2) three cells of the two meshes are based on coincident nodes (with a
- * specified precision).
+ * same types (2) three cells of the two meshes (first, last and middle) are based
+ * on coincident nodes (with a specified precision).
  *  \param [in] other - the mesh to compare with.
  *  \param [in] prec - the precision used to compare nodes of the two meshes.
  *  \throw If the two meshes do not match.
@@ -2542,7 +2545,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::computeSkin() const throw(INTERP_KERNEL::Exc
  * Finds nodes lying on the boundary of \a this mesh.
  *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
  *          nodes. The caller is to delete this array using decrRef() as it is no
- *          more needed 
+ *          more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is node defined.
  *

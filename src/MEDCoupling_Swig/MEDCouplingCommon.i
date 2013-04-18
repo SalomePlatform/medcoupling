@@ -82,7 +82,7 @@ using namespace INTERP_KERNEL;
   $result=convertDataArrayChar($1,$owner);
 }
 
-#ifdef WITH_NUMPY2
+#ifdef WITH_NUMPY
 %init %{ import_array(); %}
 #endif
 
@@ -484,6 +484,18 @@ namespace ParaMEDMEM
     void incrRef() const;
     virtual std::size_t getHeapMemorySize() const;
   };
+}
+
+%inline
+{
+  bool MEDCouplingHasNumpyBindings()
+  {
+#ifdef WITH_NUMPY
+    return true;
+#else
+    return false;
+#endif
+  }
 }
 
 %include "MEDCouplingMemArray.i"

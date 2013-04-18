@@ -23,8 +23,453 @@ import unittest
 from math import pi, sqrt
 
 class MEDCouplingBasicsTest(unittest.TestCase):
-    def testExample_MEDCouplingUMesh_(self):
-        #! [PySnippet_MEDCouplingUMesh__1]
+
+    def testExample_MEDCouplingFieldDouble_WriteVTK(self):
+        #! [PySnippet_MEDCouplingFieldDouble_WriteVTK_1]
+        # mesh
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr) # mesh becomes a 2D one
+
+        # 3 fields (lying on the same mesh!)
+        field1 = mesh.getMeasureField( True )
+        field2 = mesh.buildOrthogonalField()
+        field3 = mesh.fillFromAnalytic( ON_CELLS, 2, "IVec * x + JVec * y" )
+        field2.setName( "Normal" ) # name is necessary!
+        field3.setName( "Barycenter" ) # name is necessary!
+
+        # WriteVTK
+        fileName = "testExample_MEDCouplingFieldDouble_WriteVTK.vtk"
+        fs = [ field1, field2, field3 ] # field series
+        MEDCouplingFieldDouble.WriteVTK( fileName, fs )
+        #! [PySnippet_MEDCouplingFieldDouble_WriteVTK_1]
+        import os
+        os.remove( fileName )   
+
+        return
+
+    def testExample_MEDCouplingFieldDouble_MaxFields(self):
+        #! [PySnippet_MEDCouplingFieldDouble_MaxFields_1]
+        vals1   = [0.,2., 4.,6.] # for field 1
+        vals2   = [2.,0., 6.,4.] # for field 2
+        valsMax = [2.,2., 6.,6.] # expected max field
+        valsMin = [0.,0., 4.,4.] # expected min field
+
+        # field 1
+        valsArr1=DataArrayDouble.New(vals1,2,2) # 2 tuples per 2 components
+        field1 = MEDCouplingFieldDouble.New( ON_NODES )
+        field1.setArray( valsArr1 )
+
+        # field 2
+        valsArr2=DataArrayDouble.New(vals2,2,2) # 2 tuples per 2 components
+        field2 = MEDCouplingFieldDouble.New( ON_NODES )
+        field2.setArray( valsArr2 )
+
+        # max field 
+        fieldMax = MEDCouplingFieldDouble.MaxFields( field1, field2 )
+        self.assertTrue( fieldMax.getArray().getValues() == valsMax )
+
+        # min field 
+        fieldMin = MEDCouplingFieldDouble.MinFields( field1, field2 )
+        self.assertTrue( fieldMin.getArray().getValues() == valsMin )
+        #! [PySnippet_MEDCouplingFieldDouble_MaxFields_1]
+
+    def testExample_MEDCouplingFieldDouble_MergeFields(self):
+        #! [PySnippet_MEDCouplingFieldDouble_MergeFields_1]
+        # mesh 1
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh1=MEDCouplingCMesh.New()
+        mesh1.setCoords(coordsArr)
+        # field 1
+        field1 = mesh1.fillFromAnalytic( ON_CELLS, 1, "x")
+
+        # mesh 2 and field 2
+        field2 = field1.cloneWithMesh( True )
+        vec = [5.]
+        field2.getMesh().translate(vec) # translate mesh2
+        field2.applyFunc("x + 5") # "translate" field2
+
+        # concatenate field1 and field2
+        field3 = MEDCouplingFieldDouble.MergeFields( field1, field2 )
+        field4 = MEDCouplingFieldDouble.MergeFields( [ field1, field2] )
+        #! [PySnippet_MEDCouplingFieldDouble_MergeFields_1]
+        return
+
+    def testExample_MEDCouplingFieldDouble_substractInPlaceDM(self):
+        #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_1]
+        coords1=[0.,1.,2.,3.]
+        coords2=[2.,1.,0.,3.] #0 <==> #2
+        # mesh 1
+        mesh1=MEDCouplingUMesh.New();
+        coordsArr=DataArrayDouble.New(coords1, 4, 1);
+        mesh1.setCoords(coordsArr);
+        mesh1.setMeshDimension(0);
+        mesh1.allocateCells(0);
+        mesh1.finishInsertingCells();
+        # mesh 2
+        mesh2=mesh1.deepCpy();
+        mesh2.getCoords().setValues(coords2, 4, 1);
+        #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_1]
+        #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_2]
+        field1 = mesh1.fillFromAnalytic(ON_NODES,1,"x") # field1 values == coords1
+        field2 = mesh2.fillFromAnalytic(ON_NODES,1,"x") # field2 values == coords2
+        levOfCheck = 10 # nodes can be permuted
+        field1.substractInPlaceDM( field2, levOfCheck, 1e-13, 0 ) # values #0 and #2 must swap
+        #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_2]
+        #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_3]
+        field2.applyFunc( 1, 0.0 ) # all field2 values == 0.0
+        self.assertTrue( field1.isEqual( field2, 1e-13, 1e-13 )) # field1 == field2 == 0.0
+        #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_3]
+        return
+
+    def testExample_MEDCouplingFieldDouble_changeUnderlyingMesh(self):
+        #! [PySnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_1]
+        coords1=[0.,1.,2.,3.]
+        coords2=[2.,1.,0.,3.] #0 <==> #2
+        # mesh 1
+        mesh1=MEDCouplingUMesh.New();
+        coordsArr=DataArrayDouble.New(coords1, 4, 1);
+        mesh1.setCoords(coordsArr);
+        mesh1.setMeshDimension(0);
+        mesh1.allocateCells(0);
+        mesh1.finishInsertingCells();
+        # mesh 2
+        mesh2=mesh1.deepCpy();
+        mesh2.getCoords().setValues(coords2, 4, 1);
+        #! [PySnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_1]
+        #! [PySnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_2]
+        field = mesh1.fillFromAnalytic(ON_NODES,1,"x") # field values == coords1
+        levOfCheck = 10 # nodes can be permuted
+        field.changeUnderlyingMesh( mesh2, levOfCheck, 1e-13, 0 ) # values #0 and #2 must swap
+        self.assertTrue( field.getArray().getValues() == coords2 )
+        #! [PySnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_applyFunc_same_nb_comp(self):
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_1]
+        v = [1.,2., 3.,4.]
+        array = DataArrayDouble.New( v, 2, 2 ) # 2 tuples per 2 components
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setArray( array )
+        func = "IVec * v + JVec * v*v + 10"
+        field.applyFunc( func )
+        self.assertTrue( field.getNumberOfComponents() == 2 ) # 2 components remains
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_1]
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_2]
+        v2 = field.getArray().getValues()
+        self.assertAlmostEqual( v2[0], 10 + v[0], 13 )      # "10 + IVec * v"
+        self.assertAlmostEqual( v2[1], 10 + v[1]*v[1], 13 ) # "10 + JVec * v*v"
+        self.assertAlmostEqual( v2[2], 10 + v[2], 13 )      # "10 + IVec * v"
+        self.assertAlmostEqual( v2[3], 10 + v[3]*v[3], 13 ) # "10 + JVec * v*v"
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_applyFunc3(self):
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_1]
+        # create a 2D vector field
+        values = [1.,1., 2.,1.]
+        array = DataArrayDouble.New( values, 2, 2 ) # 2 tuples per 2 components
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setArray( array )
+        # transform the field to a 3D vector field
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        varNames=["a","b"] # names used to refer to X and Y components
+        field.applyFunc3( 3, varNames, func ) # require 3 components 
+        self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_1]
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_2]
+        vec1 = field.getArray().getTuple(1) # vector #1
+        a,b = values[2], values[3] # initial components of the vector #1
+        self.assertAlmostEqual( vec1[0], 10 + b, 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vec1[1], 10 + a, 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vec1[2], 10 + sqrt(a*a+b*b), 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_applyFunc2(self):
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_1]
+        # create a 2D vector field
+        values = [1.,1., 2.,1.]
+        array = DataArrayDouble.New( values, 2, 2 ) # 2 tuples per 2 components
+        array.setInfoOnComponent(0,"a") # name used to refer to X component within a function
+        array.setInfoOnComponent(1,"b") # name used to refer to Y component within a function
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setArray( array )
+        # transform the field to a 3D vector field
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        field.applyFunc2( 3, func ) # require 3 components 
+        self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_1]
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_2]
+        vec1 = field.getArray().getTuple(1) # vector #1
+        a,b = values[2], values[3] # initial components of the vector #1
+        self.assertAlmostEqual( vec1[0], 10 + b, 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vec1[1], 10 + a, 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vec1[2], 10 + sqrt(a*a+b*b), 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_applyFunc(self):
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_1]
+        # create a 2D vector field
+        values = [1.,1., 2.,1.]
+        array = DataArrayDouble.New( values, 2, 2 ) # 2 tuples per 2 components
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setArray( array )
+        # transform the field to a 3D vector field
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        field.applyFunc( 3, func ) # require 3 components 
+        self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_1]
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_2]
+        vec1 = field.getArray().getTuple(1) # vector #1
+        a,b = values[2], values[3] # initial components of the vector #1
+        self.assertAlmostEqual( vec1[0], 10 + b, 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vec1[1], 10 + a, 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vec1[2], 10 + sqrt(a*a+b*b), 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_applyFunc_val(self):
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_val_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setMesh( mesh )
+        field.fillFromAnalytic(2,"IVec * x + JVec * y") # 2 components
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_val_1]
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_val_2]
+        newValue = 7.
+        field.applyFunc( 3, newValue ) # 3 components are required
+        self.assertTrue( field.getIJ(1,0) == newValue ) # a value is as expected
+        self.assertTrue( field.getNumberOfComponents() == 3 )
+        self.assertTrue( field.getNumberOfTuples() == mesh.getNumberOfCells() )
+        #! [PySnippet_MEDCouplingFieldDouble_applyFunc_val_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_fillFromAnalytic3(self):
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_1]
+        coords = [0.,2.,4.,6.] #  6. is not used
+        x=DataArrayDouble.New(coords[:3],3,1)
+        y=DataArrayDouble.New(coords[:2],2,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(x,y)
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_1]
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_2]
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setMesh( mesh )
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        varNames=["a","b"] # names used to refer to X and Y coord components
+        field.fillFromAnalytic3(3,varNames,func)
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_2]
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_3]
+        vals1 = field.getArray().getTuple(1) # values of the cell #1
+        assert len( vals1 ) == 3 # 3 components in the field
+        #
+        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc1 = bc.getTuple(1) # coordinates of the second point
+        #
+        dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
+        self.assertAlmostEqual( vals1[0], 10 + bc1[1], 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vals1[1], 10 + bc1[0], 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vals1[2], 10 + dist  , 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_3]
+        return
+
+    def testExample_MEDCouplingFieldDouble_fillFromAnalytic2(self):
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_1]
+        coords = [0.,2.,4.]
+        x=DataArrayDouble.New(coords[:3],3,1)
+        y=DataArrayDouble.New(coords[:2],2,1)
+        x.setInfoOnComponent(0,"a") # name used to refer to X coordinate within a function
+        y.setInfoOnComponent(0,"b") # name used to refer to Y coordinate within a function
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(x,y)
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_1]
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_2]
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setMesh( mesh )
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        field.fillFromAnalytic2(3,func)
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_2]
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_3]
+        vals1 = field.getArray().getTuple(1) # values of the cell #1
+        assert len( vals1 ) == 3 # 3 components in the field
+        #
+        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc1 = bc.getTuple(1) # coordinates of the second point
+        #
+        dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
+        self.assertAlmostEqual( vals1[0], 10 + bc1[1], 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vals1[1], 10 + bc1[0], 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vals1[2], 10 + dist  , 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_3]
+        return
+
+    def testExample_MEDCouplingFieldDouble_fillFromAnalytic(self):
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic_1]
+        coords = [0.,2.,4.]
+        x=DataArrayDouble.New(coords[:3],3,1)
+        y=DataArrayDouble.New(coords[:2],2,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(x,y)
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic_1]
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic_2]
+        field = MEDCouplingFieldDouble.New( ON_CELLS )
+        field.setMesh( mesh )
+        func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
+        field.fillFromAnalytic(3,func)
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic_2]
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic_3]
+        vals1 = field.getArray().getTuple(1) # values of the cell #1
+        assert len( vals1 ) == 3 # 3 components in the field
+        #
+        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc1 = bc.getTuple(1) # coordinates of the second point
+        #
+        dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
+        self.assertAlmostEqual( vals1[0], 10 + bc1[1], 13 ) # "10 + IVec * b"
+        self.assertAlmostEqual( vals1[1], 10 + bc1[0], 13 ) # "10 + JVec * a"
+        self.assertAlmostEqual( vals1[2], 10 + dist  , 13 ) # "10 + KVec * sqrt( a*a + b*b )"
+        #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic_3]
+        return
+
+    def testExample_MEDCouplingFieldDouble_getValueOn_time(self):
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_time_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_time_1]
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_time_2]
+        field = MEDCouplingFieldDouble.New( ON_CELLS, LINEAR_TIME )
+        field.setMesh( mesh )
+        field.fillFromAnalytic(1,"10") # all values == 10.
+        field.setEndArray( field.getArray() + field.getArray() ) # all values == 20.
+        time1, time2 = 1.1, 22.
+        field.setStartTime( time1, 0, 0 )
+        field.setEndTime  ( time2, 0, 0 )
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_time_2]
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_time_3]
+        pos = [ 1., 1. ] # we are in 2D space
+        value = field.getValueOn( pos, 0.5*( time1 + time2 ))
+        self.assertTrue( value[0] == 0.5*( 10. + 20.))
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_time_3]
+        return
+
+    def testExample_MEDCouplingFieldDouble_getValueOnMulti(self):
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        field = mesh.fillFromAnalytic(ON_CELLS,1,"x+y")
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_1]
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
+        bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
+        valArray = field.getValueOnMulti( bc.getValues() )
+        self.assertTrue( valArray.isEqual( field.getArray(), 1e-13 ))
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_getValueOn(self):
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        field = mesh.fillFromAnalytic(ON_CELLS,1,"x+y")
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_1]
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_2]
+        bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
+        vals = [] # array to collect values returned by getValueOn()
+        for i in range( bc.getNumberOfTuples() ):
+            vals.extend( field.getValueOn( bc.getTuple( i )))
+        self.assertTrue( vals == field.getArray().getValues() )
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOn_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_getValueOnPos(self):
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        field = mesh.fillFromAnalytic(ON_CELLS,1,"x+y")
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_1]
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_2]
+        val11 = field.getValueOnPos( 1,1,-1)
+        bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
+        self.assertTrue( val11[0] == bc[3,0] + bc[3,1] )
+        #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_2]
+        return
+
+    def testExample_MEDCouplingFieldDouble_renumberNodes(self):
+        #! [PySnippet_MEDCouplingFieldDouble_renumberNodes_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        mesh=mesh.buildUnstructured()
+        #! [PySnippet_MEDCouplingFieldDouble_renumberNodes_1]
+        #! [PySnippet_MEDCouplingFieldDouble_renumberNodes_2]
+        field = mesh.fillFromAnalytic(ON_NODES,2,"IVec*x+JVec*y")
+        values = field.getArray()
+        nodeCoords = mesh.getCoords()
+        self.assertTrue( values.isEqualWithoutConsideringStr( nodeCoords, 1e-13 ))
+        #! [PySnippet_MEDCouplingFieldDouble_renumberNodes_2]
+        #! [PySnippet_MEDCouplingFieldDouble_renumberNodes_3]
+        renumber = [8, 7, 6, 5, 4, 3, 2, 1, 0]
+        field.renumberNodes(renumber,False)
+        mesh2 = field.getMesh() # field now refers to another mesh
+        values = field.getArray()
+        nodeCoords = mesh2.getCoords()
+        self.assertTrue( values.isEqualWithoutConsideringStr( nodeCoords, 1e-13 ))
+        #! [PySnippet_MEDCouplingFieldDouble_renumberNodes_3]
+        return
+
+
+    def testExample_MEDCouplingFieldDouble_renumberCells(self):
+        #! [PySnippet_MEDCouplingFieldDouble_renumberCells_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        mesh=mesh.buildUnstructured()
+        #! [PySnippet_MEDCouplingFieldDouble_renumberCells_1]
+        #! [PySnippet_MEDCouplingFieldDouble_renumberCells_2]
+        field = mesh.fillFromAnalytic(ON_CELLS,2,"IVec*x+JVec*y")
+        values = field.getArray()
+        bc = mesh.getBarycenterAndOwner()
+        self.assertTrue( values.isEqualWithoutConsideringStr( bc, 1e-13 ))
+        #! [PySnippet_MEDCouplingFieldDouble_renumberCells_2]
+        #! [PySnippet_MEDCouplingFieldDouble_renumberCells_3]
+        renumber = [ 3, 2, 1, 0 ]
+        field.renumberCells(renumber,False)
+        mesh2 = field.getMesh() # field now refers to another mesh
+        values = field.getArray()
+        bc = mesh2.getBarycenterAndOwner()
+        self.assertTrue( values.isEqualWithoutConsideringStr( bc, 1e-13 ))
+        #! [PySnippet_MEDCouplingFieldDouble_renumberCells_3]
+        return
+
+    def testExample_MEDCouplingFieldDouble_buildNewTimeReprFromThis(self):
+        #! [PySnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_1]
+        coords = [0.,2.,4.]
+        coordsArr=DataArrayDouble.New(coords,3,1)
+        mesh=MEDCouplingCMesh.New()
+        mesh.setCoords(coordsArr,coordsArr)
+        field1 = mesh.fillFromAnalytic(ON_NODES,1,"x+y")
+        self.assertTrue( field1.getTimeDiscretization() == ONE_TIME )
+        #! [PySnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_1]
+        #! [PySnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_2]
+        field2 = field1.buildNewTimeReprFromThis(NO_TIME,False)
+        self.assertTrue( field2.getTimeDiscretization() == NO_TIME )
+        #! [PySnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_2]
         return
 
     def testExample_MEDCouplingMesh_fillFromAnalytic3(self):

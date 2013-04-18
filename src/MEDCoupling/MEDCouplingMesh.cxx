@@ -353,7 +353,8 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * components, lying on \a this mesh, with contents got by applying a specified
  * function to coordinates of field location points (defined by the given field type).
  * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
- * barycenters. This method differs from \ref mcmesh_fillFromAnalytic "fillFromAnalytic()
+ * barycenters. This method differs from
+ * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a variable name corresponding to a component is retrieved from

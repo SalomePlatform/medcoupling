@@ -54,7 +54,9 @@ namespace ParaMEDMEM
   class MemArray
   {
   public:
-    MemArray():_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(CPP_DEALLOC) { }
+    typedef void (*Deallocator)(void *,void *);
+  public:
+    MemArray():_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(0),_param_for_deallocator(0) { }
     MemArray(const MemArray<T>& other);
     bool isNull() const { return _pointer.isNull(); }
     const T *getConstPointerLoc(std::size_t offset) const { return _pointer.getConstPointerLoc(offset); }
@@ -85,16 +87,25 @@ namespace ParaMEDMEM
     void pushBack(T elem) throw(INTERP_KERNEL::Exception);
     T popBack() throw(INTERP_KERNEL::Exception);
     void pack() const;
-    ~MemArray() { destroy(); }
-  private:
+    bool isDeallocatorCalled() const { return _ownership; }
+    Deallocator getDeallocator() const { return _dealloc; }
+    void setSpecificDeallocator(Deallocator dealloc) { _dealloc=dealloc; }
+    void setParameterForDeallocator(void *param) { _param_for_deallocator=param; }
     void destroy();
-    static void destroyPointer(T *pt, DeallocType type);
+    ~MemArray() { destroy(); }
+  public:
+    static void CPPDeallocator(void *pt, void *param);
+    static void CDeallocator(void *pt, void *param);
+  private:
+    static void destroyPointer(T *pt, Deallocator dealloc, void *param);
+    static Deallocator BuildFromType(DeallocType type) throw(INTERP_KERNEL::Exception);
   private:
     std::size_t _nb_of_elem;
     std::size_t _nb_of_elem_alloc;
     bool _ownership;
     MEDCouplingPointer<T> _pointer;
-    DeallocType _dealloc;
+    Deallocator _dealloc;
+    void *_param_for_deallocator;
   };
 
   class DataArray : public RefCountObject, public TimeLabel
@@ -321,6 +332,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayDouble *Pow(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void powEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void updateTime() const { }
+    MEDCOUPLING_EXPORT MemArray<double>& accessToMemArray() { return _mem; }
+    MEDCOUPLING_EXPORT const MemArray<double>& accessToMemArray() const { return _mem; }
   public:
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -548,6 +561,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void powEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void updateTime() const { }
+    MEDCOUPLING_EXPORT MemArray<int>& accessToMemArray() { return _mem; }
+    MEDCOUPLING_EXPORT const MemArray<int>& accessToMemArray() const { return _mem; }
   public:
     MEDCOUPLING_EXPORT static int *CheckAndPreparePermutation(const int *start, const int *end);
     MEDCOUPLING_EXPORT static DataArrayInt *Range(int begin, int end, int step) throw(INTERP_KERNEL::Exception);
@@ -678,6 +693,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void useArray(const char *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const char *array, int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void updateTime() const { }
+    MEDCOUPLING_EXPORT MemArray<char>& accessToMemArray() { return _mem; }
+    MEDCOUPLING_EXPORT const MemArray<char>& accessToMemArray() const { return _mem; }
   public:
     //MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     //MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;

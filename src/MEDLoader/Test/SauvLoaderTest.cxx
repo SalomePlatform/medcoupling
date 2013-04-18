@@ -58,24 +58,23 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
   const int nbOfNodes = 6;
   double coords[nbOfNodes*spaceDim] = {0,0, 1,0, 1,1, 0,1, 2,0, 2,1};
   int conn[8]={0,1,2,3, 1,4,5,2};
-  MEDCouplingUMesh *mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
   mesh2d->allocateCells(2);
   mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
   mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
   mesh2d->finishInsertingCells();
-  DataArrayDouble *myCoords=DataArrayDouble::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> myCoords=DataArrayDouble::New();
   myCoords->alloc(nbOfNodes,spaceDim);
   std::copy(coords,coords+nbOfNodes*spaceDim,myCoords->getPointer());
   mesh2d->setCoords(myCoords);
-  myCoords->decrRef();
 
   // create a MedFileUMesh
-  MEDFileUMesh* m= MEDFileUMesh::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m= MEDFileUMesh::New();
   m->setMeshAtLevel(0,mesh2d);
 
   // Create families and groups
 
-  DataArrayInt *fam = DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam = DataArrayInt::New();
   fam->alloc(2,1);
   int elemsFams[2] = {-2,-3};
   std::copy(elemsFams,elemsFams+2,fam->getPointer());
@@ -102,9 +101,9 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
 
   // write to SAUV
   const char* sauvFile = "mesh_with_void_family.sauv";
-  MEDFileData* medData = MEDFileData::New();
-  MEDFileMeshes* medMeshes = MEDFileMeshes::New();
-  SauvWriter* sw=SauvWriter::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> medData = MEDFileData::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> medMeshes = MEDFileMeshes::New();
+  MEDCouplingAutoRefCountObjectPtr<SauvWriter> sw=SauvWriter::New();
   medMeshes->setMeshAtPos(0, m);
   medData->setMeshes(medMeshes);
   sw->setMEDFileDS(medData);
@@ -113,27 +112,58 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
   // read SAUV and check groups
   MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile);
   MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
-  MEDFileUMesh * m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
-  std::vector<std::string > groups = m->getGroupsNames();
-  std::cout << "Number of groups: " << groups.size() << std::endl;
-  CPPUNIT_ASSERT_EQUAL(3,(int)groups.size());
-  MEDCouplingUMesh * grp1 = m2->getGroup(0, "Group1");
+  MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grp1 = m2->getGroup(0, "Group1");
   CPPUNIT_ASSERT_EQUAL(1,(int)grp1->getNumberOfCells());
-  MEDCouplingUMesh * grp2 = m2->getGroup(0, "Group2");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grp2 = m2->getGroup(0, "Group2");
   CPPUNIT_ASSERT_EQUAL(1,(int)grp2->getNumberOfCells());
-  MEDCouplingUMesh * grptot = m2->getGroup(0, "Grouptot");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grptot = m2->getGroup(0, "Grouptot");
   CPPUNIT_ASSERT_EQUAL(2,(int)grptot->getNumberOfCells());
+}
 
-  // clean
-  mesh2d->decrRef();
-  medData->decrRef();
-  medMeshes->decrRef();
-  fam->decrRef();
-  m->decrRef();
-  sw->decrRef();
-  grp1->decrRef();
-  grp2->decrRef();
-  grptot->decrRef();
+void SauvLoaderTest::testSauv2MedOnA3SubsField()
+{
+  // read SAUV
+  std::string sauvFile = getResourceFile("portico_3subs.sauv");
+  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile.c_str());
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  // check mesh
+  MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>(d2->getMeshes()->getMeshAtPos(0));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1d = m2->getMeshAtLevel(0);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> length1dField = mesh1d->getMeasureField(0);
+  std::cout << "Length of 1d elements: " << length1dField->accumulate(0) << std::endl;
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3, length1dField->accumulate(0), 1e-12);
+  // check field
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> field =
+    d2->getFields()->getFieldWithName("CHAM1D");
+  std::cout << "Number of components in field: " << field->getInfo().size() << std::endl;
+  CPPUNIT_ASSERT_EQUAL(6,(int)field->getInfo().size());
+  std::vector< std::pair<int,int> > timesteps = field->getIterations();
+
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1d =
+    field->getFieldOnMeshAtLevel(ON_GAUSS_NE, timesteps[0].first, timesteps[0].second, 0, m2);
+
+  // Check first component of the field
+  // 2 gauss points per element => 12 values
+  double values[12] = {
+      -7.687500000000e-03,
+      -7.687500000000e-03,
+      -4.562500000000e-03,
+      -4.562500000000e-03,
+      -8.208333333333e-03,
+      -8.208333333333e-03,
+      -6.125000000000e-03,
+      -6.125000000000e-03,
+      -4.041666666666e-03,
+      -4.041666666666e-03,
+      -6.111413346910e-07,
+      -6.111413346910e-07};
+
+  for (int i=0; i < field1d->getNumberOfTuples(); i++)
+  {
+    bool ok = abs(values[i]-field1d->getIJ(i, 0)) < 1e-12;
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( values[i], field1d->getIJ(i, 0), 1e-12 );
+  }
 }
 
 void SauvLoaderTest::testMed2Sauv()

@@ -1934,7 +1934,6 @@ DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, int limitTuple
 
 /*!
  * Copy all components in a specified order from another DataArrayDouble.
- * The specified components become the first ones in \a this array.
  * Both numerical and textual data is copied. The number of tuples in \a this and
  * the other array can be different.
  *  \param [in] a - the array to copy data from.
@@ -4655,7 +4654,7 @@ void DataArrayDouble::substractEqual(const DataArrayDouble *other) throw(INTERP_
  * valid cases.
  * 1.  The arrays have same number of tuples and components. Then each value of
  *   the result array (_a_) is a product of the corresponding values of \a a1 and
- *   \a a2, i.e.: _a_ [ i, j ] = _a1_ [ i, j ] * _a2_ [ i, j ].
+ *   \a a2, i.e. _a_ [ i, j ] = _a1_ [ i, j ] * _a2_ [ i, j ].
  * 2.  The arrays have same number of tuples and one array, say _a2_, has one
  *   component. Then
  *   _a_ [ i, j ] = _a1_ [ i, j ] * _a2_ [ i, 0 ].
@@ -4749,12 +4748,12 @@ DataArrayDouble *DataArrayDouble::Multiply(const DataArrayDouble *a1, const Data
  * Multiply values of another DataArrayDouble to values of \a this one. There are 3
  * valid cases.
  * 1.  The arrays have same number of tuples and components. Then each value of
- *   \a other array is multiplied to the corresponding value of \a this array, i.e.:
- *   _a_ [ i, j ] *= _other_ [ i, j ].
+ *   \a other array is multiplied to the corresponding value of \a this array, i.e.
+ *   _this_ [ i, j ] *= _other_ [ i, j ].
  * 2.  The arrays have same number of tuples and \a other array has one component. Then
- *   _a_ [ i, j ] *= _other_ [ i, 0 ].
+ *   _this_ [ i, j ] *= _other_ [ i, 0 ].
  * 3.  The arrays have same number of components and \a other array has one tuple. Then
- *   _a_ [ i, j ] *= _a2_ [ 0, j ].
+ *   _this_ [ i, j ] *= _a2_ [ 0, j ].
  *
  *  \param [in] other - an array to multiply to \a this one.
  *  \throw If \a other is NULL.
