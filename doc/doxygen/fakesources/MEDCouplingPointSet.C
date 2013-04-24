@@ -37,10 +37,16 @@ namespace ParaMEDMEM
    */
   void MEDCouplingPointSet::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) {}
 
-  //! This method returns directly the array in \a this \b without incrementing ref counter. The pointer is dealed by the mesh. The caller should not deal (decrRef) with this pointer
+  /*!
+   * Returns a const pointer to the node coordinates array of \a this mesh \b without
+   * incrementing its reference counter, thus there is no need to decrRef() it by the caller.
+   */
   const DataArrayDouble *MEDCouplingPointSet::getCoords() const { return _coords; }
 
-  //! This method returns directly the array in \a this \b without incrementing ref counter. The pointer is dealed by the mesh. The caller should not deal (decrRef) with this pointer
+  /*!
+   * Returns a pointer to the node coordinates array of \a this mesh \b without
+   * incrementing its reference counter, thus there is no need to decrRef() it by the caller.
+   */
   DataArrayDouble *MEDCouplingPointSet::getCoords() { return _coords; }
 
 

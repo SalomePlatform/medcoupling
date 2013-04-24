@@ -1200,7 +1200,7 @@ As result contents of the array \b da2 are as follows.
 </pre>
 
 
-\anchor cpp_mcdataarraydouble_setselectedcomponents
+\anchor py_mcdataarraydouble_setselectedcomponents
 <br><h2> Set part of values of DataArrayDouble </h2>
 <h3> setSelectedComponents() </h3>
 First, we create a 'source' array.
@@ -1219,7 +1219,7 @@ The same result can be achieved other way (except that component info
 is not copied):
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setSelectedComponents3
 
-\anchor cpp_mcdataarraydouble_setpartofvalues1
+\anchor py_mcdataarraydouble_setpartofvalues1
 <br><h3> setPartOfValues1() </h3>
 We create two arrays: 
 - a "large" (4x4) zero array \b da to assign to and
@@ -1271,7 +1271,7 @@ The same result can be achieved other way:
 
 
 
-\anchor cpp_mcdataarraydouble_setpartofvaluessimple1
+\anchor py_mcdataarraydouble_setpartofvaluessimple1
 <br><h3> setPartOfValuesSimple1() </h3>
 We create an array (4x4) \b da to assign to and define a value \b dv to assign.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_1
@@ -1313,7 +1313,7 @@ The same result can be achieved other way:
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple1_6
 
 
-\anchor cpp_mcdataarraydouble_setpartofvaluessimple2
+\anchor py_mcdataarraydouble_setpartofvaluessimple2
 <br><h3> setPartOfValuesSimple2() </h3>
 We create an array (4x4) \b da to assign to and define a value \b dv to assign.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple2_1
@@ -1356,7 +1356,7 @@ Below more two variants of location of target values are shown.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarraydouble_setpartofvaluessimple3
+\anchor py_mcdataarraydouble_setpartofvaluessimple3
 <br><h3> setPartOfValuesSimple3() </h3>
 We create an array (4x4) \b da to assign to and define a value \b dv to assign.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValuesSimple3_1
@@ -1400,7 +1400,7 @@ Below more two variants of location of target values are shown.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarraydouble_setpartofvalues2
+\anchor py_mcdataarraydouble_setpartofvalues2
 <br><h3> setPartOfValues2() </h3>
 We create two arrays: 
 - a "large" (4x7) zero array \b da to assign to,
@@ -1436,7 +1436,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarraydouble_setpartofvalues3
+\anchor py_mcdataarraydouble_setpartofvalues3
 <br><h3> setPartOfValues3() </h3>
 We create two arrays: 
 - a "large" (4x7) zero array \b da to assign to,
@@ -1473,7 +1473,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarrayint_setselectedcomponents
+\anchor py_mcdataarrayint_setselectedcomponents
 <br><h2> Set part of values of DataArrayInt </h2>
 <h3> setSelectedComponents() </h3>
 First, we create a 'source' array.
@@ -1492,10 +1492,10 @@ The same result can be achieved other way (except that component info
 is not copied):
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setSelectedComponents3
 
-\anchor cpp_mcdataarrayint_setpartofvalues1
+\anchor py_mcdataarrayint_setpartofvalues1
 <br><h3> setPartOfValues1() </h3>
 We create two arrays: 
-- a "large" (4x4) zero array \b da to assign to and
+- a "large" (4x4) zero array \b da to assign to, and
 - a smaller (2x2) array \b dv filled with values [7,8,9,10].
 
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_1
@@ -1544,7 +1544,7 @@ The same result can be achieved other way:
 
 
 
-\anchor cpp_mcdataarrayint_setpartofvaluessimple1
+\anchor py_mcdataarrayint_setpartofvaluessimple1
 <br><h3> setPartOfValuesSimple1() </h3>
 We create an array (4x4) \b da to assign to and define a value \b dv to assign.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_1
@@ -1586,7 +1586,7 @@ The same result can be achieved other way:
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple1_6
 
 
-\anchor cpp_mcdataarrayint_setpartofvaluessimple2
+\anchor py_mcdataarrayint_setpartofvaluessimple2
 <br><h3> setPartOfValuesSimple2() </h3>
 We create an array (4x4) \b da to assign to and define a value \b dv to assign.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple2_1
@@ -1629,7 +1629,7 @@ Below more two variants of location of target values are shown.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarrayint_setpartofvaluessimple3
+\anchor py_mcdataarrayint_setpartofvaluessimple3
 <br><h3> setPartOfValuesSimple3() </h3>
 We create an array (4x4) \b da to assign to and define a value \b dv to assign.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValuesSimple3_1
@@ -1673,7 +1673,7 @@ Below more two variants of location of target values are shown.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarrayint_setpartofvalues2
+\anchor py_mcdataarrayint_setpartofvalues2
 <br><h3> setPartOfValues2() </h3>
 We create two arrays: 
 - a "large" (4x7) zero array \b da to assign to,
@@ -1709,7 +1709,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarrayint_setpartofvalues3
+\anchor py_mcdataarrayint_setpartofvalues3
 <br><h3> setPartOfValues3() </h3>
 We create two arrays: 
 - a "large" (4x7) zero array \b da to assign to,
@@ -1746,7 +1746,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
 be explicitly called in Python.
 
 
-\anchor cpp_mcdataarraydouble_getdifferentvalues
+\anchor py_mcdataarraydouble_getdifferentvalues
 <br><h2> Excluding coincident tuples from DataArrayDouble</h2>
 
 The code below creates an array of real values and than an array of
@@ -1793,7 +1793,7 @@ Now the array \b da1 includes 7 tuples (as before) of 3 components
 each. Its components are: "c0da1","c1da1","c0da2".
 
 
-\anchor cpp_mcdataarraydouble_KeepSelectedComponents
+\anchor py_mcdataarraydouble_KeepSelectedComponents
 
 <br><h2>Creation of a sub-part of the DataArrayDouble by selecting components</h2>
 
@@ -1806,7 +1806,7 @@ Now each tuple of \b a2 includes components named "b","c","b","c","a","a". Thus
 the result array \b a2 includes 30 elements (5 tuples per 6 components).
 
 
-\anchor cpp_mcdataarrayint_keepselectedcomponents
+\anchor py_mcdataarrayint_keepselectedcomponents
 
 <br><h2>Creation of a sub-part of the DataArrayInt by selecting components</h2>
 

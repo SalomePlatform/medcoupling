@@ -43,8 +43,9 @@ namespace ParaMEDMEM
     void setName(const char *name) { _name=name; }
     bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     const char *getName() const { return _name.c_str(); }
-    void setUnivName(const char *name) { _univ_name=name; }
     const char *getUnivName() const { return _univ_name.c_str(); }
+    bool getUnivNameWrStatus() const { return _univ_wr_status; }
+    void setUnivNameWrStatus(bool newStatus) { _univ_wr_status=newStatus; }
     void setDescription(const char *name) { _desc_name=name; }
     const char *getDescription() const { return _desc_name.c_str(); }
     void setOrder(int order) { _order=order; }
@@ -135,6 +136,8 @@ namespace ParaMEDMEM
     virtual bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDFileMesh();
+    //! protected because no way in MED file API to specify this name
+    void setUnivName(const char *name) { _univ_name=name; }
     void addFamilyOnAllGroupsHaving(const char *famName, const char *otherFamName) throw(INTERP_KERNEL::Exception);
     virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception) = 0;
     void dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL::Exception);
@@ -153,7 +156,9 @@ namespace ParaMEDMEM
     double _time;
     std::string _dt_unit;
     std::string _name;
-    std::string _univ_name;
+    //! this attribute do not impact the state of instance -> mutable
+    mutable std::string _univ_name;
+    bool _univ_wr_status;
     std::string _desc_name;
   protected:
     std::map<std::string, std::vector<std::string> > _groups;
@@ -222,7 +227,6 @@ namespace ParaMEDMEM
     void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
-    void setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
     void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);

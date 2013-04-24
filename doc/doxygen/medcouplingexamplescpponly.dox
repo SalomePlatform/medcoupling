@@ -1,0 +1,36 @@
+/*!
+\page medcouplingexamplescpponly MEDCoupling C++ examples
+
+\anchor cpp_mcfielddouble_fillFromAnalytic_c_func
+<br><h2> Filling a field using a C function</h2>
+
+We want to create a 3D vector field lying on a 2D mesh using a C function as a value
+generator. For that, first, we define the function that computes 3 values basing on 2
+coordinates of a 2D point.
+\snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_fillFromAnalytic_c_func_0
+Then we create the 2D mesh and the field on it, and finally we use
+\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) "fillFromAnalytic()"
+to fill the field with values each composed of 3 components.
+\snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_fillFromAnalytic_c_func_1
+As a result, number of tuples in the field equals to the number of cells in the mesh,
+and number of components equals to 3 as required.
+
+
+\anchor cpp_mcfielddouble_applyFunc_c_func
+<br><h2> Changing a field by applying a C function</h2>
+
+We want to transform a 2D vector field to a 3D vector field by
+applying a C function to each vector value. For that, first, we define the function
+that computes 3 values basing on 2 components of a 2D vector.
+\snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_fillFromAnalytic_c_func_0
+Then we create the 2D mesh and the vector field on it.
+\snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_applyFunc_c_func_1
+Finally we use
+\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) "applyFunc()"
+to change the field values.
+\snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_applyFunc_c_func_2
+As a result, number of tuples in the field equals to the number of cells in the mesh,
+and number of components becomes equal to 3 as required.
+
+
+*/

@@ -119,6 +119,7 @@ class MEDLoaderTest(unittest.TestCase):
         m2.checkCoherency()
         #
         mm=MEDFileUMesh.New()
+        self.assertTrue(mm.getUnivNameWrStatus())
         mm.setName("MyFirstMEDCouplingMEDmesh")
         mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
         mm.setCoords(c)
@@ -170,6 +171,9 @@ class MEDLoaderTest(unittest.TestCase):
         mmCpy.write(outFileName,2);
         #
         mm=MEDFileMesh.New(outFileName)
+        self.assertTrue(mm.getUnivNameWrStatus())
+        self.assertTrue(isinstance(mm.getUnivName(),str))
+        self.assertTrue(len(mm.getUnivName())!=0)
         mbis=mm.getMeshAtLevel(0)
         m.setName(mm.getName()) ; m.setDescription(mm.getDescription())
         self.assertTrue(m.isEqual(mbis,1e-12));
@@ -325,8 +329,12 @@ class MEDLoaderTest(unittest.TestCase):
         da=m.getFamilyArr(1,"family1")
         expected1=[2,4,9]
         self.assertEqual(expected1,da.getValues())
+        self.assertTrue(m.getUnivNameWrStatus())
         m.write(outFileName,2);
         mm=MEDFileMesh.New(outFileName)
+        self.assertTrue(isinstance(mm,MEDFileCMesh))
+        self.assertTrue(isinstance(mm.getUnivName(),str))
+        self.assertTrue(len(mm.getUnivName())!=0)
         self.assertTrue(m.isEqual(mm,1e-12)[0])
         self.assertEqual(expected1,mm.getFamilyArr(1,"family1").getValues())
         m2=mm.getMesh()
@@ -2021,6 +2029,8 @@ class MEDLoaderTest(unittest.TestCase):
         #
         m1=MEDFileMesh.New(fname)
         self.assertTrue(isinstance(m1,MEDFileCurveLinearMesh))
+        self.assertTrue(isinstance(m1.getUnivName(),str))
+        self.assertTrue(len(m1.getUnivName())!=0)
         self.assertTrue(m1.getMesh().isEqual(mesh,1e-12))
         pass
 

@@ -928,11 +928,11 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoints()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);    // 0
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);  // 1
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);  // 2
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
@@ -1141,11 +1141,11 @@ void CppExample_MEDCouplingUMesh_findBoundaryNodes()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);    // 0
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);  // 1
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);  // 2
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
@@ -1167,11 +1167,11 @@ void CppExample_MEDCouplingUMesh_buildBoundaryMesh()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);    // 0
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);  // 1
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);  // 2
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
@@ -1294,11 +1294,11 @@ void CppExample_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);    // 0
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);  // 1
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);  // 2
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
@@ -1440,11 +1440,11 @@ void CppExample_MEDCouplingUMesh_zipCoordsTraducer()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);    // 0
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);  // 1
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);  // 2
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
@@ -1473,11 +1473,11 @@ void CppExample_MEDCouplingUMesh_getNodeIdsInUse()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);    // 0
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);  // 1
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);  // 2
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);

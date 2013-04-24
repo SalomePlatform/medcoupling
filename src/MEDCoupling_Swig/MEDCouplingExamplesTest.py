@@ -729,11 +729,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2);
         mesh.allocateCells(5);
         conn=[0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4];
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
-        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
-        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]); 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]);
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]);
         mesh.finishInsertingCells();
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         coordsArr=DataArrayDouble.New();
@@ -880,11 +880,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2);
         mesh.allocateCells(5);
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
-        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
-        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]); 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]);
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]);
         mesh.finishInsertingCells();
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         coordsArr=DataArrayDouble.New();
@@ -903,11 +903,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2);
         mesh.allocateCells(5);
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
-        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
-        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]); 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]);
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]);
         mesh.finishInsertingCells();
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         coordsArr=DataArrayDouble.New();
@@ -1012,11 +1012,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2);
         mesh.allocateCells(5);
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
-        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
-        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]); 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]);
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]);
         mesh.finishInsertingCells();
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         coordsArr=DataArrayDouble.New();
@@ -1134,11 +1134,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2);
         mesh.allocateCells(5);
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
-        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
-        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]); 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]);
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]);
         mesh.finishInsertingCells();
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         coordsArr=DataArrayDouble.New();
@@ -1160,11 +1160,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setMeshDimension(2);
         mesh.allocateCells(5);
         conn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);   # 0
-        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);   # 1
-        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]);  # 2
-        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]); # 3
-        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]); # 4
+        mesh.insertNextCell(NORM_QUAD4,4,conn[0:4]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[4:7]);  
+        mesh.insertNextCell(NORM_TRI3,3, conn[7:10]); 
+        mesh.insertNextCell(NORM_QUAD4,4,conn[10:14]);
+        mesh.insertNextCell(NORM_QUAD4,4,conn[14:18]);
         mesh.finishInsertingCells();
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         coordsArr=DataArrayDouble.New();

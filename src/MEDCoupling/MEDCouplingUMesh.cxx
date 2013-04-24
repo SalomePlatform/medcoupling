@@ -440,7 +440,7 @@ bool MEDCouplingUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
 }
 
 /*!
- * \brief Checks if data arrays of this mesh (node coordinates, nodal
+ * Checks if data arrays of this mesh (node coordinates, nodal
  * connectivity of cells, etc) of two meshes are same. Textual data like name etc. are
  * not considered.
  *  \param [in] other - the mesh to compare with.

@@ -42,6 +42,7 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySize() const { return 0; }
     const char *getName() const { return _name.getReprForWrite(); }
     const char *getDescription() const { return _description.getReprForWrite(); }
+    const char *getUnivName() const { return _univ_name.getReprForWrite(); }
     const char *getTimeUnit() const { return _dt_unit.getReprForWrite(); }
     int getIteration() const { return _iteration; }
     int getOrder() const { return _order; }
@@ -54,6 +55,7 @@ namespace ParaMEDMEM
   protected:
     MEDFileString _name;
     MEDFileString _description;
+    MEDFileString _univ_name;
     MEDFileString _dt_unit;
     int _iteration;
     int _order;
