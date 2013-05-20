@@ -806,7 +806,7 @@ void SauvReader::read_PILE_NODES_FIELD (const int                 nbObjects,
         fdouble->_group = getFieldSupport( supports );
       else
         for ( i_sub = 0; i_sub < nb_sub; ++i_sub )
-          fdouble->_sub[ i_sub ]._support->_isProfile;
+          fdouble->_sub[ i_sub ]._support->_isProfile = true;
 
     } // end loop on field objects
 

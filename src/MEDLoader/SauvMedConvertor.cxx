@@ -2108,8 +2108,8 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
         }
       else
         {
-          fld->setValues( valPtr, iSub++ );
-          setTS( fld, values, medFields, mesh, iSub );
+          fld->setValues( valPtr, iSub );
+          setTS( fld, values, medFields, mesh, iSub++ );
         }
     }
 }
@@ -2127,7 +2127,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
                              const int                    iSub)
 {
   // analyze a field support
-  const Group* support = fld->getSupport();
+  const Group* support = fld->getSupport( iSub );
   int dimRel;
   const bool onAll = isOnAll( support, dimRel );
   if ( !onAll && support->_name.empty() )
