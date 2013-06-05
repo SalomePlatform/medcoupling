@@ -1732,7 +1732,7 @@ void DataArrayDouble::meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL
 /*!
  * Searches for tuples coincident within \a prec tolerance. Each tuple is considered
  * as coordinates of a point in getNumberOfComponents()-dimensional space. The
- * distance is computed using norm2.
+ * distance separating two points is computed with the infinite norm.
  *
  * Indices of coincident tuples are stored in output arrays.
  * A pair of arrays (\a comm, \a commIndex) is called "Surjective Format 2".
