@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -91,6 +91,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFindNodeOnPlane );
     CPPUNIT_TEST( testRenumberCells );
     CPPUNIT_TEST( testChangeSpaceDimension );
+    CPPUNIT_TEST( testSetConnectivity );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
@@ -148,6 +149,7 @@ namespace ParaMEDMEM
     void testFindNodeOnPlane();
     void testRenumberCells();
     void testChangeSpaceDimension();
+    void testSetConnectivity();
   };
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -100,6 +100,7 @@ bool MEDPARTITIONER::ParaDomainSelector::isOnDifferentHosts() const
   MPI_Allreduce( &same, &sum_same, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
   return (sum_same != nbProcs());
 #endif
+  return false;
 }
 
 /*!

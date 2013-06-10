@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,9 @@ def ParaMEDMEMDataArrayDoubleImul(self,*args):
 def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayDouble____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleIpow(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDouble____ipow___(self, self, *args)
 def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -44,6 +47,9 @@ def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
 def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
     import _MEDCoupling
     return _MEDCoupling.MEDCouplingFieldDouble____idiv___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldDouble____ipow___(self, self, *args)
 def ParaMEDMEMDataArrayIntIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayInt____iadd___(self, self, *args)
@@ -59,6 +65,9 @@ def ParaMEDMEMDataArrayIntIdiv(self,*args):
 def ParaMEDMEMDataArrayIntImod(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayInt____imod___(self, self, *args)
+def ParaMEDMEMDataArrayIntIpow(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____ipow___(self, self, *args)
 def ParaMEDMEMDataArrayDoubleTupleIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayDoubleTuple____iadd___(self, self, *args)

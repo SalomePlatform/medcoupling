@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,25 @@ namespace INTERP_KERNEL
     operator const T *() const { return _ptr; }
   private:
     void destroyPtr() { delete [] _ptr; }
+  private:
+    T *_ptr;
+  };
+
+  template<class T>
+  class AutoCPtr
+  {
+  public:
+    AutoCPtr(T *ptr=0):_ptr(ptr) {  }
+    ~AutoCPtr() { destroyPtr(); }
+    AutoCPtr &operator=(T *ptr) { destroyPtr(); _ptr=ptr; return *this; }
+    T *operator->() { return _ptr ; }
+    const T *operator->() const { return _ptr; }
+    T& operator*() { return *_ptr; }
+    const T& operator*() const { return *_ptr; }
+    operator T *() { return _ptr; }
+    operator const T *() const { return _ptr; }
+  private:
+    void destroyPtr() { free(_ptr); }
   private:
     T *_ptr;
   };

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@
 #include "MEDCouplingUMeshDesc.hxx"
 #include "CellModel.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <limits>
 #include <sstream>
@@ -56,6 +57,21 @@ MEDCouplingUMeshDesc *MEDCouplingUMeshDesc::New(const char *meshName, int meshDi
   ret->setMeshDimension(meshDim);
   return ret;
 }
+
+std::size_t MEDCouplingUMeshDesc::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if(_desc_connec)
+    ret+=_desc_connec->getHeapMemorySize();
+  if(_desc_connec_index)
+    ret+=_desc_connec_index->getHeapMemorySize();
+  if(_nodal_connec_face)
+    ret+=_nodal_connec_face->getHeapMemorySize();
+  if(_nodal_connec_face_index)
+    ret+=_nodal_connec_face_index->getHeapMemorySize();
+  return MEDCouplingPointSet::getHeapMemorySize()+ret;
+}
+
 
 MEDCouplingMesh *MEDCouplingUMeshDesc::deepCpy() const
 {
@@ -140,6 +156,21 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshDesc::getTypeOfCell(int cellId
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMeshDesc::getAllGeoTypes() const
 {
   return _types;
+}
+
+DataArrayInt *MEDCouplingUMeshDesc::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::giveCellsWithType : not implemented yet !");
+}
+
+DataArrayInt *MEDCouplingUMeshDesc::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeNbOfNodesPerCell : not implemented yet !");
+}
+
+DataArrayInt *MEDCouplingUMeshDesc::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeNbOfFacesPerCell : not implemented yet !");
 }
 
 int MEDCouplingUMeshDesc::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
@@ -266,8 +297,9 @@ void MEDCouplingUMeshDesc::unserialization(const std::vector<double>& tinyInfoD,
   setMeshDimension(tinyInfo[2]);
 }
 
-void MEDCouplingUMeshDesc::getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) const
+DataArrayInt *MEDCouplingUMeshDesc::getCellsInBoundingBox(const double *bbox, double eps) const
 {
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elems=DataArrayInt::New(); elems->alloc(0,1);
   int dim=getSpaceDimension();
   double* elem_bb=new double[2*dim];
   const int* conn      = _desc_connec->getConstPointer();
@@ -303,16 +335,16 @@ void MEDCouplingUMeshDesc::getCellsInBoundingBox(const double *bbox, double eps,
                 }
             }
         }
-      if (intersectsBoundingBox(elem_bb, bbox, dim, eps))
-        {
-          elems.push_back(ielem);
-        }
+      if(intersectsBoundingBox(elem_bb, bbox, dim, eps))
+        elems->pushBackSilent(ielem);
     }
   delete [] elem_bb;
+  return elems.retn();
 }
 
-void MEDCouplingUMeshDesc::getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox &bbox, double eps, std::vector<int>& elems)
+DataArrayInt *MEDCouplingUMeshDesc::getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox &bbox, double eps)
 {
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elems=DataArrayInt::New(); elems->alloc(0,1);
   int dim=getSpaceDimension();
   double* elem_bb=new double[2*dim];
   const int* conn      = _desc_connec->getConstPointer();
@@ -349,11 +381,10 @@ void MEDCouplingUMeshDesc::getCellsInBoundingBox(const INTERP_KERNEL::DirectedBo
             }
         }
       if (intersectsBoundingBox(bbox, elem_bb, dim, eps))
-        {
-          elems.push_back(ielem);
-        }
+        elems->pushBackSilent(ielem);
     }
   delete [] elem_bb;
+  return elems.retn();
 }
 
 DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
@@ -503,3 +534,12 @@ std::string MEDCouplingUMeshDesc::getVTKDataSetType() const throw(INTERP_KERNEL:
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getVTKDataSetType : not implemented yet !");
 }
 
+DataArrayDouble *MEDCouplingUMeshDesc::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeIsoBarycenterOfNodesPerCell : not implemented yet !");
+}
+
+void MEDCouplingUMeshDesc::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCouplingUMeshDesc C++ instance at " << this << ". Name : \"" << getName() << "\".";
+}

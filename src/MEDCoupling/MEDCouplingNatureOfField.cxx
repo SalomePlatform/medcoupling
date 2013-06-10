@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@
 #include "MEDCouplingNatureOfField.hxx"
 
 #include <algorithm>
+#include <sstream>
 
 namespace ParaMEDMEM
 {
@@ -33,13 +34,37 @@ namespace ParaMEDMEM
   
   const int MEDCouplingNatureOfField::POS_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]={17,26,32,35,37};
 
-  const char *MEDCouplingNatureOfField::getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception)
+  const char *MEDCouplingNatureOfField::GetRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception)
   {
     const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
     if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
-      throw INTERP_KERNEL::Exception("MEDCouplingNatureOfField::getRepr : Unrecognized nature of field !");
+      {
+        std::ostringstream oss; oss << "MEDCouplingNatureOfField::getRepr : Unrecognized nature of field ! ";
+        oss << GetAllPossibilitiesStr() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
     std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
     return REPR_OF_NATUREOFFIELD[pos2];
   }
+
+  std::string MEDCouplingNatureOfField::GetReprNoThrow(NatureOfField nat)
+  {
+    const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
+    if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
+      return std::string("Unrecognized nature of field !");
+    std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
+    return std::string(REPR_OF_NATUREOFFIELD[pos2]);
+  }
+
+  std::string MEDCouplingNatureOfField::GetAllPossibilitiesStr()
+  {
+    std::ostringstream oss; oss << "Possibilities are : ";
+    for(int i=0;i<NB_OF_POSSIBILITIES;i++)
+      {
+        oss << REPR_OF_NATUREOFFIELD[i] << "(value=" << POS_OF_NATUREOFFIELD[i] << ")";
+        if(i!=NB_OF_POSSIBILITIES-1)
+          oss << ", ";
+      }
+    return oss.str();
+  }
 }
- 

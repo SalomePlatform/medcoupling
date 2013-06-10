@@ -43,7 +43,7 @@ For beginners in \ref medcoupling "MEDCoupling" world, it is advisable to read t
 
 \section MEDCouplingMeshes Common concept shared by all type of Meshes in MEDCoupling
 
-A mesh has a the following properties :
+A mesh has the following properties :
 
 - name
 - **a dimension (called mesh dimension) and only one** (it implies that \b all cells constituting
@@ -227,23 +227,22 @@ It will be presented in this section common concept shared by the two classes to
 A \ref ParaMEDMEM::DataArray "DataArray" instance has an attribute **name**.
 
 **name** is particulary useful for \ref ParaMEDMEM::DataArray "DataArray" representing profiles, families, groups, fields in MEDLoader.
-But excepted these useful usecases, **name** attribute is often ignored when \ref ParaMEDMEM::DataArray "DataArrays" are aggregated (field array, connectivity, coordinates) is a bigger object.
-Whatever the useage of the **name** attribute of \ref ParaMEDMEM::DataArray "DataArrays", all methods in ParaMEDMEM::DataArrayDouble and ParaMEDMEM::DataArrayInt class deal with **name** as they do for components names.
+But excepted these useful usecases, **name** attribute is often ignored when \ref ParaMEDMEM::DataArray "DataArrays" are aggregated (field array, connectivity, coordinates) in a bigger object.
+Whatever the usage of the **name** attribute of \ref ParaMEDMEM::DataArray "DataArrays", all methods in ParaMEDMEM::DataArrayDouble and ParaMEDMEM::DataArrayInt class deal with **name** as they do for components names.
 
 \subsection MEDCouplingArrayBasicsTuplesAndCompo Raw data, tuples and components of DataArrays.
 
 The main goal of \ref ParaMEDMEM::DataArray "DataArray" is to store contiguous vector of atomical elements with same basic datatype (signed integers, double precision...). This vector of atomical elements is called **raw data** of \ref ParaMEDMEM::DataArray "DataArray".
 
-The size of this vector of data is called, number of elements. So the number of bytes stored by a \ref ParaMEDMEM::DataArray "DataArray" instance, is equal to
+The size of this vector of data is called <em>"number of elements"</em>. So the number of bytes stored by a \ref ParaMEDMEM::DataArray "DataArray" instance, is equal to
 the  product of the __number of elements__ * __constant size of DataType__ .
 
-As \ref ParaMEDMEM::DataArray "DataArray" instances are designed to stored vector fields, tensor fields, coordinate of nodes, the notion of components has been
-added.
+As \ref ParaMEDMEM::DataArray "DataArray" instances are designed to store vector fields, tensor fields, coordinate of nodes, the notion of _components_ has been added.
 
 So, \ref ParaMEDMEM::DataArray "DataArrays" have an additional attribute that is number of components that represent the size of a contiguous set of atomical elements.
-The vector of atomical elements stored into \ref ParaMEDMEM::DataArray "DataArrays" are grouped in contiguous in memory set of atomical elements having each same size.
+The vector of atomical elements stored into \ref ParaMEDMEM::DataArray "DataArrays" are grouped in contiguous memory set of atomical elements having each same size.
 
-The  contiguous set of atomical elements is called **tuple**. And each **tuple** stored in raw data, have each a length exactly equal to the number of components of
+The contiguous set of atomical elements is called **tuple**. And each **tuple** stored in raw data, have each a length exactly equal to the number of components of
 \ref ParaMEDMEM::DataArray "DataArray" storing it.
 
 Thus :
@@ -256,8 +255,8 @@ Thus :
  N_{bytes}=N_{elements}*sizeof(DataType)=N_{tuples}*N_{components}*sizeof(DataType).
 \f]
 
-In another words, **raw data** of \ref ParaMEDMEM::DataArray "DataArrays" can be seen as a dense matrix, whose number of components would be the row size and number of tuples
-would be the column size. In this point of view of \ref ParaMEDMEM::DataArray "DataArrays" a **tuple**  is represented by the corresponding row in the dense matrix.
+In other words, **raw data** of \ref ParaMEDMEM::DataArray "DataArrays" can be seen as a dense matrix, whose number of components would be the row size and number of tuples
+would be the column size. In this point of view of \ref ParaMEDMEM::DataArray "DataArrays" a **tuple** is represented by the corresponding row in the dense matrix.
 
 Typically in the **raw data** of  \ref ParaMEDMEM::DataArray "DataArrays" **number of tuples** is highly bigger than **number of components** !
 
@@ -324,7 +323,8 @@ An another way is to do that :
 
 \section MEDCouplingArraySteps1 Building an array from scratch in C++
 
-Here a description of typical usages to use \ref ParaMEDMEM::DataArrayDouble "MEDCoupling arrays".\n
+Here is a description of typical usages of \ref ParaMEDMEM::DataArrayDouble "MEDCoupling arrays".
+
 In this example we will create arrays with 12 tuples constituted each
 of 3 components. These arrays will be created using different ways.\n
 
@@ -436,6 +436,20 @@ There are two types of comparison :
   - ParaMEDMEM::DataArrayInt::isEqualWithoutConsideringStr
   - ParaMEDMEM::DataArrayDouble::isEqualWithoutConsideringStr
 
+\section MEDCouplingArrayFill Filling DataArray with values
+
+Both DataArrayDouble and DataArrayInt provide comfort methods that
+fill the array with some values. These methods are:
+- ParaMEDMEM::DataArrayInt::fillWithZero and
+  ParaMEDMEM::DataArrayDouble::fillWithZero which assigns zero to all
+  values in array.
+- ParaMEDMEM::DataArrayInt::fillWithValue and
+  ParaMEDMEM::DataArrayDouble::fillWithValue which assigns a certain value to all
+  values in array.
+- ParaMEDMEM::DataArrayInt::iota() and
+  ParaMEDMEM::DataArrayDouble::iota() which assigns incrementing values to all
+  values in array.
+
 \section MEDCouplingArrayRenumbering Array renumbering
 
 Here is presented all it is necessary to know concerning renumbering.
@@ -497,6 +511,9 @@ Method in new to old mode that works on bijective applications :
 Method in new to old mode that works on surjective applications :
 
 - \ref ParaMEDMEM::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
+- \ref ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe "DataArrayDouble::selectByTupleIdSafe"
+- \ref ParaMEDMEM::DataArrayDouble::selectByTupleId2 "DataArrayDouble::selectByTupleId2"
+- \ref ParaMEDMEM::DataArrayDouble::selectByTupleRanges "DataArrayDouble::selectByTupleRanges"
 
 \section MEDCouplingArrayApplyFunc Application of a function on DataArrayDouble instances.
 
@@ -638,28 +655,32 @@ Let's consider DataArrayDouble instance \c ddd constituted with 4 tuples contain
 
     \section  IntExtFields Overview: intensive and extensive field
 
-\c NatureOfField is an enum which helps determining some physical significance of the field and affects the choice of interpolation formula ( see \ref TableNatureOfField).
+\c NatureOfField is an enum which helps determining some physical significance of the field and affects the choice of the interpolation formula (see \ref TableNatureOfField).
 It has five possible values:
--      "NoNature", the default value, does not allow the use of interpolation tools
+-      "NoNature", the default value, does not allow the use of any interpolation tools
 
 -      \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pression fields.
+
+-      \ref TableNatureOfFieldExampleRevIntegral "RevIntegral", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
 
 -      \ref TableNatureOfFieldExampleIntegral "Integral", for extensive field with the maximum principle favored over conservativity. Relevant for power fields.
 
 -      \ref TableNatureOfFieldExampleIntegralGlobConstraint "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle. Relevant for power fields.
 
--      \ref TableNatureOfFieldExampleRevIntegral "RevIntegral", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
+The first two correspond to intensive fields, the last two correspond to extensive fields.
 
-By an intensive field we mean a field that represent volumetric or intensive physical variable such as density (\f$kg.m^{-3}\f$), power density (\f$W.m^{-3}\f$), temperature (\f$K\f$) or pressure (\f$Pa\f$).
-By extensive (or integral) field we mean a field that represents an extensive physical quantity sych as mass (\f$kg\f$), volume (\f$m^3\f$), a momentum (\f$kg.m.s^{-1}\f$) or power \f$(W\f$).
-For fields with a P0 representation, conservativity formulas are different depending on whether the field is extensive or intensive (see \ref InterpKerP0P0Int and \ref InterpKerP0P0Ext).
-In some cases such a non \ref MeshOverlap "overlapping meshes", it is impossible to fulfill both conservation and maximum principle during the interpolation. The nature of the fields determines the formula to be used for non overlapped cells and thus the property that we will be satisfied.
-We consider that fields with P1 or P2 representations are necessarily intensive.
+By an intensive field we mean a field that represent an intensive physical variable such as density (\f$kg.m^{-3}\f$), power density (\f$W.m^{-3}\f$), temperature (\f$K\f$) or pressure (\f$Pa\f$). Typically the physical value doesn't scale with the size of the underlying geometry.
+By extensive (or integral) field we mean a field that represents an extensive physical quantity such as mass (\f$kg\f$), volume (\f$m^3\f$), a momentum (\f$kg.m.s^{-1}\f$) or power \f$(W\f$).
+Typically the field value scales linearly with respect to the underlying geometry size.
+For fields with a P0 representation (cell based), conservativity formulas are different depending on whether the field is extensive or intensive (see \ref InterpKerP0P0Int and \ref InterpKerP0P0Ext).
+Those two notions are themselves split into two sub-categories.
+Indeed in some cases (e.g. non \ref MeshOverlap "overlapping meshes"), it is impossible to fulfill both the conservation principle and the maximum principle during the interpolation. The nature of the fields determine the formula to be used for non overlapping cells and thus the property that we will be satisfied.
+Finally we consider that fields with P1 or P2 representations are necessarily intensive.
 
 \section Usage
 
-In order to employ the various \ref interptools, it is important to specify the nature of your field. 
-In case the sources and target meshes do not overlap different treatments will be employed, depending on the nature of the source and target fields.
+In order to employ the various \ref interptools, you have to specify the nature of your field. 
+When the source and target meshes do not overlap, different treatments will be employed depending on the nature of the source and target fields.
 You can specify the nature of the field when you create a \ref medcoupling field with the following constructor:
 \code
 MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
@@ -725,11 +746,11 @@ and 9 nodes.
 
 You can notice that it is possible to mix cell types as long as the dimension of cell is exactly equal to meshDim to respect \ref MEDCouplingMeshes "this rule".
 
-\subpage medcouplingcppexamplesUmeshStdBuild1 "Here the C++ implementation."
+\subpage medcouplingcppexamplesUmeshStdBuild1 "Here is the C++ implementation."
 
-\subpage medcouplingpyexamplesUmeshStdBuild1 "Here the Python implementation."
+\subpage medcouplingpyexamplesUmeshStdBuild1 "Here is the Python implementation."
 
-\section MEDCouplingUMeshNodalConnectivity How MEDCouplingUMesh stores its nodal connectivity.
+\section MEDCouplingUMeshNodalConnectivity How MEDCouplingUMesh stores its nodal connectivity
 
 \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh class" stores its nodal connectivity into 2 arrays.
 

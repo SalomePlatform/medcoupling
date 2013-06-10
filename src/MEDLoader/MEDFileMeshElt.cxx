@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -94,13 +94,26 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
   _conn_index=DataArrayInt::New();
   _conn_index->alloc(curNbOfElem+1,1);
   INTERP_KERNEL::AutoPtr<int> connTab=new int[(nbOfNodesPerCell)*curNbOfElem];
-  _num=DataArrayInt::New();
-  _num->alloc(curNbOfElem,1);
+  MEDmeshElementConnectivityRd(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,connTab);
+  loadCommonPart(fid,mName,dt,it,mdim,curNbOfElem,geoElt,entity);
+  int *w1=_conn->getPointer();
+  int *w2=_conn_index->getPointer();
+  *w2++=0;
+  const int *wi=connTab;
+  for(int i=0;i<curNbOfElem;i++,wi+=nbOfNodesPerCell,w2++)
+    {
+      *w1++=(int)type;
+      w1=std::transform(wi,wi+nbOfNodesPerCell,w1,std::bind2nd(std::plus<int>(),-1));
+      *w2=w2[-1]+nbOfNodesPerCell+1;
+    }
+}
+
+void MEDFileUMeshPerType::loadCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt,
+                                         med_entity_type entity)
+{
+  med_bool changement,transformation;
   _fam=DataArrayInt::New();
   _fam->alloc(curNbOfElem,1);
-  med_bool changement,transformation;
-  INTERP_KERNEL::AutoPtr<char> noms=new char[MED_SNAME_SIZE*(std::size_t)curNbOfElem+1];
-  MEDmeshElementConnectivityRd(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,connTab);
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       if(MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,entity,geoElt,_fam->getPointer())!=0)
@@ -117,15 +130,14 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
     }
   else
     _num=0;
-  int *w1=_conn->getPointer();
-  int *w2=_conn_index->getPointer();
-  *w2++=0;
-  const int *wi=connTab;
-  for(int i=0;i<curNbOfElem;i++,wi+=nbOfNodesPerCell,w2++)
+  if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_NAME,MED_NODAL,&changement,&transformation)>0)
     {
-      *w1++=(int)type;
-      w1=std::transform(wi,wi+nbOfNodesPerCell,w1,std::bind2nd(std::plus<int>(),-1));
-      *w2=w2[-1]+nbOfNodesPerCell+1;
+      _names=DataArrayAsciiChar::New();
+      _names->alloc(curNbOfElem+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+      if(MEDmeshEntityNameRd(fid,mName,dt,it,entity,geoElt,_names->getPointer())!=0)
+        _names=0;
+      else
+        _names->reAlloc(curNbOfElem);//not a bug to avoid the memory corruption due to last \0 at the end
     }
 }
 
@@ -138,10 +150,6 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
   _conn_index->alloc(curNbOfElem+1,1);
   _conn=DataArrayInt::New();
   _conn->alloc(arraySize+curNbOfElem,1);
-  _num=DataArrayInt::New();
-  _num->alloc(curNbOfElem,1);
-  _fam=DataArrayInt::New();
-  _fam->alloc(curNbOfElem,1);
   INTERP_KERNEL::AutoPtr<int> locConn=new int[arraySize];
   MEDmeshPolygonRd(fid,mName,dt,it,MED_CELL,MED_NODAL,_conn_index->getPointer(),locConn);
   int *w1=_conn->getPointer();
@@ -156,20 +164,7 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
       *w2=*w2-1+i;
     }
   *w2=*w2-1+curNbOfElem;
-  if(MEDmeshnEntity(fid,mName,dt,it,entity,MED_POLYGON,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {
-      if(MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,entity,MED_POLYGON,_fam->getPointer())!=0)
-        std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
-    }
-  else
-    std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
-  if(MEDmeshnEntity(fid,mName,dt,it,entity,MED_POLYGON,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {
-      if(MEDmeshEntityNumberRd(fid,mName,dt,it,entity,MED_POLYGON,_num->getPointer())!=0)
-        _num=0;
-    }
-  else
-    _num=0;
+  loadCommonPart(fid,mName,dt,it,mdim,curNbOfElem,MED_POLYGON,entity);
 }
 
 void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, int connFaceLgth, med_geometry_type geoElt,
@@ -181,16 +176,7 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int 
   INTERP_KERNEL::AutoPtr<int> index=new int[curNbOfElem+1];
   INTERP_KERNEL::AutoPtr<int> indexFace=new int[indexFaceLgth];
   INTERP_KERNEL::AutoPtr<int> locConn=new int[connFaceLgth];
-  _fam=DataArrayInt::New();
-  _fam->alloc(curNbOfElem,1);
   MEDmeshPolyhedronRd(fid,mName,dt,it,MED_CELL,MED_NODAL,index,indexFace,locConn);
-  if(MEDmeshnEntity(fid,mName,dt,it,entity,MED_POLYHEDRON,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {
-      if(MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,entity,MED_POLYHEDRON,_fam->getPointer())!=0)
-        std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
-    }
-  else
-    std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
   int arraySize=connFaceLgth;
   for(int i=0;i<curNbOfElem;i++)
     arraySize+=index[i+1]-index[i]-1;
@@ -212,18 +198,10 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int 
           wFinalConn=std::transform(locConn+indexFace[j]-1,locConn+indexFace[j+1]-1,wFinalConn,std::bind2nd(std::plus<int>(),-1));
         }
     }
-  _num=DataArrayInt::New();
-  _num->alloc(curNbOfElem,1);
-  if(MEDmeshnEntity(fid,mName,dt,it,entity,MED_POLYHEDRON,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {
-      if(MEDmeshEntityNumberRd(fid,mName,dt,it,entity,MED_POLYHEDRON,_num->getPointer())!=0)
-        _num=0;
-    }
-  else
-    _num=0;
+  loadCommonPart(fid,mName,dt,it,mdim,curNbOfElem,MED_POLYHEDRON,entity);
 }
 
-void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num)
+void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names)
 {
   int nbOfCells=m->getNumberOfCells();
   if(nbOfCells<1)
@@ -293,4 +271,14 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
     MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,fam->getConstPointer());
   if(num)
     MEDmeshEntityNumberWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,num->getConstPointer());
+  if(names)
+    {
+      if(names->getNumberOfComponents()!=MED_SNAME_SIZE)
+        {
+          std::ostringstream oss; oss << "MEDFileUMeshPerType::write : expected a name field on cells with number of components set to " << MED_SNAME_SIZE;
+          oss << " ! The array has " << names->getNumberOfComponents() << " components !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      MEDmeshEntityNameWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,names->getConstPointer());
+    }
 }

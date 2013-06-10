@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@ extern med_geometry_type typmainoeud[1];
 
 using namespace ParaMEDMEM;
 
-MEDFileMeshL2::MEDFileMeshL2():_name(MED_NAME_SIZE),_description(MED_COMMENT_SIZE),_dt_unit(MED_LNAME_SIZE)
+MEDFileMeshL2::MEDFileMeshL2():_name(MED_NAME_SIZE),_description(MED_COMMENT_SIZE),_univ_name(MED_LNAME_SIZE),_dt_unit(MED_LNAME_SIZE)
 {
 }
 
@@ -81,8 +81,22 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM:
       meshType=UNSTRUCTURED;
       break;
     case MED_STRUCTURED_MESH:
-      meshType=CARTESIAN;
-      break;
+      {
+        med_grid_type gt;
+        MEDmeshGridTypeRd(fid,mname,&gt);
+        switch(gt)
+          {
+          case MED_CARTESIAN_GRID:
+            meshType=CARTESIAN;
+            break;
+          case MED_CURVILINEAR_GRID:
+            meshType=CURVE_LINEAR;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+          }
+        break;
+      }
     default:
       throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
     }
@@ -126,17 +140,33 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   INTERP_KERNEL::AutoPtr<char> nameTmp=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> univTmp=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
   if(MEDmeshInfo(fid,mId,nameTmp,&spaceDim,&Mdim,&type_maillage,_description.getPointer(),_dt_unit.getPointer(),
                  &stype,&nstep,&axistype,axisname,axisunit)!=0)
     throw INTERP_KERNEL::Exception("A problem has been detected when trying to get info on mesh !");
+  MEDmeshUniversalNameRd(fid,nameTmp,_univ_name.getPointer());
   switch(type_maillage)
     {
     case MED_UNSTRUCTURED_MESH:
       meshType=UNSTRUCTURED;
       break;
     case MED_STRUCTURED_MESH:
-      meshType=CARTESIAN;
-      break;
+      {
+        med_grid_type gt;
+        MEDmeshGridTypeRd(fid,mName,&gt);
+        switch(gt)
+          {
+          case MED_CARTESIAN_GRID:
+            meshType=CARTESIAN;
+            break;
+          case MED_CURVILINEAR_GRID:
+            meshType=CURVE_LINEAR;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getAxisInfoOnMesh : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+          }
+        break;
+      }
     default:
       throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
     }
@@ -238,18 +268,31 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
   _coords->alloc(nCoords,spaceDim);
   double *coordsPtr=_coords->getPointer();
   MEDmeshNodeCoordinateRd(fid,mName,dt,it,MED_FULL_INTERLACE,coordsPtr);
-  _fam_coords=DataArrayInt::New();
-  _fam_coords->alloc(nCoords,1);
-  _num_coords=DataArrayInt::New();
-  _num_coords->alloc(nCoords,1);
   if(MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_fam_coords->getPointer());
+    {
+      _fam_coords=DataArrayInt::New();
+      _fam_coords->alloc(nCoords,1);
+      MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_fam_coords->getPointer());
+    }
   else
     _fam_coords=0;
   if(MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    MEDmeshEntityNumberRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_num_coords->getPointer());
+    {
+      _num_coords=DataArrayInt::New();
+      _num_coords->alloc(nCoords,1);
+      MEDmeshEntityNumberRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_num_coords->getPointer());
+    }
   else
     _num_coords=0;
+  if(MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
+    {
+      _name_coords=DataArrayAsciiChar::New();
+      _name_coords->alloc(nCoords+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+      MEDmeshEntityNameRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_name_coords->getPointer());
+      _name_coords->reAlloc(nCoords);//not a bug to avoid the memory corruption due to last \0 at the end
+    }
+  else
+    _name_coords=0;
   for(int i=0;i<spaceDim;i++)
     _coords->setInfoOnComponent(i,infosOnComp[i].c_str());
 }
@@ -287,7 +330,7 @@ void MEDFileUMeshL2::sortTypes()
   _per_type_mesh.resize(_per_type_mesh.size()-nbOfUselessLev);
 }
 
-void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords)
+void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords)
 {
   if(!coords)
     return ;
@@ -296,6 +339,16 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it,
     MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer());
   if(numCoords)
     MEDmeshEntityNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer());
+  if(nameCoords)
+    {
+      if(nameCoords->getNumberOfComponents()!=MED_SNAME_SIZE)
+        {
+          std::ostringstream oss; oss << " MEDFileUMeshL2::WriteCoords : expected a name field on nodes with number of components set to " << MED_SNAME_SIZE;
+          oss << " ! The array has " << nameCoords->getNumberOfComponents() << " components !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      MEDmeshEntityNameWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->getConstPointer());
+    }
 }
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const
@@ -310,6 +363,14 @@ bool MEDFileUMeshL2::isNumDefinedOnLev(int levId) const
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it=_per_type_mesh[levId].begin();it!=_per_type_mesh[levId].end();it++)
     if((*it)->getNum()==0)
+      return false;
+  return true;
+}
+
+bool MEDFileUMeshL2::isNamesDefinedOnLev(int levId) const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it=_per_type_mesh[levId].begin();it!=_per_type_mesh[levId].end();it++)
+    if((*it)->getNames()==0)
       return false;
   return true;
 }
@@ -334,7 +395,7 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
   med_grid_type gridtype;
   MEDmeshGridTypeRd(fid,mName,&gridtype);
   if(gridtype!=MED_CARTESIAN_GRID)
-    throw INTERP_KERNEL::Exception("Invalid cartesion mesh type ! Only Cartesian Grid supported ! Curvilinear grid will come soon !");
+    throw INTERP_KERNEL::Exception("Invalid structured mesh ! Expected cartesian mesh type !");
   _cmesh=MEDCouplingCMesh::New();
   for(int i=0;i<Mdim;i++)
     {
@@ -364,6 +425,36 @@ med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id) throw(IN
     }
 }
 
+MEDFileCLMeshL2::MEDFileCLMeshL2()
+{
+}
+
+void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  _name.set(mName);
+  int nstep;
+  int Mdim;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,nstep,Mdim);
+  if(meshType!=CURVE_LINEAR)
+    throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
+  _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
+  _iteration=dt;
+  _order=it;
+  //
+  _clmesh=MEDCouplingCurveLinearMesh::New();
+  INTERP_KERNEL::AutoPtr<int> stGrid=new int[Mdim];
+  MEDmeshGridStructRd(fid,mName,dt,it,stGrid);
+  _clmesh->setNodeGridStructure(stGrid,((int *)stGrid)+Mdim);
+  med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+  int nbNodes=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::New();
+  da->alloc(nbNodes,infosOnComp.size());
+  da->setInfoOnComponents(infosOnComp);
+  MEDmeshNodeCoordinateRd(fid,mName,dt,it,MED_FULL_INTERLACE,da->getPointer());
+  _clmesh->setCoords(da);
+}
+
 MEDFileUMeshPermCompute::MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st):_st(st),_mpt_time(0),_num_time(0)
 {
 }
@@ -378,27 +469,20 @@ MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
   if((MEDCouplingUMesh *)_m==0)
     {
       updateTime();
-      MEDCouplingUMesh *ret=(MEDCouplingUMesh *)_st->_m_by_types->deepCpy();
-      _m=ret;
+      _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types->deepCpy());
       _m->renumberCells(_st->_num->getConstPointer(),true);
-      ret->incrRef();
-      return ret;
+      return _m.retn();
     }
   else
     {
       if(_mpt_time==_st->_m_by_types->getTimeOfThis() && _num_time==_st->_num->getTimeOfThis())
-        {
-          _m->incrRef();
-          return _m;
-        }
+        return _m.retn();
       else
         {
           updateTime();
-          MEDCouplingUMesh *ret=(MEDCouplingUMesh *)_st->_m_by_types->deepCpy();
-          _m=ret;
+          _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types->deepCpy());
           _m->renumberCells(_st->_num->getConstPointer(),true);
-          ret->incrRef();
-          return ret;
+          return _m.retn();
         }
     }
 }
@@ -412,6 +496,10 @@ void MEDFileUMeshPermCompute::updateTime() const
 {
   _mpt_time=_st->_m_by_types->getTimeOfThis();
   _num_time=_st->_num->getTimeOfThis();
+}
+
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):_m_by_types(other._m_by_types),_fam(other._fam),_num(other._num),_names(other._names),_rev_num(other._rev_num),_m(this)
+{
 }
 
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id):_m(this)
@@ -451,6 +539,15 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
         w=std::copy(v[i]->getNum()->getConstPointer(),v[i]->getNum()->getConstPointer()+v[i]->getNum()->getNumberOfTuples(),w);
       computeRevNum();
     }
+  if(l2.isNamesDefinedOnLev(id))
+    {
+      int nbOfCells=_m_by_types->getNumberOfCells();
+      _names=DataArrayAsciiChar::New();
+      _names->alloc(nbOfCells,MED_SNAME_SIZE);
+      char *w=_names->getPointer();
+      for(int i=0;i<sz;i++)
+        w=std::copy(v[i]->getNames()->getConstPointer(),v[i]->getNames()->getConstPointer()+v[i]->getNames()->getNbOfElems(),w);
+    }
 }
 
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
@@ -461,6 +558,42 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(this)
 {
   assignMesh(m,newOrOld);
+}
+
+std::size_t MEDFileUMeshSplitL1::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if((const MEDCouplingUMesh *)_m_by_types)
+    {
+      ret+=_m_by_types->getHeapMemorySize();
+      if((const DataArrayDouble *)_m_by_types->getCoords())
+        ret-=_m_by_types->getCoords()->getHeapMemorySize();
+    }
+  if((const DataArrayInt*)_fam)
+    ret+=_fam->getHeapMemorySize();
+  if((const DataArrayInt*)_num)
+    ret+=_num->getHeapMemorySize();
+  if((const DataArrayInt*)_rev_num)
+    ret+=_rev_num->getHeapMemorySize();
+  if((const DataArrayAsciiChar*)_names)
+    ret+=_names->getHeapMemorySize();
+  return ret;
+}
+
+MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCpy() const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret=new MEDFileUMeshSplitL1(*this);
+  if((const MEDCouplingUMesh*)_m_by_types)
+    ret->_m_by_types=static_cast<MEDCouplingUMesh*>(_m_by_types->deepCpy());
+  if((const DataArrayInt *)_fam)
+    ret->_fam=_fam->deepCpy();
+  if((const DataArrayInt *)_num)
+    ret->_num=_num->deepCpy();
+  if((const DataArrayInt *)_rev_num)
+    ret->_rev_num=_rev_num->deepCpy();
+  if((const DataArrayAsciiChar *)_names)
+    ret->_names=_names->deepCpy();
+  return ret.retn();
 }
 
 bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const
@@ -502,6 +635,19 @@ bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, 
     if(!d1->isEqual(*d2))
       {
         what="Numbering cell arr at a sublevel are not deeply equal !";
+        return false;
+      }
+  const DataArrayAsciiChar *e1=_names;
+  const DataArrayAsciiChar *e2=other->_names;
+  if((e1==0 && e2!=0) || (e1!=0 && e2==0))
+    {
+      what="Presence of cell names arr in one sublevel and not in other!";
+      return false;
+    }
+  if(e1)
+    if(!e1->isEqual(*e2))
+      {
+        what="Name cell arr at a sublevel are not deeply equal !";
         return false;
       }
   return true;
@@ -611,8 +757,7 @@ DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const int *idsBg, const int 
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam->getIdsEqualList(idsBg,idsEnd);
   if(renum)
     return renumIfNeededArr(da);
-  da->incrRef();
-  return da;
+  return da.retn();
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
@@ -622,8 +767,19 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
     tmp=_m;
   else
     tmp=_m_by_types;
-  tmp->incrRef();
-  return tmp;
+  return tmp.retn();
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception)
+{
+  if((DataArrayInt *)_fam)
+    return _fam;
+  MEDCouplingUMesh *m(_m_by_types);
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField : impossible to create a family field array because no mesh specified on this level !");
+  int nbOfTuples=m->getNumberOfCells();
+  _fam=DataArrayInt::New(); _fam->alloc(nbOfTuples,1); _fam->fillWithZero();
+  return _fam;
 }
 
 const DataArrayInt *MEDFileUMeshSplitL1::getFamilyField() const
@@ -639,6 +795,11 @@ const DataArrayInt *MEDFileUMeshSplitL1::getNumberField() const
 const DataArrayInt *MEDFileUMeshSplitL1::getRevNumberField() const
 {
   return _rev_num;
+}
+
+const DataArrayAsciiChar *MEDFileUMeshSplitL1::getNameField() const
+{
+  return _names;
 }
 
 void MEDFileUMeshSplitL1::eraseFamilyField()
@@ -677,13 +838,24 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
       int nbCells=(*it)->getNumberOfCells();
       int end=start+nbCells;
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam,num;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> names;
       if((const DataArrayInt *)_fam)
         fam=_fam->substr(start,end);
       if((const DataArrayInt *)_num)
         num=_num->substr(start,end);
-      MEDFileUMeshPerType::write(fid,mName,mdim,(*it),fam,num);
+      if((const DataArrayAsciiChar *)_names)
+        names=static_cast<DataArrayAsciiChar *>(_names->substr(start,end));
+      MEDFileUMeshPerType::write(fid,mName,mdim,(*it),fam,num,names);
       start=end;
     }
+}
+
+void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingUMesh *m(_m_by_types);
+  if(!m)
+    return;
+  m->renumberNodesInConn(newNodeNumbersO2N);
 }
 
 void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)
@@ -723,6 +895,21 @@ void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
   renumArr->incrRef();
   _num=renumArr;
   computeRevNum();
+}
+
+void MEDFileUMeshSplitL1::setNameArr(DataArrayAsciiChar *nameArr)
+{
+  if(!nameArr)
+    {
+      _names=0;
+      return ;
+    }
+  MEDCouplingUMesh *mbt(_m_by_types);
+  if(!mbt)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setNameArr : no mesh defined on this level !");
+  nameArr->checkNbOfTuplesAndComp(mbt->getNumberOfCells(),MED_SNAME_SIZE,"MEDFileUMeshSplitL1::setNameArr : Problem in size of name arr ! ");
+  nameArr->incrRef();
+  _names=nameArr;
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds)

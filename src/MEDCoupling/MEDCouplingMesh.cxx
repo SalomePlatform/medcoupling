@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,11 @@ MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name
                                                                _time(other._time),_iteration(other._iteration),
                                                                _order(other._order),_time_unit(other._time_unit)
 {
+}
+
+std::size_t MEDCouplingMesh::getHeapMemorySize() const
+{
+  return _name.capacity()+_description.capacity()+_time_unit.capacity();
 }
 
 /*!
@@ -95,6 +100,12 @@ bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec,
   return true;
 }
 
+/*!
+ * Checks if \a this and another MEDCouplingMesh are fully equal.
+ *  \param [in] other - an instance of MEDCouplingMesh to compare with \a this one.
+ *  \param [in] prec - precision value used to compare node coordinates.
+ *  \return bool - \c true if the two meshes are equal, \c false else.
+ */
 bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
 {
   std::string tmp;
@@ -102,21 +113,37 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const t
 }
 
 /*!
- * This method checks geo equivalence between two meshes : 'this' and 'other'.
- * If no exception is throw 'this' and 'other' are geometrically equivalent regarding 'levOfCheck' level.
- * This method is typically used to change the mesh of a field "safely" depending the 'levOfCheck' level considered.
+ * This method checks geo equivalence between two meshes : \a this and \a other.
+ * If no exception is thrown \a this and \a other are geometrically equivalent regarding \a levOfCheck level.
+ * This method is typically used to change the mesh of a field "safely" depending the \a levOfCheck level considered.
  * 
- * @param levOfCheck input that specifies the level of check specified. The possible values are listed below.
- * @param prec input that specifies precision for double float data used for comparison in meshes.
- * @param cellCor output array not always informed (depending 'levOfCheck' param) that gives the corresponding array for cells from 'other' to 'this'.
- * @param nodeCor output array not always informed (depending 'levOfCheck' param) that gives the corresponding array for nodes from 'other' to 'this'.
+ * In case of success cell \c other[i] is equal to the cell \c this[cellCor[i]].
+ * In case of success node \c other->getCoords()[i] is equal to the node \c this->getCoords()[nodeCor[i]].
+ *
+ * If \a cellCor is null (or Py_None) it means that for all #i cell in \a other is equal to cell # i in \a this.
+ *
+ * If \a nodeCor is null (or Py_None) it means that for all #i node in \a other is equal to node # i in \a this.
+ *
+ * So null (or Py_None) returned in \a cellCor and/or \a nodeCor means identity array. This is for optimization reason to avoid to build useless arrays
+ * for some \a levOfCheck (for example 0).
+ *
+ * **Warning a not null output does not mean that it is not identity !**
+ *
+ * \param [in] other - the mesh to be compared with \a this.
+ * \param [in] levOfCheck - input that specifies the level of check specified. The possible values are listed below.
+ * \param [in] prec - input that specifies precision for double float data used for comparison in meshes.
+ * \param [out] cellCor - output array not always informed (depending \a levOfCheck param) that gives the corresponding array for cells from \a other to \a this.
+ * \param [out] nodeCor - output array not always informed (depending \a levOfCheck param) that gives the corresponding array for nodes from \a other to \a this.
  *
  * Possible values for levOfCheck :
- *   - 0 for strict equality. This is the strongest level. 'cellCor' and 'nodeCor' params are never informed.
- *   - 10,11,12 for less strict equality. Two meshes are compared geometrically. In case of success 'cellCor' and 'nodeCor' are informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
- *   - 20,21,22, for less strict equality. Two meshes are compared geometrically. The difference with the previous version is that nodes(coordinates) are expected to be the same between this and other. In case of success 'cellCor' is informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
+ *   - 0 for strict equality. This is the strongest level. \a cellCor and \a nodeCor params are never informed.
+ *   - 10,11,12 (10+x) for less strict equality. Two meshes are compared geometrically. In case of success \a cellCor and \a nodeCor are informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
+ *   - 20,21,22 (20+x), for less strict equality. Two meshes are compared geometrically. The difference with the previous version is that nodes(coordinates) are expected to be the same between this and other. In case of success \a cellCor is informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
  *   - 1 for fast 'equality'. This is a lazy level. Just number of cells and number of nodes are considered here and 3 cells (begin,middle,end)
  *   - 2 for deep 'equality' as 0 option except that no control is done on all strings in mesh.
+ *
+ * So the most strict level of check is 0 (equality). The least strict is 12. If the level of check 12 throws, the 2 meshes \a this and \a other are not similar enough
+ * to be compared. An interpolation using MEDCouplingRemapper class should be then used.
  */
 void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
                                           DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
@@ -164,9 +191,13 @@ void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levO
 }
 
 /*!
- * Given a nodeIds range ['partBg','partEnd'), this method returns the set of cell ids in ascendant order whose connectivity of
- * these cells are fully included in the range. As a consequence the returned set of cell ids does \b not \b always fit the nodes in ['partBg','partEnd')
- * This method returns the corresponding cells in a newly created array that the caller has the responsability.
+ * Finds cells whose all nodes are in a given array of node ids.
+ *  \param [in] partBg - the array of node ids.
+ *  \param [in] partEnd - end of \a partBg, i.e. a pointer to a (last+1)-th element
+ *          of \a partBg.
+ *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
+ *          cells. The caller is to delete this array using decrRef() as it is no
+ *          more needed.
  */
 DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
 {
@@ -191,7 +222,7 @@ DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partB
 }
 
 /*!
- * This method checks fastly that 'this' and 'other' are equal. All common checks are done here.
+ * This method checks fastly that \a this and \a other are equal. All common checks are done here.
  */
 void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
 {
@@ -204,7 +235,7 @@ void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double 
 }
 
 /*!
- * This method is very poor and looks only if 'this' and 'other' are candidate for merge of fields lying repectively on them.
+ * This method is very poor and looks only if \a this and \a other are candidate for merge of fields lying repectively on them.
  */
 bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
 {
@@ -216,7 +247,29 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
 }
 
 /*!
- * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * This method is equivalent to MEDCouplingMesh::buildPart method except that here the cell ids are specified using slice \a beginCellIds \a endCellIds and \a stepCellIds.
+ *
+ * \sa MEDCouplingMesh::buildPart
+ */
+MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+  return buildPart(cellIds->begin(),cellIds->end());
+}
+
+/*!
+ * This method is equivalent to MEDCouplingMesh::buildPartAndReduceNodes method except that here the cell ids are specified using slice \a beginCellIds \a endCellIds and \a stepCellIds.
+ *
+ * \sa MEDCouplingMesh::buildPartAndReduceNodes
+ */
+MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+  return buildPartAndReduceNodes(cellIds->begin(),cellIds->end(),arr);
+}
+
+/*!
+ * This method builds a field lying on \a this with 'nbOfComp' components.
  * 'func' is a pointer that points to a function that takes 2 arrays in parameter and returns a boolean.
  * The first array is a in-param of size this->getSpaceDimension and the second an out param of size 'nbOfComp'.
  * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
@@ -225,18 +278,19 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
  * The 'func' is a callback that takes as first parameter an input array of size 'this->getSpaceDimension()',
  * the second parameter is a pointer on a valid zone of size at least equal to 'nbOfComp' values. And too finish
  * the returned value is a boolean that is equal to False in case of invalid evaluation (log(0) for example...)
- * @param t type of field returned and specifies where the evaluation of func will be done.
- * @param nbOfComp number of components of returned field.
- * @param func pointer to a function that should return false if the evaluation failed. (division by 0. for example)
- * @return field with counter = 1.
+ * 
+ * \param t type of field returned and specifies where the evaluation of func will be done.
+ * \param nbOfComp number of components of returned field.
+ * \param func pointer to a function that should return false if the evaluation failed. (division by 0. for example)
+ * \return field with counter = 1.
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic(nbOfComp,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
@@ -252,7 +306,7 @@ void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(IN
 
 /*!
  * This method copies all attributes that are \b NOT arrays in this.
- * All tiny attributes not usefully for state of 'this' are ignored.
+ * All tiny attributes not usefully for state of \a this are ignored.
  */
 void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
 {
@@ -263,87 +317,166 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTER
 }
 
 /*!
- * This method builds a field lying on 'this' with 'nbOfComp' components.
- * 'func' is a string that is the expression to evaluate.
- * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
- * evaluate.
- * This method is equivalent to those taking a C++ function pointer except that here the 'func' is informed by 
- * an interpretable input string.
+ * \anchor mcmesh_fillFromAnalytic
+ * Creates a new MEDCouplingFieldDouble of a given type, one time, with given number of
+ * components, lying on \a this mesh, with contents got by applying a specified
+ * function to coordinates of field location points (defined by the given field type).
+ * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
+ * barycenters.<br>
+ * For more info on supported expressions that can be used in the function, see \ref
+ * MEDCouplingArrayApplyFuncExpr. The function can include arbitrary named variables
+ * (e.g. "x","y" or "va44") to refer to components of point coordinates. Names of
+ * variables are sorted in \b alphabetical \b order to associate a variable name with a
+ * component. For example, in the expression "2*x+z", "x" stands for the component #0
+ * and "z" stands for the component #1 (\b not #2)!<br>
+ * In a general case, a value resulting from the function evaluation is assigned to all
+ * components of the field. But there is a possibility to have its own expression for
+ * each component within one function. For this purpose, there are predefined variable
+ * names (IVec, JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to
+ * the component #0 etc). A factor of such a variable is added to the
+ * corresponding component only.<br>
+ * For example, \a nbOfComp == 4, \a this->getSpaceDimension() == 3, coordinates of a
+ * point are (1.,3.,7.), then
+ *   - "2*x + z"               produces (5.,5.,5.,5.)
+ *   - "2*x + 0*y + z"         produces (9.,9.,9.,9.)
+ *   - "2*x*IVec + (x+z)*LVec" produces (2.,0.,0.,4.)
+ *   - "2*y*IVec + z*KVec + x" produces (7.,1.,1.,4.)
  *
- * The dynamic interpretor uses \b alphabetical \b order to assign the component id to the var name.
- * For example :
- * - "2*x+z" func : x stands for component #0 and z stands for component #1 \b NOT #2 !
- * 
- * Some var names are reserved and have special meaning. IVec stands for (1,0,0,...). JVec stands for (0,1,0...).
- * KVec stands for (0,0,1,...)... These keywords allows too differentate the evaluation of output components each other.
- * 
- * If 'nbOfComp' equals to 4 for example and that 'this->getSpaceDimension()' equals to 3.
- * 
- * For the input tuple T = (1.,3.,7.) :
- *   - '2*x+z' will return (5.,5.,5.,5.)
- *   - '2*x+0*y+z' will return (9.,9.,9.,9.)
- *   - '2*x*IVec+(x+z)*LVec' will return (2.,0.,0.,4.)
- *   - '2*x*IVec+(y+z)*KVec' will return (2.,0.,10.,0.)
+ *  \param [in] t - the field type. It defines, apart from other things, points to
+ *         coordinates of which the function is applied to get field values.
+ *  \param [in] nbOfComp - the number of components in the result field.
+ *  \param [in] func - a string defining the expression which is evaluated to get
+ *         field values.
+ *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *         caller is to delete this field using decrRef() as it is no more needed. 
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If computing \a func fails.
  *
- * @param t type of field returned and specifies where the evaluation of func will be done.
- * @param nbOfComp number of components of returned field.
- * @param func expression.
- * @return field with counter = 1.
+ *  \ref cpp_mcmesh_fillFromAnalytic "Here is a C++ example".<br>
+ *  \ref  py_mcmesh_fillFromAnalytic "Here is a Python example".
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic(nbOfComp,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
- * This method builds a field lying on 'this' with 'nbOfComp' components.
- * 'func' is a string that is the expression to evaluate.
- * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
- * evaluate. This method is different than MEDCouplingMesh::fillFromAnalytic, because the info on components are used here to determine vars pos in 'func'.
+ * Creates a new MEDCouplingFieldDouble of a given type, one time, with given number of
+ * components, lying on \a this mesh, with contents got by applying a specified
+ * function to coordinates of field location points (defined by the given field type).
+ * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
+ * barycenters. This method differs from
+ * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const "fillFromAnalytic()"
+ * by the way how variable
+ * names, used in the function, are associated with components of coordinates of field
+ * location points; here, a variable name corresponding to a component is retrieved from
+ * a corresponding node coordinates array (where it is set via
+ * DataArrayDouble::setInfoOnComponent()).<br>
+ * For more info on supported expressions that can be used in the function, see \ref
+ * MEDCouplingArrayApplyFuncExpr. <br> 
+ * In a general case, a value resulting from the function evaluation is assigned to all
+ * components of a field value. But there is a possibility to have its own expression for
+ * each component within one function. For this purpose, there are predefined variable
+ * names (IVec, JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to
+ * the component #0 etc). A factor of such a variable is added to the
+ * corresponding component only.<br>
+ * For example, \a nbOfComp == 4, \a this->getSpaceDimension() == 3, names of
+ * spatial components are "x", "y" and "z", coordinates of a
+ * point are (1.,3.,7.), then
+ *   - "2*x + z"               produces (9.,9.,9.,9.)
+ *   - "2*x*IVec + (x+z)*LVec" produces (2.,0.,0.,8.)
+ *   - "2*y*IVec + z*KVec + x" produces (7.,1.,1.,8.)
  *
- * @param t type of field returned and specifies where the evaluation of func will be done.
- * @param nbOfComp number of components of returned field.
- * @param func expression.
- * @return field with counter = 1.
+ *  \param [in] t - the field type. It defines, apart from other things, the points to
+ *         coordinates of which the function is applied to get field values.
+ *  \param [in] nbOfComp - the number of components in the result field.
+ *  \param [in] func - a string defining the expression which is evaluated to get
+ *         field values.
+ *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *         caller is to delete this field using decrRef() as it is no more needed. 
+ *  \throw If the node coordinates are not defined.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If computing \a func fails.
+ *
+ *  \ref cpp_mcmesh_fillFromAnalytic2 "Here is a C++ example".<br>
+ *  \ref  py_mcmesh_fillFromAnalytic2 "Here is a Python example".
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic2(nbOfComp,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
- * This method builds a field lying on 'this' with 'nbOfComp' components.
- * 'func' is a string that is the expression to evaluate.
- * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
- * evaluate. This method is different than MEDCouplingMesh::fillFromAnalytic, because 'varsOrder' specifies the pos to assign of vars in 'func'.
+ * Creates a new MEDCouplingFieldDouble of a given type, one time, with given number of
+ * components, lying on \a this mesh, with contents got by applying a specified
+ * function to coordinates of field location points (defined by the given field type).
+ * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
+ * barycenters. This method differs from \ref  \ref mcmesh_fillFromAnalytic
+ * "fillFromAnalytic()" by the way how variable
+ * names, used in the function, are associated with components of coordinates of field
+ * location points; here, a component index of a variable is defined by a
+ * rank of the variable within the input array \a varsOrder.<br>
+ * For more info on supported expressions that can be used in the function, see \ref
+ * MEDCouplingArrayApplyFuncExpr.
+ * In a general case, a value resulting from the function evaluation is assigned to all
+ * components of the field. But there is a possibility to have its own expression for
+ * each component within one function. For this purpose, there are predefined variable
+ * names (IVec, JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to
+ * the component #0 etc). A factor of such a variable is added to the
+ * corresponding component only.<br>
+ * For example, \a nbOfComp == 4, \a this->getSpaceDimension() == 3, names of
+ * spatial components are given in \a varsOrder: ["x", "y","z"], coordinates of a
+ * point are (1.,3.,7.), then
+ *   - "2*x + z"               produces (9.,9.,9.,9.)
+ *   - "2*x*IVec + (x+z)*LVec" produces (2.,0.,0.,8.)
+ *   - "2*y*IVec + z*KVec + x" produces (7.,1.,1.,8.)
  *
- * @param t type of field returned and specifies where the evaluation of func will be done.
- * @param nbOfComp number of components of returned field.
- * @param func expression.
- * @return field with counter = 1.
+ *  \param [in] t - the field type. It defines, apart from other things, the points to
+ *         coordinates of which the function is applied to get field values.
+ *  \param [in] nbOfComp - the number of components in the result field.
+ *  \param [in] varsOrder - the vector defining names of variables used to refer to
+ *         components of coordinates of field location points. A variable named
+ *         varsOrder[0] refers to the component #0 etc.
+ *  \param [in] func - a string defining the expression which is evaluated to get
+ *         field values.
+ *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
+ *         caller is to delete this field using decrRef() as it is no more needed. 
+ *  \throw If the node coordinates are not defined.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If computing \a func fails.
+ *
+ *  \ref cpp_mcmesh_fillFromAnalytic3 "Here is a C++ example".<br>
+ *  \ref  py_mcmesh_fillFromAnalytic3 "Here is a Python example".
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic3(nbOfComp,varsOrder,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
- * retruns a newly created mesh with counter=1 
- * that is the union of \b mesh1 and \b mesh2 if possible. The cells of \b mesh2 will appear after cells of \b mesh1. Idem for nodes.
- * The only contraint is that \b mesh1 an \b mesh2 have the same mesh types. If it is not the case please use the other API of MEDCouplingMesh::MergeMeshes,
- * with input vector of meshes.
+ * Creates a new MEDCouplingMesh by concatenating two given meshes, if possible.
+ * Cells and nodes of
+ * the first mesh precede cells and nodes of the second mesh within the result mesh.
+ * The meshes must be of the same mesh type, else, an exception is thrown. The method
+ * MergeMeshes(), accepting a vector of input meshes, has no such a limitation.
+ *  \param [in] mesh1 - the first mesh.
+ *  \param [in] mesh2 - the second mesh.
+ *  \return MEDCouplingMesh * - the result mesh. It is a new instance of
+ *          MEDCouplingMesh. The caller is to delete this mesh using decrRef() as it
+ *          is no more needed.
+ *  \throw If the meshes are of different mesh type.
  */
 MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
@@ -355,10 +488,22 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, cons
 }
 
 /*!
- * retruns a newly created mesh with counter=1 
- * that is the union of meshes if possible. The cells of \b meshes[1] will appear after cells of \b meshes[0]. Idem for nodes.
- * This method performs a systematic conversion to unstructured meshes before performing aggregation contrary to the other ParaMEDMEM::MEDCouplingMesh::MergeMeshes with
- * two parameters that work only on the same type of meshes. So here it is possible to mix different type of meshes.
+ * Creates a new MEDCouplingMesh by concatenating all given meshes, if possible.
+ * Cells and nodes of
+ * the *i*-th mesh precede cells and nodes of the (*i*+1)-th mesh within the result mesh.
+ * This method performs a systematic conversion to unstructured meshes before
+ * performing aggregation contrary to the other MergeMeshes()
+ * with two parameters that works only on the same type of meshes. So here it is possible
+ * to mix different type of meshes. 
+ *  \param [in] meshes - a vector of meshes to concatenate.
+ *  \return MEDCouplingMesh * - the result mesh. It is a new instance of
+ *          MEDCouplingUMesh. The caller is to delete this mesh using decrRef() as it
+ *          is no more needed.
+ *  \throw If \a meshes.size() == 0.
+ *  \throw If \a size[ *i* ] == NULL.
+ *  \throw If the coordinates is not set in none of the meshes.
+ *  \throw If \a meshes[ *i* ]->getMeshDimension() < 0.
+ *  \throw If the \a meshes are of different dimension (getMeshDimension()).
  */
 MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception)
 {
@@ -378,6 +523,54 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh 
         }
     }
   return MEDCouplingUMesh::MergeUMeshes(ms2);
+}
+
+/*!
+ * For example if \a type is INTERP_KERNEL::NORM_TRI3 , INTERP_KERNEL::NORM_POLYGON is returned.
+ * If \a type is INTERP_KERNEL::NORM_HEXA8 , INTERP_KERNEL::NORM_POLYHED is returned.
+ * 
+ * \param [in] type the geometric type for which the corresponding dynamic type, is asked.
+ * \return the corresponding dynamic type, able to store the input \a type.
+ * 
+ * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
+ */
+INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  return cm.getCorrespondingPolyType();
+}
+
+/*!
+ * \param [in] type the geometric type for which the number of nodes consituting it, is asked.
+ * \return number of nodes consituting the input geometric type \a type.
+ * 
+ * \throw if type is dynamic as \c INTERP_KERNEL::NORM_POLYHED , \c INTERP_KERNEL::NORM_POLYGON , \c INTERP_KERNEL::NORM_QPOLYG
+ * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
+ */
+int MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  if(cm.isDynamic())
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::GetNumberOfNodesOfGeometricType : the input geometric type is dynamic ! Impossible to return a fixed number of nodes constituting it !");
+  return (int) cm.getNumberOfNodes();
+}
+
+/*!
+ * \param [in] type the geometric type for which the status static/dynamic is asked.
+ * \return true for static geometric type, false for dynamic geometric type.
+ * 
+ * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
+ */
+bool MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  return !cm.isDynamic();
+}
+
+bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  return !cm.isQuadratic();
 }
 
 /*!
@@ -404,12 +597,48 @@ const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCel
   return cm.getRepr();
 }
 
+/*!
+ * Finds cells in contact with a ball (i.e. a point with precision).
+ * \warning This method is suitable if the caller intends to evaluate only one
+ *          point, for more points getCellsContainingPoints() is recommended as it is
+ *          faster. 
+ *  \param [in] pos - array of coordinates of the ball central point.
+ *  \param [in] eps - ball radius.
+ *  \param [in,out] elts - vector returning ids of the found cells. It is cleared
+ *         before inserting ids.
+ *
+ *  \ref cpp_mcumesh_getCellsContainingPoint "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_getCellsContainingPoint "Here is a Python example".
+ */
 void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
   int ret=getCellContainingPoint(pos,eps);
   elts.push_back(ret);
 }
 
+/*!
+ * Finds cells in contact with several balls (i.e. points with precision).
+ * This method is an extension of getCellContainingPoint() and
+ * getCellsContainingPoint() for the case of multiple points.
+ *  \param [in] pos - an array of coordinates of points in full interlace mode :
+ *         X0,Y0,Z0,X1,Y1,Z1,... Size of the array must be \a
+ *         this->getSpaceDimension() * \a nbOfPoints 
+ *  \param [in] nbOfPoints - number of points to locate within \a this mesh.
+ *  \param [in] eps - radius of balls (i.e. the precision).
+ *  \param [in,out] elts - vector returning ids of found cells.
+ *  \param [in,out] eltsIndex - an array, of length \a nbOfPoints + 1,
+ *         dividing cell ids in \a elts into groups each referring to one
+ *         point. Its every element (except the last one) is an index pointing to the
+ *         first id of a group of cells. For example cells in contact with the *i*-th
+ *         point are described by following range of indices:
+ *         [ \a eltsIndex[ *i* ], \a eltsIndex[ *i*+1 ] ) and the cell ids are
+ *         \a elts[ \a eltsIndex[ *i* ]], \a elts[ \a eltsIndex[ *i* ] + 1 ], ...
+ *         Number of cells in contact with the *i*-th point is
+ *         \a eltsIndex[ *i*+1 ] - \a eltsIndex[ *i* ].
+ *
+ *  \ref cpp_mcumesh_getCellsContainingPoints "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
+ */
 void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
 {
   eltsIndex.resize(nbOfPoints+1);
@@ -431,8 +660,9 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
 }
 
 /*!
- * This method writes a file in VTK format into file 'fileName'.
- * An exception is thrown if the file is not writable.
+ * Writes \a this mesh into a VTK format file named as specified.
+ *  \param [in] fileName - the name of the file to write in.
+ *  \throw If \a fileName is not a writable file.
  */
 void MEDCouplingMesh::writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception)
 {

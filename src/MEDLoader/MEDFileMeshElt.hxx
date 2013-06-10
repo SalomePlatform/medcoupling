@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -37,12 +37,14 @@ namespace ParaMEDMEM
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2);
     static bool isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity);
+    std::size_t getHeapMemorySize() const { return 0; }
     int getDim() const;
     const DataArrayInt *getNodal() const { return _conn; }
     const DataArrayInt *getNodalIndex() const { return _conn_index; }
     const DataArrayInt *getFam() const { return _fam; }
     const DataArrayInt *getNum() const { return _num; }
-    static void write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num);
+    const DataArrayAsciiChar *getNames() const { return _names; }
+    static void write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names);
   private:
     MEDFileUMeshPerType(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
                         med_entity_type entity);
@@ -52,11 +54,13 @@ namespace ParaMEDMEM
                    med_entity_type entity);
     void loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, int connFaceLgth, med_geometry_type geoElt,
                    med_entity_type entity);
+    void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity);
   private:
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn_index;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names;
     INTERP_KERNEL::NormalizedCellType _type;
     med_entity_type _entity;
   };

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -51,6 +51,7 @@ class MEDLOADER_EXPORT SauvReader : public ParaMEDMEM::RefCountObject
   ~SauvReader();
 
  private:
+  std::size_t getHeapMemorySize() const { return 0; }
 
   void readRecord2();
   void readRecord4();

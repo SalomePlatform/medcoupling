@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,7 @@
 #
 # Author : Anthony Geay (CEA/DEN)
 
-INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/UseOMNIORB.cmake)
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/UseOMNIORB.cmake)
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIRS}

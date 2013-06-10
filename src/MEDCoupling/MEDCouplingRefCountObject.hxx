@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,8 @@
 #define __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
 
 #include "MEDCoupling.hxx"
+
+#include <cstddef>
 
 namespace ParaMEDMEM
 {
@@ -53,6 +55,7 @@ namespace ParaMEDMEM
   MEDCOUPLING_EXPORT const char *MEDCouplingVersionStr();
   MEDCOUPLING_EXPORT int MEDCouplingVersion();
   MEDCOUPLING_EXPORT void MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas);
+  MEDCOUPLING_EXPORT int MEDCouplingSizeOfVoidStar();
 
   class MEDCOUPLING_EXPORT RefCountObject
   {
@@ -62,6 +65,7 @@ namespace ParaMEDMEM
   public:
     bool decrRef() const;
     void incrRef() const;
+    virtual std::size_t getHeapMemorySize() const = 0;
   protected:
     virtual ~RefCountObject();
   private:

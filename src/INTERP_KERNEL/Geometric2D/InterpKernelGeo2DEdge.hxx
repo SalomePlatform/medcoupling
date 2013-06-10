@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -225,6 +225,7 @@ namespace INTERP_KERNEL
     static Edge *BuildEdgeFrom(Node *start, Node *end);
     template<TypeOfMod4QuadEdge type>
     static Edge *BuildEdgeFrom(Node *start, Node *middle, Node *end);
+    static Edge *BuildEdgeFrom3Points(const double *start, const double *middle, const double *end);
     virtual void update(Node *m) = 0;
     //! returns area between this and axe Ox delimited along Ox by _start and _end.
     virtual double getAreaOfZone() const = 0;

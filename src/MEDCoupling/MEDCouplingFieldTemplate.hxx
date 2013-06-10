@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingFieldTemplate : public MEDCouplingField
   {
   public:
-    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
@@ -43,8 +43,9 @@ namespace ParaMEDMEM
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     void serialize(DataArrayInt *&dataInt) const;
     //
+    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   private:
-    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldTemplate(TypeOfField type);
   };
 }

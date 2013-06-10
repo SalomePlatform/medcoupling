@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -107,6 +107,11 @@ MEDCouplingDefinitionTimeSlice::MEDCouplingDefinitionTimeSlice(const MEDCoupling
   double t2=f->getEndTime(tmp1,tmp2);
   if(t2<t1)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSlice : End time strictly before Start time ...");
+}
+
+std::size_t MEDCouplingDefinitionTimeSlice::getHeapMemorySize() const
+{
+  return 0;
 }
 
 bool MEDCouplingDefinitionTimeSlice::isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
@@ -457,6 +462,11 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MED
       //     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime constructor : 2 slices refers to the same time and underlying arrays differs !");
       ref=_slices[i];
     }
+}
+
+std::size_t MEDCouplingDefinitionTime::getHeapMemorySize() const
+{
+  return _slices.capacity()*(sizeof(MEDCouplingDefinitionTimeSlice)+sizeof(int));
 }
 
 void MEDCouplingDefinitionTime::assign(const MEDCouplingDefinitionTime& other)

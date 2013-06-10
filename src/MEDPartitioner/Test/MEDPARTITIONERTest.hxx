@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -65,6 +65,8 @@ class MEDPARTITIONERTEST_EXPORT MEDPARTITIONERTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testMpirunHugeSize );
 #endif
 #endif
+
+  CPPUNIT_TEST( testCreateBoundaryFaces2D ); // imp 0021756
 
   //CPPUNIT_TEST( deleteTestMeshes );
   CPPUNIT_TEST_SUITE_END();
@@ -133,6 +135,8 @@ public:
   void testMpirunMedianSize();
   void testMpirunHugeSize();
 #endif
+
+  void testCreateBoundaryFaces2D();
 };
 
 #endif

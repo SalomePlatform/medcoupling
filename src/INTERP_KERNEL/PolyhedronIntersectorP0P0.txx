@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -84,7 +84,10 @@ namespace INTERP_KERNEL
       {
         double volume = 0.;
         for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
+          {
             volume += (*iter)->intersectSourceCell(*iterCellS);
+            (*iter)->clearVolumesCache();
+          }
         if(volume!=0.)
           res[targetCell].insert(std::make_pair(OTT<ConnType,numPol>::indFC(*iterCellS), volume));
       }

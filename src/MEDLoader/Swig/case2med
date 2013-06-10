@@ -1,0 +1,54 @@
+#!/usr/bin/python
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+from CaseReader import CaseReader
+from optparse import OptionParser
+import os
+
+parser = OptionParser()
+parser.set_usage("Convert a Case file to a MED file.\n   %prog [options] case_file")
+parser.add_option("-c", "--currentdir", action="store_true", dest="here", default=False,
+                  help="Are generated MED file generated in current directory. By default not, MED file is generated in directory containing the input file (default False)")
+(opts, args) = parser.parse_args()
+
+if len(args) != 1:
+    parser.print_usage()
+    exit(1)
+    pass
+    
+fname=args[0]  #"cas_test_simple.case"
+if opts.here:
+    fOut=os.path.splitext(os.path.basename(fname))[0]+".med"
+    pass
+else:
+    fOut=os.path.splitext(fname)[0]+".med"
+    pass
+###
+cr=CaseReader(fname)
+try:
+    medfd=cr.loadInMEDFileDS()
+except:
+    print "An error occured during the conversion!"
+    print "#######################################"
+    raise
+medfd.write(fOut,2)
+print "#########\nFile \"%s\" written !\n#########"%(fOut)
+    

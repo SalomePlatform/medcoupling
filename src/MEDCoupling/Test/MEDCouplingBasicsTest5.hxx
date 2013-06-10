@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -69,6 +69,11 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testIntersect2DMeshesTmp5 );
     CPPUNIT_TEST( testDAIBuildUnique1 );
     CPPUNIT_TEST( testDAIPartitionByDifferentValues1 );
+    CPPUNIT_TEST( testDAICheckMonotonic1 );
+    CPPUNIT_TEST( testIntersect2DMeshesTmp6 );
+    CPPUNIT_TEST( testDAIBuildSubstractionOptimized1 );
+    CPPUNIT_TEST( testDAIIsStrictlyMonotonic1 );
+    CPPUNIT_TEST( testSimplexize3 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -104,6 +109,11 @@ namespace ParaMEDMEM
     void testIntersect2DMeshesTmp5();
     void testDAIBuildUnique1();
     void testDAIPartitionByDifferentValues1();
+    void testDAICheckMonotonic1();
+    void testIntersect2DMeshesTmp6();
+    void testDAIBuildSubstractionOptimized1();
+    void testDAIIsStrictlyMonotonic1();
+    void testSimplexize3();
   };
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -36,11 +36,14 @@ namespace ParaMEDMEM
   public:
     MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                  const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
+    MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
+    void setType(INTERP_KERNEL::NormalizedCellType typ) throw(INTERP_KERNEL::Exception);
     int getNumberOfGaussPt() const { return (int)_weight.size(); }
     int getDimension() const;
     int getNumberOfPtsInRefCell() const;
     std::string getStringRepr() const;
+    std::size_t getHeapMemorySize() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const;
     void pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const;
@@ -56,6 +59,9 @@ namespace ParaMEDMEM
     void setRefCoord(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
     void setGaussCoord(int gaussPtIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
     void setWeight(int gaussPtIdInCell, double newVal) throw(INTERP_KERNEL::Exception);
+    void setRefCoords(const std::vector<double>& refCoo) throw(INTERP_KERNEL::Exception);
+    void setGaussCoords(const std::vector<double>& gsCoo) throw(INTERP_KERNEL::Exception);
+    void setWeights(const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
     //
     static MEDCouplingGaussLocalization BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData);
     static bool AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);

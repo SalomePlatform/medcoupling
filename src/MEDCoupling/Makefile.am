@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -39,7 +39,7 @@ MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx MEDCouplingFieldTemplate.h
 MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
 MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx MEDCouplingGaussLocalization.hxx              \
 MEDCouplingAutoRefCountObjectPtr.hxx MEDCouplingMultiFields.hxx MEDCouplingDefinitionTime.hxx     \
-MEDCouplingFieldOverTime.hxx
+MEDCouplingFieldOverTime.hxx MEDCouplingCurveLinearMesh.hxx MEDCouplingStructuredMesh.hxx
 
 # Libraries targets
 
@@ -51,7 +51,9 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx  MEDCouplingFieldTemplate.cxx      \
 	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \
 	MEDCouplingNatureOfField.cxx MEDCouplingMultiFields.cxx                             \
-	MEDCouplingDefinitionTime.cxx MEDCouplingFieldOverTime.cxx
+	MEDCouplingDefinitionTime.cxx MEDCouplingFieldOverTime.cxx                          \
+	MEDCouplingCurveLinearMesh.cxx MEDCouplingStructuredMesh.cxx                        \
+	MEDCouplingMemArrayChar.cxx
 
 libmedcoupling_la_LDFLAGS= 
 

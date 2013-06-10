@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@
 
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
+#include "MEDPARTITIONER_Utils.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 
@@ -75,6 +76,9 @@ namespace MEDPARTITIONER
 
     //creation of the cell graph
     void buildCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
+   //creation of the cell graph
+    void buildParallelCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
+
     //creation and partition of the associated graph
     Topology* createPartition(int nbdomain, Graph::splitter_type type = Graph::METIS,
                               const std::string& ="", int* edgeweights=0, int* verticesweights=0);
@@ -143,6 +147,9 @@ namespace MEDPARTITIONER
                         const std::multimap<std::pair<int,int>, std::pair<int,int> >& nodeMapping,
                         std::vector<std::vector<std::vector<int> > >& new2oldIds);
 
+    //constructing connect zones
+    void buildConnectZones();
+
   private:
     void castIntField(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
                        std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo,
@@ -156,16 +163,21 @@ namespace MEDPARTITIONER
 
     
     void remapIntField(int inew, int iold, 
-                        const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
-                        const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
-                        const int* fromArray,
-                        std::string nameArrayTo,
-                       const BBTree<3,int>* tree);
+                       const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
+                       const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
+                       const int* fromArray,
+                       std::string nameArrayTo,
+                       const BBTreeOfDim* tree);
 
     void remapDoubleField(int inew, int iold,
                            ParaMEDMEM::DataArrayDouble* fromArray,
                            std::string nameArrayTo,
                            std::string descriptionField);
+
+    void createJointGroup( const std::vector< int >& faces,
+                           const int                 inew1,
+                           const int                 inew2,
+                           const bool                is2nd );
   private:
 
     //link to mesh_collection topology

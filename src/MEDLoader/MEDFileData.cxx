@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,34 @@ MEDFileData *MEDFileData::New()
   return new MEDFileData;
 }
 
+MEDFileData *MEDFileData::deepCpy() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFields> fields;
+  if((const MEDFileFields *)_fields)
+    fields=_fields->deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> meshes;
+  if((const MEDFileMeshes *)_meshes)
+    meshes=_meshes->deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileParameters> params;
+  if((const MEDFileParameters *)_params)
+    params=_params->deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> ret=MEDFileData::New();
+  ret->_fields=fields; ret->_meshes=meshes; ret->_params=params;
+  return ret.retn();
+}
+
+std::size_t MEDFileData::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if((const MEDFileFields *)_fields)
+    ret+=_fields->getHeapMemorySize();
+  if((const MEDFileMeshes *)_meshes)
+    ret+=_meshes->getHeapMemorySize();
+  if((const MEDFileParameters *)_params)
+    ret+=_params->getHeapMemorySize();
+  return ret;
+}
+
 MEDFileFields *MEDFileData::getFields() const
 {
   return const_cast<MEDFileFields *>(static_cast<const MEDFileFields *>(_fields));
@@ -42,20 +70,30 @@ MEDFileMeshes *MEDFileData::getMeshes() const
   return const_cast<MEDFileMeshes *>(static_cast<const MEDFileMeshes *>(_meshes));
 }
 
+MEDFileParameters *MEDFileData::getParams() const
+{
+  return const_cast<MEDFileParameters *>(static_cast<const MEDFileParameters *>(_params));
+}
+
 void MEDFileData::setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception)
 {
-  if(!fields)
-    throw INTERP_KERNEL::Exception("MEDFileData::setFields : input pointer is null !");
-  fields->incrRef();
+  if(fields)
+    fields->incrRef();
   _fields=fields;
 }
 
 void MEDFileData::setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception)
 {
-  if(!meshes)
-    throw INTERP_KERNEL::Exception("MEDFileData::setMeshes : input pointer is null !");
-  meshes->incrRef();
+  if(meshes)
+    meshes->incrRef();
   _meshes=meshes;
+}
+
+void MEDFileData::setParams(MEDFileParameters *params) throw(INTERP_KERNEL::Exception)
+{
+  if(params)
+    params->incrRef();
+  _params=params;
 }
 
 int MEDFileData::getNumberOfFields() const throw(INTERP_KERNEL::Exception)
@@ -72,6 +110,14 @@ int MEDFileData::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)
   if(!m)
     throw INTERP_KERNEL::Exception("MEDFileData::getNumberOfMeshes : no meshes set !");
   return m->getNumberOfMeshes();
+}
+
+int MEDFileData::getNumberOfParams() const throw(INTERP_KERNEL::Exception)
+{
+  const MEDFileParameters *p=_params;
+  if(!p)
+    throw INTERP_KERNEL::Exception("MEDFileData::getNumberOfParams : no params set !");
+  return p->getNumberOfParams();
 }
 
 std::string MEDFileData::simpleRepr() const
@@ -93,7 +139,15 @@ std::string MEDFileData::simpleRepr() const
       tmp2->simpleReprWithoutHeader(oss);
     }
   else
-    oss << "No meshes set !!!\n";
+    oss << "No meshes set !!!\n\n";
+  oss << "Params part :\n*************\n\n";
+  const MEDFileParameters *tmp3=_params;
+  if(tmp3)
+    {
+      tmp3->simpleReprWithoutHeader(oss);
+    }
+  else
+    oss << "No params set !!!\n";
   return oss.str();
 }
 
@@ -168,6 +222,7 @@ try
   {
     _fields=MEDFileFields::New(fileName);
     _meshes=MEDFileMeshes::New(fileName);
+    _params=MEDFileParameters::New(fileName);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
@@ -184,4 +239,7 @@ void MEDFileData::write(const char *fileName, int mode) const throw(INTERP_KERNE
   const MEDFileFields *fs=_fields;
   if(fs)
     fs->writeLL(fid);
+  const MEDFileParameters *ps=_params;
+  if(ps)
+    ps->writeLL(fid);
 }

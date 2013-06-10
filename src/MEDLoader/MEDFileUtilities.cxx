@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -38,16 +38,19 @@ med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode) throw
     }
 }
 
-int MEDFileUtilities::TraduceFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception)
+const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception)
 {
+  static const char medFloat64[]="MED_FLOAT64";
+  static const char medInt32[]="MED_INT32";
+  static const char medInt64[]="MED_INT64";
   switch(ft)
     {
     case MED_FLOAT64:
-      return 0;
+      return medFloat64;
     case MED_INT32:
-      return 1;
+      return medInt32;
     case MED_INT64:
-      return 2;
+      return medInt64;
     default:
       throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, INT32 or INT64 !");
     }

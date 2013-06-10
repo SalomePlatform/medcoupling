@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -49,6 +49,7 @@ void MEDCouplingBasicsTest2::testGaussPointField1()
   //
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_PT,NO_TIME);
+  CPPUNIT_ASSERT_THROW(f->getNumberOfTuples(), INTERP_KERNEL::Exception); // Sanity check!
   f->setMesh(m);
   CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   CPPUNIT_ASSERT_EQUAL(0,f->getNbOfGaussLocalization());
@@ -1093,7 +1094,7 @@ void MEDCouplingBasicsTest2::testGetMaxValue1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,f->getMaxValue(),1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,f->getMinValue(),1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(5.,f->getAverageValue(),1e-14);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.125,f->getWeightedAverageValue(),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.125,f->getWeightedAverageValue(0),1e-14);
   a1->setIJ(0,2,9.5);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(9.5,f->getMaxValue(),1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,f->getMinValue(),1e-14);
@@ -1276,12 +1277,12 @@ void MEDCouplingBasicsTest2::testGetIdsInRange1()
   //
   f1->checkCoherency();
   DataArrayInt *da=f1->getIdsInRange(2.9,7.1);
-  CPPUNIT_ASSERT_EQUAL(5,da->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)5,da->getNbOfElems());
   const int expected1[5]={2,3,5,7,9};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+5,da->getConstPointer()));
   da->decrRef();
   da=f1->getIdsInRange(8.,12.);
-  CPPUNIT_ASSERT_EQUAL(4,da->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL((std::size_t)4,da->getNbOfElems());
   const int expected2[4]={1,4,6,8};
   CPPUNIT_ASSERT(std::equal(expected2,expected2+4,da->getConstPointer()));
   da->decrRef();
@@ -1815,6 +1816,18 @@ void MEDCouplingBasicsTest2::testMaxPerTuple1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(5.6,f2->getIJ(i,0),1e-13);
   f2->decrRef();
   //
+  DataArrayInt *d2I=0;
+  DataArrayDouble *d2=array->maxPerTupleWithCompoId(d2I);
+  CPPUNIT_ASSERT_EQUAL(1,d2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,d2->getNumberOfTuples());
+  const int expected2[5]={4,3,2,0,1};
+  for(int i=0;i<5;i++)
+    {
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(5.6,d2->getIJ(i,0),1e-13);
+      CPPUNIT_ASSERT_EQUAL(expected2[i],d2I->getIJ(i,0));
+    }
+  d2->decrRef(); d2I->decrRef();
+  //
   mesh1->decrRef();
   f1->decrRef();
 }
@@ -1989,7 +2002,12 @@ void MEDCouplingBasicsTest2::testGetNodeIdsOfCell1()
 void MEDCouplingBasicsTest2::testGetEdgeRatioField1()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  m1->setTime(3.4,5,6); m1->setTimeUnit("us");
+  int a,b;
   MEDCouplingFieldDouble *f1=m1->getEdgeRatioField();
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,f1->getTime(a,b),1.e-14);
+  CPPUNIT_ASSERT_EQUAL(5,a); CPPUNIT_ASSERT_EQUAL(6,b);
+  CPPUNIT_ASSERT_EQUAL(std::string(f1->getTimeUnit()),std::string("us"));
   CPPUNIT_ASSERT_EQUAL(m1->getNumberOfCells(),f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());

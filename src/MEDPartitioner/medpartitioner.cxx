@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -72,6 +72,7 @@ int main(int argc, char** argv)
   //sequential : no MPI
   MyGlobals::_World_Size=1;
   MyGlobals::_Rank=0;
+  MyGlobals::_Creates_Boundary_Faces=0;
 
   // Primitive parsing of command-line options
   string desc ("Available options of medpartitioner V1.0:\n"
@@ -84,7 +85,7 @@ int main(int argc, char** argv)
   //user can choose!
                "\t--split-method=<string>  : name of the splitting library (metis/scotch), default is metis\n"
 #endif
-//               "\t--creates-boundary-faces : creates boundary faces mesh in the output files\n"
+               "\t--creates-boundary-faces : creates boundary faces mesh in the output files\n"
                "\t--dump-cpu-memory        : dumps passed CPU time and maximal increase of used memory\n"
                );
 
@@ -109,7 +110,7 @@ int main(int argc, char** argv)
       else if (TestArg(argv[i],"--output-file",value)) output=value;
       else if (TestArg(argv[i],"--split-method",value)) library=value;
       else if (TestArg(argv[i],"--ndomains",value)) ndomains=atoi(value.c_str());
-//      else if (TestArg(argv[i],"--creates-boundary-faces",value)) MyGlobals::_Creates_Boundary_Faces=1;
+      else if (TestArg(argv[i],"--creates-boundary-faces",value)) MyGlobals::_Creates_Boundary_Faces=1;
       else if (TestArg(argv[i],"--dump-cpu-memory",value)) mesure_memory=true;
       else 
         {
@@ -149,7 +150,7 @@ int main(int argc, char** argv)
       cout << "  output-file = " << output << endl;
       cout << "  split-method = " << library << endl;
       cout << "  ndomains = " << ndomains << endl;
-//      cout << "  creates_boundary_faces = " << MyGlobals::_Creates_Boundary_Faces << endl;
+      cout << "  creates_boundary_faces = " << MyGlobals::_Creates_Boundary_Faces << endl;
       cout << "  dump-cpu-memory = " << mesure_memory<< endl;
       cout << "  verbose = " << MyGlobals::_Verbose << endl;
     }

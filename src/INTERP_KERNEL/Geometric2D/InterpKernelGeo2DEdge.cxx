@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -540,6 +540,20 @@ void Edge::getNormalVector(double *vectOutput) const
   double tmp=vectOutput[0];
   vectOutput[0]=vectOutput[1];
   vectOutput[1]=-tmp;
+}
+
+Edge *Edge::BuildEdgeFrom3Points(const double *start, const double *middle, const double *end)
+{
+  Node *b(new Node(start[0],start[1])),*m(new Node(middle[0],middle[1])),*e(new Node(end[0],end[1]));
+  EdgeLin *e1(new EdgeLin(b,m)),*e2(new EdgeLin(m,e));
+  SegSegIntersector inters(*e1,*e2); bool colinearity=inters.areColinears(); delete e1; delete e2;
+  Edge *ret=0;
+  if(colinearity)
+    ret=new EdgeLin(b,e);
+  else
+    ret=new EdgeArcCircle(b,m,e);
+  b->decrRef(); m->decrRef(); e->decrRef();
+  return ret;
 }
 
 Edge *Edge::BuildEdgeFrom(Node *start, Node *end)

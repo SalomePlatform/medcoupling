@@ -18,9 +18,9 @@ library:
 
 \image html medlayers_70pc.png
 
-The fondamentals consists in three atomic libraries: 
+The fondamentals consists in three atomic libraries:
 
-- \ref medcoupling that describes DataStructures used for cross process exchange of meshes and fields. 
+- \ref medcoupling that describes DataStructures used for cross process exchange of meshes and fields.
 - \ref medloader that provides I/O functions to the MED file format
 - \ref interptools (INTERP_KERNEL + REMAPPER) that provides
   mathematical structures and algorithms for interpolation and
@@ -40,25 +40,25 @@ you to deal with most standard use case of fields manipulation. The
 user guide can be found here:
 
 - <a class="el" target="_new"
-  href="../../dev/MED/xmed-userguide.html">User guide of the MED Graphical Interface</a>
+  href="../../dev/MED/medop-userguide.html">User guide of the MED Graphical Interface (in french)</a>
 
 You could also be interested to read the software specifications and
 requirements for this graphical module, and even the technical
 considerations for development:
 
 - <a class="el" target="_new"
-  href="../../dev/MED/xmed-specifications.html">Software
-  specifications and requirements of the MED Graphical Interface</a>
+  href="../../dev/MED/medop-specifications.html">Software
+  specifications and requirements of the MED Graphical Interface (in french)</a>
 - <a class="el" target="_new"
-  href="../../dev/MED/xmed-develguide.html">Developer guide of the MED Graphical Interface</a>
+  href="../../dev/MED/medop-develguide.html">Developer guide of the MED Graphical Interface (in french)</a>
 
 \section S3 A set of tools for file manipulation
 
 - Chapter \ref tools describes various tools based on MEDMEM  that can
-be helpful for handling MED files (conversion tools and splitting tools). 
+be helpful for handling MED files (conversion tools and splitting tools).
 
-\section install Installation 
-The install procedure of the %MED SALOME module can handle a variety of configurations 
+\section install Installation
+The install procedure of the %MED SALOME module can handle a variety of configurations
 to suit the needs of its user. Instructions for configuring and
 installing the module an be found in \ref medmem_install.
 

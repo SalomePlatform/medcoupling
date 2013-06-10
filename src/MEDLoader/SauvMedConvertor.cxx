@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -268,7 +268,7 @@ const int * SauvUtilities::getGibi2MedQuadraticInterlace( INTERP_KERNEL::Normali
 {
   static vector<const int*> conn;
   static const int hexa20 [] = {0,6,4,2, 12,18,16,14, 7,5,3,1, 19,17,15,13, 8,11,10,9};
-  static const int penta15[] = {0,2,4, 9,11,13, 1,3,5, 10,12,14, 6,7,3};
+  static const int penta15[] = {0,2,4, 9,11,13, 1,3,5, 10,12,14, 6,8,7};
   static const int pyra13 [] = {0,2,4,6, 12, 1,3,5,7, 8,9,10,11};
   static const int tetra10[] = {0,2,4, 9, 1,3,5, 6,7,8};
   static const int quad8  [] = {0,2,4,6, 1,3,5,7};
@@ -1118,8 +1118,7 @@ ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
   medData->setMeshes( meshes );
   if ( fields ) medData->setFields( fields );
 
-  medData->incrRef();
-  return medData;
+  return medData.retn();
 }
 
 //================================================================================
@@ -1578,9 +1577,16 @@ void IntermediateMED::orientFaces3D()
                               if ( lfIt2 != linkFacesMap.end() )
                                 {
                                   list<const Cell*> & ff = lfIt2->second;
-                                  ff.erase( find( ff.begin(), ff.end(), badFace ));
-                                  if ( ff.empty() )
-                                    linkFacesMap.erase( lfIt2 );
+                                  list<const Cell*>::iterator lfIt3 = find( ff.begin(), ff.end(), badFace );
+                                  // check if badFace has been found,
+                                  // else we can't erase it
+                                  // case of degenerated face in edge
+                                  if (lfIt3 != ff.end())
+                                    {
+                                      ff.erase( lfIt3 );
+                                      if ( ff.empty() )
+                                        linkFacesMap.erase( lfIt2 );
+                                    }
                                 }
                             }
                           badFace->_reverse = true; // reverse
@@ -2121,7 +2127,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
                              const int                    iSub)
 {
   // analyze a field support
-  const Group* support = fld->getSupport( iSub );
+  const Group* support = fld->getSupport();
   int dimRel;
   const bool onAll = isOnAll( support, dimRel );
   if ( !onAll && support->_name.empty() )
@@ -2377,7 +2383,7 @@ int DoubleField::setValues( double * valPtr, const int iSub, const int elemShift
     THROW_IK_EXCEPTION("SauvMedConvertor.cxx: support size mismatches field size");
   // compute nb values in previous subs
   int valsShift = 0;
-  for ( int iS = iSub-1, shift = elemShift; shift > 0; )
+  for ( int iS = iSub-1, shift = elemShift; shift > 0; --iS)
   {
     int nbE = _sub[iS]._support->size();
     shift -= nbE;

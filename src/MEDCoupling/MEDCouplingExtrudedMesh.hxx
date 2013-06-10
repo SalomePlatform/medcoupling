@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -39,6 +39,7 @@ namespace ParaMEDMEM
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     static MEDCouplingExtrudedMesh *New();
     MEDCouplingMeshType getType() const;
+    std::size_t getHeapMemorySize() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     int getNumberOfCells() const;
     int getNumberOfNodes() const;
@@ -54,6 +55,9 @@ namespace ParaMEDMEM
                                          DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
+    DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
@@ -90,12 +94,14 @@ namespace ParaMEDMEM
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
+    DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     //Serialization unserialisation
     void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
     void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                          const std::vector<std::string>& littleStrings);
+    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCopy);

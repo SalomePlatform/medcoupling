@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -113,8 +113,11 @@ namespace INTERP_KERNEL
     _quadratic=false;
     _dyn=false;
     _extruded_type=NORM_ERROR;
+    _reverse_extruded_type=NORM_ERROR;
     _linear_type=NORM_ERROR;
     _quadratic_type=NORM_ERROR;
+    _quadratic_type2=NORM_ERROR;
+    _nb_of_little_sons=std::numeric_limits<unsigned>::max();
     switch(type)
       {
       case NORM_POINT1:
@@ -124,7 +127,7 @@ namespace INTERP_KERNEL
         break;
       case NORM_SEG2:
         {
-          _nb_of_pts=2; _nb_of_sons=2; _dim=1; _extruded_type=NORM_QUAD4; _quadratic_type=NORM_SEG3; _is_simplex=true; _is_extruded=true;
+          _nb_of_pts=2; _nb_of_sons=2; _dim=1; _extruded_type=NORM_QUAD4; _quadratic_type=NORM_SEG3; _quadratic_type2=NORM_SEG3; _is_simplex=true; _is_extruded=true; _reverse_extruded_type=NORM_POINT1;
           _sons_type[0]=NORM_POINT1; _sons_type[1]=NORM_POINT1;
           _sons_con[0][0]=0; _nb_of_sons_con[0]=1;
           _sons_con[1][0]=1; _nb_of_sons_con[1]=1;
@@ -157,11 +160,17 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=0; _sons_con[1][1]=3; _sons_con[1][2]=1; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=1; _sons_con[2][1]=3; _sons_con[2][2]=2; _nb_of_sons_con[2]=3;
           _sons_con[3][0]=2; _sons_con[3][1]=3; _sons_con[3][2]=0; _nb_of_sons_con[3]=3;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _nb_of_little_sons=6;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=0;
+          _little_sons_con[3][0]=0; _little_sons_con[3][1]=3;
+          _little_sons_con[4][0]=1; _little_sons_con[4][1]=3;
+          _little_sons_con[5][0]=2; _little_sons_con[5][1]=3;
         }
         break;
       case NORM_HEXA8:
         {
-          _nb_of_pts=8; _nb_of_sons=6; _dim=3; _quadratic_type=NORM_HEXA20; _is_simplex=false; _is_extruded=true;
+          _nb_of_pts=8; _nb_of_sons=6; _dim=3; _quadratic_type=NORM_HEXA20; _quadratic_type2=NORM_HEXA27; _is_simplex=false; _is_extruded=true; _reverse_extruded_type=NORM_QUAD4;
           _sons_type[0]=NORM_QUAD4; _sons_type[1]=NORM_QUAD4; _sons_type[2]=NORM_QUAD4; _sons_type[3]=NORM_QUAD4; _sons_type[4]=NORM_QUAD4; _sons_type[5]=NORM_QUAD4;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=3; _nb_of_sons_con[0]=4;
           _sons_con[1][0]=4; _sons_con[1][1]=7; _sons_con[1][2]=6; _sons_con[1][3]=5; _nb_of_sons_con[1]=4;
@@ -169,11 +178,23 @@ namespace INTERP_KERNEL
           _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][2]=6; _sons_con[3][3]=2; _nb_of_sons_con[3]=4;
           _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][2]=7; _sons_con[4][3]=3; _nb_of_sons_con[4]=4;
           _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][2]=4; _sons_con[5][3]=0; _nb_of_sons_con[5]=4;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _nb_of_little_sons=12;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=3;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=0;
+          _little_sons_con[4][0]=4; _little_sons_con[4][1]=5;
+          _little_sons_con[5][0]=5; _little_sons_con[5][1]=6;
+          _little_sons_con[6][0]=6; _little_sons_con[6][1]=7;
+          _little_sons_con[7][0]=7; _little_sons_con[7][1]=4;
+          _little_sons_con[8][0]=0; _little_sons_con[8][1]=4;
+          _little_sons_con[9][0]=1; _little_sons_con[9][1]=5;
+          _little_sons_con[10][0]=2; _little_sons_con[10][1]=6;
+          _little_sons_con[11][0]=3; _little_sons_con[11][1]=7;
         }
         break;
       case NORM_QUAD4:
         {
-          _nb_of_pts=4; _nb_of_sons=4; _dim=2; _quadratic_type=NORM_QUAD8; _is_simplex=false; _is_extruded=true;
+          _nb_of_pts=4; _nb_of_sons=4; _dim=2; _quadratic_type=NORM_QUAD8; _quadratic_type2=NORM_QUAD9; _is_simplex=false; _is_extruded=true;
           _sons_type[0]=NORM_SEG2; _sons_type[1]=NORM_SEG2; _sons_type[2]=NORM_SEG2; _sons_type[3]=NORM_SEG2;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _nb_of_sons_con[0]=2;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _nb_of_sons_con[1]=2;
@@ -183,7 +204,7 @@ namespace INTERP_KERNEL
         break;
       case NORM_TRI3:
         {
-          _nb_of_pts=3; _nb_of_sons=3; _dim=2; _quadratic_type=NORM_TRI6; _is_simplex=true;
+          _nb_of_pts=3; _nb_of_sons=3; _dim=2; _quadratic_type=NORM_TRI6; _quadratic_type2=NORM_TRI7; _is_simplex=true;
           _sons_type[0]=NORM_SEG2; _sons_type[1]=NORM_SEG2; _sons_type[2]=NORM_SEG2;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _nb_of_sons_con[0]=2;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _nb_of_sons_con[1]=2;
@@ -237,17 +258,34 @@ namespace INTERP_KERNEL
           _sons_con[2][0]=1; _sons_con[2][1]=4; _sons_con[2][2]=2; _nb_of_sons_con[2]=3;
           _sons_con[3][0]=2; _sons_con[3][1]=4; _sons_con[3][2]=3; _nb_of_sons_con[3]=3;
           _sons_con[4][0]=3; _sons_con[4][1]=4; _sons_con[4][2]=0; _nb_of_sons_con[4]=3;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _nb_of_little_sons=8;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=3;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=0;
+          _little_sons_con[4][0]=0; _little_sons_con[4][1]=4;
+          _little_sons_con[5][0]=1; _little_sons_con[5][1]=4;
+          _little_sons_con[6][0]=2; _little_sons_con[6][1]=4;
+          _little_sons_con[7][0]=3; _little_sons_con[7][1]=4;
         }
         break;
       case NORM_PENTA6:
         {
-          _nb_of_pts=6; _nb_of_sons=5; _dim=3; _quadratic_type=NORM_PENTA15; _is_simplex=false; _is_extruded=true;
+          _nb_of_pts=6; _nb_of_sons=5; _dim=3; _quadratic_type=NORM_PENTA15; _is_simplex=false; _is_extruded=true; _reverse_extruded_type=NORM_TRI3;
           _sons_type[0]=NORM_TRI3; _sons_type[1]=NORM_TRI3; _sons_type[2]=NORM_QUAD4; _sons_type[3]=NORM_QUAD4; _sons_type[4]=NORM_QUAD4;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _nb_of_sons_con[0]=3;
           _sons_con[1][0]=3; _sons_con[1][1]=5; _sons_con[1][2]=4; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=0; _sons_con[2][1]=3; _sons_con[2][2]=4; _sons_con[2][3]=1; _nb_of_sons_con[2]=4;
           _sons_con[3][0]=1; _sons_con[3][1]=4; _sons_con[3][2]=5; _sons_con[3][3]=2; _nb_of_sons_con[3]=4;
           _sons_con[4][0]=2; _sons_con[4][1]=5; _sons_con[4][2]=3; _sons_con[4][3]=0; _nb_of_sons_con[4]=4;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _nb_of_little_sons=9;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=0;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=4;
+          _little_sons_con[4][0]=4; _little_sons_con[4][1]=5;
+          _little_sons_con[5][0]=5; _little_sons_con[5][1]=3;
+          _little_sons_con[6][0]=0; _little_sons_con[6][1]=3;
+          _little_sons_con[7][0]=1; _little_sons_con[7][1]=4;
+          _little_sons_con[8][0]=2; _little_sons_con[8][1]=5;
         }
         break;
       case NORM_TETRA10:
@@ -258,6 +296,12 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=0; _sons_con[1][1]=3; _sons_con[1][2]=1; _sons_con[1][3]=7; _sons_con[1][4]=8; _sons_con[1][5]=4; _nb_of_sons_con[1]=6;
           _sons_con[2][0]=1; _sons_con[2][1]=3; _sons_con[2][2]=2; _sons_con[2][3]=8; _sons_con[2][4]=9; _sons_con[2][5]=5; _nb_of_sons_con[2]=6;
           _sons_con[3][0]=2; _sons_con[3][1]=3; _sons_con[3][2]=0; _sons_con[3][3]=9; _sons_con[3][4]=7; _sons_con[3][5]=6; _nb_of_sons_con[3]=6;  _quadratic=true;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _little_sons_con[0][2]=4;  _nb_of_little_sons=6;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;  _little_sons_con[1][2]=5;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=0;  _little_sons_con[2][2]=6;
+          _little_sons_con[3][0]=0; _little_sons_con[3][1]=3;  _little_sons_con[3][2]=7;
+          _little_sons_con[4][0]=1; _little_sons_con[4][1]=3;  _little_sons_con[4][2]=8;
+          _little_sons_con[5][0]=2; _little_sons_con[5][1]=3;  _little_sons_con[5][2]=9;
         }
         break;
       case NORM_HEXGP12:
@@ -284,6 +328,14 @@ namespace INTERP_KERNEL
           _sons_con[2][0]=1; _sons_con[2][1]=4; _sons_con[2][2]=2; _sons_con[2][3]=10; _sons_con[2][4]=11; _sons_con[2][5]=6; _nb_of_sons_con[2]=6;
           _sons_con[3][0]=2; _sons_con[3][1]=4; _sons_con[3][2]=3; _sons_con[3][3]=11; _sons_con[3][4]=12; _sons_con[3][5]=7;  _nb_of_sons_con[3]=6;
           _sons_con[4][0]=3; _sons_con[4][1]=4; _sons_con[4][2]=0; _sons_con[4][3]=12; _sons_con[4][4]=9; _sons_con[4][5]=8; _nb_of_sons_con[4]=6; _quadratic=true;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1; _little_sons_con[0][2]=5;  _nb_of_little_sons=8;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2; _little_sons_con[1][2]=6;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=3; _little_sons_con[2][2]=7;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=0; _little_sons_con[3][2]=8;
+          _little_sons_con[4][0]=0; _little_sons_con[4][1]=4; _little_sons_con[4][2]=9;
+          _little_sons_con[5][0]=1; _little_sons_con[5][1]=4; _little_sons_con[5][2]=10;
+          _little_sons_con[6][0]=2; _little_sons_con[6][1]=4; _little_sons_con[6][2]=11;
+          _little_sons_con[7][0]=3; _little_sons_con[7][1]=4; _little_sons_con[7][2]=12;
         }
         break;
       case NORM_PENTA15:
@@ -295,6 +347,15 @@ namespace INTERP_KERNEL
           _sons_con[2][0]=0; _sons_con[2][1]=3; _sons_con[2][2]=4; _sons_con[2][3]=1; _sons_con[2][4]=12; _sons_con[2][5]=9; _sons_con[2][6]=13; _sons_con[2][7]=6; _nb_of_sons_con[2]=8;
           _sons_con[3][0]=1; _sons_con[3][1]=4; _sons_con[3][2]=5; _sons_con[3][3]=2; _sons_con[3][4]=13; _sons_con[3][5]=10; _sons_con[3][6]=14; _sons_con[3][7]=7; _nb_of_sons_con[3]=8;
           _sons_con[4][0]=2; _sons_con[4][1]=4; _sons_con[4][2]=5; _sons_con[4][3]=0; _sons_con[4][4]=14; _sons_con[4][5]=11; _sons_con[4][6]=12; _sons_con[4][7]=8; _nb_of_sons_con[4]=8; _quadratic=true;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1; _little_sons_con[0][2]=6;  _nb_of_little_sons=9;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2; _little_sons_con[1][2]=7;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=0; _little_sons_con[2][2]=8;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=4; _little_sons_con[3][2]=9;
+          _little_sons_con[4][0]=4; _little_sons_con[4][1]=5; _little_sons_con[4][2]=10;
+          _little_sons_con[5][0]=5; _little_sons_con[5][1]=3; _little_sons_con[5][2]=11;
+          _little_sons_con[6][0]=0; _little_sons_con[6][1]=3; _little_sons_con[6][2]=12;
+          _little_sons_con[7][0]=1; _little_sons_con[7][1]=4; _little_sons_con[7][2]=13;
+          _little_sons_con[8][0]=2; _little_sons_con[8][1]=5; _little_sons_con[8][2]=14;
         }
         break;
       case NORM_HEXA20:
@@ -304,9 +365,21 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=3; _sons_con[0][4]=8; _sons_con[0][5]=9; _sons_con[0][6]=10; _sons_con[0][7]=11; _nb_of_sons_con[0]=8;
           _sons_con[1][0]=4; _sons_con[1][1]=7; _sons_con[1][2]=6; _sons_con[1][3]=5; _sons_con[1][4]=15; _sons_con[1][5]=14; _sons_con[1][6]=13; _sons_con[1][7]=12; _nb_of_sons_con[1]=8;
           _sons_con[2][0]=0; _sons_con[2][1]=4; _sons_con[2][2]=5; _sons_con[2][3]=1; _sons_con[2][4]=16; _sons_con[2][5]=12; _sons_con[2][6]=17; _sons_con[2][7]=8; _nb_of_sons_con[2]=8;
-          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][3]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9;_nb_of_sons_con[3]=8;
-          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][3]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _nb_of_sons_con[4]=8;
-          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][3]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _nb_of_sons_con[5]=8; _quadratic=true;
+          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][2]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9;_nb_of_sons_con[3]=8;
+          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][2]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _nb_of_sons_con[4]=8;
+          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][2]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _nb_of_sons_con[5]=8; _quadratic=true;
+          _little_sons_con[0][0]=0; _little_sons_con[0][1]=1;  _little_sons_con[0][2]=8; _nb_of_little_sons=12;
+          _little_sons_con[1][0]=1; _little_sons_con[1][1]=2;  _little_sons_con[1][2]=9;
+          _little_sons_con[2][0]=2; _little_sons_con[2][1]=3;  _little_sons_con[2][2]=10;
+          _little_sons_con[3][0]=3; _little_sons_con[3][1]=0;  _little_sons_con[3][2]=11;
+          _little_sons_con[4][0]=4; _little_sons_con[4][1]=5;  _little_sons_con[4][2]=12;
+          _little_sons_con[5][0]=5; _little_sons_con[5][1]=6;  _little_sons_con[5][2]=13;
+          _little_sons_con[6][0]=6; _little_sons_con[6][1]=7;  _little_sons_con[6][2]=14;
+          _little_sons_con[7][0]=7; _little_sons_con[7][1]=4;  _little_sons_con[7][2]=15;
+          _little_sons_con[8][0]=0; _little_sons_con[8][1]=4;  _little_sons_con[8][2]=16;
+          _little_sons_con[9][0]=1; _little_sons_con[9][1]=5;  _little_sons_con[9][2]=17;
+          _little_sons_con[10][0]=2; _little_sons_con[10][1]=6;  _little_sons_con[10][2]=18;
+          _little_sons_con[11][0]=3; _little_sons_con[11][1]=7;  _little_sons_con[11][2]=19;
         }
         break;
       case NORM_HEXA27:
@@ -316,15 +389,15 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=3; _sons_con[0][4]=8; _sons_con[0][5]=9; _sons_con[0][6]=10; _sons_con[0][7]=11; _sons_con[0][8]=20; _nb_of_sons_con[0]=9;
           _sons_con[1][0]=4; _sons_con[1][1]=7; _sons_con[1][2]=6; _sons_con[1][3]=5; _sons_con[1][4]=15; _sons_con[1][5]=14; _sons_con[1][6]=13; _sons_con[1][7]=12; _sons_con[1][8]=25; _nb_of_sons_con[1]=9;
           _sons_con[2][0]=0; _sons_con[2][1]=4; _sons_con[2][2]=5; _sons_con[2][3]=1; _sons_con[2][4]=16; _sons_con[2][5]=12; _sons_con[2][6]=17; _sons_con[2][7]=8; _sons_con[2][8]=21; _nb_of_sons_con[2]=9;   
-          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][3]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9; _sons_con[3][8]=22; _nb_of_sons_con[3]=9;
-          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][3]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _sons_con[4][8]=23; _nb_of_sons_con[4]=9;
-          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][3]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _sons_con[5][8]=24; _nb_of_sons_con[5]=9;
+          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][2]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9; _sons_con[3][8]=22; _nb_of_sons_con[3]=9;
+          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][2]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _sons_con[4][8]=23; _nb_of_sons_con[4]=9;
+          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][2]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _sons_con[5][8]=24; _nb_of_sons_con[5]=9;
           _quadratic=true;
         }
         break;
       case NORM_POLYGON:
         {
-          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _extruded_type=NORM_POLYHED; _is_simplex=false;
+          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _extruded_type=NORM_POLYHED; _is_simplex=false; _quadratic_type=NORM_QPOLYG;
         }
         break;
       case NORM_POLYHED:
@@ -334,7 +407,7 @@ namespace INTERP_KERNEL
         break;
       case NORM_QPOLYG:
         {
-          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _is_simplex=false; _quadratic=true;
+          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _is_simplex=false; _quadratic=true; _linear_type=NORM_POLYGON;
         }
         break;
       case NORM_POLYL:
@@ -367,6 +440,44 @@ namespace INTERP_KERNEL
       return lgth;//NORM_POLYL
     else
       return std::count(conn,conn+lgth,-1)+1;
+  }
+
+  unsigned CellModel::getNumberOfEdgesIn3D(const int *conn, int lgth) const
+  {
+    if(!isDynamic())
+      return _nb_of_little_sons;
+    else//polyhedron
+      return (lgth-std::count(conn,conn+lgth,-1))/2;
+  }
+  
+  NormalizedCellType CellModel::getCorrespondingPolyType() const
+  {
+    switch(getDimension())
+      {
+      case 0:
+        return NORM_POINT1;
+      case 1:
+        {
+          if(!isQuadratic())
+            return NORM_POLYL;
+          throw INTERP_KERNEL::Exception("CellModel::getPolyType : no poly type for quadratic 1D !");
+        }
+      case 2:
+        {
+          if(!isQuadratic())
+            return NORM_POLYGON;
+          else
+            return NORM_QPOLYG;
+        }
+      case 3:
+        {
+          if(!isQuadratic())
+            return NORM_POLYHED;
+          throw INTERP_KERNEL::Exception("CellModel::getPolyType : no poly type for quadratic 3D !");
+        }
+      default:
+        throw INTERP_KERNEL::Exception("CellModel::getPolyType : only dimension 0, 1, 2, 3 are supported !");
+      }
   }
 
   /*!
@@ -439,6 +550,44 @@ namespace INTERP_KERNEL
         else
           throw INTERP_KERNEL::Exception("CellModel::fillSonCellNodalConnectivity2 : no sons on NORM_POLYL !");
       }
+  }
+  
+  /*!
+   * Equivalent to CellModel::fillSonCellNodalConnectivity2 except for HEXA8 where the order of sub faces is not has MED file numbering for transformation HEXA8->HEXA27
+   */
+  unsigned CellModel::fillSonCellNodalConnectivity4(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  {
+    if(_type==NORM_HEXA8)
+      {
+        static const int permutation[6]={0,2,3,4,5,1};
+        return fillSonCellNodalConnectivity2(permutation[sonId],nodalConn,lgth,sonNodalConn,typeOfSon);
+      }
+    else
+      return fillSonCellNodalConnectivity2(sonId,nodalConn,lgth,sonNodalConn,typeOfSon);
+  }
+
+  unsigned CellModel::fillSonEdgesNodalConnectivity3D(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  {
+    if(!isDynamic())
+      {
+        if(!isQuadratic())
+          {
+            typeOfSon=NORM_SEG2;
+            sonNodalConn[0]=nodalConn[_little_sons_con[sonId][0]];
+            sonNodalConn[1]=nodalConn[_little_sons_con[sonId][1]];
+            return 2;
+          }
+        else
+          {
+            typeOfSon=NORM_SEG3;
+            sonNodalConn[0]=nodalConn[_little_sons_con[sonId][0]];
+            sonNodalConn[1]=nodalConn[_little_sons_con[sonId][1]];
+            sonNodalConn[2]=nodalConn[_little_sons_con[sonId][2]];
+            return 3;
+          }
+      }
+    else
+      throw INTERP_KERNEL::Exception("CellModel::fillSonEdgesNodalConnectivity3D : not implemented yet for NORM_POLYHED !");   
   }
 
   //================================================================================

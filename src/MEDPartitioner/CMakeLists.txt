@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -69,6 +69,7 @@ SET(medpartitionercpp_SOURCES
   MEDPARTITIONER_ParaDomainSelector.cxx
   MEDPARTITIONER_ConnectZone.cxx
   MEDPARTITIONER_SkyLineArray.cxx
+  MEDPARTITIONER_metis.c
   )
 
 SET(medpartitionercpp_DEFINITIONS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${LIBXML_DEFINITIONS} ${MPI_DEFINITIONS}")
@@ -83,25 +84,24 @@ SET(medpartitionercpp_LDFLAGS
   medloader
 )
 IF(MED_ENABLE_PARMETIS)
-  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)
+  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ParMetisGraph.hxx)
   SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ParMetisGraph.cxx)
   SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${PARMETIS_DEFINITIONS}")
   SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${PARMETIS_LIBS})
-ELSE(MED_ENABLE_PARMETIS)  
-  IF(MED_ENABLE_METIS)
-    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)  
-    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_MetisGraph.cxx)
-    SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${METIS_DEFINITIONS}")
-    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${METIS_LIBS})
-  ENDIF(MED_ENABLE_METIS)
-  IF(MED_ENABLE_SCOTCH)
-    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ScotchGraph.hxx)
-    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ScotchGraph.cxx)
-    SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${SCOTCH_DEFINITIONS}")
-    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBS})
-  ENDIF(MED_ENABLE_SCOTCH)    
-ENDIF(MED_ENABLE_PARMETIS)  
-  
+ENDIF(MED_ENABLE_PARMETIS)
+IF(MED_ENABLE_METIS)
+  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)
+  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_MetisGraph.cxx)
+  SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${METIS_DEFINITIONS}")
+  SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${METIS_LIBS})
+ENDIF(MED_ENABLE_METIS)
+IF(MED_ENABLE_SCOTCH)
+  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ScotchGraph.hxx)
+  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ScotchGraph.cxx)
+  SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${SCOTCH_DEFINITIONS}")
+  SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBS})
+ENDIF(MED_ENABLE_SCOTCH)
+
 IF(MPI_IS_OK)
   SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES}
     MEDPARTITIONER_UtilsPara.cxx
@@ -119,11 +119,11 @@ IF(MED_ENABLE_PARMETIS)
   SET_TARGET_PROPERTIES(medpartitioner_para PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp ${medpartitionercpp_LDFLAGS})
   INSTALL(TARGETS medpartitioner_para DESTINATION ${MED_salomebin_BINS})
-ELSE(MED_ENABLE_PARMETIS)
-  ADD_EXECUTABLE(medpartitioner medpartitioner.cxx)
-  SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
-  TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp ${medpartitionercpp_LDFLAGS})
-  INSTALL(TARGETS medpartitioner DESTINATION ${MED_salomebin_BINS})
 ENDIF(MED_ENABLE_PARMETIS)
+
+ADD_EXECUTABLE(medpartitioner medpartitioner.cxx)
+SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp ${medpartitionercpp_LDFLAGS})
+INSTALL(TARGETS medpartitioner DESTINATION ${MED_salomebin_BINS})
 
 INSTALL(FILES ${medpartitionercpp_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})

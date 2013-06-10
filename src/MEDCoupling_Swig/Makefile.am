@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -24,13 +24,13 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 lib_LTLIBRARIES = _MEDCoupling.la _MEDCouplingRemapper.la
 
 salomeinclude_HEADERS =  \
-	MEDCoupling.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingCommon.i MEDCouplingFinalize.i
+	MEDCoupling.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingCommon.i MEDCouplingFinalize.i MEDCouplingMemArray.i
 
 BUILT_SOURCES = MEDCouplingWRAP.cxx MEDCouplingRemapperWRAP.cxx
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL
 
-dist__MEDCoupling_la_SOURCES   = MEDCoupling.i MEDCouplingTypemaps.i MEDCouplingCommon.i MEDCouplingFinalize.i
+dist__MEDCoupling_la_SOURCES   = MEDCoupling.i MEDCouplingTypemaps.i MEDCouplingCommon.i MEDCouplingFinalize.i MEDCouplingMemArray.i
 nodist__MEDCoupling_la_SOURCES = MEDCouplingWRAP.cxx
 MEDCoupling.py: MEDCouplingWRAP.cxx
 
@@ -58,7 +58,7 @@ _MEDCouplingRemapper_la_LDFLAGS  = -module $(PYTHON_LIBS) \
 
 CLEANFILES = MEDCouplingWRAP.cxx MEDCoupling.py MEDCouplingRemapperWRAP.cxx MEDCouplingRemapper.py
 
-dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCoupling.py MEDCouplingRemapper.py MEDCouplingDataForTest.py libMEDCoupling_Swig.py
+dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCoupling.py MEDCouplingRemapper.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py libMEDCoupling_Swig.py
 
 UNIT_TEST_PROG = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
 

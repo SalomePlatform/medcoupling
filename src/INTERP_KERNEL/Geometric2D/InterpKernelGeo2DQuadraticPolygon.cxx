@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -29,6 +29,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <cstring>
 #include <limits>
@@ -1144,7 +1145,12 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   std::list<QuadraticPolygon *> retPolsUnderContruction;
   std::list<Edge *> edgesInPol2OnBoundaryL(edgesInPol2OnBoundary.begin(),edgesInPol2OnBoundary.end());
   std::map<QuadraticPolygon *, std::list<QuadraticPolygon *> > pol1ZipConsumed;
-  while(!pol1Zip.empty() || !edgesInPol2OnBoundaryL.empty())
+  std::size_t maxNbOfTurn=edgesInPol2OnBoundaryL.size(),nbOfTurn=0,iiMNT=0;
+  for(std::list<QuadraticPolygon *>::const_iterator itMNT=pol1Zip.begin();itMNT!=pol1Zip.end();itMNT++,iiMNT++)
+    nbOfTurn+=(*itMNT)->size();
+  maxNbOfTurn=maxNbOfTurn*nbOfTurn; maxNbOfTurn*=maxNbOfTurn;
+  nbOfTurn=0;
+  while(nbOfTurn<maxNbOfTurn && ((!pol1Zip.empty() || !edgesInPol2OnBoundaryL.empty())))
     {
       for(std::list<QuadraticPolygon *>::iterator it1=retPolsUnderContruction.begin();it1!=retPolsUnderContruction.end();)
         {
@@ -1206,6 +1212,13 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
           retPolsUnderContruction.push_back(tmp);
           pol1Zip.erase(pol1Zip.begin());
         }
+      nbOfTurn++;
+    }
+  if(nbOfTurn==maxNbOfTurn)
+    {
+      std::ostringstream oss; oss << "Error during reconstruction of residual of cell ! It appears that either source or/and target mesh is/are not conform !";
+      oss << " Number of turns is = " << nbOfTurn << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   for(std::list<QuadraticPolygon *>::iterator it1=retPolsUnderContruction.begin();it1!=retPolsUnderContruction.end();it1++)
     {
@@ -1215,7 +1228,6 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
           for(std::list<QuadraticPolygon *>::iterator it6=pol1ZipConsumed[*it1].begin();it6!=pol1ZipConsumed[*it1].end();it6++)
             delete *it6;
           delete *it1;
-          it1=retPolsUnderContruction.erase(it1);
         }
     }
 }

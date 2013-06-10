@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -23,12 +23,70 @@
 static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
+  if(!mesh)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
   if(dynamic_cast<ParaMEDMEM::MEDFileUMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileUMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDFileCMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDFileCurveLinearMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCurveLinearMesh,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of MEDFileMesh on downcast !");
+  return ret;
+}
+
+static PyObject* convertMEDFileParameter1TS(ParaMEDMEM::MEDFileParameter1TS* p1ts, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!p1ts)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDFileParameterDouble1TS *>(p1ts))
+    ret=SWIG_NewPointerObj((void*)p1ts,SWIGTYPE_p_ParaMEDMEM__MEDFileParameterDouble1TS,owner);
+  if(dynamic_cast<MEDFileParameterDouble1TSWTI *>(p1ts))
+    ret=SWIG_NewPointerObj((void*)p1ts,SWIGTYPE_p_ParaMEDMEM__MEDFileParameterDouble1TSWTI,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of MEDFileParameter1TS on downcast !");
+  return ret;
+}
+
+static PyObject* convertMEDFileField1TS(ParaMEDMEM::MEDFileAnyTypeField1TS *p, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!p)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDFileField1TS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDFileField1TS,owner);
+  if(dynamic_cast<MEDFileIntField1TS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDFileIntField1TS,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of MEDFileAnyTypeField1TS on downcast !");
+  return ret;
+}
+
+static PyObject* convertMEDFileFieldMultiTS(ParaMEDMEM::MEDFileAnyTypeFieldMultiTS *p, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!p)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDFileFieldMultiTS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDFileFieldMultiTS,owner);
+  if(dynamic_cast<MEDFileIntFieldMultiTS *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDFileIntFieldMultiTS,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of MEDFileAnyTypeFieldMultiTS on downcast !");
   return ret;
 }
 
@@ -157,7 +215,7 @@ std::vector< std::pair<std::string, std::string > > convertVecPairStStFromPy(PyO
                 throw INTERP_KERNEL::Exception(msg);
               PyObject *o0=PyTuple_GetItem(o,0);
               if(PyString_Check(o0))
-                p.second=std::string(PyString_AsString(o0));
+                p.first=std::string(PyString_AsString(o0));
               else
                 throw INTERP_KERNEL::Exception(msg);
               PyObject *o1=PyTuple_GetItem(o,1);
@@ -195,9 +253,9 @@ std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairV
               PyObject *o0=PyTuple_GetItem(o,0);
               if(PyList_Check(o0))
                 {
-                  int size2=PyList_Size(o0);
-                  p.first.resize(size2);
-                  for(int j=0;j<size2;j++)
+                  int size3=PyList_Size(o0);
+                  p.first.resize(size3);
+                  for(int j=0;j<size3;j++)
                     {
                       PyObject *o0j=PyList_GetItem(o0,j);
                       if(PyString_Check(o0j))
@@ -223,4 +281,59 @@ std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairV
       return ret;
     }
   throw INTERP_KERNEL::Exception(msg);
+}
+
+/*!
+ * Called by MEDFileAnyTypeFieldMultiTS::__getitem__ when \a elt0 is neither a list nor a slice.
+ * In this case a MEDFileAnyTypeField1TS object is returned.
+ */
+int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS *self, PyObject *elt0) throw(INTERP_KERNEL::Exception)
+{
+  if(elt0 && PyInt_Check(elt0))
+    {//fmts[3]
+      return PyInt_AS_LONG(elt0);
+    }
+  else if(elt0 && PyTuple_Check(elt0))
+    {
+      if(PyTuple_Size(elt0)==2)
+        {
+          PyObject *o0=PyTuple_GetItem(elt0,0);
+          PyObject *o1=PyTuple_GetItem(elt0,1);
+          if(PyInt_Check(o0) && PyInt_Check(o1))
+            {//fmts(1,-1)
+              int iter=PyInt_AS_LONG(o0);
+              int order=PyInt_AS_LONG(o1);
+              return self->getPosOfTimeStep(iter,order);
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::__getitem__ : invalid input param ! input is a tuple of size 2 but two integers are expected in this tuple to request a time steps !");
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::__getitem__ : invalid input param ! input is a tuple of size != 2 ! two integers are expected in this tuple to request a time steps !");
+    }
+  else if(elt0 && PyFloat_Check(elt0))
+    {
+      double val=PyFloat_AS_DOUBLE(elt0);
+      return self->getPosGivenTime(val);
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::__getitem__ : invalid input params ! expected fmts[int], fmts[int,int], or fmts[double] to request one time step ! To request a series of time steps invoke fmts[slice], fmts[list of int], fmts[list of double], or fmts[list of int,int] !");
+}
+
+/*!
+ * Called by MEDFileAnyTypeFieldMultiTS::__getitem__ when \a obj is neither a list nor a slice.
+ * In this case a MEDFileAnyTypeField1TS object is returned.
+ */
+int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
+{
+  if(PyInt_Check(obj))
+    {
+      return (int)PyInt_AS_LONG(obj);
+    }
+  else if(PyString_Check(obj))
+    {
+      return self->getPosFromFieldName(PyString_AsString(obj));
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDFileFields::__getitem__ : only integer or string with fieldname supported !");
 }

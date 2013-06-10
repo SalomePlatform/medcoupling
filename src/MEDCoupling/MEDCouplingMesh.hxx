@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -37,7 +37,8 @@ namespace ParaMEDMEM
       UNSTRUCTURED = 5,
       UNSTRUCTURED_DESC = 6,
       CARTESIAN = 7,
-      EXTRUDED = 8
+      EXTRUDED = 8,
+      CURVE_LINEAR = 9
     } MEDCouplingMeshType;
 
   class DataArrayInt;
@@ -48,6 +49,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
+    std::size_t getHeapMemorySize() const;
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
     void setDescription(const char *descr) { _description=descr; }
@@ -82,6 +84,10 @@ namespace ParaMEDMEM
     virtual int getMeshDimension() const = 0;
     virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
     virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
+    virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
     virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
@@ -112,11 +118,17 @@ namespace ParaMEDMEM
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
     virtual MEDCouplingMesh *buildPart(const int *start, const int *end) const = 0;
     virtual MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const = 0;
+    virtual MEDCouplingMesh *buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception) = 0;
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingMesh *MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception);
+    static bool IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static bool IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static INTERP_KERNEL::NormalizedCellType GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static int GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static int GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static const char *GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     //serialisation-unserialization
@@ -130,6 +142,7 @@ namespace ParaMEDMEM
     void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const throw(INTERP_KERNEL::Exception);
     /// @endcond
     virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCouplingMesh();
     MEDCouplingMesh(const MEDCouplingMesh& other);

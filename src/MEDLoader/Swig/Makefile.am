@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -53,7 +53,9 @@ _MEDLoader_la_LDFLAGS  = -module $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS)
 
 CLEANFILES = MEDLoader_wrap.cxx MEDLoader.py
 
-dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py libMEDLoader_Swig.py
+dist_salomescript_SCRIPTS = case2med med2case
+
+dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py MEDLoaderCouplingTrainingSession.py CaseIO.py CaseReader.py CaseWriter.py MEDLoaderSplitter.py libMEDLoader_Swig.py
 nodist_salomescript_DATA = MEDLoader.py
 
 UNIT_TEST_PROG = MEDLoaderTest.py MEDLoaderTest2.py

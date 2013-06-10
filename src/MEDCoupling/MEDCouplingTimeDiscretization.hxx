@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,7 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingMesh;
   class DataArrayDouble;
   class TimeLabel;
 
@@ -40,61 +41,65 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy);
   public:
     void updateTime() const;
-    static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
+    virtual std::size_t getHeapMemorySize() const;
+    static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type) throw(INTERP_KERNEL::Exception);
     void setTimeUnit(const char *unit) { _time_unit=unit; }
     const char *getTimeUnit() const { return _time_unit.c_str(); }
     virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
-    virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
+    virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
-    virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
-    virtual bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
-    virtual bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    virtual bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
-    virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
-    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCpy) const;
-    virtual std::string getStringRepr() const = 0;
-    virtual TypeOfTimeDiscretization getEnum() const = 0;
-    virtual MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const = 0;
-    virtual MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual void addEqual(const MEDCouplingTimeDiscretization *other) = 0;
-    virtual MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual void substractEqual(const MEDCouplingTimeDiscretization *other) = 0;
-    virtual MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual void multiplyEqual(const MEDCouplingTimeDiscretization *other) = 0;
-    virtual MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const = 0;
-    virtual void divideEqual(const MEDCouplingTimeDiscretization *other) = 0;
-    virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    virtual void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
-    virtual void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    virtual void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const = 0;
-    virtual void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const = 0;
-    virtual void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) = 0;
-    virtual MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const = 0;
+    virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    virtual bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    virtual bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    virtual std::string getStringRepr() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual TypeOfTimeDiscretization getEnum() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void addEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void substractEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void multiplyEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void divideEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception) = 0;
+    virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    virtual void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays) throw(INTERP_KERNEL::Exception);
+    virtual void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) throw(INTERP_KERNEL::Exception);
+    virtual void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception) = 0;
     void setTimeTolerance(double val) { _time_tolerance=val; }
     double getTimeTolerance() const { return _time_tolerance; }
     virtual void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void setArray(DataArrayDouble *array, TimeLabel *owner);
-    virtual void setEndArray(DataArrayDouble *array, TimeLabel *owner);
+    virtual void setArray(DataArrayDouble *array, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
+    virtual void setEndArray(DataArrayDouble *array, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
     virtual void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getArray() { return _array; }
-    const DataArrayDouble *getArray() const { return _array; }
-    virtual const DataArrayDouble *getEndArray() const;
-    virtual DataArrayDouble *getEndArray();
+    DataArrayDouble *getArray() throw(INTERP_KERNEL::Exception) { return _array; }
+    const DataArrayDouble *getArray() const throw(INTERP_KERNEL::Exception) { return _array; }
+    virtual const DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayDouble *getEndArray() throw(INTERP_KERNEL::Exception);
     virtual std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void getValueForTime(double time, const std::vector<double>& vals, double *res) const = 0; 
-    virtual void getArrays(std::vector<DataArrayDouble *>& arrays) const;
+    virtual void getValueForTime(double time, const std::vector<double>& vals, double *res) const throw(INTERP_KERNEL::Exception) = 0; 
+    virtual void getArrays(std::vector<DataArrayDouble *>& arrays) const throw(INTERP_KERNEL::Exception);
     virtual bool isBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     virtual bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     double getTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { return getStartTime(iteration,order); }
@@ -123,20 +128,22 @@ namespace ParaMEDMEM
     virtual MEDCouplingTimeDiscretization *trace() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *deviator() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *magnitude() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingTimeDiscretization *negate() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *maxPerTuple() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
     virtual void setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     virtual void changeNbOfComponents(int newNbOfComp, double dftValue) throw(INTERP_KERNEL::Exception);
     virtual void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
-    virtual void setUniformValue(int nbOfTuple, int nbOfCompo, double value);
-    virtual void applyLin(double a, double b, int compoId);
-    virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
-    virtual void applyFunc(int nbOfComp, const char *func);
-    virtual void applyFunc2(int nbOfComp, const char *func);
-    virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func);
-    virtual void applyFunc(const char *func);
-    virtual void applyFuncFast32(const char *func);
-    virtual void applyFuncFast64(const char *func);
+    virtual void setUniformValue(int nbOfTuple, int nbOfCompo, double value) throw(INTERP_KERNEL::Exception);
+    virtual void setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value) throw(INTERP_KERNEL::Exception);
+    virtual void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
+    virtual void applyFunc(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
     virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     virtual void fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
@@ -156,35 +163,38 @@ namespace ParaMEDMEM
   public:
     MEDCouplingNoTimeLabel();
     MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCpy);
-    std::string getStringRepr() const;
-    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
-    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
-    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
-    void addEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
-    void substractEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
-    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
-    void divideEqual(const MEDCouplingTimeDiscretization *other);
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
-    bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
-    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
+    TypeOfTimeDiscretization getEnum() const throw(INTERP_KERNEL::Exception) { return DISCRETIZATION; }
+    void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void addEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void substractEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void divideEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
+    bool areCompatible(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) { }
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
-    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const throw(INTERP_KERNEL::Exception);
     bool isBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception);
@@ -199,9 +209,9 @@ namespace ParaMEDMEM
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const throw(INTERP_KERNEL::Exception);
-    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
-    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=NO_TIME;
     static const char REPR[];
@@ -215,38 +225,41 @@ namespace ParaMEDMEM
     MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCpy);
   public:
     MEDCouplingWithTimeStep();
-    std::string getStringRepr() const;
+    std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
-    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
-    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
-    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
-    void addEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
-    void substractEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
-    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
-    void divideEqual(const MEDCouplingTimeDiscretization *other);
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
-    bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
-    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
-    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
-    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    TypeOfTimeDiscretization getEnum() const throw(INTERP_KERNEL::Exception) { return DISCRETIZATION; }
+    void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void addEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void substractEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void divideEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
+    bool areCompatible(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) throw(INTERP_KERNEL::Exception);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
     void setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _time=time; _iteration=iteration; _order=order; }
@@ -260,7 +273,7 @@ namespace ParaMEDMEM
     void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception) { _time=time; }
     void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception) { _time=time; }
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
-    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const throw(INTERP_KERNEL::Exception);
   public:
@@ -281,41 +294,44 @@ namespace ParaMEDMEM
   public:
     MEDCouplingConstOnTimeInterval();
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
-    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
-    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
-    bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
-    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) throw(INTERP_KERNEL::Exception);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    bool areCompatible(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
-    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const throw(INTERP_KERNEL::Exception);
-    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
-    std::string getStringRepr() const;
-    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
-    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
-    void addEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
-    void substractEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
-    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
-    void divideEqual(const MEDCouplingTimeDiscretization *other);
+    TypeOfTimeDiscretization getEnum() const throw(INTERP_KERNEL::Exception) { return DISCRETIZATION; }
+    void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void addEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void substractEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void divideEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
     void setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _start_time=time; _start_iteration=iteration; _start_order=order; }
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_iteration=iteration; _end_order=order; }
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_start_iteration; order=_start_order; return _start_time; }
@@ -350,17 +366,19 @@ namespace ParaMEDMEM
     ~MEDCouplingTwoTimeSteps();
   public:
     void updateTime() const;
+    void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    std::size_t getHeapMemorySize() const;
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
-    void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
-    const DataArrayDouble *getEndArray() const;
-    DataArrayDouble *getEndArray();
+    void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
+    const DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getEndArray() throw(INTERP_KERNEL::Exception);
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
-    void getArrays(std::vector<DataArrayDouble *>& arrays) const;
-    void setEndArray(DataArrayDouble *array, TimeLabel *owner);
+    void getArrays(std::vector<DataArrayDouble *>& arrays) const throw(INTERP_KERNEL::Exception);
+    void setEndArray(DataArrayDouble *array, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
     void setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _start_time=time; _start_iteration=iteration; _start_order=order; }
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_iteration=iteration; _end_order=order; }
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_start_iteration; order=_start_order; return _start_time; }
@@ -371,14 +389,14 @@ namespace ParaMEDMEM
     void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _end_order=order; }
     void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception) { _start_time=time; }
     void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception) { _end_time=time; }
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
-    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
-    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays) throw(INTERP_KERNEL::Exception);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) throw(INTERP_KERNEL::Exception);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) throw(INTERP_KERNEL::Exception);
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
     void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
   protected:
@@ -399,33 +417,35 @@ namespace ParaMEDMEM
     MEDCouplingLinearTime(const MEDCouplingLinearTime& other, bool deepCpy);
   public:
     MEDCouplingLinearTime();
-    std::string getStringRepr() const;
-    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
+    TypeOfTimeDiscretization getEnum() const throw(INTERP_KERNEL::Exception) { return DISCRETIZATION; }
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
-    bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
-    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
-    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    bool areCompatible(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
-    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
-    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
-    void addEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
-    void substractEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
-    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
-    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
-    void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void addEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void substractEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void divideEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
+    void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=LINEAR_TIME;
     static const char REPR[];

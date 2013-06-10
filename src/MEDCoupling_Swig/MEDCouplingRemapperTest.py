@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
 #
 
 from MEDCouplingRemapper import *
+from MEDCouplingDataForTest import MEDCouplingDataForTest
 from math import *
 import unittest
 
@@ -40,7 +41,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
         srcField.setArray(array);
+        srcField.setName("abc") ; srcField.setDescription("def")
+        srcField.setTime(7.7,9,10)
         trgfield=remapper.transferField(srcField,4.57);
+        self.assertEqual("abc",trgfield.getName())
+        self.assertEqual("def",trgfield.getDescription())
+        a,b,c=trgfield.getTime()
+        self.assertAlmostEqual(7.7,a,14)
+        self.assertEqual(b,9)
+        self.assertEqual(c,10)
         values=trgfield.getArray().getValues();
         valuesExpected=[7.5 ,7. ,7.,8.,7.5];
         for i in xrange(targetMesh.getNumberOfCells()):
@@ -284,6 +293,134 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i,val in enumerate(expected3):
             self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12);
             pass
+        pass
+
+    # Bug when source mesh is not homogeneously oriented in source mesh
+    def testNonRegressionNonHomegenousOrriented3DCells(self):
+        csrc=DataArrayDouble([-0.15240000188350677,0,0,-0.1086929515004158,0,0,-0.15240000188350677,0.018142856657505035,0,-0.13054648041725159,0.0090714283287525177,0.019050000235438347,-0.13054648041725159,0.0090714283287525177,0],5,3)
+        src1=MEDCouplingUMesh("src",3) ; src1.allocateCells(0) ; src1.insertNextCell(NORM_TETRA4,[0,1,4,3]) ; src1.insertNextCell(NORM_TETRA4,[2,0,4,3])
+        src2=MEDCouplingUMesh("src",3) ; src2.allocateCells(0) ; src2.insertNextCell(NORM_TETRA4,[0,4,1,3]) ; src2.insertNextCell(NORM_TETRA4,[2,0,4,3])
+        src1.setCoords(csrc) ; src2.setCoords(csrc)
+        ctrg=DataArrayDouble([-0.15240000188350677,-0.038100000470876694,0,0.32379999756813049,-0.038100000470876694,0,-0.15240000188350677,0.076200000941753387,0,0.32379999756813049,0.076200000941753387,0,-0.15240000188350677,-0.038100000470876694,0.076200000941753387,0.32379999756813049,-0.038100000470876694,0.076200000941753387,-0.15240000188350677,0.076200000941753387,0.076200000941753387,0.32379999756813049,0.076200000941753387,0.076200000941753387],8,3)
+        trg=MEDCouplingUMesh("trg",3) ; trg.allocateCells(0) ; trg.insertNextCell(NORM_HEXA8,[0,1,3,2,4,5,7,6])
+        trg.setCoords(ctrg)
+        rem1=MEDCouplingRemapper() ; rem1.setSplittingPolicy(PLANAR_FACE_5) ; rem1.prepare(src1,trg,"P0P0")
+        rem2=MEDCouplingRemapper() ; rem2.setSplittingPolicy(PLANAR_FACE_5) ; rem2.prepare(src1,trg,"P0P0")
+        mat1=rem1.getCrudeMatrix() ; mat2=rem2.getCrudeMatrix()
+        self.assertEqual(1,len(mat1)) ; self.assertEqual(1,len(mat2))
+        self.assertEqual(mat1[0].keys(),mat2[0].keys()) ; self.assertEqual([0,1],mat1[0].keys())
+        self.assertAlmostEqual(1.25884108122e-06,mat1[0][0],16) ; self.assertAlmostEqual(1.25884108122e-06,mat2[0][0],16)
+        self.assertAlmostEqual(1.25884086663e-06,mat1[0][1],16) ; self.assertAlmostEqual(1.25884086663e-06,mat2[0][1],16)
+        #
+        d=DataArrayDouble([13.45,27.67],2,1)
+        f1=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f1.setMesh(src1) ; f1.setArray(d) ; f1.setNature(RevIntegral)
+        f2=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f2.setMesh(src2) ; f2.setArray(d) ; f2.setNature(RevIntegral)
+        f11=rem1.transferField(f1,1e300) ; f22=rem2.transferField(f2,1e300)
+        expected1=DataArrayDouble([0.012480539537637884])
+        self.assertTrue(f11.getArray().isEqual(expected1,1e-15))
+        self.assertTrue(f22.getArray().isEqual(expected1,1e-15))
+        #
+        f1.setNature(Integral) ; f2.setNature(Integral)
+        f11=rem1.transferField(f1,1e300) ; f22=rem2.transferField(f2,1e300)
+        #
+        expected2=DataArrayDouble([41.12])
+        self.assertTrue(f11.getArray().isEqual(expected2,1e-13))
+        self.assertTrue(f22.getArray().isEqual(expected2,1e-13))
+        pass
+
+    def testCellToNodeReverse3D(self):
+        c=DataArrayDouble([0.,1.,2.5])
+        cc=MEDCouplingCMesh()
+        cc.setCoords(c,c,c)
+        um=cc.buildUnstructured()
+        f=um.getMeasureField(ON_CELLS)
+        #
+        n2o=um.simplexize(PLANAR_FACE_5)
+        f.setArray(f.getArray()[n2o])
+        f.checkCoherency()
+        f.setNature(ConservativeVolumic)
+        f.setTime(5.6,7,8)
+        f.setName("toto") ; f.setDescription("aDescription")
+        p=MEDCouplingRemapper()
+        p.setP1P0BaryMethod(True)
+        p.prepare(um,um,"P1P0")
+        fNode=p.reverseTransferField(f,1e300)
+        self.assertEqual("toto",fNode.getName())
+        self.assertEqual("aDescription",fNode.getDescription())
+        a,b,c=fNode.getTime()
+        self.assertAlmostEqual(5.6,a,14)
+        self.assertEqual(7,b) ; self.assertEqual(8,c)
+        #
+        integExpected=34.328125
+        self.assertAlmostEqual(fNode.integral(False)[0],integExpected,14)
+        self.assertAlmostEqual(f.integral(False)[0],integExpected,14)
+        pass
+
+    def testGauss2Gauss2DValidated(self):
+        srcFt=MEDCouplingDataForTest.buildFieldOnGauss_1()
+        trgFt=MEDCouplingDataForTest.buildFieldOnGauss_2()
+        src=MEDCouplingFieldDouble(srcFt)
+        self.assertEqual(srcFt.getMesh().getHiddenCppPointer(),src.getMesh().getHiddenCppPointer())
+        self.assertEqual(srcFt.getDiscretization().getHiddenCppPointer(),src.getDiscretization().getHiddenCppPointer())
+        #values given by ASTER usecase
+        src.setArray(DataArrayDouble([1.,1.,0.,0.,1.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.]))
+        src.getArray().setInfoOnComponents(["DOMA"])
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepareEx(srcFt,trgFt)
+        trg=rem.transferField(src,1e300)
+        self.assertEqual(trg.getMesh().getHiddenCppPointer(),trgFt.getMesh().getHiddenCppPointer())
+        self.assertEqual(trg.getDiscretization().getHiddenCppPointer(),trgFt.getDiscretization().getHiddenCppPointer())
+        #values given after interpolation in ASTER
+        arrExpected=DataArrayDouble([1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.]) ; arrExpected.setInfoOnComponents(["DOMA"])
+        self.assertTrue(trg.getArray().isEqual(arrExpected,1e-12))
+        #
+        # second part of the test : reverse source and target
+        #
+        rem.prepareEx(trgFt,srcFt)# sorry trgFt is in the place of source and srcFt in the place of target it is not a bug
+        trg=MEDCouplingFieldDouble(trgFt)
+        #values given after interpolation in ASTER
+        trg.setArray(DataArrayDouble([1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.]))
+        trg.getArray().setInfoOnComponents(["DOMA"])
+        src=rem.transferField(trg,1e300)
+        #values given after interpolation in ASTER
+        arrExpected2=DataArrayDouble([1.,1.,0.,0.,1.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,1.,1.,1., 1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,1.,0.,1.,1.,1.,1.,0.,0.,0.,0.,1.,0.,0.,0.,1.,1.,1.,0.,1.,1.,1.,1.,1.,1.,0.,0.,1.,1.,0.,1.,1.,1.,0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,1.,1.,0.,1.,1.,1.,1.,1.]) ; arrExpected2.setInfoOnComponents(["DOMA"])
+        # modification of values in ASTER due to modification of algorithm
+        # target PG 82 in target cell 32(C)/36 PG 1(C)/9 is in source cell 58(C)/120 source Gauss point 113 (1(C)/4). Values must be 1. and not 0.
+        arrExpected2.setIJ(82,0,1.)
+        self.assertTrue(src.getArray().isEqual(arrExpected2,1e-12))
+        pass
+
+    def testGauss2Gauss3DValidated(self):
+        srcFt=MEDCouplingDataForTest.buildFieldOnGauss_3()
+        trgFt=MEDCouplingDataForTest.buildFieldOnGauss_4()
+        src=MEDCouplingFieldDouble(srcFt)
+        self.assertEqual(srcFt.getMesh().getHiddenCppPointer(),src.getMesh().getHiddenCppPointer())
+        self.assertEqual(srcFt.getDiscretization().getHiddenCppPointer(),src.getDiscretization().getHiddenCppPointer())
+        #values given by ASTER usecase
+        src.setArray(DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,1.,1.,0.,0.,1.,1.,1.,1.,0.,0.,1.,1.,0.,0.]))
+        src.getArray().setInfoOnComponents(["DOMA"])
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepareEx(srcFt,trgFt)
+        trg=rem.transferField(src,1e300)
+        self.assertEqual(trg.getMesh().getHiddenCppPointer(),trgFt.getMesh().getHiddenCppPointer())
+        self.assertEqual(trg.getDiscretization().getHiddenCppPointer(),trgFt.getDiscretization().getHiddenCppPointer())
+        #values given after interpolation in ASTER
+        arrExpected=DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,1.,1.,0.,0.,1.,1.,1.,1.,0.,1.,1.,1.,0.,1.]) ; arrExpected.setInfoOnComponents(["DOMA"])
+        self.assertTrue(trg.getArray().isEqual(arrExpected,1e-12))
+        #
+        # second part of the test : reverse source and target
+        #
+        rem.prepareEx(trgFt,srcFt)# sorry trgFt is in the place of source and srcFt in the place of target it is not a bug
+        trg=MEDCouplingFieldDouble(trgFt)
+        #values given after interpolation in ASTER
+        trg.setArray(DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.]))
+        trg.getArray().setInfoOnComponents(["DOMA"])
+        src=rem.transferField(trg,1e300)
+        #values given after interpolation in ASTER
+        arrExpected2=DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,1.,0.,1.,1.,1.,0.,1.,1.,1.,1.,0.,1.,1.,1.,0.,1.]) ; arrExpected2.setInfoOnComponents(["DOMA"])
+        self.assertTrue(src.getArray().isEqual(arrExpected2,1e-12))
         pass
     
     def build2DSourceMesh_1(self):

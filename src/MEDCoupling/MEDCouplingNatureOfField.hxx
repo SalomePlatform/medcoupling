@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -38,7 +38,9 @@ namespace ParaMEDMEM
   class MEDCouplingNatureOfField
   {
   public:
-    MEDCOUPLING_EXPORT static const char *getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static const char *GetRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static std::string GetReprNoThrow(NatureOfField nat);
+    MEDCOUPLING_EXPORT static std::string GetAllPossibilitiesStr();
   private:
     static const int NB_OF_POSSIBILITIES=5;
     static const char *REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];

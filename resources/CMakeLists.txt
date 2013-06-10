@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -205,6 +205,8 @@ SET(MED_RESOURCES_FILES
   test_2D.sauve
   allPillesTest.sauv
   BDC-714.sauv
+  portico_3subs.sauv
+  agitateur.med
   )
 
 IF(MED_ENABLE_GUI)

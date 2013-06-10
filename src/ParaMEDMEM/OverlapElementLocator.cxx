@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -270,7 +270,6 @@ namespace ParaMEDMEM
    */
   void OverlapElementLocator::sendLocalMeshTo(int procId, bool sourceOrTarget, OverlapInterpolationMatrix& matrix) const
   {
-   vector<int> elems;
    //int myProcId=_group.myRank();
    const double *distant_bb=0;
    MEDCouplingPointSet *local_mesh=0;
@@ -287,9 +286,9 @@ namespace ParaMEDMEM
        local_mesh=_local_target_mesh;
        field=_local_target_field;
      }
-   local_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elems=local_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment());
    DataArrayInt *idsToSend;
-   MEDCouplingPointSet *send_mesh=static_cast<MEDCouplingPointSet *>(field->getField()->buildSubMeshData(&elems[0],&elems[elems.size()],idsToSend));
+   MEDCouplingPointSet *send_mesh=static_cast<MEDCouplingPointSet *>(field->getField()->buildSubMeshData(elems->begin(),elems->end(),idsToSend));
    if(sourceOrTarget)
      matrix.keepTracksOfSourceIds(procId,idsToSend);//Case#1 in Step2 of main algorithm.
    else

@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,9 @@
 # Author : Anthony Geay (CEA/DEN)
 
 ADD_SUBDIRECTORY(Swig)
-ADD_SUBDIRECTORY(Test)
+IF(CPPUNIT_STATUS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF(CPPUNIT_STATUS)
 
 INCLUDE_DIRECTORIES(
   ${MED3_INCLUDE_DIRS}
@@ -41,6 +43,7 @@ SET(medloader_SOURCES
   MEDFileBasis.cxx
   MEDFileMeshLL.cxx
   MEDFileField.cxx
+  MEDFileParameter.cxx
   MEDFileData.cxx
   SauvMedConvertor.cxx
   SauvReader.cxx
@@ -54,3 +57,6 @@ INSTALL(TARGETS medloader DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB medloader_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${medloader_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+
+# To allow usage as SWIG dependencies:
+SET(medloader_HEADERS_HXX PARENT_SCOPE)

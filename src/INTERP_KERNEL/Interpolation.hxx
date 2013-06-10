@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
     int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshT,result,method); }
     template<class MyMeshType, class MatrixType>
     int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshS,result,method); }
-    static void checkAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception);
+    static void CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception);
     template<class MyMeshType>
     static double CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel);
   protected:

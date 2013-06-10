@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -244,7 +244,10 @@ void SauvWriter::setMEDFileDS(const MEDFileData* medData,
   if ( fields )
     for ( int i = 0; i < fields->getNumberOfFields(); ++i )
       {
-        MEDFileFieldMultiTS * f = fields->getFieldAtPos(i);
+        MEDFileAnyTypeFieldMultiTS * fB = fields->getFieldAtPos(i);
+        MEDFileFieldMultiTS * f = dynamic_cast<MEDFileFieldMultiTS *>(fB);
+        if(!f)
+          continue;// fields on int32 not managed
         if ( f->getMeshName() == _fileMesh->getName() )
           {
             vector< vector<TypeOfField> > fTypes = f->getTypesOfFieldAvailable();
@@ -404,7 +407,7 @@ void SauvWriter::fillFamilySubMeshes()
 
 //================================================================================
 /*!
- * \brief fill sub-mehses of groups
+ * \brief fill sub-meshes of groups
  */
 //================================================================================
 
@@ -418,22 +421,30 @@ void SauvWriter::fillGroupSubMeshes()
       const vector<string>& famNames = g2ff->second;
       if ( famNames.empty() ) continue;
       std::vector<SubMesh*> famSubMeshes( famNames.size() );
+      std::size_t k = 0;
       for ( size_t i = 0; i < famNames.size(); ++i )
         {
           int famID = _fileMesh->getFamilyId( famNames[i].c_str() );
           map< int, SubMesh* >::iterator i2f = _famIDs2Sub.find( famID );
-          if ( i2f == _famIDs2Sub.end() )
-            THROW_IK_EXCEPTION("SauvWriter::fillGroupSubMeshes(): unknown family ID: " << famID);
-          famSubMeshes[ i ] = i2f->second;
+          if ( i2f != _famIDs2Sub.end() )
+            {
+              famSubMeshes[ k ] = i2f->second;
+              ++k;
+            }
         }
+      // if a family exists but has no element, no submesh has been found for this family
+      // => we have to resize famSubMeshes with the number of submeshes stored
+      if (k != famNames.size())
+          famSubMeshes.resize(k);
       SubMesh* grpSubMesh = addSubMesh( groupName, famSubMeshes[0]->_dimRelExt );
       grpSubMesh->_subs.swap( famSubMeshes );
     }
 }
 
+
 //================================================================================
 /*!
- * \brief fill sub-mehses of profiles
+ * \brief fill sub-meshes of profiles
  */
 //================================================================================
 

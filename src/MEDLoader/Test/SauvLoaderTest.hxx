@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -31,10 +31,14 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE(SauvLoaderTest);
     CPPUNIT_TEST( testSauv2Med );
     CPPUNIT_TEST( testMed2Sauv );
+    CPPUNIT_TEST( testMed2SauvOnAMeshWithVoidFamily );
+    CPPUNIT_TEST( testSauv2MedOnA3SubsField );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testSauv2Med();
     void testMed2Sauv();
+    void testMed2SauvOnAMeshWithVoidFamily();
+    void testSauv2MedOnA3SubsField();
 
   public:
     void tearDown();

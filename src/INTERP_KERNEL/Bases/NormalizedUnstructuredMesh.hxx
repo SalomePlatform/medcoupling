@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -60,6 +60,12 @@ namespace INTERP_KERNEL
       NORM_ERROR   = 40,
       NORM_MAXTYPE = 33
     } NormalizedCellType;
+
+  /// Type describing the different ways in which the hexahedron can be split into tetrahedra.
+  /// The PLANAR_* policies persume that each face is to be considered planar, while the general
+  /// policies make no such hypothesis. The integer at the end gives the number of tetrahedra
+  /// that result from the split.
+  typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
 
   class GenericMesh
   {};

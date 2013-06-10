@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -39,6 +39,11 @@ void ParaMEDMEM::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
   maj=(ver & 0xFF0000) >> 16;
   minor=(ver & 0xFF00) >> 8;
   releas=(ver & 0xFF);
+}
+
+int ParaMEDMEM::MEDCouplingSizeOfVoidStar()
+{
+  return 8*sizeof(std::size_t);
 }
 
 RefCountObject::RefCountObject():_cnt(1)

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -506,6 +506,7 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
       }
     mesh1->decrRef();
     mesh2->decrRef();
+    mfm->decrRef();
   }
    
   {
@@ -627,6 +628,7 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
   //cout<<"\n"<<tagXml<<endl;
   if (_verbose) 
     cout<<endl<<nameFileXml<<" created"<<endl;
+  mesh->decrRef();
 }
 
 void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
@@ -891,7 +893,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
 
 void MEDPARTITIONERTest::testMetisSmallSize()
 {
-#if !defined(HAVE_MPI2)
+  //#if !defined(HAVE_MPI2)
   setSmallSize();
   createTestMeshes();
   std::string MetisOrScotch("metis");
@@ -899,7 +901,7 @@ void MEDPARTITIONERTest::testMetisSmallSize()
   verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(MetisOrScotch);
   verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(MetisOrScotch);
   verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(MetisOrScotch);
-#endif
+  //#endif
 }
 #endif
 
@@ -973,7 +975,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionScotch()
 
 void MEDPARTITIONERTest::testScotchSmallSize()
 {
-#if !defined(HAVE_MPI2)
+  //#if !defined(HAVE_MPI2)
   setSmallSize();
   createTestMeshes();
   std::string MetisOrScotch("scotch");
@@ -981,7 +983,7 @@ void MEDPARTITIONERTest::testScotchSmallSize()
   verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(MetisOrScotch);
   verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(MetisOrScotch);
   verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(MetisOrScotch);
-#endif
+  //#endif
 }
 #endif
 
@@ -1124,7 +1126,9 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std
   faceMesh->decrRef();
   fusedCell->decrRef();
   refusedCellMesh->decrRef();
+  refusedMesh->decrRef();
   cellMesh->decrRef();
+  initialMesh->decrRef();
   //done in ~collection
   //for (int i = 0; i < faceMeshes.size(); i++) faceMeshes[i]->decrRef();
   //for (int i = 0; i < cellMeshes.size(); i++) cellMeshes[i]->decrRef();
@@ -1213,8 +1217,10 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   field1->decrRef();
   field2->decrRef();
   fusedCell->decrRef();
+  refusedMesh->decrRef();
   refusedCellMesh->decrRef();
   cellMesh->decrRef();
+  initialMesh->decrRef();
 }
 
 void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(std::string MetisOrScotch)
@@ -1301,6 +1307,200 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
   field1->decrRef();
   field2->decrRef();
   fusedCell->decrRef();
+  refusedMesh->decrRef();
   refusedCellMesh->decrRef();
   cellMesh->decrRef();
+  initialMesh->decrRef();
+}
+
+//================================================================================
+/*!
+ * \brief Test for 0021756: [CEA 602] MEDPartitioner improvements
+ */
+//================================================================================
+
+void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
+{
+  // Fixed complains are:
+  // - 2D is not available
+  // - groups and family handling is bugged (probably due to bug in the handling
+  //   of arrayTo in castIntField())
+  // - creates boundary faces option is not handled
+
+  // Create a 2D mesh in a file
+
+  const char fileName[] = "tmp_testCreateBoundaryFaces2D.med";
+
+  const int idFam1 = 3, idFam2 = 2;
+  int nbFam1, nbFam2, nbc;
+  {
+    const int nbX = 20, nbY = 15;
+    vector<int> conn;
+    vector<double> coor;
+    for (int j=0; j<=nbY; j++)
+      for (int i=0; i<=nbX; i++)
+        {
+          coor.push_back(i+.1);
+          coor.push_back(j+.2);
+        }
+    int ii;
+    for (int j=0; j<nbY; j++)
+      for (int i=0; i<nbX; i++)
+        {
+          ii=i + j*(nbX+1);
+          conn.push_back(ii);
+          conn.push_back(ii+1);
+          ii=ii + nbX + 2 ;
+          conn.push_back(ii);
+          conn.push_back(ii-1);
+        }
+    MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+    mesh->setMeshDimension(2);
+
+    nbc=conn.size()/4; //nb of cells
+    mesh->allocateCells(nbc);
+    int* pConn = &conn[0];
+    for(int i=0; i<nbc; i++, pConn+=4)
+      mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,pConn);
+    mesh->finishInsertingCells();
+
+    int nbv=coor.size()/2; //nb of vertices
+    DataArrayDouble *myCoords=DataArrayDouble::New();
+    myCoords->useArray( &coor[0], /*ownership=*/false, CPP_DEALLOC, nbv, 2 );
+    mesh->setCoords(myCoords);
+    mesh->setName("FacesIn2D");
+    myCoords->decrRef();
+    mesh->checkCoherency();
+
+    // groups of cells
+    DataArrayInt* cellsFam=DataArrayInt::New();
+    cellsFam->alloc(nbc,1);
+    nbFam1 = nbc/3, nbFam2 = nbc/2;
+    int iE = 0;
+    for ( int i = 0; i < nbFam1; ++i ) cellsFam->getPointer()[ iE++ ] = idFam1;
+    for ( int i = 0; i < nbFam2; ++i ) cellsFam->getPointer()[ iE++ ] = idFam2;
+    for (            ; iE < nbc;     ) cellsFam->getPointer()[ iE++ ] = 0;
+    map<string,int> theFamilies;
+    theFamilies["FAMILLE_ZERO"]=0;
+    theFamilies["Family1"     ]=idFam1;
+    theFamilies["Family2"     ]=idFam2;
+    map<string, vector<string> > theGroups;
+    theGroups["Group1"].push_back("Family1");
+    theGroups["Group2"].push_back("Family2");
+
+    // write mesh
+    MEDFileUMesh * fileMesh = MEDFileUMesh::New();
+    fileMesh->setMeshAtLevel(0, mesh);
+    fileMesh->setFamilyInfo(theFamilies);
+    fileMesh->setGroupInfo(theGroups);
+    fileMesh->setFamilyFieldArr(0, cellsFam);
+    fileMesh->write(fileName,2);
+
+    cellsFam->decrRef();
+    mesh    ->decrRef();
+    fileMesh->decrRef();
+
+  } // mesh creation
+
+  // Partition the mesh into 4 parts
+
+  const int ndomains = 4;
+  ParaDomainSelector parallelizer(false);
+  MeshCollection collection(fileName,parallelizer);
+  ParallelTopology* aPT = (ParallelTopology*) collection.getTopology();
+  aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+
+  std::auto_ptr< Topology > new_topo;
+#if defined(MED_ENABLE_METIS) || defined(MED_ENABLE_PARMETIS)
+  new_topo.reset( collection.createPartition(ndomains,Graph::METIS) );
+#endif
+#if defined(MED_ENABLE_SCOTCH)
+  if ( !new_topo.get() )
+    new_topo.reset( collection.createPartition(ndomains,Graph::SCOTCH) );
+#endif
+  if ( !new_topo.get() )
+    return;
+
+  // Check that "2D is available"
+
+  const char xmlName[] = "tmp_testCreateBoundaryFaces2D";
+  {
+    MyGlobals::_Creates_Boundary_Faces = true;
+    MeshCollection new_collection(collection,new_topo.get());
+
+    CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());
+    CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
+    CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
+    CPPUNIT_ASSERT_EQUAL(0,collection.getNbOfLocalFaces());
+    CPPUNIT_ASSERT      (new_collection.getNbOfLocalFaces() > 0 );
+
+    MyGlobals::_General_Informations.clear();
+    MyGlobals::_General_Informations.push_back(SerializeFromString("finalMeshName=2D"));
+    new_collection.write( xmlName );
+  }
+
+  // Check that "groups and family handling is NOT bugged"
+
+  MeshCollection new_collection(std::string(xmlName)+".xml");
+  std::map< int, int > famId2nb; // count total nb of cells in divided families
+  std::map< int, int >::iterator id2nn;
+  {
+    const std::vector<ParaMEDMEM::DataArrayInt*>& famIdsVec = new_collection.getCellFamilyIds();
+    for ( size_t i = 0; i < famIdsVec.size(); ++i )
+      {
+        ParaMEDMEM::DataArrayInt* famIdsArr = famIdsVec[i];
+        for ( int j = famIdsArr->getNbOfElems()-1; j >= 0; --j )
+          {
+            id2nn = famId2nb.insert( make_pair( famIdsArr->getPointer()[j], 0 )).first;
+            id2nn->second++;
+          }
+      }
+  }
+  CPPUNIT_ASSERT_EQUAL( 3, (int) famId2nb.size() ); // 3 fams/groups in all
+  CPPUNIT_ASSERT_EQUAL( 1, (int) famId2nb.count( 0      ));
+  CPPUNIT_ASSERT_EQUAL( 1, (int) famId2nb.count( idFam1 ));
+  CPPUNIT_ASSERT_EQUAL( 1, (int) famId2nb.count( idFam2 ));
+  CPPUNIT_ASSERT_EQUAL( nbFam1, famId2nb[ idFam1 ]);
+  CPPUNIT_ASSERT_EQUAL( nbFam2, famId2nb[ idFam2 ]);
+  CPPUNIT_ASSERT_EQUAL( nbc - nbFam1 - nbFam2, famId2nb[ 0 ]);
+
+  // Check that "creates boundary faces option is handled"
+
+  famId2nb.clear();
+  const std::vector<ParaMEDMEM::DataArrayInt*>& famIdsVec = new_collection.getFaceFamilyIds();
+  for ( size_t i = 0; i < famIdsVec.size(); ++i )
+    {
+      ParaMEDMEM::DataArrayInt* famIdsArr = famIdsVec[i];
+      for ( int j = famIdsArr->getNbOfElems()-1; j >= 0; --j )
+        {
+          id2nn = famId2nb.insert( make_pair( famIdsArr->getPointer()[j], 0 )).first;
+          id2nn->second++;
+        }
+    }
+
+  CPPUNIT_ASSERT( !famId2nb.empty() );
+
+  // for each "JOINT_n_p_..." group there must be "JOINT_p_n_..." group
+  // of the same size
+  std::map<std::string,int>& famName2id = new_collection.getFamilyInfo();
+  std::map<std::string,int>::iterator na2id = famName2id.begin(), na2id2;
+  std::set< int > okFamIds;
+  okFamIds.insert(0);
+  for ( ; na2id != famName2id.end(); ++na2id )
+    {
+      if ( okFamIds.count( na2id->second ) || na2id->first[0] != 'J')
+        continue;
+      na2id2 = na2id;
+      bool groupOK = false;
+      while ( !groupOK && ++na2id2 != famName2id.end() )
+        groupOK = ( na2id2->first.find_first_not_of( na2id->first ) == std::string::npos );
+
+      CPPUNIT_ASSERT( groupOK );
+      CPPUNIT_ASSERT( na2id->second != na2id2->second);
+      CPPUNIT_ASSERT_EQUAL( 1, (int) famId2nb.count( na2id2->second ));
+      CPPUNIT_ASSERT_EQUAL( 1, (int) famId2nb.count( na2id->second ));
+      CPPUNIT_ASSERT_EQUAL( (int) famId2nb[ na2id2->second ],
+                            (int) famId2nb[ na2id->second ]);
+      okFamIds.insert( na2id2->second );
+    }
 }

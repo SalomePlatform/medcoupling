@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -23,6 +23,8 @@
 
 #include "InterpolationUtils.hxx"
 #include "InterpKernelException.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 
 #include <sstream>
@@ -51,6 +53,18 @@ namespace INTERP_KERNEL
           ret+=(p2[i]-p1[i])*(p2[i]-p1[i]);
         return sqrt(ret);
       }
+  }
+  
+  inline double calculateLgthForSeg3(const double *begin, const double *end, const double *middle, int spaceDim)
+  {
+    if(spaceDim==2)
+      {
+        Edge *ed=Edge::BuildEdgeFrom3Points(begin,middle,end);
+        double ret=ed->getCurveLength(); ed->decrRef();
+        return ret;
+        }
+    else
+      return calculateLgthForSeg2(begin,end,spaceDim);
   }
 
   // ===========================
@@ -495,6 +509,78 @@ namespace INTERP_KERNEL
       }
   }
 
+  template<class ConnType, NumberingPolicy numPol>
+  inline void computePolygonBarycenter3D(const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    double area[3];
+    areaVectorOfPolygon<ConnType,numPol>(connec,lgth,coords,area);
+    double norm=sqrt(area[0]*area[0]+area[1]*area[1]+area[2]*area[2]);
+    if(norm>std::numeric_limits<double>::min())
+      {
+        area[0]/=norm; area[1]/=norm; area[2]/=norm;
+        res[0]=0.; res[1]=0.; res[2]=0.;
+        for(int i=1;i<lgth-1;i++)
+          {
+            double v[3];
+            double tmpArea[3];
+            v[0]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])]+
+                  coords[3*OTT<ConnType,numPol>::coo2C(connec[i])]+
+                  coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])])/3.;
+            v[1]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+1]+
+                  coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1]+
+                  coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+1])/3.;
+            v[2]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+2]+
+                  coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2]+
+                  coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+2])/3.;
+            ConnType tmpConn[3]={connec[0],connec[i],connec[i+1]};
+            areaVectorOfPolygon<ConnType,numPol>(tmpConn,3,coords,tmpArea);
+            double norm2=sqrt(tmpArea[0]*tmpArea[0]+tmpArea[1]*tmpArea[1]+tmpArea[2]*tmpArea[2]);
+            if(norm2>1e-12)
+              {
+                tmpArea[0]/=norm2; tmpArea[1]/=norm2; tmpArea[2]/=norm2;
+                double signOfArea=area[0]*tmpArea[0]+area[1]*tmpArea[1]+area[2]*tmpArea[2];
+                res[0]+=signOfArea*norm2*v[0]/norm; res[1]+=signOfArea*norm2*v[1]/norm; res[2]+=signOfArea*norm2*v[2]/norm;
+              }
+          }
+      }
+    else
+      {
+        res[0]=0.; res[1]=0.; res[2]=0.;
+        if(lgth<1)
+          throw INTERP_KERNEL::Exception("computePolygonBarycenter3D : lgth of polygon is < 1 !");
+        norm=0.;
+        double v[3];
+        for(int i=0;i<lgth;i++)
+          {
+            v[0]=coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]-coords[3*OTT<ConnType,numPol>::coo2C(connec[i])];
+            v[1]=coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]-coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1];
+            v[2]=coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+2]-coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2];
+            double norm2=sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+            res[0]+=(coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]+coords[3*OTT<ConnType,numPol>::coo2C(connec[i])])/2.*norm2;
+            res[1]+=(coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]+coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1])/2.*norm2;
+            res[2]+=(coords[3*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+2]+coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2])/2.*norm2;
+            norm+=norm2;
+          }
+        if(norm>std::numeric_limits<double>::min())
+          {
+            res[0]/=norm; res[1]/=norm; res[2]/=norm;
+            return;
+          }
+        else
+          {
+            res[0]=0.; res[1]=0.; res[2]=0.;
+            for(int i=0;i<lgth;i++)
+              {
+                res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[i])];
+                res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1];
+                res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2];
+              }
+            res[0]/=lgth; res[1]/=lgth; res[2]/=lgth;
+            return;
+          }
+      }
+  }
+
   inline double integrationOverA3DLine(double u1, double v1, double u2, double v2, double A, double B, double C)
   {
     return (u1-u2)*(6.*C*C*(v1+v2)+B*B*(v1*v1*v1+v1*v1*v2+v1*v2*v2+v2*v2*v2)+A*A*(2.*u1*u2*(v1+v2)+u1*u1*(3.*v1+v2)+u2*u2*(v1+3.*v2))+ 
@@ -515,6 +601,8 @@ namespace INTERP_KERNEL
         double normal[3];
         areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
         double normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+        if(normOfNormal<std::numeric_limits<double>::min())
+          continue;
         normal[0]/=normOfNormal; normal[1]/=normOfNormal; normal[2]/=normOfNormal;
         double u[2]={normal[1],-normal[0]};
         double s=sqrt(u[0]*u[0]+u[1]*u[1]);
@@ -561,7 +649,32 @@ namespace INTERP_KERNEL
         work=work2+1;
       }
     double vol=calculateVolumeForPolyh2<ConnType,numPol>(connec,lgth,coords);
-    res[0]/=vol; res[1]/=vol; res[2]/=vol;
+    if(fabs(vol)>std::numeric_limits<double>::min())
+      {
+        res[0]/=vol; res[1]/=vol; res[2]/=vol;
+      }
+    else
+      {
+        double sum=0.;
+        res[0]=0.; res[1]=0.; res[2]=0.;
+        work=connec;
+        for(std::size_t i=0;i<nbOfFaces;i++)
+          {
+            const int *work2=std::find(work+1,connec+lgth,-1);
+            int nbOfNodesOfCurFace=(int)std::distance(work,work2);
+            double normal[3];
+            areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
+            double normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+            if(normOfNormal<std::numeric_limits<double>::min())
+              continue;
+            sum+=normOfNormal;
+            double tmpBary[3];
+            computePolygonBarycenter3D<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,tmpBary);
+            res[0]+=normOfNormal*tmpBary[0]; res[1]+=normOfNormal*tmpBary[1]; res[2]+=normOfNormal*tmpBary[2];
+            work=work2+1;
+          }
+        res[0]/=sum; res[1]/=sum; res[2]/=sum;
+      }
   }
 
   // ============================================================================================================================================
@@ -669,55 +782,53 @@ namespace INTERP_KERNEL
         bary[i]=temp/nbPts;
       }
   }
-  
-  template<class ConnType, NumberingPolicy numPol>
-  inline void computePolygonBarycenter2D(const ConnType *connec, int lgth, const double *coords, double *res)
+
+  inline void computePolygonBarycenter2DEngine(double **coords, int lgth, double *res)
   {
     double area=0.;
     res[0]=0.; res[1]=0.;
     for(int i=0;i<lgth;i++)
       {
-        double cp=coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]-
-          coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])];
+        double cp=coords[i][0]*coords[(i+1)%lgth][1]-coords[i][1]*coords[(i+1)%lgth][0];
         area+=cp;
-        res[0]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]);
-        res[1]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]);
+        res[0]+=cp*(coords[i][0]+coords[(i+1)%lgth][0]);
+        res[1]+=cp*(coords[i][1]+coords[(i+1)%lgth][1]);
       }
     res[0]/=3.*area;
     res[1]/=3.*area;
   }
 
   template<class ConnType, NumberingPolicy numPol>
-  inline void computePolygonBarycenter3D(const ConnType *connec, int lgth, const double *coords, double *res)
+  inline void computePolygonBarycenter2D(const ConnType *connec, int lgth, const double *coords, double *res)
   {
-    double area[3];
-    areaVectorOfPolygon<ConnType,numPol>(connec,lgth,coords,area);
-    double norm=sqrt(area[0]*area[0]+area[1]*area[1]+area[2]*area[2]);
-    area[0]/=norm; area[1]/=norm; area[2]/=norm;
-    res[0]=0.; res[1]=0.; res[2]=0.;
-    for(int i=1;i<lgth-1;i++)
+    double **coords2=new double *[lgth];
+    for(int i=0;i<lgth;i++)
+      coords2[i]=const_cast<double *>(coords+2*OTT<ConnType,numPol>::coo2C(connec[i]));
+    computePolygonBarycenter2DEngine(coords2,lgth,res);
+    delete [] coords2;
+  }
+  
+  inline void computeQPolygonBarycenter2D(double **coords, int nbOfPtsInPolygs, int spaceDim, double *res)
+  {
+    if(nbOfPtsInPolygs%2==0)
       {
-        double v[3];
-        double tmpArea[3];
-        v[0]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])]+
-              coords[3*OTT<ConnType,numPol>::coo2C(connec[i])]+
-              coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])])/3.;
-        v[1]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+1]+
-              coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1]+
-              coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+1])/3.;
-        v[2]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+2]+
-              coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2]+
-              coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+2])/3.;
-        ConnType tmpConn[3]={connec[0],connec[i],connec[i+1]};
-        areaVectorOfPolygon<ConnType,numPol>(tmpConn,3,coords,tmpArea);
-        double norm2=sqrt(tmpArea[0]*tmpArea[0]+tmpArea[1]*tmpArea[1]+tmpArea[2]*tmpArea[2]);
-        if(norm2>1e-12)
+        if(spaceDim==2)
           {
-            tmpArea[0]/=norm2; tmpArea[1]/=norm2; tmpArea[2]/=norm2;
-            double signOfArea=area[0]*tmpArea[0]+area[1]*tmpArea[1]+area[2]*tmpArea[2];
-            res[0]+=signOfArea*norm2*v[0]/norm; res[1]+=signOfArea*norm2*v[1]/norm; res[2]+=signOfArea*norm2*v[2]/norm;
+            std::vector<Node *> nodes(nbOfPtsInPolygs);
+            for(int i=0;i<nbOfPtsInPolygs;i++)
+              nodes[i]=new Node(coords[i][0],coords[i][1]);
+            QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
+            pol->getBarycenter(res);
+            delete pol;
           }
-      }   
+        else
+          return computePolygonBarycenter2DEngine(coords,nbOfPtsInPolygs/2,res);
+      }
+    else
+      {
+        std::ostringstream oss; oss << "INTERP_KERNEL::computeQPolygonBarycenter2D : nb of points in quadratic polygon is " << nbOfPtsInPolygs << " should be even !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   }
 }
 

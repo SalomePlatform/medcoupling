@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,8 @@ lib_LTLIBRARIES = libinterpkernel.la
 
 salomeinclude_HEADERS = 		\
 BBTree.txx				\
+BBTreePts.txx				\
+BBTreeDst.txx                           \
 BoundingBox.hxx				\
 CellModel.hxx				\
 ConvexIntersector.hxx			\
@@ -218,6 +220,7 @@ dist_libinterpkernel_la_SOURCES = \
 	TranslationRotationMatrix.cxx \
 	TetraAffineTransform.cxx \
 	CellModel.cxx \
+	VolSurfUser.cxx \
 	UnitTetraIntersectionBary.cxx \
 	InterpolationOptions.cxx \
 	DirectedBoundingBox.cxx \

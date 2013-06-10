@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -26,14 +26,113 @@
 #include "InterpKernelHashMap.hxx"
 #include "VectorUtils.hxx"
 
-#include <assert.h>
-#include <vector>
 #include <functional>
+#include <vector>
+#include <cassert>
 #include <map>
 #include <set>
 
 namespace INTERP_KERNEL
 {
+  // Schema according to which the splitting is performed.
+    // Each line represents one tetrahedron. The numbering is as follows :
+    //
+    //          7 ------ 6
+    //         /|       /|
+    //        / |      / |
+    //       3 ------ 2  |
+    //       |  |     |  |
+    //       |  |     |  |
+    //       |  4-----|- 5
+    //       | /      | /
+    //       0 ------ 1
+
+  static const int SPLIT_NODES_5[20] = /* WHY not all well oriented ???? */
+    {
+      0, 1, 5, 2,
+      0, 4, 5, 7,
+      0, 3, 7, 2,
+      5, 6, 7, 2,
+      0, 2, 5, 7
+    };
+
+  static const int SPLIT_NODES_5_WO[20] = /* WO for well oriented !!! normals of 3 first points are OUTSIDE the TETRA4 */
+    {
+      0, 5, 1, 2,
+      0, 4, 5, 7,
+      0, 3, 7, 2,
+      5, 7, 6, 2,
+      0, 5, 2, 7
+    };
+
+  static const int SPLIT_NODES_6[24] = /* WHY all badly oriented ???? */
+    {
+      0, 1, 5, 6,
+      0, 2, 1, 6,
+      0, 5, 4, 6,
+      0, 4, 7, 6,
+      0, 3, 2, 6,
+      0, 7, 3, 6
+    };
+  
+  static const int SPLIT_NODES_6_WO[24] = /* WO for well oriented !!! normals of 3 first points are OUTSIDE the TETRA4 */
+    {
+      0, 5, 1, 6,
+      0, 1, 2, 6,
+      0, 4, 5, 6,
+      0, 7, 4, 6,
+      0, 2, 3, 6,
+      0, 3, 7, 6
+    };
+  
+  // Each sub-node is the barycenter of 4 other nodes.
+  // For the faces, these are on the orignal mesh.
+  // For the barycenter, the four face sub-nodes are used.
+  static const int GENERAL_24_SUB_NODES[28] = 
+    {
+      0,1,4,5,// sub-node 8  (face)
+      0,1,2,3,// sub-node 9  (face)
+      0,3,4,7,// sub-node 10 (face)
+      1,2,5,6,// sub-node 11 (face)
+      4,5,6,7,// sub-node 12 (face)
+      2,3,6,7,// sub-node 13 (face)
+      8,9,10,11// sub-node 14 (cell)
+    };
+  
+  static const int TETRA_EDGES_GENERAL_24[48] = 
+    {
+      // face with center 8
+      0,1,
+      1,5,
+      5,4,
+      4,0,
+      // face with center 9
+      0,1,
+      1,2,
+      2,3,
+      3,0,
+      // face with center 10
+      0,4,
+      4,7,
+      7,3,
+      3,0,
+      // face with center 11
+      1,5,
+      5,6,
+      6,2,
+      2,1,
+      // face with center 12
+      5,6,
+      6,7,
+      7,4,
+      4,5,
+      // face with center 13
+      2,6,
+      6,7,
+      7,3,
+      3,2
+    };
+  
   /**
    * \brief Class representing a triangular face, used as key in caching hash map in SplitterTetra.
    *

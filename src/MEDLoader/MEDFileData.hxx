@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@
 #define __MEDFILEDATA_HXX__
 
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDFileParameter.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
 
@@ -35,12 +36,17 @@ namespace ParaMEDMEM
   public:
     static MEDFileData *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileData *New();
+    MEDFileData *deepCpy() const throw(INTERP_KERNEL::Exception);
+    std::size_t getHeapMemorySize() const;
     MEDFileFields *getFields() const;
     MEDFileMeshes *getMeshes() const;
+    MEDFileParameters *getParams() const;
     void setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception);
     void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
+    void setParams(MEDFileParameters *params) throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfParams() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     //
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
@@ -54,6 +60,7 @@ namespace ParaMEDMEM
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fields;
     MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _meshes;
+    MEDCouplingAutoRefCountObjectPtr<MEDFileParameters> _params;
   };
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2013  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -49,6 +49,120 @@ void SauvLoaderTest::testSauv2Med()
   CPPUNIT_ASSERT_EQUAL(8+97,d2->getNumberOfFields());
   MEDFileMesh * m = d2->getMeshes()->getMeshAtPos(0);
   CPPUNIT_ASSERT_EQUAL(17,int(m->getGroupsNames().size()));
+}
+
+void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
+{
+  // Create a mesh with 2 quads.
+  const int spaceDim = 2;
+  const int nbOfNodes = 6;
+  double coords[nbOfNodes*spaceDim] = {0,0, 1,0, 1,1, 0,1, 2,0, 2,1};
+  int conn[8]={0,1,2,3, 1,4,5,2};
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
+  mesh2d->allocateCells(2);
+  mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
+  mesh2d->finishInsertingCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> myCoords=DataArrayDouble::New();
+  myCoords->alloc(nbOfNodes,spaceDim);
+  std::copy(coords,coords+nbOfNodes*spaceDim,myCoords->getPointer());
+  mesh2d->setCoords(myCoords);
+
+  // create a MedFileUMesh
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m= MEDFileUMesh::New();
+  m->setMeshAtLevel(0,mesh2d);
+
+  // Create families and groups
+
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam = DataArrayInt::New();
+  fam->alloc(2,1);
+  int elemsFams[2] = {-2,-3};
+  std::copy(elemsFams,elemsFams+2,fam->getPointer());
+
+  m->setFamilyFieldArr(0,fam);
+
+  std::map<std::string,int> theFamilies;
+  theFamilies["FAM_-1"]=-1;
+  theFamilies["FAM_-2"]=-2;
+  theFamilies["FAM_-3"]=-3;
+
+  std::map<std::string, std::vector<std::string> > theGroups;
+  theGroups["Group1"].push_back("FAM_-2");
+  theGroups["Group2"].push_back("FAM_-3");
+  theGroups["Grouptot"].push_back("FAM_-1");
+  theGroups["Grouptot"].push_back("FAM_-2");
+  theGroups["Grouptot"].push_back("FAM_-3");
+  m->setFamilyInfo(theFamilies);
+  m->setGroupInfo(theGroups);
+
+  // write to MED for visual check
+  //const char* medFile = "mesh_with_void_family.med";
+  //m->write(medFile, 2);
+
+  // write to SAUV
+  const char* sauvFile = "mesh_with_void_family.sauv";
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> medData = MEDFileData::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> medMeshes = MEDFileMeshes::New();
+  MEDCouplingAutoRefCountObjectPtr<SauvWriter> sw=SauvWriter::New();
+  medMeshes->setMeshAtPos(0, m);
+  medData->setMeshes(medMeshes);
+  sw->setMEDFileDS(medData);
+  sw->write(sauvFile);
+
+  // read SAUV and check groups
+  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grp1 = m2->getGroup(0, "Group1");
+  CPPUNIT_ASSERT_EQUAL(1,(int)grp1->getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grp2 = m2->getGroup(0, "Group2");
+  CPPUNIT_ASSERT_EQUAL(1,(int)grp2->getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grptot = m2->getGroup(0, "Grouptot");
+  CPPUNIT_ASSERT_EQUAL(2,(int)grptot->getNumberOfCells());
+}
+
+void SauvLoaderTest::testSauv2MedOnA3SubsField()
+{
+  // read SAUV
+  std::string sauvFile = getResourceFile("portico_3subs.sauv");
+  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile.c_str());
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  // check mesh
+  MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>(d2->getMeshes()->getMeshAtPos(0));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1d = m2->getMeshAtLevel(0);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> length1dField = mesh1d->getMeasureField(0);
+  std::cout << "Length of 1d elements: " << length1dField->accumulate(0) << std::endl;
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3, length1dField->accumulate(0), 1e-12);
+  // check field
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> field =
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("CHAM1D"));
+  std::cout << "Number of components in field: " << field->getInfo().size() << std::endl;
+  CPPUNIT_ASSERT_EQUAL(6,(int)field->getInfo().size());
+  std::vector< std::pair<int,int> > timesteps = field->getIterations();
+
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1d =
+    field->getFieldOnMeshAtLevel(ON_GAUSS_NE, timesteps[0].first, timesteps[0].second, 0, m2);
+
+  // Check first component of the field
+  // 2 gauss points per element => 12 values
+  double values[12] = {
+      -7.687500000000e-03,
+      -7.687500000000e-03,
+      -4.562500000000e-03,
+      -4.562500000000e-03,
+      -8.208333333333e-03,
+      -8.208333333333e-03,
+      -6.125000000000e-03,
+      -6.125000000000e-03,
+      -4.041666666666e-03,
+      -4.041666666666e-03,
+      -6.111413346910e-07,
+      -6.111413346910e-07};
+
+  for (int i=0; i < field1d->getNumberOfTuples(); i++)
+  {
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( values[i], field1d->getIJ(i, 0), 1e-12 );
+  }
 }
 
 void SauvLoaderTest::testMed2Sauv()
@@ -105,7 +219,7 @@ void SauvLoaderTest::testMed2Sauv()
   MEDFileFields* pointeFields = pointeMed->getFields();
   for ( int i = 0; i < pointeFields->getNumberOfFields(); ++i )
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ts = pointeFields->getFieldAtPos(i);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ts = pointeFields->getFieldAtPos(i);
       if ( std::string("fieldnodeint") == ts->getName())
         {
           pointeFields->destroyFieldAtPos( i );
@@ -152,9 +266,9 @@ void SauvLoaderTest::testMed2Sauv()
   // check fields
   // fieldnodedouble
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldnodedoubleTS1 =
-    pointeMed->getFields()->getFieldWithName("fieldnodedouble");
+    dynamic_cast<MEDFileFieldMultiTS *>(pointeMed->getFields()->getFieldWithName("fieldnodedouble"));
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldnodedoubleTS2 =
-    d2->getFields()->getFieldWithName("fieldnodedouble");
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("fieldnodedouble"));
   CPPUNIT_ASSERT_EQUAL( fieldnodedoubleTS1->getInfo().size(), fieldnodedoubleTS2->getInfo().size());
   for ( size_t i = 0; i < fieldnodedoubleTS1->getInfo().size(); ++i )
     CPPUNIT_ASSERT_EQUAL( fieldnodedoubleTS1->getInfo()[i], fieldnodedoubleTS2->getInfo()[i]);
@@ -171,9 +285,9 @@ void SauvLoaderTest::testMed2Sauv()
     }
   // fieldcelldoublevector
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldcelldoublevectorTS1 =
-    pointeMed->getFields()->getFieldWithName("fieldcelldoublevector");
+    dynamic_cast<MEDFileFieldMultiTS *>(pointeMed->getFields()->getFieldWithName("fieldcelldoublevector"));
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldcelldoublevectorTS2 =
-    d2->getFields()->getFieldWithName("fieldcelldoublevector");
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("fieldcelldoublevector"));
   CPPUNIT_ASSERT_EQUAL( fieldcelldoublevectorTS1->getInfo().size(), fieldcelldoublevectorTS2->getInfo().size());
   for ( size_t i = 0; i < fieldcelldoublevectorTS1->getInfo().size(); ++i )
     CPPUNIT_ASSERT_EQUAL( fieldcelldoublevectorTS1->getInfo()[i], fieldcelldoublevectorTS2->getInfo()[i]);
@@ -192,7 +306,7 @@ void SauvLoaderTest::testMed2Sauv()
     }
   // "Field on 2 faces"
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldOnFaces =
-    d2->getFields()->getFieldWithName(f1->getName());
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName(f1->getName()));
   io1 = fieldOnFaces->getIterations();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fof =
     fieldOnFaces->getFieldOnMeshAtLevel(f1->getTypeOfField(),io1[0].first,io1[0].second,um1);
@@ -201,8 +315,8 @@ void SauvLoaderTest::testMed2Sauv()
 
 void SauvLoaderTest::tearDown()
 {
-  const int nbFilesToRemove = 2;
-  const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv" };
+  const int nbFilesToRemove = 3;
+  const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv", "mesh_with_void_family.sauv" };
   for ( int i = 0; i < nbFilesToRemove; ++i )
     {
 #ifdef WIN32
