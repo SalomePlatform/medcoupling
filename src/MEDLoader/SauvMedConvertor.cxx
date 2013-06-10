@@ -2127,7 +2127,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
                              const int                    iSub)
 {
   // analyze a field support
-  const Group* support = fld->getSupport();
+  const Group* support = fld->getSupport( iSub );
   int dimRel;
   const bool onAll = isOnAll( support, dimRel );
   if ( !onAll && support->_name.empty() )
