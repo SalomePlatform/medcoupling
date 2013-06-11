@@ -669,7 +669,7 @@ void MEDCouplingBasicsTest3::testKeepSetSelectedComponent1()
   a1->setInfoOnComponent(3,"dddd");
   const int arr2[6]={1,2,1,2,0,0};
   std::vector<int> arr2V(arr2,arr2+6);
-  DataArrayDouble *a2=a1->keepSelectedComponents(arr2V);
+  DataArrayDouble *a2=static_cast<DataArrayDouble *>(a1->keepSelectedComponents(arr2V));
   CPPUNIT_ASSERT_EQUAL(6,a2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(5,a2->getNumberOfTuples());
   CPPUNIT_ASSERT(std::string(a2->getInfoOnComponent(0))=="bbbb");
@@ -682,7 +682,7 @@ void MEDCouplingBasicsTest3::testKeepSetSelectedComponent1()
   for(int i=0;i<30;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],a2->getIJ(0,i),1e-14);
   DataArrayInt *a3=a1->convertToIntArr();
-  DataArrayInt *a4=a3->keepSelectedComponents(arr2V);
+  DataArrayInt *a4=static_cast<DataArrayInt *>(a3->keepSelectedComponents(arr2V));
   CPPUNIT_ASSERT_EQUAL(6,a4->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(5,a4->getNumberOfTuples());
   CPPUNIT_ASSERT(std::string(a4->getInfoOnComponent(0))=="bbbb");
@@ -696,7 +696,7 @@ void MEDCouplingBasicsTest3::testKeepSetSelectedComponent1()
   // setSelectedComponents
   const int arr3[2]={3,2};
   std::vector<int> arr3V(arr3,arr3+2);
-  DataArrayDouble *a5=a1->keepSelectedComponents(arr3V);
+  DataArrayDouble *a5=static_cast<DataArrayDouble *>(a1->keepSelectedComponents(arr3V));
   a5->setInfoOnComponent(0,"eeee");
   a5->setInfoOnComponent(1,"ffff");
   const int arr4[2]={1,2};

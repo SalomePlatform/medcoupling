@@ -23,6 +23,8 @@
 
 #include "InterpolationUtils.hxx"
 #include "InterpKernelException.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 
 #include <sstream>
@@ -51,6 +53,18 @@ namespace INTERP_KERNEL
           ret+=(p2[i]-p1[i])*(p2[i]-p1[i]);
         return sqrt(ret);
       }
+  }
+  
+  inline double calculateLgthForSeg3(const double *begin, const double *end, const double *middle, int spaceDim)
+  {
+    if(spaceDim==2)
+      {
+        Edge *ed=Edge::BuildEdgeFrom3Points(begin,middle,end);
+        double ret=ed->getCurveLength(); ed->decrRef();
+        return ret;
+        }
+    else
+      return calculateLgthForSeg2(begin,end,spaceDim);
   }
 
   // ===========================
@@ -768,22 +782,53 @@ namespace INTERP_KERNEL
         bary[i]=temp/nbPts;
       }
   }
-  
-  template<class ConnType, NumberingPolicy numPol>
-  inline void computePolygonBarycenter2D(const ConnType *connec, int lgth, const double *coords, double *res)
+
+  inline void computePolygonBarycenter2DEngine(double **coords, int lgth, double *res)
   {
     double area=0.;
     res[0]=0.; res[1]=0.;
     for(int i=0;i<lgth;i++)
       {
-        double cp=coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]-
-          coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])];
+        double cp=coords[i][0]*coords[(i+1)%lgth][1]-coords[i][1]*coords[(i+1)%lgth][0];
         area+=cp;
-        res[0]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]);
-        res[1]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]);
+        res[0]+=cp*(coords[i][0]+coords[(i+1)%lgth][0]);
+        res[1]+=cp*(coords[i][1]+coords[(i+1)%lgth][1]);
       }
     res[0]/=3.*area;
     res[1]/=3.*area;
+  }
+
+  template<class ConnType, NumberingPolicy numPol>
+  inline void computePolygonBarycenter2D(const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    double **coords2=new double *[lgth];
+    for(int i=0;i<lgth;i++)
+      coords2[i]=const_cast<double *>(coords+2*OTT<ConnType,numPol>::coo2C(connec[i]));
+    computePolygonBarycenter2DEngine(coords2,lgth,res);
+    delete [] coords2;
+  }
+  
+  inline void computeQPolygonBarycenter2D(double **coords, int nbOfPtsInPolygs, int spaceDim, double *res)
+  {
+    if(nbOfPtsInPolygs%2==0)
+      {
+        if(spaceDim==2)
+          {
+            std::vector<Node *> nodes(nbOfPtsInPolygs);
+            for(int i=0;i<nbOfPtsInPolygs;i++)
+              nodes[i]=new Node(coords[i][0],coords[i][1]);
+            QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
+            pol->getBarycenter(res);
+            delete pol;
+          }
+        else
+          return computePolygonBarycenter2DEngine(coords,nbOfPtsInPolygs/2,res);
+      }
+    else
+      {
+        std::ostringstream oss; oss << "INTERP_KERNEL::computeQPolygonBarycenter2D : nb of points in quadratic polygon is " << nbOfPtsInPolygs << " should be even !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   }
 }
 

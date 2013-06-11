@@ -22,6 +22,9 @@
 #ifdef WITH_NUMPY
 #include <numpy/arrayobject.h>
 
+// specific DataArray deallocator callback. This deallocator is used both in the constructor of DataArray and in the toNumPyArr
+// method. This dellocator uses weakref to determine if the linked numArr is still alive or not. If alive the ownership is given to it.
+// if no more alive the "standart" DataArray deallocator is called.
 void numarrdeal(void *pt, void *wron)
 {
   void **wronc=(void **)wron;
@@ -40,6 +43,7 @@ void numarrdeal(void *pt, void *wron)
       typedef void (*MyDeallocator)(void *,void *);
       MyDeallocator deall=(MyDeallocator)wronc[1];
       deall(pt,NULL);
+      Py_XDECREF(weakRefOnOwner);
     }
   delete [] wronc;
 }
@@ -74,6 +78,8 @@ extern "C"
     Py_TYPE(self)->tp_free(self);
   }
   
+  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
   static PyObject *callbackmcdataarrayint_call(PyCallBackDataArrayInt *self, PyObject *args, PyObject *kw)
   {
     if(self->_pt_mc)
@@ -84,7 +90,9 @@ extern "C"
     Py_XINCREF(Py_None);
     return Py_None;
   }
-
+  
+  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
   static PyObject *callbackmcdataarraydouble_call(PyCallBackDataArrayDouble *self, PyObject *args, PyObject *kw)
   {
     if(self->_pt_mc)
@@ -181,6 +189,8 @@ PyTypeObject PyCallBackDataArrayDouble_RefType = {
   PyObject_GC_Del,            /*tp_free*/
 };
 
+// this is the second type of specific deallocator, only valid for the constructor of DataArrays taking numpy array
+// in input when an another DataArray is already client of this.
 template<class MCData>
 void numarrdeal2(void *pt, void *obj)
 {
@@ -198,23 +208,33 @@ template<class MCData, class T>
 MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype, const char *msg)
 {
   int ndim=PyArray_NDIM(elt0);
-  if(ndim!=1)
-    throw INTERP_KERNEL::Exception("Input numpy array has not 1 dimension !");//to do 1 or 2.
+  if(ndim!=1 && ndim!=2)
+    throw INTERP_KERNEL::Exception("Input numpy array should have dimension equal to 1 or 2 !");
   if(PyArray_ObjectType(elt0,0)!=npyObjectType)
     {
-      std::ostringstream oss; oss << "Input numpy array has not of type " << msg << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());//to do 1 or 2.
-    }
-  npy_intp stride=PyArray_STRIDE(elt0,0);
-  int itemSize=PyArray_ITEMSIZE(elt0);
-  if(itemSize<stride)
-    throw INTERP_KERNEL::Exception("Input numpy array has item size < stride !");
-  if(stride!=sizeof(T))
-    {
-      std::ostringstream oss; oss << "Input numpy array has not stride set to " << sizeof(T) << " !";
+      std::ostringstream oss; oss << "Input numpy array has not of type " << msg << " at component #0 !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  npy_intp sz=PyArray_DIM(elt0,0);
+  if(ndim==2)
+    if(PyArray_ObjectType(elt0,1)!=npyObjectType)
+      {
+        std::ostringstream oss; oss << "Input numpy array has not of type " << msg << " at component #1 !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  npy_intp sz0=PyArray_DIM(elt0,0);
+  npy_intp sz1=ndim==2?PyArray_DIM(elt0,1):1;
+  //
+  int itemSize=PyArray_ITEMSIZE(elt0);
+  if(itemSize!=sizeof(T))
+    {
+      std::ostringstream oss; oss << "Input numpy array has not itemSize set to " << sizeof(T) << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(itemSize*sz1!=PyArray_STRIDE(elt0,0))
+    throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays !");
+  if(ndim==2)
+    if(itemSize!=PyArray_STRIDE(elt0,1))
+      throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays for component #1 !");
   const char *data=PyArray_BYTES(elt0);
   typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<MCData> ret=MCData::New();
   if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order
@@ -244,7 +264,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         {
           PyCallBackDataArraySt<MCData> *cb=PyObject_GC_New(PyCallBackDataArraySt<MCData>,pytype);
           cb->_pt_mc=ret;
-          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz,1);
+          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(deepestObj,(PyObject *)cb);
           void **objs=new void *[2]; objs[0]=cb; objs[1]=ref;
           mma.setParameterForDeallocator(objs);
@@ -253,7 +273,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         }
       else
         {
-          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz,1);
+          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(eltOwning),NULL);
           void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) ParaMEDMEM::MemArray<T>::CDeallocator;
           mma.setParameterForDeallocator(objs);
@@ -261,8 +281,77 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         }
     }
   else if(PyArray_ISBEHAVED_RO(elt0))
-    ret->useArray(reinterpret_cast<const T *>(data),false,ParaMEDMEM::CPP_DEALLOC,sz,1);
+    ret->useArray(reinterpret_cast<const T *>(data),false,ParaMEDMEM::CPP_DEALLOC,sz0,sz1);
   return ret.retn();
+}
+
+
+int NumpyArrSetBaseObjectExt(PyArrayObject *arr, PyObject *obj)
+{
+    if (obj == NULL) {
+        PyErr_SetString(PyExc_ValueError,
+                "Cannot set the NumPy array 'base' "
+                "dependency to NULL after initialization");
+        return -1;
+    }
+    /*
+     * Allow the base to be set only once. Once the object which
+     * owns the data is set, it doesn't make sense to change it.
+     */
+    if (PyArray_BASE(arr) != NULL) {
+        Py_DECREF(obj);
+        PyErr_SetString(PyExc_ValueError,
+                "Cannot set the NumPy array 'base' "
+                "dependency more than once");
+        return -1;
+    }
+
+    /*
+     * Don't allow infinite chains of views, always set the base
+     * to the first owner of the data.  
+     * That is, either the first object which isn't an array, 
+     * or the first object which owns its own data.
+     */
+
+    while (PyArray_Check(obj) && (PyObject *)arr != obj) {
+        PyArrayObject *obj_arr = (PyArrayObject *)obj;
+        PyObject *tmp;
+ 
+
+        /* If this array owns its own data, stop collapsing */
+        if (PyArray_CHKFLAGS(obj_arr, NPY_OWNDATA)) {
+            break;
+        }   
+
+        tmp = PyArray_BASE(obj_arr);
+        /* If there's no base, stop collapsing */
+        if (tmp == NULL) {
+            break;
+        }
+        /* Stop the collapse new base when the would not be of the same 
+         * type (i.e. different subclass).
+         */
+        if (Py_TYPE(tmp) != Py_TYPE(arr)) {
+            break;
+        }
+
+
+        Py_INCREF(tmp);
+        Py_DECREF(obj);
+        obj = tmp;
+    }
+
+    /* Disallow circular references */
+    if ((PyObject *)arr == obj) {
+        Py_DECREF(obj);
+        PyErr_SetString(PyExc_ValueError,
+                "Cannot create a circular NumPy array 'base' dependency");
+        return -1;
+    }
+
+    arr->base = obj;
+
+    return 0;
 }
 
 template<class MCData, class T>
@@ -275,31 +364,42 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
     }
   ParaMEDMEM::MemArray<T>& mem=self->accessToMemArray();
   int nbComp=self->getNumberOfComponents();
-  if(nbComp!=1 && nbComp!=2)
+  if(nbComp==0)
     {
-      std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is " << nbComp << " ! Should 1 or 2 !"; 
+      std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is 0 ! Should be > 0 !"; 
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  std::size_t sz=self->getNbOfElems();
+  int nbDims=nbComp==1?1:2;
   npy_intp dim[2];
-  dim[0]=(npy_intp)self->getNumberOfTuples(); dim[1]=2;
+  dim[0]=(npy_intp)self->getNumberOfTuples(); dim[1]=nbComp;
   const T *bg=self->getConstPointer();
-  PyObject *ret=PyArray_SimpleNewFromData(nbComp,dim,npyObjectType,const_cast<T *>(bg));
+  PyObject *ret=PyArray_SimpleNewFromData(nbDims,dim,npyObjectType,const_cast<T *>(bg));
   if(mem.isDeallocatorCalled())
     {
-      if(mem.getDeallocator()!=ParaMEDMEM::MemArray<T>::CDeallocator)
-        {
-          int mask=NPY_OWNDATA; mask=~mask;
-          (reinterpret_cast<PyArrayObject *>(ret))->flags&=mask;
-          return ret;
-        }
-      else
-        {
+      if(mem.getDeallocator()!=numarrdeal)
+        {// case for the first call of toNumPyArray
           PyObject *ref=PyWeakref_NewRef(ret,NULL);
-          void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) ParaMEDMEM::MemArray<T>::CDeallocator;
+          void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) mem.getDeallocator();
           mem.setParameterForDeallocator(objs);
           mem.setSpecificDeallocator(numarrdeal);
           return ret;
+        }
+      else
+        {// case for the second and other call of toNumPyArray
+          void **objs=(void **)mem.getParameterForDeallocator();
+          PyObject *weakRefOnOwner=(PyObject *)objs[0];
+          PyObject *obj=PyWeakref_GetObject(weakRefOnOwner);
+          if(obj!=Py_None)
+            {//the previous numArray exists let numpy deals the numpy array each other by declaring the still alive instance as base
+              Py_XINCREF(obj);
+              NumpyArrSetBaseObjectExt((PyArrayObject*)ret,obj);
+            }
+          else
+            {//the previous numArray no more exists -> declare the newly created numpy array as the first one.
+              Py_XDECREF(weakRefOnOwner);
+              PyObject *ref=PyWeakref_NewRef(ret,NULL);
+              objs[0]=ref;
+            }
         }
     }
   return ret;
@@ -310,6 +410,11 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
 static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
+  if(!mesh)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
   if(dynamic_cast<ParaMEDMEM::MEDCouplingUMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingExtrudedMesh *>(mesh))
@@ -326,6 +431,11 @@ static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw
 static PyObject *convertFieldDiscretization(ParaMEDMEM::MEDCouplingFieldDiscretization *fd, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
+  if(!fd)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
   if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationP0 *>(fd))
     ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationP0,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationP1 *>(fd))
@@ -344,6 +454,11 @@ static PyObject *convertFieldDiscretization(ParaMEDMEM::MEDCouplingFieldDiscreti
 static PyObject *convertDataArrayChar(ParaMEDMEM::DataArrayChar *dac, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
+  if(!dac)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
   if(dynamic_cast<ParaMEDMEM::DataArrayByte *>(dac))
     ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,owner);
   if(dynamic_cast<ParaMEDMEM::DataArrayAsciiChar *>(dac))
@@ -353,9 +468,35 @@ static PyObject *convertDataArrayChar(ParaMEDMEM::DataArrayChar *dac, int owner)
   return ret;
 }
 
+static PyObject *convertDataArray(ParaMEDMEM::DataArray *dac, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!dac)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<ParaMEDMEM::DataArrayDouble *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,owner);
+  if(dynamic_cast<ParaMEDMEM::DataArrayInt *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,owner);
+  if(dynamic_cast<ParaMEDMEM::DataArrayByte *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,owner);
+  if(dynamic_cast<ParaMEDMEM::DataArrayAsciiChar *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of DataArray on downcast !");
+  return ret;
+}
+
 static PyObject* convertMultiFields(ParaMEDMEM::MEDCouplingMultiFields *mfs, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
+  if(!mfs)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
   if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldOverTime *>(mfs))
     ret=SWIG_NewPointerObj((void*)mfs,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldOverTime,owner);
   else
@@ -814,7 +955,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
   if(PyList_Check(pyLi))
     {
       *size=PyList_Size(pyLi);
-      double *tmp=new double[*size];
+      double *tmp=(double *)malloc((*size)*sizeof(double));
       for(int i=0;i<*size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
@@ -831,7 +972,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
             }
           else
             {
-              delete [] tmp;
+              free(tmp);
               throw INTERP_KERNEL::Exception("convertPyToNewDblArr2 : list must contain floats/integers only");
             }
         }
@@ -840,7 +981,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
   else if(PyTuple_Check(pyLi))
     {
       *size=PyTuple_Size(pyLi);
-      double *tmp=new double[*size];
+      double *tmp=(double *)malloc((*size)*sizeof(double));
       for(int i=0;i<*size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
@@ -857,7 +998,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
             }
           else
             {
-              delete [] tmp;
+              free(tmp);
               throw INTERP_KERNEL::Exception("convertPyToNewDblArr2 : tuple must contain floats/integers only");
             }
         }
@@ -2359,4 +2500,29 @@ ParaMEDMEM::MEDCouplingFieldDouble *ParaMEDMEM_MEDCouplingFieldDouble___rdiv__Im
     default:
       { throw INTERP_KERNEL::Exception(msg); }
     }
+}
+
+static ParaMEDMEM::DataArray *CheckAndRetrieveDataArrayInstance(PyObject *obj, const char *msg)
+{
+  void *aBasePtrVS=0;
+  int status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArray,0|0);
+  if(!SWIG_IsOK(status))
+    {
+      status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+      if(!SWIG_IsOK(status))
+        {
+          status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar,0|0);
+              if(!SWIG_IsOK(status))
+                {
+                  status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,0|0);
+                  std::ostringstream oss; oss << msg << " ! Accepted instances are DataArrayDouble, DataArrayInt, DataArrayAsciiChar, DataArrayByte !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+    }
+  return reinterpret_cast< ParaMEDMEM::DataArray * >(aBasePtrVS);
 }

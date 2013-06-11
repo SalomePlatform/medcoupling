@@ -206,6 +206,7 @@ SET(MED_RESOURCES_FILES
   allPillesTest.sauv
   BDC-714.sauv
   portico_3subs.sauv
+  agitateur.med
   )
 
 IF(MED_ENABLE_GUI)

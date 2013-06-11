@@ -104,7 +104,7 @@ void CppExample_MEDCouplingFieldDouble_MergeFields()
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2 =
     field1->cloneWithMesh( true );
   double vec[1] = { 5. };
-  ((ParaMEDMEM::MEDCouplingMesh *)field2->getMesh())->translate(vec); // translate mesh2
+  (const_cast<ParaMEDMEM::MEDCouplingMesh *>(field2->getMesh()))->translate(vec); // translate mesh2
   field2->applyFunc("x + 5"); // "translate" field2
 
   // concatenate field1 and field2
@@ -596,7 +596,7 @@ void CppExample_MEDCouplingFieldDouble_renumberNodes()
   field->renumberNodes(renumber,false);
   const MEDCouplingMesh* mesh2 = field->getMesh(); // field now refers to another mesh
   values = field->getArray();
-  nodeCoords = ((MEDCouplingUMesh*)mesh2)->getCoords();
+  nodeCoords = (static_cast<const MEDCouplingUMesh*>(mesh2))->getCoords();
   CPPUNIT_ASSERT( values->isEqualWithoutConsideringStr( *nodeCoords, 1e-13 ));
   //! [CppSnippet_MEDCouplingFieldDouble_renumberNodes_3]
 }

@@ -539,7 +539,8 @@ void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool
   _type->renumberCells(old2NewBg,check);
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
-  _type->renumberArraysForCell(_mesh,arrays,old2NewBg,check);
+  std::vector<DataArray *> arrays2(arrays.size()); std::copy(arrays.begin(),arrays.end(),arrays2.begin());
+  _type->renumberArraysForCell(_mesh,arrays2,old2NewBg,check);
   //
   updateTime();
 }

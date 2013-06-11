@@ -284,6 +284,20 @@ DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfNodesPerCell() const throw(INT
   int *pt=ret3D->getPointer();
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfCells2D)
      std::copy(ret2D->begin(),ret2D->end(),pt);
+  ret3D->applyLin(2,0,0);
+  return ret3D->renumberR(_mesh3D_ids->begin());
+}
+
+DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2D=_mesh2D->computeNbOfNodesPerCell();
+  int nbOfLevs=_mesh1D->getNumberOfCells();
+  int nbOfCells2D=_mesh2D->getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret3D=DataArrayInt::New(); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
+  int *pt=ret3D->getPointer();
+  for(int i=0;i<nbOfLevs;i++,pt+=nbOfCells2D)
+     std::copy(ret2D->begin(),ret2D->end(),pt);
+  ret3D->applyLin(2,2,0);
   return ret3D->renumberR(_mesh3D_ids->begin());
 }
 

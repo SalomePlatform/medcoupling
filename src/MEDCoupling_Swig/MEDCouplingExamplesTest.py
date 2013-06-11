@@ -371,7 +371,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_1]
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
         bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
-        valArray = field.getValueOnMulti( bc.getValues() )
+        valArray = field.getValueOnMulti( bc )
         self.assertTrue( valArray.isEqual( field.getArray(), 1e-13 ))
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
         return
@@ -387,8 +387,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingFieldDouble_getValueOn_2]
         bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
         vals = [] # array to collect values returned by getValueOn()
-        for i in range( bc.getNumberOfTuples() ):
-            vals.extend( field.getValueOn( bc.getTuple( i )))
+        for i,tupl in enumerate( bc ):
+            vals.extend( field.getValueOn( tupl ) )
         self.assertTrue( vals == field.getArray().getValues() )
         #! [PySnippet_MEDCouplingFieldDouble_getValueOn_2]
         return
@@ -622,9 +622,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_1]
         #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_2]
         fixedCells = mesh.findAndCorrectBadOriented3DExtrudedCells()
-        assert len( fixedCells.getValues() ) == 2 # 2 cells fixed
+        assert len( fixedCells ) == 2 # 2 cells fixed
         fixedCells = mesh.findAndCorrectBadOriented3DExtrudedCells()
-        assert len( fixedCells.getValues() ) == 0 # no bad cells
+        assert len( fixedCells ) == 0 # no bad cells
         #! [PySnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_2]
         return
 
@@ -655,12 +655,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_1]
         #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_2]
         badCells = mesh.arePolyhedronsNotCorrectlyOriented()
-        assert len( badCells.getValues() ) == 1 # one polyhedron is KO
+        assert len( badCells ) == 1 # one polyhedron is KO
         # fix invalid rolyherdons
         mesh.orientCorrectlyPolyhedrons()
         # re-check the orientation
         badCells = mesh.arePolyhedronsNotCorrectlyOriented()
-        assert len( badCells.getValues() ) == 0 # connectivity is OK
+        assert len( badCells ) == 0 # connectivity is OK
         #! [PySnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_2]
         return
 
@@ -1405,9 +1405,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingPointSet_rotate_3]
         #! [PySnippet_MEDCouplingPointSet_rotate_4]
         mesh.changeSpaceDimension(2)
-        coords2 = mesh.getCoords().getValues()
+        coords2 = mesh.getCoords()
         for i,c in enumerate( coords ):
-            self.assertAlmostEqual( c, coords2[i], 13 )
+            self.assertAlmostEqual( c, coords2.getIJ(0,i), 13 )
         #! [PySnippet_MEDCouplingPointSet_rotate_4]
         return
 
@@ -2100,9 +2100,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(8):#8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
-        self.assertEqual(expected3[:4],list(m2C.getNodalConnectivity().getValues())[4:])
-        self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4])
-        self.assertEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected3[:4],[int(i) for i in m2C.getNodalConnectivity()][4:])
+        self.assertEqual(expected3[4:8],[int(i) for i in m2C.getNodalConnectivity()][:4])
+        self.assertEqual(expected4[:3],[int(i) for i in m2C.getNodalConnectivityIndex()])
         #idem previous because nodes of cell#4 are not fully present in part3
         part3=[1,2]
         arrr=DataArrayInt.New()
@@ -2122,9 +2122,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(8):#8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
-        self.assertEqual(expected3[:4],list(m2C.getNodalConnectivity().getValues())[4:8])
-        self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4])
-        self.assertEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected3[:4],[int(i) for i in m2C.getNodalConnectivity()][4:8])
+        self.assertEqual(expected3[4:8],[int(i) for i in m2C.getNodalConnectivity()][:4])
+        self.assertEqual(expected4[:3],m2C.getNodalConnectivityIndex().getValues())
         part4=[1,2,4]
         f2=f1.buildSubPart(part4)
         self.assertEqual(6,f2.getNumberOfTuples())
@@ -2142,10 +2142,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
-        self.assertEqual(expected3[0:4],list(m2C.getNodalConnectivity().getValues())[4:8])
-        self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[0:4])
-        self.assertEqual(expected3[8:13],list(m2C.getNodalConnectivity().getValues())[8:13])
-        self.assertEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected3[0:4],m2C.getNodalConnectivity().getValues()[4:8])
+        self.assertEqual(expected3[4:8],m2C.getNodalConnectivity().getValues()[0:4])
+        self.assertEqual(expected3[8:13],m2C.getNodalConnectivity().getValues()[8:13])
+        self.assertEqual(expected4,m2C.getNodalConnectivityIndex().getValues())
+        # previous line equivalent to
+        self.assertEqual(expected4,[int(i) for i in m2C.getNodalConnectivityIndex()])
         return
 
     def testExampleUMeshStdBuild1(self):

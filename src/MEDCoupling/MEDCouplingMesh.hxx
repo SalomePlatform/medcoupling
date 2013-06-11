@@ -87,6 +87,7 @@ namespace ParaMEDMEM
     virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
     virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
@@ -124,6 +125,10 @@ namespace ParaMEDMEM
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingMesh *MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception);
+    static bool IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static bool IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static INTERP_KERNEL::NormalizedCellType GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static int GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static int GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static const char *GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     //serialisation-unserialization

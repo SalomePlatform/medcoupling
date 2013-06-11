@@ -57,32 +57,6 @@ std::size_t DataArrayChar::getHeapMemorySize() const
 }
 
 /*!
- * Sets information on all components. This method can change number of components
- * at certain conditions; if the conditions are not respected, an exception is thrown.
- * The number of components can be changed provided that \a this is not allocated.
- *
- * To know more on format of the component information see
- * \ref MEDCouplingArrayBasicsCompoName "DataArrays infos".
- *  \param [in] info - a vector of component infos.
- *  \throw If \a this->getNumberOfComponents() != \a info.size() && \a this->isAllocated()
- */
-void DataArrayChar::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception)
-{
-  if(getNumberOfComponents()!=(int)info.size())
-    {
-      if(!isAllocated())
-        _info_on_compo=info;
-      else
-        {
-          std::ostringstream oss; oss << "DataArrayChar::setInfoAndChangeNbOfCompo : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << "  and this is already allocated !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-    }
-  else
-    _info_on_compo=info;
-}
-
-/*!
  * Returns an integer value characterizing \a this array, which is useful for a quick
  * comparison of many instances of DataArrayInt.
  *  \return int - the hash value.
@@ -728,7 +702,7 @@ DataArrayChar *DataArrayChar::changeNbOfComponents(int newNbOfComp, char dftValu
  *
  *  \ref py_mcdataarrayint_keepselectedcomponents "Here is a Python example".
  */
-DataArrayChar *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
+DataArray *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret(buildEmptySpecializedDAChar());
@@ -770,7 +744,7 @@ void DataArrayChar::meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Ex
     throw INTERP_KERNEL::Exception("DataArrayChar::meldWith : mismatch of number of tuples !");
   int nbOfComp1=getNumberOfComponents();
   int nbOfComp2=other->getNumberOfComponents();
-  char *newArr=new char[nbOfTuples*(nbOfComp1+nbOfComp2)];
+  char *newArr=(char *)malloc(nbOfTuples*(nbOfComp1+nbOfComp2)*sizeof(char));
   char *w=newArr;
   const char *inp1=getConstPointer();
   const char *inp2=other->getConstPointer();
@@ -779,7 +753,7 @@ void DataArrayChar::meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Ex
       w=std::copy(inp1,inp1+nbOfComp1,w);
       w=std::copy(inp2,inp2+nbOfComp2,w);
     }
-  useArray(newArr,true,CPP_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
+  useArray(newArr,true,C_DEALLOC,nbOfTuples,nbOfComp1+nbOfComp2);
   std::vector<int> compIds(nbOfComp2);
   for(int i=0;i<nbOfComp2;i++)
     compIds[i]=nbOfComp1+i;
@@ -1275,6 +1249,183 @@ void DataArrayChar::setPartOfValuesAdv(const DataArrayChar *a, const DataArrayCh
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+}
+
+/*!
+ * Copy some tuples from another DataArrayChar (\a a) into contiguous tuples
+ * of \a this array. Textual data is not copied. Both arrays must have equal number of
+ * components.
+ * The tuples to assign to are defined by index of the first tuple, and
+ * their number is defined by \a tuplesSelec->getNumberOfTuples().
+ * The tuples to copy are defined by values of a DataArrayChar.
+ * All components of selected tuples are copied.
+ *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
+ *              values to.
+ *  \param [in] a - the array to copy values from.
+ *  \param [in] tuplesSelec - the array specifying tuples of \a a to copy.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a a is NULL.
+ *  \throw If \a a is not allocated.
+ *  \throw If \a tuplesSelec is NULL.
+ *  \throw If \a tuplesSelec is not allocated.
+ *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If \a tuplesSelec->getNumberOfComponents() != 1.
+ *  \throw If <em>tupleIdStart + tuplesSelec->getNumberOfTuples() > this->getNumberOfTuples().</em>
+ *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
+ *         \a a array.
+ */
+void DataArrayChar::setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
+{
+  if(!aBase || !tuplesSelec)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues : input DataArray is NULL !");
+  const DataArrayChar *a=dynamic_cast<const DataArrayChar *>(aBase);
+  if(!a)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues : input DataArray aBase is not a DataArrayChar !");
+  checkAllocated();
+  a->checkAllocated();
+  tuplesSelec->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues : This and a do not have the same number of components !");
+  if(tuplesSelec->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues : Expecting to have a tuple selector DataArrayChar instance with exactly 1 component !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  int nbOfTupleToWrite=tuplesSelec->getNumberOfTuples();
+  char *valsToSet=getPointer()+tupleIdStart*nbOfComp;
+  if(tupleIdStart+nbOfTupleToWrite>thisNt)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues : invalid number range of values to write !");
+  const char *valsSrc=a->getConstPointer();
+  for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple++,valsToSet+=nbOfComp)
+    {
+      if(*tuple>=0 && *tuple<aNt)
+        {
+          std::copy(valsSrc+nbOfComp*(*tuple),valsSrc+nbOfComp*(*tuple+1),valsToSet);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayChar::setContigPartOfSelectedValues : Tuple #" << std::distance(tuplesSelec->begin(),tuple);
+          oss << " of 'tuplesSelec' request of tuple id #" << *tuple << " in 'a' ! It should be in [0," << aNt << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+/*!
+ * Copy some tuples from another DataArrayChar (\a a) into contiguous tuples
+ * of \a this array. Textual data is not copied. Both arrays must have equal number of
+ * components.
+ * The tuples to copy are defined by three values similar to parameters of
+ * the Python function \c range(\c start,\c stop,\c step).
+ * The tuples to assign to are defined by index of the first tuple, and
+ * their number is defined by number of tuples to copy.
+ * All components of selected tuples are copied.
+ *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
+ *              values to.
+ *  \param [in] a - the array to copy values from.
+ *  \param [in] bg - index of the first tuple to copy of the array \a a.
+ *  \param [in] end2 - index of the tuple of \a a before which the tuples to copy
+ *              are located.
+ *  \param [in] step - index increment to get index of the next tuple to copy.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a a is NULL.
+ *  \throw If \a a is not allocated.
+ *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If <em>tupleIdStart + len(range(bg,end2,step)) > this->getNumberOfTuples().</em>
+ *  \throw If parameters specifying tuples to copy, do not give a
+ *            non-empty range of increasing indices or indices are out of a valid range
+ *            for the array \a a.
+ */
+void DataArrayChar::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
+{
+  if(!aBase)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : input DataArray is NULL !");
+  const DataArrayChar *a=dynamic_cast<const DataArrayChar *>(aBase);
+  if(!a)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : input DataArray aBase is not a DataArrayChar !");
+  checkAllocated();
+  a->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  const char msg[]="DataArrayChar::setContigPartOfSelectedValues2";
+  int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : This and a do not have the same number of components !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  char *valsToSet=getPointer()+tupleIdStart*nbOfComp;
+  if(tupleIdStart+nbOfTupleToWrite>thisNt)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : invalid number range of values to write !");
+  if(end2>aNt)
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : invalid range of values to read !");
+  const char *valsSrc=a->getConstPointer()+bg*nbOfComp;
+  for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
+    {
+      std::copy(valsSrc,valsSrc+nbOfComp,valsToSet);
+    }
+}
+
+/*!
+ * Returns a shorten copy of \a this array. The new DataArrayChar contains ranges
+ * of tuples specified by \a ranges parameter.
+ * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ *  \param [in] ranges - std::vector of std::pair's each of which defines a range
+ *              of tuples in [\c begin,\c end) format.
+ *  \return DataArrayChar * - the new instance of DataArrayChar that the caller
+ *          is to delete using decrRef() as it is no more needed.
+ *  \throw If \a end < \a begin.
+ *  \throw If \a end > \a this->getNumberOfTuples().
+ *  \throw If \a this is not allocated.
+ */
+DataArray *DataArrayChar::selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuplesThis=getNumberOfTuples();
+  if(ranges.empty())
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+      ret->alloc(0,nbOfComp);
+      ret->copyStringInfoFrom(*this);
+      return ret.retn();
+    }
+  int ref=ranges.front().first;
+  int nbOfTuples=0;
+  bool isIncreasing=true;
+  for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    {
+      if((*it).first<=(*it).second)
+        {
+          if((*it).first>=0 && (*it).second<=nbOfTuplesThis)
+            {
+              nbOfTuples+=(*it).second-(*it).first;
+              if(isIncreasing)
+                isIncreasing=ref<=(*it).first;
+              ref=(*it).second;
+            }
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayChar::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+              oss << " (" << (*it).first << "," << (*it).second << ") is greater than number of tuples of this :" << nbOfTuples << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayChar::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+          oss << " (" << (*it).first << "," << (*it).second << ") end is before begin !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(isIncreasing && nbOfTuplesThis==nbOfTuples)
+    return deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  ret->alloc(nbOfTuples,nbOfComp);
+  ret->copyStringInfoFrom(*this);
+  const char *src=getConstPointer();
+  char *work=ret->getPointer();
+  for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    work=std::copy(src+(*it).first*nbOfComp,src+(*it).second*nbOfComp,work);
+  return ret.retn();
 }
 
 /*!

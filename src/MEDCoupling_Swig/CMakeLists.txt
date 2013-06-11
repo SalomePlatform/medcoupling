@@ -82,11 +82,11 @@ SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURREN
 INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON})
 
 INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingMemArray.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${MED_salomeinclude_HEADERS})
-INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumpyTest.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py DESTINATION ${MED_salomescript_PYTHON})
 
 ADD_TEST(MEDCouplingBasicsTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest.py)
 ADD_TEST(MEDCouplingExamplesTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingExamplesTest.py)
 ADD_TEST(MEDCouplingRemapperTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingRemapperTest.py)
 IF(NUMPY_STATUS)
-  ADD_TEST(MEDCouplingNumpyTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingNumpyTest.py)
+  ADD_TEST(MEDCouplingNumPyTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingNumPyTest.py)
 ENDIF(NUMPY_STATUS)

@@ -135,7 +135,7 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3, length1dField->accumulate(0), 1e-12);
   // check field
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> field =
-    d2->getFields()->getFieldWithName("CHAM1D");
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("CHAM1D"));
   std::cout << "Number of components in field: " << field->getInfo().size() << std::endl;
   CPPUNIT_ASSERT_EQUAL(6,(int)field->getInfo().size());
   std::vector< std::pair<int,int> > timesteps = field->getIterations();
@@ -161,7 +161,6 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
 
   for (int i=0; i < field1d->getNumberOfTuples(); i++)
   {
-    bool ok = abs(values[i]-field1d->getIJ(i, 0)) < 1e-12;
     CPPUNIT_ASSERT_DOUBLES_EQUAL( values[i], field1d->getIJ(i, 0), 1e-12 );
   }
 }
@@ -220,7 +219,7 @@ void SauvLoaderTest::testMed2Sauv()
   MEDFileFields* pointeFields = pointeMed->getFields();
   for ( int i = 0; i < pointeFields->getNumberOfFields(); ++i )
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ts = pointeFields->getFieldAtPos(i);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ts = pointeFields->getFieldAtPos(i);
       if ( std::string("fieldnodeint") == ts->getName())
         {
           pointeFields->destroyFieldAtPos( i );
@@ -267,9 +266,9 @@ void SauvLoaderTest::testMed2Sauv()
   // check fields
   // fieldnodedouble
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldnodedoubleTS1 =
-    pointeMed->getFields()->getFieldWithName("fieldnodedouble");
+    dynamic_cast<MEDFileFieldMultiTS *>(pointeMed->getFields()->getFieldWithName("fieldnodedouble"));
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldnodedoubleTS2 =
-    d2->getFields()->getFieldWithName("fieldnodedouble");
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("fieldnodedouble"));
   CPPUNIT_ASSERT_EQUAL( fieldnodedoubleTS1->getInfo().size(), fieldnodedoubleTS2->getInfo().size());
   for ( size_t i = 0; i < fieldnodedoubleTS1->getInfo().size(); ++i )
     CPPUNIT_ASSERT_EQUAL( fieldnodedoubleTS1->getInfo()[i], fieldnodedoubleTS2->getInfo()[i]);
@@ -286,9 +285,9 @@ void SauvLoaderTest::testMed2Sauv()
     }
   // fieldcelldoublevector
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldcelldoublevectorTS1 =
-    pointeMed->getFields()->getFieldWithName("fieldcelldoublevector");
+    dynamic_cast<MEDFileFieldMultiTS *>(pointeMed->getFields()->getFieldWithName("fieldcelldoublevector"));
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldcelldoublevectorTS2 =
-    d2->getFields()->getFieldWithName("fieldcelldoublevector");
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("fieldcelldoublevector"));
   CPPUNIT_ASSERT_EQUAL( fieldcelldoublevectorTS1->getInfo().size(), fieldcelldoublevectorTS2->getInfo().size());
   for ( size_t i = 0; i < fieldcelldoublevectorTS1->getInfo().size(); ++i )
     CPPUNIT_ASSERT_EQUAL( fieldcelldoublevectorTS1->getInfo()[i], fieldcelldoublevectorTS2->getInfo()[i]);
@@ -307,7 +306,7 @@ void SauvLoaderTest::testMed2Sauv()
     }
   // "Field on 2 faces"
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldOnFaces =
-    d2->getFields()->getFieldWithName(f1->getName());
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName(f1->getName()));
   io1 = fieldOnFaces->getIterations();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fof =
     fieldOnFaces->getFieldOnMeshAtLevel(f1->getTypeOfField(),io1[0].first,io1[0].second,um1);

@@ -58,7 +58,7 @@ _MEDCouplingRemapper_la_LDFLAGS  = -module $(PYTHON_LIBS) \
 
 CLEANFILES = MEDCouplingWRAP.cxx MEDCoupling.py MEDCouplingRemapperWRAP.cxx MEDCouplingRemapper.py
 
-dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCoupling.py MEDCouplingRemapper.py MEDCouplingDataForTest.py MEDCouplingNumpyTest.py libMEDCoupling_Swig.py
+dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCoupling.py MEDCouplingRemapper.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py libMEDCoupling_Swig.py
 
 UNIT_TEST_PROG = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
 

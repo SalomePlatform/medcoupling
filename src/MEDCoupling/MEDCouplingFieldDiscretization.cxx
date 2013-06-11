@@ -497,7 +497,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationP0::getOffsetArr(const MEDCouplingMe
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                                              const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   if(!mesh)
@@ -505,13 +505,13 @@ void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMe
   const int *array=old2NewBg;
   if(check)
     array=DataArrayInt::CheckAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
-  for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
+  for(std::vector<DataArray *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
     {
       if(*it)
         (*it)->renumberInPlace(array);
     }
   if(check)
-    delete [] array;
+    free(const_cast<int *>(array));
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
@@ -543,10 +543,10 @@ void MEDCouplingFieldDiscretizationP0::checkCompatibilityWithNature(NatureOfFiel
 {
 }
 
-void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
 {
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::checkCoherencyBetween : NULL input mesh !");
+  if(!mesh || !da)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::checkCoherencyBetween : NULL input mesh or DataArray !");
   if(mesh->getNumberOfCells()!=da->getNumberOfTuples())
     {
       std::ostringstream message;
@@ -694,7 +694,7 @@ int MEDCouplingFieldDiscretizationOnNodes::getNumberOfMeshPlaces(const MEDCoupli
 /*!
  * Nothing to do here.
  */
-void MEDCouplingFieldDiscretizationOnNodes::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
+void MEDCouplingFieldDiscretizationOnNodes::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArray *>& arrays,
                                                                   const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
 }
@@ -732,10 +732,10 @@ void MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds(c
   trueTupleRestriction=ret2.retn();
 }
 
-void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
 {
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationNodes::checkCoherencyBetween : NULL input mesh !");
+  if(!mesh || !da)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationNodes::checkCoherencyBetween : NULL input mesh or DataArray !");
   if(mesh->getNumberOfNodes()!=da->getNumberOfTuples())
     {
       std::ostringstream message;
@@ -1005,12 +1005,12 @@ std::size_t MEDCouplingFieldDiscretizationPerCell::getHeapMemorySize() const
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has no discretization per cell !");
   if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween : NULL input mesh !");
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween : NULL input mesh or DataArray !");
   int nbOfTuples=_discr_per_cell->getNumberOfTuples();
   if(nbOfTuples!=mesh->getNumberOfCells())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has a discretization per cell but it's not matching the underlying mesh !");
@@ -1067,7 +1067,7 @@ void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, 
   _discr_per_cell=dpc;
   //
   if(check)
-    delete [] const_cast<int *>(array);
+    free(const_cast<int *>(array));
 }
 
 void MEDCouplingFieldDiscretizationPerCell::buildDiscrPerCellIfNecessary(const MEDCouplingMesh *mesh)
@@ -1297,7 +1297,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplin
   return ret.retn();
 }
 
-void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                                                 const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   if(!mesh)
@@ -1321,12 +1321,12 @@ void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplin
         array2[j]=array3[array[i]]+k;
     }
   delete [] array3;
-  for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
+  for(std::vector<DataArray *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
     if(*it)
       (*it)->renumberInPlace(array2);
   delete [] array2;
   if(check)
-    delete [] const_cast<int*>(array);
+    free(const_cast<int*>(array));
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
@@ -1460,10 +1460,10 @@ double MEDCouplingFieldDiscretizationGauss::getIJK(const MEDCouplingMesh *mesh, 
   return da->getIJ(offset+nodeIdInCell,compoId);
 }
 
-void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
 {
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween : NULL input mesh !");
+  if(!mesh || !da)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween : NULL input mesh or DataArray !");
   MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(mesh,da);
   for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++)
     (*iter).checkCoherency();
@@ -1969,7 +1969,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGaussNE::getOffsetArr(const MEDCoupl
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                                                   const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   if(!mesh)
@@ -1997,12 +1997,12 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCoupl
         array2[j]=array3[array[i]]+k;
     }
   delete [] array3;
-  for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
+  for(std::vector<DataArray *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
     if(*it)
       (*it)->renumberInPlace(array2);
   delete [] array2;
   if(check)
-    delete [] const_cast<int *>(array);
+    free(const_cast<int *>(array));
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
@@ -2209,7 +2209,7 @@ double MEDCouplingFieldDiscretizationGaussNE::getIJK(const MEDCouplingMesh *mesh
   return da->getIJ(offset+nodeIdInCell,compoId);
 }
 
-void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
 {
   int nbOfTuples=getNumberOfTuples(mesh);
   if(nbOfTuples!=da->getNumberOfTuples())

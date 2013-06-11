@@ -27,17 +27,18 @@
 
 namespace INTERP_KERNEL
 {
-  double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2) throw(INTERP_KERNEL::Exception)
+  double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint) throw(INTERP_KERNEL::Exception)
   {
     double dx=pt1Seg2[0]-pt0Seg2[0],dy=pt1Seg2[1]-pt0Seg2[1];
     double norm=sqrt(dx*dx+dy*dy);
     if(norm==0.)
-      return std::numeric_limits<double>::max();
+      return (pt[0]-pt0Seg2[0])*(pt[0]-pt0Seg2[0])+(pt[1]-pt0Seg2[1])*(pt[1]-pt0Seg2[1]);//return std::numeric_limits<double>::max();
     dx/=norm; dy/=norm;
     double dx2=pt[0]-pt0Seg2[0],dy2=pt[1]-pt0Seg2[1];
     double dotP=(dx2*dx+dy2*dy);
     if(dotP<0. || dotP>norm)
-      return std::numeric_limits<double>::max();
+      return dotP<0.?(pt[0]-pt0Seg2[0])*(pt[0]-pt0Seg2[0])+(pt[1]-pt0Seg2[1])*(pt[1]-pt0Seg2[1]):(pt[0]-pt1Seg2[0])*(pt[0]-pt1Seg2[0])+(pt[1]-pt1Seg2[1])*(pt[1]-pt1Seg2[1]);
+    nbOfHint++;
     double x=pt0Seg2[0]+dotP*dx,y=pt0Seg2[1]+dotP*dy;
     return (x-pt[0])*(x-pt[0])+(y-pt[1])*(y-pt[1]);
   }
@@ -55,18 +56,16 @@ namespace INTERP_KERNEL
     xy[1]=matrix[4]*pt[0]+matrix[5]*pt[1]+matrix[6]*pt[2]+matrix[7];
     double z=matrix[8]*pt[0]+matrix[9]*pt[1]+matrix[10]*pt[2]+matrix[11];
     double ret=std::numeric_limits<double>::max();
-    int nbOfHint=0;
+    std::size_t nbOfHint=0;
     if(xy[0]>0. && xy[0]<xy1[0])
-      { ret=std::min(ret,sqrt(z*z+xy[1]*xy[1])); nbOfHint++; } //distance pt to edge [pt0Tri3,pt1Tri3]
-    double tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,xy1,xy2); //distance pt to edge [pt1Tri3,pt2Tri3]
-    if(tmp!=std::numeric_limits<double>::max())
-      { ret=std::min(ret,sqrt(z*z+tmp)); nbOfHint++; }
-    tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,xy2,xy0);//distance pt to edge [pt2Tri3,pt0Tri3]
-    if(tmp!=std::numeric_limits<double>::max())
-      { ret=std::min(ret,sqrt(z*z+tmp)); nbOfHint++; }
+      { ret=std::min(ret,z*z+xy[1]*xy[1]); nbOfHint++; } //distance pt to edge [pt0Tri3,pt1Tri3]
+    double tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,xy1,xy2,nbOfHint); //distance pt to edge [pt1Tri3,pt2Tri3]
+    ret=std::min(ret,z*z+tmp);
+    tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,xy2,xy0,nbOfHint);//distance pt to edge [pt2Tri3,pt0Tri3]
+    ret=std::min(ret,z*z+tmp);
     if(nbOfHint==3)
-      ret=std::min(ret,fabs(z));
-    return ret;
+      ret=std::min(ret,z*z);
+  return sqrt(ret);
   }
 
   double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords) throw(INTERP_KERNEL::Exception)
@@ -94,13 +93,12 @@ namespace INTERP_KERNEL
     std::size_t nbOfHint=0;
     for(std::size_t i=0;i<nbOfEdges;i++)
       {
-        double tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,((double *)ptXY)+2*i,((double *)ptXY)+2*((i+1)%nbOfEdges));
-        if(tmp!=std::numeric_limits<double>::max())
-          { ret=std::min(ret,sqrt(z*z+tmp)); nbOfHint++; }
+        double tmp=SquareDistanceFromPtToSegInSpaceDim2(xy,((double *)ptXY)+2*i,((double *)ptXY)+2*((i+1)%nbOfEdges),nbOfHint);
+        ret=std::min(ret,z*z+tmp);
       }
     if(nbOfHint==nbOfEdges)
-      ret=std::min(ret,fabs(z));
-    return ret;
+      ret=std::min(ret,z*z);
+    return sqrt(ret);
   }
 
   /*!

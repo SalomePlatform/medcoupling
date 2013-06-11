@@ -29,7 +29,7 @@
 namespace MEDFileUtilities
 {
   med_access_mode TraduceWriteMode(int medloaderwritemode) throw(INTERP_KERNEL::Exception);
-  int TraduceFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception);
+  const char *GetReadableMEDFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception);
   void CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception);
   void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
 

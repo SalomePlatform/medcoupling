@@ -27,6 +27,7 @@
 #include "InterpolationUtils.hxx"
 
 #include <sstream>
+#include <cstdlib>
 #include <algorithm>
 
 namespace ParaMEDMEM
@@ -51,9 +52,9 @@ namespace ParaMEDMEM
     if(!other._pointer.isNull())
       {
         _nb_of_elem_alloc=other._nb_of_elem;
-        T *pointer=new T[_nb_of_elem_alloc];
+        T *pointer=(T*)malloc(_nb_of_elem_alloc*sizeof(T));
         std::copy(other._pointer.getConstPointer(),other._pointer.getConstPointer()+other._nb_of_elem,pointer);
-        useArray(pointer,true,CPP_DEALLOC,other._nb_of_elem);
+        useArray(pointer,true,C_DEALLOC,other._nb_of_elem);
       }
   }
 
@@ -272,7 +273,7 @@ namespace ParaMEDMEM
       throw INTERP_KERNEL::Exception("MemArray<T>::fromNoInterlace : number of components must be > 0 !");
     const T *pt=_pointer.getConstPointer();
     std::size_t nbOfTuples=_nb_of_elem/nbOfComp;
-    T *ret=new T[_nb_of_elem];
+    T *ret=(T*)malloc(_nb_of_elem*sizeof(T));
     T *w=ret;
     for(std::size_t i=0;i<nbOfTuples;i++)
       for(int j=0;j<nbOfComp;j++,w++)
@@ -287,7 +288,7 @@ namespace ParaMEDMEM
       throw INTERP_KERNEL::Exception("MemArray<T>::toNoInterlace : number of components must be > 0 !");
     const T *pt=_pointer.getConstPointer();
     std::size_t nbOfTuples=_nb_of_elem/nbOfComp;
-    T *ret=new T[_nb_of_elem];
+    T *ret=(T*)malloc(_nb_of_elem*sizeof(T));
     T *w=ret;
     for(int i=0;i<nbOfComp;i++)
       for(std::size_t j=0;j<nbOfTuples;j++,w++)
@@ -340,9 +341,9 @@ namespace ParaMEDMEM
       throw INTERP_KERNEL::Exception("MemArray::alloc : request for negative length of data !");
     _nb_of_elem=nbOfElements;
     _nb_of_elem_alloc=nbOfElements;
-    _pointer.setInternal(new T[_nb_of_elem_alloc]);
+    _pointer.setInternal((T*)malloc(_nb_of_elem_alloc*sizeof(T)));
     _ownership=true;
-    _dealloc=CPPDeallocator;
+    _dealloc=CDeallocator;
   }
 
   /*!
@@ -361,7 +362,7 @@ namespace ParaMEDMEM
       throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
     if(_nb_of_elem_alloc==newNbOfElements)
       return ;
-    T *pointer=new T[newNbOfElements];
+    T *pointer=(T*)malloc(newNbOfElements*sizeof(T));
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<std::size_t>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
       destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
@@ -369,7 +370,7 @@ namespace ParaMEDMEM
     _nb_of_elem=std::min<std::size_t>(_nb_of_elem,newNbOfElements);
     _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
-    _dealloc=CPPDeallocator;
+    _dealloc=CDeallocator;
     _param_for_deallocator=0;
   }
 
@@ -387,7 +388,7 @@ namespace ParaMEDMEM
       throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
     if(_nb_of_elem==newNbOfElements)
       return ;
-    T *pointer=new T[newNbOfElements];
+    T *pointer=(T*)malloc(newNbOfElements*sizeof(T));
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<std::size_t>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
       destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
@@ -395,7 +396,7 @@ namespace ParaMEDMEM
     _nb_of_elem=newNbOfElements;
     _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
-    _dealloc=CPPDeallocator;
+    _dealloc=CDeallocator;
     _param_for_deallocator=0;
   }
 

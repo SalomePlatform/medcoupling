@@ -1816,6 +1816,18 @@ void MEDCouplingBasicsTest2::testMaxPerTuple1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(5.6,f2->getIJ(i,0),1e-13);
   f2->decrRef();
   //
+  DataArrayInt *d2I=0;
+  DataArrayDouble *d2=array->maxPerTupleWithCompoId(d2I);
+  CPPUNIT_ASSERT_EQUAL(1,d2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,d2->getNumberOfTuples());
+  const int expected2[5]={4,3,2,0,1};
+  for(int i=0;i<5;i++)
+    {
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(5.6,d2->getIJ(i,0),1e-13);
+      CPPUNIT_ASSERT_EQUAL(expected2[i],d2I->getIJ(i,0));
+    }
+  d2->decrRef(); d2I->decrRef();
+  //
   mesh1->decrRef();
   f1->decrRef();
 }

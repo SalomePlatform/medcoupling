@@ -244,7 +244,10 @@ void SauvWriter::setMEDFileDS(const MEDFileData* medData,
   if ( fields )
     for ( int i = 0; i < fields->getNumberOfFields(); ++i )
       {
-        MEDFileFieldMultiTS * f = fields->getFieldAtPos(i);
+        MEDFileAnyTypeFieldMultiTS * fB = fields->getFieldAtPos(i);
+        MEDFileFieldMultiTS * f = dynamic_cast<MEDFileFieldMultiTS *>(fB);
+        if(!f)
+          continue;// fields on int32 not managed
         if ( f->getMeshName() == _fileMesh->getName() )
           {
             vector< vector<TypeOfField> > fTypes = f->getTypesOfFieldAvailable();

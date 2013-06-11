@@ -139,7 +139,21 @@ void MEDCouplingBasicsTest1::testMesh()
   int tab4[4*nbOfCells]={ 
     1, 2, 8, 7, 2, 3, 9, 8, 3, 4, 10, 9, 4, 5, 11, 10, 5, 0, 6, 11, 
     0, 1, 7, 6, };
-  
+  CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NORM_TRI3),3);
+  CPPUNIT_ASSERT(MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NORM_TRI3));
+  CPPUNIT_ASSERT(MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NORM_TRI3));
+  CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NORM_TRI3),2);
+  CPPUNIT_ASSERT_EQUAL(std::string(MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NORM_TRI3)),std::string("NORM_TRI3"));
+  CPPUNIT_ASSERT_THROW(MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NORM_POLYGON),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT(not MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NORM_POLYGON));
+  CPPUNIT_ASSERT(MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NORM_POLYGON));
+  CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NORM_POLYGON),2);
+  CPPUNIT_ASSERT_EQUAL(std::string(MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NORM_POLYGON)),std::string("NORM_POLYGON"));
+  CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NORM_TRI6),6);
+  CPPUNIT_ASSERT(MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NORM_TRI6));
+  CPPUNIT_ASSERT(!MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NORM_TRI6));
+  CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NORM_TRI6),2);
+  CPPUNIT_ASSERT_EQUAL(std::string(MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NORM_TRI6)),std::string("NORM_TRI6"));
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(8);

@@ -323,11 +323,11 @@ void MEDCouplingBasicsTest5::testDataArrayDoubleAdvSetting1()
   //
   std::vector<std::pair<int,int> > p(3);
   p[0].first=0; p[0].second=3; p[1].first=3; p[1].second=5; p[2].first=5; p[2].second=7;
-  tmp=da->selectByTupleRanges(p);
+  tmp=dynamic_cast<DataArrayDouble *>(da->selectByTupleRanges(p));
   CPPUNIT_ASSERT(tmp->isEqual(*da,1e-14));
   tmp->decrRef();
   p[0].first=0; p[0].second=2; p[1].first=3; p[1].second=4; p[2].first=5; p[2].second=7;
-  tmp=da->selectByTupleRanges(p);
+  tmp=dynamic_cast<DataArrayDouble *>(da->selectByTupleRanges(p));
   const double expected1[10]={1.,11.,2.,12.,4.,14.,6.,16.,7.,17.};
   CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
@@ -335,7 +335,7 @@ void MEDCouplingBasicsTest5::testDataArrayDoubleAdvSetting1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],tmp->getIJ(0,i),1e-14);
   tmp->decrRef();
   p[0].first=0; p[0].second=2; p[1].first=0; p[1].second=2; p[2].first=5; p[2].second=6;
-  tmp=da->selectByTupleRanges(p);
+  tmp=dynamic_cast<DataArrayDouble *>(da->selectByTupleRanges(p));
   const double expected2[10]={1.,11.,2.,12.,1.,11.,2.,12.,6.,16.};
   CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
@@ -417,11 +417,11 @@ void MEDCouplingBasicsTest5::testDataArrayIntAdvSetting1()
   //
   std::vector<std::pair<int,int> > p(3);
   p[0].first=0; p[0].second=3; p[1].first=3; p[1].second=5; p[2].first=5; p[2].second=7;
-  tmp=da->selectByTupleRanges(p);
+  tmp=dynamic_cast<DataArrayInt *>(da->selectByTupleRanges(p));
   CPPUNIT_ASSERT(tmp->isEqual(*da));
   tmp->decrRef();
   p[0].first=0; p[0].second=2; p[1].first=3; p[1].second=4; p[2].first=5; p[2].second=7;
-  tmp=da->selectByTupleRanges(p);
+  tmp=dynamic_cast<DataArrayInt *>(da->selectByTupleRanges(p));
   const int expected1[10]={1,11,2,12,4,14,6,16,7,17};
   CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
@@ -429,7 +429,7 @@ void MEDCouplingBasicsTest5::testDataArrayIntAdvSetting1()
     CPPUNIT_ASSERT_EQUAL(expected1[i],tmp->getIJ(0,i));
   tmp->decrRef();
   p[0].first=0; p[0].second=2; p[1].first=0; p[1].second=2; p[2].first=5; p[2].second=6;
-  tmp=da->selectByTupleRanges(p);
+  tmp=dynamic_cast<DataArrayInt *>(da->selectByTupleRanges(p));
   const int expected2[10]={1,11,2,12,1,11,2,12,6,16};
   CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());

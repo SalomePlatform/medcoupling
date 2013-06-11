@@ -34,6 +34,7 @@
 
 namespace ParaMEDMEM
 {
+  class DataArray;
   class DataArrayInt;
   class MEDCouplingMesh;
   class DataArrayDouble;
@@ -69,10 +70,10 @@ namespace ParaMEDMEM
                                                     DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
-    virtual void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+    virtual void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                        const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception) = 0;
     virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const = 0;
     virtual void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const = 0;
     virtual void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const = 0;
@@ -122,13 +123,13 @@ namespace ParaMEDMEM
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
                                             DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
+    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
     void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
@@ -151,12 +152,12 @@ namespace ParaMEDMEM
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
     void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
                                             DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
+    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
     MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
     DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
@@ -205,7 +206,7 @@ namespace ParaMEDMEM
     ~MEDCouplingFieldDiscretizationPerCell();
     void updateTime() const;
     std::size_t getHeapMemorySize() const;
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
+    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
@@ -232,7 +233,7 @@ namespace ParaMEDMEM
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
     void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
@@ -244,7 +245,7 @@ namespace ParaMEDMEM
     void getSerializationIntArray(DataArrayInt *& arr) const;
     void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
     double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
+    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
     void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
@@ -299,7 +300,7 @@ namespace ParaMEDMEM
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
     void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
@@ -307,7 +308,7 @@ namespace ParaMEDMEM
                                             DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
+    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
     void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;

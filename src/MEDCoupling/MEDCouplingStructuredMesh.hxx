@@ -34,6 +34,7 @@ namespace ParaMEDMEM
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
     static void GetPosFromId(int nodeId, int meshDim, const int *split, int *res);
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     std::size_t getHeapMemorySize() const;

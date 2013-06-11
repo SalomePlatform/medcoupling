@@ -109,6 +109,16 @@ DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const throw(I
   return ret.retn();
 }
 
+DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  int nbCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbCells,1);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
+  ret->fillWithValue((int)cm.getNumberOfSons());
+  return ret.retn();
+}
+
 void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   int meshDim=getMeshDimension();

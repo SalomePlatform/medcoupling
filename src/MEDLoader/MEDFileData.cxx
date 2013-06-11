@@ -147,7 +147,7 @@ std::string MEDFileData::simpleRepr() const
       tmp3->simpleReprWithoutHeader(oss);
     }
   else
-    oss << "params set !!!\n";
+    oss << "No params set !!!\n";
   return oss.str();
 }
 

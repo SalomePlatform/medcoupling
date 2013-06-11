@@ -32,6 +32,7 @@ namespace ParaMEDMEM
     std::string cppRepr(const char *varName) const throw(INTERP_KERNEL::Exception);
     std::string getName() const;
     void setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
+    void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getVarsOnComponent() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getUnitsOnComponent() const throw(INTERP_KERNEL::Exception);
     std::string getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception);
@@ -39,6 +40,9 @@ namespace ParaMEDMEM
     std::string getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     void setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
+    virtual void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
+    virtual bool isAllocated() const throw(INTERP_KERNEL::Exception);
+    virtual void checkAllocated() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
@@ -77,6 +81,177 @@ namespace ParaMEDMEM
         convertPyToNewIntArr3(li,tmp);
         self->copyPartOfStringInfoFrom2(tmp,other);
       }
+
+      virtual void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            if(size!=self->getNumberOfTuples())
+              {
+                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+              }
+            self->renumberInPlace(tmp);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            int size=self->getNumberOfTuples();
+            if(size!=self->getNumberOfTuples())
+              {
+                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+              }
+            self->renumberInPlace(da2->getConstPointer());
+          }
+      }
+
+      virtual void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            if(size!=self->getNumberOfTuples())
+              {
+                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+              }
+            self->renumberInPlaceR(tmp);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            int size=self->getNumberOfTuples();
+            if(size!=self->getNumberOfTuples())
+              {
+                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+              }
+            self->renumberInPlaceR(da2->getConstPointer());
+          }
+      }
+
+      //tuplesSelec in PyObject * because DataArrayInt is not already existing !
+      virtual void setContigPartOfSelectedValues(int tupleIdStart, PyObject *aBase, PyObject *tuplesSelec) throw(INTERP_KERNEL::Exception)
+      {
+        static const char msg[]="DataArray::setContigPartOfSelectedValues2 : 4th parameter \"tuplesSelec\" should be of type DataArrayInt";
+          DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValues2 : 3rd parameter \"aBase\" should be of type DataArray");
+        DataArray *tuplesSelecPtr=CheckAndRetrieveDataArrayInstance(tuplesSelec,msg);
+        DataArrayInt *tuplesSelecPtr2=0;
+        if(tuplesSelecPtr)
+          {
+            tuplesSelecPtr2=dynamic_cast<DataArrayInt *>(tuplesSelecPtr);
+            if(!tuplesSelecPtr2)
+              throw INTERP_KERNEL::Exception(msg);
+          }
+        self->setContigPartOfSelectedValues(tupleIdStart,a,tuplesSelecPtr2);
+      }
+      
+      virtual void setContigPartOfSelectedValues2(int tupleIdStart, PyObject *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
+      {
+        DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValues2 : 2nd parameter \"aBase\" should be of type DataArray");
+        self->setContigPartOfSelectedValues2(tupleIdStart,a,bg,end2,step);
+      }
+
+      virtual DataArray *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<std::pair<int,int> > ranges;
+        convertPyToVectorPairInt(li,ranges);
+        return self->selectByTupleRanges(ranges);
+      }
+
+      virtual PyObject *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> tmp;
+        convertPyToNewIntArr3(li,tmp);
+        DataArray *ret=self->keepSelectedComponents(tmp);
+        return convertDataArray(ret,SWIG_POINTER_OWN | 0 );
+      }
+
+      static PyObject *GetSlice(PyObject *slic, int sliceId, int nbOfSlices) throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : the input slice is invalid !");
+        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
+          throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : the input slice contains some unknowns that can't be determined in static method ! Call DataArray::getSlice (non static) instead !");
+        int a,b;
+        DataArray::GetSlice(strt,stp,step,sliceId,nbOfSlices,a,b);
+        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
+      }
+
+      PyObject *getSlice(PyObject *slic, int sliceId, int nbOfSlices) const throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArray::getSlice (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,self->getNumberOfTuples(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArray::getSlice (wrap) : the input slice is invalid !");
+        int a,b;
+        DataArray::GetSlice(strt,stp,step,sliceId,nbOfSlices,a,b);
+        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
+      }
+
+      static int GetNumberOfItemGivenBES(PyObject *slic) throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : the input slice is invalid !");
+        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
+          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : the input slice contains some unknowns that can't be determined in static method !");
+        return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
+      }
+
+      static int GetNumberOfItemGivenBESRelative(PyObject *slic) throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
+        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
+          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice contains some unknowns that can't be determined in static method !");
+        return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
+      }
+
+      int getNumberOfItemGivenBES(PyObject *slic) const throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,self->getNumberOfTuples(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBES (wrap) : the input slice is invalid !");
+        return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
+      }
+
+      int getNumberOfItemGivenBESRelative(PyObject *slic) throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,self->getNumberOfTuples(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
+        return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
+      }
     }
   };
   
@@ -87,9 +262,6 @@ namespace ParaMEDMEM
   {
   public:
     static DataArrayDouble *New();
-    bool isAllocated() const throw(INTERP_KERNEL::Exception);
-    void checkAllocated() const throw(INTERP_KERNEL::Exception);
-    void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
     double doubleValue() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *deepCpy() const throw(INTERP_KERNEL::Exception);
@@ -100,7 +272,6 @@ namespace ParaMEDMEM
     void pushBackValsSilent(const double *valsBg, const double *valsEnd) throw(INTERP_KERNEL::Exception);
     double popBackSilent() throw(INTERP_KERNEL::Exception);
     void pack() const throw(INTERP_KERNEL::Exception);
-    void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
     void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     void fillWithZero() throw(INTERP_KERNEL::Exception);
     void fillWithValue(double val) throw(INTERP_KERNEL::Exception);
@@ -130,8 +301,6 @@ namespace ParaMEDMEM
     void setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    void setContigPartOfSelectedValues(int tupleIdStart, const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    void setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayDouble *a, int bg, int end2, int step) throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const;
     double back() const throw(INTERP_KERNEL::Exception);
     double getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
@@ -145,10 +314,10 @@ namespace ParaMEDMEM
     double getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
     double getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     double getMinValueInArray() const throw(INTERP_KERNEL::Exception);
+    int count(double value, double eps) const throw(INTERP_KERNEL::Exception);
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
     double norm2() const throw(INTERP_KERNEL::Exception);
     double normMax() const throw(INTERP_KERNEL::Exception);
-    void accumulate(double *res) const throw(INTERP_KERNEL::Exception);
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromPolarToCart() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromCylToCart() const throw(INTERP_KERNEL::Exception);
@@ -207,7 +376,12 @@ namespace ParaMEDMEM
 
       static DataArrayDouble *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msg="ParaMEDMEM::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n-DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New([1.,3.,4.,5.,7,8.],3,2)\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2) !";
+        const char *msgBase="ParaMEDMEM::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n-DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New([1.,3.,4.,5.,7,8.],3,2)\n-DataArrayDouble.New([(1.,3.),(4.,5.),(7,8.)])\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2)";
+        std::string msg(msgBase);
+#ifdef WITH_NUMPY
+        msg+="\n-DataArrayDouble.New(numpy array with dtype=float64)";
+#endif
+        msg+=" !";
         if(PyList_Check(elt0) || PyTuple_Check(elt0))
           {
             if(nbOfTuples)
@@ -230,7 +404,7 @@ namespace ParaMEDMEM
                             return ret.retn();
                           }
                         else
-                          throw INTERP_KERNEL::Exception(msg);
+                          throw INTERP_KERNEL::Exception(msg.c_str());
                       }
                     else
                       {//DataArrayDouble.New([1.,3.,4.],3)
@@ -242,7 +416,7 @@ namespace ParaMEDMEM
                       }
                   }
                 else
-                  throw INTERP_KERNEL::Exception(msg);
+                  throw INTERP_KERNEL::Exception(msg.c_str());
               }
             else
               {// DataArrayDouble.New([1.,3.,4.])
@@ -272,10 +446,10 @@ namespace ParaMEDMEM
                         return ret.retn();
                       }
                     else
-                      throw INTERP_KERNEL::Exception(msg);
+                      throw INTERP_KERNEL::Exception(msg.c_str());
                   }
                 else
-                  throw INTERP_KERNEL::Exception(msg);
+                  throw INTERP_KERNEL::Exception(msg.c_str());
               }
             else
               {//DataArrayDouble.New(5)
@@ -285,13 +459,13 @@ namespace ParaMEDMEM
               }
           }
 #ifdef WITH_NUMPY
-        else if(PyArray_Check(elt0))
+        else if(PyArray_Check(elt0) && nbOfTuples==NULL && elt2==NULL)
           {//DataArrayDouble.New(numpyArray)
             return BuildNewInstance<DataArrayDouble,double>(elt0,NPY_DOUBLE,&PyCallBackDataArrayDouble_RefType,"FLOAT64");
           }
 #endif
         else
-          throw INTERP_KERNEL::Exception(msg);
+          throw INTERP_KERNEL::Exception(msg.c_str());
       }
    
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
@@ -509,64 +683,6 @@ namespace ParaMEDMEM
           }
       }
 
-      void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlace(tmp);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlace(da2->getConstPointer());
-          }
-      }
-
-      void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlaceR(tmp);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlaceR(da2->getConstPointer());
-          }
-      }
-
       DataArrayDouble *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
@@ -674,12 +790,13 @@ namespace ParaMEDMEM
         self->accumulate(tmp);
         return convertDblArrToPyList(tmp,sz);
       }
-   
-      DataArrayDouble *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
+
+      DataArrayDouble *accumulatePerChunck(PyObject *indexArr) const throw(INTERP_KERNEL::Exception)
       {
-        std::vector<int> tmp;
-        convertPyToNewIntArr3(li,tmp);
-        return self->keepSelectedComponents(tmp);
+        int sw,sz,val;
+        std::vector<int> val2;
+        const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
+        return self->accumulatePerChunck(bg,bg+sz);
       }
 
       PyObject *findCommonTuples(double prec, int limitNodeId=-1) const throw(INTERP_KERNEL::Exception)
@@ -736,13 +853,6 @@ namespace ParaMEDMEM
         std::vector<const DataArrayDouble *> tmp;
         convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",tmp);
         return DataArrayDouble::Meld(tmp);
-      }
-
-      DataArrayDouble *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<std::pair<int,int> > ranges;
-        convertPyToVectorPairInt(li,ranges);
-        return self->selectByTupleRanges(ranges);
       }
 
       PyObject *computeTupleIdsNearTuples(PyObject *pt, double eps) const throw(INTERP_KERNEL::Exception)
@@ -1849,6 +1959,16 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cI),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
+
+      PyObject *maxPerTupleWithCompoId() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret1=0;
+        DataArrayDouble *ret0=self->maxPerTupleWithCompoId(ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
     }
   };
 
@@ -2154,9 +2274,6 @@ namespace ParaMEDMEM
   {
   public:
     static DataArrayInt *New();
-    bool isAllocated() const throw(INTERP_KERNEL::Exception);
-    void checkAllocated() const throw(INTERP_KERNEL::Exception);
-    void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
     int intValue() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
@@ -2167,7 +2284,6 @@ namespace ParaMEDMEM
     void pushBackSilent(int val) throw(INTERP_KERNEL::Exception);
     int popBackSilent() throw(INTERP_KERNEL::Exception);
     void pack() const throw(INTERP_KERNEL::Exception);
-    void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
     void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     bool isEqual(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
@@ -2204,8 +2320,6 @@ namespace ParaMEDMEM
     void setPartOfValues1(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesSimple1(int a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    void setContigPartOfSelectedValues(int tupleIdStart, const DataArrayInt*a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    void setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayInt *a, int bg, int end2, int step) throw(INTERP_KERNEL::Exception);
     void getTuple(int tupleId, int *res) const throw(INTERP_KERNEL::Exception);
     int getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     int getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
@@ -2227,7 +2341,7 @@ namespace ParaMEDMEM
     bool presenceOfTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
     bool presenceOfValue(int value) const throw(INTERP_KERNEL::Exception);
     bool presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
-    void accumulate(int *res) const throw(INTERP_KERNEL::Exception);
+    int count(int value) const throw(INTERP_KERNEL::Exception);
     int accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     int getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
@@ -2289,7 +2403,12 @@ namespace ParaMEDMEM
 
       static DataArrayInt *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msg="ParaMEDMEM::DataArrayInt::New : Available API are : \n-DataArrayInt.New()\n-DataArrayInt.New([1,3,4])\n-DataArrayInt.New([1,3,4],3)\n-DataArrayInt.New([1,3,4,5],2,2)\n-DataArrayInt.New([1,3,4,5,7,8],3,2)\n-DataArrayInt.New(5)\n-DataArrayInt.New(5,2) !";
+        const char *msgBase="ParaMEDMEM::DataArrayInt::New : Available API are : \n-DataArrayInt.New()\n-DataArrayInt.New([1,3,4])\n-DataArrayInt.New([1,3,4],3)\n-DataArrayInt.New([1,3,4,5],2,2)\n-DataArrayInt.New([1,3,4,5,7,8],3,2)\n-DataArrayInt.New([(1,3),(4,5),(7,8)])\n-DataArrayInt.New(5)\n-DataArrayInt.New(5,2)";
+        std::string msg(msgBase);
+#ifdef WITH_NUMPY
+        msg+="\n-DataArrayInt.New(numpy array with dtype=int32)";
+#endif
+        msg+=" !";
         if(PyList_Check(elt0) || PyTuple_Check(elt0))
           {
             if(nbOfTuples)
@@ -2312,7 +2431,7 @@ namespace ParaMEDMEM
                             return ret.retn();
                           }
                         else
-                          throw INTERP_KERNEL::Exception(msg);
+                          throw INTERP_KERNEL::Exception(msg.c_str());
                       }
                     else
                       {//DataArrayInt.New([1,3,4],3)
@@ -2324,7 +2443,7 @@ namespace ParaMEDMEM
                       }
                   }
                 else
-                  throw INTERP_KERNEL::Exception(msg);
+                  throw INTERP_KERNEL::Exception(msg.c_str());
               }
             else
               {// DataArrayInt.New([1,3,4])
@@ -2354,10 +2473,10 @@ namespace ParaMEDMEM
                         return ret.retn();
                       }
                     else
-                      throw INTERP_KERNEL::Exception(msg);
+                      throw INTERP_KERNEL::Exception(msg.c_str());
                   }
                 else
-                  throw INTERP_KERNEL::Exception(msg);
+                  throw INTERP_KERNEL::Exception(msg.c_str());
               }
             else
               {//DataArrayInt.New(5)
@@ -2367,13 +2486,13 @@ namespace ParaMEDMEM
               }
           }
 #ifdef WITH_NUMPY
-        else if(PyArray_Check(elt0))
+        else if(PyArray_Check(elt0) && nbOfTuples==NULL && nbOfComp==NULL)
           {//DataArrayInt.New(numpyArray)
             return BuildNewInstance<DataArrayInt,int>(elt0,NPY_INT,&PyCallBackDataArrayInt_RefType,"INT32");
           }
 #endif
         else
-          throw INTERP_KERNEL::Exception(msg);
+          throw INTERP_KERNEL::Exception(msg.c_str());
       }
 
       DataArrayInt(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
@@ -2414,6 +2533,14 @@ namespace ParaMEDMEM
         INTERP_KERNEL::AutoPtr<int> tmp=new int[sz];
         self->accumulate(tmp);
         return convertIntArrToPyList(tmp,sz);
+      }
+
+      DataArrayInt *accumulatePerChunck(PyObject *indexArr) const throw(INTERP_KERNEL::Exception)
+      {
+        int sw,sz,val;
+        std::vector<int> val2;
+        const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
+        return self->accumulatePerChunck(bg,bg+sz);
       }
    
       static PyObject *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, PyObject *arr, PyObject *arrI) throw(INTERP_KERNEL::Exception)
@@ -2611,7 +2738,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      DataArrayInt *transformWithIndArrR(PyObject *li) const
+      DataArrayInt *transformWithIndArrR(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
@@ -2625,64 +2752,6 @@ namespace ParaMEDMEM
           {
             DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
             return self->transformWithIndArrR(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
-          }
-      }
-
-      void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlace(tmp);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlace(da2->getConstPointer());
-          }
-      }
-
-      void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlaceR(tmp);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlaceR(da2->getConstPointer());
           }
       }
 
@@ -2813,13 +2882,6 @@ namespace ParaMEDMEM
           }
       }
 
-      DataArrayInt *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<int> tmp;
-        convertPyToNewIntArr3(li,tmp);
-        return self->keepSelectedComponents(tmp);
-      }
-
       void setSelectedComponents(const DataArrayInt *a, PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> tmp;
@@ -2844,13 +2906,6 @@ namespace ParaMEDMEM
         PyList_SetItem(res,0,SWIG_NewPointerObj((void*)arr,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
         PyList_SetItem(res,1,SWIG_NewPointerObj((void*)arrI,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
         return res;
-      }
-
-      DataArrayInt *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<std::pair<int,int> > ranges;
-        convertPyToVectorPairInt(li,ranges);
-        return self->selectByTupleRanges(ranges);
       }
 
       static DataArrayInt *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -4483,9 +4538,7 @@ namespace ParaMEDMEM
   {
   public:
     virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception) = 0;
-    bool isAllocated() const throw(INTERP_KERNEL::Exception);
-    void checkAllocated() const throw(INTERP_KERNEL::Exception);
-    void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
+    virtual DataArrayChar *deepCpy() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
     void cpyFrom(const DataArrayChar& other) throw(INTERP_KERNEL::Exception);
@@ -4494,7 +4547,6 @@ namespace ParaMEDMEM
     void pushBackValsSilent(const char *valsBg, const char *valsEnd) throw(INTERP_KERNEL::Exception);
     char popBackSilent() throw(INTERP_KERNEL::Exception);
     void pack() const throw(INTERP_KERNEL::Exception);
-    void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
     void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     bool isEqual(const DataArrayChar& other) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const DataArrayChar& other) const throw(INTERP_KERNEL::Exception);
@@ -4505,8 +4557,6 @@ namespace ParaMEDMEM
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
     void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
-    void renumberInPlace(const int *old2New) throw(INTERP_KERNEL::Exception);
-    void renumberInPlaceR(const int *new2Old) throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumber(const int *old2New) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
@@ -4559,64 +4609,6 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,0,ret0Py);
         PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
         return ret;
-      }
-      
-      void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlace(tmp);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlace(da2->getConstPointer());
-          }
-      }
-      
-      void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlaceR(tmp);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-           throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            int size=self->getNumberOfTuples();
-            if(size!=self->getNumberOfTuples())
-              {
-                throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
-              }
-            self->renumberInPlaceR(da2->getConstPointer());
-          }
       }
       
       DataArrayChar *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -4726,13 +4718,6 @@ namespace ParaMEDMEM
           }
       }
       
-      DataArrayChar *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<int> tmp;
-        convertPyToNewIntArr3(li,tmp);
-        return self->keepSelectedComponents(tmp);
-      }
-      
       static DataArrayChar *Aggregate(PyObject *dachs) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::DataArrayChar *> tmp;
@@ -4757,7 +4742,6 @@ namespace ParaMEDMEM
     static DataArrayByte *New();
     DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
     DataArrayByteIterator *iterator();
-    DataArrayByte *deepCpy() const;
     DataArrayByte *performCpy(bool deepCpy) const;
     char byteValue() const throw(INTERP_KERNEL::Exception);
     %extend
@@ -5060,7 +5044,6 @@ namespace ParaMEDMEM
     static DataArrayAsciiChar *New();
     DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
     DataArrayAsciiCharIterator *iterator();
-    DataArrayAsciiChar *deepCpy() const;
     DataArrayAsciiChar *performCpy(bool deepCpy) const;
     char asciiCharValue() const throw(INTERP_KERNEL::Exception);
     %extend

@@ -561,6 +561,102 @@ class MEDLoaderDataForTest:
         f.setName("MyFieldOnGaussNE");
         f.checkCoherency();
         return f;
+
+    def buildACompleteMEDDataStructureWithFieldsOnCells_1(cls):
+        coo=DataArrayDouble([0,0,1,0,2,0,0,1,1,1,2,1,0,2,1,2,2,2],9,2)
+        m0=MEDCouplingUMesh("mesh",2)
+        m0.setCoords(coo)
+        m0.allocateCells()
+        m0.insertNextCell(NORM_TRI3,[1,4,2])
+        m0.insertNextCell(NORM_TRI3,[4,5,2])
+        m0.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m0.insertNextCell(NORM_QUAD4,[6,7,4,3])
+        m0.insertNextCell(NORM_QUAD4,[7,8,5,4])
+        m1=m0.computeSkin()
+        mm=MEDFileUMesh()
+        #2 levels
+        mm.setMeshAtLevel(0,m0) ; mm.setMeshAtLevel(-1,m1)
+        #some grps/families on the 2 levels
+        grp0=DataArrayInt([0,2,4]); grp0.setName("gr0_0_2_4")
+        grp1=DataArrayInt([1,2,3,4]); grp1.setName("gr0_1_2_3_4")
+        grp2=DataArrayInt([0,4]); grp2.setName("gr0_0_4")
+        mm.setGroupsAtLevel(0,[grp0,grp1,grp2])
+        grp3=DataArrayInt([0,1]); grp3.setName("grM1_SegOnTri3")
+        grp4=DataArrayInt([2,3,4,5,6,7]); grp4.setName("grM1_SegOnQuad4")
+        grp5=DataArrayInt([0,3]); grp5.setName("grM1_bottom")
+        mm.setGroupsAtLevel(-1,[grp3,grp4,grp5])
+        ms=MEDFileMeshes()
+        ms.pushMesh(mm)
+        # 3 fields
+        fs=MEDFileFields()
+        # 1st Field - fNoProfile - no profile on levels 0
+        f1Name="fNoProfile"
+        timeStepsF1=[(0,-1,0.01),(1,-1,0.02)]
+        f1=MEDFileFieldMultiTS()
+        for i,(it,order,tim) in enumerate(timeStepsF1):
+            f11Tmp=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+            f11Tmp.setTime(tim,it,order)
+            f11Tmp.setMesh(m0)
+            arr=DataArrayDouble(m0.getNumberOfCells(),1) ; arr.iota() ; arr+=1+i ; arr*=0.1
+            f11Tmp.setArray(arr)
+            f11Tmp.checkCoherency()
+            f11Tmp.setName(f1Name)
+            f1.appendFieldNoProfileSBT(f11Tmp)
+            pass
+        fs.pushField(f1)
+        # 2nd Field - fNoProfileMultiLevs - no profile on levels 0 and -1
+        f2Name="fNoProfileMultiLevs"
+        timeStepsF2=[(0,-1,0.),(1,-1,0.1),(2,-1,0.2)]
+        f2=MEDFileFieldMultiTS()
+        for i,(it,order,tim) in enumerate(timeStepsF2):
+            f21Tmp=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+            f21Tmp.setTime(tim,it,order)
+            f21Tmp.setMesh(m0)
+            arr=DataArrayDouble(m0.getNumberOfCells(),1) ; arr.iota() ; arr+=1+i
+            f21Tmp.setArray(arr)
+            f21Tmp.checkCoherency()
+            f21Tmp.setName(f2Name)
+            f2.appendFieldNoProfileSBT(f21Tmp)
+            f22Tmp=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+            f22Tmp.setTime(tim,it,order)
+            f22Tmp.setMesh(m1)
+            arr=DataArrayDouble(m1.getNumberOfCells(),1) ; arr.iota() ; arr+=100+1+i
+            f22Tmp.setArray(arr)
+            f22Tmp.checkCoherency()
+            f22Tmp.setName(f2Name)
+            f2[it,order].setFieldNoProfileSBT(f22Tmp)
+            pass
+        fs.pushField(f2)
+        # 3rd field - fProfileMultiLevs - The most complex one
+        f3Name="fProfileMultiLevs"
+        timeStepsF3=[(0,-1,0.),(1,-1,10.),(2,-1,20.),(3,-1,30.),]
+        f3=MEDFileFieldMultiTS()
+        for i,(it,order,tim) in enumerate(timeStepsF3):
+            pfl1=DataArrayInt([0,1,3,4]) ; pfl1.setName("pfl1")
+            m0Part=m0[pfl1]
+            f31Tmp=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+            f31Tmp.setTime(tim,it,order)
+            f31Tmp.setMesh(m0Part)
+            arr=DataArrayDouble(m0Part.getNumberOfCells(),1) ; arr.iota() ; arr+=1000+i+1
+            f31Tmp.setArray(arr)
+            f31Tmp.checkCoherency()
+            f31Tmp.setName(f3Name)
+            f3.appendFieldProfile(f31Tmp,mm,0,pfl1)
+            pfl2=DataArrayInt([0,3]) ; pfl2.setName("pfl2Bottom")
+            m1Part=m1[pfl2]
+            f32Tmp=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+            f32Tmp.setTime(tim,it,order)
+            f32Tmp.setMesh(m1Part)
+            arr=DataArrayDouble(m1Part.getNumberOfCells(),1) ; arr.iota() ; arr+=2000+1+i
+            f32Tmp.setArray(arr)
+            f32Tmp.checkCoherency()
+            f32Tmp.setName(f3Name)
+            f3[it,order].setFieldProfile(f32Tmp,mm,-1,pfl2)
+            pass
+        fs.pushField(f3)
+        #
+        data=MEDFileData() ; data.setMeshes(ms) ; data.setFields(fs)
+        return data
     
     build1DMesh_1=classmethod(build1DMesh_1)
     build2DCurveMesh_1=classmethod(build2DCurveMesh_1)
@@ -578,4 +674,5 @@ class MEDLoaderDataForTest:
     buildVecFieldOnGauss_2=classmethod(buildVecFieldOnGauss_2)
     buildVecFieldOnGauss_2_Simpler=classmethod(buildVecFieldOnGauss_2_Simpler)
     buildVecFieldOnGaussNE_1=classmethod(buildVecFieldOnGaussNE_1)
+    buildACompleteMEDDataStructureWithFieldsOnCells_1=classmethod(buildACompleteMEDDataStructureWithFieldsOnCells_1)
     pass

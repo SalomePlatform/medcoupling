@@ -36,6 +36,7 @@ namespace ParaMEDMEM
     static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
+    virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
@@ -61,6 +62,9 @@ namespace ParaMEDMEM
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
     virtual std::vector<int> getNonEmptyLevels() const = 0;
     virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
+    virtual std::vector<int> getFamArrNonEmptyLevelsExt() const = 0;
+    virtual std::vector<int> getNumArrNonEmptyLevelsExt() const = 0;
+    virtual std::vector<int> getNameArrNonEmptyLevelsExt() const = 0;
     virtual void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     virtual void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     virtual int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
@@ -93,20 +97,27 @@ namespace ParaMEDMEM
     std::vector<std::string> getGroupsNames() const;
     std::vector<std::string> getFamiliesNames() const;
     void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> removeEmptyGroups() throw(INTERP_KERNEL::Exception);
     void removeGroup(const char *name) throw(INTERP_KERNEL::Exception);
     void removeFamily(const char *name) throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> removeOrphanGroups() throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> removeOrphanFamilies() throw(INTERP_KERNEL::Exception);
     void changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
     void changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
     void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     void changeAllGroupsContainingFamily(const char *familyNameToChange, const std::vector<std::string>& newFamiliesNames) throw(INTERP_KERNEL::Exception);
     int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
+    int getMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
     int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
     int getMinFamilyId() const throw(INTERP_KERNEL::Exception);
+    int getTheMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
     int getTheMaxFamilyId() const throw(INTERP_KERNEL::Exception);
     int getTheMinFamilyId() const throw(INTERP_KERNEL::Exception);
+    virtual int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
     DataArrayInt *getAllFamiliesIdsReferenced() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeAllFamilyIdsInUse() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
     bool ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception);
@@ -175,12 +186,14 @@ namespace ParaMEDMEM
     static MEDFileUMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
     std::size_t getHeapMemorySize() const;
+    MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
     ~MEDFileUMesh();
     //
+    int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
     int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
     int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
     int getMeshDimension() const throw(INTERP_KERNEL::Exception);
@@ -195,6 +208,9 @@ namespace ParaMEDMEM
     int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
+    std::vector<int> getFamArrNonEmptyLevelsExt() const;
+    std::vector<int> getNumArrNonEmptyLevelsExt() const;
+    std::vector<int> getNameArrNonEmptyLevelsExt() const;
     std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception);
@@ -247,7 +263,7 @@ namespace ParaMEDMEM
     void synchronizeTinyInfoOnLeaves() const;
     void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const;
-    void addGroupUnderground(const DataArrayInt *ids, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
+    void addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
@@ -262,6 +278,7 @@ namespace ParaMEDMEM
     friend class MEDFileMesh;
   public:
     std::size_t getHeapMemorySize() const;
+    int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
     int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
     int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
@@ -276,6 +293,9 @@ namespace ParaMEDMEM
     const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
+    std::vector<int> getFamArrNonEmptyLevelsExt() const;
+    std::vector<int> getNumArrNonEmptyLevelsExt() const;
+    std::vector<int> getNameArrNonEmptyLevelsExt() const;
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
@@ -307,6 +327,7 @@ namespace ParaMEDMEM
     static MEDFileCMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
+    MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
@@ -335,6 +356,7 @@ namespace ParaMEDMEM
     static MEDFileCurveLinearMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
+    MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
