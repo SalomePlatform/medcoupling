@@ -31,7 +31,7 @@ import os,gc,weakref,unittest
 
 class MEDCouplingNumPyTest(unittest.TestCase):
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test1(self):
         sz=20
         a=array(0,dtype=int32)
@@ -50,7 +50,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(e))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test2(self):
         sz=20
         a=array(0,dtype=int32)
@@ -66,7 +66,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(e))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test3(self):
         sz=10
         a=array(0,dtype=int32)
@@ -87,14 +87,14 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10])))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test4(self):
         a=zeros(20,dtype=int32)
         b = a[::-1]
         self.assertRaises(InterpKernelException,DataArrayInt.New,b) # b is not contiguous in memory
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test5(self):
         a=arange(20,dtype=int32)
         self.assertEqual(weakref.getweakrefcount(a),0)
@@ -114,7 +114,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(DataArrayInt(a).isUniform(4))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test6(self):
         a=arange(20,dtype=int32)
         d=DataArrayInt(a) # d owns data of a
@@ -132,7 +132,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(not e.isAllocated())
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test7(self):
         a=array(0,dtype=int32) ; a.resize(10,2)
         b=a.reshape(20)
@@ -168,7 +168,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(not f.isAllocated())
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test8(self):
         a=arange(20,dtype=int32)
         self.assertTrue(a.flags["OWNDATA"])
@@ -180,7 +180,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test9(self):
         sz=20
         a=array(0,dtype=float64)
@@ -199,7 +199,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(e,1e-14))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test10(self):
         sz=20
         a=array(0,dtype=float64)
@@ -215,7 +215,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(e,1e-14))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test11(self):
         sz=10
         a=array(0,dtype=float64)
@@ -236,14 +236,14 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayDouble([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]),1e-14))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test12(self):
         a=zeros(20,dtype=float64)
         b = a[::-1]
         self.assertRaises(InterpKernelException,DataArrayDouble.New,b) # b is not contiguous in memory
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test13(self):
         a=arange(20,dtype=float64)
         self.assertEqual(weakref.getweakrefcount(a),0)
@@ -263,7 +263,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(DataArrayDouble(a).isUniform(4,1e-14))
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test14(self):
         a=arange(20,dtype=float64)
         d=DataArrayDouble(a) # d owns data of a
@@ -281,7 +281,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(not e.isAllocated())
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test15(self):
         a=array(0,dtype=float64) ; a.resize(10,2)
         b=a.reshape(20)
@@ -317,7 +317,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(not f.isAllocated())
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test16(self):
         a=arange(20,dtype=float64)
         self.assertTrue(a.flags["OWNDATA"])
@@ -329,7 +329,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19])
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test17(self):
         d=DataArrayInt.Range(0,20,1)
         a=d.toNumPyArray()
@@ -355,7 +355,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,200,200,200,200],10,2)))
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test18(self):
         d=DataArrayInt.Range(0,20,1)
         d=d.convertToDblArr()
@@ -382,7 +382,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,200,200,200,200],10,2),1e-14))
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test19(self):
         sz=20
         a=array(0,dtype=int32)
@@ -401,7 +401,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayInt.New,b) # b has not dimension in [0,1] !
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test20(self):
         sz=20
         a=array(0,dtype=float64)
@@ -420,7 +420,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayDouble.New,b) # b has not dimension in [0,1] !
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test21(self):
         #tests that only DataArray*(npArray) contructor is available
         a=array(0,dtype=int32)
@@ -435,7 +435,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayDouble.New,a,20,1)
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test22(self):
         d=DataArrayDouble(10)
         d.iota()
@@ -456,7 +456,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(a.tolist(),[0,1,2,3,4,5,6,7,8,9])
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test23(self):
         d=DataArrayDouble(10)
         d.iota()
@@ -499,7 +499,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(c.tolist(),[0,1,2,3,4,5,6,7,8,9])
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test24(self):
         d=DataArrayDouble(10)
         d.iota()
@@ -556,7 +556,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(not b.flags["OWNDATA"])
         pass
     
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test25(self):
         a=arange(10,dtype=int32)
         b=DataArrayInt(a)
@@ -631,7 +631,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(not c.isAllocated())
         pass
 
-    # @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test26(self):
         d=DataArrayInt(15) ; d.iota()
         d.rearrange(3)

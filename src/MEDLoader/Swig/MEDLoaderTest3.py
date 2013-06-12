@@ -1959,10 +1959,6 @@ class MEDLoaderTest(unittest.TestCase):
         pass
 
     def testHeapMem1(self):
-        import platform
-        ver=platform.python_version_tuple()
-        if int(ver[0])!=2 or int(ver[1])<7:
-            return
         m=MEDCouplingCMesh()
         arr=DataArrayDouble(10,1) ; arr.iota(0)
         m.setCoords(arr,arr)
