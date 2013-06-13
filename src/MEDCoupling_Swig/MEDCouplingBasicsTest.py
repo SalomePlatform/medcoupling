@@ -12948,6 +12948,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         a2=a.deepCpy() ;  a2[ids]-=b[ids] ; self.assertTrue(a2.isEqual(a,1e-15))
         pass
 
+    def testSwig2CheckAndPreparePermutation1(self):
+        a=DataArrayInt([10003,9999999,5,67])
+        self.assertTrue(a.checkAndPreparePermutation().isEqual(DataArrayInt([2,3,0,1])))
+        a=DataArrayInt([10003,-9999999,5,67])
+        self.assertTrue(a.checkAndPreparePermutation().isEqual(DataArrayInt([3,0,1,2])))
+        a=DataArrayInt([])
+        self.assertTrue(a.checkAndPreparePermutation().isEqual(DataArrayInt([])))
+        pass
+
     def setUp(self):
         pass
     pass

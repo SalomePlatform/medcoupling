@@ -2392,7 +2392,6 @@ namespace ParaMEDMEM
     static DataArrayInt *Pow(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     void powEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
   public:
-    static int *CheckAndPreparePermutation(const int *start, const int *end);
     static DataArrayInt *Range(int begin, int end, int step) throw(INTERP_KERNEL::Exception);
     %extend
     {
