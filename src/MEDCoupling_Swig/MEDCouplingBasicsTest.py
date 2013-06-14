@@ -12955,6 +12955,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(a.checkAndPreparePermutation().isEqual(DataArrayInt([3,0,1,2])))
         a=DataArrayInt([])
         self.assertTrue(a.checkAndPreparePermutation().isEqual(DataArrayInt([])))
+        a=DataArrayInt([])
+        a.iota();
+        self.assertTrue(a.isEqual(DataArrayInt([])))
         pass
 
     def setUp(self):

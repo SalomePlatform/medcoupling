@@ -8475,7 +8475,7 @@ void DataArrayInt::applyModulus(int val) throw(INTERP_KERNEL::Exception)
  * this[*id] in [\b vmin,\b vmax)
  * 
  * \param [in] vmin begin of range. This value is included in range (included).
- * \param [out] vmax end of range. This value is \b not included in range (excluded).
+ * \param [in] vmax end of range. This value is \b not included in range (excluded).
  * \return a newly allocated data array that the caller should deal with.
  */
 DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception)
@@ -8490,6 +8490,35 @@ DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const throw(INTERP
     if(*cptr>=vmin && *cptr<vmax)
       ret->pushBackSilent(i);
   return ret.retn();
+}
+
+/*!
+ * This method works only on data array with one component.
+ * This method checks that all ids in \b this are in [ \b vmin, \b vmax ). If there is at least one element in \a this not in [ \b vmin, \b vmax ) an exception will be thrown.
+ * 
+ * \param [in] vmin begin of range. This value is included in range (included).
+ * \param [in] vmax end of range. This value is \b not included in range (excluded).
+ * \return if all ids in \a this are so that (*this)[i]==i for all i in [ 0, \c this->getNumberOfTuples() ).
+ */
+bool DataArrayInt::checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::checkAllIdsInRange : this must have exactly one component !");
+  int nbOfTuples=getNumberOfTuples();
+  bool ret=true;
+  const int *cptr=getConstPointer();
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    {
+      if(*cptr>=vmin && *cptr<vmax)
+        { ret=ret && *cptr==i; }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::checkAllIdsInRange : tuple #" << i << " has value " << *cptr << " should be in [" << vmin << "," << vmax << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return ret;
 }
 
 /*!

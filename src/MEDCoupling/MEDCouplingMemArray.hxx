@@ -537,6 +537,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyPow(int val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyRPow(int val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);

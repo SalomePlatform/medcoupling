@@ -1729,7 +1729,7 @@ char DataArrayChar::getMinValueInArray() const throw(INTERP_KERNEL::Exception)
  * this[*id] in [\b vmin,\b vmax)
  * 
  * \param [in] vmin begin of range. This value is included in range.
- * \param [out] vmax end of range. This value is \b not included in range.
+ * \param [in] vmax end of range. This value is \b not included in range.
  * \return a newly allocated data array that the caller should deal with.
  */
 DataArrayInt *DataArrayChar::getIdsInRange(char vmin, char vmax) const throw(INTERP_KERNEL::Exception)
