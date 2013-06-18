@@ -8050,6 +8050,16 @@ DataArrayDouble *MEDFileFieldMultiTS::getUndergroundDataArrayExt(int iteration, 
   return static_cast<DataArrayDouble *>(contentNotNull()->getUndergroundDataArrayExt(iteration,order,entries));
 }
 
+std::vector< std::pair<int,int> > MEDFileFieldMultiTS::getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception)
+{
+  return MEDFileAnyTypeFieldMultiTS::getTimeSteps(ret1);
+}
+
+std::vector< std::pair<int,int> > MEDFileFieldMultiTS::getIterations() const
+{
+  return MEDFileAnyTypeFieldMultiTS::getIterations();
+}
+
 //= MEDFileAnyTypeFieldMultiTSIterator
 
 MEDFileAnyTypeFieldMultiTSIterator::MEDFileAnyTypeFieldMultiTSIterator(MEDFileAnyTypeFieldMultiTS *fmts):_fmts(fmts),_iter_id(0),_nb_iter(0)
