@@ -459,7 +459,7 @@ bool MEDCoupling1SGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *o
 
 void MEDCoupling1SGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
-  MEDCoupling1SGTUMesh::checkCoherency();
+  MEDCouplingPointSet::checkCoherency();
   const DataArrayInt *c1(_conn);
   if(c1)
     {
