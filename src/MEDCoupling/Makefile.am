@@ -46,7 +46,7 @@ MEDCouplingFieldOverTime.hxx MEDCouplingCurveLinearMesh.hxx MEDCouplingStructure
 dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx                                    \
 	MEDCouplingUMesh.cxx  MEDCouplingMemArray.cxx  MEDCouplingTimeLabel.cxx             \
-	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                              \
+	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx  MEDCoupling1GTUMesh.cxx     \
 	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx                    \
 	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx  MEDCouplingFieldTemplate.cxx      \
 	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \

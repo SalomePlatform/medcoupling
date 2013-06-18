@@ -161,46 +161,91 @@ std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const throw
 }
 
 /*!
+ * This method tries to minimize at most the number of deep copy.
+ * So if \a idsPerType is not empty it can be returned directly (without copy, but with ref count incremented) in return.
+ * 
  * See MEDCouplingUMesh::checkTypeConsistencyAndContig for more information
  */
 DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
-  if(code.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkTypeConsistencyAndContig : code is empty, should not !");
-  std::size_t sz=code.size();
-  if(sz!=3)
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkTypeConsistencyAndContig : code should be of size 3 exactly !");
-
-  int nbCells=getNumberOfCellsWithType((INTERP_KERNEL::NormalizedCellType)code[0]);
+  int nbOfCells=getNumberOfCells();
+  if(code.size()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : invalid input code should be exactly of size 3 !");
+  if(code[0]!=(int)getTypeOfCell(0))
+    {
+      std::ostringstream oss; oss << "MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : Mismatch of geometric type ! Asking for " << code[0] << " whereas the geometric type is \a this is " << getTypeOfCell(0) << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   if(code[2]==-1)
     {
-      if(code[1]==nbCells)
+      if(code[1]==nbOfCells)
         return 0;
       else
-        throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkTypeConsistencyAndContig : number of cells mismatch !");
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : mismatch between the number of cells in this (" << nbOfCells << ") and the number of non profile (" << code[1] << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
     }
-  else
-    {
-      if(code[2]<-1) 
-        throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkTypeConsistencyAndContig : code[2]<-1 mismatch !");
-      if(code[2]>=(int)idsPerType.size()) 
-        throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkTypeConsistencyAndContig : code[2]>size idsPerType !");
-      return idsPerType[code[2]]->deepCpy();
-    }
+  if(code[2]!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : single geo type mesh ! 0 or -1 is expected at pos #2 of input code !");
+  if(idsPerType.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : input code points to DataArrayInt #0 whereas the size of idsPerType is not equal to 1 !");
+  const DataArrayInt *pfl=idsPerType[0];
+  if(!pfl)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : the input code points to a NULL DataArrayInt at rank 0 !");
+  if(pfl->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::checkTypeConsistencyAndContig : input profile should have exactly one component !");
+  pfl->checkAllIdsInRange(0,nbOfCells);
+  pfl->incrRef();
+  return const_cast<DataArrayInt *>(pfl);
 }
 
 /*!
- * See MEDCouplingUMesh::splitProfilePerType for more information
+ * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in \a profile it returns a list of sub-profiles sorted by geo type.
+ * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
+ * This method has 1 input \a profile and 3 outputs \a code \a idsInPflPerType and \a idsPerType.
+ * 
+ * \param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
+ * \param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
+ *              \a idsInPflPerType[i] stores the tuple ids in \a profile that correspond to the geometric type code[3*i+0]
+ * \param [out] idsPerType is a vector of size of different sub profiles needed to be defined to represent the profile \a profile for a given geometric type.
+ *              This vector can be empty in case of all geometric type cells are fully covered in ascending in the given input \a profile.
+ * 
+ * \warning for performance reasons no deep copy will be performed, if \a profile can been used as this in output parameters \a idsInPflPerType and \a idsPerType.
+ *
+ * \throw if \a profile has not exactly one component. It throws too, if \a profile contains some values not in [0,getNumberOfCells()) or if \a this is not fully defined
+ *
+ *  \b Example1: <br>
+ *          - Before \a this has 3 cells \a profile contains [0,1,2]
+ *          - After \a code contains [NORM_...,nbCells,-1], \a idsInPflPerType [[0,1,2]] and \a idsPerType is empty <br>
+ * 
+ *  \b Example2: <br>
+ *          - Before \a this has 3 cells \a profile contains [1,2]
+ *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
+
  */
 void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
-  int nbCells=getNumberOfCells();
-  code.resize(3);
-  code[0]=(int)getTypeOfCell(0);
-  code[1]=nbCells;
+  if(!profile)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL !");
+  if(profile->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile should have exactly one component !");
+  int nbTuples=profile->getNumberOfTuples();
+  int nbOfCells=getNumberOfCells();
+  code.resize(3); idsInPflPerType.resize(1);
+  code[0]=(int)getTypeOfCell(0); code[1]=nbOfCells;
+  idsInPflPerType.resize(1);
+  if(profile->isIdentity() && nbTuples==nbOfCells)
+    {
+      code[2]=-1;
+      idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();
+      idsPerType.clear(); 
+    }
   code[2]=0;
-  idsInPflPerType.push_back(profile->deepCpy());
-  idsPerType.push_back(profile->deepCpy());
+  profile->checkAllIdsInRange(0,nbOfCells);
+  idsPerType.resize(1);
+  idsPerType[0]=const_cast<DataArrayInt *>(profile); idsPerType[0]->incrRef();
+  idsInPflPerType[0]=DataArrayInt::Range(0,nbTuples,1);
 }
 
 /*!

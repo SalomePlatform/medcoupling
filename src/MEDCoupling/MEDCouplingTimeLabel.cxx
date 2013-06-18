@@ -22,7 +22,7 @@
 
 using namespace ParaMEDMEM;
 
-unsigned int TimeLabel::GLOBAL_TIME=0;
+std::size_t TimeLabel::GLOBAL_TIME=0;
 
 TimeLabel::TimeLabel():_time(GLOBAL_TIME++)
 {

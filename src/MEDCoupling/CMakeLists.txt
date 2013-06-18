@@ -35,6 +35,7 @@ SET(medcoupling_SOURCES
   MEDCouplingField.cxx
   MEDCouplingFieldDouble.cxx
   MEDCouplingUMesh.cxx
+  MEDCoupling1GTUMesh.cxx
   MEDCouplingMemArray.cxx
   MEDCouplingMemArrayChar.cxx
   MEDCouplingTimeLabel.cxx

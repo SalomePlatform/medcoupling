@@ -1845,7 +1845,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dis[0][2]=0;
         ids=DataArrayInt.New();
         ids.alloc(10, 1);
-        ids.fillWithValue(111);
+        ids.fillWithValue(23);
         idsPerType=[ids];
         check=mesh1.checkTypeConsistencyAndContig(dis, idsPerType);
         self.assertTrue(check);
@@ -1858,7 +1858,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(0, code[2]);
         self.assertEqual(1, len(idsInPflPerType));
         self.assertEqual(1, len(pfls));
-        self.assertTrue(idsInPflPerType[0].isEqual(ids));
+        self.assertTrue(idsInPflPerType[0].isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9])));
         self.assertTrue(pfls[0].isEqual(ids));
         
         cells1=[0, 1, 25, 26]

@@ -79,6 +79,11 @@ MEDCouplingMesh *MEDCouplingUMeshDesc::deepCpy() const
   return 0;
 }
 
+void MEDCouplingUMeshDesc::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
@@ -100,12 +105,6 @@ void MEDCouplingUMeshDesc::checkCoherency1(double eps) const throw(INTERP_KERNEL
 void MEDCouplingUMeshDesc::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
 {
   checkCoherency1(eps);
-}
-
-void MEDCouplingUMeshDesc::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
-{
-  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::checkDeepEquivalWith : not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
@@ -401,21 +400,9 @@ DataArrayInt *MEDCouplingUMeshDesc::mergeNodes2(double precision, bool& areNodes
   return 0;
 }
 
-void MEDCouplingUMeshDesc::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
+MEDCouplingPointSet *MEDCouplingUMeshDesc::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
-}
-
-MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const throw(INTERP_KERNEL::Exception)
-{
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
-  return 0;
-}
-
-MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
-{
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
-  return 0;
 }
 
 MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
@@ -428,6 +415,16 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildFacePartOfMySelfNode(const int *
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
   return 0;
+}
+
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 DataArrayInt *MEDCouplingUMeshDesc::simplexize(int policy) throw(INTERP_KERNEL::Exception)
@@ -456,9 +453,8 @@ void MEDCouplingUMeshDesc::renumberCells(const int *old2NewBg, bool check) throw
   throw INTERP_KERNEL::Exception("Available for UMesh desc but not implemented yet !");
 }
 
-void MEDCouplingUMeshDesc::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
+void MEDCouplingUMeshDesc::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
-  MEDCouplingPointSet::renumberNodes(newNodeNumbers,newNbOfNodes);
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
@@ -482,10 +478,20 @@ MEDCouplingFieldDouble *MEDCouplingUMeshDesc::buildOrthogonalField() const
   return 0;
 }
 
-DataArrayInt *MEDCouplingUMeshDesc::zipCoordsTraducer()
+DataArrayInt *MEDCouplingUMeshDesc::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
   return 0;
+}
+
+void MEDCouplingUMeshDesc::findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingUMeshDesc::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::computeTypes()
@@ -511,6 +517,16 @@ MEDCouplingMesh *MEDCouplingUMeshDesc::mergeMyselfWith(const MEDCouplingMesh *ot
 {  
   throw INTERP_KERNEL::Exception("Not implemented yet !");
   return 0;
+}
+
+DataArrayInt *MEDCouplingUMeshDesc::getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingUMeshDesc::fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 DataArrayDouble *MEDCouplingUMeshDesc::getBarycenterAndOwner() const

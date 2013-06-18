@@ -2471,7 +2471,7 @@ void MEDCouplingBasicsTest1::testCMesh2()
   dis[2]=0;
   DataArrayInt *ids=DataArrayInt::New();
   ids->alloc(10,1);
-  ids->fillWithValue(111);
+  ids->fillWithValue(23);
   idsPerType.push_back(ids);
   DataArrayInt* check=mesh1->checkTypeConsistencyAndContig(dis, idsPerType);
   CPPUNIT_ASSERT(check);
@@ -2487,7 +2487,9 @@ void MEDCouplingBasicsTest1::testCMesh2()
   CPPUNIT_ASSERT_EQUAL(0,code[2]);
   CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
-  CPPUNIT_ASSERT(idsInPflPerType[0]->isEqual(*ids));
+  DataArrayInt *exp=DataArrayInt::New(); exp->alloc(10,1); exp->iota(0);
+  CPPUNIT_ASSERT(idsInPflPerType[0]->isEqual(*exp));
+  exp->decrRef();
   CPPUNIT_ASSERT(pfls[0]->isEqual(*ids));
   idsInPflPerType[0]->decrRef();
   pfls[0]->decrRef();

@@ -2175,7 +2175,7 @@ bool MEDCouplingFieldDouble::zipCoords(double epsOnVals) throw(INTERP_KERNEL::Ex
  * duplicates are removed.<br>
  *  \param [in] compType - specifies a cell comparison technique. Meaning of its
  *          valid values [0,1,2] is explained in the description of
- *          MEDCouplingUMesh::zipConnectivityTraducer() which is called by this method.
+ *          MEDCouplingPointSet::zipConnectivityTraducer() which is called by this method.
  *  \param [in] epsOnVals - a precision used to compare field
  *         values at merged cells. If the values differ more than \a epsOnVals, an
  *         exception is thrown.

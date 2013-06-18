@@ -23,6 +23,8 @@
 
 #include "MEDCoupling.hxx"
 
+#include <cstddef>
+
 namespace ParaMEDMEM
 {
   /*!
@@ -37,15 +39,15 @@ namespace ParaMEDMEM
     void declareAsNew() const;
     //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggregates objects.
     virtual void updateTime() const = 0;
-    unsigned int getTimeOfThis() const { return _time; }
+    std::size_t getTimeOfThis() const { return _time; }
   protected:
     TimeLabel();
     virtual ~TimeLabel();
     void updateTimeWith(const TimeLabel& other) const;
     void forceTimeOfThis(const TimeLabel& other) const;
   private:
-    static unsigned int GLOBAL_TIME;
-    mutable unsigned int _time;
+    static std::size_t GLOBAL_TIME;
+    mutable std::size_t _time;
   };
 }
 

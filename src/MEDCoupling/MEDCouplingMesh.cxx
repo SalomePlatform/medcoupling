@@ -226,6 +226,8 @@ DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partB
  */
 void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::checkFastEquivalWith : input mesh is null !");
   if(getMeshDimension()!=other->getMeshDimension())
     throw INTERP_KERNEL::Exception("checkFastEquivalWith : Mesh dimensions are not equal !");
   if(getSpaceDimension()!=other->getSpaceDimension())
@@ -239,6 +241,8 @@ void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double 
  */
 bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::areCompatibleForMerge : input mesh is null !");
   if(getMeshDimension()!=other->getMeshDimension())
     return false;
   if(getSpaceDimension()!=other->getSpaceDimension())
@@ -299,6 +303,8 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  */
 void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::copyTinyStringsFrom : input mesh is null !");
   _name=other->_name;
   _description=other->_description;
   _time_unit=other->_time_unit;
