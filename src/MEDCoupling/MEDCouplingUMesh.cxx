@@ -2061,28 +2061,6 @@ void MEDCouplingUMesh::setPartOfMySelf2(int start, int end, int step, const MEDC
 }                      
 
 /*!
- * Finds cells whose all nodes are in a given array of node ids.
- *  \param [in] partBg - the array of node ids.
- *  \param [in] partEnd - a pointer to a (last+1)-th element of \a partBg.
- *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
- *          cells. The caller is to delete this array using decrRef() as it is no
- *          more needed.
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *  \throw If any cell id in \a partBg is not valid.
- *
- *  \ref cpp_mcumesh_getCellIdsFullyIncludedInNodeIds "Here is a C++ example".<br>
- *  \ref  py_mcumesh_getCellIdsFullyIncludedInNodeIds "Here is a Python example".
- */
-DataArrayInt *MEDCouplingUMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
-{
-  DataArrayInt *cellIdsKept=0;
-  fillCellIdsToKeepFromNodeIds(partBg,partEnd,true,cellIdsKept);
-  cellIdsKept->setName(getName());
-  return cellIdsKept;
-}
-
-/*!
  * Keeps from \a this only cells which constituing point id are in the ids specified by [ \a begin,\a end ).
  * The resulting cell ids are stored at the end of the 'cellIdsKept' parameter.
  * Parameter \a fullyIn specifies if a cell that has part of its nodes in ids array is kept or not.
@@ -2120,31 +2098,6 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
         cellIdsKept->pushBackSilent(i);
     }
   cellIdsKeptArr=cellIdsKept.retn();
-}
-
-/*!
- * Finds cells whose all or some nodes are in a given array of node ids.
- *  \param [in] begin - the array of node ids.
- *  \param [in] end - a pointer to the (last+1)-th element of \a begin.
- *  \param [in] fullyIn - if \c true, then cells whose all nodes are in the
- *         array \a begin are returned only, else cells whose any node is in the
- *         array \a begin are returned.
- *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
- *         cells. The caller is to delete this array using decrRef() as it is no more
- *         needed. 
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *  \throw If any cell id in \a begin is not valid.
- *
- *  \ref cpp_mcumesh_getCellIdsLyingOnNodes "Here is a C++ example".<br>
- *  \ref  py_mcumesh_getCellIdsLyingOnNodes "Here is a Python example".
- */
-DataArrayInt *MEDCouplingUMesh::getCellIdsLyingOnNodes(const int *begin, const int *end, bool fullyIn) const
-{
-  DataArrayInt *cellIdsKept=0;
-  fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
-  cellIdsKept->setName(getName());
-  return cellIdsKept;
 }
 
 /*!

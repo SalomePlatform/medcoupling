@@ -337,6 +337,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingPointSet::mergeMyselfWithOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingPointSet::fillCellIdsToKeepFromNodeIds;
+%newobject ParaMEDMEM::MEDCouplingPointSet::getCellIdsLyingOnNodes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
@@ -376,7 +377,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertIntoSingleGeoTypeMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findCellIdsOnBoundary;
 %newobject ParaMEDMEM::MEDCouplingUMesh::computeSkin;
-%newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsCrossingPlane;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convexEnvelop2D;
@@ -1409,6 +1409,26 @@ namespace ParaMEDMEM
              PyList_SetItem(res,1,SWIG_From_bool(ret1));
              PyList_SetItem(res,2,SWIG_From_int(ret2));
              return res;
+           }
+           
+           DataArrayInt *getCellIdsLyingOnNodes(PyObject *li, bool fullyIn) const throw(INTERP_KERNEL::Exception)
+           {
+             void *da=0;
+             int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+             if (!SWIG_IsOK(res1))
+               {
+                 int size;
+                 INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+                 return self->getCellIdsLyingOnNodes(tmp,((const int *)tmp)+size,fullyIn);
+               }
+             else
+               {
+                 DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+                 if(!da2)
+                   throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+                 da2->checkAllocated();
+                 return self->getCellIdsLyingOnNodes(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),fullyIn);
+               }
            }
            
            static void Rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
@@ -2444,26 +2464,6 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      DataArrayInt *getCellIdsLyingOnNodes(PyObject *li, bool fullyIn) const throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->getCellIdsLyingOnNodes(tmp,((const int *)tmp)+size,fullyIn);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->getCellIdsLyingOnNodes(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),fullyIn);
-          }
-      }
-
       static PyObject *Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps) throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *cellNb1=0,*cellNb2=0;
@@ -2635,6 +2635,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
   };
 
   //== MEDCoupling1SGTUMesh

@@ -1465,3 +1465,53 @@ void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, dou
   if(!status)
     throw INTERP_KERNEL::Exception("checkFastEquivalWith : Two meshes are not equal because on 3 test cells some difference have been detected !");
 }
+
+/*!
+ * Finds cells whose all or some nodes are in a given array of node ids.
+ *  \param [in] begin - the array of node ids.
+ *  \param [in] end - a pointer to the (last+1)-th element of \a begin.
+ *  \param [in] fullyIn - if \c true, then cells whose all nodes are in the
+ *         array \a begin are returned only, else cells whose any node is in the
+ *         array \a begin are returned.
+ *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
+ *         cells. The caller is to delete this array using decrRef() as it is no more
+ *         needed. 
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If any cell id in \a begin is not valid.
+ *
+ * \sa MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds
+ *
+ *  \ref cpp_mcumesh_getCellIdsLyingOnNodes "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_getCellIdsLyingOnNodes "Here is a Python example".
+ */
+DataArrayInt *MEDCouplingPointSet::getCellIdsLyingOnNodes(const int *begin, const int *end, bool fullyIn) const
+{
+  DataArrayInt *cellIdsKept=0;
+  fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
+  cellIdsKept->setName(getName());
+  return cellIdsKept;
+}
+
+/*!
+ * Finds cells whose all nodes are in a given array of node ids.
+ * This method is a specialization of MEDCouplingPointSet::getCellIdsLyingOnNodes (true
+ * as last input argument).
+ *  \param [in] partBg - the array of node ids.
+ *  \param [in] partEnd - a pointer to a (last+1)-th element of \a partBg.
+ *  \return DataArrayInt * - a new instance of DataArrayInt holding ids of found
+ *          cells. The caller is to delete this array using decrRef() as it is no
+ *          more needed.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If any cell id in \a partBg is not valid.
+ * 
+ * \sa MEDCouplingPointSet::getCellIdsLyingOnNodes
+ *
+ *  \ref cpp_mcumesh_getCellIdsFullyIncludedInNodeIds "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_getCellIdsFullyIncludedInNodeIds "Here is a Python example".
+ */
+DataArrayInt *MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
+{
+  return getCellIdsLyingOnNodes(partBg,partEnd,true);
+}
