@@ -1628,7 +1628,7 @@ namespace ParaMEDMEM
     std::string cppRepr() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception);
     DataArrayInt *findAndCorrectBadOriented3DCells() throw(INTERP_KERNEL::Exception);
-    MEDCoupling1GTUMesh *convertIntoSingleGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
+    ParaMEDMEM::MEDCoupling1GTUMesh *convertIntoSingleGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);

@@ -286,7 +286,7 @@ namespace ParaMEDMEM
     bool isEqual(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
     void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *convertToIntArr() const;
+    DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
@@ -301,7 +301,7 @@ namespace ParaMEDMEM
     void setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    double getIJ(int tupleId, int compoId) const;
+    double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     double back() const throw(INTERP_KERNEL::Exception);
     double getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     void setIJ(int tupleId, int compoId, double newVal) throw(INTERP_KERNEL::Exception);
@@ -350,9 +350,7 @@ namespace ParaMEDMEM
     void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Aggregate(const std::vector<const DataArrayDouble *>& arr) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *Meld(const std::vector<const DataArrayDouble *>& arr) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Max(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
@@ -512,7 +510,7 @@ namespace ParaMEDMEM
           }
       }
 
-      DataArrayDoubleIterator *__iter__()
+      DataArrayDoubleIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();
       }
@@ -1998,7 +1996,7 @@ namespace ParaMEDMEM
   class DataArrayDoubleTuple
   {
   public:
-    int getNumberOfCompo() const;
+    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -2012,7 +2010,7 @@ namespace ParaMEDMEM
         return self->doubleValue();
       }
 
-      DataArrayDouble *buildDADouble()
+      DataArrayDouble *buildDADouble() throw(INTERP_KERNEL::Exception)
       {
         return self->buildDADouble(1,self->getNumberOfCompo());
       }
@@ -2300,11 +2298,11 @@ namespace ParaMEDMEM
     void iota(int init=0) throw(INTERP_KERNEL::Exception);
     std::string repr() const throw(INTERP_KERNEL::Exception);
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
-    DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
+    DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
     void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *convertToDblArr() const;
+    DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
@@ -2359,10 +2357,8 @@ namespace ParaMEDMEM
     void applyRPow(int val) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
-    static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Meld(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *BuildUnion(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *BuildIntersection(const std::vector<const DataArrayInt *>& arr) throw(INTERP_KERNEL::Exception);
@@ -2522,7 +2518,7 @@ namespace ParaMEDMEM
         return self->intValue();
       }
 
-      DataArrayIntIterator *__iter__()
+      DataArrayIntIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->iterator();
       }
@@ -4255,7 +4251,7 @@ namespace ParaMEDMEM
   class DataArrayIntTuple
   {
   public:
-    int getNumberOfCompo() const;
+    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -4537,7 +4533,7 @@ namespace ParaMEDMEM
   class DataArrayChar : public DataArray
   {
   public:
-    virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayChar *deepCpy() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
@@ -4569,9 +4565,9 @@ namespace ParaMEDMEM
     void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayChar *tuplesSelec) throw(INTERP_KERNEL::Exception);
     char back() const throw(INTERP_KERNEL::Exception);
-    void setIJ(int tupleId, int compoId, char newVal);
-    void setIJSilent(int tupleId, int compoId, char newVal);
-    char *getPointer();
+    void setIJ(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
+    void setIJSilent(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
+    char *getPointer() throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsEqual(char val) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsNotEqual(char val) const throw(INTERP_KERNEL::Exception);
     int locateTuple(const std::vector<char>& tupl) const throw(INTERP_KERNEL::Exception);
@@ -4581,10 +4577,8 @@ namespace ParaMEDMEM
     char getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     char getMinValueInArray() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(char vmin, char vmax) const throw(INTERP_KERNEL::Exception);
-    static DataArrayChar *Aggregate(const DataArrayChar *a1, const DataArrayChar *a2);
-    static DataArrayChar *Aggregate(const std::vector<const DataArrayChar *>& arr) throw(INTERP_KERNEL::Exception);
+    static DataArrayChar *Aggregate(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
-    static DataArrayChar *Meld(const std::vector<const DataArrayChar *>& arr) throw(INTERP_KERNEL::Exception);
     %extend
     {
       int __len__() const throw(INTERP_KERNEL::Exception)
@@ -4740,9 +4734,8 @@ namespace ParaMEDMEM
   {
   public:
     static DataArrayByte *New();
-    DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
-    DataArrayByteIterator *iterator();
-    DataArrayByte *performCpy(bool deepCpy) const;
+    DataArrayByteIterator *iterator() throw(INTERP_KERNEL::Exception);
+    DataArrayByte *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
     char byteValue() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -4856,7 +4849,7 @@ namespace ParaMEDMEM
         return self->iterator();
       }
 
-      int getIJ(int tupleId, int compoId) const
+      int getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
       {
         return (int)self->getIJ(tupleId,compoId);
       }
@@ -5019,7 +5012,7 @@ namespace ParaMEDMEM
     DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
     %extend
     {
-      std::string __str__() const
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->repr();
       }
@@ -5029,7 +5022,7 @@ namespace ParaMEDMEM
         return self->byteValue();
       }
       
-      DataArrayByte *buildDAByte()
+      DataArrayByte *buildDAByte() throw(INTERP_KERNEL::Exception)
       {
         return self->buildDAByte(1,self->getNumberOfCompo());
       }
@@ -5042,9 +5035,8 @@ namespace ParaMEDMEM
   {
   public:
     static DataArrayAsciiChar *New();
-    DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
-    DataArrayAsciiCharIterator *iterator();
-    DataArrayAsciiChar *performCpy(bool deepCpy) const;
+    DataArrayAsciiCharIterator *iterator() throw(INTERP_KERNEL::Exception);
+    DataArrayAsciiChar *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
     char asciiCharValue() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5552,16 +5544,16 @@ namespace ParaMEDMEM
   class DataArrayAsciiCharTuple
   {
   public:
-    int getNumberOfCompo() const;
+    int getNumberOfCompo() const throw(INTERP_KERNEL::Exception);
     DataArrayAsciiChar *buildDAAsciiChar(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
     %extend
     {
-      std::string __str__() const
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->repr();
       }
       
-      DataArrayAsciiChar *buildDAAsciiChar()
+      DataArrayAsciiChar *buildDAAsciiChar() throw(INTERP_KERNEL::Exception)
       {
         return self->buildDAAsciiChar(1,self->getNumberOfCompo());
       }
