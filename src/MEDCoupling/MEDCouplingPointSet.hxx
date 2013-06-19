@@ -128,7 +128,7 @@ namespace ParaMEDMEM
                          const std::vector<std::string>& littleStrings);
     virtual DataArrayInt *getCellsInBoundingBox(const double *bbox, double eps) const = 0;
     virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) = 0;
-    virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *zipConnectivityTraducer(int compType, int startCellId=0) throw(INTERP_KERNEL::Exception);
     virtual void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception) = 0;
     //tools

@@ -1291,7 +1291,16 @@ void DataArrayDouble::renumberInPlace(const int *old2New) throw(INTERP_KERNEL::E
   double *tmp=new double[nbTuples*nbOfCompo];
   const double *iptr=getConstPointer();
   for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*old2New[i]);
+    {
+      int v=old2New[i];
+      if(v>=0 && v<nbTuples)
+        std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*v);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::renumberInPlace : At place #" << i << " value is " << v << " ! Should be in [0," << nbTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
   delete [] tmp;
   declareAsNew();
@@ -1315,7 +1324,16 @@ void DataArrayDouble::renumberInPlaceR(const int *new2Old) throw(INTERP_KERNEL::
   double *tmp=new double[nbTuples*nbOfCompo];
   const double *iptr=getConstPointer();
   for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),tmp+nbOfCompo*i);
+    {
+      int v=new2Old[i];
+      if(v>=0 && v<nbTuples)
+        std::copy(iptr+nbOfCompo*v,iptr+nbOfCompo*(v+1),tmp+nbOfCompo*i);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::renumberInPlaceR : At place #" << i << " value is " << v << " ! Should be in [0," << nbTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
   delete [] tmp;
   declareAsNew();
@@ -5887,7 +5905,7 @@ void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
         }
       else
         {
-          std::ostringstream oss; oss << "DataArrayInt::splitByValueRange : At rank #" << i << " the value is " << work[i] << " whereas the last value is " << *bg;
+          std::ostringstream oss; oss << "DataArrayInt::splitByValueRange : At rank #" << i << " the value is " << work[i] << " should be in [0," << *bg << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
@@ -6346,7 +6364,16 @@ void DataArrayInt::renumberInPlace(const int *old2New) throw(INTERP_KERNEL::Exce
   int *tmp=new int[nbTuples*nbOfCompo];
   const int *iptr=getConstPointer();
   for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*old2New[i]);
+    {
+      int v=old2New[i];
+      if(v>=0 && v<nbTuples)
+        std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*v);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::renumberInPlace : At place #" << i << " value is " << v << " ! Should be in [0," << nbTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
   delete [] tmp;
   declareAsNew();
@@ -6370,7 +6397,16 @@ void DataArrayInt::renumberInPlaceR(const int *new2Old) throw(INTERP_KERNEL::Exc
   int *tmp=new int[nbTuples*nbOfCompo];
   const int *iptr=getConstPointer();
   for(int i=0;i<nbTuples;i++)
-    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),tmp+nbOfCompo*i);
+    {
+      int v=new2Old[i];
+      if(v>=0 && v<nbTuples)
+        std::copy(iptr+nbOfCompo*v,iptr+nbOfCompo*(v+1),tmp+nbOfCompo*i);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::renumberInPlaceR : At place #" << i << " value is " << v << " ! Should be in [0," << nbTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
   delete [] tmp;
   declareAsNew();

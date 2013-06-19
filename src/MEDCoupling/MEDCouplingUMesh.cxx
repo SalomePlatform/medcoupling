@@ -1434,10 +1434,7 @@ DataArrayInt *MEDCouplingUMesh::computeNbOfFacesPerCell() const throw(INTERP_KER
  */
 DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
 {
-  int newNbOfNodes=-1;
-  DataArrayInt *traducer=getNodeIdsInUse(newNbOfNodes);
-  renumberNodes(traducer->getConstPointer(),newNbOfNodes);
-  return traducer;
+  return MEDCouplingPointSet::zipCoordsTraducer();
 }
 
 /*!
@@ -6717,7 +6714,7 @@ MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const thro
   INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
   int typi=(int)typ;
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName(),typ);
-  ret->setCoords(ret->getCoords());
+  ret->setCoords(getCoords());
   MEDCoupling1SGTUMesh *retC=dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh*)ret);
   if(retC)
     {

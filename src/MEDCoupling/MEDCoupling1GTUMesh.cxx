@@ -162,13 +162,14 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::
   int nbTuples=profile->getNumberOfTuples();
   int nbOfCells=getNumberOfCells();
   code.resize(3); idsInPflPerType.resize(1);
-  code[0]=(int)getCellModelEnum(); code[1]=nbOfCells;
+  code[0]=(int)getCellModelEnum(); code[1]=nbTuples;
   idsInPflPerType.resize(1);
   if(profile->isIdentity() && nbTuples==nbOfCells)
     {
       code[2]=-1;
       idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();
-      idsPerType.clear(); 
+      idsPerType.clear();
+      return ;
     }
   code[2]=0;
   profile->checkAllIdsInRange(0,nbOfCells);
@@ -240,7 +241,7 @@ bool MEDCoupling1GTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double p
       reason="mesh given in input is not castable in MEDCouplingSGTUMesh !";
       return false;
     }
-  if(&_cm!=&otherC->_cm)
+  if(_cm!=otherC->_cm)
     {
       reason="mismatch in geometric type !";
       return false;
@@ -257,7 +258,7 @@ bool MEDCoupling1GTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *ot
   const MEDCoupling1GTUMesh *otherC=dynamic_cast<const MEDCoupling1GTUMesh *>(other);
   if(!otherC)
     return false;
-  if(&_cm!=&otherC->_cm)
+  if(_cm!=otherC->_cm)
     return false;
   return true;
 }
@@ -816,28 +817,6 @@ DataArrayInt *MEDCoupling1SGTUMesh::mergeNodes2(double precision, bool& areNodes
   return ret;
 }
 
-/*!
- * Removes unused nodes (the node coordinates array is shorten) and returns an array
- * mapping between new and old node ids in "Old to New" mode. -1 values in the returned
- * array mean that the corresponding old node is no more used. 
- *  \return DataArrayInt * - a new instance of DataArrayInt of length \a
- *           this->getNumberOfNodes() before call of this method. The caller is to
- *           delete this array using decrRef() as it is no more needed. 
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *  \throw If the nodal connectivity includes an invalid id.
- *
- *  \ref cpp_mcumesh_zipCoordsTraducer "Here is a C++ example".<br>
- *  \ref  py_mcumesh_zipCoordsTraducer "Here is a Python example".
- */
-DataArrayInt *MEDCoupling1SGTUMesh::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
-{
-  int newNbOfNodes=-1;
-  DataArrayInt *traducer=getNodeIdsInUse(newNbOfNodes);
-  renumberNodes(traducer->getConstPointer(),newNbOfNodes);
-  return traducer;
-}
-
 /// @cond INTERNAL
 
 struct MEDCouplingAccVisit
@@ -874,9 +853,9 @@ DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const 
   const int *conn=_conn->begin();
   int nbNodesPerCell=getNumberOfNodesPerCell();
   for(int i=0;i<nbOfCells;i++)
-    for(int j=0;j<nbNodesPerCell;j++)
-      if(conn[j]>=0 && conn[j]<nbOfNodes)
-        traducer[conn[j]]=1;
+    for(int j=0;j<nbNodesPerCell;j++,conn++)
+      if(*conn>=0 && *conn<nbOfNodes)
+        traducer[*conn]=1;
       else
         {
           std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::getNodeIdsInUse : In cell #" << i  << " presence of node id " <<  conn[j] << " not in [0," << nbOfNodes << ") !";
@@ -900,7 +879,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const 
 void MEDCoupling1SGTUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
   getNumberOfCells();//only to check that all is well defined.
-  _conn->renumberInPlace(newNodeNumbersO2N);
+  _conn->transformWithIndArr(newNodeNumbersO2N,newNodeNumbersO2N+getNumberOfNodes());
   updateTime();
 }
 
@@ -957,6 +936,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
   const DataArrayDouble *coords=(*it)->getCoords();
   const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
   int nbNodesPerCell=(*it)->getNumberOfNodesPerCell();
+  it++;
   for(;it!=a.end();it++)
     {
       if(cm!=&((*it)->getCellModel()))
@@ -990,6 +970,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const
   int nbOfCells=(*it)->getNumberOfCells();
   const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
   int nbNodesPerCell=(*it)->getNumberOfNodesPerCell();
+  it++;
   for(;it!=a.end();it++)
     {
       if(cm!=&((*it)->getCellModel()))
@@ -1013,7 +994,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const
       offset+=(*it)->getNumberOfNodes();
     }
   //
-  ret->_conn=c;
+  ret->setNodalConnectivity(c);
   return ret.retn();
 }
 
@@ -1078,10 +1059,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDi
       tmp1=DataArrayInt::New(); tmp1->alloc(0,1);
     }
   else
-    {
-      tmp1=_conn;
-      tmp1->incrRef();
-    }
+    tmp1=_conn;
   ret->_conn=tmp1;
   if(!_coords)
     {
@@ -1165,7 +1143,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace6() throw(INTERP_KERNEL:
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(6*nbOfCells,1);
   const int *c(_conn->begin());
   int *retPtr(ret->getPointer()),*newConnPtr(newConn->getPointer());
-  for(int i=0;i<nbOfCells;i++,c+=8,newConnPtr+=20,retPtr+=6)
+  for(int i=0;i<nbOfCells;i++,c+=8,newConnPtr+=24,retPtr+=6)
     {
       for(int j=0;j<24;j++)
         newConnPtr[j]=c[INTERP_KERNEL::SPLIT_NODES_6_WO[j]];

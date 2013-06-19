@@ -338,12 +338,12 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingPointSet::mergeMyselfWithOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingPointSet::fillCellIdsToKeepFromNodeIds;
 %newobject ParaMEDMEM::MEDCouplingPointSet::getCellIdsLyingOnNodes;
+%newobject ParaMEDMEM::MEDCouplingPointSet::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
-%newobject ParaMEDMEM::MEDCouplingUMesh::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::cellsByType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity2;
@@ -505,6 +505,7 @@ namespace ParaMEDMEM
   public:
     bool decrRef() const;
     void incrRef() const;
+    int getRCValue() const;
     virtual std::size_t getHeapMemorySize() const;
   };
 }
@@ -931,6 +932,8 @@ namespace ParaMEDMEM
         PyObject *getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
         {
           std::vector<int> vals=self->getDistributionOfTypes();
+          if(vals.size()%3!=0)
+            throw INTERP_KERNEL::Exception("Internal Error detected in wrap python ! code returned by MEDCouplingMesh::getDistributionOfTypes is not so that %3==0 !");
           PyObject *ret=PyList_New((int)vals.size()/3);
           for(int j=0;j<(int)vals.size()/3;j++)
              {
@@ -959,7 +962,20 @@ namespace ParaMEDMEM
           std::vector<DataArrayInt *> idsPerType;
           self->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
           PyObject *ret=PyTuple_New(3);
-          PyTuple_SetItem(ret,0,convertIntArrToPyList2(code));
+          //
+          if(code.size()%3!=0)
+            throw INTERP_KERNEL::Exception("Internal Error detected in wrap python ! code returned by MEDCouplingMesh::splitProfilePerType is not so that %3==0 !");
+          PyObject *ret0=PyList_New((int)code.size()/3);
+          for(int j=0;j<(int)code.size()/3;j++)
+             {
+               PyObject *ret00=PyList_New(3);
+               PyList_SetItem(ret00,0,SWIG_From_int(code[3*j]));
+               PyList_SetItem(ret00,1,SWIG_From_int(code[3*j+1]));
+               PyList_SetItem(ret00,2,SWIG_From_int(code[3*j+2]));
+               PyList_SetItem(ret0,j,ret00);
+             }
+          PyTuple_SetItem(ret,0,ret0);
+          //
           PyObject *ret1=PyList_New(idsInPflPerType.size());
           for(std::size_t j=0;j<idsInPflPerType.size();j++)
             PyList_SetItem(ret1,j,SWIG_NewPointerObj(SWIG_as_voidptr(idsInPflPerType[j]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -1430,6 +1446,62 @@ namespace ParaMEDMEM
                  return self->getCellIdsLyingOnNodes(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),fullyIn);
                }
            }
+
+           MEDCouplingPointSet *__getitem__(PyObject *listOrDataArrI) throw(INTERP_KERNEL::Exception)
+           {
+             int sw;
+             int singleVal;
+             std::vector<int> multiVal;
+             std::pair<int, std::pair<int,int> > slic;
+             ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+             int nbc=self->getNumberOfCells();
+             convertObjToPossibleCpp2(listOrDataArrI,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+             switch(sw)
+               {
+               case 1:
+                 {
+                   if(singleVal>=nbc)
+                     {
+                       std::ostringstream oss;
+                       oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                       throw INTERP_KERNEL::Exception(oss.str().c_str());
+                     }
+                   if(singleVal>=0)
+                     return self->buildPartOfMySelf(&singleVal,&singleVal+1,true);
+                   else
+                     {
+                       if(nbc+singleVal>0)
+                         {
+                           int tmp=nbc+singleVal;
+                           return self->buildPartOfMySelf(&tmp,&tmp+1,true);
+                         }
+                       else
+                         {
+                           std::ostringstream oss;
+                           oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                           throw INTERP_KERNEL::Exception(oss.str().c_str());
+                         }
+                     }
+                 }
+               case 2:
+                 {
+                   return static_cast<MEDCouplingPointSet *>(self->buildPartOfMySelf(&multiVal[0],&multiVal[0]+multiVal.size(),true));
+                 }
+               case 3:
+                 {
+                   return self->buildPartOfMySelf2(slic.first,slic.second.first,slic.second.second,true);
+                 }
+               case 4:
+                 {
+                   if(!daIntTyypp)
+                     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : null instance has been given in input !");
+                   daIntTyypp->checkAllocated();
+                   return self->buildPartOfMySelf(daIntTyypp->begin(),daIntTyypp->end(),true);
+                 }
+               default:
+                 throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+               }
+           }
            
            static void Rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
            {
@@ -1660,62 +1732,6 @@ namespace ParaMEDMEM
       MEDCouplingUMeshCellIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->cellIterator();
-      }
-
-      MEDCouplingPointSet *__getitem__(PyObject *listOrDataArrI) throw(INTERP_KERNEL::Exception)
-      {
-        int sw;
-        int singleVal;
-        std::vector<int> multiVal;
-        std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
-        int nbc=self->getNumberOfCells();
-        convertObjToPossibleCpp2(listOrDataArrI,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
-        switch(sw)
-          {
-          case 1:
-            {
-              if(singleVal>=nbc)
-                {
-                  std::ostringstream oss;
-                  oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
-                }
-              if(singleVal>=0)
-                return self->buildPartOfMySelf(&singleVal,&singleVal+1,true);
-              else
-                {
-                  if(nbc+singleVal>0)
-                    {
-                      int tmp=nbc+singleVal;
-                      return self->buildPartOfMySelf(&tmp,&tmp+1,true);
-                    }
-                  else
-                    {
-                      std::ostringstream oss;
-                      oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
-                      throw INTERP_KERNEL::Exception(oss.str().c_str());
-                    }
-                }
-            }
-          case 2:
-            {
-              return static_cast<MEDCouplingUMesh *>(self->buildPartOfMySelf(&multiVal[0],&multiVal[0]+multiVal.size(),true));
-            }
-          case 3:
-            {
-              return self->buildPartOfMySelf2(slic.first,slic.second.first,slic.second.second,true);
-            }
-          case 4:
-            {
-              if(!daIntTyypp)
-                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : null instance has been given in input !");
-              daIntTyypp->checkAllocated();
-              return self->buildPartOfMySelf(daIntTyypp->begin(),daIntTyypp->end(),true);
-            }
-          default:
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
-          }
       }
       
       void setPartOfMySelf(PyObject *li, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception)

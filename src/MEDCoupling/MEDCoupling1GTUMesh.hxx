@@ -104,7 +104,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
     MEDCOUPLING_EXPORT DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);
-    MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
@@ -128,6 +127,7 @@ namespace ParaMEDMEM
   private:
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy);
+    virtual ~MEDCoupling1SGTUMesh() { }
   private:
     void checkNonDynamicGeoType() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshesLL(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);

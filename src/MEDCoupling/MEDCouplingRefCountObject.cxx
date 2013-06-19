@@ -67,6 +67,11 @@ void RefCountObject::incrRef() const
   _cnt++;
 }
 
+int RefCountObject::getRCValue() const
+{
+  return _cnt;
+}
+
 RefCountObject::~RefCountObject()
 {
 }

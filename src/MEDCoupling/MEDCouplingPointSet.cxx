@@ -389,8 +389,8 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::renumberNodes : no coords specified !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=_coords->renumberAndReduce(newNodeNumbers,newNbOfNodes);
-  setCoords(newCoords);
   renumberNodesInConn(newNodeNumbers);
+  setCoords(newCoords);//let it here not before renumberNodesInConn because old number of nodes is sometimes used...
 }
 
 /*!
@@ -1514,4 +1514,26 @@ DataArrayInt *MEDCouplingPointSet::getCellIdsLyingOnNodes(const int *begin, cons
 DataArrayInt *MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
 {
   return getCellIdsLyingOnNodes(partBg,partEnd,true);
+}
+
+/*!
+ * Removes unused nodes (the node coordinates array is shorten) and returns an array
+ * mapping between new and old node ids in "Old to New" mode. -1 values in the returned
+ * array mean that the corresponding old node is no more used. 
+ *  \return DataArrayInt * - a new instance of DataArrayInt of length \a
+ *           this->getNumberOfNodes() before call of this method. The caller is to
+ *           delete this array using decrRef() as it is no more needed. 
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If the nodal connectivity includes an invalid id.
+ *
+ *  \ref cpp_mcumesh_zipCoordsTraducer "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_zipCoordsTraducer "Here is a Python example".
+ */
+DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
+{
+  int newNbOfNodes=-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> traducer=getNodeIdsInUse(newNbOfNodes);
+  renumberNodes(traducer->getConstPointer(),newNbOfNodes);
+  return traducer.retn();
 }
