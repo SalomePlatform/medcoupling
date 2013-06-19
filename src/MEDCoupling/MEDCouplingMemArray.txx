@@ -101,7 +101,7 @@ namespace ParaMEDMEM
     T *pointer=_pointer.getPointer();
     while(first!=last)
       {
-        if(_nb_of_elem>=_nb_of_elem_alloc || _nb_of_elem==0)
+        if(_nb_of_elem>=_nb_of_elem_alloc)
           {
             reserve(_nb_of_elem_alloc>0?2*_nb_of_elem_alloc:1);
             pointer=_pointer.getPointer();
