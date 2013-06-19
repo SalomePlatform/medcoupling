@@ -949,10 +949,6 @@ namespace ParaMEDMEM
 std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
-    //!To retrieve the symbole of 6.6.0 do not remove even if it is useless
-    std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
-    //!To retrieve the symbole of 6.6.0 do not remove even if it is useless
-    std::vector< std::pair<int,int> > getIterations() const;
   private:
     const MEDFileFieldMultiTSWithoutSDA *contentNotNull() const throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTSWithoutSDA *contentNotNull() throw(INTERP_KERNEL::Exception);
