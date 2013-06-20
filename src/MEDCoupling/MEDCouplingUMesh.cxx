@@ -6300,6 +6300,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : code size is NOT %3 !");
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
   int nb=0;
+  bool isNoPflUsed=true;
   for(std::size_t i=0;i<n;i++)
     if(std::find(types.begin(),types.end(),(INTERP_KERNEL::NormalizedCellType)code[3*i])==types.end())
       {
@@ -6307,17 +6308,18 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
         nb+=code[3*i+1];
         if(_types.find((INTERP_KERNEL::NormalizedCellType)code[3*i])==_types.end())
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : expected geo types not in this !");
+        isNoPflUsed=isNoPflUsed && (code[3*i+2]==-1);
       }
   if(types.size()!=n)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : code contains duplication of types in unstructured mesh !");
-  if(idsPerType.empty())
+  if(isNoPflUsed)
     {
       if(!checkConsecutiveCellTypesAndOrder(&types[0],&types[0]+types.size()))
         throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : non contiguous type !");
       if(types.size()==_types.size())
         return 0;
     }
-  DataArrayInt *ret=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nb,1);
   int *retPtr=ret->getPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
@@ -6329,21 +6331,50 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
     {
       i=std::find_if(i,connI+nbOfCells,ParaMEDMEMImpl::ConnReader2(conn,(int)(*it)));
       int offset=(int)std::distance(connI,i);
+      const int *j=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)(*it)));
+      int nbOfCellsOfCurType=(int)std::distance(i,j);
       if(code[3*kk+2]==-1)
-        {
-          const int *j=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)(*it)));
-          std::size_t pos2=std::distance(i,j);
-          for(std::size_t k=0;k<pos2;k++)
-            *retPtr++=(int)k+offset;
-          i=j;
-        }
+        for(int k=0;k<nbOfCellsOfCurType;k++)
+          *retPtr++=k+offset;
       else
         {
-          retPtr=std::transform(idsPerType[code[3*kk+2]]->getConstPointer(),idsPerType[code[3*kk+2]]->getConstPointer()+idsPerType[code[3*kk+2]]->getNbOfElems(),
-                                retPtr,std::bind2nd(std::plus<int>(),offset));
+          int idInIdsPerType=code[3*kk+2];
+          if(idInIdsPerType>=0 && idInIdsPerType<(int)idsPerType.size())
+            {
+              const DataArrayInt *zePfl=idsPerType[idInIdsPerType];
+              if(zePfl)
+                {
+                  zePfl->checkAllocated();
+                  if(zePfl->getNumberOfComponents()==1)
+                    {
+                      for(const int *k=zePfl->begin();k!=zePfl->end();k++,retPtr++)
+                        {
+                          if(*k>=0 && *k<nbOfCellsOfCurType)
+                            *retPtr=(*k)+offset;
+                          else
+                            {
+                              std::ostringstream oss; oss << "MEDCouplingUMesh::checkTypeConsistencyAndContig : the section " << kk << " points to the profile #" << idInIdsPerType;
+                              oss << ", and this profile contains a value " << *k << " should be in [0," << nbOfCellsOfCurType << ") !";
+                              throw INTERP_KERNEL::Exception(oss.str().c_str());
+                            }
+                        }
+                    }
+                  else
+                    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : presence of a profile with nb of compo != 1 !");
+                }
+              else
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : presence of null profile !");
+            }
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::checkTypeConsistencyAndContig : at section " << kk << " of code it points to the array #" << idInIdsPerType;
+              oss << " should be in [0," << idsPerType.size() << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
+      i=j;
     }
-  return ret;
+  return ret.retn();
 }
 
 /*!
