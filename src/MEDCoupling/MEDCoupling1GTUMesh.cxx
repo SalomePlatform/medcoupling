@@ -932,33 +932,25 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
   std::vector<const MEDCoupling1SGTUMesh *>::const_iterator it=a.begin();
   if(!(*it))
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : presence of null instance !");
+  std::vector<const DataArrayInt *> ncs(a.size());
   int nbOfCells=(*it)->getNumberOfCells();
   const DataArrayDouble *coords=(*it)->getCoords();
   const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
   int nbNodesPerCell=(*it)->getNumberOfNodesPerCell();
+  ncs[0]=(*it)->getNodalConnectivity();
   it++;
-  for(;it!=a.end();it++)
+  for(int i=1;it!=a.end();i++,it++)
     {
       if(cm!=&((*it)->getCellModel()))
         throw INTERP_KERNEL::Exception("Geometric types mismatches, Merge1SGTUMeshes impossible !");
-      nbOfCells+=(*it)->getNumberOfCells();
+      (*it)->getNumberOfCells();//to check that all is OK
+      ncs[i]=(*it)->getNodalConnectivity();
       if(coords!=(*it)->getCoords())
         throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : not lying on same coords !");
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh("merge",*cm));
   ret->setCoords(coords);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New();
-  c->alloc(nbOfCells*nbNodesPerCell,1);
-  int *cPtr=c->getPointer();
-  int offset=0;
-  for(it=a.begin();it!=a.end();it++)
-    {
-      int curConnLgth=(*it)->getNodalConnectivityLength();
-      const int *curC=(*it)->_conn->begin();
-      cPtr=std::copy(curC,curC+curConnLgth,cPtr);
-    }
-  //
-  ret->_conn=c;
+  ret->_conn=DataArrayInt::Aggregate(ncs);
   return ret.retn();
 }
 

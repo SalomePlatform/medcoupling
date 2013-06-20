@@ -12996,6 +12996,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mo.setNodalConnectivity(DataArrayInt([1,0,6,7,2,1,7,8,3,2,8,9,4,3,9,10,5,4,10,11]))
         self.assertTrue(m.isEqual(mo,1e-12))
         #
+        mo2=MEDCoupling1SGTUMesh.Merge1SGTUMeshesOnSameCoords([m[[0,1]],m[[2]],m[[3,4]]])
+        mo2.setName(m.getName())
+        self.assertTrue(m.isEqual(mo2,1e-12))
+        #
+        mp0=m[[0]] ; mp0.zipCoords() ; mp1=m[2] ; mp1.zipCoords() ; mp2=m[4] ; mp2.zipCoords()
+        mo3=MEDCoupling1SGTUMesh.Merge1SGTUMeshes([mp0,mp1,mp2])
+        self.assertTrue(isinstance(mo3,MEDCoupling1SGTUMesh))
+        mo3.setName(m.getName())
+        m_ref=m[(0,2,4)] ; m_ref.zipCoords()
+        m_ref.tryToShareSameCoordsPermute(mo3,1e-12)
+        self.assertTrue(m_ref.isEqual(mo3,1e-12))
+        #
         m1=um.buildDescendingConnectivity()[0]
         ids=m1.getCellIdsFullyIncludedInNodeIds(DataArrayInt.Range(0,12,1))
         m1=m1[ids]
@@ -13073,7 +13085,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         invalidPfl=DataArrayInt([1,2,3,4,5])
         self.assertRaises(InterpKernelException,m.checkTypeConsistencyAndContig,[NORM_QUAD4,5,0],[invalidPfl])
-        #self.assertRaises(InterpKernelException,m.buildUnstructured().checkTypeConsistencyAndContig,[NORM_QUAD4,5,0],[invalidPfl])# should throw debug
+        self.assertRaises(InterpKernelException,m.buildUnstructured().checkTypeConsistencyAndContig,[NORM_QUAD4,5,0],[invalidPfl])
         ##
         self.assertTrue(DataArrayInt([4,4,4,4,4]).isEqual(m.computeNbOfNodesPerCell()))
         ##
