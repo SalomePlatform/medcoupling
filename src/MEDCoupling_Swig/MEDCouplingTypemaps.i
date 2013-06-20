@@ -419,6 +419,8 @@ static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCoupling1SGTUMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCoupling1SGTUMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCoupling1DGTUMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCoupling1DGTUMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingExtrudedMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingExtrudedMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingCMesh *>(mesh))

@@ -1820,56 +1820,6 @@ bool MEDCouplingUMesh::areCellsIncludedIn2(const MEDCouplingUMesh *other, DataAr
   return true;
 }
 
-/*!
- * Merges nodes equal within \a precision and returns an array describing the 
- * permutation used to remove duplicate nodes.
- *  \param [in] precision - minimal absolute distance between two nodes at which they are
- *              considered not coincident.
- *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
- *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
- *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
- *          is to delete this array using decrRef() as it is no more needed.
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *
- *  \ref cpp_mcumesh_mergeNodes "Here is a C++ example".<br>
- *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
- */
-DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
-{
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
-  if(areNodesMerged)
-    renumberNodes(ret->begin(),newNbOfNodes);
-  return ret.retn();
-}
-
-
-/*!
- * Merges nodes equal within \a precision and returns an array describing the 
- * permutation used to remove duplicate nodes. In contrast to mergeNodes(), location
- *  of merged nodes is changed to be at their barycenter.
- *  \param [in] precision - minimal absolute distance between two nodes at which they are
- *              considered not coincident.
- *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
- *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
- *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
- *          is to delete this array using decrRef() as it is no more needed.
- *  \throw If the coordinates array is not set.
- *  \throw If the nodal connectivity of cells is not defined.
- *
- *  \ref cpp_mcumesh_mergeNodes "Here is a C++ example".<br>
- *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
- */
-DataArrayInt *MEDCouplingUMesh::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
-{
-  DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
-  if(areNodesMerged)
-    renumberNodes2(ret->getConstPointer(),newNbOfNodes);
-  return ret;
-}
-
 MEDCouplingPointSet *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
 {
   if(!other)
@@ -8684,16 +8634,22 @@ bool MEDCouplingUMesh::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, cons
  * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
  * \param [out] arrOut the resulting array
  * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ * \sa MEDCouplingUMesh::ExtractFromIndexedArrays2
  */
 void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                 DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
 {
   if(!arrIn || !arrIndxIn)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input pointer is NULL !");
+  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input arrays must have exactly one component !");
   std::size_t sz=std::distance(idsOfSelectBg,idsOfSelectEnd);
   const int *arrInPtr=arrIn->getConstPointer();
   const int *arrIndxPtr=arrIndxIn->getConstPointer();
   int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+  if(nbOfGrps<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
   int maxSizeOfArr=arrIn->getNumberOfTuples();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arro=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrIo=DataArrayInt::New();
@@ -8731,6 +8687,78 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const 
         {
           std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " arrIndx[" << *idsIt << "] must be >= 0 and arrIndx[";
           oss << *idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  arrOut=arro.retn();
+  arrIndexOut=arrIo.retn();
+}
+
+/*!
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method returns the result of the extraction ( specified by a set of ids with a slice given by \a idsOfSelectStart, \a idsOfSelectStop and \a idsOfSelectStep ).
+ * The selection of extraction is done standardly in new2old format.
+ * This method returns indexed arrays using 2 arrays (arrOut,arrIndexOut).
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ * \sa MEDCouplingUMesh::ExtractFromIndexedArrays
+ */
+void MEDCouplingUMesh::ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                 DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+{
+  if(!arrIn || !arrIndxIn)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays2 : input pointer is NULL !");
+  arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+  if(arrIn->getNumberOfComponents()!=1 || arrIndxIn->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays2 : input arrays must have exactly one component !");
+  int sz=DataArrayInt::GetNumberOfItemGivenBESRelative(idsOfSelectStart,idsOfSelectStop,idsOfSelectStep,"MEDCouplingUMesh::ExtractFromIndexedArrays2 : Input slice ");
+  const int *arrInPtr=arrIn->getConstPointer();
+  const int *arrIndxPtr=arrIndxIn->getConstPointer();
+  int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+  if(nbOfGrps<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays2 : The format of \"arrIndxIn\" is invalid ! Its nb of tuples should be >=1 !");
+  int maxSizeOfArr=arrIn->getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arro=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrIo=DataArrayInt::New();
+  arrIo->alloc((int)(sz+1),1);
+  int idsIt=idsOfSelectStart;
+  int *work=arrIo->getPointer();
+  *work++=0;
+  int lgth=0;
+  for(std::size_t i=0;i<sz;i++,work++,idsIt+=idsOfSelectStep)
+    {
+      if(idsIt>=0 && idsIt<nbOfGrps)
+        lgth+=arrIndxPtr[idsIt+1]-arrIndxPtr[idsIt];
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays2 : id located on pos #" << i << " value is " << idsIt << " ! Must be in [0," << nbOfGrps << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(lgth>=work[-1])
+        *work=lgth;
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays2 : id located on pos #" << i << " value is " << idsIt << " and at this pos arrIndxIn[" << idsIt;
+          oss << "+1]-arrIndxIn[" << idsIt << "] < 0 ! The input index array is bugged !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  arro->alloc(lgth,1);
+  work=arro->getPointer();
+  idsIt=idsOfSelectStart;
+  for(std::size_t i=0;i<sz;i++,idsIt+=idsOfSelectStep)
+    {
+      if(arrIndxPtr[idsIt]>=0 && arrIndxPtr[idsIt+1]<=maxSizeOfArr)
+        work=std::copy(arrInPtr+arrIndxPtr[idsIt],arrInPtr+arrIndxPtr[idsIt+1],work);
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays2 : id located on pos #" << i << " value is " << idsIt << " arrIndx[" << idsIt << "] must be >= 0 and arrIndx[";
+          oss << idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }

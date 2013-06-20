@@ -119,8 +119,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static void ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI,
                                                               DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
-    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords=true) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf2(int start, int end, int step, bool keepCoords=true) const throw(INTERP_KERNEL::Exception);
@@ -232,6 +230,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static bool RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                             DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                             DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                           const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
                                                           DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);

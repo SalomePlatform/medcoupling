@@ -1537,3 +1537,52 @@ DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer() throw(INTERP_KERNEL::Exce
   renumberNodes(traducer->getConstPointer(),newNbOfNodes);
   return traducer.retn();
 }
+
+/*!
+ * Merges nodes equal within \a precision and returns an array describing the 
+ * permutation used to remove duplicate nodes.
+ *  \param [in] precision - minimal absolute distance between two nodes at which they are
+ *              considered not coincident.
+ *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
+ *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
+ *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
+ *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
+ *          is to delete this array using decrRef() as it is no more needed.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *
+ *  \ref cpp_mcumesh_mergeNodes "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
+ */
+DataArrayInt *MEDCouplingPointSet::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
+  if(areNodesMerged)
+    renumberNodes(ret->begin(),newNbOfNodes);
+  return ret.retn();
+}
+
+/*!
+ * Merges nodes equal within \a precision and returns an array describing the 
+ * permutation used to remove duplicate nodes. In contrast to mergeNodes(), location
+ *  of merged nodes is changed to be at their barycenter.
+ *  \param [in] precision - minimal absolute distance between two nodes at which they are
+ *              considered not coincident.
+ *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
+ *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
+ *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
+ *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
+ *          is to delete this array using decrRef() as it is no more needed.
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *
+ *  \ref cpp_mcumesh_mergeNodes "Here is a C++ example".<br>
+ *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
+ */
+DataArrayInt *MEDCouplingPointSet::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
+{
+  DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
+  if(areNodesMerged)
+    renumberNodes2(ret->getConstPointer(),newNbOfNodes);
+  return ret;
+}

@@ -2684,6 +2684,24 @@ double DataArrayDouble::getIJSafe(int tupleId, int compoId) const throw(INTERP_K
 }
 
 /*!
+ * Returns the first value of \a this. 
+ *  \return double - the last value of \a this array.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != 1.
+ *  \throw If \a this->getNumberOfTuples() < 1.
+ */
+double DataArrayDouble::front() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::front : number of components not equal to one !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::front : number of tuples must be >= 1 !");
+  return *(getConstPointer());
+}
+
+/*!
  * Returns the last value of \a this. 
  *  \return double - the last value of \a this array.
  *  \throw If \a this is not allocated.
@@ -5816,7 +5834,7 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
         *pt=indArrBg[*pt];
       else
         {
-          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " value is " << *pt << " and indirectionnal array as a size equal to " << nbElemsIn;
+          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " of this value is " << *pt << ", should be in [0," << nbElemsIn << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
@@ -7812,8 +7830,26 @@ int DataArrayInt::getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL:
 }
 
 /*!
+ * Returns the first value of \a this. 
+ *  \return int - the last value of \a this array.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != 1.
+ *  \throw If \a this->getNumberOfTuples() < 1.
+ */
+int DataArrayInt::front() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::front : number of components not equal to one !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::front : number of tuples must be >= 1 !");
+  return *(getConstPointer());
+}
+
+/*!
  * Returns the last value of \a this. 
- *  \return double - the last value of \a this array.
+ *  \return int - the last value of \a this array.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If \a this->getNumberOfTuples() < 1.
@@ -8297,6 +8333,57 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
   for(it=a.begin();it!=a.end();it++)
     pt=std::copy((*it)->getConstPointer(),(*it)->getConstPointer()+(*it)->getNbOfElems(),pt);
   ret->copyStringInfoFrom(*(a[0]));
+  return ret.retn();
+}
+
+/*!
+ * This method takes as input a list of DataArrayInt instances \a arrs that represent each a packed index arrays.
+ * A packed index array is an allocated array with one component, and at least one tuple. The first element
+ * of each array in \a arrs must be 0. Each array in \a arrs is expected to be increasingly monotonic.
+ * This method is useful for users that want to aggregate a pair of DataArrayInt representing an indexed data (typically nodal connectivity index in unstructured meshes.
+ * 
+ * \return DataArrayInt * - a new object to be managed by the caller.
+ */
+DataArrayInt *DataArrayInt::AggregateIndexes(const std::vector<const DataArrayInt *>& arrs) throw(INTERP_KERNEL::Exception)
+{
+  int retSz=1;
+  for(std::vector<const DataArrayInt *>::const_iterator it4=arrs.begin();it4!=arrs.end();it4++)
+    {
+      if(*it4)
+        {
+          (*it4)->checkAllocated();
+          if((*it4)->getNumberOfComponents()!=1)
+            {
+              std::ostringstream oss; oss << "DataArrayInt::AggregateIndexes : presence of a DataArrayInt instance with nb of compo != 1 at pos " << std::distance(arrs.begin(),it4) << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          int nbTupl=(*it4)->getNumberOfTuples();
+          if(nbTupl<1)
+            {
+              std::ostringstream oss; oss << "DataArrayInt::AggregateIndexes : presence of a DataArrayInt instance with nb of tuples < 1 at pos " << std::distance(arrs.begin(),it4) << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          if((*it4)->front()!=0)
+            {
+              std::ostringstream oss; oss << "DataArrayInt::AggregateIndexes : presence of a DataArrayInt instance with front value != 0 at pos " << std::distance(arrs.begin(),it4) << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          retSz+=nbTupl-1;
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::AggregateIndexes : presence of a null instance at pos " << std::distance(arrs.begin(),it4) << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(arrs.empty())
+    throw INTERP_KERNEL::Exception("DataArrayInt::AggregateIndexes : input list must be NON EMPTY !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(retSz,1);
+  int *pt=ret->getPointer(); *pt++=0;
+  for(std::vector<const DataArrayInt *>::const_iterator it=arrs.begin();it!=arrs.end();it++)
+    pt=std::transform((*it)->begin()+1,(*it)->end(),pt,std::bind2nd(std::plus<int>(),pt[-1]));
+  ret->copyStringInfoFrom(*(arrs[0]));
   return ret.retn();
 }
 
@@ -9057,6 +9144,7 @@ DataArrayInt *DataArrayInt::buildUnique() const throw(INTERP_KERNEL::Exception)
  * "MEDCouplingUMesh::buildDescendingConnectivity" and
  * \ref ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex
  * "MEDCouplingUMesh::getNodalConnectivityIndex" etc.
+ * This method preforms the reverse operation of DataArrayInt::computeOffsets2.
  *  \return DataArrayInt * - a new instance of DataArrayInt, whose number of tuples
  *          equals to \a this->getNumberOfComponents() - 1, and number of components is 1.
  *          The caller is to delete this array using decrRef() as it is no more needed. 
@@ -9068,6 +9156,8 @@ DataArrayInt *DataArrayInt::buildUnique() const throw(INTERP_KERNEL::Exception)
  *         - this contains [1,3,6,7,7,9,15]
  *         - result array contains [2,3,1,0,2,6],
  *          where 2 = 3 - 1, 3 = 6 - 3, 1 = 7 - 6 etc.
+ *
+ * \sa DataArrayInt::computeOffsets2
  */
 DataArrayInt *DataArrayInt::deltaShiftIndex() const throw(INTERP_KERNEL::Exception)
 {
@@ -9130,12 +9220,14 @@ void DataArrayInt::computeOffsets() throw(INTERP_KERNEL::Exception)
  * components remains the same and number of tuples is inceamented by one.<br>
  * This method is useful for allToAllV in MPI with contiguous policy. This method
  * differs from computeOffsets() in that the number of tuples is changed by this one.
+ * This method preforms the reverse operation of DataArrayInt::deltaShiftIndex.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *
  *  \b Example: <br>
  *          - Before \a this contains [3,5,1,2,0,8]
  *          - After \a this contains  [0,3,8,9,11,11,19]<br>
+ * \sa DataArrayInt::deltaShiftIndex
  */
 void DataArrayInt::computeOffsets2() throw(INTERP_KERNEL::Exception)
 {

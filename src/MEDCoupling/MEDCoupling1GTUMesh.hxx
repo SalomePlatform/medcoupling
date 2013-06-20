@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
     //
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -63,6 +64,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *findBoundaryNodes() const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT void findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const throw(INTERP_KERNEL::Exception);
+  public:
+    MEDCOUPLING_EXPORT virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
@@ -102,8 +106,6 @@ namespace ParaMEDMEM
     // overload of MEDCouplingPointSet
     MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
-    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
-    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
@@ -112,22 +114,21 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
-  public:
+    // overload of MEDCoupling1GTUMesh
+    MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception);
+  public://specific
+    MEDCOUPLING_EXPORT void setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshesOnSameCoords(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
-  public://specific
-    MEDCOUPLING_EXPORT void setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception);
   private:
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy);
-    virtual ~MEDCoupling1SGTUMesh() { }
   private:
     void checkNonDynamicGeoType() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshesLL(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
@@ -136,6 +137,71 @@ namespace ParaMEDMEM
     DataArrayInt *simplexizePlanarFace5() throw(INTERP_KERNEL::Exception);
     DataArrayInt *simplexizePlanarFace6() throw(INTERP_KERNEL::Exception);
   private:
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
+  };
+
+  class MEDCoupling1DGTUMesh : public MEDCoupling1GTUMesh
+  {
+  public:
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
+    // overload of TimeLabel and RefCountObject
+    MEDCOUPLING_EXPORT void updateTime() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    // overload of MEDCouplingMesh
+    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED; }
+    MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
+    MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    MEDCOUPLING_EXPORT std::string simpleRepr() const;
+    MEDCOUPLING_EXPORT std::string advancedRepr() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    // overload of MEDCouplingPointSet
+    MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
+    MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isEmptyMesh(const std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
+    // overload of MEDCoupling1GTUMesh
+    MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception);
+  public://specific
+    MEDCOUPLING_EXPORT void setNodalConnectivity(DataArrayInt *nodalConn, DataArrayInt *nodalConnIndex) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *copyWithNodalConnectivityPacked(bool& isShallowCpyOfNodalConnn) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool retrievePackedNodalConnectivity(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndx) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isPacked() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *Merge1DGTUMeshes(const MEDCoupling1DGTUMesh *mesh1, const MEDCoupling1DGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *Merge1DGTUMeshes(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *Merge1DGTUMeshesOnSameCoords(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCoupling1DGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
+  private:
+    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy);
+  private:
+    void checkDynamicGeoType() const throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1DGTUMesh *Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
+  private:
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn_indx;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
   };
 }

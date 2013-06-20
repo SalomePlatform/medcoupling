@@ -1457,8 +1457,26 @@ char DataArrayChar::getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNE
 }
 
 /*!
+ * Returns the first value of \a this. 
+ *  \return char - the last value of \a this array.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != 1.
+ *  \throw If \a this->getNumberOfTuples() < 1.
+ */
+char DataArrayChar::front() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayChar::front : number of components not equal to one !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<1)
+    throw INTERP_KERNEL::Exception("DataArrayChar::front : number of tuples must be >= 1 !");
+  return *(getConstPointer());
+}
+
+/*!
  * Returns the last value of \a this. 
- *  \return double - the last value of \a this array.
+ *  \return char - the last value of \a this array.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If \a this->getNumberOfTuples() < 1.

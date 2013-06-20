@@ -386,20 +386,6 @@ DataArrayInt *MEDCouplingUMeshDesc::getCellsInBoundingBox(const INTERP_KERNEL::D
   return elems.retn();
 }
 
-DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
-{
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
-  areNodesMerged=false;
-  return 0;
-}
-
-DataArrayInt *MEDCouplingUMeshDesc::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
-{
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
-  areNodesMerged=false;
-  return 0;
-}
-
 MEDCouplingPointSet *MEDCouplingUMeshDesc::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");

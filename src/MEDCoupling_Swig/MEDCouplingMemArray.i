@@ -302,6 +302,7 @@ namespace ParaMEDMEM
     void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
+    double front() const throw(INTERP_KERNEL::Exception);
     double back() const throw(INTERP_KERNEL::Exception);
     double getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     void setIJ(int tupleId, int compoId, double newVal) throw(INTERP_KERNEL::Exception);
@@ -2321,6 +2322,7 @@ namespace ParaMEDMEM
     void getTuple(int tupleId, int *res) const throw(INTERP_KERNEL::Exception);
     int getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     int getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
+    int front() const throw(INTERP_KERNEL::Exception);
     int back() const throw(INTERP_KERNEL::Exception);
     void setIJ(int tupleId, int compoId, int newVal) throw(INTERP_KERNEL::Exception);
     void setIJSilent(int tupleId, int compoId, int newVal) throw(INTERP_KERNEL::Exception);
@@ -2916,6 +2918,13 @@ namespace ParaMEDMEM
         std::vector<const DataArrayInt *> tmp;
         convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::Aggregate(tmp);
+      }
+
+      static DataArrayInt *AggregateIndexes(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const DataArrayInt *> tmp;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        return DataArrayInt::AggregateIndexes(tmp);
       }
 
       static DataArrayInt *BuildUnion(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -4564,6 +4573,7 @@ namespace ParaMEDMEM
     DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayChar *tuplesSelec) throw(INTERP_KERNEL::Exception);
+    char front() const throw(INTERP_KERNEL::Exception);
     char back() const throw(INTERP_KERNEL::Exception);
     void setIJ(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
     void setIJSilent(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);

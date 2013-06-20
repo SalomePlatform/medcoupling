@@ -71,8 +71,8 @@ namespace ParaMEDMEM
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
     virtual void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception) = 0;
-    virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
-    virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
+    virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
+    virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);
     virtual MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const = 0;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrayForMergeNode(double precision, int limitNodeId, bool& areNodesMerged, int& newNbOfNodes) const;

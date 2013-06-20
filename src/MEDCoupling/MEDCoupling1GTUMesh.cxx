@@ -42,7 +42,8 @@ MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const char *name, INTERP_KERNEL::N
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(!cm.isDynamic())
     return MEDCoupling1SGTUMesh::New(name,type);
-  throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::New : not implemented yet !");
+  else
+    return MEDCoupling1DGTUMesh::New(name,type);
 }
 
 const INTERP_KERNEL::CellModel& MEDCoupling1GTUMesh::getCellModel() const throw(INTERP_KERNEL::Exception)
@@ -229,6 +230,11 @@ std::string MEDCoupling1GTUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::
   return std::string("UnstructuredGrid");
 }
 
+std::size_t MEDCoupling1GTUMesh::getHeapMemorySize() const
+{
+  return MEDCouplingPointSet::getHeapMemorySize();
+}
+
 bool MEDCoupling1GTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
   if(!MEDCouplingPointSet::isEqualIfNotWhy(other,prec,reason))
@@ -367,7 +373,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const char *name, INTERP_KERNEL:
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(cm.isDynamic())
     {
-      std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::New : the input geometric type " << cm.getRepr() << " is dynamic ! Only static type are dealed here !";
+      std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::New : the input geometric type " << cm.getRepr() << " is dynamic ! Only static types are allowed here !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return new MEDCoupling1SGTUMesh(name,cm);
@@ -402,7 +408,7 @@ std::size_t MEDCoupling1SGTUMesh::getHeapMemorySize() const
   const DataArrayInt *c(_conn);
   if(c)
     ret+=c->getHeapMemorySize();
-  return MEDCouplingPointSet::getHeapMemorySize()+ret;
+  return MEDCoupling1GTUMesh::getHeapMemorySize()+ret;
 }
 
 MEDCouplingMesh *MEDCoupling1SGTUMesh::deepCpy() const
@@ -575,7 +581,7 @@ std::string MEDCoupling1SGTUMesh::simpleRepr() const
 {
   static const char msg0[]="No coordinates specified !";
   std::ostringstream ret;
-  ret << "Single static geometic type unstructured mesh with name : \"" << getName() << "\"\n";
+  ret << "Single static geometic type (" << _cm->getRepr() << ") unstructured mesh with name : \"" << getName() << "\"\n";
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
   int tmpp1,tmpp2;
   double tt=getTime(tmpp1,tmpp2);
@@ -658,7 +664,7 @@ DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
-  int nbOfCells=getNumberOfCells();
+  int nbOfCells=getNumberOfCells();//checkCoherency()
   int nbOfNodes=getNumberOfNodes();
   ret->alloc(nbOfCells,spaceDim);
   double *ptToFill=ret->getPointer();
@@ -789,32 +795,6 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexize(int policy) throw(INTERP_KERNEL::
     default:
       throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::simplexize : unrecognized policy ! Must be :\n  - 0 or 1 (only available for meshdim=2) \n  - PLANAR_FACE_5, PLANAR_FACE_6  (only for meshdim=3)");
     }
-}
-
-/*!
- * \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *         info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
- *         is to delete this array using decrRef() as it is no more needed.
- */
-DataArrayInt *MEDCoupling1SGTUMesh::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
-{
-  DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
-  if(areNodesMerged)
-    renumberNodes(ret->getConstPointer(),newNbOfNodes);
-  return ret;
-}
-
-/*!
- * \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *         info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
- *         is to delete this array using decrRef() as it is no more needed.
- */
-DataArrayInt *MEDCoupling1SGTUMesh::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
-{
-  DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
-  if(areNodesMerged)
-    renumberNodes2(ret->getConstPointer(),newNbOfNodes);
-  return ret;
 }
 
 /// @cond INTERNAL
@@ -1149,7 +1129,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace6() throw(INTERP_KERNEL:
 
 void MEDCoupling1SGTUMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
 {
-  stream << "MEDCoupling1SGTUMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
+  stream << "MEDCoupling1SGTUMesh C++ instance at " << this << ". Type=" << _cm->getRepr() << ". Name : \"" << getName() << "\".";
   stream << " Mesh dimension : " << getMeshDimension() << ".";
   if(!_coords)
     { stream << " No coordinates set !"; return ; }
@@ -1196,6 +1176,17 @@ void MEDCoupling1SGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, do
   const MEDCoupling1SGTUMesh *otherC=dynamic_cast<const MEDCoupling1SGTUMesh *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : Two meshes are not not unstructured with single static geometric type !");
+  const DataArrayInt *c1(_conn),*c2(otherC->_conn);
+  if(c1==c2)
+    return;
+  if(!c1 || !c2)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : presence of nodal connectivity only in one of the 2 meshes !");
+  if((c1->isAllocated() && !c2->isAllocated()) || (!c1->isAllocated() && c2->isAllocated()))
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : in nodal connectivity, only one is allocated !");
+  if(c1->getNumberOfComponents()!=1 || c1->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : in nodal connectivity, must have 1 and only 1 component !");
+  if(c1->getHashCode()!=c2->getHashCode())
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : nodal connectivity differs");
 }
 
 MEDCouplingPointSet *MEDCoupling1SGTUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
@@ -1254,26 +1245,11 @@ void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
 
 /*!
  * Use \a nodalConn array as nodal connectivity of \a this. The input \a nodalConn pointer can be null.
- * This method tests, if the input \a nodalConn is not null, that :
- * - it has one component.
- * - the number of tuples compatible with the number of node per cell.
  */
 void MEDCoupling1SGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception)
 {
-  if(!nodalConn)
-    {
-      _conn=nodalConn;
-      return;
-    }
-  const DataArrayInt *c1(nodalConn);
-  if(c1->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::setNodalConnectivity : input nodal connectivity array set must have exactly one component !");
-  if(!c1->isAllocated())
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::setNodalConnectivity : input nodal connectivity array must be allocated !");
-  int nbTuples=c1->getNumberOfTuples();
-  if(nbTuples%getNumberOfNodesPerCell()!=0)
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::setNodalConnectivity : input nodal connectivity number of tuples is incompatible with geometric type !");
-  nodalConn->incrRef();
+  if(nodalConn)
+    nodalConn->incrRef();
   _conn=nodalConn;
   declareAsNew();
 }
@@ -1330,4 +1306,1095 @@ void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const in
       oss << ref << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+}
+
+//== find static tony
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  if(type==INTERP_KERNEL::NORM_ERROR)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::New : NORM_ERROR is not a valid type to be used as base geometric type for a mesh !");
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  if(!cm.isDynamic())
+    {
+      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::New : the input geometric type " << cm.getRepr() << " is static ! Only dynamic types are allowed here !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return new MEDCoupling1DGTUMesh(name,cm);
+}
+
+MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm):MEDCoupling1GTUMesh(name,cm)
+{
+}
+
+MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy):MEDCoupling1GTUMesh(other,recDeepCpy),_conn(other._conn)
+{
+  if(recDeepCpy)
+    {
+      const DataArrayInt *c(other._conn);
+      if(c)
+        _conn=c->deepCpy();
+      c=other._conn_indx;
+      if(c)
+        _conn_indx=c->deepCpy();
+    }
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
+{
+  return new MEDCoupling1DGTUMesh(*this,recDeepCpy);
+}
+
+void MEDCoupling1DGTUMesh::updateTime() const
+{
+  MEDCoupling1GTUMesh::updateTime();
+  const DataArrayInt *c(_conn);
+  if(c)
+    updateTimeWith(*c);
+  c=_conn_indx;
+  if(c)
+    updateTimeWith(*c);
+}
+
+std::size_t MEDCoupling1DGTUMesh::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  const DataArrayInt *c(_conn);
+  if(c)
+    ret+=c->getHeapMemorySize();
+  c=_conn_indx;
+  if(c)
+    ret+=c->getHeapMemorySize();
+  return MEDCoupling1GTUMesh::getHeapMemorySize()+ret;
+}
+
+MEDCouplingMesh *MEDCoupling1DGTUMesh::deepCpy() const
+{
+  return clone(true);
+}
+
+bool MEDCoupling1DGTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::isEqualIfNotWhy : input other pointer is null !");
+  std::ostringstream oss; oss.precision(15);
+  const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
+  if(!otherC)
+    {
+      reason="mesh given in input is not castable in MEDCoupling1DGTUMesh !";
+      return false;
+    }
+  if(!MEDCoupling1GTUMesh::isEqualIfNotWhy(other,prec,reason))
+    return false;
+  const DataArrayInt *c1(_conn),*c2(otherC->_conn);
+  if(c1==c2)
+    return true;
+  if(!c1 || !c2)
+    {
+      reason="in connectivity of single dynamic geometric type exactly one among this and other is null !";
+      return false;
+    }
+  if(!c1->isEqualIfNotWhy(*c2,reason))
+    {
+      reason.insert(0,"Nodal connectivity DataArrayInt differs : ");
+      return false;
+    }
+  c1=_conn_indx; c2=otherC->_conn_indx;
+  if(c1==c2)
+    return true;
+  if(!c1 || !c2)
+    {
+      reason="in connectivity index of single dynamic geometric type exactly one among this and other is null !";
+      return false;
+    }
+  if(!c1->isEqualIfNotWhy(*c2,reason))
+    {
+      reason.insert(0,"Nodal connectivity index DataArrayInt differs : ");
+      return false;
+    }
+  return true;
+}
+
+bool MEDCoupling1DGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::isEqualWithoutConsideringStr : input other pointer is null !");
+  const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
+  if(!otherC)
+    return false;
+  if(!MEDCoupling1GTUMesh::isEqualWithoutConsideringStr(other,prec))
+    return false;
+  const DataArrayInt *c1(_conn),*c2(otherC->_conn);
+  if(c1==c2)
+    return true;
+  if(!c1 || !c2)
+    return false;
+  if(!c1->isEqualWithoutConsideringStr(*c2))
+    return false;
+  return true;
+  c1=_conn_indx; c2=otherC->_conn_indx;
+  if(c1==c2)
+    return true;
+  if(!c1 || !c2)
+    return false;
+  if(!c1->isEqualWithoutConsideringStr(*c2))
+    return false;
+  return true;
+}
+
+/*!
+ * Checks if \a this and \a other meshes are geometrically equivalent with high
+ * probability, else an exception is thrown. The meshes are considered equivalent if
+ * (1) meshes contain the same number of nodes and the same number of elements of the
+ * same types (2) three cells of the two meshes (first, last and middle) are based
+ * on coincident nodes (with a specified precision).
+ *  \param [in] other - the mesh to compare with.
+ *  \param [in] prec - the precision used to compare nodes of the two meshes.
+ *  \throw If the two meshes do not match.
+ */
+void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingPointSet::checkFastEquivalWith(other,prec);
+  const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : Two meshes are not not unstructured with single static geometric type !");
+  const DataArrayInt *c1(_conn),*c2(otherC->_conn);
+  if(c1!=c2)
+    {
+      if(!c1 || !c2)
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : presence of nodal connectivity only in one of the 2 meshes !");
+      if((c1->isAllocated() && !c2->isAllocated()) || (!c1->isAllocated() && c2->isAllocated()))
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : in nodal connectivity, only one is allocated !");
+      if(c1->getNumberOfComponents()!=1 || c1->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : in nodal connectivity, must have 1 and only 1 component !");
+      if(c1->getHashCode()!=c2->getHashCode())
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : nodal connectivity differs");
+    }
+  c1=_conn_indx; c2=otherC->_conn_indx;
+  if(c1!=c2)
+    {
+      if(!c1 || !c2)
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : presence of nodal connectivity index only in one of the 2 meshes !");
+      if((c1->isAllocated() && !c2->isAllocated()) || (!c1->isAllocated() && c2->isAllocated()))
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : in nodal connectivity index, only one is allocated !");
+      if(c1->getNumberOfComponents()!=1 || c1->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : in nodal connectivity index, must have 1 and only 1 component !");
+      if(c1->getHashCode()!=c2->getHashCode())
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : nodal connectivity index differs");
+    }
+}
+
+/*!
+ * If \a this pass this method, you are sure that connectivity arrays are not null, with exactly one component, no name, no component name, allocated.
+ * In addition you are sure that the length of nodal connectivity index array is bigger than or equal to one.
+ * In addition you are also sure that length of nodal connectivity is coherent with the content of the last value in the index array.
+ */
+void MEDCoupling1DGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingPointSet::checkCoherency();
+  const DataArrayInt *c1(_conn);
+  if(c1)
+    {
+      if(c1->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("Nodal connectivity array is expected to be with number of components set to one !");
+      if(c1->getInfoOnComponent(0)!="")
+        throw INTERP_KERNEL::Exception("Nodal connectivity array is expected to have no info on its single component !");
+      c1->checkAllocated();
+    }
+  else
+    throw INTERP_KERNEL::Exception("Nodal connectivity array not defined !");
+  //
+  int sz2=_conn->getNumberOfTuples();
+  c1=_conn_indx;
+  if(c1)
+    {
+      if(c1->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to be with number of components set to one !");
+      c1->checkAllocated();
+      if(c1->getNumberOfTuples()<1)
+        throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to have a a size of 1 at least !");
+      if(c1->getInfoOnComponent(0)!="")
+        throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to have no info on its single component !");
+      int f=c1->front(),ll=c1->back();
+      if(f<0 || f>=sz2)
+        {
+          std::ostringstream oss; oss << "Nodal connectivity index array first value (" << f << ") is expected to be exactly in [0," << sz2 << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(ll<0 || ll>sz2)
+        {
+          std::ostringstream oss; oss << "Nodal connectivity index array last value (" << ll << ") is expected to be exactly in [0," << sz2 << "] !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(f>ll)
+        {
+          std::ostringstream oss; oss << "Nodal connectivity index array looks very bad (not increasing monotonic) because front (" << f << ") is greater that back (" << ll << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("Nodal connectivity index array not defined !");
+  int szOfC1Exp=_conn_indx->back();
+  if(sz2<szOfC1Exp)
+    {
+      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::checkCoherency : The expected length of nodal connectivity array regarding index is " << szOfC1Exp << " but the actual size of it is " << c1->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  const DataArrayInt *c1(_conn),*c2(_conn_indx);
+  if(!c2->isMonotonic(true))
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkCoherency1 : the nodal connectivity index is expected to be increasing monotinic !");
+  //
+  int nbOfTuples=c1->getNumberOfTuples();
+  int nbOfNodes=getNumberOfNodes();
+  const int *w(c1->begin());
+  for(int i=0;i<nbOfTuples;i++,w++)
+    {
+      if(*w==-1) continue;
+      if(*w<0 || *w>=nbOfNodes)
+        {
+          std::ostringstream oss; oss << "At pos #" << i << " of nodal connectivity array references to node id #" << *w << " must be in [0," << nbOfNodes << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+void MEDCoupling1DGTUMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency1(eps);
+}
+
+int MEDCoupling1DGTUMesh::getNumberOfCells() const
+{
+  checkCoherency();//do not remove
+  return _conn_indx->getNumberOfTuples()-1;
+}
+
+/*!
+ * This method returns a newly allocated array containing this->getNumberOfCells() tuples and 1 component.
+ * For each cell in \b this the number of nodes constituting cell is computed.
+ * For each polyhedron cell, the sum of the number of nodes of each face constituting polyhedron cell is returned.
+ * So for pohyhedrons some nodes can be counted several times in the returned result.
+ * 
+ * \return a newly allocated array
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  _conn_indx->checkMonotonic(true);
+  if(getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+    return _conn_indx->deltaShiftIndex();
+  // for polyhedrons
+  int nbOfCells=_conn_indx->getNumberOfTuples()-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *retPtr=ret->getPointer();
+  const int *ci=_conn_indx->begin(),*c=_conn->begin();
+  for(int i=0;i<nbOfCells;i++,retPtr++,ci++)
+    *retPtr=ci[1]-ci[0]-std::count(c+ci[0],c+ci[1],-1);
+  return ret.retn();
+}
+
+/*!
+ * This method returns a newly allocated array containing this->getNumberOfCells() tuples and 1 component.
+ * For each cell in \b this the number of faces constituting (entity of dimension this->getMeshDimension()-1) cell is computed.
+ * 
+ * \return a newly allocated array
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  _conn_indx->checkMonotonic(true);
+  if(getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED && getCellModelEnum()!=INTERP_KERNEL::NORM_QPOLYG)
+    return _conn_indx->deltaShiftIndex();
+  if(getCellModelEnum()==INTERP_KERNEL::NORM_QPOLYG)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=_conn_indx->deltaShiftIndex();
+      ret->applyDivideBy(2);
+      return ret.retn();
+    }
+  // for polyhedrons
+  int nbOfCells=_conn_indx->getNumberOfTuples()-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *retPtr=ret->getPointer();
+  const int *ci=_conn_indx->begin(),*c=_conn->begin();
+  for(int i=0;i<nbOfCells;i++,retPtr++,ci++)
+    *retPtr=std::count(c+ci[0],c+ci[1],-1)+1;
+  return ret.retn();
+}
+
+void MEDCoupling1DGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+{
+  int nbOfCells=getNumberOfCells();//performs checks
+  if(cellId>=0 && cellId<nbOfCells)
+    {
+      int strt=_conn_indx->getIJ(cellId,0),stp=_conn_indx->getIJ(cellId+1,0);
+      int nbOfNodes=stp-strt;
+      if(nbOfNodes<0)
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::getNodeIdsOfCell : the index array is invalid ! Should be increasing monotonic !");
+      conn.resize(nbOfNodes);
+      std::copy(_conn->begin()+strt,_conn->begin()+stp,conn.begin());
+    }
+  else
+    {
+      std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::getNodeIdsOfCell : request for cellId #" << cellId << " must be in [0," << nbOfCells << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+std::string MEDCoupling1DGTUMesh::simpleRepr() const
+{
+  static const char msg0[]="No coordinates specified !";
+  std::ostringstream ret;
+  ret << "Single dynamic geometic type (" << _cm->getRepr() << ") unstructured mesh with name : \"" << getName() << "\"\n";
+  ret << "Description of mesh : \"" << getDescription() << "\"\n";
+  int tmpp1,tmpp2;
+  double tt=getTime(tmpp1,tmpp2);
+  ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
+  ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
+  ret << "Mesh dimension : " << getMeshDimension() << "\nSpace dimension : ";
+  if(_coords!=0)
+    {
+      const int spaceDim=getSpaceDimension();
+      ret << spaceDim << "\nInfo attached on space dimension : ";
+      for(int i=0;i<spaceDim;i++)
+        ret << "\"" << _coords->getInfoOnComponent(i) << "\" ";
+      ret << "\n";
+    }
+  else
+    ret << msg0 << "\n";
+  ret << "Number of nodes : ";
+  if(_coords!=0)
+    ret << getNumberOfNodes() << "\n";
+  else
+    ret << msg0 << "\n";
+  ret << "Number of cells : ";
+  bool isOK=true;
+  try { checkCoherency(); } catch(INTERP_KERNEL::Exception& e)
+    {
+      ret << "Nodal connectivity arrays are not set or badly set !\n";
+      isOK=false;
+    }
+  if(isOK)
+    ret << getNumberOfCells() << "\n";
+  ret << "Cell type : " << _cm->getRepr() << "\n";
+  return ret.str();
+}
+
+std::string MEDCoupling1DGTUMesh::advancedRepr() const
+{
+  std::ostringstream ret;
+  ret << simpleRepr();
+  ret << "\nCoordinates array : \n___________________\n\n";
+  if(_coords)
+    _coords->reprWithoutNameStream(ret);
+  else
+    ret << "No array set !\n";
+  ret << "\n\nNodal Connectivity : \n____________________\n\n";
+  //
+  bool isOK=true;
+  try { checkCoherency1(); } catch(INTERP_KERNEL::Exception& e)
+    {
+      ret << "Nodal connectivity arrays are not set or badly set !\n";
+      isOK=false;
+    }
+  if(!isOK)
+    return ret.str();
+  int nbOfCells=getNumberOfCells();
+  const int *ci=_conn_indx->begin(),*c=_conn->begin();
+  for(int i=0;i<nbOfCells;i++,ci++)
+    {
+      ret << "Cell #" << i << " : ";
+      std::copy(c+ci[0],c+ci[1],std::ostream_iterator<int>(ret," "));
+      ret << "\n";
+    }
+  return ret.str();
+}
+
+DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  int nbOfCells=getNumberOfCells();//checkCoherency()
+  int nbOfNodes=getNumberOfNodes();
+  ret->alloc(nbOfCells,spaceDim);
+  double *ptToFill=ret->getPointer();
+  const double *coor=_coords->begin();
+  const int *nodal=_conn->begin(),*nodali=_conn_indx->begin();
+  nodal+=nodali[0];
+  if(getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+    {
+      for(int i=0;i<nbOfCells;i++,ptToFill+=spaceDim,nodali++)
+        {
+          std::fill(ptToFill,ptToFill+spaceDim,0.);
+          if(nodali[0]>=nodali[1])// >= to avoid division by 0.
+            {
+              for(int j=nodali[0];j<nodali[1];j++,nodal++)
+                {
+                  if(*nodal>=0 && *nodal<nbOfNodes)
+                    std::transform(coor+spaceDim*nodal[0],coor+spaceDim*(nodal[0]+1),ptToFill,ptToFill,std::plus<double>());
+                  else
+                    {
+                      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell : on cell #" << i << " presence of nodeId #" << *nodal << " should be in [0," <<   nbOfNodes << ") !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                  std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(nodali[1]-nodali[0])));
+                }
+            }
+          else
+            {
+              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell : at cell #" << i << " the nodal index array is invalid !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  else
+    {
+      for(int i=0;i<nbOfCells;i++,ptToFill+=spaceDim,nodali++)
+        {
+          std::fill(ptToFill,ptToFill+spaceDim,0.);
+          if(nodali[0]>=nodali[1])// >= to avoid division by 0.
+            {
+              int nbOfNod=0;
+              for(int j=nodali[0];j<nodali[1];j++,nodal++)
+                {
+                  if(*nodal==-1) continue;
+                  if(*nodal>=0 && *nodal<nbOfNodes)
+                    {
+                      std::transform(coor+spaceDim*nodal[0],coor+spaceDim*(nodal[0]+1),ptToFill,ptToFill,std::plus<double>());
+                      nbOfNod++;
+                    }
+                  else
+                    {
+                      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell (polyhedron) : on cell #" << i << " presence of nodeId #" << *nodal << " should be in [0," <<   nbOfNodes << ") !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+              if(nbOfNod!=0)
+                std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./nbOfNod));
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell (polyhedron) : no nodes in cell #" << i << " !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          else
+            {
+              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell (polyhedron)  : at cell #" << i << " the nodal index array is invalid !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  return ret.retn();
+}
+
+void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+{
+  int nbCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
+  o2n->useArray(old2NewBg,false,C_DEALLOC,nbCells,1);
+  if(check)
+    o2n=o2n->checkAndPreparePermutation();
+  //
+  const int *conn=_conn->begin(),*conni=_conn_indx->begin();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(nbCells);
+  const int *n2oPtr=n2o->begin();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
+  newConn->alloc(_conn->getNumberOfTuples(),1); newConnI->alloc(nbCells,1);
+  newConn->copyStringInfoFrom(*_conn); newConnI->copyStringInfoFrom(*_conn_indx);
+  //
+  int *newC=newConn->getPointer(),*newCI=newConnI->getPointer();
+  for(int i=0;i<nbCells;i++)
+    {
+      int sz=conni[i+1]-conni[i];
+      if(sz>=0)
+        newCI[n2oPtr[i]]=sz;
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberCells : the index nodal array is invalid for cell #" << i << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  newConnI->computeOffsets2(); newCI=newConnI->getPointer();
+  //
+  for(int i=0;i<nbCells;i++,conni++)
+    {
+      int sz=conni[1]-conni[0];
+      int newp=n2oPtr[i];
+      std::copy(conn+conni[0],conn+conni[1],newC+newCI[newp]);
+    }
+  _conn=newConn;
+}
+
+MEDCouplingMesh *MEDCoupling1DGTUMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
+{
+  if(other->getType()!=SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED)
+    throw INTERP_KERNEL::Exception("Merge of umesh only available with umesh single dynamic geo type each other !");
+  const MEDCoupling1DGTUMesh *otherC=static_cast<const MEDCoupling1DGTUMesh *>(other);
+  return Merge1DGTUMeshes(this,otherC);
+}
+
+MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),getMeshDimension());
+  ret->setCoords(getCoords());
+  const int *nodalConn=_conn->begin(),*nodalConnI=_conn_indx->begin();
+  int nbCells=getNumberOfCells();//checkCoherency
+  int geoType=(int)getCellModelEnum();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New(); c->alloc(nbCells+_conn->getNumberOfTuples(),1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cI=DataArrayInt::New(); cI->alloc(nbCells+1);
+  int *cPtr=c->getPointer(),*ciPtr=cI->getPointer();
+  ciPtr[0]=0;
+  for(int i=0;i<nbCells;i++,ciPtr++)
+    {
+      int sz=nodalConnI[i+1]-nodalConnI[i];
+      if(sz>=0)
+        {
+          *cPtr++=geoType;
+          cPtr=std::copy(nodalConn+nodalConnI[i],nodalConn+nodalConnI[i+1],cPtr);
+          ciPtr[1]=ciPtr[0]+sz+1;
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::buildUnstructured : Invalid for nodal index for cell #" << i << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->setConnectivity(c,cI,true);
+  return ret.retn();
+}
+
+/*!
+ * Do nothing for the moment, because there is no policy that allows to split polygons, polyhedrons ... into simplexes
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  ret->iota(0);
+  return ret.retn();
+}
+
+void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+{
+  stream << "MEDCoupling1DGTUMesh C++ instance at " << this << ". Type=" << _cm->getRepr() << ". Name : \"" << getName() << "\".";
+  stream << " Mesh dimension : " << getMeshDimension() << ".";
+  if(!_coords)
+    { stream << " No coordinates set !"; return ; }
+  if(!_coords->isAllocated())
+    { stream << " Coordinates set but not allocated !"; return ; }
+  stream << " Space dimension : " << _coords->getNumberOfComponents() << "." << std::endl;
+  stream << "Number of nodes : " << _coords->getNumberOfTuples() << ".";
+  bool isOK=true;
+  try { checkCoherency(); } catch(INTERP_KERNEL::Exception& e)
+    {
+      stream << std::endl << "Nodal connectivity NOT set properly !\n";
+      isOK=false;
+    }
+  if(isOK)
+    stream << std::endl << "Number of cells : " << getNumberOfCells() << ".";
+}
+
+void MEDCoupling1DGTUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::shallowCopyConnectivityFrom : input pointer is null !");
+  const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::shallowCopyConnectivityFrom : input pointer is not an MEDCoupling1DGTUMesh instance !");
+  setNodalConnectivity(otherC->getNodalConnectivity(),otherC->getNodalConnectivityIndex());
+}
+
+MEDCouplingPointSet *MEDCoupling1DGTUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::mergeMyselfWithOnSameCoords : input other is null !");
+  const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::mergeMyselfWithOnSameCoords : the input other mesh is not of type single statuc geo type unstructured !");
+  std::vector<const MEDCoupling1DGTUMesh *> ms(2);
+  ms[0]=this;
+  ms[1]=otherC;
+  return Merge1DGTUMeshesOnSameCoords(ms);
+}
+
+MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
+{
+  checkCoherency();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  ret->setCoords(_coords);
+  DataArrayInt *c=0,*ci=0;
+  MEDCouplingUMesh::ExtractFromIndexedArrays(begin,end,_conn,_conn_indx,c,ci);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
+  ret->setNodalConnectivity(c,ci);
+  return ret.retn();
+}
+
+MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
+{
+  checkCoherency();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  ret->setCoords(_coords);
+  DataArrayInt *c=0,*ci=0;
+  MEDCouplingUMesh::ExtractFromIndexedArrays2(start,end,step,_conn,_conn_indx,c,ci);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
+  ret->setNodalConnectivity(c,ci);
+  return ret.retn();
+}
+
+void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  int nbOfNodes=getNumberOfNodes();
+  int *revNodalIndxPtr=(int *)malloc((nbOfNodes+1)*sizeof(int));
+  revNodalIndx->useArray(revNodalIndxPtr,true,C_DEALLOC,nbOfNodes+1,1);
+  std::fill(revNodalIndxPtr,revNodalIndxPtr+nbOfNodes+1,0);
+  const int *conn=_conn->begin(),*conni=_conn_indx->begin();
+  int nbOfCells=getNumberOfCells();
+  int nbOfEltsInRevNodal=0;
+  for(int eltId=0;eltId<nbOfCells;eltId++)
+    {
+      int nbOfNodesPerCell=conni[eltId+1]-conni[eltId];
+      if(nbOfNodesPerCell>=0)
+        {
+          for(int j=0;j<nbOfNodesPerCell;j++)
+            {
+              int nodeId=conn[conni[eltId]+j];
+              if(nodeId==-1) continue;            
+              if(nodeId>=0 && nodeId<nbOfNodes)
+                {
+                  nbOfEltsInRevNodal++;
+                  revNodalIndxPtr[nodeId+1]++;
+                }
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getReverseNodalConnectivity : At cell #" << eltId << " presence of nodeId #" << conn[0] << " should be in [0," << nbOfNodes << ") !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getReverseNodalConnectivity : At cell #" << eltId << "nodal connectivity is invalid !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  std::transform(revNodalIndxPtr+1,revNodalIndxPtr+nbOfNodes+1,revNodalIndxPtr,revNodalIndxPtr+1,std::plus<int>());
+  conn=_conn->begin();
+  int *revNodalPtr=(int *)malloc((nbOfEltsInRevNodal)*sizeof(int));
+  revNodal->useArray(revNodalPtr,true,C_DEALLOC,nbOfEltsInRevNodal,1);
+  std::fill(revNodalPtr,revNodalPtr+nbOfEltsInRevNodal,-1);
+  for(int eltId=0;eltId<nbOfCells;eltId++)
+    {
+      int nbOfNodesPerCell=conni[eltId+1]-conni[eltId];
+      for(int j=0;j<nbOfNodesPerCell;j++)
+        {
+          int nodeId=conn[conni[eltId]+j];
+          if(nodeId!=-1)
+            *std::find_if(revNodalPtr+revNodalIndxPtr[nodeId],revNodalPtr+revNodalIndxPtr[nodeId+1],std::bind2nd(std::equal_to<int>(),-1))=eltId;
+        }
+    }
+}
+
+void MEDCoupling1DGTUMesh::checkFullyDefined() const throw(INTERP_KERNEL::Exception)
+{
+  if(!((const DataArrayInt *)_conn) || !((const DataArrayInt *)_conn_indx) || !((const DataArrayDouble *)_coords))
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFullyDefined : part of this is not fully defined.");
+}
+
+bool MEDCoupling1DGTUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
+{
+  throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::isEmptyMesh : not implemented yet !");
+}
+
+/*!
+ * Finds nodes not used in any cell and returns an array giving a new id to every node
+ * by excluding the unused nodes, for which the array holds -1. The result array is
+ * a mapping in "Old to New" mode. 
+ *  \param [out] nbrOfNodesInUse - number of node ids present in the nodal connectivity.
+ *  \return DataArrayInt * - a new instance of DataArrayInt. Its length is \a
+ *          this->getNumberOfNodes(). It holds for each node of \a this mesh either -1
+ *          if the node is unused or a new id else. The caller is to delete this
+ *          array using decrRef() as it is no more needed.  
+ *  \throw If the coordinates array is not set.
+ *  \throw If the nodal connectivity of cells is not defined.
+ *  \throw If the nodal connectivity includes an invalid id.
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception)
+{
+  nbrOfNodesInUse=-1;
+  int nbOfNodes=getNumberOfNodes();
+  int nbOfCells=getNumberOfCells();//checkCoherency
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfNodes,1);
+  int *traducer=ret->getPointer();
+  std::fill(traducer,traducer+nbOfNodes,-1);
+  const int *conn=_conn->begin(),*conni(_conn_indx->begin());
+  for(int i=0;i<nbOfCells;i++,conni++)
+    {
+      int nbNodesPerCell=conni[1]-conni[0];
+      for(int j=0;j<nbNodesPerCell;j++)
+        {
+          int nodeId=conn[conni[0]+j];
+          if(nodeId==-1) continue;
+          if(nodeId>=0 && nodeId<nbOfNodes)
+            traducer[*conn]=1;
+          else
+            {
+              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getNodeIdsInUse : In cell #" << i  << " presence of node id " <<  nodeId << " not in [0," << nbOfNodes << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  nbrOfNodesInUse=(int)std::count(traducer,traducer+nbOfNodes,1);
+  std::transform(traducer,traducer+nbOfNodes,traducer,MEDCouplingAccVisit());
+  return ret.retn();
+}
+
+/*!
+ * Changes ids of nodes within the nodal connectivity arrays according to a permutation
+ * array in "Old to New" mode. The node coordinates array is \b not changed by this method.
+ * This method is a generalization of shiftNodeNumbersInConn().
+ *  \warning This method performs no check of validity of new ids. **Use it with care !**
+ *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
+ *         this->getNumberOfNodes(), in "Old to New" mode. 
+ *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
+ *  \throw If the nodal connectivity of cells is not defined.
+ */
+void MEDCoupling1DGTUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
+{
+  getNumberOfCells();//only to check that all is well defined.
+  //
+  int nbElemsIn=getNumberOfNodes();
+  int nbOfTuples=_conn->getNumberOfTuples();
+  int *pt=_conn->getPointer();
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      if(*pt==-1) continue;
+      if(*pt>=0 && *pt<nbElemsIn)
+        *pt=newNodeNumbersO2N[*pt];
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : error on tuple #" << i << " value is " << *pt << " and indirectionnal array as a size equal to " << nbElemsIn;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  _conn->declareAsNew();
+  //
+  updateTime();
+}
+
+/*!
+ * Keeps from \a this only cells which constituing point id are in the ids specified by [\a begin,\a end).
+ * The resulting cell ids are stored at the end of the 'cellIdsKept' parameter.
+ * Parameter \a fullyIn specifies if a cell that has part of its nodes in ids array is kept or not.
+ * If \a fullyIn is true only cells whose ids are \b fully contained in [\a begin,\a end) tab will be kept.
+ *
+ * \param [in] begin input start of array of node ids.
+ * \param [in] end input end of array of node ids.
+ * \param [in] fullyIn input that specifies if all node ids must be in [\a begin,\a end) array to consider cell to be in.
+ * \param [in,out] cellIdsKeptArr array where all candidate cell ids are put at the end.
+ */
+void MEDCoupling1DGTUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const
+{
+  int nbOfCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsKept=DataArrayInt::New(); cellIdsKept->alloc(0,1);
+  int tmp=-1;
+  int sz=_conn->getMaxValue(tmp); sz=std::max(sz,0)+1;
+  std::vector<bool> fastFinder(sz,false);
+  for(const int *work=begin;work!=end;work++)
+    if(*work>=0 && *work<sz)
+      fastFinder[*work]=true;
+  const int *conn=_conn->begin(),*conni=_conn_indx->begin();
+  for(int i=0;i<nbOfCells;i++,conni++)
+    {
+      int ref=0,nbOfHit=0;
+      int nbNodesPerCell=conni[1]-conni[0];
+      if(nbNodesPerCell>=0)
+        {
+          for(int j=0;j<nbNodesPerCell;j++)
+            {
+              int nodeId=conn[conni[0]+j];
+              if(nodeId>=0)
+                {
+                  ref++;
+                  if(fastFinder[nodeId])
+                    nbOfHit++;
+                }
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::fillCellIdsToKeepFromNodeIds : invalid index array for cell #" << i << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if((ref==nbOfHit && fullyIn) || (nbOfHit!=0 && !fullyIn))
+        cellIdsKept->pushBackSilent(i);
+    }
+  cellIdsKeptArr=cellIdsKept.retn();
+}
+
+void MEDCoupling1DGTUMesh::allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception)
+{
+  if(nbOfCells<0)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::allocateCells : the input number of cells should be >= 0 !");
+  _conn=DataArrayInt::New();
+  _conn->reserve(nbOfCells*3);
+  _conn_indx=DataArrayInt::New();
+  _conn_indx->reserve(nbOfCells+1); _conn_indx->pushBackSilent(0);
+  declareAsNew();
+}
+
+/*!
+ * Appends at the end of \a this a cell having nodal connectivity array defined in [ \a nodalConnOfCellBg, \a nodalConnOfCellEnd ).
+ *
+ * \param [in] nodalConnOfCellBg - the begin (included) of nodal connectivity of the cell to add.
+ * \param [in] nodalConnOfCellEnd - the end (excluded) of nodal connectivity of the cell to add.
+ * \throw If the length of the input nodal connectivity array of the cell to add is not equal to number of nodes per cell relative to the unique geometric type
+ *        attached to \a this.
+ * \thow If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
+ */
+void MEDCoupling1DGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception)
+{
+  int sz=(int)std::distance(nodalConnOfCellBg,nodalConnOfCellEnd);
+  DataArrayInt *c(_conn),*c2(_conn_indx);
+  if(c && c2)
+    {
+      int pos=c2->back();
+      if(pos==c->getNumberOfTuples())
+        {
+          c->pushBackValsSilent(nodalConnOfCellBg,nodalConnOfCellEnd);
+          c2->pushBackSilent(pos+sz);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::insertNextCell : The nodal index array (end=" << pos << ") mismatches with nodal array (length=" << c->getNumberOfTuples() << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::insertNextCell : nodal connectivity array is null ! Call MEDCoupling1DGTUMesh::allocateCells before !");
+}
+
+void MEDCoupling1DGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn, DataArrayInt *nodalConnIndex) throw(INTERP_KERNEL::Exception)
+{
+  if(nodalConn)
+    nodalConn->incrRef();
+  _conn=nodalConn;
+  if(nodalConnIndex)
+    nodalConnIndex->incrRef();
+  _conn_indx=nodalConnIndex;
+  declareAsNew();
+}
+
+/*!
+ * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not reponsible to deallocate it.
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayInt *ret(_conn);
+  return const_cast<DataArrayInt *>(ret);
+}
+
+/*!
+ * \return DataArrayInt * - the internal reference to the nodal connectivity index. The caller is not reponsible to deallocate it.
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayInt *ret(_conn_indx);
+  return const_cast<DataArrayInt *>(ret);
+}
+
+/*!
+ * See the definition of the nodal connectivity pack \ref MEDCoupling1DGTUMesh::isPacked "here".
+ * This method tries to build a new instance geometrically equivalent to \a this, by limiting at most the number of new object (nodal connectivity).
+ * Geometrically the returned mesh is equal to \a this. So if \a this is already packed, the return value is a shallow copy of \a this.
+ *
+ * Whatever the status of pack of \a this, the coordinates array of the returned newly created instance is the same than those in \a this.
+ * 
+ * \param [out] isShallowCpyOfNodalConnn - tells if the returned instance share the same pair of nodal connectivity arrays (true) or if nodal
+ *              connectivity arrays are different (false)
+ * \return a new object to be managed by the caller.
+ * 
+ * \sa MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity, MEDCoupling1DGTUMesh::isPacked
+ */
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool& isShallowCpyOfNodalConnn) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  DataArrayInt *nc=0,*nci=0;
+  isShallowCpyOfNodalConnn=retrievePackedNodalConnectivity(nc,nci);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ncs(nc),ncis(nci);
+  ret->_conn=ncs; ret->_conn_indx=ncis;
+  ret->setCoords(getCoords());
+  return ret.retn();
+}
+
+/*!
+ * This method allows to compute, if needed, the packed nodal connectivity pair.
+ * Indeed, it is possible to store in \a this a nodal connectivity array bigger than ranges convered by nodal connectivity index array.
+ * It is typically the case when nodalConnIndx starts with an id greater than 0, and finishes with id less than number of tuples in \c this->_conn.
+ * 
+ * If \a this looks packed (the front of nodal connectivity index equal to 0 and back of connectivity index equal to number of tuple of nodal connectivity array)
+ * true will be returned and respectively \a this->_conn and \a this->_conn_indx (with ref counter incremented). This is the classical case.
+ *
+ * If nodal connectivity index points to a subpart of nodal connectivity index the packed pair of arrays will be computed (new objects) and returned and false
+ * will be returned.
+ * 
+ * This method return 3 elements.
+ * \param [out] nodalConn - a pointer that can be equal to \a this->_conn if true is returned (general case). Whatever the value of return parameter
+ *                          this pointer can be seen as a new object, that is to managed by the caller.
+ * \param [out] nodalConnIndx - a pointer that can be equal to \a this->_conn_indx if true is returned (general case). Whatever the value of return parameter
+ *                              this pointer can be seen as a new object, that is to managed by the caller.
+ * \return bool - an indication of the content of the 2 output parameters. If true, \a this looks packed (general case), if true, \a this is not packed then
+ * output parameters are newly created objects.
+ *
+ * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkCoherency test
+ */
+bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndx) const throw(INTERP_KERNEL::Exception)
+{
+  if(isPacked())//performs the checkCoherency
+    {
+      const DataArrayInt *c0(_conn),*c1(_conn_indx);
+      nodalConn=const_cast<DataArrayInt *>(c0); nodalConnIndx=const_cast<DataArrayInt *>(c1);
+      nodalConn->incrRef(); nodalConnIndx->incrRef();
+      return true;
+    }
+  int bg=_conn_indx->front(),end=_conn_indx->back();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nc(_conn->selectByTupleId2(bg,end,1));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nci(_conn_indx->deepCpy());
+  nci->applyLin(1,-bg);
+  nodalConn=nc.retn(); nodalConnIndx=nci.retn();
+  return false;
+}
+
+/*
+ * If \a this looks packed (the front of nodal connectivity index equal to 0 and back of connectivity index equal to number of tuple of nodal connectivity array)
+ * true will be returned and respectively \a this->_conn and \a this->_conn_indx (with ref counter incremented). This is the classical case.
+ * If nodal connectivity index points to a subpart of nodal connectivity index false will be returned.
+ * \return bool - true if \a this looks packed, false is not.
+ *
+ * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkCoherency test
+ */
+bool MEDCoupling1DGTUMesh::isPacked() const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  return _conn_indx->front()==0 && _conn_indx->back()==_conn->getNumberOfTuples();
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(const MEDCoupling1DGTUMesh *mesh1, const MEDCoupling1DGTUMesh *mesh2) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<const MEDCoupling1DGTUMesh *> tmp(2);
+  tmp[0]=const_cast<MEDCoupling1DGTUMesh *>(mesh1); tmp[1]=const_cast<MEDCoupling1DGTUMesh *>(mesh2);
+  return Merge1DGTUMeshes(tmp);
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz=a.size();
+  if(sz==0)
+    return Merge1DGTUMeshesLL(a);
+  for(std::size_t ii=0;ii<sz;ii++)
+    if(!a[ii])
+      {
+        std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::Merge1DGTUMeshes : item #" << ii << " in input array of size "<< sz << " is empty !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  const INTERP_KERNEL::CellModel *cm=&(a[0]->getCellModel());
+  for(std::size_t ii=0;ii<sz;ii++)
+    if(&(a[ii]->getCellModel())!=cm)
+      throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshes : all items must have the same geo type !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > bb(sz);
+  std::vector< const MEDCoupling1DGTUMesh * > aa(sz);
+  int spaceDim=-3;
+  for(std::size_t i=0;i<sz && spaceDim==-3;i++)
+    {
+      const MEDCoupling1DGTUMesh *cur=a[i];
+      const DataArrayDouble *coo=cur->getCoords();
+      if(coo)
+        spaceDim=coo->getNumberOfComponents();
+    }
+  if(spaceDim==-3)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshes : no spaceDim specified ! unable to perform merge !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      bb[i]=a[i]->buildSetInstanceFromThis(spaceDim);
+      aa[i]=bb[i];
+    }
+  return Merge1DGTUMeshesLL(aa);
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+{
+  if(a.empty())
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : input array must be NON EMPTY !");
+  std::vector<const MEDCoupling1DGTUMesh *>::const_iterator it=a.begin();
+  if(!(*it))
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : presence of null instance !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > objs(a.size());
+  std::vector<const DataArrayInt *> ncs(a.size()),ncis(a.size());
+  int nbOfCells=(*it)->getNumberOfCells();
+  const DataArrayDouble *coords=(*it)->getCoords();
+  const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
+  bool tmp;
+  objs[0]=(*it)->copyWithNodalConnectivityPacked(tmp);
+  ncs[0]=objs[0]->getNodalConnectivity(); ncis[0]=objs[0]->getNodalConnectivityIndex();
+  it++;
+  for(int i=1;it!=a.end();i++,it++)
+    {
+      if(cm!=&((*it)->getCellModel()))
+        throw INTERP_KERNEL::Exception("Geometric types mismatches, Merge1DGTUMeshes impossible !");
+      (*it)->getNumberOfCells();//to check that all is OK
+      objs[i]=(*it)->copyWithNodalConnectivityPacked(tmp);
+      ncs[i]=objs[i]->getNodalConnectivity(); ncis[i]=objs[i]->getNodalConnectivityIndex();
+      if(coords!=(*it)->getCoords())
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : not lying on same coords !");
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh("merge",*cm));
+  ret->setCoords(coords);
+  ret->_conn=DataArrayInt::Aggregate(ncs);
+  ret->_conn_indx=DataArrayInt::AggregateIndexes(ncis);
+  return ret.retn();
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+{
+  //tony
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1,tmp2;
+  const DataArrayInt *nodalConn(_conn),*nodalConnI(_conn_indx);
+  if(!nodalConn)
+    {
+      tmp1=DataArrayInt::New(); tmp1->alloc(0,1);
+    }
+  else
+    tmp1=_conn;
+  ret->_conn=tmp1;
+  //
+  if(!nodalConnI)
+    {
+      tmp2=DataArrayInt::New(); tmp2->alloc(1,1); tmp2->setIJ(0,0,0);
+    }
+  else
+    tmp2=_conn_indx;
+  ret->_conn_indx=tmp2;
+  //
+  if(!_coords)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=DataArrayDouble::New(); coords->alloc(0,spaceDim);
+      ret->setCoords(coords);
+    }
+  else
+    ret->setCoords(_coords);
+  return ret.retn();
 }
