@@ -248,6 +248,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::negate;
 %newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
+%newobject ParaMEDMEM::DataArrayInt::AggregateIndexes;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
 %newobject ParaMEDMEM::DataArrayInt::Add;
 %newobject ParaMEDMEM::DataArrayInt::Substract;

@@ -13179,6 +13179,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f.getArray().isEqual(DataArrayDouble(6*[(0,0,-1)]),1e-12))
         mcpy.changeSpaceDimension(2)
         self.assertEqual(1,mcpy.getCellContainingPoint([1.5,0.5],1e-12))
+        ##
+        self.assertTrue(mcpy.fillCellIdsToKeepFromNodeIds(DataArrayInt([6,7]),False).isEqual(DataArrayInt([0,1,5])))
+        ##
+        mcpy2=mcpy.deepCpy()
+        self.assertEqual([None,None],mcpy.checkGeoEquivalWith(mcpy2,1,1e-12))#fast equal
+        mcpy.checkFastEquivalWith(mcpy2,1e-12)
+        mcpy2.renumberCells([0,2,4,3,1,5])
+        mcpy.checkFastEquivalWith(mcpy2,1e-12)
+        self.assertEqual([None,None],mcpy.checkGeoEquivalWith(mcpy2,1,1e-12))#fast equal
+        mcpy2.renumberCells([0,2,4,3,1,5])
+        mcpy2.renumberCells([1,3,5,0,2,4])
+        self.assertRaises(InterpKernelException,mcpy.checkFastEquivalWith,mcpy2,1e-12)
+        self.assertRaises(InterpKernelException,mcpy.checkGeoEquivalWith,mcpy2,1,1e-12)#fast equal
         pass
 
     def setUp(self):

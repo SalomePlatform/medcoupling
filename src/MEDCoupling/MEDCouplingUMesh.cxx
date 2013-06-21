@@ -6697,7 +6697,10 @@ MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const thro
   ret->setCoords(getCoords());
   MEDCoupling1SGTUMesh *retC=dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh*)ret);
   if(retC)
-    retC->setNodalConnectivity(convertNodalConnectivityToStaticGeoTypeMesh());
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=convertNodalConnectivityToStaticGeoTypeMesh();
+      retC->setNodalConnectivity(c);
+    }
   else
     {
       MEDCoupling1DGTUMesh *retD=dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh*)ret);
@@ -6758,6 +6761,7 @@ void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt
   c->alloc(lgth-nbCells,1); ci->alloc(nbCells+1,1);
   int *cp(c->getPointer()),*cip(ci->getPointer());
   const int *incp(_nodal_connec->begin()),*incip(_nodal_connec_index->begin());
+  cip[0]=0;
   for(int i=0;i<nbCells;i++,cip++,incip++)
     {
       int strt(incip[0]+1),stop(incip[1]);//+1 to skip geo type
