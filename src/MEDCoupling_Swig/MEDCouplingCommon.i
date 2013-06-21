@@ -53,45 +53,102 @@ using namespace INTERP_KERNEL;
 %template(dvec) std::vector<double>;
 %template(svec) std::vector<std::string>;
 
+////////////////////
 %typemap(out) ParaMEDMEM::MEDCouplingMesh*
 {
   $result=convertMesh($1,$owner);
 }
 
+%typemap(out) MEDCouplingMesh*
+{
+  $result=convertMesh($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) ParaMEDMEM::MEDCouplingPointSet*
 {
   $result=convertMesh($1,$owner);
 }
 
+%typemap(out) MEDCouplingPointSet*
+{
+  $result=convertMesh($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+
+////////////////////
 %typemap(out) ParaMEDMEM::MEDCoupling1GTUMesh*
 {
   $result=convertMesh($1,$owner);
 }
 
+%typemap(out) MEDCoupling1GTUMesh*
+{
+  $result=convertMesh($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) ParaMEDMEM::MEDCouplingStructuredMesh*
 {
   $result=convertMesh($1,$owner);
 }
 
+%typemap(out) MEDCouplingStructuredMesh*
+{
+  $result=convertMesh($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) ParaMEDMEM::MEDCouplingFieldDiscretization*
 {
   $result=convertFieldDiscretization($1,$owner);
 }
 
+%typemap(out) MEDCouplingFieldDiscretization*
+{
+  $result=convertFieldDiscretization($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) ParaMEDMEM::MEDCouplingMultiFields*
 {
   $result=convertMultiFields($1,$owner);
 }
 
+%typemap(out) MEDCouplingMultiFields*
+{
+  $result=convertMultiFields($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) ParaMEDMEM::DataArray*
 {
   $result=convertDataArray($1,$owner);
 }
 
+%typemap(out) DataArray*
+{
+  $result=convertDataArray($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) ParaMEDMEM::DataArrayChar*
 {
   $result=convertDataArrayChar($1,$owner);
 }
+
+%typemap(out) DataArrayChar*
+{
+  $result=convertDataArrayChar($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
 
 #ifdef WITH_NUMPY
 %init %{ import_array(); %}
@@ -375,6 +432,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findAndCorrectBadOriented3DCells;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertIntoSingleGeoTypeMesh;
+%newobject ParaMEDMEM::MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findCellIdsOnBoundary;
 %newobject ParaMEDMEM::MEDCouplingUMesh::computeSkin;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
@@ -1708,6 +1766,7 @@ namespace ParaMEDMEM
     DataArrayInt *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception);
     DataArrayInt *findAndCorrectBadOriented3DCells() throw(INTERP_KERNEL::Exception);
     ParaMEDMEM::MEDCoupling1GTUMesh *convertIntoSingleGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertNodalConnectivityToStaticGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
@@ -2084,6 +2143,16 @@ namespace ParaMEDMEM
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      PyObject *convertNodalConnectivityToDynamicGeoTypeMesh() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret0=0,*ret1=0;
+        self->convertNodalConnectivityToDynamicGeoTypeMesh(ret0,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -2836,6 +2905,13 @@ namespace ParaMEDMEM
         std::vector<const ParaMEDMEM::MEDCoupling1DGTUMesh *> tmp;
         convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCoupling1DGTUMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCoupling1DGTUMesh,"MEDCoupling1DGTUMesh",tmp);
         return MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(tmp);
+      }
+      
+      static DataArrayInt *AggregateNodalConnAndShiftNodeIds(PyObject *li, const std::vector<int>& offsetInNodeIdsPerElt) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const ParaMEDMEM::DataArrayInt *> tmp;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        return MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(tmp,offsetInNodeIdsPerElt);
       }
     }
   };

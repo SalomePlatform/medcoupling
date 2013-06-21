@@ -782,18 +782,25 @@ DataArrayDouble *MEDCouplingPointSet::MergeNodesArray(const std::vector<const ME
   std::vector<const DataArrayDouble *> coo(ms.size());
   int spaceDim=(*it)->getSpaceDimension();
   coo[0]=(*it++)->getCoords();
+  if(!coo[0]->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : first element in coordinates is not allocated !");
   for(int i=1;it!=ms.end();it++,i++)
     {
       const DataArrayDouble *tmp=(*it)->getCoords();
       if(tmp)
         {
-          if((*it)->getSpaceDimension()==spaceDim)
-            coo[i]=tmp;
+          if(tmp->isAllocated())
+            {
+              if((*it)->getSpaceDimension()==spaceDim)
+                coo[i]=tmp;
+              else
+                throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : Mismatch in SpaceDim !");
+            }
           else
-            throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of MergeNodesArray !");
+            throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : Presence of a non allocated array !");
         }
       else
-        throw INTERP_KERNEL::Exception("Empty coords detected during call of MergeNodesArray !");
+        throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : Empty coords detected !");
     }
   return DataArrayDouble::Aggregate(coo);
 }

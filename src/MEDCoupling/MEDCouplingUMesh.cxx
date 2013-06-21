@@ -6693,34 +6693,87 @@ MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const thro
     if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : current mesh does not contain exactly one geometric type !");
   INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
-  int typi=(int)typ;
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName(),typ);
   ret->setCoords(getCoords());
   MEDCoupling1SGTUMesh *retC=dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh*)ret);
   if(retC)
-    {
-      int nbCells=getNumberOfCells();
-      int nbNodesPerCell=retC->getNumberOfNodesPerCell();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connOut=DataArrayInt::New(); connOut->alloc(nbCells*nbNodesPerCell,1);
-      int *outPtr=connOut->getPointer();
-      const int *conn=_nodal_connec->begin();
-      const int *connI=_nodal_connec_index->begin();
-      nbNodesPerCell++;
-      for(int i=0;i<nbCells;i++,connI++)
-        {
-          if(conn[connI[0]]==typi && connI[1]-connI[0]==nbNodesPerCell)
-            outPtr=std::copy(conn+connI[0]+1,conn+connI[1],outPtr);
-          else
-            {
-              std::ostringstream oss; oss << "MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : there something wrong in cell #" << i << " ! The type of cell is not those expected, or the length of nodal connectivity is not those expected (" << nbNodesPerCell-1 << ") !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      retC->setNodalConnectivity(connOut);
-    }
+    retC->setNodalConnectivity(convertNodalConnectivityToStaticGeoTypeMesh());
   else
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : not implemented yet for non static geometric type !");
+    {
+      MEDCoupling1DGTUMesh *retD=dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh*)ret);
+      if(!retD)
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : Internal error !");
+      DataArrayInt *c=0,*ci=0;
+      convertNodalConnectivityToDynamicGeoTypeMesh(c,ci);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cs(c),cis(ci);
+      retD->setNodalConnectivity(cs,cis);
+    }
   return ret.retn();
+}
+
+DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() const throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+    if(_types.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh : current mesh does not contain exactly one geometric type !");
+  INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
+  if(cm.isDynamic())
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh : this contains a single geo type (" << cm.getRepr() << ") but ";
+      oss << "this type is dynamic ! Only static geometric type is possible for that type ! call convertNodalConnectivityToDynamicGeoTypeMesh instead !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nbCells=getNumberOfCells();
+  int typi=(int)typ;
+  int nbNodesPerCell=(int)cm.getNumberOfNodes();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connOut=DataArrayInt::New(); connOut->alloc(nbCells*nbNodesPerCell,1);
+  int *outPtr=connOut->getPointer();
+  const int *conn=_nodal_connec->begin();
+  const int *connI=_nodal_connec_index->begin();
+  nbNodesPerCell++;
+  for(int i=0;i<nbCells;i++,connI++)
+    {
+      if(conn[connI[0]]==typi && connI[1]-connI[0]==nbNodesPerCell)
+        outPtr=std::copy(conn+connI[0]+1,conn+connI[1],outPtr);
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh : there something wrong in cell #" << i << " ! The type of cell is not those expected, or the length of nodal connectivity is not those expected (" << nbNodesPerCell-1 << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return connOut.retn();
+}
+
+void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndex) const throw(INTERP_KERNEL::Exception)
+{
+  static const char msg0[]="MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : nodal connectivity in this are invalid ! Call checkCoherency2 !";
+  checkConnectivityFullyDefined();
+  if(_types.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : current mesh does not contain exactly one geometric type !");
+  int nbCells=getNumberOfCells(),lgth=_nodal_connec->getNumberOfTuples();
+  if(lgth<nbCells)
+    throw INTERP_KERNEL::Exception(msg0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()),ci(DataArrayInt::New());
+  c->alloc(lgth-nbCells,1); ci->alloc(nbCells+1,1);
+  int *cp(c->getPointer()),*cip(ci->getPointer());
+  const int *incp(_nodal_connec->begin()),*incip(_nodal_connec_index->begin());
+  for(int i=0;i<nbCells;i++,cip++,incip++)
+    {
+      int strt(incip[0]+1),stop(incip[1]);//+1 to skip geo type
+      int delta(stop-strt);
+      if(delta>=1)
+        {
+          if((strt>=0 && strt<lgth) && (stop>=0 && stop<=lgth))
+            cp=std::copy(incp+strt,incp+stop,cp);
+          else
+            throw INTERP_KERNEL::Exception(msg0);
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg0);
+      cip[1]=cip[0]+delta;
+    }
+  nodalConn=c.retn(); nodalConnIndex=ci.retn();
 }
 
 /*!

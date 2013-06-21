@@ -905,13 +905,17 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(std::vector<const M
   return Merge1SGTUMeshesLL(aa);
 }
 
+/*!
+ * \throw If presence of a null instance in the input vector \a a.
+ * \throw If a is empty
+ */
 MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : input array must be NON EMPTY !");
   std::vector<const MEDCoupling1SGTUMesh *>::const_iterator it=a.begin();
   if(!(*it))
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : presence of null instance !");
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : null instance in the first element of input vector !");
   std::vector<const DataArrayInt *> ncs(a.size());
   int nbOfCells=(*it)->getNumberOfCells();
   const DataArrayDouble *coords=(*it)->getCoords();
@@ -921,6 +925,8 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
   it++;
   for(int i=1;it!=a.end();i++,it++)
     {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : presence of a null instance in the input vector !");
       if(cm!=&((*it)->getCellModel()))
         throw INTERP_KERNEL::Exception("Geometric types mismatches, Merge1SGTUMeshes impossible !");
       (*it)->getNumberOfCells();//to check that all is OK
@@ -934,6 +940,9 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
   return ret.retn();
 }
 
+/*!
+ * Assume that all instances in \a a are non null. If null it leads to a crash. That's why this method is assigned to be low level (LL)
+ */
 MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
 {
   if(a.empty())
@@ -2330,13 +2339,17 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(std::vector<const M
   return Merge1DGTUMeshesLL(aa);
 }
 
+/*!
+ * \throw If presence of a null instance in the input vector \a a.
+ * \throw If a is empty
+ */
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : input array must be NON EMPTY !");
   std::vector<const MEDCoupling1DGTUMesh *>::const_iterator it=a.begin();
   if(!(*it))
-    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : presence of null instance !");
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : null instance in the first element of input vector !");
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > objs(a.size());
   std::vector<const DataArrayInt *> ncs(a.size()),ncis(a.size());
   int nbOfCells=(*it)->getNumberOfCells();
@@ -2348,6 +2361,8 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::ve
   it++;
   for(int i=1;it!=a.end();i++,it++)
     {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : presence of null instance !");
       if(cm!=&((*it)->getCellModel()))
         throw INTERP_KERNEL::Exception("Geometric types mismatches, Merge1DGTUMeshes impossible !");
       (*it)->getNumberOfCells();//to check that all is OK
@@ -2363,9 +2378,43 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::ve
   return ret.retn();
 }
 
+/*!
+ * Assume that all instances in \a a are non null. If null it leads to a crash. That's why this method is assigned to be low level (LL)
+ */
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
 {
-  //tony
+  if(a.empty())
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshes : input array must be NON EMPTY !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > objs(a.size());
+  std::vector<const DataArrayInt *> ncs(a.size()),ncis(a.size());
+  std::vector<const MEDCoupling1DGTUMesh *>::const_iterator it=a.begin();
+  std::vector<int> nbNodesPerElt(a.size());
+  int nbOfCells=(*it)->getNumberOfCells();
+  bool tmp;
+  objs[0]=(*it)->copyWithNodalConnectivityPacked(tmp);
+  ncs[0]=objs[0]->getNodalConnectivity(); ncis[0]=objs[0]->getNodalConnectivityIndex();
+  nbNodesPerElt[0]=0;
+  int prevNbOfNodes=(*it)->getNumberOfNodes();
+  const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
+  it++;
+  for(int i=1;it!=a.end();i++,it++)
+    {
+      if(cm!=&((*it)->getCellModel()))
+        throw INTERP_KERNEL::Exception("Geometric types mismatches, Merge1DGTUMeshes impossible !");
+      objs[i]=(*it)->copyWithNodalConnectivityPacked(tmp);
+      ncs[i]=objs[i]->getNodalConnectivity(); ncis[i]=objs[i]->getNodalConnectivityIndex();
+      nbOfCells+=(*it)->getNumberOfCells();
+      nbNodesPerElt[i]=nbNodesPerElt[i-1]+prevNbOfNodes;
+      prevNbOfNodes=(*it)->getNumberOfNodes();
+    }
+  std::vector<const MEDCouplingPointSet *> aps(a.size());
+  std::copy(a.begin(),a.end(),aps.begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> pts=MergeNodesArray(aps);
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh("merge",*cm));
+  ret->setCoords(pts);
+  ret->_conn=AggregateNodalConnAndShiftNodeIds(ncs,nbNodesPerElt);
+  ret->_conn_indx=DataArrayInt::AggregateIndexes(ncis);
+  return ret.retn();
 }
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception)
@@ -2396,5 +2445,55 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDi
     }
   else
     ret->setCoords(_coords);
+  return ret.retn();
+}
+
+/*!
+ * This method performs an aggregation of \a nodalConns (as DataArrayInt::Aggregate does) but in addition of that a shift is applied on the 
+ * values contained in \a nodalConns using corresponding offset specified in input \a offsetInNodeIdsPerElt.
+ * But it also manage the values -1, that have a semantic in MEDCoupling1DGTUMesh class (separator for polyhedron).
+ *
+ * \param [in] nodalConns - a list of nodal connectivity arrays same size than \a offsetInNodeIdsPerElt.
+ * \param [in] offsetInNodeIdsPerElt - a list of offsets to apply.
+ * \return DataArrayInt * - A new object (to be managed by the caller) that is the result of the aggregation.
+ * \throw If \a nodalConns or \a offsetInNodeIdsPerElt are empty.
+ * \throw If \a nodalConns and \a offsetInNodeIdsPerElt have not the same size.
+ * \throw If presence of null pointer in \a nodalConns.
+ * \throw If presence of not allocated or array with not exactly one component in \a nodalConns.
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(const std::vector<const DataArrayInt *>& nodalConns, const std::vector<int>& offsetInNodeIdsPerElt) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz1(nodalConns.size()),sz2(offsetInNodeIdsPerElt.size());
+  if(sz1!=sz2)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds : input vectors do not have the same size !");
+  if(sz1==0)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds : empty vectors in input !");
+  int nbOfTuples=0;
+  for(std::vector<const DataArrayInt *>::const_iterator it=nodalConns.begin();it!=nodalConns.end();it++)
+    {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds : presence of null pointer in input vector !");
+      if(!(*it)->isAllocated())
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds : presence of non allocated array in input vector !");
+      if((*it)->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds : presence of array with not exactly one component !");
+      nbOfTuples+=(*it)->getNumberOfTuples();
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuples,1);
+  int *pt=ret->getPointer();
+  int i=0;
+  for(std::vector<const DataArrayInt *>::const_iterator it=nodalConns.begin();it!=nodalConns.end();it++,i++)
+    {
+      int curNbt=(*it)->getNumberOfTuples();
+      const int *inPt=(*it)->begin();
+      int offset=offsetInNodeIdsPerElt[i];
+      for(int j=0;j<curNbt;j++,pt++)
+        {
+          if(inPt[j]!=-1)
+            *pt=inPt[j]+offset;
+          else
+            *pt=-1;
+        }
+    }
   return ret.retn();
 }
