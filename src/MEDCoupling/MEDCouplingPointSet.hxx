@@ -70,6 +70,7 @@ namespace ParaMEDMEM
     bool areCoordsEqualIfNotWhy(const MEDCouplingPointSet& other, double prec, std::string& reason) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
+    virtual MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception) = 0;
     virtual void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
     virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);

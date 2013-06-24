@@ -42,6 +42,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const char *meshName, int meshDim);
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;

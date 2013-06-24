@@ -89,6 +89,22 @@ MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
   return new MEDCouplingUMesh(*this,recDeepCpy);
 }
 
+/*!
+ * This method behaves mostly like MEDCouplingUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
+ * The coordinates are shared between \a this and the returned instance.
+ * 
+ * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \sa MEDCouplingUMesh::deepCpy
+ */
+MEDCouplingPointSet *MEDCouplingUMesh::deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=clone(false);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(getNodalConnectivity()->deepCpy()),ci(getNodalConnectivityIndex()->deepCpy());
+  ret->setConnectivity(c,ci);
+  return ret.retn();
+}
+
 void MEDCouplingUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
 {
   if(!other)

@@ -79,6 +79,11 @@ MEDCouplingMesh *MEDCouplingUMeshDesc::deepCpy() const
   return 0;
 }
 
+MEDCouplingPointSet *MEDCouplingUMeshDesc::deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 void MEDCouplingUMeshDesc::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");

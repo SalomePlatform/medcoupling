@@ -384,6 +384,22 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
   return new MEDCoupling1SGTUMesh(*this,recDeepCpy);
 }
 
+/*!
+ * This method behaves mostly like MEDCoupling1SGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
+ * The coordinates are shared between \a this and the returned instance.
+ * 
+ * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \sa MEDCoupling1SGTUMesh::deepCpy
+ */
+MEDCouplingPointSet *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(clone(false));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(_conn->deepCpy());
+  ret->setNodalConnectivity(c);
+  return ret.retn();
+}
+
 void MEDCoupling1SGTUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
 {
   if(!other)
@@ -1354,6 +1370,22 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
   return new MEDCoupling1DGTUMesh(*this,recDeepCpy);
 }
 
+/*!
+ * This method behaves mostly like MEDCoupling1DGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
+ * The coordinates are shared between \a this and the returned instance.
+ * 
+ * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \sa MEDCoupling1DGTUMesh::deepCpy
+ */
+MEDCouplingPointSet *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(clone(false));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(_conn->deepCpy()),ci(_conn_indx->deepCpy());
+  ret->setNodalConnectivity(c,ci);
+  return ret.retn();
+}
+
 void MEDCoupling1DGTUMesh::updateTime() const
 {
   MEDCoupling1GTUMesh::updateTime();
@@ -1741,7 +1773,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
       for(int i=0;i<nbOfCells;i++,ptToFill+=spaceDim,nodali++)
         {
           std::fill(ptToFill,ptToFill+spaceDim,0.);
-          if(nodali[0]>=nodali[1])// >= to avoid division by 0.
+          if(nodali[0]<nodali[1])// >= to avoid division by 0.
             {
               for(int j=nodali[0];j<nodali[1];j++,nodal++)
                 {
@@ -1767,7 +1799,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
       for(int i=0;i<nbOfCells;i++,ptToFill+=spaceDim,nodali++)
         {
           std::fill(ptToFill,ptToFill+spaceDim,0.);
-          if(nodali[0]>=nodali[1])// >= to avoid division by 0.
+          if(nodali[0]<nodali[1])// >= to avoid division by 0.
             {
               int nbOfNod=0;
               for(int j=nodali[0];j<nodali[1];j++,nodal++)
@@ -1810,9 +1842,8 @@ void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check) throw
   if(check)
     o2n=o2n->checkAndPreparePermutation();
   //
+  const int *o2nPtr=o2n->getPointer();
   const int *conn=_conn->begin(),*conni=_conn_indx->begin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(nbCells);
-  const int *n2oPtr=n2o->begin();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
   newConn->alloc(_conn->getNumberOfTuples(),1); newConnI->alloc(nbCells,1);
@@ -1821,9 +1852,10 @@ void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check) throw
   int *newC=newConn->getPointer(),*newCI=newConnI->getPointer();
   for(int i=0;i<nbCells;i++)
     {
+      int newPos=o2nPtr[i];
       int sz=conni[i+1]-conni[i];
       if(sz>=0)
-        newCI[n2oPtr[i]]=sz;
+        newCI[newPos]=sz;
       else
         {
           std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberCells : the index nodal array is invalid for cell #" << i << " !";
@@ -1835,10 +1867,11 @@ void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check) throw
   for(int i=0;i<nbCells;i++,conni++)
     {
       int sz=conni[1]-conni[0];
-      int newp=n2oPtr[i];
+      int newp=o2nPtr[i];
       std::copy(conn+conni[0],conn+conni[1],newC+newCI[newp]);
     }
   _conn=newConn;
+  _conn_indx=newConnI;
 }
 
 MEDCouplingMesh *MEDCoupling1DGTUMesh::mergeMyselfWith(const MEDCouplingMesh *other) const

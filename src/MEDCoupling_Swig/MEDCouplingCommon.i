@@ -396,6 +396,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingPointSet::mergeMyselfWithOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingPointSet::fillCellIdsToKeepFromNodeIds;
 %newobject ParaMEDMEM::MEDCouplingPointSet::getCellIdsLyingOnNodes;
+%newobject ParaMEDMEM::MEDCouplingPointSet::deepCpyConnectivityOnly;
 %newobject ParaMEDMEM::MEDCouplingPointSet::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
@@ -1154,6 +1155,7 @@ namespace ParaMEDMEM
       virtual MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const throw(INTERP_KERNEL::Exception);
       virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
       virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
+      virtual MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
       %extend 
          {
            std::string __str__() const throw(INTERP_KERNEL::Exception)

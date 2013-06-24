@@ -79,6 +79,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
@@ -145,6 +146,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
@@ -199,7 +201,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy);
   private:
-    void checkDynamicGeoType() const throw(INTERP_KERNEL::Exception);
+    void checkDynamicGeoT2ype() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1DGTUMesh *Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn_indx;
