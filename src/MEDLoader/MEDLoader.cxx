@@ -209,7 +209,7 @@ namespace MEDLoaderNS
 /*!
  * This method sets the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
  */
-void MEDLoader::setEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception)
+void MEDLoader::SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception)
 {
   _EPS_FOR_NODE_COMP=val;
 }
@@ -217,7 +217,7 @@ void MEDLoader::setEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception
 /*!
  * This method sets the policy comparison when trying to fit the already written mesh on a field. The semantic of the policy is specified in MEDCouplingUMesh::zipConnectivityTraducer.
  */
-void MEDLoader::setCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception)
+void MEDLoader::SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception)
 {
   _COMP_FOR_CELL=val;
 }
@@ -226,7 +226,7 @@ void MEDLoader::setCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception)
  * This method set the behaviour of MEDLoader when a too long string is seen in datastructure before copy it in MED file.
  * By default (0) an exception is thrown. If equal to 1 a warning is emitted in std_err but no exception is thrown.
  */
-void MEDLoader::setTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception)
+void MEDLoader::SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception)
 {
   _TOO_LONG_STR=val;
 }
