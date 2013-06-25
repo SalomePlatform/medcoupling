@@ -2666,9 +2666,7 @@ MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const char *grp
   synchronizeTinyInfoOnLeaves();
   std::vector<std::string> tmp(1);
   tmp[0]=grp;
-  MEDCouplingUMesh *ret=getGroups(meshDimRelToMaxExt,tmp,renum);
-  ret->setName(grp);
-  return ret;
+  return getGroups(meshDimRelToMaxExt,tmp,renum);
 }
 
 /*!
@@ -2689,7 +2687,10 @@ MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vec
 {
   synchronizeTinyInfoOnLeaves();
   std::vector<std::string> fams2=getFamiliesOnGroups(grps);
-  return getFamilies(meshDimRelToMaxExt,fams2,renum);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> zeRet=getFamilies(meshDimRelToMaxExt,fams2,renum);
+  if(grps.size()==1 && ((MEDCouplingUMesh *)zeRet))
+    zeRet->setName(grps[0].c_str());
+  return zeRet.retn();
 }
 
 /*!
@@ -2711,9 +2712,7 @@ MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMaxExt, const char *fa
   synchronizeTinyInfoOnLeaves();
   std::vector<std::string> tmp(1);
   tmp[0]=fam;
-  MEDCouplingUMesh *ret=getFamilies(meshDimRelToMaxExt,tmp,renum);
-  ret->setName(fam);
-  return ret;
+  return getFamilies(meshDimRelToMaxExt,tmp,renum);
 }
 
 /*!
@@ -2743,10 +2742,14 @@ MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMaxExt, const std::v
     }
   std::vector<int> famIds=getFamiliesIds(fams);
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> zeRet;
   if(!famIds.empty())
-    return l1->getFamilyPart(&famIds[0],&famIds[0]+famIds.size(),renum);
+    zeRet=l1->getFamilyPart(&famIds[0],&famIds[0]+famIds.size(),renum);
   else
-    return l1->getFamilyPart(0,0,renum);
+    zeRet=l1->getFamilyPart(0,0,renum);
+  if(fams.size()==1 && ((MEDCouplingUMesh *)zeRet))
+    zeRet->setName(fams[0].c_str());
+  return zeRet.retn();
 }
 
 /*!
@@ -3439,7 +3442,7 @@ void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool
  *  \throw If names of some meshes in \a ms are equal.
  *  \throw If \a ms includes a mesh with an empty name.
  */
-void MEDFileUMesh::setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception)
 {
   if(ms.empty())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsFromScratch : expecting a non empty vector !");
@@ -3459,7 +3462,7 @@ void MEDFileUMesh::setGroupsFromScratch(int meshDimRelToMax, const std::vector<c
   std::vector<DataArrayInt *> corr;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,_zipconn_pol,corr);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > corr3(corr.begin(),corr.end());
-  setMeshAtLevel(meshDimRelToMax,m);
+  setMeshAtLevel(meshDimRelToMax,m,renum);
   std::vector<const DataArrayInt *> corr2(corr.begin(),corr.end());
   setGroupsAtLevel(meshDimRelToMax,corr2,true);
 }

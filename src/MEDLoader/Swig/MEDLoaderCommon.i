@@ -663,7 +663,7 @@ namespace ParaMEDMEM
     void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
-    void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
+    void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);

@@ -763,7 +763,7 @@ DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const int *idsBg, const int 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp;
-  if(renum)
+  if(renum && ((const DataArrayInt *)_num))
     tmp=_m;
   else
     tmp=_m_by_types;

@@ -38,6 +38,7 @@ class MEDLoaderTest(unittest.TestCase):
         m2_1=MEDLoader.ReadUMeshFromFile(fileName,mname,-1)
         self.assertTrue(m2_0.isEqual(m2_1,1e-12));
         pass
+
     def testMEDMesh2(self):
         fileName="Pyfile10.med"
         mname="3DToto"
@@ -57,25 +58,25 @@ class MEDLoaderTest(unittest.TestCase):
         g1_1=MEDLoader.ReadUMeshFromGroups(fileName,mname,0,["mesh3","mesh2"]);
         g1_1.setName(g1_0.getName())
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
-        g1_0=medmesh.getFamily(0,"Family_2",True)
-        g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_2"]);
+        g1_0=medmesh.getFamily(0,"Family_-3",True)
+        g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_-3"]);
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
-        g1_0=medmesh.getFamilies(0,["Family_2","Family_4"],True)
-        g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_2","Family_4"]);
+        g1_0=medmesh.getFamilies(0,["Family_-3","Family_-5"],True)
+        g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_-3","Family_-5"]);
         g1_1.setName(g1_0.getName())
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         medmesh.write(outFileName,2);
-        self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2",True).getValues());
-        self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_2",True).getValues());
-        self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_4","Family_2"],True).getValues());
-        self.assertEqual([19,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh4","mesh3"],True).getValues());
+        self.assertEqual([1,2,4,13,15],medmesh.getGroupArr(0,"mesh2",True).getValues());
+        self.assertEqual([1,2,15],medmesh.getFamilyArr(0,"Family_-3",True).getValues());
+        self.assertEqual([1,2,4,13,15],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"],True).getValues());
+        self.assertEqual([18,1,2,3,4,13,14,15],medmesh.getGroupsArr(0,["mesh2","mesh4","mesh3"],True).getValues());
         famn=medmesh.getFamilyNameGivenId(0)
         self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,True);
         #without renum
-        self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2",False).getValues());
-        self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_2",False).getValues());
-        self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_4","Family_2"],False).getValues());
+        self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2").getValues());
+        self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_-3").getValues());
+        self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"]).getValues());
         self.assertEqual([0,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3","mesh4"],False).getValues());
         self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,False);
         pass

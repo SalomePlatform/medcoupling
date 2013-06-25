@@ -253,19 +253,19 @@ class MEDLoaderTest(unittest.TestCase):
         mesh1.setName("3DMesh_1");
         self.assertTrue(mesh1_2.isEqual(mesh1,1e-12));
         #
-        vec=["Family_4","Family_2"];
+        vec=["Family_-3","Family_-5"];
         mesh2_2=MEDLoader.MEDLoader.ReadUMeshFromFamilies(fileName,mnane,0,vec);
         mesh2_2.setName("mesh2");
         self.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
         #
         ret=MEDLoader.MEDLoader.GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
         self.assertEqual(4,len(ret));
-        self.assertEqual(ret[0],"Family_1");
-        self.assertEqual(ret[1],"Family_2");
-        self.assertEqual(ret[2],"Family_3");
-        self.assertEqual(ret[3],"Family_4");
+        self.assertEqual(ret[0],"Family_-2");
+        self.assertEqual(ret[1],"Family_-3");
+        self.assertEqual(ret[2],"Family_-4");
+        self.assertEqual(ret[3],"Family_-5");
         #
-        ret1=MEDLoader.MEDLoader.GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_2");
+        ret1=MEDLoader.MEDLoader.GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
         self.assertEqual(2,len(ret1));
         self.assertEqual(ret1[0],"3DMesh_1");
         self.assertEqual(ret1[1],"mesh2");
