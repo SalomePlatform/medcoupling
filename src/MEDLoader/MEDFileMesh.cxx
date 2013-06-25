@@ -3426,6 +3426,49 @@ void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool
 }
 
 /*!
+ * This method allows to set at once the content of different levels in \a this.
+ * This method is equivalent to a series of call to MEDFileUMesh::setMeshAtLevel.
+ *
+ * \param [in] ms - List of unstructured meshes lying on the same coordinates and having different mesh dimesnion.
+ * \param [in] renum - the parameter (set to false by default) that tells the beheviour if there is a mesh on \a ms that is not geo type sorted.
+ *                     If false, an exception ois thrown. If true the mesh is reordered automatically. It is highly recommanded to let this parameter to false.
+ *
+ * \throw If \a there is a null pointer in \a ms.
+ * \sa MEDFileUMesh::setMeshAtLevel
+ */
+void MEDFileUMesh::setMeshes(const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception)
+{
+  if(ms.empty())
+    return ;
+  const MEDCouplingUMesh *mRef=ms[0];
+  if(!mRef)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setMeshes : null instance in the first element of input meshes !");
+  std::string name(mRef->getName());
+  const DataArrayDouble *coo(mRef->getCoords());
+  std::set<int> s;
+  int zeDim=-1;
+  for(std::vector<const MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+    {
+      const MEDCouplingUMesh *cur(*it);
+      if(!cur)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setMeshes : null instance in input vector of meshes !");
+      if(coo!=cur->getCoords())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setMeshes : The input meshes do not share the same coordinates !");
+      int mdim=cur->getMeshDimension();
+      zeDim=std::max(zeDim,mdim);
+      if(s.find(mdim)!=s.end())
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setMeshes : The input meshes must share the same coordinates pointer, and should have different mesh dimension each other !");
+    }
+  for(std::vector<const MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+    {
+      int mdim=(*it)->getMeshDimension();
+      setName((*it)->getName());
+      setMeshAtLevel(mdim-zeDim,const_cast<MEDCouplingUMesh *>(*it),renum);
+    }
+  setName(name.c_str());
+}
+
+/*!
  * Creates one MEDCouplingUMesh at a given level in \a this mesh from a sequence of
  * meshes each representing a group, and creates corresponding groups in \a this mesh.
  * The given meshes must share the same node coordinates array.

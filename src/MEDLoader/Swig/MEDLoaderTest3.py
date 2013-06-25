@@ -981,7 +981,7 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDFieldBug1(self):
         fname="Pyfile13.med"
         d=MEDFileData.New(fname)
-        self.assertEqual(('GP_MyFirstFieldOnGaussPoint0', 'GP_MyFirstFieldOnGaussPoint1', 'GP_MyFirstFieldOnGaussPoint2'),d.getFields().getFieldAtPos(0).getLocs())
+        self.assertEqual(('Loc_MyFirstFieldOnGaussPoint_NORM_QUAD4_1','Loc_MyFirstFieldOnGaussPoint_NORM_TRI3_0','Loc_MyFirstFieldOnGaussPoint_NORM_TRI6_2'),d.getFields().getFieldAtPos(0).getLocs())
         pass
 
     def testMEDMesh8(self):

@@ -663,8 +663,6 @@ namespace ParaMEDMEM
     void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
-    void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
-    void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
     %extend
@@ -697,6 +695,27 @@ namespace ParaMEDMEM
            std::vector<const DataArrayInt *> grps;
            convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",grps);
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
+         }
+
+         void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const MEDCouplingUMesh *> ms;
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
+           self->setMeshes(ms,renum);
+         }
+
+         void setGroupsFromScratch(int meshDimRelToMax, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const MEDCouplingUMesh *> ms;
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
+           self->setGroupsFromScratch(meshDimRelToMax,ms,renum);
+         }
+         
+         void setGroupsOnSetMesh(int meshDimRelToMax, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const MEDCouplingUMesh *> ms;
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",ms);
+           self->setGroupsOnSetMesh(meshDimRelToMax,ms,renum);
          }
 
          DataArrayDouble *getCoords() const throw(INTERP_KERNEL::Exception)

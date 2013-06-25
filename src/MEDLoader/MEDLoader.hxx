@@ -39,53 +39,6 @@ namespace ParaMEDMEM
 class MEDLOADER_EXPORT MEDLoader
 {
  public:
-/// @cond INTERNAL
-  class MEDConnOfOneElemType
-  {
-  public:
-    MEDConnOfOneElemType(INTERP_KERNEL::NormalizedCellType type, int *conn, int *index, int *fam, int lgth, int connLgth);
-    INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
-    int getLength() const { return _lgth; }
-    int getConnLength() const { return _conn_lgth; }
-    int *getArray() const { return _conn; }
-    int *getIndex() const { return _index; }
-    int *getFam() const { return _fam; }
-    void setGlobal(int *global);
-    const int *getGlobal() const { return _global; }
-    void releaseArray();
-  private:
-    int _lgth;
-    int *_fam;
-    int *_conn;
-    int *_index;
-    int *_global;
-    int _conn_lgth;
-    INTERP_KERNEL::NormalizedCellType _type;
-  };
-
-  class MEDFieldDoublePerCellType
-  {
-  public:
-    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int nGeoElt, int nbi, const int *cellIdPerType, const char *locName);
-    INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
-    int getNbComp() const { return _ncomp; }
-    int getNbOfGeoElt() const { return _ngeo_elt; }
-    int getNbOfTuple() const { return _nbi*_ngeo_elt; }
-    int getNbOfValues() const { return _ncomp*_nbi*_ngeo_elt; }
-    double *getArray() const { return _values; }
-    const std::string& getLocName() const { return _loc_name; }
-    const std::vector<int>& getCellIdPerType() const { return _cell_id_per_type; }
-    void releaseArray();
-  private:
-    int _ngeo_elt;
-    int _nbi;
-    int _ncomp;
-    double *_values;
-    std::string _loc_name;
-    std::vector<int> _cell_id_per_type;
-    INTERP_KERNEL::NormalizedCellType _type;
-  };
-/// @endcond
   static void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   static void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
   static void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
