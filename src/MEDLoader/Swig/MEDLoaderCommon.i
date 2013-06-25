@@ -194,9 +194,9 @@ using namespace ParaMEDMEM;
 class MEDLoader
 {
 public:
-  static void setEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
-  static void setCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
-  static void setTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
+  static void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
+  static void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
+  static void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
   static void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshNamesOnField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
