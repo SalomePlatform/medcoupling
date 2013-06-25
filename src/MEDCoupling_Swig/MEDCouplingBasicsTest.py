@@ -13356,6 +13356,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(b is None)
         pass
 
+    def testSwig2DADAreIncludedInMe1(self):
+        a=DataArrayDouble(30) ; a.iota() ; a.rearrange(3)
+        p=DataArrayInt([5,2,1,9])
+        b,c=a.areIncludedInMe(a[p],1e-12)
+        self.assertTrue(b)
+        self.assertTrue(c.isEqual(p))
+        d=a[p]
+        d.setIJ(3,1,28.1)
+        b,c=a.areIncludedInMe(d,1e-12)
+        self.assertTrue(not b)
+        self.assertTrue(c.isEqual(DataArrayInt([5,2,1,10])))
+        pass
+
     def setUp(self):
         pass
     pass

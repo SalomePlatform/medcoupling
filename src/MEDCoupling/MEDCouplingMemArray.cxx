@@ -1787,6 +1787,32 @@ void DataArrayDouble::meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL
 }
 
 /*!
+ * This method checks that all tuples in \a other are in \a this.
+ * If true, the output param \a tupleIds contains the tuples ids of \a this that correspond to tupes in \a this.
+ * For each i in [ 0 , other->getNumberOfTuples() ) tuple #i in \a other is equal ( regarding input precision \a prec ) to tuple tupleIds[i] in \a this.
+ *
+ * \param [in] other - the array having the same number of components than \a this.
+ * \param [out] tupleIds - the tuple ids containing the same number of tuples than \a other has.
+ * \sa DataArrayDouble::findCommonTuples
+ */
+bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayInt *&tupleIds) const throw(INTERP_KERNEL::Exception)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : input array is NULL !");
+  checkAllocated(); other->checkAllocated();
+  if(getNumberOfComponents()!=other->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : the number of components does not match !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a=DataArrayDouble::Aggregate(this,other);
+  DataArrayInt *c=0,*ci=0;
+  a->findCommonTuples(prec,getNumberOfTuples(),c,ci);
+  int newNbOfTuples=-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(a->getNumberOfTuples(),c->begin(),ci->begin(),ci->end(),newNbOfTuples);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=ids->selectByTupleId2(getNumberOfTuples(),a->getNumberOfTuples(),1);
+  tupleIds=ret1.retn();
+  return newNbOfTuples==getNumberOfTuples();
+}
+
+/*!
  * Searches for tuples coincident within \a prec tolerance. Each tuple is considered
  * as coordinates of a point in getNumberOfComponents()-dimensional space. The
  * distance separating two points is computed with the infinite norm.
@@ -1815,7 +1841,7 @@ void DataArrayDouble::meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL
  *  \ref cpp_mcdataarraydouble_findcommontuples "Here is a C++ example".
  *
  *  \ref py_mcdataarraydouble_findcommontuples  "Here is a Python example".
- *  \sa DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2().
+ *  \sa DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(), DataArrayDouble::areIncludedInMe
  */
 void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const throw(INTERP_KERNEL::Exception)
 {

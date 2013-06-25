@@ -873,6 +873,18 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      PyObject *areIncludedInMe(const DataArrayDouble *other, double prec) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret1=0;
+        bool ret0=self->areIncludedInMe(other,prec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         const char msg[]="Unexpected situation in DataArrayDouble::__getitem__ !";

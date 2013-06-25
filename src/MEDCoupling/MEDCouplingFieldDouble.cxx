@@ -484,6 +484,8 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
  * renumbering. The underlying mesh is deeply copied and its cells are also permuted. 
  * The number of cells remains the same; for that the permutation array \a old2NewBg
  * should not contain equal ids.
+ * ** Warning, this method modifies the mesh aggreagated by \a this (by performing a deep copy ) **.
+ *
  *  \param [in] old2NewBg - the permutation array in "Old to New" mode. Its length is
  *         to be equal to \a this->getMesh()->getNumberOfCells().
  *  \param [in] check - if \c true, \a old2NewBg is transformed to a new permutation
