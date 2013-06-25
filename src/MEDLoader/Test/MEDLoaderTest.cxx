@@ -318,7 +318,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   CPPUNIT_ASSERT(mesh1_2->isEqual(mesh1,1e-12));
   mesh1_2->decrRef();
   //
-  vec.clear(); vec.push_back(std::string("Family_4")); vec.push_back(std::string("Family_2"));
+  vec.clear(); vec.push_back(std::string("Family_-3")); vec.push_back(std::string("Family_-5"));
   mesh2_2=MEDLoader::ReadUMeshFromFamilies(fileName,mnane,0,vec);
   mesh2_2->setName("mesh2");
   CPPUNIT_ASSERT(mesh2_2->isEqual(mesh2,1e-12));
@@ -326,12 +326,12 @@ void MEDLoaderTest::testMultiMeshRW1()
   //
   std::vector<std::string> ret=MEDLoader::GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
   CPPUNIT_ASSERT_EQUAL(4,(int)ret.size());
-  CPPUNIT_ASSERT(ret[0]=="Family_1");
-  CPPUNIT_ASSERT(ret[1]=="Family_2");
-  CPPUNIT_ASSERT(ret[2]=="Family_3");
-  CPPUNIT_ASSERT(ret[3]=="Family_4");
+  CPPUNIT_ASSERT(ret[0]=="Family_-2");
+  CPPUNIT_ASSERT(ret[1]=="Family_-3");
+  CPPUNIT_ASSERT(ret[2]=="Family_-4");
+  CPPUNIT_ASSERT(ret[3]=="Family_-5");
   //
-  std::vector<std::string> ret1=MEDLoader::GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_2");
+  std::vector<std::string> ret1=MEDLoader::GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
   CPPUNIT_ASSERT_EQUAL(2,(int)ret1.size());
   CPPUNIT_ASSERT(ret1[0]=="3DMesh_1");
   CPPUNIT_ASSERT(ret1[1]=="mesh2");
