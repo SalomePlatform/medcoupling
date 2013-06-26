@@ -664,7 +664,6 @@ namespace ParaMEDMEM
     virtual med_field_type getMEDFileFieldType() const = 0;
     MEDFileAnyTypeField1TSWithoutSDA *contentNotNullBase() throw(INTERP_KERNEL::Exception);
     const MEDFileAnyTypeField1TSWithoutSDA *contentNotNullBase() const throw(INTERP_KERNEL::Exception);
-    //void setContent(MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> newc); tony
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> _content;
   };
