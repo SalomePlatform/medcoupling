@@ -144,8 +144,10 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
 %newobject ParaMEDMEM::MEDFileField1TS::getUndergroundDataArray;
+%newobject ParaMEDMEM::MEDFileField1TS::convertToInt;
 %newobject ParaMEDMEM::MEDFileIntField1TS::New;
 %newobject ParaMEDMEM::MEDFileIntField1TS::getUndergroundDataArray;
+%newobject ParaMEDMEM::MEDFileIntField1TS::convertToDouble;
 
 %newobject ParaMEDMEM::MEDFileData::New;
 %newobject ParaMEDMEM::MEDFileData::deepCpy;
@@ -1229,6 +1231,7 @@ namespace ParaMEDMEM
     static MEDFileField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
+    MEDFileIntField1TS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -1362,6 +1365,7 @@ namespace ParaMEDMEM
     static MEDFileIntField1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    MEDFileField1TS *convertToDouble(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);

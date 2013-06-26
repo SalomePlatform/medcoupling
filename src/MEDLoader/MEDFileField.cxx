@@ -3522,6 +3522,17 @@ void MEDFileFieldNameScope::copyNameScope(const MEDFileFieldNameScope& other)
 
 //= MEDFileAnyTypeField1TSWithoutSDA
 
+void MEDFileAnyTypeField1TSWithoutSDA::deepCpyLeavesFrom(const MEDFileAnyTypeField1TSWithoutSDA& other) throw(INTERP_KERNEL::Exception)
+{
+  _field_per_mesh.resize(other._field_per_mesh.size());
+  std::size_t i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=other._field_per_mesh.begin();it!=other._field_per_mesh.end();it++,i++)
+    {
+      if((const MEDFileFieldPerMesh *)*it)
+        _field_per_mesh[i]=(*it)->deepCpy(this);
+    }
+}
+
 /*!
  * Prints a string describing \a this field into a stream. This string is outputted 
  * by \c print Python command.
@@ -4562,6 +4573,20 @@ const char *MEDFileField1TSWithoutSDA::getTypeStr() const throw(INTERP_KERNEL::E
   return TYPE_STR;
 }
 
+MEDFileIntField1TSWithoutSDA *MEDFileField1TSWithoutSDA::convertToInt() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TSWithoutSDA> ret(new MEDFileIntField1TSWithoutSDA);
+  ret->MEDFileAnyTypeField1TSWithoutSDA::operator =(*this);
+  ret->deepCpyLeavesFrom(*this);
+  const DataArrayDouble *arr(_arr);
+  if(arr)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr->convertToIntArr());
+      ret->setArray(arr2);
+    }
+  return ret.retn();
+}
+
 /*!
  * Returns a pointer to the underground DataArrayDouble instance. So the
  * caller should not decrRef() it. This method allows for a direct access to the field
@@ -4634,7 +4659,9 @@ MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA():MEDFileAnyTypeField1TSWit
 
 MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::shallowCpy() const throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileField1TSWithoutSDA(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutSDA> ret(new MEDFileField1TSWithoutSDA(*this));
+  ret->deepCpyLeavesFrom(*this);
+  return ret.retn();
 }
 
 MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCpy() const throw(INTERP_KERNEL::Exception)
@@ -4642,12 +4669,6 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCpy() const thr
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutSDA> ret=static_cast<MEDFileField1TSWithoutSDA *>(shallowCpy());
   if((const DataArrayDouble *)_arr)
     ret->_arr=_arr->deepCpy();
-  std::size_t i=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++,i++)
-    {
-      if((const MEDFileFieldPerMesh *)*it)
-        ret->_field_per_mesh[i]=(*it)->deepCpy((MEDFileField1TSWithoutSDA *)ret);
-    }
   return ret.retn();
 }
 
@@ -4718,6 +4739,20 @@ MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA(const char *fieldName
 const char *MEDFileIntField1TSWithoutSDA::getTypeStr() const throw(INTERP_KERNEL::Exception)
 {
   return TYPE_STR;
+}
+
+MEDFileField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::convertToDouble() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutSDA> ret(new MEDFileField1TSWithoutSDA);
+  ret->MEDFileAnyTypeField1TSWithoutSDA::operator =(*this);
+  ret->deepCpyLeavesFrom(*this);
+  const DataArrayInt *arr(_arr);
+  if(arr)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(arr->convertToDblArr());
+      ret->setArray(arr2);
+    }
+  return ret.retn();
 }
 
 /*!
@@ -4797,7 +4832,9 @@ DataArrayInt *MEDFileIntField1TSWithoutSDA::getUndergroundDataArrayIntExt(std::v
 
 MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::shallowCpy() const throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileIntField1TSWithoutSDA(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TSWithoutSDA> ret(new MEDFileIntField1TSWithoutSDA(*this));
+  ret->deepCpyLeavesFrom(*this);
+  return ret.retn();
 }
 
 MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCpy() const throw(INTERP_KERNEL::Exception)
@@ -4805,12 +4842,6 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCpy() const 
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TSWithoutSDA> ret=static_cast<MEDFileIntField1TSWithoutSDA *>(shallowCpy());
   if((const DataArrayInt *)_arr)
     ret->_arr=_arr->deepCpy();
-  std::size_t i=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++,i++)
-    {
-      if((const MEDFileFieldPerMesh *)*it)
-        ret->_field_per_mesh[i]=(*it)->deepCpy((MEDFileIntField1TSWithoutSDA *)ret);
-    }
   return ret.retn();
 }
 
@@ -5626,6 +5657,35 @@ MEDFileField1TS *MEDFileField1TS::New()
   return ret.retn();
 }
 
+/*!
+ * This method performs a copy with datatype modification ( float64->int32 ) of \a this. The globals information are copied
+ * following the given input policy.
+ *
+ * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ *                            By default (true) the globals are deeply copied.
+ * \return MEDFileIntField1TS * - a new object that is the result of the conversion of \a this to int32 field.
+ */
+MEDFileIntField1TS *MEDFileField1TS::convertToInt(bool deepCpyGlobs) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TS> ret;
+  const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
+  if(content)
+    {
+      const MEDFileField1TSWithoutSDA *contc=dynamic_cast<const MEDFileField1TSWithoutSDA *>(content);
+      if(!contc)
+        throw INTERP_KERNEL::Exception("MEDFileField1TS::convertToInt : the content inside this is not FLOAT64 ! This is incoherent !");
+      MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TSWithoutSDA> newc(contc->convertToInt());
+      ret=static_cast<MEDFileIntField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileIntField1TSWithoutSDA *)newc,getFileName()));
+    }
+  else
+    ret=MEDFileIntField1TS::New();
+  if(deepCpyGlobs)
+    ret->deepCpyGlobs(*this);
+  else
+    ret->shallowCpyGlobs(*this);
+  return ret.retn();
+}
+
 const MEDFileField1TSWithoutSDA *MEDFileField1TS::contentNotNull() const throw(INTERP_KERNEL::Exception)
 {
   const MEDFileAnyTypeField1TSWithoutSDA *pt(_content);
@@ -6033,6 +6093,35 @@ MEDFileIntField1TS::MEDFileIntField1TS(const MEDFileIntField1TSWithoutSDA& other
 MEDFileAnyTypeField1TS *MEDFileIntField1TS::shallowCpy() const throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileIntField1TS(*this);
+}
+
+/*!
+ * This method performs a copy with datatype modification ( int32->float64 ) of \a this. The globals information are copied
+ * following the given input policy.
+ *
+ * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ *                            By default (true) the globals are deeply copied.
+ * \return MEDFileField1TS * - a new object that is the result of the conversion of \a this to float64 field.
+ */
+MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool deepCpyGlobs) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ret;
+  const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
+  if(content)
+    {
+      const MEDFileIntField1TSWithoutSDA *contc=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(content);
+      if(!contc)
+        throw INTERP_KERNEL::Exception("MEDFileIntField1TS::convertToInt : the content inside this is not INT32 ! This is incoherent !");
+      MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutSDA> newc(contc->convertToDouble());
+      ret=static_cast<MEDFileField1TS *>(MEDFileAnyTypeField1TS::BuildNewInstanceFromContent((MEDFileField1TSWithoutSDA *)newc,getFileName()));
+    }
+  else
+    ret=MEDFileField1TS::New();
+  if(deepCpyGlobs)
+    ret->deepCpyGlobs(*this);
+  else
+    ret->shallowCpyGlobs(*this);
+  return ret.retn();
 }
 
 /*!
@@ -7124,6 +7213,22 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTSWithoutSDA::get
   return myF1TSC->getFieldSplitedByType2(mname,types,typesF,pfls,locs);
 }
 
+MEDFileIntFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::convertToInt() const throw(INTERP_KERNEL::Exception)
+{
+  /*MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTSWithoutSDA> ret(new MEDFileIntFieldMultiTSWithoutSDA);
+  ret->MEDFileAnyTypeFieldMultiTSWithoutSDA::operator =(*this);
+  ret->deepCpyLeavesFrom(*this);
+  const DataArrayDouble *arr(_arr);
+  if(arr)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr->convertToIntArr());
+      ret->setArray(arr2);
+    }
+    return ret.retn();*/
+}
+
+//= MEDFileAnyTypeFieldMultiTS
+
 MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS()
 {
 }
@@ -7737,6 +7842,35 @@ void MEDFileFieldMultiTS::checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1t
   const MEDFileField1TS *f1tsC=dynamic_cast<const MEDFileField1TS *>(f1ts);
   if(!f1tsC)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::checkCoherencyOfType : the input field1TS is not a FLOAT64 type !");
+}
+
+/*!
+ * This method performs a copy with datatype modification ( float64->int32 ) of \a this. The globals information are copied
+ * following the given input policy.
+ *
+ * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ *                            By default (true) the globals are deeply copied.
+ * \return MEDFileIntFieldMultiTS * - a new object that is the result of the conversion of \a this to int32 field.
+ */
+MEDFileIntFieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool deepCpyGlobs) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTS> ret;
+  const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
+  if(content)
+    {
+      const MEDFileFieldMultiTSWithoutSDA *contc=dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(content);
+      if(!contc)
+        throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::convertToInt : the content inside this is not FLOAT64 ! This is incoherent !");
+      MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTSWithoutSDA> newc(contc->convertToInt());
+      ret=static_cast<MEDFileIntFieldMultiTS *>(MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent((MEDFileIntFieldMultiTSWithoutSDA *)newc,getFileName()));
+    }
+  else
+    ret=MEDFileIntFieldMultiTS::New();
+  if(deepCpyGlobs)
+    ret->deepCpyGlobs(*this);
+  else
+    ret->shallowCpyGlobs(*this);
+  return ret.retn();
 }
 
 /*!

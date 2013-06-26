@@ -478,6 +478,7 @@ namespace ParaMEDMEM
     //
     MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception);
      const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const throw(INTERP_KERNEL::Exception);
+     void deepCpyLeavesFrom(const MEDFileAnyTypeField1TSWithoutSDA& other) throw(INTERP_KERNEL::Exception);
   public:
     int getNumberOfComponents() const;
     const std::vector<std::string>& getInfo() const;
@@ -521,6 +522,8 @@ namespace ParaMEDMEM
     //! only useable on reading
     mutable int _csit;
   };
+
+  class MEDFileIntField1TSWithoutSDA;
   
   /*!
    * SDA is for Shared Data Arrays such as profiles.
@@ -548,6 +551,7 @@ namespace ParaMEDMEM
     const DataArray *getOrCreateAndGetArray() const;
     DataArrayDouble *getOrCreateAndGetArrayDouble();
     const DataArrayDouble *getOrCreateAndGetArrayDouble() const;
+    MEDFileIntField1TSWithoutSDA *convertToInt() const throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingAutoRefCountObjectPtr< DataArrayDouble > _arr;
   public:
@@ -575,6 +579,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getOrCreateAndGetArrayInt() const;
     DataArrayInt *getUndergroundDataArrayInt() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getUndergroundDataArrayIntExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
+    MEDFileField1TSWithoutSDA *convertToDouble() const throw(INTERP_KERNEL::Exception);
   protected:
     MEDFileIntField1TSWithoutSDA(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
   protected:
@@ -659,10 +664,13 @@ namespace ParaMEDMEM
     virtual med_field_type getMEDFileFieldType() const = 0;
     MEDFileAnyTypeField1TSWithoutSDA *contentNotNullBase() throw(INTERP_KERNEL::Exception);
     const MEDFileAnyTypeField1TSWithoutSDA *contentNotNullBase() const throw(INTERP_KERNEL::Exception);
+    //void setContent(MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> newc); tony
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> _content;
   };
-
+  
+  class MEDFileIntField1TS;
+  
   /*!
    * User class.
    */
@@ -674,6 +682,8 @@ namespace ParaMEDMEM
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New(const MEDFileField1TSWithoutSDA& other, bool shallowCopyOfContent);
     static MEDFileField1TS *New();
+    MEDFileIntField1TS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    //
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -714,6 +724,7 @@ namespace ParaMEDMEM
     static MEDFileIntField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const MEDFileIntField1TSWithoutSDA& other, bool shallowCopyOfContent);
+    MEDFileField1TS *convertToDouble(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *shallowCpy() const throw(INTERP_KERNEL::Exception);
     //
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -809,6 +820,8 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > _time_steps;
   };
 
+  class MEDFileIntFieldMultiTSWithoutSDA;
+
   class MEDLOADER_EXPORT MEDFileFieldMultiTSWithoutSDA : public MEDFileAnyTypeFieldMultiTSWithoutSDA
   {
   public:
@@ -818,6 +831,7 @@ namespace ParaMEDMEM
     MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeFieldMultiTSWithoutSDA *createNew() const throw(INTERP_KERNEL::Exception);
     std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
+    MEDFileIntFieldMultiTSWithoutSDA *convertToInt() const throw(INTERP_KERNEL::Exception);
   protected:
     MEDFileFieldMultiTSWithoutSDA(const char *fieldName);
     MEDFileFieldMultiTSWithoutSDA(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit) throw(INTERP_KERNEL::Exception);
@@ -920,6 +934,8 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> _content;
   };
 
+  class MEDFileIntFieldMultiTS;
+
   /*!
    * User class.
    */
@@ -932,6 +948,7 @@ namespace ParaMEDMEM
     static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
     MEDFileAnyTypeFieldMultiTS *shallowCpy() const throw(INTERP_KERNEL::Exception);
     void checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1ts) const throw(INTERP_KERNEL::Exception);
+    MEDFileIntFieldMultiTS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     //
     MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
