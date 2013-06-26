@@ -1278,7 +1278,8 @@ void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUM
     throw INTERP_KERNEL::Exception("MEDLoader::WriteUMesh : input mesh is null !");
   int mod=writeFromScratch?2:0;
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m=MEDFileUMesh::New();
-  m->setMeshAtLevel(0,static_cast<MEDCouplingUMesh *>(mesh->deepCpy()),true);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mcpy(static_cast<MEDCouplingUMesh *>(mesh->deepCpy()));
+  m->setMeshAtLevel(0,mcpy,true);
   m->write(fileName,mod);
 }
 

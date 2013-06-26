@@ -1805,6 +1805,7 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a=DataArrayDouble::Aggregate(this,other);
   DataArrayInt *c=0,*ci=0;
   a->findCommonTuples(prec,getNumberOfTuples(),c,ci);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
   int newNbOfTuples=-1;
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(a->getNumberOfTuples(),c->begin(),ci->begin(),ci->end(),newNbOfTuples);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=ids->selectByTupleId2(getNumberOfTuples(),a->getNumberOfTuples(),1);
