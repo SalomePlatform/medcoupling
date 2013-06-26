@@ -7139,6 +7139,26 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::appendFieldProfile(const MEDCouplingF
   _time_steps.push_back(obj);
 }
 
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration(int i, MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> ts) throw(INTERP_KERNEL::Exception)
+{
+  int sz=(int)_time_steps.size();
+  if(i<0 || i>=sz)
+    {
+      std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration : trying to set element at place #" << i << " should be in [0," << sz << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const MEDFileAnyTypeField1TSWithoutSDA *tsPtr(ts);
+  if(tsPtr)
+    {
+      if(tsPtr->getNumberOfComponents()!=(int)_infos.size())
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration : trying to set element with " << tsPtr->getNumberOfComponents() << " components ! Should be " << _infos.size() <<  " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  _time_steps[i]=ts;
+}
+
 //= MEDFileFieldMultiTSWithoutSDA
 
 MEDFileFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::New(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit) throw(INTERP_KERNEL::Exception)
@@ -7215,16 +7235,22 @@ std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTSWithoutSDA::get
 
 MEDFileIntFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::convertToInt() const throw(INTERP_KERNEL::Exception)
 {
-  /*MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTSWithoutSDA> ret(new MEDFileIntFieldMultiTSWithoutSDA);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTSWithoutSDA> ret(new MEDFileIntFieldMultiTSWithoutSDA);
   ret->MEDFileAnyTypeFieldMultiTSWithoutSDA::operator =(*this);
-  ret->deepCpyLeavesFrom(*this);
-  const DataArrayDouble *arr(_arr);
-  if(arr)
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr->convertToIntArr());
-      ret->setArray(arr2);
+      const MEDFileAnyTypeField1TSWithoutSDA *eltToConv(*it);
+      if(eltToConv)
+        {
+          const MEDFileField1TSWithoutSDA *eltToConvC=dynamic_cast<const MEDFileField1TSWithoutSDA *>(eltToConv);
+          if(!eltToConvC)
+            throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutSDA::convertToInt : presence of an invalid 1TS type ! Should be of type FLOAT64 !");
+          MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> elt=eltToConvC->convertToInt();
+          ret->setIteration(i,elt);
+        }
     }
-    return ret.retn();*/
+  return ret.retn();
 }
 
 //= MEDFileAnyTypeFieldMultiTS
@@ -7399,6 +7425,26 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::shallowC
 MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::createNew() const throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileIntFieldMultiTSWithoutSDA;
+}
+
+MEDFileFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::convertToDouble() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutSDA> ret(new MEDFileFieldMultiTSWithoutSDA);
+  ret->MEDFileAnyTypeFieldMultiTSWithoutSDA::operator =(*this);
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,i++)
+    {
+      const MEDFileAnyTypeField1TSWithoutSDA *eltToConv(*it);
+      if(eltToConv)
+        {
+          const MEDFileIntField1TSWithoutSDA *eltToConvC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(eltToConv);
+          if(!eltToConvC)
+            throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTSWithoutSDA::convertToInt : presence of an invalid 1TS type ! Should be of type INT32 !");
+          MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> elt=eltToConvC->convertToDouble();
+          ret->setIteration(i,elt);
+        }
+    }
+  return ret.retn();
 }
 
 //= MEDFileAnyTypeFieldMultiTS
@@ -8272,6 +8318,35 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const char *fileName, const 
 MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const MEDFileIntFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent)
 {
   return new MEDFileIntFieldMultiTS(other,shallowCopyOfContent);
+}
+
+/*!
+ * This method performs a copy with datatype modification ( int32->float64 ) of \a this. The globals information are copied
+ * following the given input policy.
+ *
+ * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ *                            By default (true) the globals are deeply copied.
+ * \return MEDFileFieldMultiTS * - a new object that is the result of the conversion of \a this to float64 field.
+ */
+MEDFileFieldMultiTS *MEDFileIntFieldMultiTS::convertToDouble(bool deepCpyGlobs) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ret;
+  const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
+  if(content)
+    {
+      const MEDFileIntFieldMultiTSWithoutSDA *contc=dynamic_cast<const MEDFileIntFieldMultiTSWithoutSDA *>(content);
+      if(!contc)
+        throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::convertToInt : the content inside this is not INT32 ! This is incoherent !");
+      MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutSDA> newc(contc->convertToDouble());
+      ret=static_cast<MEDFileFieldMultiTS *>(MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent((MEDFileFieldMultiTSWithoutSDA *)newc,getFileName()));
+    }
+  else
+    ret=MEDFileFieldMultiTS::New();
+  if(deepCpyGlobs)
+    ret->deepCpyGlobs(*this);
+  else
+    ret->shallowCpyGlobs(*this);
+  return ret.retn();
 }
 
 MEDFileAnyTypeFieldMultiTS *MEDFileIntFieldMultiTS::shallowCpy() const throw(INTERP_KERNEL::Exception)

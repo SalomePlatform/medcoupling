@@ -132,8 +132,10 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevelOld;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getUndergroundDataArray;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::convertToInt;
 %newobject ParaMEDMEM::MEDFileIntFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileIntFieldMultiTS::getUndergroundDataArray;
+%newobject ParaMEDMEM::MEDFileIntFieldMultiTS::convertToDouble;
 
 %newobject ParaMEDMEM::MEDFileAnyTypeField1TS::New;
 %newobject ParaMEDMEM::MEDFileAnyTypeField1TS::shallowCpy;
@@ -1790,6 +1792,7 @@ namespace ParaMEDMEM
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    MEDFileIntFieldMultiTS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileFieldMultiTS()
@@ -1920,6 +1923,7 @@ namespace ParaMEDMEM
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    MEDFileFieldMultiTS *convertToDouble(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDFileIntFieldMultiTS()
