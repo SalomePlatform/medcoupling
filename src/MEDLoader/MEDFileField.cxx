@@ -4821,6 +4821,7 @@ void MEDFileIntField1TSWithoutSDA::setArray(DataArray *arr) throw(INTERP_KERNEL:
   DataArrayInt *arrC=dynamic_cast<DataArrayInt *>(arr);
   if(!arrC)
     throw INTERP_KERNEL::Exception("MEDFileIntField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayInt !");
+  arrC->incrRef();
   _arr=arrC;
 }
 
