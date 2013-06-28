@@ -4654,7 +4654,10 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCpy() const thr
 void MEDFileField1TSWithoutSDA::setArray(DataArray *arr) throw(INTERP_KERNEL::Exception)
 {
   if(!arr)
-    _arr=0;
+    {
+      _arr=0;
+      return ;
+    }
   DataArrayDouble *arrC=dynamic_cast<DataArrayDouble *>(arr);
   if(!arrC)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayDouble !");
@@ -4817,7 +4820,10 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCpy() const 
 void MEDFileIntField1TSWithoutSDA::setArray(DataArray *arr) throw(INTERP_KERNEL::Exception)
 {
   if(!arr)
-    _arr=0;
+    {
+      _arr=0;
+      return ;
+    }
   DataArrayInt *arrC=dynamic_cast<DataArrayInt *>(arr);
   if(!arrC)
     throw INTERP_KERNEL::Exception("MEDFileIntField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayInt !");
