@@ -113,10 +113,10 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
   MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile);
   MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
   MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grp1 = m2->getGroup(0, "Group1");
-  CPPUNIT_ASSERT_EQUAL(1,(int)grp1->getNumberOfCells());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grp2 = m2->getGroup(0, "Group2");
-  CPPUNIT_ASSERT_EQUAL(1,(int)grp2->getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> group1 = m2->getGroup(0, "Group1");
+  CPPUNIT_ASSERT_EQUAL(1,(int)group1->getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> group2 = m2->getGroup(0, "Group2");
+  CPPUNIT_ASSERT_EQUAL(1,(int)group2->getNumberOfCells());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grptot = m2->getGroup(0, "Grouptot");
   CPPUNIT_ASSERT_EQUAL(2,(int)grptot->getNumberOfCells());
 }

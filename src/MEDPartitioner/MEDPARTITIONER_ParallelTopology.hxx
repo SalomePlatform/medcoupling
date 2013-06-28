@@ -34,7 +34,7 @@ namespace MEDPARTITIONER
   class MeshCollection;
   class MEDPARTITIONER_FaceModel;
 
-  class ParallelTopology : public Topology
+  class MEDPARTITIONER_EXPORT ParallelTopology : public Topology
   {
 
   public:

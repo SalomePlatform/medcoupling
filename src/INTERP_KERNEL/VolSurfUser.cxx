@@ -25,6 +25,10 @@
 #include <limits>
 #include <algorithm>
 
+#ifdef WIN32
+#include <functional>
+#endif
+
 namespace INTERP_KERNEL
 {
   double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint) throw(INTERP_KERNEL::Exception)

@@ -20,6 +20,8 @@
 #ifndef __MEDPARTITIONER_TOPOLOGY_HXX__
 #define __MEDPARTITIONER_TOPOLOGY_HXX__
 
+#include "MEDPARTITIONER.hxx"
+
 #include <map>
 #include <vector>
 
@@ -36,7 +38,7 @@ namespace MEDPARTITIONER
   class MeshCollection;
   class MEDPARTITIONER_FaceModel;
     
-  class Topology
+  class MEDPARTITIONER_EXPORT Topology
   {
   public:
     Topology() { }
