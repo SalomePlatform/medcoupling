@@ -61,9 +61,9 @@ namespace ParaMEDMEM
   template<class T>
   void MemArray<T>::useArray(const T *array, bool ownership, DeallocType type, std::size_t nbOfElem)
   {
+    destroy();
     _nb_of_elem=nbOfElem;
     _nb_of_elem_alloc=nbOfElem;
-    destroy();
     if(ownership)
       _pointer.setInternal(const_cast<T *>(array));
     else
@@ -75,9 +75,9 @@ namespace ParaMEDMEM
   template<class T>
   void MemArray<T>::useExternalArrayWithRWAccess(const T *array, std::size_t nbOfElem)
   {
+    destroy();
     _nb_of_elem=nbOfElem;
     _nb_of_elem_alloc=nbOfElem;
-    destroy();
     _pointer.setInternal(const_cast<T *>(array));
     _ownership=false;
     _dealloc=CPPDeallocator;
@@ -365,7 +365,7 @@ namespace ParaMEDMEM
     T *pointer=(T*)malloc(newNbOfElements*sizeof(T));
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<std::size_t>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
-      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
+      DestroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.setInternal(pointer);
     _nb_of_elem=std::min<std::size_t>(_nb_of_elem,newNbOfElements);
     _nb_of_elem_alloc=newNbOfElements;
@@ -391,7 +391,7 @@ namespace ParaMEDMEM
     T *pointer=(T*)malloc(newNbOfElements*sizeof(T));
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<std::size_t>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
-      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
+      DestroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.setInternal(pointer);
     _nb_of_elem=newNbOfElements;
     _nb_of_elem_alloc=newNbOfElements;
@@ -427,7 +427,7 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  void MemArray<T>::destroyPointer(T *pt, typename MemArray<T>::Deallocator dealloc, void *param)
+  void MemArray<T>::DestroyPointer(T *pt, typename MemArray<T>::Deallocator dealloc, void *param)
   {
     if(dealloc)
       dealloc(pt,param);
@@ -437,11 +437,13 @@ namespace ParaMEDMEM
   void MemArray<T>::destroy()
   {
     if(_ownership)
-      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
+      DestroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc,_param_for_deallocator);//Do not use getPointer because in case of _external
     _pointer.null();
     _ownership=false;
     _dealloc=NULL;
     _param_for_deallocator=NULL;
+    _nb_of_elem=0;
+    _nb_of_elem_alloc=0;
   }
   
   template<class T>

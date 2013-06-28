@@ -1106,6 +1106,9 @@ namespace ParaMEDMEM
     static MEDFileAnyTypeField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void loadArrays() throw(INTERP_KERNEL::Exception);
+    void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
+    void releaseArrays() throw(INTERP_KERNEL::Exception);
     int getDimension() const throw(INTERP_KERNEL::Exception);
     int getIteration() const throw(INTERP_KERNEL::Exception);
     int getOrder() const throw(INTERP_KERNEL::Exception);
@@ -1491,7 +1494,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileAnyTypeFieldMultiTS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeFieldMultiTS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeFieldMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const throw(INTERP_KERNEL::Exception);
     std::string getName() const throw(INTERP_KERNEL::Exception);
@@ -1507,6 +1510,9 @@ namespace ParaMEDMEM
     int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void loadArrays() throw(INTERP_KERNEL::Exception);
+    void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
+    void releaseArrays() throw(INTERP_KERNEL::Exception);
     //
     virtual MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
@@ -2023,6 +2029,9 @@ namespace ParaMEDMEM
     static MEDFileFields *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDFileFields *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
+    void loadArrays() throw(INTERP_KERNEL::Exception);
+    void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
+    void releaseArrays() throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);

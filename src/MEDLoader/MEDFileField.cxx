@@ -482,9 +482,11 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, int profileIt,
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
   med_geometry_type mgeoti;
   med_entity_type menti=MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(type,geoType,mgeoti);
-  DataArray *arr=getOrCreateAndGetArray();
   if(_start>_end)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : internal error in range !");
+  if(_start==_end)
+    return ;
+  DataArray *arr=getOrCreateAndGetArray();//arr is not null due to the spec of getOrCreateAndGetArray
   if(_start<0 || _start>=arr->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : Invalid start ("<< _start << ") regarding admissible range of allocated array [0," << arr->getNumberOfTuples() << ") !";
@@ -495,10 +497,19 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, int profileIt,
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : Invalid start ("<< _start << ") regarding admissible range of allocated array [0," << arr->getNumberOfTuples() << "] !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+  med_int tmp1,nbi;
+  INTERP_KERNEL::AutoPtr<char> locname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  med_int nbValsInFile=MEDfieldnValueWithProfileByName(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile.c_str(),MED_COMPACT_PFLMODE,&tmp1,locname,&nbi);
+  int nbOfCompo=arr->getNumberOfComponents();
+  if(_end-_start!=nbValsInFile*nbi)
+    {
+      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : The number of tuples to read is " << nbValsInFile << "*" << nbi <<  " (nb integration points) ! But in data structure it values " << _end-_start << " is expected !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   DataArrayDouble *arrD=dynamic_cast<DataArrayDouble *>(arr);
   if(arrD)
     {
-      double *startFeeding=arrD->getPointer()+_start*arrD->getNumberOfComponents();
+      double *startFeeding=arrD->getPointer()+_start*nbOfCompo;
       MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,
                                  _profile.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(startFeeding));
       return ;
@@ -506,7 +517,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, int profileIt,
   DataArrayInt *arrI=dynamic_cast<DataArrayInt *>(arr);
   if(arrI)
     {
-      int *startFeeding=arrI->getPointer()+_start*arrI->getNumberOfComponents();
+      int *startFeeding=arrI->getPointer()+_start*nbOfCompo;
       MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,
                                  _profile.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(startFeeding));
       return ;
@@ -4000,16 +4011,20 @@ void MEDFileAnyTypeField1TSWithoutSDA::writeLL(med_idt fid, const MEDFileWritabl
   _field_per_mesh[0]->writeLL(fid,nasc);
 }
 
-void MEDFileAnyTypeField1TSWithoutSDA::allocIfNecessaryTheArrayToReceiveDataFromFile() throw(INTERP_KERNEL::Exception)
+/*!
+ * This methods returns true is the allocation has been needed leading to a modification of state in \a this->_nb_of_tuples_to_be_allocated.
+ * If false is returned the memory allocation is not required.
+ */
+bool MEDFileAnyTypeField1TSWithoutSDA::allocIfNecessaryTheArrayToReceiveDataFromFile() throw(INTERP_KERNEL::Exception)
 {
   if(_nb_of_tuples_to_be_allocated>=0)
     {
       getOrCreateAndGetArray()->alloc(_nb_of_tuples_to_be_allocated,getNumberOfComponents());
       _nb_of_tuples_to_be_allocated=-2;
-      return ;
+      return true;
     }
   if(_nb_of_tuples_to_be_allocated==-2 || _nb_of_tuples_to_be_allocated==-3)
-    return ;
+    return false;
   if(_nb_of_tuples_to_be_allocated==-1)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::allocIfNecessaryTheArrayToReceiveDataFromFile : trying to read from a file an empty instance ! Need to prepare the structure before !");
   if(_nb_of_tuples_to_be_allocated<-3)
@@ -4044,10 +4059,27 @@ void MEDFileAnyTypeField1TSWithoutSDA::loadBigArraysRecursively(med_idt fid, con
     (*it)->loadBigArraysRecursively(fid,nasc);
 }
 
+void MEDFileAnyTypeField1TSWithoutSDA::loadBigArraysRecursivelyIfNecessary(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
+{
+  if(allocIfNecessaryTheArrayToReceiveDataFromFile())
+    for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+      (*it)->loadBigArraysRecursively(fid,nasc);
+}
+
 void MEDFileAnyTypeField1TSWithoutSDA::loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
   loadOnlyStructureOfDataRecursively(fid,nasc);
   loadBigArraysRecursively(fid,nasc);
+}
+
+void MEDFileAnyTypeField1TSWithoutSDA::releaseArrays() throw(INTERP_KERNEL::Exception)
+{
+  DataArray *thisArr(getUndergroundDataArray());
+  if(thisArr && thisArr->isAllocated())
+    {
+      _nb_of_tuples_to_be_allocated=thisArr->getNumberOfTuples();
+      thisArr->desallocate();
+    }
 }
 
 std::size_t MEDFileAnyTypeField1TSWithoutSDA::getHeapMemorySize() const
@@ -4687,10 +4719,16 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileField1TSWithoutSDA::deepCpy() const thr
 void MEDFileField1TSWithoutSDA::setArray(DataArray *arr) throw(INTERP_KERNEL::Exception)
 {
   if(!arr)
-    _arr=0;
+    {
+      _nb_of_tuples_to_be_allocated=-1;
+      _arr=0;
+      return ;
+    }
   DataArrayDouble *arrC=dynamic_cast<DataArrayDouble *>(arr);
   if(!arrC)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayDouble !");
+  else
+    _nb_of_tuples_to_be_allocated=-3;
   arrC->incrRef();
   _arr=arrC;
 }
@@ -4860,10 +4898,16 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::deepCpy() const 
 void MEDFileIntField1TSWithoutSDA::setArray(DataArray *arr) throw(INTERP_KERNEL::Exception)
 {
   if(!arr)
-    _arr=0;
+    {
+      _nb_of_tuples_to_be_allocated=-1;
+      _arr=0;
+      return ;
+    }
   DataArrayInt *arrC=dynamic_cast<DataArrayInt *>(arr);
   if(!arrC)
     throw INTERP_KERNEL::Exception("MEDFileIntField1TSWithoutSDA::setArray : the input not null array is not of type DataArrayInt !");
+  else
+    _nb_of_tuples_to_be_allocated=-3;
   arrC->incrRef();
   _arr=arrC;
 }
@@ -5124,7 +5168,10 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
         oss << "(" << (*iter).first << "," << (*iter).second << "), ";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret));
+  if(loadAll)
+    ret->loadStructureAndBigArraysRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret));
+  else
+    ret->loadOnlyStructureOfDataRecursively(fid,*((const MEDFileAnyTypeField1TSWithoutSDA*)ret));
   return ret.retn();
 }
 
@@ -5327,6 +5374,44 @@ void MEDFileAnyTypeField1TS::write(const char *fileName, int mode) const throw(I
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   writeLL(fid);
+}
+
+/*!
+ * This method alloc the arrays and load potentially huge arrays contained in this field.
+ * This method should be called when a MEDFileAnyTypeField1TS::New constructor has been with false as the last parameter.
+ * This method can be also called to refresh or reinit values from a file.
+ * 
+ * \throw If the fileName is not set or points to a non readable MED file.
+ * \sa MEDFileAnyTypeField1TS::loadArraysIfNecessary
+ */
+void MEDFileAnyTypeField1TS::loadArrays() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
+}
+
+/*!
+ * This method behaves as MEDFileAnyTypeField1TS::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
+ * But once data loaded once, this method does nothing.
+ * 
+ * \throw If the fileName is not set or points to a non readable MED file.
+ * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::releaseArrays
+ */
+void MEDFileAnyTypeField1TS::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
+}
+
+/*!
+ * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
+ * This method does not release arrays set outside the context of a MED file.
+ * 
+ * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::loadArraysIfNecessary
+ */
+void MEDFileAnyTypeField1TS::releaseArrays() throw(INTERP_KERNEL::Exception)
+{
+  contentNotNullBase()->releaseArrays();
 }
 
 void MEDFileAnyTypeField1TS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
@@ -6772,6 +6857,36 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::writeLL(med_idt fid, const MEDFileWri
     _time_steps[i]->writeLL(fid,opts,*this);
 }
 
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      MEDFileAnyTypeField1TSWithoutSDA *elt(*it);
+      if(elt)
+        elt->loadBigArraysRecursively(fid,nasc);
+    }
+}
+  
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadBigArraysRecursivelyIfNecessary(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      MEDFileAnyTypeField1TSWithoutSDA *elt(*it);
+      if(elt)
+        elt->loadBigArraysRecursivelyIfNecessary(fid,nasc);
+    }
+}
+
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::releaseArrays() throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      MEDFileAnyTypeField1TSWithoutSDA *elt(*it);
+      if(elt)
+        elt->releaseArrays();
+    }
+}
+
 int MEDFileAnyTypeFieldMultiTSWithoutSDA::getNumberOfTS() const
 {
   return _time_steps.size();
@@ -7499,11 +7614,11 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const char *fileName
  *  \throw If reading the file fails.
  *  \throw If there is no field named \a fieldName in the file.
  */
-MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const char *fileName, const char *fieldName, bool loadAll) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,loadAll);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
   return ret.retn();
@@ -7753,6 +7868,43 @@ void MEDFileAnyTypeFieldMultiTS::write(const char *fileName, int mode) const thr
   writeLL(fid);
 }
 
+/*!
+ * This method alloc the arrays and load potentially huge arrays contained in this field.
+ * This method should be called when a MEDFileAnyTypeFieldMultiTS::New constructor has been with false as the last parameter.
+ * This method can be also called to refresh or reinit values from a file.
+ * 
+ * \throw If the fileName is not set or points to a non readable MED file.
+ */
+void MEDFileAnyTypeFieldMultiTS::loadArrays() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
+}
+
+/*!
+ * This method behaves as MEDFileAnyTypeFieldMultiTS::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
+ * But once data loaded once, this method does nothing.
+ * 
+ * \throw If the fileName is not set or points to a non readable MED file.
+ * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::releaseArrays
+ */
+void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
+}
+
+/*!
+ * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
+ * This method does not release arrays set outside the context of a MED file.
+ * 
+ * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary
+ */
+void MEDFileAnyTypeFieldMultiTS::releaseArrays() throw(INTERP_KERNEL::Exception)
+{
+  contentNotNullBase()->releaseArrays();
+}
+
 std::string MEDFileAnyTypeFieldMultiTS::simpleRepr() const
 {
   std::ostringstream oss;
@@ -7770,7 +7922,7 @@ std::size_t MEDFileAnyTypeFieldMultiTS::getHeapMemorySize() const
 }
 
 /*!
- * This method returns as MEDFileAnyTypeField1TS new instances as number of components in \a this.
+ * This method returns as MEDFileAnyTypeFieldMultiTS new instances as number of components in \a this.
  * The returned instances are deep copy of \a this except that for globals that are share with those contained in \a this.
  * ** WARNING ** do no forget to rename the ouput instances to avoid to write n-times in the same MED file field !
  */
@@ -8905,6 +9057,59 @@ void MEDFileFields::write(const char *fileName, int mode) const throw(INTERP_KER
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   writeLL(fid);
+}
+
+/*!
+ * This method alloc the arrays and load potentially huge arrays contained in this field.
+ * This method should be called when a MEDFileAnyTypeFieldMultiTS::New constructor has been with false as the last parameter.
+ * This method can be also called to refresh or reinit values from a file.
+ * 
+ * \throw If the fileName is not set or points to a non readable MED file.
+ */
+void MEDFileFields::loadArrays() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
+      if(elt)
+        elt->loadBigArraysRecursively(fid,*elt);
+    }
+}
+
+/*!
+ * This method behaves as MEDFileFields::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
+ * But once data loaded once, this method does nothing.
+ * 
+ * \throw If the fileName is not set or points to a non readable MED file.
+ * \sa MEDFileFields::loadArrays, MEDFileFields::releaseArrays
+ */
+void MEDFileFields::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
+      if(elt)
+        elt->loadBigArraysRecursivelyIfNecessary(fid,*elt);
+    }
+}
+
+/*!
+ * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
+ * This method does not release arrays set outside the context of a MED file.
+ * 
+ * \sa MEDFileFields::loadArrays, MEDFileFields::loadArraysIfNecessary
+ */
+void MEDFileFields::releaseArrays() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
+      if(elt)
+        elt->releaseArrays();
+    }
 }
 
 std::vector<std::string> MEDFileFields::getPflsReallyUsed() const

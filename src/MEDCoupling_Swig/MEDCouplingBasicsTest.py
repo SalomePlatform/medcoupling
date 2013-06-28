@@ -13369,6 +13369,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(c.isEqual(DataArrayInt([5,2,1,10])))
         pass
 
+    def testSwig2DADesallocate1(self):
+        d=DataArrayDouble([(1,2),(6,7),(6,8)]) ; d.setInfoOnComponents(["aa","bbb"])
+        self.assertTrue(d.isAllocated())
+        d.checkAllocated()
+        self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
+        ref=d.getHeapMemorySize()
+        d.desallocate()
+        self.assertEqual(ref-d.getHeapMemorySize(),6*8)
+        self.assertTrue(not d.isAllocated())
+        self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
+        self.assertRaises(InterpKernelException,d.checkAllocated)
+        #
+        d=DataArrayInt([(1,2),(6,7),(6,8)]) ; d.setInfoOnComponents(["aa","bbb"])
+        self.assertTrue(d.isAllocated())
+        d.checkAllocated()
+        self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
+        ref=d.getHeapMemorySize()
+        d.desallocate()
+        self.assertEqual(ref-d.getHeapMemorySize(),6*4)
+        self.assertTrue(not d.isAllocated())
+        self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
+        self.assertRaises(InterpKernelException,d.checkAllocated)
+        pass
+
     def setUp(self):
         pass
     pass

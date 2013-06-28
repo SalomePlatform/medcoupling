@@ -98,7 +98,7 @@ namespace ParaMEDMEM
     static void CPPDeallocator(void *pt, void *param);
     static void CDeallocator(void *pt, void *param);
   private:
-    static void destroyPointer(T *pt, Deallocator dealloc, void *param);
+    static void DestroyPointer(T *pt, Deallocator dealloc, void *param);
     static Deallocator BuildFromType(DeallocType type) throw(INTERP_KERNEL::Exception);
   private:
     std::size_t _nb_of_elem;
@@ -136,10 +136,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
     MEDCOUPLING_EXPORT virtual bool isAllocated() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void checkAllocated() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void desallocate() throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfTuples() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void reAlloc(int newNbOfTuple) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void renumberInPlace(const int *old2New) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void renumberInPlaceR(const int *new2Old) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception) = 0;
@@ -189,6 +191,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayDouble *New();
     MEDCOUPLING_EXPORT bool isAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void desallocate() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfTuples() const throw(INTERP_KERNEL::Exception) { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception) { return _mem.getNbOfElem(); }
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
@@ -411,6 +414,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *New();
     MEDCOUPLING_EXPORT bool isAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void desallocate() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfTuples() const throw(INTERP_KERNEL::Exception) { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception) { return _mem.getNbOfElem(); }
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
@@ -638,6 +642,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArrayChar *deepCpy() const = 0;
     MEDCOUPLING_EXPORT bool isAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void desallocate() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfTuples() const throw(INTERP_KERNEL::Exception) { return _info_on_compo.empty()?0:_mem.getNbOfElem()/getNumberOfComponents(); }
     MEDCOUPLING_EXPORT std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception) { return _mem.getNbOfElem(); }
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;

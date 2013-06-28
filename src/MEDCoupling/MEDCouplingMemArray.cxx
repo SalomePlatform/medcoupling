@@ -402,7 +402,8 @@ void DataArray::setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL:
 /*!
  * Sets information on all components. This method can change number of components
  * at certain conditions; if the conditions are not respected, an exception is thrown.
- * The number of components can be changed provided that \a this is not allocated.
+ * The number of components can be changed in \a this only if \a this is not allocated.
+ * The condition of number of components must not be changed.
  *
  * To know more on format of the component information see
  * \ref MEDCouplingArrayBasicsCompoName "DataArrays infos".
@@ -650,6 +651,16 @@ void DataArrayDouble::checkAllocated() const throw(INTERP_KERNEL::Exception)
 {
   if(!isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayDouble::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
+}
+
+/*!
+ * This method desallocated \a this without modification of informations relative to the components.
+ * After call of this method, DataArrayDouble::isAllocated will return false.
+ * If \a this is already not allocated, \a this is let unchanged.
+ */
+void DataArrayDouble::desallocate() throw(INTERP_KERNEL::Exception)
+{
+  _mem.destroy();
 }
 
 std::size_t DataArrayDouble::getHeapMemorySize() const
@@ -1209,9 +1220,12 @@ bool DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble& other,
  * than the current number the array is truncated, otherwise the array is extended.
  *  \param [in] nbOfTuples - new number of tuples. 
  *  \throw If \a this is not allocated.
+ *  \throw If \a nbOfTuples is negative.
  */
 void DataArrayDouble::reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
+  if(nbOfTuples<0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::reAlloc : input new number of tuples should be >=0 !");
   checkAllocated();
   _mem.reAlloc(getNumberOfComponents()*(std::size_t)nbOfTuples);
   declareAsNew();
@@ -5428,6 +5442,16 @@ void DataArrayInt::checkAllocated() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("DataArrayInt::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
 }
 
+/*!
+ * This method desallocated \a this without modification of informations relative to the components.
+ * After call of this method, DataArrayInt::isAllocated will return false.
+ * If \a this is already not allocated, \a this is let unchanged.
+ */
+void DataArrayInt::desallocate() throw(INTERP_KERNEL::Exception)
+{
+  _mem.destroy();
+}
+
 std::size_t DataArrayInt::getHeapMemorySize() const
 {
   std::size_t sz=_mem.getNbOfElemAllocated();
@@ -7111,9 +7135,12 @@ DataArrayInt *DataArrayInt::changeNbOfComponents(int newNbOfComp, int dftValue) 
  * than the current number the array is truncated, otherwise the array is extended.
  *  \param [in] nbOfTuples - new number of tuples. 
  *  \throw If \a this is not allocated.
+ *  \throw If \a nbOfTuples is negative.
  */
 void DataArrayInt::reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
+  if(nbOfTuples<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::reAlloc : input new number of tuples should be >=0 !");
   checkAllocated();
   _mem.reAlloc(getNumberOfComponents()*(std::size_t)nbOfTuples);
   declareAsNew();

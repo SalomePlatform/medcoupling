@@ -41,8 +41,10 @@ namespace ParaMEDMEM
     void setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
     virtual void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
+    virtual void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     virtual bool isAllocated() const throw(INTERP_KERNEL::Exception);
     virtual void checkAllocated() const throw(INTERP_KERNEL::Exception);
+    virtual void desallocate() throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
@@ -285,7 +287,6 @@ namespace ParaMEDMEM
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
-    void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
@@ -2314,7 +2315,6 @@ namespace ParaMEDMEM
     DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
-    void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);
@@ -4572,7 +4572,6 @@ namespace ParaMEDMEM
     void fillWithValue(char val) throw(INTERP_KERNEL::Exception);
     std::string repr() const throw(INTERP_KERNEL::Exception);
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumber(const int *old2New) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);

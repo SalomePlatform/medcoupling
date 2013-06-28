@@ -145,7 +145,7 @@ void MEDCouplingBasicsTest1::testMesh()
   CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NORM_TRI3),2);
   CPPUNIT_ASSERT_EQUAL(std::string(MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NORM_TRI3)),std::string("NORM_TRI3"));
   CPPUNIT_ASSERT_THROW(MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NORM_POLYGON),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT(not MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NORM_POLYGON));
+  CPPUNIT_ASSERT(!MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NORM_POLYGON));
   CPPUNIT_ASSERT(MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NORM_POLYGON));
   CPPUNIT_ASSERT_EQUAL(MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NORM_POLYGON),2);
   CPPUNIT_ASSERT_EQUAL(std::string(MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NORM_POLYGON)),std::string("NORM_POLYGON"));

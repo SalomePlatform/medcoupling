@@ -2799,7 +2799,6 @@ class MEDLoaderTest(unittest.TestCase):
         ff0=MEDFileField1TS()
         f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["XX [pm]","YYY [hm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellPfl")
         f0.checkCoherency()
-        #ff0.setFieldNoProfileSBT(f0)
         pfl=DataArrayInt.Range(0,7,1) ; pfl.setName("pfl")
         ff0.setFieldProfile(f0,mm,0,pfl)
         fspExp=[(3,[(0,(0,4),'','')]),(4,[(0,(4,7),'pfl_NORM_QUAD4','')])]

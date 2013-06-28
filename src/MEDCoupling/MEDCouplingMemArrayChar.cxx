@@ -50,6 +50,16 @@ void DataArrayChar::checkAllocated() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("DataArrayChar::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
 }
 
+/*!
+ * This method desallocated \a this without modification of informations relative to the components.
+ * After call of this method, DataArrayChar::isAllocated will return false.
+ * If \a this is already not allocated, \a this is let unchanged.
+ */
+void DataArrayChar::desallocate() throw(INTERP_KERNEL::Exception)
+{
+  _mem.destroy();
+}
+
 std::size_t DataArrayChar::getHeapMemorySize() const
 {
   std::size_t sz=_mem.getNbOfElemAllocated();
@@ -336,9 +346,12 @@ std::string DataArrayChar::reprZip() const throw(INTERP_KERNEL::Exception)
  * than the current number the array is truncated, otherwise the array is extended.
  *  \param [in] nbOfTuples - new number of tuples. 
  *  \throw If \a this is not allocated.
+ *  \throw If \a nbOfTuples is negative.
  */
 void DataArrayChar::reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
+  if(nbOfTuples<0)
+    throw INTERP_KERNEL::Exception("DataArrayChar::reAlloc : input new number of tuples should be >=0 !");
   checkAllocated();
   _mem.reAlloc(getNumberOfComponents()*(std::size_t)nbOfTuples);
   declareAsNew();
