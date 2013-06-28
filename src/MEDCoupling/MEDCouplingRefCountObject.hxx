@@ -67,6 +67,7 @@ namespace ParaMEDMEM
     void incrRef() const;
     virtual std::size_t getHeapMemorySize() const = 0;
     int getRCValue() const;
+    RefCountObject& operator=(const RefCountObject& other);
   protected:
     virtual ~RefCountObject();
   private:

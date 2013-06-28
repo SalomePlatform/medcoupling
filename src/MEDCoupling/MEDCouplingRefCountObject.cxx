@@ -54,6 +54,15 @@ RefCountObject::RefCountObject(const RefCountObject& other):_cnt(1)
 {
 }
 
+/*!
+ * Do nothing here ! It is not a bug ( I hope :) ) because all subclasses that
+ * copies using operator= should not copy the ref counter of \a other !
+ */
+RefCountObject& RefCountObject::operator=(const RefCountObject& other)
+{
+  return *this;
+}
+
 bool RefCountObject::decrRef() const
 {
   bool ret=((--_cnt)==0);
