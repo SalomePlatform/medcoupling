@@ -18,7 +18,6 @@
 #
 
 SET(admlocal_cmake_DATA
-  FindMEDFILE.cmake
   FindMED.cmake
   FindXDR.cmake
   FindMETIS.cmake
