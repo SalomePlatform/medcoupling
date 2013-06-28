@@ -122,8 +122,6 @@ namespace ParaMEDMEM
     int getStart() const { return _start; }
     DataArray *getArray();
     const DataArray *getArray() const;
-    const DataArrayDouble *getArrayDouble() const;
-    DataArrayDouble *getArrayDouble();
     const std::vector<std::string>& getInfo() const;
     std::string getProfile() const;
     void setProfile(const char *newPflName);
@@ -195,8 +193,6 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const;
     DataArray *getArray();
     const DataArray *getArray() const;
-    const DataArrayDouble *getArrayDouble() const;
-    DataArrayDouble *getArrayDouble();
     const std::vector<std::string>& getInfo() const;
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
@@ -251,8 +247,6 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const;
     DataArray *getArray();
     const DataArray *getArray() const;
-    DataArrayDouble *getArrayDouble();
-    const DataArrayDouble *getArrayDouble() const;
     const std::vector<std::string>& getInfo() const;
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;

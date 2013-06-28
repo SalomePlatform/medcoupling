@@ -587,17 +587,6 @@ const DataArray *MEDFileFieldPerMeshPerTypePerDisc::getArray() const
   return fath->getArray();
 }
 
-DataArrayDouble *MEDFileFieldPerMeshPerTypePerDisc::getArrayDouble()
-{
-  return _father->getArrayDouble();
-}
-
-const DataArrayDouble *MEDFileFieldPerMeshPerTypePerDisc::getArrayDouble() const
-{
-  const MEDFileFieldPerMeshPerType *fath=_father;
-  return fath->getArrayDouble();
-}
-
 const std::vector<std::string>& MEDFileFieldPerMeshPerTypePerDisc::getInfo() const
 {
   return _father->getInfo();
@@ -1267,17 +1256,6 @@ const DataArray *MEDFileFieldPerMeshPerType::getArray() const
   return fath->getArray();
 }
 
-DataArrayDouble *MEDFileFieldPerMeshPerType::getArrayDouble()
-{
-  return _father->getArrayDouble();
-}
-
-const DataArrayDouble *MEDFileFieldPerMeshPerType::getArrayDouble() const
-{
-  const MEDFileFieldPerMesh *fath=_father;
-  return fath->getArrayDouble();
-}
-
 const std::vector<std::string>& MEDFileFieldPerMeshPerType::getInfo() const
 {
   return _father->getInfo();
@@ -1677,22 +1655,6 @@ const DataArray *MEDFileFieldPerMesh::getArray() const
   return _father->getOrCreateAndGetArray();
 }
 
-DataArrayDouble *MEDFileFieldPerMesh::getArrayDouble()
-{
-  MEDFileField1TSWithoutSDA *fatherC=dynamic_cast<MEDFileField1TSWithoutSDA *>(_father);
-  if(!fatherC)
-    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getArrayDouble : Expected to be called on double array !");
-  return fatherC->getOrCreateAndGetArrayDouble();
-}
-
-const DataArrayDouble *MEDFileFieldPerMesh::getArrayDouble() const
-{
-  const MEDFileField1TSWithoutSDA *fatherC=dynamic_cast<const MEDFileField1TSWithoutSDA *>(_father);
-  if(!fatherC)
-    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getArrayDouble : Expected to be called on double array !");
-  return fatherC->getOrCreateAndGetArrayDouble();
-}
-
 const std::vector<std::string>& MEDFileFieldPerMesh::getInfo() const
 {
   return _father->getInfo();
@@ -1859,7 +1821,12 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, cons
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> entriesKept;
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> otherEntries;
   getUndergroundDataArrayExt(entries);
-  DataArrayDouble *arr=getArrayDouble();
+  DataArray *arr0=getArray();//tony
+  if(!arr0)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArray storing values of field is null !");
+  DataArrayDouble *arr=dynamic_cast<DataArrayDouble *>(arr0);//tony
+  if(!arr0)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArray storing values is double ! Not managed for the moment !");
   int sz=0;
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArrayDouble storing values of field is null !");
