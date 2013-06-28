@@ -2759,6 +2759,105 @@ class MEDLoaderTest(unittest.TestCase):
             self.assertTrue(d.isEqual(f.getArray(),1e-13))
             pass
         pass
+
+    def testMEDFileFieldConvertTo1(self):
+        fname="Pyfile68.med"
+        # building a mesh containing 4 tri3 + 5 quad4
+        tri=MEDCouplingUMesh("tri",2)
+        tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
+        tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
+        tris=[tri.deepCpy() for i in xrange(4)]
+        for i,elt in enumerate(tris): elt.translate([i,0])
+        tris=MEDCouplingUMesh.MergeUMeshes(tris)
+        quad=MEDCouplingUMesh("quad",2)
+        quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
+        quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
+        quads=[quad.deepCpy() for i in xrange(5)]
+        for i,elt in enumerate(quads): elt.translate([5+i,0])
+        quads=MEDCouplingUMesh.MergeUMeshes(quads)
+        m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
+        m.setName("mesh") ; m.getCoords().setInfoOnComponents(["XX [m]","YYY [km]"])
+        mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m)
+        #
+        ff0=MEDFileField1TS()
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m) ; arr=DataArrayDouble(m.getNumberOfCells()*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName("FieldCell")
+        f0.checkCoherency()
+        ff0.setFieldNoProfileSBT(f0)
+        #
+        fspExp=[(3,[(0,(0,4),'','')]),(4,[(0,(4,9),'','')])]
+        self.assertEqual(ff0.getFieldSplitedByType(),fspExp)
+        #
+        ff0i=ff0.convertToInt()
+        self.assertEqual(ff0i.getFieldSplitedByType(),fspExp)
+        self.assertTrue(arr.convertToIntArr().isEqual(ff0i.getUndergroundDataArray()))
+        #
+        ff1=ff0i.convertToDouble()
+        self.assertTrue(ff1.getUndergroundDataArray().isEqual(ff0.getUndergroundDataArray(),1e-13))
+        self.assertEqual(ff1.getFieldSplitedByType(),fspExp)
+        # With profiles
+        del arr,f0,ff0,ff1,ff0i,fspExp
+        ff0=MEDFileField1TS()
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["XX [pm]","YYY [hm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellPfl")
+        f0.checkCoherency()
+        #ff0.setFieldNoProfileSBT(f0)
+        pfl=DataArrayInt.Range(0,7,1) ; pfl.setName("pfl")
+        ff0.setFieldProfile(f0,mm,0,pfl)
+        fspExp=[(3,[(0,(0,4),'','')]),(4,[(0,(4,7),'pfl_NORM_QUAD4','')])]
+        self.assertEqual(ff0.getFieldSplitedByType(),fspExp)
+        #
+        ff0i=ff0.convertToInt()
+        self.assertTrue(isinstance(ff0i,MEDFileIntField1TS))
+        self.assertEqual(ff0i.getFieldSplitedByType(),fspExp)
+        self.assertTrue(arr.convertToIntArr().isEqual(ff0i.getUndergroundDataArray()))
+        #
+        ff1=ff0i.convertToDouble()
+        self.assertTrue(isinstance(ff1,MEDFileField1TS))
+        self.assertTrue(ff1.getUndergroundDataArray().isEqual(ff0.getUndergroundDataArray(),1e-13))
+        self.assertEqual(ff1.getFieldSplitedByType(),fspExp)
+        ## MultiTimeSteps
+        ff0=MEDFileFieldMultiTS()
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellMTime") ; f0.setTime(0.1,0,10)
+        f0.checkCoherency()
+        ff0.appendFieldProfile(f0,mm,0,pfl)
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota(100) ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellMTime") ; f0.setTime(1.1,1,11)
+        f0.checkCoherency()
+        ff0.appendFieldProfile(f0,mm,0,pfl)
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:7]) ; arr=DataArrayDouble(7*2) ; arr.iota(200) ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellMTime") ; f0.setTime(2.1,2,12)
+        f0.checkCoherency()
+        ff0.appendFieldProfile(f0,mm,0,pfl)
+        ff1=ff0.convertToInt()
+        self.assertTrue(isinstance(ff1,MEDFileIntFieldMultiTS))
+        self.assertEqual(ff1.getTimeSteps(),[(0,10,0.1),(1,11,1.1),(2,12,2.1)])
+        for delt,(dt,it,t) in  zip([0,100,200],ff1.getTimeSteps()):
+            self.assertEqual(ff1.getFieldSplitedByType(dt,it),fspExp)
+            arr=ff1.getUndergroundDataArray(dt,it)
+            arr.isEqualWithoutConsideringStr(DataArrayInt.Range(delt,delt+7,1))
+            pass
+        self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4', 'pfl_NORM_QUAD4', 'pfl_NORM_QUAD4'))
+        #
+        mm.write(fname,2)
+        ff1.write(fname,0)
+        #
+        ff1=ff1.convertToDouble()
+        self.assertTrue(isinstance(ff1,MEDFileFieldMultiTS))
+        self.assertEqual(ff1.getTimeSteps(),[(0,10,0.1),(1,11,1.1),(2,12,2.1)])
+        for delt,(dt,it,t) in  zip([0,100,200],ff1.getTimeSteps()):
+            self.assertEqual(ff1.getFieldSplitedByType(dt,it),fspExp)
+            arr=ff1.getUndergroundDataArray(dt,it)
+            arr.isEqualWithoutConsideringStr(DataArrayInt.Range(delt,delt+7,1).convertToDblArr(),1e-14)
+            pass
+        self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4', 'pfl_NORM_QUAD4', 'pfl_NORM_QUAD4'))
+        #
+        ff1=MEDFileAnyTypeFieldMultiTS.New(fname,"FieldCellMTime")
+        self.assertTrue(isinstance(ff1,MEDFileIntFieldMultiTS))
+        self.assertEqual(ff1.getTimeSteps(),[(0,10,0.1),(1,11,1.1),(2,12,2.1)])
+        for delt,(dt,it,t) in  zip([0,100,200],ff1.getTimeSteps()):
+            self.assertTrue(ff1.getFieldSplitedByType(dt,it),fspExp)
+            arr=ff1.getUndergroundDataArray(dt,it)
+            arr.isEqualWithoutConsideringStr(DataArrayInt.Range(delt,delt+7,1))
+            pass
+        self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4',))
+        pass
     pass
 
 unittest.main()
