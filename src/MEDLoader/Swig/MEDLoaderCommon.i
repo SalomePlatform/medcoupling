@@ -1102,9 +1102,9 @@ namespace ParaMEDMEM
   class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
   {
   public:
-    static MEDFileAnyTypeField1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
-    static MEDFileAnyTypeField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeField1TS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getDimension() const throw(INTERP_KERNEL::Exception);
     int getIteration() const throw(INTERP_KERNEL::Exception);
@@ -1229,9 +1229,9 @@ namespace ParaMEDMEM
   class MEDFileField1TS : public MEDFileAnyTypeField1TS
   {
   public:
-    static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-    static MEDFileField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
-    static MEDFileField1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
     ParaMEDMEM::MEDFileIntField1TS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -1246,19 +1246,19 @@ namespace ParaMEDMEM
     void setLocNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
     %extend
        {
-         MEDFileField1TS(const char *fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileField1TS::New(fileName);
+           return MEDFileField1TS::New(fileName,loadAll);
          }
          
-         MEDFileField1TS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileField1TS::New(fileName,fieldName);
+           return MEDFileField1TS::New(fileName,fieldName,loadAll);
          }
 
-         MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+         MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileField1TS::New(fileName,fieldName,iteration,order);
+           return MEDFileField1TS::New(fileName,fieldName,iteration,order,loadAll);
          }
 
          MEDFileField1TS()
@@ -1364,9 +1364,9 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileIntField1TS *New();
-    static MEDFileIntField1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntField1TS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntField1TS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     ParaMEDMEM::MEDFileField1TS *convertToDouble(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
@@ -1378,19 +1378,19 @@ namespace ParaMEDMEM
         return MEDFileIntField1TS::New();
       }
 
-      MEDFileIntField1TS(const char *fileName) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
-        return MEDFileIntField1TS::New(fileName);
+        return MEDFileIntField1TS::New(fileName,loadAll);
       }
 
-      MEDFileIntField1TS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
-        return MEDFileIntField1TS::New(fileName,fieldName);
+        return MEDFileIntField1TS::New(fileName,fieldName,loadAll);
       }
 
-      MEDFileIntField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+      MEDFileIntField1TS(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
-        return MEDFileIntField1TS::New(fileName,fieldName,iteration,order);
+        return MEDFileIntField1TS::New(fileName,fieldName,iteration,order,loadAll);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -1490,7 +1490,7 @@ namespace ParaMEDMEM
   class MEDFileAnyTypeFieldMultiTS : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
   {
   public:
-    static MEDFileAnyTypeFieldMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileAnyTypeFieldMultiTS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeFieldMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const throw(INTERP_KERNEL::Exception);
@@ -1781,8 +1781,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileFieldMultiTS *New() throw(INTERP_KERNEL::Exception);
-    static MEDFileFieldMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldMultiTS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     //
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -1800,14 +1800,14 @@ namespace ParaMEDMEM
            return MEDFileFieldMultiTS::New();
          }
 
-         MEDFileFieldMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileFieldMultiTS(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileFieldMultiTS::New(fileName);
+           return MEDFileFieldMultiTS::New(fileName,loadAll);
          }
 
-         MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+         MEDFileFieldMultiTS(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileFieldMultiTS::New(fileName,fieldName);
+           return MEDFileFieldMultiTS::New(fileName,fieldName,loadAll);
          }
          
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -1918,8 +1918,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileIntFieldMultiTS *New();
-    static MEDFileIntFieldMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileIntFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntFieldMultiTS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileIntFieldMultiTS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
@@ -1931,14 +1931,14 @@ namespace ParaMEDMEM
         return MEDFileIntFieldMultiTS::New();
       }
       
-      MEDFileIntFieldMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception)
+      MEDFileIntFieldMultiTS(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
-        return MEDFileIntFieldMultiTS::New(fileName);
+        return MEDFileIntFieldMultiTS::New(fileName,loadAll);
       }
       
-      MEDFileIntFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+      MEDFileIntFieldMultiTS(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
-        return MEDFileIntFieldMultiTS::New(fileName,fieldName);
+        return MEDFileIntFieldMultiTS::New(fileName,fieldName,loadAll);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2020,7 +2020,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
-    static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileFields *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     MEDFileFields *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -2043,9 +2043,9 @@ namespace ParaMEDMEM
            return MEDFileFields::New();
          }
 
-         MEDFileFields(const char *fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileFields(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileFields::New(fileName);
+           return MEDFileFields::New(fileName,loadAll);
          }
          
          std::string __str__() const throw(INTERP_KERNEL::Exception)
