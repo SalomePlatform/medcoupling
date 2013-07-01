@@ -22,7 +22,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDFileMeshReadSelector::MEDFileMeshReadSelector():_code(0)
+MEDFileMeshReadSelector::MEDFileMeshReadSelector():_code(0xFFFFFFFF)
 {
 }
 
@@ -62,18 +62,38 @@ bool MEDFileMeshReadSelector::isNodeNameFieldReading() const
 
 void MEDFileMeshReadSelector::setCellFamilyFieldReading(bool b)
 {
+  unsigned int code(_code & 0xFFFFFFFE);
+  unsigned int b2=b?1:0;
+  //b2<<=0;
+  code+=b2;
+  _code=code;
 }
 
 void MEDFileMeshReadSelector::setNodeFamilyFieldReading(bool b)
 {
+  unsigned int code(_code & 0xFFFFFFFD);
+  unsigned int b2=b?1:0;
+  b2<<=1;
+  code+=b2;
+  _code=code;
 }
 
 void MEDFileMeshReadSelector::setCellNameFieldReading(bool b)
 {
+  unsigned int code(_code & 0xFFFFFFFB);
+  unsigned int b2=b?1:0;
+  b2<<=2;
+  code+=b2;
+  _code=code;
 }
 
 void MEDFileMeshReadSelector::setNodeNameFieldReading(bool b)
 {
+  unsigned int code(_code & 0xFFFFFFF7);
+  unsigned int b2=b?1:0;
+  b2<<=3;
+  code+=b2;
+  _code=code;
 }
 
 void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
