@@ -1316,9 +1316,9 @@ class MEDLoaderTest(unittest.TestCase):
 
     def testBasicConstructors(self):
         fname="Pyfile18.med"
-        m=MEDFileMesh(fname)
-        m=MEDFileMesh(fname,"ExampleOfMultiDimW",-1,-1)
-        m=MEDFileMesh(fname)
+        m=MEDFileMesh.New(fname)
+        m=MEDFileMesh.New(fname,"ExampleOfMultiDimW",-1,-1)
+        m=MEDFileMesh.New(fname)
         m=MEDFileUMesh(fname,"ExampleOfMultiDimW",-1,-1)
         m=MEDFileUMesh(fname)
         m=MEDFileUMesh()

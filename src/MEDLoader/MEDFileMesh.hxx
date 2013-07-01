@@ -326,8 +326,8 @@ namespace ParaMEDMEM
     friend class MEDFileMesh;
   public:
     static MEDFileCMesh *New();
-    static MEDFileCMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileCMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
     MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
@@ -344,8 +344,8 @@ namespace ParaMEDMEM
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileCMesh();
     void synchronizeTinyInfoOnLeaves() const;
-    MEDFileCMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
-    void loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    MEDFileCMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);
+    void loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
   };
@@ -355,8 +355,8 @@ namespace ParaMEDMEM
     friend class MEDFileMesh;
   public:
     static MEDFileCurveLinearMesh *New();
-    static MEDFileCurveLinearMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileCurveLinearMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
     MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
@@ -370,11 +370,11 @@ namespace ParaMEDMEM
     void setMesh(MEDCouplingCurveLinearMesh *m) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileCurveLinearMesh();
-    MEDFileCurveLinearMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    MEDFileCurveLinearMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);
     const MEDCouplingStructuredMesh *getStructuredMesh() const;
     void synchronizeTinyInfoOnLeaves() const;
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
-    void loadCLMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);//to imp
+    void loadCLMeshFromFile(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);//to imp
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> _clmesh;
   };

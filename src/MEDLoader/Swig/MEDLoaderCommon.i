@@ -529,16 +529,6 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     %extend
        {
-         MEDFileMesh(const char *fileName) throw(INTERP_KERNEL::Exception)
-         {
-           return MEDFileMesh::New(fileName);
-         }
-
-         MEDFileMesh(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception)
-         {
-           return MEDFileMesh::New(fileName,mName,dt,it);
-         }
-         
          std::string __str__() const throw(INTERP_KERNEL::Exception)
          {
            return self->simpleRepr();
@@ -664,8 +654,8 @@ namespace ParaMEDMEM
   class MEDFileUMesh : public MEDFileMesh
   {
   public:
-    static MEDFileUMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
@@ -708,14 +698,14 @@ namespace ParaMEDMEM
     DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
     %extend
        { 
-         MEDFileUMesh(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileUMesh::New(fileName,mName,dt,it);
+           return MEDFileUMesh::New(fileName,mName,dt,it,mrs);
          }
 
-         MEDFileUMesh(const char *fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileUMesh(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileUMesh::New(fileName);
+           return MEDFileUMesh::New(fileName,mrs);
          }
 
          MEDFileUMesh()
@@ -788,8 +778,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileCMesh *New();
-    static MEDFileCMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileCMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
     %extend
        {
@@ -798,14 +788,14 @@ namespace ParaMEDMEM
            return MEDFileCMesh::New();
          }
 
-         MEDFileCMesh(const char *fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileCMesh(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileCMesh::New(fileName);
+           return MEDFileCMesh::New(fileName,mrs);
          }
 
-         MEDFileCMesh(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception)
+         MEDFileCMesh(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileCMesh::New(fileName,mName,dt,it);
+           return MEDFileCMesh::New(fileName,mName,dt,it,mrs);
          }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
@@ -822,8 +812,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileCurveLinearMesh *New();
-    static MEDFileCurveLinearMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileCurveLinearMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     void setMesh(MEDCouplingCurveLinearMesh *m) throw(INTERP_KERNEL::Exception);
     %extend
        {
@@ -832,14 +822,14 @@ namespace ParaMEDMEM
            return MEDFileCurveLinearMesh::New();
          }
 
-         MEDFileCurveLinearMesh(const char *fileName) throw(INTERP_KERNEL::Exception)
+         MEDFileCurveLinearMesh(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileCurveLinearMesh::New(fileName);
+           return MEDFileCurveLinearMesh::New(fileName,mrs);
          }
 
-         MEDFileCurveLinearMesh(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception)
+         MEDFileCurveLinearMesh(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
-           return MEDFileCurveLinearMesh::New(fileName,mName,dt,it);
+           return MEDFileCurveLinearMesh::New(fileName,mName,dt,it,mrs);
          }
          
          PyObject *getMesh() const throw(INTERP_KERNEL::Exception)

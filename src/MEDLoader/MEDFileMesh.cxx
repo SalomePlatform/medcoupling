@@ -87,13 +87,13 @@ MEDFileMesh *MEDFileMesh::New(const char *fileName, MEDFileMeshReadSelector *mrs
     case CARTESIAN:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
-        ret->loadCMeshFromFile(fid,ms.front().c_str(),dt,it);
+        ret->loadCMeshFromFile(fid,ms.front().c_str(),dt,it,mrs);
         return (MEDFileCMesh *)ret.retn();
       }
     case CURVE_LINEAR:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=MEDFileCurveLinearMesh::New();
-        ret->loadCLMeshFromFile(fid,ms.front().c_str(),dt,it);
+        ret->loadCLMeshFromFile(fid,ms.front().c_str(),dt,it,mrs);
         return (MEDFileCurveLinearMesh *)ret.retn();
       }
     default:
@@ -137,13 +137,13 @@ MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName, int dt, i
     case CARTESIAN:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
-        ret->loadCMeshFromFile(fid,mName,dt,it);
+        ret->loadCMeshFromFile(fid,mName,dt,it,mrs);
         return (MEDFileCMesh *)ret.retn();
       }
     case CURVE_LINEAR:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=MEDFileCurveLinearMesh::New();
-        ret->loadCLMeshFromFile(fid,mName,dt,it);
+        ret->loadCLMeshFromFile(fid,mName,dt,it,mrs);
         return (MEDFileCurveLinearMesh *)ret.retn();
       }
     default:
@@ -4447,7 +4447,7 @@ MEDFileCMesh *MEDFileCMesh::New()
  *  \throw If there is no meshes in the file.
  *  \throw If the mesh in the file is not a Cartesian one.
  */
-MEDFileCMesh *MEDFileCMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+MEDFileCMesh *MEDFileCMesh::New(const char *fileName, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
   if(ms.empty())
@@ -4461,7 +4461,7 @@ MEDFileCMesh *MEDFileCMesh::New(const char *fileName) throw(INTERP_KERNEL::Excep
   ParaMEDMEM::MEDCouplingMeshType meshType;
   std::string dummy2;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
-  return new MEDFileCMesh(fid,ms.front().c_str(),dt,it);
+  return new MEDFileCMesh(fid,ms.front().c_str(),dt,it,mrs);
 }
 
 /*!
@@ -4478,11 +4478,11 @@ MEDFileCMesh *MEDFileCMesh::New(const char *fileName) throw(INTERP_KERNEL::Excep
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is not a Cartesian one.
  */
-MEDFileCMesh *MEDFileCMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileCMesh *MEDFileCMesh::New(const char *fileName, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
-  return new MEDFileCMesh(fid,mName,dt,it);
+  return new MEDFileCMesh(fid,mName,dt,it,mrs);
 }
 
 std::size_t MEDFileCMesh::getHeapMemorySize() const
@@ -4594,17 +4594,17 @@ MEDFileCMesh::MEDFileCMesh()
 {
 }
 
-MEDFileCMesh::MEDFileCMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileCMesh::MEDFileCMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 try
   {
-    loadCMeshFromFile(fid,mName,dt,it);
+    loadCMeshFromFile(fid,mName,dt,it,mrs);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
 
-void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
@@ -4701,7 +4701,7 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New()
   return new MEDFileCurveLinearMesh;
 }
 
-MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const char *fileName, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
   if(ms.empty())
@@ -4715,14 +4715,14 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const char *fileName) throw(
   ParaMEDMEM::MEDCouplingMeshType meshType;
   std::string dummy2;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
-  return new MEDFileCurveLinearMesh(fid,ms.front().c_str(),dt,it);
+  return new MEDFileCurveLinearMesh(fid,ms.front().c_str(),dt,it,mrs);
 }
 
-MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const char *fileName, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
-  return new MEDFileCurveLinearMesh(fid,mName,dt,it);
+  return new MEDFileCurveLinearMesh(fid,mName,dt,it,mrs);
 }
 
 std::size_t MEDFileCurveLinearMesh::getHeapMemorySize() const
@@ -4842,10 +4842,10 @@ MEDFileCurveLinearMesh::MEDFileCurveLinearMesh()
 {
 }
 
-MEDFileCurveLinearMesh::MEDFileCurveLinearMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileCurveLinearMesh::MEDFileCurveLinearMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 try
   {
-    loadCLMeshFromFile(fid,mName,dt,it);
+    loadCLMeshFromFile(fid,mName,dt,it,mrs);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
@@ -4886,7 +4886,7 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exc
   MEDFileStructuredMesh::writeStructuredLL(fid,maa);
 }
 
-void MEDFileCurveLinearMesh::loadCLMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileCurveLinearMesh::loadCLMeshFromFile(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
