@@ -2857,6 +2857,113 @@ class MEDLoaderTest(unittest.TestCase):
             pass
         self.assertEqual(ff1.getPfls(),('pfl_NORM_QUAD4',))
         pass
+
+    def testMEDFileFieldPartialLoading(self):
+        fname="Pyfile69.med"
+        # building a mesh containing 30 tri3 + 40 quad4
+        tri=MEDCouplingUMesh("tri",2)
+        tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
+        tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
+        tris=[tri.deepCpy() for i in xrange(30)]
+        for i,elt in enumerate(tris): elt.translate([i,0])
+        tris=MEDCouplingUMesh.MergeUMeshes(tris)
+        quad=MEDCouplingUMesh("quad",2)
+        quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
+        quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
+        quads=[quad.deepCpy() for i in xrange(40)]
+        for i,elt in enumerate(quads): elt.translate([40+i,0])
+        quads=MEDCouplingUMesh.MergeUMeshes(quads)
+        m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
+        m.setName("mesh") ; m.getCoords().setInfoOnComponents(["XX [m]","YYY [km]"])
+        mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m) ; mm.write(fname,2)
+        #
+        ff0=MEDFileField1TS()
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m) ; arr=DataArrayDouble(m.getNumberOfCells()*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName("FieldCell")
+        f0.checkCoherency()
+        ff0.setFieldNoProfileSBT(f0)
+        ff0.write(fname,0)
+        #
+        fspExp=[(3,[(0,(0,30),'','')]),(4,[(0,(30,70),'','')])]
+        self.assertEqual(ff0.getFieldSplitedByType(),fspExp)
+        # With profiles
+        ff0=MEDFileField1TS()
+        f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m[:50]) ; arr=DataArrayDouble(50*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["XX [pm]","YYY [hm]"]) ; f0.setArray(arr) ; f0.setName("FieldCellPfl")
+        f0.checkCoherency()
+        pfl=DataArrayInt.Range(0,50,1) ; pfl.setName("pfl")
+        ff0.setFieldProfile(f0,mm,0,pfl)
+        fspExp=[(3,[(0,(0,30),'','')]),(4,[(0,(30,50),'pfl_NORM_QUAD4','')])]
+        self.assertEqual(ff0.getFieldSplitedByType(),fspExp)
+        ff0.write(fname,0)
+        #
+        ff0=MEDFileField1TS(fname,False)
+        self.assertEqual(ff0.getName(),"FieldCell")
+        self.assertTrue(not ff0.getUndergroundDataArray().isAllocated())
+        self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),['X [km]','YY [mm]'])
+        heap_memory_ref=ff0.getHeapMemorySize()
+        self.assertTrue(heap_memory_ref>=100 and heap_memory_ref<=200)
+        ff0.loadArrays() ##
+        arr=DataArrayDouble(140) ; arr.iota() ; arr.rearrange(2)
+        self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,70*8*2)
+        #
+        ff0=MEDFileField1TS(fname,"FieldCellPfl",False)
+        self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),["XX [pm]","YYY [hm]"])
+        heap_memory_ref=ff0.getHeapMemorySize()
+        self.assertTrue(heap_memory_ref>=150 and heap_memory_ref<=250)
+        ff0.loadArrays() ##
+        arr=DataArrayDouble(100) ; arr.iota() ; arr.rearrange(2)
+        self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,50*8*2)
+        ff0.loadArrays() ##
+        self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,50*8*2)
+        ff0.getUndergroundDataArray().setIJ(30,1,5.5)
+        self.assertTrue(not ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        ff0.loadArrays() ##
+        self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        ff0.getUndergroundDataArray().setIJ(30,1,5.5)
+        self.assertTrue(not ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        ff0.loadArraysIfNecessary() ##
+        self.assertEqual(ff0.getUndergroundDataArray().getIJ(30,1),5.5)
+        self.assertTrue(not ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        heap_memory_ref=ff0.getHeapMemorySize()
+        self.assertTrue(heap_memory_ref>=1000 and heap_memory_ref<=1100)
+        ff0.releaseArrays()
+        hmd=ff0.getHeapMemorySize()-heap_memory_ref
+        self.assertEqual(hmd,-800) # -50*8*2
+        ff0.loadArrays() ##
+        self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,0)
+        #
+        ff0=MEDFileField1TS(fname,"FieldCellPfl",-1,-1,False)
+        heap_memory_ref=ff0.getHeapMemorySize()
+        self.assertTrue(heap_memory_ref>=150 and heap_memory_ref<=250)
+        ff0.loadArrays() ##
+        self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
+        self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,50*8*2)
+        #
+        fieldName="FieldCellMultiTS"
+        ff0=MEDFileFieldMultiTS()
+        for t in xrange(20):
+            f0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f0.setMesh(m) ; arr=DataArrayDouble(m.getNumberOfCells()*2) ; arr.iota(float(t+1000)) ; arr.rearrange(2) ; arr.setInfoOnComponents(["X [km]","YY [mm]"]) ; f0.setArray(arr) ; f0.setName(fieldName)
+            f0.setTime(float(t)+0.1,t,100+t)
+            f0.checkCoherency()
+            ff0.appendFieldNoProfileSBT(f0)
+            pass
+        ff0.write(fname,0)
+        #
+        ff0=MEDFileAnyTypeFieldMultiTS.New(fname,fieldName,False)
+        heap_memory_ref=ff0.getHeapMemorySize()
+        self.assertTrue(heap_memory_ref>=2000 and heap_memory_ref<=3000)
+        ff0.loadArrays()
+        self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,20*70*8*2)
+        del ff0
+        #
+        ffs=MEDFileFields(fname,False)
+        heap_memory_ref=ffs.getHeapMemorySize()
+        self.assertTrue(heap_memory_ref>=2500 and heap_memory_ref<=3500)
+        ffs.loadArrays()
+        self.assertEqual(ffs.getHeapMemorySize()-heap_memory_ref,20*70*8*2+70*8*2+50*8*2)
+        pass
     pass
 
 unittest.main()
