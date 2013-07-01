@@ -402,10 +402,14 @@ namespace ParaMEDMEM
     bool isNodeFamilyFieldReading() const;
     bool isCellNameFieldReading() const;
     bool isNodeNameFieldReading() const;
+    bool isCellNumFieldReading() const;
+    bool isNodeNumFieldReading() const;
     void setCellFamilyFieldReading(bool b);
     void setNodeFamilyFieldReading(bool b);
     void setCellNameFieldReading(bool b);
     void setNodeNameFieldReading(bool b);
+    void setCellNumFieldReading(bool b);
+    void setNodeNumFieldReading(bool b);
     %extend
     {
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -426,8 +430,8 @@ namespace ParaMEDMEM
   class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);

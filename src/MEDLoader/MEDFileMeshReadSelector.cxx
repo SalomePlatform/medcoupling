@@ -60,6 +60,16 @@ bool MEDFileMeshReadSelector::isNodeNameFieldReading() const
   return _code & 0x00000008;
 }
 
+bool MEDFileMeshReadSelector::isCellNumFieldReading() const
+{
+  return _code & 0x00000010;
+}
+
+bool MEDFileMeshReadSelector::isNodeNumFieldReading() const
+{
+  return _code & 0x00000020;
+}
+
 void MEDFileMeshReadSelector::setCellFamilyFieldReading(bool b)
 {
   unsigned int code(_code & 0xFFFFFFFE);
@@ -96,13 +106,33 @@ void MEDFileMeshReadSelector::setNodeNameFieldReading(bool b)
   _code=code;
 }
 
+void MEDFileMeshReadSelector::setCellNumFieldReading(bool b)
+{
+  unsigned int code(_code & 0xFFFFFFEF);
+  unsigned int b2=b?1:0;
+  b2<<=4;
+  code+=b2;
+  _code=code;
+}
+
+void MEDFileMeshReadSelector::setNodeNumFieldReading(bool b)
+{
+  unsigned int code(_code & 0xFFFFFFDF);
+  unsigned int b2=b?1:0;
+  b2<<=5;
+  code+=b2;
+  _code=code;
+}
+
 void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
 {
   str << "MEDFileMeshReadSelector (code=" << _code << ") : \n";
   str << "Read family field on cells : " << ReprStatus(isCellFamilyFieldReading()) << std::endl;
   str << "Read family field on nodes : " << ReprStatus(isNodeFamilyFieldReading()) << std::endl;
-  str << "Read family name on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;
-  str << "Read family name on nodes : " << ReprStatus(isNodeNameFieldReading());
+  str << "Read name field on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;
+  str << "Read name field on nodes : " << ReprStatus(isNodeNameFieldReading()) << std::endl;
+  str << "Read number field on cells : " << ReprStatus(isCellNumFieldReading()) << std::endl;
+  str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading());
 }
 
 std::string MEDFileMeshReadSelector::ReprStatus(bool v)

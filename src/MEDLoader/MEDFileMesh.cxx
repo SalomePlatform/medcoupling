@@ -62,7 +62,7 @@ std::size_t MEDFileMesh::getHeapMemorySize() const
  *  \throw If there is no meshes in the file.
  *  \throw If the mesh in the file is of a not supported type.
  */
-MEDFileMesh *MEDFileMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+MEDFileMesh *MEDFileMesh::New(const char *fileName, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
   if(ms.empty())
@@ -81,7 +81,7 @@ MEDFileMesh *MEDFileMesh::New(const char *fileName) throw(INTERP_KERNEL::Excepti
     case UNSTRUCTURED:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
-        ret->loadUMeshFromFile(fid,ms.front().c_str(),dt,it);
+        ret->loadUMeshFromFile(fid,ms.front().c_str(),dt,it,mrs);
         return (MEDFileUMesh *)ret.retn();
       }
     case CARTESIAN:
@@ -118,7 +118,7 @@ MEDFileMesh *MEDFileMesh::New(const char *fileName) throw(INTERP_KERNEL::Excepti
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is of a not supported type.
  */
-MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   ParaMEDMEM::MEDCouplingMeshType meshType;
@@ -131,7 +131,7 @@ MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName, int dt, i
     case UNSTRUCTURED:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
-        ret->loadUMeshFromFile(fid,mName,dt,it);
+        ret->loadUMeshFromFile(fid,mName,dt,it,mrs);
         return (MEDFileUMesh *)ret.retn();
       }
     case CARTESIAN:
@@ -1868,11 +1868,11 @@ void MEDFileMesh::getFamilyRepr(std::ostream& oss) const
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is not an unstructured one.
  */
-MEDFileUMesh *MEDFileUMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileUMesh *MEDFileUMesh::New(const char *fileName, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
-  return new MEDFileUMesh(fid,mName,dt,it);
+  return new MEDFileUMesh(fid,mName,dt,it,mrs);
 }
 
 /*!
@@ -1885,7 +1885,7 @@ MEDFileUMesh *MEDFileUMesh::New(const char *fileName, const char *mName, int dt,
  *  \throw If there is no meshes in the file.
  *  \throw If the mesh in the file is not an unstructured one.
  */
-MEDFileUMesh *MEDFileUMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+MEDFileUMesh *MEDFileUMesh::New(const char *fileName, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
   if(ms.empty())
@@ -1899,7 +1899,7 @@ MEDFileUMesh *MEDFileUMesh::New(const char *fileName) throw(INTERP_KERNEL::Excep
   ParaMEDMEM::MEDCouplingMeshType meshType;
   std::string dummy2;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
-  return new MEDFileUMesh(fid,ms.front().c_str(),dt,it);
+  return new MEDFileUMesh(fid,ms.front().c_str(),dt,it,mrs);
 }
 
 /*!
@@ -2103,17 +2103,17 @@ MEDFileUMesh::MEDFileUMesh()
 {
 }
 
-MEDFileUMesh::MEDFileUMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+MEDFileUMesh::MEDFileUMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 try
   {
-    loadUMeshFromFile(fid,mName,dt,it);
+    loadUMeshFromFile(fid,mName,dt,it,mrs);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
 
-void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUMeshL2 loaderl2;
   ParaMEDMEM::MEDCouplingMeshType meshType;

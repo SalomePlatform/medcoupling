@@ -39,10 +39,14 @@ namespace ParaMEDMEM
     bool isNodeFamilyFieldReading() const;
     bool isCellNameFieldReading() const;
     bool isNodeNameFieldReading() const;
+    bool isCellNumFieldReading() const;
+    bool isNodeNumFieldReading() const;
     void setCellFamilyFieldReading(bool b);
     void setNodeFamilyFieldReading(bool b);
     void setCellNameFieldReading(bool b);
     void setNodeNameFieldReading(bool b);
+    void setCellNumFieldReading(bool b);
+    void setNodeNumFieldReading(bool b);
     void reprAll(std::ostream& str) const;
   private:
     static std::string ReprStatus(bool v);
@@ -51,6 +55,8 @@ namespace ParaMEDMEM
     //bit #1 node family field
     //bit #2 cell name field
     //bit #3 node name field
+    //bit #4 cell num field
+    //bit #5 node num field
     unsigned int _code;
   };
 }

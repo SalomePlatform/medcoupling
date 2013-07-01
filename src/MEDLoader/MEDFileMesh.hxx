@@ -24,6 +24,7 @@
 #include "MEDLoaderDefines.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileUtilities.hxx"
+#include "MEDFileMeshReadSelector.hxx"
 
 #include <map>
 #include <list>
@@ -33,8 +34,8 @@ namespace ParaMEDMEM
   class MEDLOADER_EXPORT MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
     virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
@@ -182,8 +183,8 @@ namespace ParaMEDMEM
   {
     friend class MEDFileMesh;
   public:
-    static MEDFileUMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
     std::size_t getHeapMemorySize() const;
     MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
@@ -254,8 +255,8 @@ namespace ParaMEDMEM
   private:
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh();
-    MEDFileUMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
-    void loadUMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    MEDFileUMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);
+    void loadUMeshFromFile(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);
     const MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
     void checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
