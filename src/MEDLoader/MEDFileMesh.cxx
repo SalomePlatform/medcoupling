@@ -2125,7 +2125,7 @@ void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int
       std::ostringstream oss; oss << "Trying to load as unstructured an existing mesh with name '" << mName << "' !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  loaderl2.loadAll(fid,mid,mName,dt,it);
+  loaderl2.loadAll(fid,mid,mName,dt,it,mrs);
   int lev=loaderl2.getNumberOfLevels();
   _ms.resize(lev);
   for(int i=0;i<lev;i++)
@@ -2135,7 +2135,7 @@ void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int
       else
         _ms[i]=0;
     }
-  MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups);
+  MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups,mrs);
   //
   setName(loaderl2.getName());
   setDescription(loaderl2.getDescription());
@@ -2145,9 +2145,12 @@ void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int
   setTimeValue(loaderl2.getTime());
   setTimeUnit(loaderl2.getTimeUnit());
   _coords=loaderl2.getCoords();
-  _fam_coords=loaderl2.getCoordsFamily();
-  _num_coords=loaderl2.getCoordsNum();
-  _name_coords=loaderl2.getCoordsName();
+  if(!mrs || mrs->isNodeFamilyFieldReading())
+    _fam_coords=loaderl2.getCoordsFamily();
+  if(!mrs || mrs->isNodeNumFieldReading())
+    _num_coords=loaderl2.getCoordsNum();
+  if(!mrs || mrs->isNodeNameFieldReading())
+    _name_coords=loaderl2.getCoordsName();
   computeRevNum();
 }
 
@@ -4331,7 +4334,7 @@ med_geometry_type MEDFileStructuredMesh::GetGeoTypeFromMeshDim(int meshDim) thro
   return geoTypeReq;
 }
 
-void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception)
 {
   setName(strm->getName());
   setDescription(strm->getDescription());
@@ -4340,53 +4343,71 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
   setOrder(strm->getOrder());
   setTimeValue(strm->getTime());
   setTimeUnit(strm->getTimeUnit());
-  MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups);
+  MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups,mrs);
   med_bool chgt=MED_FALSE,trsf=MED_FALSE;
   int nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
-      _fam_nodes=DataArrayInt::New();
-      _fam_nodes->alloc(nbOfElt,1);
-      MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer());
+      if(!mrs || mrs->isNodeFamilyFieldReading())
+        {
+          _fam_nodes=DataArrayInt::New();
+          _fam_nodes->alloc(nbOfElt,1);
+          MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer());
+        }
     }
   nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_NUMBER,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
-      _num_nodes=DataArrayInt::New();
-      _num_nodes->alloc(nbOfElt,1);
-      MEDmeshEntityNumberRd(fid,mName,dt,it,MED_NODE,MED_NONE,_num_nodes->getPointer());
+      if(!mrs || mrs->isNodeNumFieldReading())
+        {
+          _num_nodes=DataArrayInt::New();
+          _num_nodes->alloc(nbOfElt,1);
+          MEDmeshEntityNumberRd(fid,mName,dt,it,MED_NODE,MED_NONE,_num_nodes->getPointer());
+        }
     }
   int meshDim=getStructuredMesh()->getMeshDimension();
   med_geometry_type geoTypeReq=GetGeoTypeFromMeshDim(meshDim);
   nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,geoTypeReq,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
-      _fam_cells=DataArrayInt::New();
-      _fam_cells->alloc(nbOfElt,1);
-      MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_fam_cells->getPointer());
+      if(!mrs || mrs->isCellFamilyFieldReading())
+        {
+          _fam_cells=DataArrayInt::New();
+          _fam_cells->alloc(nbOfElt,1);
+          MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_fam_cells->getPointer());
+        }
     }
   nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,geoTypeReq,MED_NUMBER,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
-      _num_cells=DataArrayInt::New();
-      _num_cells->alloc(nbOfElt,1);
-      MEDmeshEntityNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_num_cells->getPointer());
+      if(!mrs || mrs->isCellNumFieldReading())
+        {
+          _num_cells=DataArrayInt::New();
+          _num_cells->alloc(nbOfElt,1);
+          MEDmeshEntityNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_num_cells->getPointer());
+        }
     }
   nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,geoTypeReq,MED_NAME,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
-      _names_cells=DataArrayAsciiChar::New();
-      _names_cells->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-      MEDmeshEntityNameRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_names_cells->getPointer());
-      _names_cells->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
+      if(!mrs || mrs->isCellNameFieldReading())
+        {
+          _names_cells=DataArrayAsciiChar::New();
+          _names_cells->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+          MEDmeshEntityNameRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_names_cells->getPointer());
+          _names_cells->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
+        }
     }
   nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_NAME,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
-      _names_nodes=DataArrayAsciiChar::New();
-      _names_nodes->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-      MEDmeshEntityNameRd(fid,mName,dt,it,MED_NODE,MED_NONE,_names_nodes->getPointer());
-      _names_nodes->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
+      if(!mrs || mrs->isNodeNameFieldReading())
+        {
+          _names_nodes=DataArrayAsciiChar::New();
+          _names_nodes->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+          MEDmeshEntityNameRd(fid,mName,dt,it,MED_NODE,MED_NONE,_names_nodes->getPointer());
+          _names_nodes->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
+        }
     }
 }
 
@@ -4620,7 +4641,7 @@ void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int
   MEDCouplingCMesh *mesh=loaderl2.getMesh();
   mesh->incrRef();
   _cmesh=mesh;
-  loadStrMeshFromFile(&loaderl2,fid,mName,dt,it);
+  loadStrMeshFromFile(&loaderl2,fid,mName,dt,it,mrs);
 }
 
 /*!
@@ -4902,7 +4923,7 @@ void MEDFileCurveLinearMesh::loadCLMeshFromFile(med_idt fid, const char *mName, 
   MEDCouplingCurveLinearMesh *mesh=loaderl2.getMesh();
   mesh->incrRef();
   _clmesh=mesh;
-  loadStrMeshFromFile(&loaderl2,fid,mName,dt,it);
+  loadStrMeshFromFile(&loaderl2,fid,mName,dt,it,mrs);
 }
 
 MEDFileMeshMultiTS *MEDFileMeshMultiTS::New()

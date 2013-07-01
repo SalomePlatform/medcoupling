@@ -306,7 +306,7 @@ namespace ParaMEDMEM
   protected:
     void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     void deepCpyAttributes() throw(INTERP_KERNEL::Exception);
-    void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs) throw(INTERP_KERNEL::Exception);
     void writeStructuredLL(med_idt fid, const char *maa) const throw(INTERP_KERNEL::Exception);
     virtual const MEDCouplingStructuredMesh *getStructuredMesh() const = 0;
     static med_geometry_type GetGeoTypeFromMeshDim(int meshDim) throw(INTERP_KERNEL::Exception);

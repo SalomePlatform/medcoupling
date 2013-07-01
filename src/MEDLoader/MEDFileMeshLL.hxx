@@ -35,6 +35,8 @@
 
 namespace ParaMEDMEM
 {
+  class MEDFileMeshReadSelector;
+  
   class MEDFileMeshL2 : public RefCountObject
   {
   public:
@@ -50,7 +52,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim) throw(INTERP_KERNEL::Exception);
     static int GetMeshIdFromName(med_idt fid, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1) throw(INTERP_KERNEL::Exception);
     static double CheckMeshTimeStep(med_idt fid, const char *mname, int nstep, int dt, int it) throw(INTERP_KERNEL::Exception);
-    static void ReadFamiliesAndGrps(med_idt fid, const char *mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps);
+    static void ReadFamiliesAndGrps(med_idt fid, const char *mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
     static void WriteFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
   protected:
     MEDFileString _name;
@@ -66,8 +68,8 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileUMeshL2();
-    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it);
-    void loadConnectivity(med_idt fid, int mdim, const char *mName, int dt, int it);
+    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadConnectivity(med_idt fid, int mdim, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
     int getNumberOfLevels() const { return _per_type_mesh.size(); }
     bool emptyLev(int levId) const { return _per_type_mesh[levId].empty(); }

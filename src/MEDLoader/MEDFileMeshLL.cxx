@@ -21,6 +21,7 @@
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDFileMeshReadSelector.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 
@@ -71,7 +72,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM:
   if(!found)
     {
       std::ostringstream oss;
-      oss << "No such meshname (" << mname <<  ") in file ! Must be in :";
+      oss << "No such meshname (" << mname <<  ") in file ! Must be in : ";
       std::copy(ms.begin(),ms.end(),std::ostream_iterator<std::string>(oss,", "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -180,8 +181,10 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   return infosOnComp;
 }
 
-void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const char *meshName, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps)
+void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const char *meshName, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs)
 {
+  if(mrs && !(mrs->isCellFamilyFieldReading() || mrs->isNodeFamilyFieldReading()))
+    return ;
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
   int nfam=MEDnFamily(fid,meshName);
@@ -230,7 +233,7 @@ MEDFileUMeshL2::MEDFileUMeshL2()
 {
 }
 
-void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it)
+void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   _name.set(mName);
   int nstep;
@@ -242,17 +245,17 @@ void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
   _iteration=dt;
   _order=it;
-  loadConnectivity(fid,Mdim,mName,dt,it);//to improve check (dt,it) coherency
+  loadConnectivity(fid,Mdim,mName,dt,it,mrs);//to improve check (dt,it) coherency
   loadCoords(fid,mId,infosOnComp,mName,dt,it);
 }
 
-void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const char *mName, int dt, int it)
+void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   _per_type_mesh.resize(1);
   _per_type_mesh[0].clear();
   for(int j=0;j<MED_N_CELL_FIXED_GEO;j++)
     {
-      MEDFileUMeshPerType *tmp=MEDFileUMeshPerType::New(fid,mName,dt,it,mdim,typmai[j],typmai2[j]);
+      MEDFileUMeshPerType *tmp=MEDFileUMeshPerType::New(fid,mName,dt,it,mdim,typmai[j],typmai2[j],mrs);
       if(tmp)
         _per_type_mesh[0].push_back(tmp);
     }
