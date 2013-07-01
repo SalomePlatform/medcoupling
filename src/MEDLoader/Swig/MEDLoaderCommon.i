@@ -31,6 +31,7 @@
 #include "MEDFileField.hxx"
 #include "MEDFileParameter.hxx"
 #include "MEDFileData.hxx"
+#include "MEDFileMeshReadSelector.hxx"
 #include "MEDLoaderTypemaps.i"
 #include "SauvReader.hxx"
 #include "SauvWriter.hxx"
@@ -388,6 +389,38 @@ namespace ParaMEDMEM
     void setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception);
     int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
     void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+  };
+
+  class MEDFileMeshReadSelector
+  {
+  public:
+    MEDFileMeshReadSelector();
+    MEDFileMeshReadSelector(unsigned int code);
+    unsigned int getCode() const;
+    void setCode(unsigned int newCode);
+    bool isCellFamilyFieldReading() const;
+    bool isNodeFamilyFieldReading() const;
+    bool isCellNameFieldReading() const;
+    bool isNodeNameFieldReading() const;
+    void setCellFamilyFieldReading(bool b);
+    void setNodeFamilyFieldReading(bool b);
+    void setCellNameFieldReading(bool b);
+    void setNodeNameFieldReading(bool b);
+    %extend
+    {
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss;
+        self->reprAll(oss);
+        return oss.str();
+      }
+      
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss; oss << "MEDFileMeshReadSelector C++ instance at " << self << " (with code=" << self->getCode() << ").";
+        return oss.str();
+      }
+    }
   };
 
   class MEDFileMesh : public RefCountObject, public MEDFileWritable

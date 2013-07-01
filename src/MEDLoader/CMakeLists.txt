@@ -45,6 +45,7 @@ SET(medloader_SOURCES
   MEDFileField.cxx
   MEDFileParameter.cxx
   MEDFileData.cxx
+  MEDFileMeshReadSelector.cxx
   SauvMedConvertor.cxx
   SauvReader.cxx
   SauvWriter.cxx
