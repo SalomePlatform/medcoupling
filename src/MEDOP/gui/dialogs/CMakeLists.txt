@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQT4EXT.cmake)
+INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQt4Ext.cmake)
 
 MACRO (QT4_WRAP_UI_XX outfiles )
   QT4_EXTRACT_OPTIONS(ui_files ui_options ${ARGN})

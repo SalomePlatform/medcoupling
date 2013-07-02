@@ -19,7 +19,7 @@
 
 ADD_SUBDIRECTORY(dialogs)
 
-INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQT4EXT.cmake)
+INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQt4Ext.cmake)
 
 SET(MEDOPGUI_SOURCES
   MEDOPFactoryClient.cxx

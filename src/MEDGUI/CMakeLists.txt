@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQT4EXT.cmake)
+INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQt4Ext.cmake)
 
 SET(MEDGUI_SOURCES
   MEDGUIFileContentDial.cxx
