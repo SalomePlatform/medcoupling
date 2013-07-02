@@ -120,6 +120,7 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const;
     int getNumberOfTuples() const;
     int getStart() const { return _start; }
+    int getEnd() const { return _end; }
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -205,6 +206,7 @@ namespace ParaMEDMEM
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     void fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     void setLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves) throw(INTERP_KERNEL::Exception);
+    bool keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
   private:
     std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception);
@@ -254,6 +256,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocsReallyUsedMulti() const;
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     bool renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
+    void keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
     void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
@@ -501,6 +504,8 @@ namespace ParaMEDMEM
     DataArray *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFileFieldGlobsReal *glob, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
   public:
     bool renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
+    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > splitDiscretizations() const throw(INTERP_KERNEL::Exception);
+    int keepOnlySpatialDiscretization(TypeOfField tof, std::vector< std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
   public:
     void allocNotFromFile(int newNbOfTuples) throw(INTERP_KERNEL::Exception);
     bool allocIfNecessaryTheArrayToReceiveDataFromFile() throw(INTERP_KERNEL::Exception);
@@ -513,6 +518,7 @@ namespace ParaMEDMEM
   protected:
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
     int addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void updateData(int newLgth, const std::vector< std::pair<int,int> >& oldStartStops) throw(INTERP_KERNEL::Exception);
   protected:
     std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > > _field_per_mesh;
     int _iteration;
@@ -650,6 +656,7 @@ namespace ParaMEDMEM
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void releaseArrays() throw(INTERP_KERNEL::Exception);
     std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitComponents() const throw(INTERP_KERNEL::Exception);
+    std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitDiscretizations() const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
     int copyTinyInfoFrom(const MEDCouplingFieldDouble *field, const DataArray *arr) throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeField1TS *shallowCpy() const throw(INTERP_KERNEL::Exception) = 0;
@@ -769,6 +776,7 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySize() const;
     virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > splitComponents() const throw(INTERP_KERNEL::Exception);
+    virtual std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > splitDiscretizations() const throw(INTERP_KERNEL::Exception);
     virtual const char *getTypeStr() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *createNew() const throw(INTERP_KERNEL::Exception) = 0;
@@ -898,6 +906,7 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySize() const;
     virtual MEDFileAnyTypeFieldMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > splitComponents() const throw(INTERP_KERNEL::Exception);
+    std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > splitDiscretizations() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1ts) const throw(INTERP_KERNEL::Exception) = 0;
     //
