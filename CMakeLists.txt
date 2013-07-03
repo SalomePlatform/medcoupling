@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4.7 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
 
 IF(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
@@ -31,6 +31,7 @@ SET(WITH_MEDMEMGUI "0")
 #Defining all options first
 option(SALOME_USE_MPI "Use MPI containers" OFF)
 
+
 SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
 IF(KERNEL_ROOT_DIR)
   FILE(TO_CMAKE_PATH $ENV{KERNEL_ROOT_DIR} KERNEL_ROOT_DIR)
@@ -38,60 +39,97 @@ IF(KERNEL_ROOT_DIR)
   
   # directories for packages detection
   SET(SALOME_MACROS_DIR ${KERNEL_ROOT_DIR}/salome_adm/cmake_files)
-  SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SALOME_MACROS_DIR})
+  LIST(APPEND CMAKE_MODULE_PATH "${SALOME_MACROS_DIR}")
 
-  INCLUDE(SalomeSetupPlatform)
   INCLUDE(SalomeMacros)
+  INCLUDE(SalomeSetupPlatform)
+    
+  FIND_PACKAGE(SalomeKERNEL)
   
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPYTHON.cmake)
-  if(SALOME_USE_MPI)
-    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindMPI.cmake)
-  endif(SALOME_USE_MPI)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindOMNIORB.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPTHREADS.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindHDF5.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindBOOST.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindLIBXML2.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindSWIG.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCppUnit.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindDOXYGEN.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSphinx.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSalomeLibBatch.cmake)
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindKERNEL.cmake)
-  #INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMEDFILE.cmake)
+  # Try first to find medfile version using the new CMake first 
+  FIND_PACKAGE(SalomeMedfile QUIET)
+  IF(medfile_FOUND)
+     MESSAGE(STATUS "Found Medfile in config mode (new CMake version of medfile)")
+     # Backward compat:
+     SET(MED_ENABLE_MED3 ON)
+     SET(MED3_INCLUDE_DIRS "${MEDFILE_INCLUDE_DIRS}")
+     SET(MED3_LIBS_C_ONLY "${MEDFILE_C_LIBRARIES}")
+  ELSE()
+    # if not found, revert to the old logic:
+    FIND_PACKAGE(MEDFILE REQUIRED)
+    SET(MED_ENABLE_MED3 ON)
+  ENDIF()
+  
+  FIND_PACKAGE(SalomePThread)
+  FIND_PACKAGE(SalomePython)
+  SET(PYTHON_LIBS ${PYTHON_LIBRARIES})
+  
+  FIND_PACKAGE(SalomeOmniORB)
+  SET(OMNIORB_LIBS ${OMNIORB_LIBRARIES})
+  
+  IF(SALOME_USE_MPI)
+    FIND_PACKAGE(SalomeMPI)
+    SET(MPI_IS_OK 1)
+  ENDIF()
+  
+  FIND_PACKAGE(SalomeHDF5)  
+  FIND_PACKAGE(SalomeBoost)
+  
+  FIND_PACKAGE(SalomeLibXml2)
+  # Backward compat:
+  SET(LIBXML_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIR}")
+  SET(LIBXML_LIBS "${LIBXML2_LIBRARIES}")
+  
+  FIND_PACKAGE(SalomeSWIG)
+  SET(SWIG_STATUS TRUE)
+  
+  FIND_PACKAGE(SalomeCppUnit)
+  SET(CPPUNIT_IS_OK ON)
+  SET(CPPUNIT_LIBS "${CPPUNIT_LIBRARIES}")
+  
+  FIND_PACKAGE(SalomeDoxygen)
+  FIND_PACKAGE(SalomeSphinx)
+  
 
+    
   SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
   FILE(TO_CMAKE_PATH "$ENV{GUI_ROOT_DIR}" GUI_ROOT_DIR)
   IF(GUI_ROOT_DIR)
     LIST(APPEND CMAKE_MODULE_PATH "${GUI_ROOT_DIR}/adm_local/cmake_files")
     SET(MED_ENABLE_GUI ON)
-    #INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
+    
+    FIND_PACKAGE(SalomeGUI)
+    
     FIND_PACKAGE(SalomeCAS)
-    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindQT4.cmake)
-    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindOPENGL.cmake)
-    #INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSalomeVTK.cmake)
-    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindQWT.cmake)
-    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindSIPPYQT.cmake)
-    INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindGUI.cmake)
+    FIND_PACKAGE(SalomeOpenGL)
+    FIND_PACKAGE(SalomeQt4)
+    
+    FIND_PACKAGE(SalomeQwt)
+    FIND_PACKAGE(SalomePyQt4)    
   ENDIF(GUI_ROOT_DIR)
 ELSE(KERNEL_ROOT_DIR)
   SET(SALOME_MACROS_DIR ${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files)
+  LIST(APPEND CMAKE_MODULE_PATH "${SALOME_MACROS_DIR}")
   
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
+  # TODO: the macros below should be loaded with a FIND_PACKAGE(), and should be sync'd with
+  # what has been done in KERNEL + GUI:
+  
+  INCLUDE(FindPLATFORM)
   if(SALOME_USE_MPI)
-    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
+    INCLUDE(FindMPI)
   endif(SALOME_USE_MPI)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindBOOST.cmake)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindCPPUNIT.cmake)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindHDF5.cmake)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPYTHON.cmake)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindLIBXML2.cmake)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPTHREADS.cmake)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindSWIG.cmake)
+  INCLUDE(FindMEDFILE)
+  INCLUDE(FindBOOST)
+  INCLUDE(FindCPPUNIT)
+  INCLUDE(FindHDF5)
+  INCLUDE(FindPYTHON)
+  INCLUDE(FindLIBXML2)
+  INCLUDE(FindPTHREADS)
+  INCLUDE(FindSWIG)
   #INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMEDFILE.cmake)
-
 ENDIF(KERNEL_ROOT_DIR)
-INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMEDFILE.cmake)
+
+# TODO: write those in the new format, and load them via FIND_PACKAGE():
 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindPARMETIS.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMETIS.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSCOTCH.cmake)
@@ -104,6 +142,7 @@ ENDIF(WIN32)
 EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${VERSION}
   OUTPUT_VARIABLE XVERSION)
 
+# TODO: adjust to the global SALOME install dirs exposed from KERNEL:
 SET(MED_salomebin_BINS bin/salome)
 SET(MED_salomelib_LIBS lib/salome)
 SET(MED_salomeidl_IDLS idl/salome)

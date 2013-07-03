@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/UseQt4Ext.cmake)
+INCLUDE(UseQt4Ext)
 
 MACRO (QT4_WRAP_UI_XX outfiles )
   QT4_EXTRACT_OPTIONS(ui_files ui_options ${ARGN})
@@ -52,7 +52,7 @@ SET(MEDOPGUI_dialogs_FILES
 QT4_WRAP_CPP(MEDOPGUI_dialogs_HEADERS_MOC ${MEDOPGUI_dialogs_FILES})
 
 INCLUDE_DIRECTORIES(
-  ${OMNIORB_INCLUDE_DIRS}
+  ${OMNIORB_INCLUDE_DIR} ${OMNIORB_INCLUDE_DIRS}
   ${CAS_INCLUDE_DIRS}
   ${BOOST_INCLUDE_DIRS}
   ${PTHREAD_INCLUDE_DIRS}
@@ -60,6 +60,7 @@ INCLUDE_DIRECTORIES(
   ${KERNEL_ROOT_DIR}/include/salome
   ${GUI_ROOT_DIR}/include/salome
   ${CMAKE_CURRENT_SOURCE_DIR}/..
+  ${QT4_INCLUDE_DIRECTORY}
 )
 
 SET(MEDOPGUI_dialogs_SOURCES
@@ -72,7 +73,9 @@ SET(MEDOPGUI_dialogs_SOURCES
 
 ADD_LIBRARY(MEDOPGUI_dialogs SHARED ${MEDOPGUI_dialogs_SOURCES} ${MEDOPGUI_dialogs_HEADERS_MOC} ${MEDOPGUI_dialogs_FORMS_HEADERS})
 SET_TARGET_PROPERTIES(MEDOPGUI_dialogs PROPERTIES COMPILE_FLAGS "${CAS_DEFINITIONS} ${BOOST_DEFINITIONS} ${PLATFORM_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(MEDOPGUI_dialogs ${CAS_KERNEL} ${QT_LIBS} ${SalomeIDLKernel} ${SalomeGuiHelpers} ${OMNIORB_LIBS} ${qtx} ${suit} ${PLATFORM_LIBS} ${SalomeLifeCycleCORBA} ${SalomeKernelHelpers} ${SalomeGuiHelpers})
+TARGET_LINK_LIBRARIES(MEDOPGUI_dialogs ${CAS_KERNEL} ${QT_LIBS} ${KERNEL_SalomeIDLKernel} 
+    ${GUI_SalomeGuiHelpers} ${OMNIORB_LIBS} ${GUI_qtx} ${GUI_suit} ${PLATFORM_LIBS} 
+    ${KERNEL_SalomeLifeCycleCORBA} ${KERNEL_SalomeKernelHelpers} ${GUI_SalomeGuiHelpers})
 INSTALL(TARGETS MEDOPGUI_dialogs DESTINATION ${MED_salomelib_LIBS})
 
 #
