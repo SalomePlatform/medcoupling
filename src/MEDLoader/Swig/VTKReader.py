@@ -176,6 +176,7 @@ class VTURawReader:
                 f=MEDCouplingFieldDouble(spatialDisc,ONE_TIME)
                 f.setName(name) ; f.setMesh(m)
                 vals=np.memmap(fd,dtype=typ,mode='r',offset=ref+off,shape=(nbEnt*nbCompo))
+                vals=self.__swapIfNecessary(rd._bo,vals)
                 arr=DataArrayDouble(np.array(vals,dtype='float64')) ; arr.rearrange(nbCompo)
                 f.setArray(arr) ; f.checkCoherency()
                 f.setTime(self._time[0],self._time[1],0)
