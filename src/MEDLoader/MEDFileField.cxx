@@ -1048,7 +1048,7 @@ std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessary(const MEDCou
           _field_pm_pt_pd.resize(sz+1);
           _field_pm_pt_pd[sz]=MEDFileFieldPerMeshPerTypePerDisc::New(this,type,locIdToFind);
         }
-      std::vector<int> ret(1,0);
+      std::vector<int> ret(1,(int)sz);
       return ret;
     }
   else
@@ -3579,8 +3579,8 @@ void MEDFileAnyTypeField1TSWithoutSDA::simpleRepr(int bkOffset, std::ostream& os
   std::string startOfLine(bkOffset,' ');
   oss << startOfLine << "Field ";
   if(bkOffset==0)
-    oss << "[Type=" << getTypeStr() << "] ";
-  oss << "on One time Step ";
+    oss << "[Type=" << getTypeStr() << "] with name \"" << getName() << "\" ";
+  oss << "on one time Step ";
   if(f1tsId>=0)
     oss << "(" << f1tsId << ") ";
   oss << "on iteration=" << _iteration << " order=" << _order << "." << std::endl;
@@ -3591,7 +3591,6 @@ void MEDFileAnyTypeField1TSWithoutSDA::simpleRepr(int bkOffset, std::ostream& os
       const std::vector<std::string> &comps=arr->getInfoOnComponents();
       if(f1tsId<0)
         {
-          oss << startOfLine << "Field Name : \"" << arr->getName() << "\"." << std::endl;
           oss << startOfLine << "Field has " << comps.size() << " components with the following infos :" << std::endl;
           for(std::vector<std::string>::const_iterator it=comps.begin();it!=comps.end();it++)
             oss << startOfLine << "  -  \"" << (*it) << "\"" << std::endl;
