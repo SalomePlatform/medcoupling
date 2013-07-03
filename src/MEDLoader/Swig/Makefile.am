@@ -55,7 +55,7 @@ CLEANFILES = MEDLoader_wrap.cxx MEDLoader.py
 
 dist_salomescript_SCRIPTS= med2sauv sauv2med case2med med2case
 
-dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py MEDLoaderCouplingTrainingSession.py CaseIO.py CaseReader.py CaseWriter.py MEDLoaderSplitter.py libMEDLoader_Swig.py medutilities.py
+dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py MEDLoaderCouplingTrainingSession.py CaseIO.py CaseReader.py CaseWriter.py VTKReader.py MEDLoaderSplitter.py libMEDLoader_Swig.py medutilities.py
 nodist_salomescript_DATA = MEDLoader.py
 
 UNIT_TEST_PROG = MEDLoaderTest.py MEDLoaderTest2.py
