@@ -171,7 +171,7 @@ class VTURawReader:
         m.checkCoherency() ; mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m) ; ms.pushMesh(mm)
         # Fields on nodes and on cells
         for spatialDisc,nbEnt,fields in [(ON_NODES,rd._nb_nodes,rd._node_fields),(ON_CELLS,rd._nb_cells,rd._cell_fields)]: 
-            for name,typ,nbCompo,off in rd._node_fields:
+            for name,typ,nbCompo,off in fields:
                 ff=MEDFileFieldMultiTS()
                 f=MEDCouplingFieldDouble(spatialDisc,ONE_TIME)
                 f.setName(name) ; f.setMesh(m)
