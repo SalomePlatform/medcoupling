@@ -2430,7 +2430,7 @@ void MEDFileFieldGlobs::appendGlobs(const MEDFileFieldGlobs& other, double eps) 
         }
     }
   std::vector<std::string> locs=getLocs();
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=other._locs.begin();it!=other._locs.end();it++)
     {
       std::vector<std::string>::iterator it2=std::find(locs.begin(),locs.end(),(*it)->getName());
       if(it2==locs.end())
