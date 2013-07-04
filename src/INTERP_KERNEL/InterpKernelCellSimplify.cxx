@@ -22,6 +22,7 @@
 #include "CellModel.hxx"
 
 #include <algorithm>
+#include <iterator>
 #include <sstream>
 #include <numeric>
 #include <cstring>
