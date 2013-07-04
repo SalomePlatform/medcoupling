@@ -143,11 +143,11 @@ bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
     return false;
   if(_geo_type!=other._geo_type)
     return false;
-  if(MEDCouplingGaussLocalization::AreAlmostEqual(_ref_coo,other._ref_coo,eps))
+  if(!MEDCouplingGaussLocalization::AreAlmostEqual(_ref_coo,other._ref_coo,eps))
     return false;
-  if(MEDCouplingGaussLocalization::AreAlmostEqual(_gs_coo,other._gs_coo,eps))
+  if(!MEDCouplingGaussLocalization::AreAlmostEqual(_gs_coo,other._gs_coo,eps))
     return false;
-  if(MEDCouplingGaussLocalization::AreAlmostEqual(_w,other._w,eps))
+  if(!MEDCouplingGaussLocalization::AreAlmostEqual(_w,other._w,eps))
     return false;
   
   return true;
