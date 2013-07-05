@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+ADD_DEFINITIONS(${MPI_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR} ${OMNIORB_INCLUDE_DIRS}
   ${MPI_INCLUDE_DIRS}
@@ -36,9 +38,8 @@ SET(paramedmemcompo_SOURCES
   )
 
 ADD_LIBRARY(paramedmemcompo SHARED ${paramedmemcompo_SOURCES})
-SET_TARGET_PROPERTIES(paramedmemcompo PROPERTIES COMPILE_FLAGS "${MPI_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(paramedmemcompo medcouplingcorba paramedmem)
-INSTALL(TARGETS paramedmemcompo DESTINATION ${MED_salomelib_LIBS})
+INSTALL(TARGETS paramedmemcompo DESTINATION ${SALOME_INSTALL_LIBS})
 
 FILE(GLOB paramedmemcompo_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${paramedmemcompo_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+INSTALL(FILES ${paramedmemcompo_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})

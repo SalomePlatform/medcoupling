@@ -27,4 +27,4 @@ SET(admlocal_cmake_DATA
   FindSPLITTER.cmake
   )
 
-INSTALL(FILES ${admlocal_cmake_DATA} DESTINATION ${MED_admlocalcmake})
+INSTALL(FILES ${admlocal_cmake_DATA} DESTINATION ${SALOME_INSTALL_CMAKE_LOCAL})

@@ -36,7 +36,7 @@ SET(paramedcouplingcorba_SOURCES
 ADD_LIBRARY(paramedcouplingcorba SHARED ${paramedcouplingcorba_SOURCES})
 SET_TARGET_PROPERTIES(paramedcouplingcorba PROPERTIES COMPILE_FLAGS "${MPI_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(paramedcouplingcorba medcouplingcorba ${MPI_LIBS})
-INSTALL(TARGETS paramedcouplingcorba DESTINATION ${MED_salomelib_LIBS})
+INSTALL(TARGETS paramedcouplingcorba DESTINATION ${SALOME_INSTALL_LIBS})
 
 FILE(GLOB paramedcouplingcorba_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${paramedcouplingcorba_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+INSTALL(FILES ${paramedcouplingcorba_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})

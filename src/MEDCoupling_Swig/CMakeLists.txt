@@ -17,9 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${SALOME_MACROS_DIR}/InstallAndCompilePythonFile.cmake)
-
-FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
 SET_SOURCE_FILES_PROPERTIES(MEDCoupling.i PROPERTIES CPLUSPLUS ON)
@@ -76,13 +73,13 @@ IF(WIN32)
   SET_TARGET_PROPERTIES(_MEDCouplingRemapper PROPERTIES DEBUG_OUTPUT_NAME _MEDCouplingRemapper_d)
   SET_TARGET_PROPERTIES(_MEDCoupling PROPERTIES DEBUG_OUTPUT_NAME _MEDCoupling_d)
 ENDIF(WIN32)
-INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRemapper_REAL_NAME} DESTINATION ${MED_salomelib_LIBS})
+INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRemapper_REAL_NAME} DESTINATION ${SALOME_INSTALL_PYTHON})
 
 SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py ${CMAKE_CURRENT_SOURCE_DIR}/libMEDCoupling_Swig.py)
-INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON})
+INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_SCRIPT_PYTHON})
 
-INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingMemArray.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${MED_salomeinclude_HEADERS})
-INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingMemArray.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py DESTINATION ${SALOME_INSTALL_SCRIPT_PYTHON})
 
 ADD_TEST(MEDCouplingBasicsTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest.py)
 ADD_TEST(MEDCouplingExamplesTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingExamplesTest.py)

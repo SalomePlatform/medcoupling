@@ -32,7 +32,7 @@ SET(MED_FILES
   padderoutput.med
   )
 
-INSTALL(FILES ${MED_FILES} DESTINATION ${MED_salomeres_DATA}/medop_testfiles)
+INSTALL(FILES ${MED_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA}/medop_testfiles)
 
 SET(MED_IMG_FILES
   irm_test1.png
@@ -42,4 +42,4 @@ SET(MED_IMG_FILES
   champ_altitude_MAP.pgm
   )
 
-INSTALL(FILES ${MED_IMG_FILES} DESTINATION ${MED_salomeres_DATA}/medop_testfiles)
+INSTALL(FILES ${MED_IMG_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA}/medop_testfiles)

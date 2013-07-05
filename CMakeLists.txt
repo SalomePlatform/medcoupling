@@ -17,166 +17,271 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
-
-IF(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-ENDIF(COMMAND cmake_policy)
-
-ENABLE_TESTING()
-SET(VERSION "7.2.0")
-SET(VERSION_DEV "0")
-SET(WITH_MEDMEMGUI "0")
-
-#Defining all options first
-option(SALOME_USE_MPI "Use MPI containers" OFF)
-
-
-SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
-IF(KERNEL_ROOT_DIR)
-  FILE(TO_CMAKE_PATH $ENV{KERNEL_ROOT_DIR} KERNEL_ROOT_DIR)
-  SET(MED_ENABLE_KERNEL ON)
-  
-  # directories for packages detection
-  SET(SALOME_MACROS_DIR ${KERNEL_ROOT_DIR}/salome_adm/cmake_files)
-  LIST(APPEND CMAKE_MODULE_PATH "${SALOME_MACROS_DIR}")
-
-  INCLUDE(SalomeMacros)
-  INCLUDE(SalomeSetupPlatform)
-    
-  FIND_PACKAGE(SalomeKERNEL)
-  
-  # Try first to find medfile version using the new CMake first 
-  FIND_PACKAGE(SalomeMedfile QUIET)
-  IF(medfile_FOUND)
-     MESSAGE(STATUS "Found Medfile in config mode (new CMake version of medfile)")
-     # Backward compat:
-     SET(MED_ENABLE_MED3 ON)
-     SET(MED3_INCLUDE_DIRS "${MEDFILE_INCLUDE_DIRS}")
-     SET(MED3_LIBS_C_ONLY "${MEDFILE_C_LIBRARIES}")
-  ELSE()
-    # if not found, revert to the old logic:
-    FIND_PACKAGE(MEDFILE REQUIRED)
-    SET(MED_ENABLE_MED3 ON)
-  ENDIF()
-  
-  FIND_PACKAGE(SalomePThread)
-  FIND_PACKAGE(SalomePython)
-  SET(PYTHON_LIBS ${PYTHON_LIBRARIES})
-  
-  FIND_PACKAGE(SalomeOmniORB)
-  FIND_PACKAGE(SalomeOmniORBPy)
-  SET(OMNIORB_LIBS ${OMNIORB_LIBRARIES})
-  
-  IF(SALOME_USE_MPI)
-    FIND_PACKAGE(SalomeMPI)
-    SET(MPI_IS_OK 1)
-  ENDIF()
-  
-  FIND_PACKAGE(SalomeHDF5)  
-  FIND_PACKAGE(SalomeBoost)
-  
-  FIND_PACKAGE(SalomeLibXml2)
-  # Backward compat:
-  SET(LIBXML_INCLUDE_DIRS "${LIBXML2_INCLUDE_DIR}")
-  SET(LIBXML_LIBS "${LIBXML2_LIBRARIES}")
-  
-  FIND_PACKAGE(SalomeSWIG)
-  SET(SWIG_STATUS TRUE)
-  
-  FIND_PACKAGE(SalomeCppUnit)
-  SET(CPPUNIT_IS_OK ON)
-  SET(CPPUNIT_LIBS "${CPPUNIT_LIBRARIES}")
-  
-  FIND_PACKAGE(SalomeDoxygen)
-  FIND_PACKAGE(SalomeSphinx)
-  
-
-    
-  SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
-  FILE(TO_CMAKE_PATH "$ENV{GUI_ROOT_DIR}" GUI_ROOT_DIR)
-  IF(GUI_ROOT_DIR)
-    LIST(APPEND CMAKE_MODULE_PATH "${GUI_ROOT_DIR}/adm_local/cmake_files")
-    SET(MED_ENABLE_GUI ON)
-    
-    FIND_PACKAGE(SalomeGUI)
-    
-    FIND_PACKAGE(SalomeCAS)
-    FIND_PACKAGE(SalomeOpenGL)
-    FIND_PACKAGE(SalomeQt4)
-    
-    FIND_PACKAGE(SalomeQwt)
-    FIND_PACKAGE(SalomePyQt4)    
-  ENDIF(GUI_ROOT_DIR)
-ELSE(KERNEL_ROOT_DIR)
-  SET(SALOME_MACROS_DIR ${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files)
-  LIST(APPEND CMAKE_MODULE_PATH "${SALOME_MACROS_DIR}")
-  
-  # TODO: the macros below should be loaded with a FIND_PACKAGE(), and should be sync'd with
-  # what has been done in KERNEL + GUI:
-  
-  INCLUDE(FindPLATFORM)
-  if(SALOME_USE_MPI)
-    INCLUDE(FindMPI)
-  endif(SALOME_USE_MPI)
-  INCLUDE(FindMEDFILE)
-  INCLUDE(FindBOOST)
-  INCLUDE(FindCPPUNIT)
-  INCLUDE(FindHDF5)
-  INCLUDE(FindPYTHON)
-  INCLUDE(FindLIBXML2)
-  INCLUDE(FindPTHREADS)
-  INCLUDE(FindSWIG)
-  #INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMEDFILE.cmake)
-ENDIF(KERNEL_ROOT_DIR)
-
 # TODO: write those in the new format, and load them via FIND_PACKAGE():
-INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindPARMETIS.cmake)
-INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMETIS.cmake)
-INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSCOTCH.cmake)
-INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSPLITTER.cmake)
-INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindRENUMBER.cmake)
-IF(WIN32)
-  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
-ENDIF(WIN32)
+#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindPARMETIS.cmake)
+#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMETIS.cmake)
+#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSCOTCH.cmake)
+#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSPLITTER.cmake)
+#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindRENUMBER.cmake)
+#IF(WIN32)
+#  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
+#ENDIF(WIN32)
 
-EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${VERSION}
-  OUTPUT_VARIABLE XVERSION)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
+PROJECT(SalomeMED C CXX)
 
-# TODO: adjust to the global SALOME install dirs exposed from KERNEL:
-SET(MED_salomebin_BINS bin/salome)
-SET(MED_salomelib_LIBS lib/salome)
-SET(MED_salomeidl_IDLS idl/salome)
-SET(KERNEL_salomeidl_IDLS ${MED_salomeidl_IDLS})
-SET(MED_salomeinclude_HEADERS include/salome)
-SET(MED_salomeres_DATA share/salome/resources/med)
-SET(MED_salomeres_SCRIPTS share/salome/resources/med)
-SET(MED_salomescript_SCRIPTS bin/salome)
-SET(MED_salomescript_DATA bin/salome)
-SET(MED_salomescript_PYTHON bin/salome)
-SET(MED_appliskel_SCRIPTS bin/salome/appliskel)
-SET(MED_appliskel_PYTHON bin/salome/appliskel)
-SET(MED_pythondir lib/python${PYTHON_VERSION}/site-packages)
-SET(MED_salomepythondir ${MED_pythondir}/salome)
-SET(MED_sharedpkgpython_PYTHON ${MED_salomepythondir}/shared_modules)
-SET(MED_admlocalcmake adm_local/cmake_files)
+# Ensure a proper linker behavior:
+CMAKE_POLICY(SET CMP0003 NEW)
 
-SET(KERNEL_salomescript_PYTHON ${MED_salomescript_PYTHON})
-SET(KERNEL_salomepythondir ${MED_salomepythondir})
+# Versioning
+# ===========
+# Project name, upper case
+STRING(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UC)
 
-IF(MED_ENABLE_KERNEL)
-  ADD_SUBDIRECTORY(idl)
-ELSE(MED_ENABLE_KERNEL)
-  ADD_SUBDIRECTORY(adm_local_without_kernel)
-ENDIF(MED_ENABLE_KERNEL)
-ADD_SUBDIRECTORY(adm_local)
-ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(doc)
-ADD_SUBDIRECTORY(resources)
-ADD_SUBDIRECTORY(bin)
+SET(${PROJECT_NAME_UC}_MAJOR_VERSION 7)
+SET(${PROJECT_NAME_UC}_MINOR_VERSION 2)
+SET(${PROJECT_NAME_UC}_PATCH_VERSION 0)
+SET(${PROJECT_NAME_UC}_VERSION
+  ${${PROJECT_NAME_UC}_MAJOR_VERSION}.${${PROJECT_NAME_UC}_MINOR_VERSION}.${${PROJECT_NAME_UC}_PATCH_VERSION})
+# Temporary backward compatibility:
+SET(VERSION ${${PROJECT_NAME_UC}_VERSION})
+SET(XVERSION 0x0${${PROJECT_NAME_UC}_MAJOR_VERSION}0${${PROJECT_NAME_UC}_MINOR_VERSION}0${${PROJECT_NAME_UC}_PATCH_VERSION})
+SET(VERSION_DEV "0")
 
-SET(input ${CMAKE_CURRENT_SOURCE_DIR}/MED_version.h.in)
-SET(output ${CMAKE_CURRENT_BINARY_DIR}/MED_version.h)
+#
+# User options
+# ============
+OPTION(SALOME_MED_STANDALONE "Build MED without CORBA bindings. When OFF, exchange to PARAVIS is disabled." OFF)
+OPTION(SALOME_MED_MICROMED "Build MED without MED file dependancy." OFF)
+OPTION(SALOME_MED_ENABLE_PYTHON "Build PYTHON bindings." ON)
+OPTION(SALOME_USE_MPI "To build ParaMEDMEM." OFF)
+OPTION(SALOME_BUILD_GUI "Build GUI of MED." ON)
+OPTION(SALOME_BUILD_TESTS "Build MED tests." ON)
+OPTION(SALOME_BUILD_DOC "Build MED doc." ON)
+
+#
+# Set list of prerequisites
+# =========================
+
+IF(NOT SALOME_MED_STANDALONE)
+  SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR} CACHE PATH "Path to the Salome KERNEL")
+  IF(EXISTS ${KERNEL_ROOT_DIR})
+    LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
+    INCLUDE(SalomeMacros)
+    FIND_PACKAGE(SalomeKERNEL REQUIRED)
+  ELSE(EXISTS ${KERNEL_ROOT_DIR})
+    MESSAGE(FATAL_ERROR "We absolutely need a Salome KERNEL, please define KERNEL_ROOT_DIR or turn option SALOME_MED_STANDALONE to ON !")
+  ENDIF(EXISTS ${KERNEL_ROOT_DIR})
+  LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
+  FIND_PACKAGE(SalomeOmniORB REQUIRED)
+ELSE(NOT SALOME_MED_STANDALONE)
+  LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local_without_kernel/cmake_files")
+  INCLUDE(SalomeMacros)
+ENDIF(NOT SALOME_MED_STANDALONE)
+
+IF(NOT SALOME_MED_MICROMED)
+  FIND_PACKAGE(SalomeHDF5 REQUIRED)
+  FIND_PACKAGE(SalomeMedfile REQUIRED)
+ENDIF(NOT SALOME_MED_MICROMED)
+
+IF(SALOME_BUILD_GUI)
+  IF(NOT SALOME_MED_STANDALONE)
+    SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR} CACHE PATH "Path to the Salome GUI")
+    IF(EXISTS ${GUI_ROOT_DIR})
+      LIST(APPEND CMAKE_MODULE_PATH "${GUI_ROOT_DIR}/adm_local/cmake_files")
+      FIND_PACKAGE(SalomeGUI REQUIRED)
+    ELSE(EXISTS ${GUI_ROOT_DIR})
+      MESSAGE(FATAL_ERROR "We absolutely need a Salome GUI, please define GUI_ROOT_DIR or turn option SALOME_BUILD_GUI to OFF !")
+    ENDIF(EXISTS ${GUI_ROOT_DIR})
+    FIND_PACKAGE(SalomeQt4 REQUIRED COMPONENTS QtCore QtGui)
+    FIND_PACKAGE(SalomeCAS REQUIRED) # maybe one day it will disappear ...
+  ENDIF(NOT SALOME_MED_STANDALONE)
+ENDIF(SALOME_BUILD_GUI)
+
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local/cmake_files")
+
+IF(SALOME_BUILD_TESTS)
+  ENABLE_TESTING()
+  FIND_PACKAGE(SalomeCppUnit REQUIRED)
+ENDIF(SALOME_BUILD_TESTS)
+
+IF(SALOME_USE_MPI)
+  FIND_PACKAGE(SalomeMPI REQUIRED)
+ENDIF(SALOME_USE_MPI)
+
+IF(SALOME_BUILD_DOC)
+  FIND_PACKAGE(SalomeDoxygen REQUIRED)
+  FIND_PACKAGE(SalomeGraphviz)          # Remains optional even here.
+  FIND_PACKAGE(SalomeSphinx REQUIRED)
+ENDIF(SALOME_BUILD_DOC)
+
+IF(SALOME_MED_ENABLE_PYTHON)
+  FIND_PACKAGE(SalomePython REQUIRED)
+  FIND_PACKAGE(SalomeSWIG REQUIRED)
+ENDIF(SALOME_MED_ENABLE_PYTHON)
+
+IF(NOT SALOME_MED_MICROMED)
+  FIND_PACKAGE(SalomeMedfile REQUIRED)
+ENDIF(NOT SALOME_MED_MICROMED)
+
+
+# Directories
+#
+# Directories have to be given after prerequisites (to be able to use
+# Python version string for example).
+# ===========
+SET(SALOME_INSTALL_BINS bin/salome CACHE PATH "Install path: SALOME binaries")
+SET(SALOME_INSTALL_LIBS lib/salome CACHE PATH "Install path: SALOME libs")
+SET(SALOME_INSTALL_IDLS idl/salome CACHE PATH "Install path: SALOME IDL files")
+SET(SALOME_INSTALL_HEADERS include/salome CACHE PATH "Install path: SALOME headers")
+SET(SALOME_INSTALL_SCRIPT_SCRIPTS ${SALOME_INSTALL_BINS} CACHE PATH 
+   "Install path: SALOME scripts")
+SET(SALOME_INSTALL_SCRIPT_DATA ${SALOME_INSTALL_BINS} CACHE PATH 
+   "Install path: SALOME script data")
+SET(SALOME_INSTALL_SCRIPT_PYTHON ${SALOME_INSTALL_BINS} CACHE PATH 
+   "Install path: SALOME Python scripts")
+SET(SALOME_INSTALL_APPLISKEL_SCRIPTS ${SALOME_INSTALL_BINS}/appliskel CACHE PATH 
+   "Install path: SALOME application skeleton - scripts")
+SET(SALOME_INSTALL_APPLISKEL_PYTHON ${SALOME_INSTALL_BINS}/appliskel CACHE PATH 
+   "Install path: SALOME application skeleton - Python")
+SET(SALOME_INSTALL_CMAKE adm_local/cmake_files CACHE PATH "Install path: SALOME CMake files")
+SET(SALOME_INSTALL_CMAKE_LOCAL adm_local/cmake_files CACHE PATH 
+   "Install path: local SALOME CMake files")
+
+IF(SALOME_MED_ENABLE_PYTHON)
+  SET(_pydir lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+  SET(SALOME_INSTALL_PYTHON ${_pydir}/salome CACHE PATH "Install path: SALOME Python stuff")
+  SET(SALOME_INSTALL_PYTHON_SHARED ${SALOME_INSTALL_PYTHON}/shared_modules CACHE PATH 
+    "Install path: SALOME Python shared modules")
+ENDIF(SALOME_MED_ENABLE_PYTHON)
+
+SET(SALOME_INSTALL_RES share/salome/resources CACHE PATH "Install path: SALOME resources")
+
+# Med specific:
+
+SET(SALOME_MED_INSTALL_RES_DATA "${SALOME_INSTALL_RES}/med" CACHE PATH "Install path: SALOME MED specific data")
+SET(SALOME_MED_INSTALL_RES_SCRIPTS "${SALOME_INSTALL_RES}/med" CACHE PATH "Install path: SALOME MED specific scripts")
+
+MARK_AS_ADVANCED(SALOME_INSTALL_BINS SALOME_INSTALL_LIBS SALOME_INSTALL_IDLS SALOME_INSTALL_HEADERS)
+MARK_AS_ADVANCED(SALOME_INSTALL_SCRIPT_SCRIPTS SALOME_INSTALL_SCRIPT_DATA SALOME_INSTALL_SCRIPT_PYTHON)
+MARK_AS_ADVANCED(SALOME_INSTALL_APPLISKEL_SCRIPTS  SALOME_INSTALL_APPLISKEL_PYTHON SALOME_INSTALL_CMAKE SALOME_INSTALL_CMAKE_LOCAL SALOME_INSTALL_RES)
+MARK_AS_ADVANCED(SALOME_INSTALL_PYTHON SALOME_INSTALL_PYTHON_SHARED SALOME_MED_INSTALL_RES_DATA SALOME_MED_INSTALL_RES_SCRIPTS)
+
+# Configuration of MED_version.h.in
+
+SET(input ${PROJECT_SOURCE_DIR}/MED_version.h.in)
+SET(output ${PROJECT_BINARY_DIR}/MED_version.h)
 MESSAGE(STATUS "Creation of ${output}")
 CONFIGURE_FILE(${input} ${output} @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MED_version.h DESTINATION ${MED_salomeinclude_HEADERS})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MED_version.h DESTINATION ${SALOME_INSTALL_HEADERS})
+
+# Sources 
+# ========
+
+ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(bin)
+ADD_SUBDIRECTORY(adm_local)
+
+IF(SALOME_BUILD_DOC)
+  ADD_SUBDIRECTORY(doc)
+ENDIF(SALOME_BUILD_DOC)
+
+IF(NOT SALOME_MED_STANDALONE)
+  ADD_SUBDIRECTORY(idl)
+ELSE(NOT SALOME_MED_STANDALONE)
+  ADD_SUBDIRECTORY(adm_local_without_kernel)
+ENDIF(NOT SALOME_MED_STANDALONE)
+
+IF(NOT SALOME_MED_MICROMED)
+  ADD_SUBDIRECTORY(resources)
+ENDIF(NOT SALOME_MED_MICROMED)
+
+# Configuration export
+# ====================
+INCLUDE(CMakePackageConfigHelpers)
+
+# List of targets in this project we want to make visible to the rest of the world.
+# They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
+SET(_${PROJECT_NAME}_exposed_targets
+   interpkernel medcoupling)
+
+IF(NOT SALOME_MED_MICROMED)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+    medloader)
+  IF(SALOME_USE_MPI)
+     LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+       paramedloader)
+  ENDIF(SALOME_USE_MPI)
+ENDIF(NOT SALOME_MED_MICROMED)
+
+IF(SALOME_USE_MPI)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+    paramedmem)
+ENDIF(SALOME_USE_MPI)
+
+IF(NOT SALOME_MED_STANDALONE)
+  LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+    SalomeIDLMED medcouplingcorba )
+ENDIF(NOT SALOME_MED_STANDALONE)
+
+# Add all targets to the build-tree export set
+
+EXPORT(TARGETS ${_${PROJECT_NAME}_exposed_targets}
+  FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake)
+
+# Create the configuration files:
+#   - in the build tree:
+
+#      Ensure the variables are always defined for the configure:
+
+SET(MEDFILE_ROOT_DIR "${MEDFILE_ROOT_DIR}")
+SET(HDF5_ROOT_DIR "${HDF5_ROOT_DIR}")
+SET(MPI_ROOT_DIR "${MPI_ROOT_DIR}")
+SET(OMNIORB_ROOT_DIR "${OMNIORB_ROOT_DIR}")
+SET(PTHREAD_ROOT_DIR "${PTHREAD_ROOT_DIR}")
+SET(SWIG_ROOT_DIR "${SWIG_ROOT_DIR}")
+SET(PYTHON_ROOT_DIR "${PYTHON_ROOT_DIR}")
+SET(CPPUNIT_ROOT_DIR "${CPPUNIT_ROOT_DIR}")
+SET(GRAPHVIZ_ROOT_DIR "${GRAPHVIZ_ROOT_DIR}")
+SET(DOXYGEN_ROOT_DIR "${DOXYGEN_ROOT_DIR}")
+SET(SPHINX_ROOT_DIR "${SPHINX_ROOT_DIR}")
+
+#   - in the install tree:
+#       Get the relative path of the include directory so 
+#       we can register it in the generated configuration files:
+SET(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDE_DIR}")
+CONFIGURE_PACKAGE_CONFIG_FILE(adm_local/cmake_files/${PROJECT_NAME}Config.cmake.in 
+    ${PROJECT_BINARY_DIR}/to_install/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION "${SALOME_INSTALL_CMAKE}"
+    PATH_VARS CONF_INCLUDE_DIRS SALOME_INSTALL_CMAKE CMAKE_INSTALL_PREFIX 
+       MEDFILE_ROOT_DIR HDF5_ROOT_DIR OMNIORB_ROOT_DIR PTHREAD_ROOT_DIR
+       SWIG_ROOT_DIR PYTHON_ROOT_DIR CPPUNIT_ROOT_DIR GRAPHVIZ_ROOT_DIR DOXYGEN_ROOT_DIR
+       SPHINX_ROOT_DIR)
+
+WRITE_BASIC_PACKAGE_VERSION_FILE(${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${${PROJECT_NAME_UC}_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+  
+# Install the CMake configuration files:
+INSTALL(FILES
+  "${PROJECT_BINARY_DIR}/to_install/${PROJECT_NAME}Config.cmake"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  DESTINATION "${SALOME_INSTALL_CMAKE}")
+
+# Install the export set for use with the install-tree
+INSTALL(EXPORT ${PROJECT_NAME}TargetGroup DESTINATION "${SALOME_INSTALL_CMAKE}" 
+        FILE ${PROJECT_NAME}Targets.cmake)
+
+###
+
+MACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
+  INSTALL(CODE "SET(PYTHON_FILE ${f})")
+  FOREACH(input ${PYFILE2COMPINST})
+    GET_FILENAME_COMPONENT(inputname ${input} NAME)
+    INSTALL(FILES ${input} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PYFILELOC})
+    INSTALL(CODE "MESSAGE(STATUS \"py compiling ${CMAKE_INSTALL_PREFIX}/${PYFILELOC}/${inputname}\")")
+    INSTALL(CODE "SET(CMD \"import py_compile ; py_compile.compile('${CMAKE_INSTALL_PREFIX}/${PYFILELOC}/${inputname}')\")")
+    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c \"\${CMD}\")")
+    INSTALL(CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -O -c \"\${CMD}\")")
+  ENDFOREACH(input ${PYFILE2COMPINST})
+ENDMACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)

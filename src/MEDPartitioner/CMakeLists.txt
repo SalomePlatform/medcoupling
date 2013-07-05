@@ -17,9 +17,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-IF(CPPUNIT_IS_OK)
+ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${MEDFILE_DEFINITIONS} ${LIBXML_DEFINITIONS} ${MPI_DEFINITIONS})
+
+IF(SALOME_BUILD_TESTS)
   ADD_SUBDIRECTORY(Test)
-ENDIF(CPPUNIT_IS_OK)
+ENDIF(SALOME_BUILD_TESTS)
 
 INCLUDE_DIRECTORIES(
   ${PARMETIS_INCLUDE_DIRS}
@@ -27,7 +29,7 @@ INCLUDE_DIRECTORIES(
   ${SCOTCH_INCLUDE_DIRS}
   ${METIS_INCLUDE_DIRS}
   ${LIBXML_INCLUDE_DIRS}
-  ${MED3_INCLUDE_DIRS}
+  ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${MPI_INCLUDE_DIRS}
   ${PTHREADS_INCLUDE_DIRS}
@@ -72,13 +74,12 @@ SET(medpartitionercpp_SOURCES
   MEDPARTITIONER_metis.c
   )
 
-SET(medpartitionercpp_DEFINITIONS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${LIBXML_DEFINITIONS} ${MPI_DEFINITIONS}")
 SET(medpartitionercpp_LDFLAGS
-  ${MED3_LIBS_C_ONLY}
-  ${HDF5_LIBS}
+  ${MEDFILE_C_LIBRARIES}
+  ${HDF5_LIBRARIES}
   ${STDLIB}
-  ${LIBXML_LIBS}
-  ${MPI_LIBS}
+  ${LIBXML_LIBRARIES}
+  ${MPI_LIBRARIES}
   interpkernel
   medcoupling
   medloader
@@ -102,28 +103,28 @@ IF(MED_ENABLE_SCOTCH)
   SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBS})
 ENDIF(MED_ENABLE_SCOTCH)
 
-IF(MPI_IS_OK)
+IF(SALOME_USE_MPI)
   SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES}
     MEDPARTITIONER_UtilsPara.cxx
     MEDPARTITIONER_JointFinder.cxx
   )
-ENDIF(MPI_IS_OK)			  
+ENDIF(SALOME_USE_MPI)			  
   
 ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
 SET_TARGET_PROPERTIES(medpartitionercpp PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medpartitionercpp ${medpartitionercpp_LDFLAGS} ${PLATFORM_LIBS} ${PTHREAD_LIBS})
-INSTALL(TARGETS medpartitionercpp DESTINATION ${MED_salomelib_LIBS})
+INSTALL(TARGETS medpartitionercpp DESTINATION ${SALOME_INSTALL_LIBS})
   
 IF(MED_ENABLE_PARMETIS)
   ADD_EXECUTABLE(medpartitioner_para medpartitioner_para.cxx)
   SET_TARGET_PROPERTIES(medpartitioner_para PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp ${medpartitionercpp_LDFLAGS})
-  INSTALL(TARGETS medpartitioner_para DESTINATION ${MED_salomebin_BINS})
+  INSTALL(TARGETS medpartitioner_para DESTINATION ${SALOME_INSTALL_BINS})
 ENDIF(MED_ENABLE_PARMETIS)
 
 ADD_EXECUTABLE(medpartitioner medpartitioner.cxx)
 SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp ${medpartitionercpp_LDFLAGS})
-INSTALL(TARGETS medpartitioner DESTINATION ${MED_salomebin_BINS})
+INSTALL(TARGETS medpartitioner DESTINATION ${SALOME_INSTALL_BINS})
 
-INSTALL(FILES ${medpartitionercpp_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+INSTALL(FILES ${medpartitionercpp_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
