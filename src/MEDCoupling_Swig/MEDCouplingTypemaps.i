@@ -1125,7 +1125,10 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
           PyObject *obj=PyList_GetItem(pyLi,i);
           int status=SWIG_ConvertPtr(obj,&argp,ty,0|0);
           if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only MEDCouplingUMesh");
+            {
+              std::ostringstream oss; oss << "convertFromPyObjVectorOfObj : list is excepted to contain only " << typeStr << " instances !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
           T arg=reinterpret_cast< T >(argp);
           ret[i]=arg;
         }
@@ -1140,7 +1143,7 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
           int status=SWIG_ConvertPtr(obj,&argp,ty,0|0);
           if(!SWIG_IsOK(status))
             {
-              std::ostringstream oss; oss << "tuple must contain only " << typeStr;
+              std::ostringstream oss; oss << "convertFromPyObjVectorOfObj : tuple is excepted to contain only " << typeStr << " instances !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           T arg=reinterpret_cast< T >(argp);
