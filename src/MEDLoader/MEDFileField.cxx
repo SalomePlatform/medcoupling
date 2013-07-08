@@ -8177,6 +8177,43 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeFieldMultiTS::getTimeStepGivenTime(double 
   return getTimeStepAtPos(pos);
 }
 
+/*!
+ * This method groups not null items in \a vectFMTS per time step series. Two time series are considered equal if the list of their pair of integers iteration,order are equal.
+ * The float64 value of time attached to the pair of integers are not considered here.
+ * 
+ * \param [in] vectFMTS - vector of not null fields defined on a same global data pointer.
+ * \throw If there is a null pointer in \a vectFMTS.
+ */
+std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS) throw(INTERP_KERNEL::Exception)
+{
+  static const char msg[]="MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries : presence of null instance in input vector !";
+  std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret;
+  std::list<MEDFileAnyTypeFieldMultiTS *> lstFMTS(vectFMTS.begin(),vectFMTS.end());
+  while(!lstFMTS.empty())
+    {
+      std::list<MEDFileAnyTypeFieldMultiTS *>::iterator it(lstFMTS.begin());
+      MEDFileAnyTypeFieldMultiTS *curIt(*it);
+      if(!curIt)
+        throw INTERP_KERNEL::Exception(msg);
+      std::vector< std::pair<int,int> > refIts=curIt->getIterations();
+      std::vector<MEDFileAnyTypeFieldMultiTS *> elt;
+      elt.push_back(curIt); it=lstFMTS.erase(it);
+      while(it!=lstFMTS.end())
+        {
+          curIt=*it;
+          if(!curIt)
+            throw INTERP_KERNEL::Exception(msg);
+          std::vector< std::pair<int,int> > curIts=curIt->getIterations();
+          if(refIts==curIts)
+            { elt.push_back(curIt); it=lstFMTS.erase(it);}
+          else
+            it++;
+        }
+      ret.push_back(elt);
+    }
+  return ret;
+}
+
 MEDFileAnyTypeFieldMultiTSIterator *MEDFileAnyTypeFieldMultiTS::iterator() throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileAnyTypeFieldMultiTSIterator(this);
