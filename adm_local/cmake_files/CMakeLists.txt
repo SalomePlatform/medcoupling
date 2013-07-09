@@ -18,15 +18,13 @@
 #
 
 SET(admlocal_cmake_DATA
-  FindMED.cmake
   FindXDR.cmake
   FindMetis.cmake
   FindSalomeMetis.cmake
-  FindPARMETIS.cmake
-  FindRENUMBER.cmake
+  FindParMetis.cmake
+  FindSalomeParMetis.cmake
   FindScotch.cmake
   FindSalomeScotch.cmake
-  FindSPLITTER.cmake
   )
 
 INSTALL(FILES ${admlocal_cmake_DATA} DESTINATION ${SALOME_INSTALL_CMAKE_LOCAL})
