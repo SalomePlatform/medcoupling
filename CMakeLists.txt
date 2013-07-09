@@ -18,7 +18,7 @@
 #
 
 #IF(WIN32)
-#  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
+#  INCLUDE(${PROJECT_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
 #ENDIF(WIN32)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
