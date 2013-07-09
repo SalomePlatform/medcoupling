@@ -72,19 +72,18 @@ SET(COMMON_FLAGS
   SalomeIDLMED
   MEDOPGUI_dialogs
   MEDOPFactoryEngine
-  ${qtx}
-  ${suit}
-  ${SalomeObject}
-  ${SalomeLifeCycleCORBA}
-  ${SalomeKernelHelpers}
-  ${SalomeApp}
-  ${SalomeGuiHelpers}
-  ${SalomeTreeData}
-  ${OpUtil}
-  ${CAM}
-  ${LightApp}
-  ${PyConsole}
-  ${SalomeGuiHelpers}
+  ${GUI_qtx}
+  ${GUI_suit}
+  ${GUI_SalomeObject}
+  ${KERNEL_SalomeLifeCycleCORBA}
+  ${KERNEL_SalomeKernelHelpers}
+  ${GUI_SalomeApp}
+  ${GUI_SalomeGuiHelpers}
+  ${GUI_SalomeTreeData}
+  ${KERNEL_OpUtil}
+  ${GUI_CAM}
+  ${GUI_LightApp}
+  ${GUI_PyConsole}
 )
 
 ADD_LIBRARY(MEDOPGUI SHARED ${MEDOPGUI_SOURCES} ${MEDOPGUI_HEADERS_MOC})
