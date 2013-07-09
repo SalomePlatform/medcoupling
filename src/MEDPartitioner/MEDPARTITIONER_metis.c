@@ -27,7 +27,9 @@
 #include "MEDPARTITIONER_metis.h"
 
 #if defined(MED_ENABLE_METIS)
-  #include <metis.h>
+  #include "defs.h"
+  #include "struct.h"
+  #include "metis.h"
 #else
   typedef int idxtype;
 #endif

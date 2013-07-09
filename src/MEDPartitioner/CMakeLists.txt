@@ -97,7 +97,6 @@ SET(medpartitionercpp_LDFLAGS
   ${HDF5_LIBRARIES}
   ${STDLIB}
   ${LIBXML2_LIBRARIES}
-  ${MPI_LIBRARIES}
   interpkernel
   medcoupling
   medloader
@@ -121,16 +120,14 @@ IF(SALOME_MED_PARTITIONER_SCOTCH)
   SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBRARIES})
 ENDIF(SALOME_MED_PARTITIONER_SCOTCH)
 
-IF(SALOME_USE_MPI)
-  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES}
-    MEDPARTITIONER_UtilsPara.cxx
-    MEDPARTITIONER_JointFinder.cxx
-  )
-ADD_EXECUTABLE(medpartitioner_para medpartitioner_para.cxx)
+IF(${SALOME_USE_MPI})
+  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_UtilsPara.cxx MEDPARTITIONER_JointFinder.cxx)
+  ADD_EXECUTABLE(medpartitioner_para medpartitioner_para.cxx)
+  SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${MPI_LIBRARIES})
   SET_TARGET_PROPERTIES(medpartitioner_para PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp ${medpartitionercpp_LDFLAGS})
   INSTALL(TARGETS medpartitioner_para DESTINATION ${SALOME_INSTALL_BINS})
-ENDIF(SALOME_USE_MPI)			  
+ENDIF(${SALOME_USE_MPI})			  
   
 ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
 SET_TARGET_PROPERTIES(medpartitionercpp PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
