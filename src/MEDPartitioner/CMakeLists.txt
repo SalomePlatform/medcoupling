@@ -129,7 +129,7 @@ IF(${SALOME_USE_MPI})
   SET_TARGET_PROPERTIES(medpartitioner_para PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp ${medpartitionercpp_LDFLAGS})
   INSTALL(TARGETS medpartitioner_para DESTINATION ${SALOME_INSTALL_BINS})
-ENDIF(${SALOME_USE_MPI})			  
+ENDIF(${SALOME_USE_MPI})
   
 ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
 SET_TARGET_PROPERTIES(medpartitionercpp PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
