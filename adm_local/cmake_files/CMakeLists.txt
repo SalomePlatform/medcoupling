@@ -20,10 +20,12 @@
 SET(admlocal_cmake_DATA
   FindMED.cmake
   FindXDR.cmake
-  FindMETIS.cmake
+  FindMetis.cmake
+  FindSalomeMetis.cmake
   FindPARMETIS.cmake
   FindRENUMBER.cmake
-  FindSCOTCH.cmake
+  FindScotch.cmake
+  FindSalomeScotch.cmake
   FindSPLITTER.cmake
   )
 

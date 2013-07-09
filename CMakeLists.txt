@@ -17,10 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# TODO: write those in the new format, and load them via FIND_PACKAGE():
-#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindPARMETIS.cmake)
-#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMETIS.cmake)
-#INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSCOTCH.cmake)
 #IF(WIN32)
 #  INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
 #ENDIF(WIN32)
@@ -91,6 +87,9 @@ IF(NOT SALOME_MED_MICROMED)
     IF(SALOME_MED_PARTITIONER_METIS)
       FIND_PACKAGE(SalomeMetis REQUIRED)
     ENDIF(SALOME_MED_PARTITIONER_METIS)
+    IF(SALOME_MED_PARTITIONER_SCOTCH)
+      FIND_PACKAGE(SalomeScotch REQUIRED)
+    ENDIF(SALOME_MED_PARTITIONER_SCOTCH)
   ENDIF(SALOME_MED_ENABLE_PARTITIONER)
 ENDIF(NOT SALOME_MED_MICROMED)
 
