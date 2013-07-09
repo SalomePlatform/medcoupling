@@ -126,11 +126,6 @@ IF(SALOME_MED_ENABLE_PYTHON)
   FIND_PACKAGE(SalomeSWIG REQUIRED)
 ENDIF(SALOME_MED_ENABLE_PYTHON)
 
-IF(NOT SALOME_MED_MICROMED)
-  FIND_PACKAGE(SalomeMEDFile REQUIRED)
-ENDIF(NOT SALOME_MED_MICROMED)
-
-
 # Directories
 #
 # Directories have to be given after prerequisites (to be able to use
