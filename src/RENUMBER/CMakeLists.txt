@@ -17,7 +17,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${MEDFILE_DEFINITIONS} ${PLATFORM_DEFINITIONS})
+ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${BOOST_DEFINITIONS} ${MEDFILE_DEFINITIONS} ${PLATFORM_DEFINITIONS})
+
+IF(Boost_FOUND)
+  ADD_DEFINITIONS("-DENABLE_BOOST")
+ENDIF(Boost_FOUND)
 
 INCLUDE_DIRECTORIES(
   ${BOOST_INCLUDE_DIRS}
@@ -50,19 +54,18 @@ SET(renumber_SOURCES
 
 SET(renumbercpp_LDFLAGS medloader)
 
-IF(MED_ENABLE_METIS)
+IF(Metis_FOUND)
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_METISRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_METISRenumbering.hxx)
   SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${METIS_LIBS})
   SET(renumber_DEFINITIONS "${renumber_DEFINITIONS} ${METIS_DEFINITIONS}")
-ENDIF(MED_ENABLE_METIS)
+ENDIF(Metis_FOUND)
 
-IF(BOOST_STATUS)
+IF(Boost_FOUND)
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_BOOSTRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_BOOSTRenumbering.hxx)
-  SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${BOOST_LIBS})
-  SET(renumber_DEFINITIONS "${renumber_DEFINITIONS} ${BOOST_DEFINITIONS} -DENABLE_BOOST")
-ENDIF(BOOST_STATUS)
+  SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${BOOST_LIBRARIES})
+ENDIF(Boost_FOUND)
 
 ADD_EXECUTABLE(renumber ${renumber_SOURCES})
 SET_TARGET_PROPERTIES(renumber PROPERTIES COMPILE_FLAGS "${renumber_DEFINITIONS}")
