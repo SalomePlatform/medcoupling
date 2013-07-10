@@ -59,6 +59,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
     virtual std::string getStringRepr() const = 0;
     virtual const char *getRepr() const = 0;
+    virtual int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
     virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
@@ -120,6 +121,7 @@ namespace ParaMEDMEM
     std::string getStringRepr() const;
     const char *getRepr() const;
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -150,6 +152,7 @@ namespace ParaMEDMEM
   {
   public:
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
@@ -230,6 +233,7 @@ namespace ParaMEDMEM
     std::string getStringRepr() const;
     const char *getRepr() const;
     std::size_t getHeapMemorySize() const;
+    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -297,6 +301,7 @@ namespace ParaMEDMEM
     std::string getStringRepr() const;
     const char *getRepr() const;
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;

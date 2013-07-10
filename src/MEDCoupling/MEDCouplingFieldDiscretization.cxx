@@ -479,6 +479,41 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
   return mesh->getNumberOfCells();
 }
 
+/*!
+ * mesh is not used here. It is not a bug !
+ */
+int MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  if(code.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
+  int nbOfSplit=(int)idsPerType.size();
+  int nbOfTypes=(int)code.size()/3;
+  int ret=0;
+  for(int i=0;i<nbOfTypes;i++)
+    {
+      int nbOfEltInChunk=code[3*i+1];
+      if(nbOfEltInChunk<0)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : invalid input code ! presence of negative value in a type !");
+      int pos=code[3*i+2];
+      if(pos!=-1)
+        {
+          if(pos<0 || pos>=nbOfSplit)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : input code points to pos " << pos << " in typeid " << i << " ! Should be in [0," << nbOfSplit << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          const DataArrayInt *ids(idsPerType[pos]);
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      ret+=nbOfEltInChunk;
+    }
+  return ret;
+}
+
 int MEDCouplingFieldDiscretizationP0::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
 {
   if(!mesh)
@@ -684,6 +719,41 @@ int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMe
   return mesh->getNumberOfNodes();
 }
 
+/*!
+ * mesh is not used here. It is not a bug !
+ */
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  if(code.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
+  int nbOfSplit=(int)idsPerType.size();
+  int nbOfTypes=(int)code.size()/3;
+  int ret=0;
+  for(int i=0;i<nbOfTypes;i++)
+    {
+      int nbOfEltInChunk=code[3*i+1];
+      if(nbOfEltInChunk<0)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : invalid input code ! presence of negative value in a type !");
+      int pos=code[3*i+2];
+      if(pos!=-1)
+        {
+          if(pos<0 || pos>=nbOfSplit)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : input code points to pos " << pos << " in typeid " << i << " ! Should be in [0," << nbOfSplit << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          const DataArrayInt *ids(idsPerType[pos]);
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      ret+=nbOfEltInChunk;
+    }
+  return ret;
+}
+
 int MEDCouplingFieldDiscretizationOnNodes::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
 {
   if(!mesh)
@@ -789,7 +859,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshDataRange(co
 
 /*!
  * This method returns a tuple ids selection from cell ids selection [start;end).
- * This method is called by MEDCouplingFieldDiscretizationP0::buildSubMeshData to return parameter \b di.
+ * This method is called by MEDCouplingFieldDiscretizationOnNodes::buildSubMeshData to return parameter \b di.
  * Here for P1 only nodes fetched by submesh of mesh[startCellIds:endCellIds) is returned !
  *
  * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
@@ -1246,6 +1316,47 @@ std::size_t MEDCouplingFieldDiscretizationGauss::getHeapMemorySize() const
 const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
 {
   return REPR;
+}
+
+/*!
+ * mesh is not used here. It is not a bug !
+ */
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_discr_per_cell || _discr_per_cell->isAllocated() || _discr_per_cell->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode");
+  if(code.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
+  int nbOfSplit=(int)idsPerType.size();
+  int nbOfTypes=(int)code.size()/3;
+  int ret=0;
+  for(int i=0;i<nbOfTypes;i++)
+    {
+      int nbOfEltInChunk=code[3*i+1];
+      if(nbOfEltInChunk<0)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : invalid input code ! presence of negative value in a type !");
+      int pos=code[3*i+2];
+      if(pos!=-1)
+        {
+          if(pos<0 || pos>=nbOfSplit)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : input code points to pos " << pos << " in typeid " << i << " ! Should be in [0," << nbOfSplit << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          const DataArrayInt *ids(idsPerType[pos]);
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      ret+=nbOfEltInChunk;
+    }
+  if(ret!=_discr_per_cell->getNumberOfTuples())
+    {
+      std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : input code points to " << ret << " cells whereas discretization percell array lgth is " <<  _discr_per_cell->getNumberOfTuples() << " !";
+    }
+  return getNumberOfTuples(0);//0 is not an error ! It is to be sure that input mesh is not used
 }
 
 int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const throw(INTERP_KERNEL::Exception)
@@ -1923,6 +2034,44 @@ bool MEDCouplingFieldDiscretizationGaussNE::isEqualIfNotWhy(const MEDCouplingFie
   if(!ret)
     reason="Spatial discrtization of this is ON_GAUSS_NE, which is not the case of other.";
   return ret;
+}
+
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  if(code.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
+  int nbOfSplit=(int)idsPerType.size();
+  int nbOfTypes=(int)code.size()/3;
+  int ret=0;
+  for(int i=0;i<nbOfTypes;i++)
+    {
+      int nbOfEltInChunk=code[3*i+1];
+      if(nbOfEltInChunk<0)
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : invalid input code ! presence of negative value in a type !");
+      int pos=code[3*i+2];
+      if(pos!=-1)
+        {
+          if(pos<0 || pos>=nbOfSplit)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : input code points to pos " << pos << " in typeid " << i << " ! Should be in [0," << nbOfSplit << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          const DataArrayInt *ids(idsPerType[pos]);
+          if(!ids || !ids->isAllocated() || ids->getNumberOfComponents()!=1 || ids->getNumberOfTuples()!=nbOfEltInChunk || ids->getMinValueInArray()<0)
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : input pfl chunck at pos " << pos << " should have " << i << " tuples and one component and with ids all >=0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      ret+=nbOfEltInChunk;
+    }
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : NULL input mesh !");
+  if(ret!=mesh->getNumberOfCells())
+    {
+      std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : input code points to " << ret << " number of cells should be " <<  mesh->getNumberOfCells() << " !";
+    }
+  return getNumberOfTuples(mesh);
 }
 
 int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)

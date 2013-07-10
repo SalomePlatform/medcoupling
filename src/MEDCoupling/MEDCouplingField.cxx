@@ -609,3 +609,28 @@ void MEDCouplingField::copyTinyStringsFrom(const MEDCouplingField *other) throw(
       setDescription(other->_desc.c_str());    
     }
 }
+
+/*!
+ * This method computes the number of tuples a DataArrayDouble instance should have to build a correct MEDCouplingFieldDouble instance starting from a 
+ * submesh of a virtual mesh on which a substraction per type had been applied regarding the spatial discretization in \a this.
+ * 
+ * For spatial discretization \b not equal to ON_GAUSS_NE this method will make the hypothesis that any positive entity id in \a code \a idsPerType is valid.
+ * So in those cases attribute \a _mesh of \a this is ignored.
+ * 
+ * For spatial discretization equal to ON_GAUSS_NE \a _mesh attribute will be taken into account.
+ *
+ * The input code is those implemented in MEDCouplingUMesh::splitProfilePerType.
+ *
+ * \param [in] code - a code with format described above.
+ * \param [in] idsPerType - a list of subparts
+ * \throw If \a this has no spatial discretization set.
+ * \throw If input code point to invalid zones in spatial discretization.
+ * \throw If spatial discretization in \a this requires a mesh and those mesh is invalid (null,...)
+ */
+int MEDCouplingField::getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingFieldDiscretization *t(_type);
+  if(!t)
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfTuplesExpectedRegardingCode : no spatial discretization set !");
+  return t->getNumberOfTuplesExpectedRegardingCode(_mesh,code,idsPerType);
+}
