@@ -73,7 +73,8 @@ RSTFILES= \
 	index.rst               \
 	medop-specifications.rst \
 	medop-develguide.rst     \
-	medop-userguide.rst
+	medop-userguide-gui.rst
+	medop-userguide-api.rst
 
 # Files on the development of the prototype (version 2010)
 RSTFILES+=\

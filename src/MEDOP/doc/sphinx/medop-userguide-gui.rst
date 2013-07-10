@@ -655,7 +655,7 @@ carte de champ:
 
 .. _xmed.userguide.tui:
 
-Utilisation de l'interface textuelle du moduel MED (TUI)
+Utilisation de l'interface textuelle du module MED (TUI)
 ========================================================
 
 Toutes les opérations menées au moyen de l'interface graphique peuvent

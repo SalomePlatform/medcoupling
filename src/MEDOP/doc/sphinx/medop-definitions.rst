@@ -86,3 +86,38 @@
 
 .. |XMED_USERGUIDE_PDF| replace:: version pdf
 .. _XMED_USERGUIDE_PDF: _static/documents/xmed-userguide.pdf
+
+
+.. =========================================================
+.. Rendering roles
+.. =========================================================
+.. This role can be used to display monospace text (code)
+.. role:: tt
+   :class: tt
+
+.. role:: strike
+   :class: strike
+
+.. role:: bolditalic
+   :class: bolditalic
+
+.. role:: underline
+   :class: underline
+
+.. role:: tag
+   :class: tag
+
+.. role:: tagb
+   :class: tagb
+
+.. role:: todo
+   :class: todo
+
+.. role:: date
+   :class: date
+
+.. role:: warn
+   :class: warn
+
+.. role:: info
+   :class: info

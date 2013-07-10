@@ -113,3 +113,47 @@ div.sphinxsidebar p {
   font-size: 70%;
   margin-top: 5px;
 }
+
+
+.tt {
+    font-family:"Courier New",Courier,monospace;
+}
+.strike {
+    text-decoration: line-through;
+}
+
+.bolditalic {
+    font-style:italic;
+    font-weight:bold
+}
+
+.underline {
+    text-decoration:underline;
+}
+
+.tag {
+    font-family:"Courier New",Courier,monospace;
+}
+
+.tagb {
+    font-family:"Courier New",Courier,monospace;
+    font-weight:bold
+}
+
+.todo {
+    background-color:yellow;
+}
+
+.warn {
+    background-color:#FFE4E4;
+}
+
+.info {
+    background-color:#EEEEEE;
+}
+
+.date {
+    font-family:"Courier New",Courier,monospace;
+    font-style:italic;
+}
+
