@@ -4267,12 +4267,12 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDou
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsInPflPerType2(idsInPflPerType.size()); std::copy(idsInPflPerType.begin(),idsInPflPerType.end(),idsInPflPerType2.begin());
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerType2(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType2.begin()); 
       std::vector<const DataArrayInt *> idsPerType3(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType3.begin()); 
-      int nbOfTuplesExp=field->getNumberOfTuplesExpectedRegardingCode(code,idsPerType3);
-      if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
+      //int nbOfTuplesExp=field->getNumberOfTuplesExpectedRegardingCode(code,idsPerType3);
+      /*if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
         {
           std::ostringstream oss; oss << "MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : The array is expected to have " << nbOfTuplesExp << " tuples ! It has " << arrOfVals->getNumberOfTuples() << " !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+          }*/
       int start=copyTinyInfoFrom(field,arrOfVals);
       code2=m->getDistributionOfTypes();
       //
