@@ -17,5 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(appligen)
 ADD_SUBDIRECTORY(image2med)
