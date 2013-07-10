@@ -25,6 +25,7 @@ SET(admlocal_cmake_DATA
   FindSalomeParMetis.cmake
   FindScotch.cmake
   FindSalomeScotch.cmake
+  FindSalomeMED.cmake
   )
 
 INSTALL(FILES ${admlocal_cmake_DATA} DESTINATION ${SALOME_INSTALL_CMAKE_LOCAL})
