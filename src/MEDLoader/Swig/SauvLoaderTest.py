@@ -72,7 +72,7 @@ class SauvLoaderTest(unittest.TestCase):
         # add a field on 2 faces to pointeMed
         ff1=MEDFileFieldMultiTS.New()
         f1=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME)
-        #f1.setMesh( pointeM1D )
+        #
         f1.setName("Field on 2 faces")
         d=DataArrayDouble.New()
         d.alloc(3+4,2)
@@ -83,6 +83,8 @@ class SauvLoaderTest(unittest.TestCase):
         da=DataArrayInt.New()
         da.setValues([0,2],2,1)
         da.setName("sup2")
+        pointeM1D_2=pointeM1D[da]
+        f1.setMesh( pointeM1D_2 )
         ff1.appendFieldProfile(f1,pointeMedMesh,-1,da)
         pointeMed.getFields().pushField( ff1 )
 

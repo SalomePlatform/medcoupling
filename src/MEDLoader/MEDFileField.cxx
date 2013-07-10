@@ -1021,7 +1021,8 @@ void MEDFileFieldPerMeshPerType::assignNodeFieldNoProfile(int& start, const MEDC
 void MEDFileFieldPerMeshPerType::assignNodeFieldProfile(int& start, const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, const DataArray *arr, MEDFileFieldGlobsReal& glob, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pfl2=pfl->deepCpy();
-  //
+  if(!arr || !arr->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::assignNodeFieldProfile : input array is null, or not allocated !");
   _field_pm_pt_pd.resize(1);
   _field_pm_pt_pd[0]=MEDFileFieldPerMeshPerTypePerDisc::New(this,ON_NODES,-3);
   _field_pm_pt_pd[0]->assignFieldProfile(start,pfl,pfl2,pfl2,-1,field,arr,0,glob,nasc);//mesh is not requested so 0 is send.
@@ -4251,8 +4252,11 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldNoProfileSBT(const MEDCouplingFie
  */
 void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDouble *field, const DataArray *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
+  if(!field)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : input field is null !");
+  if(!arrOfVals || !arrOfVals->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : input array is null or not allocated !");
   TypeOfField type=field->getTypeOfField();
-  int start=copyTinyInfoFrom(field,arrOfVals);
   std::vector<DataArrayInt *> idsInPflPerType;
   std::vector<DataArrayInt *> idsPerType;
   std::vector<int> code,code2;
@@ -4260,20 +4264,34 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDou
   if(type!=ON_NODES)
     {
       m->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsInPflPerType2(idsInPflPerType.size()); std::copy(idsInPflPerType.begin(),idsInPflPerType.end(),idsInPflPerType2.begin());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerType2(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType2.begin()); 
+      std::vector<const DataArrayInt *> idsPerType3(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType3.begin()); 
+      int nbOfTuplesExp=field->getNumberOfTuplesExpectedRegardingCode(code,idsPerType3);
+      if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : The array is expected to have " << nbOfTuplesExp << " tuples ! It has " << arrOfVals->getNumberOfTuples() << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      int start=copyTinyInfoFrom(field,arrOfVals);
       code2=m->getDistributionOfTypes();
-      //
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsInPflPerType2(idsInPflPerType.size());
-      for(std::size_t i=0;i<idsInPflPerType.size();i++)
-        idsInPflPerType2[i]=idsInPflPerType[i];
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerType2(idsPerType.size());
-      for(std::size_t i=0;i<idsPerType.size();i++)
-        idsPerType2[i]=idsPerType[i];
       //
       int pos=addNewEntryIfNecessary(m);
       _field_per_mesh[pos]->assignFieldProfile(start,profile,code,code2,idsInPflPerType,idsPerType,field,arrOfVals,m,glob,nasc);
     }
   else
     {
+      if(!profile || !profile->isAllocated() || profile->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : input profile is null, not allocated or with number of components != 1 !");
+      std::vector<int> v(3); v[0]=-1; v[1]=profile->getNumberOfTuples(); v[2]=0;
+      std::vector<const DataArrayInt *> idsPerType3(1); idsPerType3[0]=profile;
+      int nbOfTuplesExp=field->getNumberOfTuplesExpectedRegardingCode(v,idsPerType3);
+      if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile : For node field, the array is expected to have " << nbOfTuplesExp << " tuples ! It has " << arrOfVals->getNumberOfTuples() << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      int start=copyTinyInfoFrom(field,arrOfVals);
       int pos=addNewEntryIfNecessary(m);
       _field_per_mesh[pos]->assignNodeFieldProfile(start,profile,field,arrOfVals,glob,nasc);
     }
