@@ -61,25 +61,35 @@ Les tests unitaires peuvent être exécutés au moyen de scripts python
 lancés depuis une session shell SALOME. Dans un nouveau shell, taper::
 
  $ ./appli/runSession
- [NS=mars:2810]$ python appli/lib/python2.6/site-packages/salome/xmed/test_medoperation.py
+ [NS=mars:2810]$ python appli/bin/salome/med/test_medop_components.py
 
 L'exécution imprime un rapport détaillant le résultat pour chaque
 fonction de test::
+ 
+ test_Calculator_applyFunc (__main__.MyTestSuite) ... ok
+ test_Calculator_basics (__main__.MyTestSuite) ... ok
+ test_MEDDataManager_getFieldListInFieldseries (__main__.MyTestSuite) ... ok
+ test_MEDDataManager_getFieldseriesListOnMesh (__main__.MyTestSuite) ... ok
+ test_MEDDataManager_getMesh (__main__.MyTestSuite) ... ok
+ test_MEDDataManager_getMeshList (__main__.MyTestSuite) ... ok
+ test_addDatasource (__main__.MyTestSuite) ... ok
+ test_getDataManager (__main__.MyTestSuite) ... ok
+ test_getFieldHandlerList (__main__.MyTestSuite) ... ok
+ test_getFieldRepresentation (__main__.MyTestSuite) ... ok
+ test_markAsPersistent (__main__.MyTestSuite) ... ok
+ test_saveFields (__main__.MyTestSuite) ... ok
+ test_updateFieldMetadata (__main__.MyTestSuite) ... ok
 
- test_addition (__main__.MyTestSuite) ... ok
- test_arithmetics (__main__.MyTestSuite) ... ok
- test_composition (__main__.MyTestSuite) ... FAIL
- test_litteral_equation (__main__.MyTestSuite) ... ok
- test_modification_of_attributes (__main__.MyTestSuite) ... ok
- test_unary_operations (__main__.MyTestSuite) ... ok
- test_update_metadata (__main__.MyTestSuite) ... ok
+Les scripts de test sont installés dans le répertoire ``bin/med``. On trouve:
 
-Les scripts de test sont:
-
-* ``test_medoperation.py``: tests des operations de champs telles
+* ``test_medop_components.py``: test les composants SALOME développés pour
+  la manipulation de champs (``MEDDataManager`` et ``MEDCalculator``).
+* ``test_xmed_fieldOperations.py``: test des operations de champs telles
   qu'elles sont mises en oeuvre depuis l'interface textuelle.
-* ``test_xmed.py``: tests des composants CORBA mis en oeuvre
-  (``MEDDataManager`` et ``MEDCalculator``)
+* ``test_xmed_uiEventListener.py``: test du système de notification
+  d'évènements des composants vers la partie gui du module MED.
+* ``test_xmed_visualisation.py``: test du système de visualisation
+  des champs tel que piloté depuis le module MED.
 
 Architecture du module XMED
 ===========================
