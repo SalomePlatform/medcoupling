@@ -19,7 +19,7 @@
 
 ADD_SUBDIRECTORY(testfiles)
 
-IF(MED_ENABLE_GUI)
+IF(SALOME_BUILD_GUI)
   SET(MED_RESOURCES_FILES
     datasource_add.png
     datasource_changeUnderlyingMesh.png
@@ -37,5 +37,5 @@ IF(MED_ENABLE_GUI)
     workspace_clean.png
     workspace_save.png
     )
-  INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${MED_salomeres_DATA})
-ENDIF(MED_ENABLE_GUI)
+  INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
+ENDIF(SALOME_BUILD_GUI)
