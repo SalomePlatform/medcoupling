@@ -24,7 +24,7 @@ INCLUDE_DIRECTORIES(
   ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${PTHREAD_INCLUDE_DIRS}
-  ${KERNEL_ROOT_DIR}/include/salome
+  ${KERNEL_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${PROJECT_BINARY_DIR}/idl
   ${PROJECT_SOURCE_DIR}/src/MEDCoupling
@@ -41,15 +41,15 @@ SET(MEDOPFactoryEngine_SOURCES
 SET(COMMON_LIBS
   medloader
   SalomeIDLMED
-  ${TOOLSDS}
-  ${SalomeHDFPersist}
-  ${SalomeContainer}
-  ${SalomeCommunication}
-  ${SalomeKernelHelpers}
-  ${SalomeLifeCycleCORBA}
-  ${SALOMELocalTrace}
-  ${SALOMEBasics} 
-  ${SalomeGenericObj}
+  ${KERNEL_TOOLSDS}
+  ${KERNEL_SalomeHDFPersist}
+  ${KERNEL_SalomeContainer}
+  ${KERNEL_SalomeCommunication}
+  ${KERNEL_SalomeKernelHelpers}
+  ${KERNEL_SalomeLifeCycleCORBA}
+  ${KERNEL_SALOMELocalTrace}
+  ${KERNEL_SALOMEBasics} 
+  ${KERNEL_SalomeGenericObj}
   medcoupling
   interpkernel
   ${MEDFILE_C_LIBRARIES}

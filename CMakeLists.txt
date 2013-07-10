@@ -43,6 +43,26 @@ SET(XVERSION 0x0${${PROJECT_NAME_UC}_MAJOR_VERSION}0${${PROJECT_NAME_UC}_MINOR_V
 SET(VERSION_DEV "0")
 
 #
+# Kernel detection comes before user options to be
+# able to take previous values of SALOME_USE_MPI, SALOME_BUILD_DOC, etc ...
+#
+IF(NOT SALOME_MED_STANDALONE)
+  SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR} CACHE PATH "Path to the Salome KERNEL")
+  IF(EXISTS ${KERNEL_ROOT_DIR})
+    LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
+    INCLUDE(SalomeMacros)
+    FIND_PACKAGE(SalomeKERNEL REQUIRED)
+  ELSE(EXISTS ${KERNEL_ROOT_DIR})
+    MESSAGE(FATAL_ERROR "We absolutely need a Salome KERNEL, please define KERNEL_ROOT_DIR or turn option SALOME_MED_STANDALONE to ON !")
+  ENDIF(EXISTS ${KERNEL_ROOT_DIR})
+  LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
+  FIND_PACKAGE(SalomeOmniORB REQUIRED)
+ELSE(NOT SALOME_MED_STANDALONE)
+  LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local_without_kernel/cmake_files")
+  INCLUDE(SalomeMacros)
+ENDIF(NOT SALOME_MED_STANDALONE)
+
+#
 # User options
 # ============
 INCLUDE(CMakeDependentOption)
@@ -58,7 +78,8 @@ OPTION(SALOME_BUILD_DOC "Build MED doc." ON)
 CMAKE_DEPENDENT_OPTION(SALOME_MED_PARTITIONER_METIS "Enable metis graph librarie in MEDPartitioner." ON "SALOME_MED_ENABLE_PARTITIONER;NOT SALOME_USE_MPI" OFF)
 CMAKE_DEPENDENT_OPTION(SALOME_MED_PARTITIONER_SCOTCH "Enable scotch graph librarie in MEDPartitioner." ON "SALOME_MED_ENABLE_PARTITIONER;NOT SALOME_USE_MPI" OFF)
 CMAKE_DEPENDENT_OPTION(SALOME_MED_PARTITIONER_PARMETIS "Enable parmetis graph librarie in MEDPartitioner." ON "SALOME_MED_ENABLE_PARTITIONER;SALOME_USE_MPI" OFF)
-#
+
+
 #
 # Set list of prerequisites
 # =========================
