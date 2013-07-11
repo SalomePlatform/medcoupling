@@ -120,13 +120,13 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCoupling1GTUMesh::getAllGeoTypes(
  * This method returns in the same format as code (see MEDCouplingUMesh::checkTypeConsistencyAndContig or MEDCouplingUMesh::splitProfilePerType) how
  * \a this is composed in cell types.
  * The returned array is of size 3*n where n is the number of different types present in \a this. 
- * For every k in [0,n] ret[3*k+2]==0 because it has no sense here. 
+ * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
  * This parameter is kept only for compatibility with other methode listed above.
  */
 std::vector<int> MEDCoupling1GTUMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> ret(3);
-  ret[0]=(int)getCellModelEnum(); ret[1]=getNumberOfCells(); ret[2]=0;
+  ret[0]=(int)getCellModelEnum(); ret[1]=getNumberOfCells(); ret[2]=-1;
   return ret;
 }
 

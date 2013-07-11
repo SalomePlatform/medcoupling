@@ -1832,11 +1832,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1, len(dis));
         self.assertEqual(NORM_HEXA8, dis[0][0]);
         self.assertEqual(27, dis[0][1]);
-        self.assertEqual(0, dis[0][2]);
+        self.assertEqual(-1, dis[0][2]);
         
-        idsPerType=[]
-        self.assertRaises(InterpKernelException, mesh1.checkTypeConsistencyAndContig, dis, idsPerType);
-        dis[0][2]=-1;
         idsPerType=[]
         self.assertTrue(not mesh1.checkTypeConsistencyAndContig(dis, idsPerType));
         dis[0][0]=NORM_QUAD4;
@@ -7885,10 +7882,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,len(code));
         self.assertEqual(3,code[0][0]);
         self.assertEqual(2,code[0][1]);
-        self.assertEqual(0,code[0][2]);
+        self.assertEqual(-1,code[0][2]);
         self.assertEqual(4,code[1][0]);
         self.assertEqual(3,code[1][1]);
-        self.assertEqual(0,code[1][2]);
+        self.assertEqual(-1,code[1][2]);
         pass
 
     def testNorm2_1(self):
@@ -13044,7 +13041,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(m.getTypeOfCell(3),NORM_QUAD4)
         self.assertRaises(InterpKernelException,m.getTypeOfCell,5)
         self.assertEqual(m.getAllGeoTypes(),[NORM_QUAD4])
-        self.assertEqual(m.getDistributionOfTypes(),[[NORM_QUAD4,5,0]])
+        self.assertEqual(m.getDistributionOfTypes(),[[NORM_QUAD4,5,-1]])
         ##
         pfl1=DataArrayInt([1,3,4])
         a,b,c=m.splitProfilePerType(pfl1)

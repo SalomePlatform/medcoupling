@@ -156,7 +156,7 @@ std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const throw
   std::vector<int> ret(3);
   ret[0]=getTypeOfCell(0);
   ret[1]=getNumberOfCells();
-  ret[2]=0; //ret[3*k+2]==0 because it has no sense here
+  ret[2]=-1; //ret[3*k+2]==-1 because it has no sense here
   return ret;
 }
 

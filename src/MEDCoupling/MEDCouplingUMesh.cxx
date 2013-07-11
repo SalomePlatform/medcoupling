@@ -6208,7 +6208,7 @@ namespace ParaMEDMEMImpl
  * This method returns in the same format as code (see MEDCouplingUMesh::checkTypeConsistencyAndContig or MEDCouplingUMesh::splitProfilePerType) how
  * \a this is composed in cell types.
  * The returned array is of size 3*n where n is the number of different types present in \a this. 
- * For every k in [0,n] ret[3*k+2]==0 because it has no sense here. 
+ * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
  * This parameter is kept only for compatibility with other methode listed above.
  */
 std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
@@ -6219,7 +6219,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const throw(INTERP_K
   const int *work=connI;
   int nbOfCells=getNumberOfCells();
   std::size_t n=getAllTypes().size();
-  std::vector<int> ret(3*n,0); //ret[3*k+2]==0 because it has no sense here
+  std::vector<int> ret(3*n,-1); //ret[3*k+2]==-1 because it has no sense here
   std::set<INTERP_KERNEL::NormalizedCellType> types;
   for(std::size_t i=0;work!=connI+nbOfCells;i++)
     {

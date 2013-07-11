@@ -2458,11 +2458,9 @@ void MEDCouplingBasicsTest1::testCMesh2()
   CPPUNIT_ASSERT_EQUAL(3,(int) dis.size());
   CPPUNIT_ASSERT_EQUAL((int) INTERP_KERNEL::NORM_HEXA8,dis[0]);
   CPPUNIT_ASSERT_EQUAL(27,dis[1]);
-  CPPUNIT_ASSERT_EQUAL(0,dis[2]);
+  CPPUNIT_ASSERT_EQUAL(-1,dis[2]);
   
   std::vector<const DataArrayInt *> idsPerType;
-  CPPUNIT_ASSERT_THROW(mesh1->checkTypeConsistencyAndContig(dis, idsPerType),INTERP_KERNEL::Exception);
-  dis[2]=-1;
   CPPUNIT_ASSERT(!(mesh1->checkTypeConsistencyAndContig(dis, idsPerType)));
   dis[0]=(int) INTERP_KERNEL::NORM_QUAD4;
   CPPUNIT_ASSERT_THROW(mesh1->checkTypeConsistencyAndContig(dis, idsPerType),INTERP_KERNEL::Exception);
