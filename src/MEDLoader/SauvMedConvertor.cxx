@@ -2163,14 +2163,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   if ( onAll )
     fld->_curMedField->appendFieldNoProfileSBT( timeStamp );
   else
-    {
-      if(fld->getMedType()==ON_GAUSS_NE)
-        {
-          MEDCouplingAutoRefCountObjectPtr< MEDCouplingPointSet > dimMesh2 = dimMesh->buildPartOfMySelf(support->_medGroup->begin(),support->_medGroup->end(),true);
-          timeStamp->setMesh( dimMesh2 );
-        }
-      fld->_curMedField->appendFieldProfile( timeStamp, mesh, dimRel, support->_medGroup );
-    }
+    fld->_curMedField->appendFieldProfile( timeStamp, mesh, dimRel, support->_medGroup );
   timeStamp->decrRef();
 
   if ( isNewMedField ) // timeStamp must be added before this

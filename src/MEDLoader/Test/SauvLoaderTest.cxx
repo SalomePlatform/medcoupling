@@ -192,6 +192,7 @@ void SauvLoaderTest::testMed2Sauv()
   // add a field on 2 faces to pointeMed
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ff1=MEDFileFieldMultiTS::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f1=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
+  f1->setMesh( pointeM1D );
   f1->setName("Field on 2 faces");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> d=DataArrayDouble::New();
   d->alloc(3+4,2);
@@ -208,8 +209,6 @@ void SauvLoaderTest::testMed2Sauv()
     {
       0,2
     };
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> pointeM1D_part=pointeM1D->buildPartOfMySelf(ids,ids+2,true);
-  f1->setMesh( pointeM1D_part );
   da->alloc(2,1);
   std::copy(ids,ids+da->getNbOfElems(),da->getPointer());
   da->setName("sup2");

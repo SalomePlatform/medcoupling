@@ -1323,7 +1323,7 @@ const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
  */
 int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
-  if(!_discr_per_cell || _discr_per_cell->isAllocated() || _discr_per_cell->getNumberOfComponents()!=1)
+  if(!_discr_per_cell || !_discr_per_cell->isAllocated() || _discr_per_cell->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode");
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
@@ -1366,8 +1366,17 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh
     throw INTERP_KERNEL::Exception("Discretization is not initialized!");
   const int *dcPtr=_discr_per_cell->getConstPointer();
   int nbOfTuples=_discr_per_cell->getNumberOfTuples();
+  int maxSz=(int)_loc.size();
   for(const int *w=dcPtr;w!=dcPtr+nbOfTuples;w++)
-    ret+=_loc[*w].getNumberOfGaussPt();
+    {
+      if(*w>=0 && *w<maxSz)
+        ret+=_loc[*w].getNumberOfGaussPt();
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getNumberOfTuples : At cell #" << std::distance(dcPtr,w) << " localization id is " << *w << " should be in [0," << maxSz << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   return ret;
 }
 
