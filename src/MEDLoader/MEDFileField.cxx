@@ -6222,17 +6222,18 @@ void MEDFileField1TS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) 
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this. Specified entities of a given dimension
- * of a given mesh are used as the support of the given field (a real support is not used). 
- * Elements of the given mesh must be sorted suitable for writing to MED file.
- * Order of underlying mesh entities of the given field specified by \a profile parameter
- * is not prescribed; this method permutes field values to have them sorted by element
- * type as required for writing to MED file. A new profile is added only if no equal
- * profile is missing.
+ * Adds a MEDCouplingFieldDouble to \a this. As described in \ref MEDLoaderMainC a field in MED file sense
+ * can be an aggregation of several MEDCouplingFieldDouble instances.
+ * The mesh support of input parameter \a field is ignored here, it can be NULL.
+ * The support of field \a field is expected to be those computed with the input parameter \a mesh, \a meshDimRelToMax,
+ * and \a profile.
+ *
+ * This method will check that the field based on the computed support is coherent. If not an exception will be thrown.
+ * A new profile is added only if no equal profile is missing.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] field - the field to add to \a this.
+ *  \param [in] field - the field to add to \a this. The mesh support of field is ignored.
  *  \param [in] mesh - the supporting mesh of \a field.
- *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on.
+ *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on (useless if field spatial discretization is ON_NODES).
  *  \param [in] profile - ids of mesh entities on which corresponding field values lie.
  *  \throw If either \a field or \a mesh or \a profile has an empty name.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
@@ -6397,18 +6398,19 @@ void MEDFileIntField1TS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *fiel
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this. Specified entities of a given dimension
- * of a given mesh are used as the support of the given field (a real support is not used). 
- * Elements of the given mesh must be sorted suitable for writing to MED file.
- * Order of underlying mesh entities of the given field specified by \a profile parameter
- * is not prescribed; this method permutes field values to have them sorted by element
- * type as required for writing to MED file. A new profile is added only if no equal
- * profile is missing.
+ * Adds a MEDCouplingFieldDouble to \a this. As described in \ref MEDLoaderMainC a field in MED file sense
+ * can be an aggregation of several MEDCouplingFieldDouble instances.
+ * The mesh support of input parameter \a field is ignored here, it can be NULL.
+ * The support of field \a field is expected to be those computed with the input parameter \a mesh, \a meshDimRelToMax,
+ * and \a profile.
+ *
+ * This method will check that the field based on the computed support is coherent. If not an exception will be thrown.
+ * A new profile is added only if no equal profile is missing.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] field - the field to add to \a this. The field double values are ignored.
+ *  \param [in] field - the field to add to \a this. The field double values and mesh support are ignored.
  *  \param [in] arrOfVals - the values of the field \a field used.
  *  \param [in] mesh - the supporting mesh of \a field.
- *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on.
+ *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on (useless if field spatial discretization is ON_NODES).
  *  \param [in] profile - ids of mesh entities on which corresponding field values lie.
  *  \throw If either \a field or \a mesh or \a profile has an empty name.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
@@ -8597,22 +8599,25 @@ void MEDFileFieldMultiTS::appendFieldNoProfileSBT(const MEDCouplingFieldDouble *
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this as another time step. Specified entities of
- * a given dimension of a given mesh are used as the support of the given field.
- * Elements of the given mesh must be sorted suitable for writing to MED file. 
- * Order of underlying mesh entities of the given field specified by \a profile parameter
- * is not prescribed; this method permutes field values to have them sorted by element
- * type as required for writing to MED file.  
+ * Adds a MEDCouplingFieldDouble to \a this as another time step.
+ * The mesh support of input parameter \a field is ignored here, it can be NULL.
+ * The support of field \a field is expected to be those computed with the input parameter \a mesh, \a meshDimRelToMax,
+ * and \a profile.
+ *
+ * This method will check that the field based on the computed support is coherent. If not an exception will be thrown.
+ * A new profile is added only if no equal profile is missing.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] field - the field to add to \a this.
+ *  \param [in] field - the field to add to \a this. The mesh support of field is ignored.
  *  \param [in] mesh - the supporting mesh of \a field.
- *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on.
+ *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on (useless if field spatial discretization is ON_NODES).
  *  \param [in] profile - ids of mesh entities on which corresponding field values lie.
  *  \throw If either \a field or \a mesh or \a profile has an empty name.
- *  \throw If existing time steps have different name or number of components than \a field.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
  *  \throw If the data array of \a field is not set.
+ *  \throw If the data array of \a this is already allocated but has different number of
+ *         components than \a field.
  *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
+ *  \sa setFieldNoProfileSBT()
  */
 void MEDFileFieldMultiTS::appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception)
 {
@@ -9020,22 +9025,26 @@ void MEDFileIntFieldMultiTS::appendFieldNoProfileSBT(const MEDCouplingFieldDoubl
 }
 
 /*!
- * Adds a MEDCouplingFieldDouble to \a this as another time step. Specified entities of
- * a given dimension of a given mesh are used as the support of the given field.
- * Elements of the given mesh must be sorted suitable for writing to MED file. 
- * Order of underlying mesh entities of the given field specified by \a profile parameter
- * is not prescribed; this method permutes field values to have them sorted by element
- * type as required for writing to MED file.  
+ * Adds a MEDCouplingFieldDouble to \a this as another time step. 
+ * The mesh support of input parameter \a field is ignored here, it can be NULL.
+ * The support of field \a field is expected to be those computed with the input parameter \a mesh, \a meshDimRelToMax,
+ * and \a profile.
+ *
+ * This method will check that the field based on the computed support is coherent. If not an exception will be thrown.
+ * A new profile is added only if no equal profile is missing.
  * For more info, see \ref AdvMEDLoaderAPIFieldRW
- *  \param [in] field - the field to add to \a this.
+ *  \param [in] field - the field to add to \a this. The field double values and mesh support are ignored.
+ *  \param [in] arrOfVals - the values of the field \a field used.
  *  \param [in] mesh - the supporting mesh of \a field.
- *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on.
+ *  \param [in] meshDimRelToMax - a relative dimension of mesh entities \a field lies on (useless if field spatial discretization is ON_NODES).
  *  \param [in] profile - ids of mesh entities on which corresponding field values lie.
  *  \throw If either \a field or \a mesh or \a profile has an empty name.
- *  \throw If existing time steps have different name or number of components than \a field.
  *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
  *  \throw If the data array of \a field is not set.
+ *  \throw If the data array of \a this is already allocated but has different number of
+ *         components than \a field.
  *  \throw If elements in \a mesh are not in the order suitable for writing to the MED file.
+ *  \sa setFieldNoProfileSBT()
  */
 void MEDFileIntFieldMultiTS::appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception)
 {
