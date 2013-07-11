@@ -330,12 +330,9 @@ void MEDCouplingField::setGaussLocalizationOnCells(const int *begin, const int *
  * Clears data on Gauss points localization.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  */
 void MEDCouplingField::clearGaussLocalizations()
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling clearGaussLocalizations method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call clearGaussLocalizations method !");
   _type->clearGaussLocalizations();
@@ -351,12 +348,9 @@ void MEDCouplingField::clearGaussLocalizations()
  *  \throw If \a this field is not on Gauss points.
  *  \throw If \a locId is not within the valid range.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  */
 MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalization method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalization method !");
   return _type->getGaussLocalization(locId);
@@ -368,14 +362,11 @@ MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) 
  *  \return int - the id of the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  *  \throw If no Gauss localization object found for the given cell \a type.
  *  \throw If more than one Gauss localization object found for the given cell \a type.
  */
 int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalizationIdOfOneType method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalizationIdOfOneType method !");
   return _type->getGaussLocalizationIdOfOneType(type);
@@ -386,13 +377,10 @@ int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedC
  *  \param [in] type - the cell type of interest.
  *  \return std::set<int> - ids of the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
- *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
+ *  \throw If the spatial discretization of \a this field is NULL
  */
 std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalizationIdsOfOneType method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalizationIdsOfOneType method !");
   return _type->getGaussLocalizationIdsOfOneType(type);
@@ -404,12 +392,9 @@ std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::
  *  \return int - the number of available Gauss localization objects.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  */
 int MEDCouplingField::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getNbOfGaussLocalization method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getNbOfGaussLocalization method !");
   return _type->getNbOfGaussLocalization();
@@ -421,13 +406,10 @@ int MEDCouplingField::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exce
  *  \return int - the id of the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  *  \throw If no Gauss localization object found for the given cell.
  */
 int MEDCouplingField::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalizationIdOfOneCell method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalizationIdOfOneCell method !");
   return _type->getGaussLocalizationIdOfOneCell(cellId);
@@ -442,13 +424,10 @@ int MEDCouplingField::getGaussLocalizationIdOfOneCell(int cellId) const throw(IN
  *  \throw If \a this field is not on Gauss points.
  *  \throw If \a locId is not within the valid range.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  */
 void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
 {
   cellIds.clear();
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalizationIdOfOneCell method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getCellIdsHavingGaussLocalization method !");
   _type->getCellIdsHavingGaussLocalization(locId,cellIds);
@@ -463,12 +442,9 @@ void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<
  *  \throw If \a this field is not on Gauss points.
  *  \throw If \a locId is not within the valid range.
  *  \throw If the spatial discretization of \a this field is NULL.
- *  \throw If the mesh is not set.
  */
 const MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalization method !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Spatial discretization not set ! Impossible to call getGaussLocalization method !");
   return _type->getGaussLocalization(locId);
