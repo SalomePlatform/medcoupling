@@ -3234,6 +3234,91 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(delta5,0)
         pass
 
+    # this test checks that setFieldProfile perform a check of the array length
+    # compared to the profile length. This test also checks that mesh attribute of field
+    # is not used by setFieldProfile (because across this test mesh is equal to None)
+    def testCheckCompatibilityPfl1(self):
+        # building a mesh containing 4 tri3 + 5 quad4
+        tri=MEDCouplingUMesh("tri",2)
+        tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
+        tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
+        tris=[tri.deepCpy() for i in xrange(4)]
+        for i,elt in enumerate(tris): elt.translate([i,0])
+        tris=MEDCouplingUMesh.MergeUMeshes(tris)
+        quad=MEDCouplingUMesh("quad",2)
+        quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
+        quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
+        quads=[quad.deepCpy() for i in xrange(5)]
+        for i,elt in enumerate(quads): elt.translate([5+i,0])
+        quads=MEDCouplingUMesh.MergeUMeshes(quads)
+        m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
+        m.setName("mesh") ; m.getCoords().setInfoOnComponents(["XX [m]","YYY [km]"])
+        m1=m.buildDescendingConnectivity()[0]
+        mm=MEDFileUMesh() ; mm.setMeshes([m,m1])
+        #
+        f1ts=MEDFileField1TS()
+        f=MEDCouplingFieldDouble(ON_NODES)
+        vals=DataArrayDouble(7) ; vals.iota(1000)
+        f.setArray(vals)
+        f.setName("anonymous") # f has no mesh it is not a bug
+        pfl=DataArrayInt([0,1,2,3,4,5,6]) ; pfl.setName("pfl")
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        #
+        f1ts=MEDFileField1TS()
+        f=MEDCouplingFieldDouble(ON_NODES)
+        vals=DataArrayDouble(8) ; vals.iota(1000)
+        f.setArray(vals)
+        f.setName("anonymous") # f has no mesh it is not a bug
+        pfl=DataArrayInt([0,1,2,3,4,5,6]) ; pfl.setName("pfl")
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,f,mm,0,pfl)
+        #
+        f1ts=MEDFileField1TS()
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        vals=DataArrayDouble(7) ; vals.iota(1000)
+        f.setArray(vals)
+        f.setName("anonymous") # f has no mesh it is not a bug
+        pfl=DataArrayInt([1,2,3,5,6,7,8]) ; pfl.setName("pfl")
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(vals,1e-10))
+        #
+        f1ts=MEDFileField1TS()
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        vals=DataArrayDouble(27) ; vals.iota(1000)
+        f.setArray(vals)
+        f.setName("anonymous") # f has no mesh it is not a bug
+        pfl=DataArrayInt([1,2,3,5,6,7,8]) ; pfl.setName("pfl")
+        f.setMesh(m[pfl])
+        f.setGaussLocalizationOnCells([0,1],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7,0.1,0.1],[0.3,0.6,0.1])
+        f.setGaussLocalizationOnCells([2],[0.,0.,1.,0.,1.,1.],[0.3,0.3],[1.])
+        f.setGaussLocalizationOnCells([3,4,5,6],[0.,0.,1.,0.,1.,1.,0.,1.],[0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.5,0.5],[0.2,0.3,0.4,0.07,0.03])
+        f.setMesh(None)
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(vals,1e-10))
+        vals=DataArrayDouble(26) ; vals.iota(1040) ; f.setArray(vals)
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,f,mm,0,pfl)
+        vals=DataArrayDouble(27) ; vals.iota(1000)
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(vals,1e-10))
+        #
+        f1ts=MEDFileField1TS()
+        f=MEDCouplingFieldDouble(ON_GAUSS_NE)
+        vals=DataArrayDouble(25) ; vals.iota(1000)
+        f.setArray(vals)
+        f.setName("anonymous") # f has no mesh it is not a bug
+        pfl=DataArrayInt([1,2,3,5,6,7,8]) ; pfl.setName("pfl")
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(vals,1e-10))
+        vals2=DataArrayDouble(26) ; vals2.iota(1050)
+        f.setArray(vals2)
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,f,mm,0,pfl)
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(vals,1e-10))
+        #
+        f1ts=MEDFileField1TS()
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,f,mm,0,pfl)
+        self.assertRaises(InterpKernelException,f1ts.setFieldProfile,f,mm,0,pfl)
+        f.setArray(vals)
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        pass
+
     pass
 
 unittest.main()
