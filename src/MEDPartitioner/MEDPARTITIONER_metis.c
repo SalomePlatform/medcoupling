@@ -28,7 +28,7 @@
 
 #if defined(MED_ENABLE_METIS) & !defined(MED_ENABLE_PARMETIS)
   #include "defs.h"
-  #include "struct.h"
+//  #include "struct.h"
   #include "metis.h"
 #else
   typedef int idxtype;
