@@ -1143,6 +1143,8 @@ namespace ParaMEDMEM
     void setName(const char *name) throw(INTERP_KERNEL::Exception);
     std::string getMeshName() throw(INTERP_KERNEL::Exception);
     void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    int getMeshIteration() const throw(INTERP_KERNEL::Exception);
+    int getMeshOrder() const throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     bool isDealingTS(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     void setInfo(const std::vector<std::string>& infos) throw(INTERP_KERNEL::Exception);
@@ -1833,6 +1835,29 @@ namespace ParaMEDMEM
         std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
         convertFromPyObjVectorOfObj<ParaMEDMEM::MEDFileAnyTypeFieldMultiTS *>(li,SWIGTYPE_p_ParaMEDMEM__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",vectFMTS);
         std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret=MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(vectFMTS);
+        std::size_t sz=ret.size();
+        PyObject *retPy=PyList_New(sz);
+        for(std::size_t i=0;i<sz;i++)
+          {
+            std::size_t sz2=ret[i].size();
+            PyObject *ret1Py=PyList_New(sz2);
+            for(std::size_t j=0;j<sz2;j++)
+              {
+                MEDFileAnyTypeFieldMultiTS *elt(ret[i][j]);
+                if(elt)
+                  elt->incrRef();
+                PyList_SetItem(ret1Py,j,convertMEDFileFieldMultiTS(elt,SWIG_POINTER_OWN | 0 ));
+              }
+            PyList_SetItem(retPy,i,ret1Py);
+          }
+        return retPy;
+      }
+      
+      static PyObject *MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(PyObject *li, const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
+        convertFromPyObjVectorOfObj<ParaMEDMEM::MEDFileAnyTypeFieldMultiTS *>(li,SWIGTYPE_p_ParaMEDMEM__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",vectFMTS);
+        std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret=MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(vectFMTS,mesh);
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)

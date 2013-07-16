@@ -22,6 +22,7 @@
 #include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileUtilities.hxx"
+#include "MEDFileFieldOverView.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -8233,13 +8234,171 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
             throw INTERP_KERNEL::Exception(msg);
           std::vector< std::pair<int,int> > curIts=curIt->getIterations();
           if(refIts==curIts)
-            { elt.push_back(curIt); it=lstFMTS.erase(it);}
+            { elt.push_back(curIt); it=lstFMTS.erase(it); }
           else
             it++;
         }
       ret.push_back(elt);
     }
   return ret;
+}
+
+/*!
+ * This method splits the input list \a vectFMTS considering the aspect of the geometrical support over time.
+ * All returned instances in a subvector can be safely loaded, rendered along time
+ * All items must be defined on the same time step ids ( see MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries method ).
+ * Each item in \a vectFMTS is expected to have one and exactly one spatial discretization along time.
+ * All items in \a vectFMTS must lie on the mesh (located by meshname and time step) and compatible with the input mesh \a mesh (having the same name than those in items).
+ * All items in \a vectFMTS whose spatial discretization is not ON_NODES will appear once.
+ * For items in \a vectFMTS that are ON_NODES it is possible to appear several times (more than once or once) in the returned vector.
+ *
+ * \param [in] vectFMTS - list of multi times step part all defined each on a same spatial discretization along time and pointing to a mesh whose name is equal to \c mesh->getName().
+ * \param [in] mesh - the mesh shared by all items in \a vectFMTS across time.
+ *
+ * \throw If an element in \a vectFMTS has not only one spatial discretization set.
+ * \throw If an element in \a vectFMTS change of spatial discretization along time.
+ * \throw If an element in \a vectFMTS lies on a mesh with meshname different from those in \a mesh.
+ * \thorw If some elements in \a vectFMTS do not have the same times steps.
+ * \throw If mesh is null.
+ * \throw If an element in \a vectFMTS is null.
+ * \sa MEDFileAnyTypeFieldMultiTS::AreOnSameSupportAcrossTime
+ */
+std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  static const char msg[]="MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : presence of a null instance in the input vector !";
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : input mesh is null !");
+  std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret;
+  if(vectFMTS.empty())
+    return ret;
+  std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it(vectFMTS.begin());
+  MEDFileAnyTypeFieldMultiTS *frstElt(*it);
+  std::size_t i=0;
+  std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTSNotNodes;
+  std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTSNodes;
+  for(;it!=vectFMTS.end();it++,i++)
+    {
+      TypeOfField tof0,tof1;
+      int ret=CheckSupportAcrossTime(frstElt,*it,mesh,tof0,tof1);
+      if(ret>0)
+        {
+          if(tof1!=ON_NODES)
+            vectFMTSNotNodes.push_back(*it);
+          else
+            vectFMTSNodes.push_back(*it);
+        }
+      else
+        vectFMTSNotNodes.push_back(*it);
+    }
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> > cmps;
+  std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > retCell=SplitPerCommonSupportNotNodesAlg(vectFMTSNotNodes,mesh,cmps);
+  ret=retCell;
+  i=0;
+  for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it2=vectFMTSNodes.begin();it2!=vectFMTSNodes.end();it2++)
+    {
+      for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it0=retCell.begin();it0!=retCell.end();it0++,i++)
+        {
+          if((*it0).empty())
+            throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : internal error !");
+        }
+      std::vector<MEDFileAnyTypeFieldMultiTS *> elt(1,*it2);
+      ret.push_back(elt);
+    }
+  
+  return ret;
+}
+
+/*!
+ * WARNING no check here. The caller must be sure that all items in vectFMTS are coherent each other in time steps, only one same spatial discretization and not ON_NODES.
+ */
+std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupportNotNodesAlg(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> >& cmps) throw(INTERP_KERNEL::Exception)
+{
+  std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret;
+  std::list<MEDFileAnyTypeFieldMultiTS *> lstFMTS(vectFMTS.begin(),vectFMTS.end());
+  while(!lstFMTS.empty())
+    {
+      std::list<MEDFileAnyTypeFieldMultiTS *>::iterator it(lstFMTS.begin());
+      MEDFileAnyTypeFieldMultiTS *ref(*it);
+      std::vector<MEDFileAnyTypeFieldMultiTS *> elt;
+      elt.push_back(ref); it=lstFMTS.erase(it);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> cmp(MEDFileFastCellSupportComparator::New(mesh,ref));
+      while(it!=lstFMTS.end())
+        {
+          MEDFileAnyTypeFieldMultiTS *curIt(*it);
+          if(cmp->isEqual(ref))
+            { elt.push_back(curIt); it=lstFMTS.erase(it); }
+          else
+            it++;
+        }
+      ret.push_back(elt); cmps.push_back(cmp);
+    }
+  return ret;
+}
+
+/*!
+ * This method scan the two main structs along time of \a f0 and \a f1 to see if there are all lying on the same mesh along time than those in \a mesh.
+ * \a f0 and \a f1 must be defined each only on a same spatial discretization even if this can be different each other.
+ *
+ * \throw If \a f0 or \a f1 has not only one spatial discretization set.
+ * \throw If \a f0 or \a f1 change of spatial discretization along time.
+ * \throw If \a f0 or \a f1 on a mesh with meshname different from those in \a mesh.
+ * \thorw If \a f0 and \a f1 do not have the same times steps.
+ * \throw If mesh is null.
+ * \throw If \a f0 or \a f1 is null.
+ * \sa MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport
+ */
+int MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime(MEDFileAnyTypeFieldMultiTS *f0, MEDFileAnyTypeFieldMultiTS *f1, const MEDFileMesh *mesh, TypeOfField& tof0, TypeOfField& tof1) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : input mesh is null !");
+  if(!f0 || !f1)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : presence of null instance in fields over time !");
+  if(f0->getMeshName()!=mesh->getName())
+    {
+      std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : first field points to mesh \""<< f0->getMeshName() << "\" and input mesh to compare has name \"" << mesh->getName() << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(f1->getMeshName()!=mesh->getName())
+    {
+      std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : second field points to mesh \""<< f1->getMeshName() << "\" and input mesh to compare has name \"" << mesh->getName() << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nts=f0->getNumberOfTS();
+  if(nts!=f1->getNumberOfTS())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : number of time steps are not the same !");
+  if(nts==0)
+    return nts;
+  for(int i=0;i<nts;i++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> f0cur=f0->getTimeStepAtPos(i);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> f1cur=f1->getTimeStepAtPos(i);
+      std::vector<TypeOfField> tofs0(f0cur->getTypesOfFieldAvailable()),tofs1(f1cur->getTypesOfFieldAvailable());
+      if(tofs0.size()!=1 || tofs1.size()!=1)
+        throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : All time steps must be defined on only one spatial discretization !");
+      if(i!=0)
+        {
+          if(tof0!=tofs0[0] || tof1!=tofs1[0])
+            throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : Across times steps MEDFileAnyTypeFieldMultiTS instances have to keep the same unique spatial discretization !");
+        }
+      else
+        { tof0=tofs0[0]; tof1=tofs1[0]; }
+      if(f0cur->getMeshIteration()!=mesh->getIteration() || f0cur->getMeshOrder()!=mesh->getOrder())
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : first field points to mesh time step (" << f0cur->getMeshIteration() << ","<< f0cur->getMeshOrder() << ") whereas input mesh points to time step (" << mesh->getIteration() << "," << mesh->getOrder() << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(f1cur->getMeshIteration()!=mesh->getIteration() || f1cur->getMeshOrder()!=mesh->getOrder())
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : second field points to mesh time step (" << f1cur->getMeshIteration() << ","<< f1cur->getMeshOrder() << ") whereas input mesh points to time step (" << mesh->getIteration() << "," << mesh->getOrder() << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(f0cur->getIteration()!=f1cur->getIteration() || f0cur->getOrder()!=f1cur->getOrder())
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::CheckSupportAcrossTime : all the time steps must be the same ! it is not the case (" << f0cur->getIteration() << "," << f0cur->getOrder() << ")!=(" << f1cur->getIteration() << "," << f1cur->getOrder() << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return nts;
 }
 
 MEDFileAnyTypeFieldMultiTSIterator *MEDFileAnyTypeFieldMultiTS::iterator() throw(INTERP_KERNEL::Exception)

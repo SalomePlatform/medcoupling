@@ -46,7 +46,7 @@ MEDLoader.cxx MEDLoaderBase.cxx MEDFileUtilities.cxx      \
 MEDFileMesh.cxx MEDFileMeshElt.cxx MEDFileBasis.cxx       \
 MEDFileMeshLL.cxx MEDFileField.cxx MEDFileData.cxx        \
 SauvMedConvertor.cxx SauvReader.cxx SauvWriter.cxx        \
-MEDFileParameter.cxx MEDFileMeshReadSelector.cxx
+MEDFileParameter.cxx MEDFileMeshReadSelector.cxx MEDFileFieldOverView.cxx
 
 libmedloader_la_CPPFLAGS= $(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \

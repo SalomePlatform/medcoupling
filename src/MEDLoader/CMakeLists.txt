@@ -50,6 +50,7 @@ SET(medloader_SOURCES
   MEDFileField.cxx
   MEDFileParameter.cxx
   MEDFileData.cxx
+  MEDFileFieldOverView.cxx
   MEDFileMeshReadSelector.cxx
   SauvMedConvertor.cxx
   SauvReader.cxx

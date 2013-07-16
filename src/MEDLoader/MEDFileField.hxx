@@ -417,7 +417,7 @@ namespace ParaMEDMEM
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
-  protected:
+  public:
     MEDFileFieldGlobs *contentNotNull() throw(INTERP_KERNEL::Exception);
     const MEDFileFieldGlobs *contentNotNull() const throw(INTERP_KERNEL::Exception);
   protected:
@@ -881,7 +881,7 @@ namespace ParaMEDMEM
   };
 
   class MEDFileAnyTypeFieldMultiTSIterator;
-  
+  class MEDFileFastCellSupportComparator;
   /*!
    * User class.
    */
@@ -914,6 +914,8 @@ namespace ParaMEDMEM
     MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
     static std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > SplitIntoCommonTimeSeries(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS) throw(INTERP_KERNEL::Exception);
+    static std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > SplitPerCommonSupport(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    static int CheckSupportAcrossTime(MEDFileAnyTypeFieldMultiTS *f0, MEDFileAnyTypeFieldMultiTS *f1, const MEDFileMesh *mesh, TypeOfField& tof0, TypeOfField& tof1) throw(INTERP_KERNEL::Exception);
   public:// direct forwarding to MEDFileField1TSWithoutSDA instance _content
     std::string getName() const;
     void setName(const char *name);
@@ -955,6 +957,8 @@ namespace ParaMEDMEM
   protected:
     MEDFileAnyTypeFieldMultiTSWithoutSDA *contentNotNullBase() throw(INTERP_KERNEL::Exception);
     const MEDFileAnyTypeFieldMultiTSWithoutSDA *contentNotNullBase() const throw(INTERP_KERNEL::Exception);
+  private:
+    static std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > SplitPerCommonSupportNotNodesAlg(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> >& cmps) throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> _content;
   };
