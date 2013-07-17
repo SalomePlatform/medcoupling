@@ -2926,6 +2926,7 @@ namespace ParaMEDMEM
   public:
     int getCellIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     int getNodeIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
+    static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
   };
 
   //== MEDCouplingCMesh

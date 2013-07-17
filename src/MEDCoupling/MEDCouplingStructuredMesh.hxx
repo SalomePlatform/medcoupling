@@ -36,6 +36,7 @@ namespace ParaMEDMEM
     DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
     static void GetPosFromId(int nodeId, int meshDim, const int *split, int *res);
+    static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     std::size_t getHeapMemorySize() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);

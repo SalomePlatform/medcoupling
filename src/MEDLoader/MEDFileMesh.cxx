@@ -20,6 +20,8 @@
 
 #include "MEDFileMesh.hxx"
 #include "MEDFileUtilities.hxx"
+#include "MEDFileFieldOverView.hxx"
+#include "MEDFileField.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 
@@ -2616,6 +2618,34 @@ int MEDFileUMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
   return coo->getNumberOfTuples();
 }
 
+void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
+{
+  /*if(st.getNumberOfItems()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : The sturture of field is not lying on single geo type ! it is not managed yet for structured mesh !");
+  if(st[0].getGeo()!=MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(getMeshDimension()))
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : The sturture of field is not lying on expected geo type !");
+  if(getNumberOfNodes()!=(int)nodesFetched.size())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : invalid size of array !");
+  if(st.getPflName().empty())
+    {
+      std::fill(nodesFetched.begin(),nodesFetched.end(),true);
+      return ;
+    }
+  const DataArrayInt *arr(globs->getProfile(st.getPflName().c_str()));
+  const MEDCouplingStructuredMesh *cmesh=getStructuredMesh();//cmesh not null because getNumberOfNodes called before
+  int sz(nodesFetched.size());
+  for(const int *work=arr->begin();work!=arr->end();work++)
+    {
+      std::vector<int> conn;
+      cmesh->getNodeIdsOfCell(*work,conn);
+      for(std::vector<int>::const_iterator it=conn.begin();it!=conn.end();it++)
+        if(*it>=0 && *it<sz)
+          nodesFetched[*it]=true;
+        else
+          throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : internal error !");
+          }*/
+}
+
 /*!
  * Returns the optional numbers of mesh entities of a given dimension transformed using
  * DataArrayInt::invertArrayN2O2O2N().
@@ -4309,6 +4339,34 @@ int MEDFileStructuredMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Excepti
   if(!cmesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberOfNodes : no cartesian mesh set !");
   return cmesh->getNumberOfNodes();
+}
+
+void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
+{
+  if(st.getNumberOfItems()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::whichAreNodesFetched : The sturture of field is not lying on single geo type ! it is not managed yet for structured mesh !");
+  if(st[0].getGeo()!=MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(getMeshDimension()))
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::whichAreNodesFetched : The sturture of field is not lying on expected geo type !");
+  if(getNumberOfNodes()!=(int)nodesFetched.size())
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::whichAreNodesFetched : invalid size of array !");
+  if(st[0].getPflName().empty())
+    {
+      std::fill(nodesFetched.begin(),nodesFetched.end(),true);
+      return ;
+    }
+  const DataArrayInt *arr(globs->getProfile(st[0].getPflName().c_str()));
+  const MEDCouplingStructuredMesh *cmesh=getStructuredMesh();//cmesh not null because getNumberOfNodes called before
+  int sz(nodesFetched.size());
+  for(const int *work=arr->begin();work!=arr->end();work++)
+    {
+      std::vector<int> conn;
+      cmesh->getNodeIdsOfCell(*work,conn);
+      for(std::vector<int>::const_iterator it=conn.begin();it!=conn.end();it++)
+        if(*it>=0 && *it<sz)
+          nodesFetched[*it]=true;
+        else
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::whichAreNodesFetched : internal error !");
+    }
 }
 
 med_geometry_type MEDFileStructuredMesh::GetGeoTypeFromMeshDim(int meshDim) throw(INTERP_KERNEL::Exception)

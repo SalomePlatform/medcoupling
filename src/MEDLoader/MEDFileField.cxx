@@ -8293,23 +8293,23 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> > cmps;
   std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > retCell=SplitPerCommonSupportNotNodesAlg(vectFMTSNotNodes,mesh,cmps);
   ret=retCell;
-  i=0;
   for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it2=vectFMTSNodes.begin();it2!=vectFMTSNodes.end();it2++)
     {
+      i=0;
       for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it0=retCell.begin();it0!=retCell.end();it0++,i++)
         {
           if((*it0).empty())
             throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : internal error !");
+          if(cmps[i]->isCompatibleWithNodesDiscr(*it2))
+            ret[i].push_back(*it2);
         }
-      std::vector<MEDFileAnyTypeFieldMultiTS *> elt(1,*it2);
-      ret.push_back(elt);
     }
-  
   return ret;
 }
 
 /*!
  * WARNING no check here. The caller must be sure that all items in vectFMTS are coherent each other in time steps, only one same spatial discretization and not ON_NODES.
+ * \param [out] cmps - same size than the returned vector.
  */
 std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupportNotNodesAlg(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> >& cmps) throw(INTERP_KERNEL::Exception)
 {

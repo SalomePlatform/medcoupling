@@ -6162,6 +6162,52 @@ bool DataArrayInt::isEqualWithoutConsideringStrAndOrder(const DataArrayInt& othe
 }
 
 /*!
+ * This method compares content of input vector \a v and \a this.
+ * If for each id in \a this v[id]==True and for all other ids id2 not in \a this v[id2]==False, true is returned.
+ * For performance reasons \a this is expected to be sorted ascendingly. If not an exception will be thrown.
+ *
+ * \param [in] v - the vector of 'flags' to be compared with \a this.
+ *
+ * \throw If \a this is not sorted ascendingly.
+ * \throw If \a this has not exactly one component.
+ * \throw If \a this is not allocated.
+ */
+bool DataArrayInt::isFittingWith(const std::vector<bool>& v) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::isFittingWith : number of components of this should be equal to one !");
+  int nbOfTuples(getNumberOfTuples());
+  const int *w(begin()),*end2(end());
+  int refVal=-std::numeric_limits<int>::max();
+  int i=0;
+  std::vector<bool>::const_iterator it(v.begin());
+  for(;it!=v.end();it++,i++)
+    {
+      if(*it)
+        {
+          if(w!=end2)
+            {
+              if(*w++==i)
+                {
+                  if(i>refVal)
+                    refVal=i;
+                  else
+                    {
+                      std::ostringstream oss; oss << "DataArrayInt::isFittingWith : At pos #" << std::distance(begin(),w-1) << " this is not sorted ascendingly !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+              return false;
+            }
+          else
+            return false;
+        }
+    }
+  return w==end2;
+}
+
+/*!
  * Sorts values of the array.
  *  \param [in] asc - \a true means ascending order, \a false, descending.
  *  \throw If \a this is not allocated.

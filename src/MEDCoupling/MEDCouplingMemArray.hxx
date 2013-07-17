@@ -436,6 +436,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayInt& other, std::string& reason) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isFittingWith(const std::vector<bool>& v) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildPermutationArr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reverse() throw(INTERP_KERNEL::Exception);

@@ -56,7 +56,12 @@ bool MEDCouplingStructuredMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, do
 
 INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(int cellId) const
 {
-  switch(getMeshDimension())
+  return GetGeoTypeGivenMeshDimension(getMeshDimension());
+}
+
+INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception)
+{
+  switch(meshDim)
     {
     case 3:
       return INTERP_KERNEL::NORM_HEXA8;
@@ -65,7 +70,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(int c
     case 1:
       return INTERP_KERNEL::NORM_SEG2;
     default:
-      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingCurveLinearMesh::getTypeOfCell !");
+      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension !");
     }
 }
 
