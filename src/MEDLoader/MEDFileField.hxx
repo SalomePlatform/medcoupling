@@ -105,8 +105,8 @@ namespace ParaMEDMEM
     void getCoarseData(TypeOfField& type, std::pair<int,int>& dad, std::string& pfl, std::string& loc) const throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMeshPerType *getFather() const;
-    void loadOnlyStructureOfDataRecursively(med_idt fid, int profileIt, int& start, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
-    void loadBigArray(med_idt fid, int profileIt, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
+    void loadOnlyStructureOfDataRecursively(med_idt fid, int& start, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
+    void loadBigArray(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
     void setNewStart(int newValueOfStart) throw(INTERP_KERNEL::Exception);
     int getIteration() const;
     int getOrder() const;
@@ -162,6 +162,7 @@ namespace ParaMEDMEM
     std::string _localization;
     //! only on assignement -3 : ON_NODES, -2 : ON_CELLS, -1 : ON_GAUSS_NE, 0..* : ON_GAUSS_PT
     mutable int _loc_id;
+    mutable int _profile_it;
   public:
     mutable int _tmp_work1;
   };

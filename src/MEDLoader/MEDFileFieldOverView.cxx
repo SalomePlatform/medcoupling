@@ -322,7 +322,8 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(cons
       std::vector< std::pair< INTERP_KERNEL::NormalizedCellType, std::vector<std::size_t> > >::iterator it0(std::find_if(m.begin(),m.end(),CmpGeo((*it).getGeo())));
       if(it0==m.end())
         m.push_back(std::pair< INTERP_KERNEL::NormalizedCellType, std::vector<std::size_t> >((*it).getGeo(),std::vector<std::size_t>(1,i)));
-      (*it0).second.push_back(i);
+      else
+        (*it0).second.push_back(i);
     }
   if(m.size()==_items.size())
     {
@@ -398,7 +399,7 @@ bool MEDFileField1TSStructItem::isFullyOnExactlyOneLev(const MEDFileMeshStruct *
     {
       if(!(*it).getPflName().empty())
         return false;
-      INTERP_KERNEL::NormalizedCellType gt;
+      INTERP_KERNEL::NormalizedCellType gt((*it).getGeo());
       if(gts.find(gt)!=gts.end())
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnExactlyOneLev : internal error !");
       gts.insert(gt);
@@ -528,7 +529,7 @@ MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyT
   bool isFirst=true;
   for(std::size_t i=0;i<nbOfGeoTypes;i++)
     {
-      std::size_t sz=typesF.size();
+      std::size_t sz=typesF[i].size();
       if(strtEnds[i].size()<1 || sz<1 || pfls[i].size()<1)
         throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : internal error #1 !");
       //
@@ -538,7 +539,7 @@ MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyT
       //
       for(std::size_t j=0;j<sz;j++)
         {
-          if(atype!=typesF[i][j])
+          if(atype==typesF[i][j])
             anItems.push_back(MEDFileField1TSStructItem2(geoTypes[i],strtEnds[i][j],pfls[i][j],locs[i][j]));
           else
             throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : can be applied only on single spatial discretization fields ! Call SplitPerDiscretization method !");

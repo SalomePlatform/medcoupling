@@ -415,7 +415,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::deepCpy(ME
 }
 
 MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField atype, int profileIt) throw(INTERP_KERNEL::Exception)
-try:_type(atype),_father(fath)
+try:_type(atype),_father(fath),_profile_it(profileIt)
   {
   }
 catch(INTERP_KERNEL::Exception& e)
@@ -441,7 +441,7 @@ const MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerTypePerDisc::getFather()
   return _father;
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_idt fid, int profileIt, int& start, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_idt fid, int& start, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
   INTERP_KERNEL::AutoPtr<char> locname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> pflname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -454,7 +454,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
   int profilesize,nbi;
   med_geometry_type mgeoti;
   med_entity_type menti=MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(type,geoType,mgeoti);
-  _nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,profileIt,MED_COMPACT_PFLMODE,
+  _nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile_it,MED_COMPACT_PFLMODE,
                                   pflname,&profilesize,locname,&nbi);
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
@@ -473,7 +473,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
     }
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, int profileIt, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
   std::string fieldName=nasc.getName();
   std::string meshName=getMeshName();
@@ -1452,31 +1452,32 @@ MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(med_idt fid, MEDFileField
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_geometry_type mgeoti;
-  med_entity_type menti=ConvertIntoMEDFileType(type,geoType,mgeoti);
+  med_entity_type menti;
+  menti=ConvertIntoMEDFileType(type,geoType,mgeoti);
   int nbProfiles=MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),menti,mgeoti,pflName,locName);
   _field_pm_pt_pd.resize(nbProfiles);
   for(int i=0;i<nbProfiles;i++)
     {
       _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,type,i+1);
     }
+  if(type==ON_CELLS)
+    {
+      int nbProfiles2=MEDfieldnProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,mgeoti,pflName,locName);
+      for(int i=0;i<nbProfiles2;i++)
+        _field_pm_pt_pd.push_back(MEDFileFieldPerMeshPerTypePerDisc::NewOnRead(this,ON_GAUSS_NE,i+1));
+    }
 }
 
 void MEDFileFieldPerMeshPerType::loadOnlyStructureOfDataRecursively(med_idt fid, int &start, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
-  int pflId=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,pflId++)
-    {
-      (*it)->loadOnlyStructureOfDataRecursively(fid,pflId+1,start,nasc);//tony
-    }
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    (*it)->loadOnlyStructureOfDataRecursively(fid,start,nasc);
 }
 
 void MEDFileFieldPerMeshPerType::loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception)
 {
-  int pflId=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,pflId++)
-    {
-      (*it)->loadBigArray(fid,pflId+1,nasc);//tony
-    }
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    (*it)->loadBigArray(fid,nasc);
 }
 
 void MEDFileFieldPerMeshPerType::writeLL(med_idt fid, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception)
@@ -2341,16 +2342,11 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
   INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   for(int i=0;i<MED_N_CELL_FIXED_GEO;i++)
     {
-      int nbProfile=MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_CELL,typmai[i],_mesh_csit,meshName,pflName,locName);
-      if(nbProfile>0)
+      int nbProfile =MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_CELL        ,typmai[i],_mesh_csit,meshName,pflName,locName);
+      int nbProfile2=MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,typmai[i],_mesh_csit,meshName,pflName,locName);
+      if(nbProfile>0 || nbProfile2>0)
         {
           _field_pm_pt.push_back(MEDFileFieldPerMeshPerType::NewOnRead(fid,this,ON_CELLS,typmai2[i],nasc));
-          _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
-        }
-      nbProfile=MEDfield23nProfile(fid,nasc.getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,typmai[i],_mesh_csit,meshName,pflName,locName);
-      if(nbProfile>0)
-        {
-          _field_pm_pt.push_back(MEDFileFieldPerMeshPerType::NewOnRead(fid,this,ON_GAUSS_NE,typmai2[i],nasc));
           _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
         }
     }
@@ -8302,6 +8298,11 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
             throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : internal error !");
           if(cmps[i]->isCompatibleWithNodesDiscr(*it2))
             ret[i].push_back(*it2);
+          else
+            {
+              std::vector<MEDFileAnyTypeFieldMultiTS *> ret0(1,*it2);
+              ret.push_back(ret0);
+            }
         }
     }
   return ret;
