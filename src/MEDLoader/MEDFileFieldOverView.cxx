@@ -503,7 +503,9 @@ bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField
     }
   else
     ret=_already_checked[found].isCompatibleWithNodesDiscr(other1,meshSt,other->contentNotNull());
-  return true;//tony
+  if(ret)
+    _already_checked.push_back(other1);
+  return ret;
 }
 
 std::size_t MEDFileField1TSStruct::getHeapMemorySize() const

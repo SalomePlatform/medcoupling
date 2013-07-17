@@ -2620,30 +2620,36 @@ int MEDFileUMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
 
 void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
 {
-  /*if(st.getNumberOfItems()!=1)
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : The sturture of field is not lying on single geo type ! it is not managed yet for structured mesh !");
-  if(st[0].getGeo()!=MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(getMeshDimension()))
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : The sturture of field is not lying on expected geo type !");
-  if(getNumberOfNodes()!=(int)nodesFetched.size())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : invalid size of array !");
-  if(st.getPflName().empty())
+  std::size_t sz(st.getNumberOfItems());
+  int mdim(getMeshDimension());
+  for(std::size_t i=0;i<sz;i++)
     {
-      std::fill(nodesFetched.begin(),nodesFetched.end(),true);
-      return ;
+      INTERP_KERNEL::NormalizedCellType curGt(st[i].getGeo());
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(curGt);
+      int relDim((int)cm.getDimension()-mdim);
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> um(getMeshAtLevel(relDim));
+      std::vector<int> d(um->getDistributionOfTypes());
+      std::size_t nbOfTypes(d.size()/3);
+      int offset=0,nbOfEltWT=-1;
+      for(std::size_t j=0;j<nbOfTypes;j++)
+        {
+          if(d[3*j]!=(int)curGt)
+            offset+=d[3*j+1];
+          else
+            { break; nbOfEltWT=d[3*j+1]; }
+        }
+      if(nbOfEltWT==-1)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : asking for a geo type not present in this !");
+      um=dynamic_cast<MEDCouplingUMesh *>(um->buildPartOfMySelf2(offset,offset+nbOfEltWT,1,true));
+      if(st[i].getPflName().empty())
+        um->computeNodeIdsAlg(nodesFetched);
+      else
+        {
+          const DataArrayInt *arr(globs->getProfile(st[i].getPflName().c_str()));
+          um=dynamic_cast<MEDCouplingUMesh *>(um->buildPartOfMySelf(arr->begin(),arr->end(),true));
+          um->computeNodeIdsAlg(nodesFetched);
+        }
     }
-  const DataArrayInt *arr(globs->getProfile(st.getPflName().c_str()));
-  const MEDCouplingStructuredMesh *cmesh=getStructuredMesh();//cmesh not null because getNumberOfNodes called before
-  int sz(nodesFetched.size());
-  for(const int *work=arr->begin();work!=arr->end();work++)
-    {
-      std::vector<int> conn;
-      cmesh->getNodeIdsOfCell(*work,conn);
-      for(std::vector<int>::const_iterator it=conn.begin();it!=conn.end();it++)
-        if(*it>=0 && *it<sz)
-          nodesFetched[*it]=true;
-        else
-          throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : internal error !");
-          }*/
 }
 
 /*!
