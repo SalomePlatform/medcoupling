@@ -107,20 +107,20 @@ MEDFileField1TSStructItem2::MEDFileField1TSStructItem2(INTERP_KERNEL::Normalized
   _pfl->setName(c.c_str());
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForCells(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
 {
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   checkInRange(nbOfEnt,1,globs);
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
 {
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   checkInRange(nbOfEnt,(int)cm.getNumberOfNodes(),globs);
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
 {
   if(!globs)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT : no globals specified !");
@@ -156,13 +156,14 @@ void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MED
       const DataArrayInt *pfl=globs->getProfile(_pfl->getName().c_str());
       if(!pfl)
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkInRange : Presence of a profile on field whereas no such profile found in file !");
-      if(!pfl->checkAllIdsInRange(0,nbOfEntity))
-        throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkInRange : The profile specified is invalid !");
+      pfl->checkAllIdsInRange(0,nbOfEntity);
     }
 }
 
 bool MEDFileField1TSStructItem2::operator==(const MEDFileField1TSStructItem2& other) const throw(INTERP_KERNEL::Exception)
 {
+  //_nb_of_entity is not taken into account here. It is not a bug, because no mesh consideration needed here to perform fast compare.
+  //idem for _loc. It is not an effective attribute for support comparison.
   return _geo_type==other._geo_type && _start_end==other._start_end && _pfl->getName()==other._pfl->getName();
 }
 
@@ -202,30 +203,30 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
       if(obj->_pfl->getName().empty())
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : invalid situation ! Several same geo type chunk must all lie on profiles !");
       arrs[i]=globs->getProfile(obj->_pfl->getName().c_str());
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(DataArrayInt::Aggregate(arrs));
-      arr->sort();
-      int oldNbTuples(arr->getNumberOfTuples());
-      arr=arr->buildUnique();
-      if(oldNbTuples!=arr->getNumberOfTuples())
-        throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : some entities are present several times !");
-      if(arr->isIdentity() && oldNbTuples==nbEntityRef)
-        {
-          std::pair<int,int> p(0,nbEntityRef);
-          std::string a,b;
-          MEDFileField1TSStructItem2 ret(gt,p,a,b);
-          ret._nb_of_entity=nbEntityRef;
-          return ret;
-        }
-      else
-        {
-          arr->setName("???");
-          std::pair<int,int> p(0,oldNbTuples);
-          std::string a,b;
-          MEDFileField1TSStructItem2 ret(gt,p,a,b);
-          ret._nb_of_entity=nbEntityRef;
-          ret._pfl=arr;
-          return ret;
-        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(DataArrayInt::Aggregate(arrs));
+  arr->sort();
+  int oldNbTuples(arr->getNumberOfTuples());
+  arr=arr->buildUnique();
+  if(oldNbTuples!=arr->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : some entities are present several times !");
+  if(arr->isIdentity() && oldNbTuples==nbEntityRef)
+    {
+      std::pair<int,int> p(0,nbEntityRef);
+      std::string a,b;
+      MEDFileField1TSStructItem2 ret(gt,p,a,b);
+      ret._nb_of_entity=nbEntityRef;
+      return ret;
+    }
+  else
+    {
+      arr->setName("???");
+      std::pair<int,int> p(0,oldNbTuples);
+      std::string a,b;
+      MEDFileField1TSStructItem2 ret(gt,p,a,b);
+      ret._nb_of_entity=nbEntityRef;
+      ret._pfl=arr;
+      return ret;
     }
 }
 
@@ -235,7 +236,7 @@ MEDFileField1TSStructItem::MEDFileField1TSStructItem(TypeOfField a, const std::v
 {
 }
 
-void MEDFileField1TSStructItem::checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
 {
   switch(_type)
     {
@@ -338,7 +339,7 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(cons
       const std::vector<std::size_t>& ids=m[i].second;
       std::vector<const MEDFileField1TSStructItem2 *>objs(ids.size());
       for(std::size_t j=0;j<ids.size();j++)
-        objs[j]=&_items[j];
+        objs[j]=&_items[ids[j]];
       items[i]=MEDFileField1TSStructItem2::BuildAggregationOf(objs,globs);
     }
   MEDFileField1TSStructItem ret(ON_CELLS,items);
@@ -356,7 +357,7 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
   if(other._items.size()!=1)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isCompatibleWithNodesDiscr : other is on nodes but number of subparts !");
   int theFirstLevFull;
-  bool ret0=isFullyOnExactlyOneLev(meshSt,theFirstLevFull);
+  bool ret0=isFullyOnOneLev(meshSt,theFirstLevFull);
   const MEDFileField1TSStructItem2& otherNodeIt(other._items[0]);
   if(otherNodeIt.getPflName().empty())
     {//on all nodes
@@ -382,18 +383,18 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
     }
 }
 
-bool MEDFileField1TSStructItem::isFullyOnExactlyOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception)
 {
   if(_type!=ON_CELLS)
-    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnExactlyOneLev : works only for ON_CELLS discretization !");
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnOneLev : works only for ON_CELLS discretization !");
   if(_items.empty())
-    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnExactlyOneLev : items vector is empty !");
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnOneLev : items vector is empty !");
   int nbOfLevs(meshSt->getNumberOfLevs());
   if(nbOfLevs==0)
-    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnExactlyOneLev : no levels in input mesh structure !");
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnOneLev : no levels in input mesh structure !");
+  std::vector<int> levs(nbOfLevs);
   theFirstLevFull=1;
   int nbOfGT=0;
-  bool firstShot(true);
   std::set<INTERP_KERNEL::NormalizedCellType> gts;
   for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++)
     {
@@ -401,18 +402,15 @@ bool MEDFileField1TSStructItem::isFullyOnExactlyOneLev(const MEDFileMeshStruct *
         return false;
       INTERP_KERNEL::NormalizedCellType gt((*it).getGeo());
       if(gts.find(gt)!=gts.end())
-        throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnExactlyOneLev : internal error !");
+        throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnOneLev : internal error !");
       gts.insert(gt);
       int pos(meshSt->getLevelOfGeoType((*it).getGeo()));
-      if(firstShot)
-        theFirstLevFull=pos;
-      else
-        if(theFirstLevFull!=pos)
-          return false;
-      firstShot=false;
-      nbOfGT++;
+      levs[-pos]++;
     }
-  return nbOfGT==meshSt->getNumberOfGeoTypesInLev(theFirstLevFull);
+  for(int i=0;i<nbOfLevs;i++)
+    if(meshSt->getNumberOfGeoTypesInLev(-i)==levs[i])
+      { theFirstLevFull=-i; return true; }
+  return false;
 }
 
 const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::size_t i) const throw(INTERP_KERNEL::Exception)
@@ -424,14 +422,14 @@ const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::siz
 
 //=
 
-MEDFileField1TSStruct *MEDFileField1TSStruct::New(const MEDFileAnyTypeField1TS *ref) throw(INTERP_KERNEL::Exception)
+MEDFileField1TSStruct *MEDFileField1TSStruct::New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst) throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileField1TSStruct(ref);
+  return new MEDFileField1TSStruct(ref,mst);
 }
 
-MEDFileField1TSStruct::MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref)
+MEDFileField1TSStruct::MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst)
 {
-  _already_checked.push_back(BuildItemFrom(ref));
+  _already_checked.push_back(BuildItemFrom(ref,mst));
 }
 
 void MEDFileField1TSStruct::checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
@@ -441,9 +439,9 @@ void MEDFileField1TSStruct::checkWithMeshStruct(MEDFileMeshStruct *mst, const ME
   _already_checked.back().checkWithMeshStruct(mst,globs);
 }
 
-bool MEDFileField1TSStruct::isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const throw(INTERP_KERNEL::Exception)
 {
-  MEDFileField1TSStructItem b(BuildItemFrom(other));
+  MEDFileField1TSStructItem b(BuildItemFrom(other,mst));
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++)
     {
       if((*it)==b)
@@ -455,11 +453,11 @@ bool MEDFileField1TSStruct::isEqualConsideringThePast(const MEDFileAnyTypeField1
 /*!
  * Not const because \a other structure will be added to the \c _already_checked attribute in case of success.
  */
-bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other) throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception)
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isSupportSameAs : no ref !");
-  MEDFileField1TSStructItem b(BuildItemFrom(other));
+  MEDFileField1TSStructItem b(BuildItemFrom(other,meshSt));
   if(!_already_checked[0].isEntityCell() || !b.isEntityCell())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isSupportSameAs : only available on cell entities !");
   MEDFileField1TSStructItem other1(b.simplifyMeOnCellEntity(other->contentNotNull()));
@@ -488,7 +486,7 @@ bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isCompatibleWithNodesDiscr : no ref !");
   if(!_already_checked[0].isEntityCell())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isCompatibleWithNodesDiscr : only available on cell entities !");
-  MEDFileField1TSStructItem other1(BuildItemFrom(other));
+  MEDFileField1TSStructItem other1(BuildItemFrom(other,meshSt));
   //
   int found=-1,i=0;
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
@@ -514,7 +512,7 @@ std::size_t MEDFileField1TSStruct::getHeapMemorySize() const
   return 0;
 }
 
-MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyTypeField1TS *ref)
+MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt)
 {
   TypeOfField atype;
   std::vector< MEDFileField1TSStructItem2 > anItems;
@@ -545,7 +543,9 @@ MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyT
             throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : can be applied only on single spatial discretization fields ! Call SplitPerDiscretization method !");
         }
     }
-  return MEDFileField1TSStructItem(atype,anItems);
+  MEDFileField1TSStructItem ret(atype,anItems);
+  ret.checkWithMeshStruct(meshSt,ref->contentNotNull());
+  return ret;
 }
 
 //=
@@ -563,7 +563,7 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
   for(int i=0;i<nbPts;i++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=ref->getTimeStepAtPos(i);
-      _f1ts_cmps[i]=MEDFileField1TSStruct::New(elt);
+      _f1ts_cmps[i]=MEDFileField1TSStruct::New(elt,_mesh_comp);
       _f1ts_cmps[i]->checkWithMeshStruct(_mesh_comp,elt->contentNotNull());
     }
 }
@@ -591,8 +591,8 @@ bool MEDFileFastCellSupportComparator::isEqual(const MEDFileAnyTypeFieldMultiTS 
   for(int i=0;i<nbPts;i++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=other->getTimeStepAtPos(i);
-      if(!_f1ts_cmps[i]->isEqualConsideringThePast(elt))
-        if(!_f1ts_cmps[i]->isSupportSameAs(elt))
+      if(!_f1ts_cmps[i]->isEqualConsideringThePast(elt,_mesh_comp))
+        if(!_f1ts_cmps[i]->isSupportSameAs(elt,_mesh_comp))
           return false;
     }
   return true;

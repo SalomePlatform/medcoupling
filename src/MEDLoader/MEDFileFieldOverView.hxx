@@ -62,9 +62,9 @@ namespace ParaMEDMEM
   public:
     MEDFileField1TSStructItem2();
     MEDFileField1TSStructItem2(INTERP_KERNEL::NormalizedCellType a, const std::pair<int,int>& b, const std::string& pfl, const std::string& loc);
-    void checkWithMeshStructForCells(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
-    void checkWithMeshStructForGaussNE(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
-    void checkWithMeshStructForGaussPT(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
+    void checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
+    void checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
+    void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
     //
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
     std::string getPflName() const;
@@ -85,7 +85,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
-    void checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
+    void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
     bool operator==(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception);
     bool isEntityCell() const;
     bool isComputed() const { return _computed; }
@@ -95,7 +95,7 @@ namespace ParaMEDMEM
     bool isCellSupportEqual(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TSStructItem simplifyMeOnCellEntity(const MEDFileFieldGlobs *globs) const throw(INTERP_KERNEL::Exception);
     bool isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobs *globs) const throw(INTERP_KERNEL::Exception);
-    bool isFullyOnExactlyOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception);
+    bool isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception);
   private:
     bool _computed;
     TypeOfField _type;
@@ -105,15 +105,15 @@ namespace ParaMEDMEM
   class MEDFileField1TSStruct : public RefCountObject
   {
   public:
-    static MEDFileField1TSStruct *New(const MEDFileAnyTypeField1TS *ref) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TSStruct *New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst) throw(INTERP_KERNEL::Exception);
     void checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
-    bool isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other) const throw(INTERP_KERNEL::Exception);
-    bool isSupportSameAs(const MEDFileAnyTypeField1TS *other) throw(INTERP_KERNEL::Exception);
+    bool isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const throw(INTERP_KERNEL::Exception);
+    bool isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
   private:
-    MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref);
-    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref);
+    MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
+    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
   private:
     std::vector<MEDFileField1TSStructItem> _already_checked;
   };

@@ -8326,7 +8326,7 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
       while(it!=lstFMTS.end())
         {
           MEDFileAnyTypeFieldMultiTS *curIt(*it);
-          if(cmp->isEqual(ref))
+          if(cmp->isEqual(curIt))
             { elt.push_back(curIt); it=lstFMTS.erase(it); }
           else
             it++;
@@ -9784,7 +9784,6 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const char *fieldNam
 MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const char *meshName) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileFields> ret=MEDFileFields::New();
-  ret->shallowCpyOnlyUsedGlobs(*this);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur=(*it);
@@ -9797,6 +9796,7 @@ MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const char *mes
           ret->_fields.push_back(cur2);
         }
     }
+  ret->shallowCpyOnlyUsedGlobs(*this);
   return ret.retn();
 }
 
