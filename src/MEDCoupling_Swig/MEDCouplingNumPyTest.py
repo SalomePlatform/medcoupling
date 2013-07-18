@@ -25,13 +25,14 @@ if MEDCouplingHasNumPyBindings():
     from numpy import *
     pass
 
+from platform import architecture
 from sys import getrefcount
 
 import os,gc,weakref,unittest
 
 class MEDCouplingNumPyTest(unittest.TestCase):
     
-    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and architecture()[0]=="64bit","requires numpy")
     def test1(self):
         sz=20
         a=array(0,dtype=int32)
