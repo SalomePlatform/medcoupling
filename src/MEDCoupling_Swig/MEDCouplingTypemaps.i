@@ -212,13 +212,13 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
     throw INTERP_KERNEL::Exception("Input numpy array should have dimension equal to 1 or 2 !");
   if(PyArray_ObjectType(elt0,0)!=npyObjectType)
     {
-      std::ostringstream oss; oss << "Input numpy array has not of type " << msg << " at component #0 !";
+      std::ostringstream oss; oss << "Input numpy array has not the type " << msg << " at component #0 !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   if(ndim==2)
     if(PyArray_ObjectType(elt0,1)!=npyObjectType)
       {
-        std::ostringstream oss; oss << "Input numpy array has not of type " << msg << " at component #1 !";
+        std::ostringstream oss; oss << "Input numpy array has not the type " << msg << " at component #1 !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   npy_intp sz0=PyArray_DIM(elt0,0);

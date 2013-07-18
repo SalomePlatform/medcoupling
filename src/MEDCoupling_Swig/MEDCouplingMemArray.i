@@ -2498,7 +2498,7 @@ namespace ParaMEDMEM
 #ifdef WITH_NUMPY
         else if(PyArray_Check(elt0) && nbOfTuples==NULL && nbOfComp==NULL)
           {//DataArrayInt.New(numpyArray)
-            return BuildNewInstance<DataArrayInt,int>(elt0,NPY_INT,&PyCallBackDataArrayInt_RefType,"INT32");
+            return BuildNewInstance<DataArrayInt,int>(elt0,NPY_INT32,&PyCallBackDataArrayInt_RefType,"INT32");
           }
 #endif
         else
@@ -2622,7 +2622,7 @@ namespace ParaMEDMEM
 #ifdef WITH_NUMPY
       PyObject *toNumPyArray() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
       {
-        return ToNumPyArray<DataArrayInt,int>(self,NPY_INT,"DataArrayInt");
+        return ToNumPyArray<DataArrayInt,int>(self,NPY_INT32,"DataArrayInt");
       }
 #endif
 
