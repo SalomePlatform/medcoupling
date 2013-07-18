@@ -1974,22 +1974,22 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertIn(mm.getHeapMemorySize(),xrange(3889-100,3889+100))
         ff=MEDFileField1TS()
         ff.setFieldNoProfileSBT(f)
-        self.assertIn(ff.getHeapMemorySize(),xrange(711-20,711+20))
+        self.assertIn(ff.getHeapMemorySize(),xrange(711-40,711+20))
         #
         fff=MEDFileFieldMultiTS()
         fff.appendFieldNoProfileSBT(f)
-        self.assertIn(fff.getHeapMemorySize(),xrange(743-30,743+30))
+        self.assertIn(fff.getHeapMemorySize(),xrange(743-50,743+30))
         f.setTime(1.,0,-1)
         fff.appendFieldNoProfileSBT(f)
-        self.assertIn(fff.getHeapMemorySize(),xrange(1462-50,1462+50))
-        self.assertIn(fff[0,-1].getHeapMemorySize(),xrange(711-20,711+20))
+        self.assertIn(fff.getHeapMemorySize(),xrange(1462-90,1462+50))
+        self.assertIn(fff[0,-1].getHeapMemorySize(),xrange(711-40,711+20))
         f2=f[:50]
         f2.setTime(2.,1,-1)
         pfl=DataArrayInt.Range(0,50,1) ; pfl.setName("pfl")
         fff.appendFieldProfile(f2,mm,0,pfl)
-        self.assertIn(fff.getHeapMemorySize(),xrange(2178-100,2178+100))
+        self.assertIn(fff.getHeapMemorySize(),xrange(2178-130,2178+100))
         self.assertIn(fff.getProfile("pfl_NORM_QUAD4").getHeapMemorySize(),xrange(215-10,215+10))
-        self.assertIn(fff[1,-1].getHeapMemorySize(),xrange(700-30,700+30))
+        self.assertIn(fff[1,-1].getHeapMemorySize(),xrange(700-50,700+30))
         pass
 
     def testCurveLinearMesh1(self):
