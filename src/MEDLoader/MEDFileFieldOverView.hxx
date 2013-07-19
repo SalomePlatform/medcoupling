@@ -32,8 +32,10 @@
 namespace ParaMEDMEM
 {
   class DataArrayInt;
+  class MEDCouplingMesh;
   class MEDFileMesh;
   class MEDFileFieldGlobs;
+  class MEDFileFieldGlobsReal;
   class MEDFileAnyTypeField1TS;
   class MEDFileAnyTypeFieldMultiTS;
 
@@ -57,7 +59,7 @@ namespace ParaMEDMEM
     std::vector< std::vector<int> > _geo_types_distrib;
   };
 
-  class MEDFileField1TSStructItem2
+  class MEDFileField1TSStructItem2 : public RefCountObject
   {
   public:
     MEDFileField1TSStructItem2();
@@ -65,6 +67,8 @@ namespace ParaMEDMEM
     void checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
     void checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
     void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
+    //
+    std::size_t getHeapMemorySize() const;
     //
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
     std::string getPflName() const;
@@ -81,14 +85,16 @@ namespace ParaMEDMEM
     int _nb_of_entity;
   };
 
-  class MEDFileField1TSStructItem
+  class MEDFileField1TSStructItem : public RefCountObject
   {
   public:
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception);
     bool operator==(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception);
+    std::size_t getHeapMemorySize() const;
     bool isEntityCell() const;
     bool isComputed() const { return _computed; }
+    TypeOfField getType() const { return _type; }
     std::size_t getNumberOfItems() const { return _items.size(); }
     const MEDFileField1TSStructItem2& operator[](std::size_t i) const throw(INTERP_KERNEL::Exception);
     //
@@ -96,6 +102,7 @@ namespace ParaMEDMEM
     MEDFileField1TSStructItem simplifyMeOnCellEntity(const MEDFileFieldGlobs *globs) const throw(INTERP_KERNEL::Exception);
     bool isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobs *globs) const throw(INTERP_KERNEL::Exception);
     bool isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingMesh *buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
   private:
     bool _computed;
     TypeOfField _type;
@@ -111,9 +118,12 @@ namespace ParaMEDMEM
     bool isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const throw(INTERP_KERNEL::Exception);
     bool isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
+    MEDCouplingMesh *buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
   private:
     MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
     static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
+    bool presenceOfCellDiscr(int& pos) const throw(INTERP_KERNEL::Exception);
+    bool presenceOfPartialNodeDiscr(int& pos) const throw(INTERP_KERNEL::Exception);
   private:
     std::vector<MEDFileField1TSStructItem> _already_checked;
   };
@@ -122,6 +132,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileFastCellSupportComparator *New(const MEDFileMesh *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception);
+    MEDCouplingMesh *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+    bool isDataSetSupportEqualToThePreviousOne(int timeStepId) const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileAnyTypeFieldMultiTS *other) throw(INTERP_KERNEL::Exception);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeFieldMultiTS *other) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;

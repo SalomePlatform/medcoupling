@@ -33,7 +33,11 @@ MEDFileMeshStruct *MEDFileMeshStruct::New(const MEDFileMesh *mesh)
 
 std::size_t MEDFileMeshStruct::getHeapMemorySize() const
 {
-  return 0;
+  std::size_t ret(0);
+  for(std::vector< std::vector<int> >::const_iterator it0=_geo_types_distrib.begin();it0!=_geo_types_distrib.end();it0++)
+    ret+=(*it0).capacity()*sizeof(int);
+  ret+=_geo_types_distrib.capacity()*sizeof(std::vector<int>);
+  return ret;
 }
 
 MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
@@ -230,6 +234,16 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
     }
 }
 
+std::size_t MEDFileField1TSStructItem2::getHeapMemorySize() const
+{
+  std::size_t ret(0);
+  const DataArrayInt *pfl(_pfl);
+  if(pfl)
+    ret+=pfl->getHeapMemorySize();
+  ret+=_loc.capacity();
+  return ret;
+}
+
 //=
 
 MEDFileField1TSStructItem::MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b):_computed(false),_type(a),_items(b)
@@ -420,6 +434,20 @@ const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::siz
   return _items[i];
 }
 
+std::size_t MEDFileField1TSStructItem::getHeapMemorySize() const
+{
+  std::size_t ret(0);
+  for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++)
+    ret+=(*it).getHeapMemorySize();
+  ret+=_items.size()*sizeof(MEDFileField1TSStructItem2);
+  return ret;
+}
+
+MEDCouplingMesh *MEDFileField1TSStructItem::buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+{
+  return 0;//tony
+}
+
 //=
 
 MEDFileField1TSStruct *MEDFileField1TSStruct::New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst) throw(INTERP_KERNEL::Exception)
@@ -509,7 +537,11 @@ bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField
 
 std::size_t MEDFileField1TSStruct::getHeapMemorySize() const
 {
-  return 0;
+  std::size_t ret(0);
+  for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++)
+    ret+=(*it).getHeapMemorySize();
+  ret+=_already_checked.capacity()*sizeof(MEDFileField1TSStructItem);
+  return ret;
 }
 
 MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt)
@@ -548,6 +580,75 @@ MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyT
   return ret;
 }
 
+MEDCouplingMesh *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+{
+  if(_already_checked.empty())
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::buildFromScratchDataSetSupport : No outline structure in this !");
+  int pos0(-1),pos1(-1);
+  if(presenceOfCellDiscr(pos0))
+    {
+      if(!presenceOfPartialNodeDiscr(pos1))
+        return _already_checked[pos0].buildFromScratchDataSetSupportOnCells(mst,globs);
+      else
+        throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::buildFromScratchDataSetSupport : tony do it very soon !");
+    }
+  else
+    {
+      if(!presenceOfPartialNodeDiscr(pos1))
+        {//we have only all nodes, no cell definition info -> level 0;
+          return mst->getTheMesh()->getGenMeshAtLevel(0);
+        }
+    }
+}
+
+/*!
+ * Returns true if presence in \a this of discretization ON_CELLS, ON_GAUSS_PT, ON_GAUSS_NE.
+ * If true is returned the pos of the easiest is returned. The easiest is the first element in \a this having the less splitted subparts.
+ */
+bool MEDFileField1TSStruct::presenceOfCellDiscr(int& pos) const throw(INTERP_KERNEL::Exception)
+{
+  std::size_t refSz(std::numeric_limits<std::size_t>::max());
+  bool ret(false);
+  int i(0);
+  for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
+    {
+      if((*it).getType()!=ON_NODES)
+        {
+          ret=true;
+          std::size_t sz((*it).getNumberOfItems());
+          if(refSz>sz)
+            { pos=i; refSz=sz; }
+        }
+    }
+  if(refSz==0)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::presenceOfCellDiscr : an element in this on entity CELL is empty !");
+  return ret;
+}
+
+/*!
+ * Returns true if presence in \a this of discretization ON_NODES.
+ * If true is returned the pos of the first element containing the single subpart.
+ */
+bool MEDFileField1TSStruct::presenceOfPartialNodeDiscr(int& pos) const throw(INTERP_KERNEL::Exception)
+{
+  int i(0);
+  for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
+    {
+      if((*it).getType()==ON_NODES)
+        {
+          std::size_t sz((*it).getNumberOfItems());
+          if(sz==1)
+            {
+              if(!(*it)[0].getPflName().empty())
+                { pos=i; return true; }
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::presenceOfPartialNodeDiscr : an element in this on entity NODE is split into several parts !");
+        }
+    }
+  return false;
+}
+
 //=
 
 MEDFileFastCellSupportComparator *MEDFileFastCellSupportComparator::New(const MEDFileMesh *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception)
@@ -570,14 +671,18 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
 
 std::size_t MEDFileFastCellSupportComparator::getHeapMemorySize() const
 {
-  /*std::size_t part1=sizeof(MEDFileFastCellSupportComparator)+_mesh_name.capacity()+_already_passed_code1.capacity()*sizeof(std::vector<int>)+_already_passed_code2.capacity()*sizeof(void*)+_m_geo_types_distrib.capacity()*sizeof(std::vector<int>);
-  std::size_t part2=0;
-  for(std::vector< std::vector<int> >::const_iterator it=_already_passed_code1.begin();it!=_already_passed_code1.end();it++)
-    part2+=(*it).capacity()*(sizeof(int)+sizeof(const DataArrayInt *));
-  for(std::vector< std::vector<int> >::const_iterator it2=_m_geo_types_distrib.begin();it2!=_m_geo_types_distrib.end();it2++)
-    part2+=(*it2).capacity()*sizeof(int);
-    return part1+part2;*/
-  return 0;
+  std::size_t ret(0);
+  const MEDFileMeshStruct *mst(_mesh_comp);
+  if(mst)
+    ret+=mst->getHeapMemorySize();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct> >::const_iterator it=_f1ts_cmps.begin();it!=_f1ts_cmps.end();it++)
+    {
+      const MEDFileField1TSStruct *cur(*it);
+      if(cur)
+        ret+=cur->getHeapMemorySize()+sizeof(MEDFileField1TSStruct);
+    }
+  ret+=_f1ts_cmps.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct>);
+  return ret;
 }
 
 bool MEDFileFastCellSupportComparator::isEqual(const MEDFileAnyTypeFieldMultiTS *other) throw(INTERP_KERNEL::Exception)
@@ -613,4 +718,20 @@ bool MEDFileFastCellSupportComparator::isCompatibleWithNodesDiscr(const MEDFileA
         return false;
     }
   return true;
+}
+
+MEDCouplingMesh *MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+{
+  if(timeStepId<0 || timeStepId>=(int)_f1ts_cmps.size())
+    {
+      std::ostringstream oss; oss << "MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport : requested time step id #" << timeStepId << " is not in [0," << _f1ts_cmps.size() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const MEDFileField1TSStruct *obj(_f1ts_cmps[timeStepId]);
+  if(!obj)
+    {
+      std::ostringstream oss; oss << "MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport : at time step id #" << timeStepId << " no field structure overview defined !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return obj->buildFromScratchDataSetSupport(_mesh_comp,globs);
 }
