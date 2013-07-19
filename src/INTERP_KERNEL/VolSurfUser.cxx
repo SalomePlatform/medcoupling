@@ -24,6 +24,7 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <functional>
 
 namespace INTERP_KERNEL
 {
