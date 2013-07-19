@@ -3162,7 +3162,12 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write(fname,2)
         ##
         mm=MEDFileMesh.New(fname,"mesh",-1,-1,MEDFileMeshReadSelector())
+        b4_ref_heap_mem=mm.getHeapMemorySize()
+        mm.getMeshAtLevel(0)## please let this line : force to move 1GTUMesh -> UMesh
+        mm.getMeshAtLevel(-1)## please let this line : force to move 1GTUMesh -> UMesh
         ref_heap_mem=mm.getHeapMemorySize()
+        # check the gain of memory using 1GTUMesh instead of UMesh
+        self.assertTrue(ref_heap_mem-b4_ref_heap_mem>=(32+9)*4*2-32)# 32+9=nbCells 4=sizeof(int) 2=the types+index -32=loss linked to vector
         #
         mm=MEDFileMesh.New(fname,MEDFileMeshReadSelector(0))
         self.assertEqual(len(mm.getGroupsNames()),0)

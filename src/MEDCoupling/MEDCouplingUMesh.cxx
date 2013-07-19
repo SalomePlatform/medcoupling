@@ -3129,7 +3129,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, i
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
-  checkFullyDefined();
+  checkConnectivityFullyDefined();
   int ncell=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New();
   ret->_mesh_dim=_mesh_dim;
@@ -6671,7 +6671,7 @@ DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
  */
 std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
 {
-  checkFullyDefined();
+  checkConnectivityFullyDefined();
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   int nbOfCells=getNumberOfCells();

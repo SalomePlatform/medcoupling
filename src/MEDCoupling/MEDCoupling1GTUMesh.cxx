@@ -616,9 +616,8 @@ bool MEDCoupling1SGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *o
   return true;
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingPointSet::checkCoherency();
   const DataArrayInt *c1(_conn);
   if(c1)
     {
@@ -630,6 +629,12 @@ void MEDCoupling1SGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception
     }
   else
     throw INTERP_KERNEL::Exception("Nodal connectivity array not defined !");
+}
+
+void MEDCoupling1SGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingPointSet::checkCoherency();
+  checkCoherencyOfConnectivity();
 }
 
 void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
@@ -1649,14 +1654,8 @@ void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, do
     }
 }
 
-/*!
- * If \a this pass this method, you are sure that connectivity arrays are not null, with exactly one component, no name, no component name, allocated.
- * In addition you are sure that the length of nodal connectivity index array is bigger than or equal to one.
- * In addition you are also sure that length of nodal connectivity is coherent with the content of the last value in the index array.
- */
-void MEDCoupling1DGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingPointSet::checkCoherency();
   const DataArrayInt *c1(_conn);
   if(c1)
     {
@@ -1702,9 +1701,20 @@ void MEDCoupling1DGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception
   int szOfC1Exp=_conn_indx->back();
   if(sz2<szOfC1Exp)
     {
-      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::checkCoherency : The expected length of nodal connectivity array regarding index is " << szOfC1Exp << " but the actual size of it is " << c1->getNumberOfTuples() << " !";
+      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity : The expected length of nodal connectivity array regarding index is " << szOfC1Exp << " but the actual size of it is " << c1->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+}
+
+/*!
+ * If \a this pass this method, you are sure that connectivity arrays are not null, with exactly one component, no name, no component name, allocated.
+ * In addition you are sure that the length of nodal connectivity index array is bigger than or equal to one.
+ * In addition you are also sure that length of nodal connectivity is coherent with the content of the last value in the index array.
+ */
+void MEDCoupling1DGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingPointSet::checkCoherency();
+  checkCoherencyOfConnectivity();
 }
 
 void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
@@ -1735,7 +1745,7 @@ void MEDCoupling1DGTUMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL
 
 int MEDCoupling1DGTUMesh::getNumberOfCells() const
 {
-  checkCoherency();//do not remove
+  checkCoherencyOfConnectivity();//do not remove
   return _conn_indx->getNumberOfTuples()-1;
 }
 

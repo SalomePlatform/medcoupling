@@ -22,6 +22,7 @@
 #define __MEDFILEMESHELT_HXX__
 
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
@@ -40,12 +41,11 @@ namespace ParaMEDMEM
     static bool isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity);
     std::size_t getHeapMemorySize() const { return 0; }
     int getDim() const;
-    const DataArrayInt *getNodal() const { return _conn; }
-    const DataArrayInt *getNodalIndex() const { return _conn_index; }
+    MEDCoupling1GTUMesh *getMesh() const { return const_cast<MEDCoupling1GTUMesh *>((const MEDCoupling1GTUMesh *)_m); }
     const DataArrayInt *getFam() const { return _fam; }
     const DataArrayInt *getNum() const { return _num; }
     const DataArrayAsciiChar *getNames() const { return _names; }
-    static void write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names);
+    static void Write(med_idt fid, const char *mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names);
   private:
     MEDFileUMeshPerType(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
                         med_entity_type entity, MEDFileMeshReadSelector *mrs);
@@ -57,12 +57,10 @@ namespace ParaMEDMEM
                    med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn_index;
+    MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> _m;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names;
-    INTERP_KERNEL::NormalizedCellType _type;
     med_entity_type _entity;
   };
 }

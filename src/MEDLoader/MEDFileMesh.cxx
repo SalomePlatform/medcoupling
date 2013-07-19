@@ -1962,7 +1962,7 @@ MEDFileMesh *MEDFileUMesh::deepCpy() const throw(INTERP_KERNEL::Exception)
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++,i++)
     {
       if((const MEDFileUMeshSplitL1 *)(*it))
-        ret->_ms[i]=(*it)->deepCpy();
+        ret->_ms[i]=(*it)->deepCpy(ret->_coords);
     }
   return ret.retn();
 }
@@ -2983,7 +2983,6 @@ void MEDFileUMesh::checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const
  *  \param [in] coords - the new node coordinates array.
  *  \throw If \a coords == \c NULL.
  */
-
 void MEDFileUMesh::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
 {
   if(!coords)
@@ -2995,6 +2994,9 @@ void MEDFileUMesh::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Excep
   _fam_coords=DataArrayInt::New();
   _fam_coords->alloc(nbOfTuples,1);
   _fam_coords->fillWithZero();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
+    if((MEDFileUMeshSplitL1 *)(*it))
+      (*it)->setCoords(coords);
 }
 
 /*!

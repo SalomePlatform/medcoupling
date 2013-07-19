@@ -71,6 +71,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
@@ -121,6 +122,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     // overload of MEDCoupling1GTUMesh
+    MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception);
   public://specific
@@ -188,6 +190,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     // overload of MEDCoupling1GTUMesh
+    MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception);
   public://specific

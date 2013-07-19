@@ -467,23 +467,22 @@ MEDFileUMeshPermCompute::MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st):
  */
 MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
 {
-  _st->_m_by_types->updateTime();
   _st->_num->updateTime();
   if((MEDCouplingUMesh *)_m==0)
     {
       updateTime();
-      _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types->deepCpy());
+      _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types.getUmesh()->deepCpy());
       _m->renumberCells(_st->_num->getConstPointer(),true);
       return _m.retn();
     }
   else
     {
-      if(_mpt_time==_st->_m_by_types->getTimeOfThis() && _num_time==_st->_num->getTimeOfThis())
+      if(_mpt_time==_st->_m_by_types.getTimeOfThis() && _num_time==_st->_num->getTimeOfThis())
         return _m.retn();
       else
         {
           updateTime();
-          _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types->deepCpy());
+          _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types.getUmesh()->deepCpy());
           _m->renumberCells(_st->_num->getConstPointer(),true);
           return _m.retn();
         }
@@ -497,7 +496,7 @@ void MEDFileUMeshPermCompute::operator=(MEDCouplingUMesh *m)
 
 void MEDFileUMeshPermCompute::updateTime() const
 {
-  _mpt_time=_st->_m_by_types->getTimeOfThis();
+  _mpt_time=_st->_m_by_types.getTimeOfThis();
   _num_time=_st->_num->getTimeOfThis();
 }
 
@@ -511,45 +510,35 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
   if(v.empty())
     return;
   int sz=v.size();
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(sz);
-  std::vector<const MEDCouplingUMesh *> ms(sz);
+  std::vector<const MEDCoupling1GTUMesh *> ms(sz);
+  std::vector<const DataArrayInt *> fams(sz),nums(sz);
+  std::vector<const DataArrayChar *> names(sz); 
   for(int i=0;i<sz;i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=MEDCouplingUMesh::New("",v[i]->getDim());
+      MEDCoupling1GTUMesh *elt(v[i]->getMesh());
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp2=l2.getCoords();
-      tmp->setCoords(tmp2);
-      tmp->setConnectivity(const_cast<DataArrayInt *>(v[i]->getNodal()),const_cast<DataArrayInt *>(v[i]->getNodalIndex()));
-      ms[i]=tmp; msMSafe[i]=tmp;
+      elt->setCoords(tmp2);
+      ms[i]=elt;
     }
-  _m_by_types=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
-  _m_by_types->setName(mName);
+  _m_by_types.assignParts(ms);
   if(l2.isFamDefinedOnLev(id))
     {
-      int nbOfCells=_m_by_types->getNumberOfCells();
-      _fam=DataArrayInt::New();
-      _fam->alloc(nbOfCells,1);
-      int *w=_fam->getPointer();
       for(int i=0;i<sz;i++)
-        w=std::copy(v[i]->getFam()->getConstPointer(),v[i]->getFam()->getConstPointer()+v[i]->getFam()->getNumberOfTuples(),w);
+        fams[i]=v[i]->getFam();
+      _fam=DataArrayInt::Aggregate(fams);
     }
   if(l2.isNumDefinedOnLev(id))
     {
-      int nbOfCells=_m_by_types->getNumberOfCells();
-      _num=DataArrayInt::New();
-      _num->alloc(nbOfCells,1);
-      int *w=_num->getPointer();
       for(int i=0;i<sz;i++)
-        w=std::copy(v[i]->getNum()->getConstPointer(),v[i]->getNum()->getConstPointer()+v[i]->getNum()->getNumberOfTuples(),w);
+        nums[i]=v[i]->getNum();
+      _num=DataArrayInt::Aggregate(nums);
       computeRevNum();
     }
   if(l2.isNamesDefinedOnLev(id))
     {
-      int nbOfCells=_m_by_types->getNumberOfCells();
-      _names=DataArrayAsciiChar::New();
-      _names->alloc(nbOfCells,MED_SNAME_SIZE);
-      char *w=_names->getPointer();
       for(int i=0;i<sz;i++)
-        w=std::copy(v[i]->getNames()->getConstPointer(),v[i]->getNames()->getConstPointer()+v[i]->getNames()->getNbOfElems(),w);
+        names[i]=v[i]->getNames();
+      _names=dynamic_cast<DataArrayAsciiChar *>(DataArrayChar::Aggregate(names));
     }
 }
 
@@ -566,12 +555,7 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(
 std::size_t MEDFileUMeshSplitL1::getHeapMemorySize() const
 {
   std::size_t ret=0;
-  if((const MEDCouplingUMesh *)_m_by_types)
-    {
-      ret+=_m_by_types->getHeapMemorySize();
-      if((const DataArrayDouble *)_m_by_types->getCoords())
-        ret-=_m_by_types->getCoords()->getHeapMemorySize();
-    }
+  ret+=_m_by_types.getHeapMemorySize();
   if((const DataArrayInt*)_fam)
     ret+=_fam->getHeapMemorySize();
   if((const DataArrayInt*)_num)
@@ -583,11 +567,10 @@ std::size_t MEDFileUMeshSplitL1::getHeapMemorySize() const
   return ret;
 }
 
-MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCpy() const
+MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCpy(DataArrayDouble *coords) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret=new MEDFileUMeshSplitL1(*this);
-  if((const MEDCouplingUMesh*)_m_by_types)
-    ret->_m_by_types=static_cast<MEDCouplingUMesh*>(_m_by_types->deepCpy());
+  ret->_m_by_types=_m_by_types.deepCpy(coords);
   if((const DataArrayInt *)_fam)
     ret->_fam=_fam->deepCpy();
   if((const DataArrayInt *)_num)
@@ -601,19 +584,8 @@ MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCpy() const
 
 bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const
 {
-  const MEDCouplingUMesh *m1=_m_by_types;
-  const MEDCouplingUMesh *m2=other->_m_by_types;
-  if((m1==0 && m2!=0) || (m1!=0 && m2==0))
-    {
-      what="Presence of mesh in one sublevel and not in other!";
-      return false;
-    }
-  if(m1)
-    if(!m1->isEqual(m2,eps))
-      {
-        what="meshes at a sublevel are not deeply equal !";
-        return false;
-      }
+  if(!_m_by_types.isEqual(other->_m_by_types,eps,what))
+    return false;
   const DataArrayInt *d1=_fam;
   const DataArrayInt *d2=other->_fam;
   if((d1==0 && d2!=0) || (d1!=0 && d2==0))
@@ -658,18 +630,12 @@ bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, 
 
 void MEDFileUMeshSplitL1::synchronizeTinyInfo(const MEDFileMesh& master) const
 {
-  const MEDCouplingUMesh *tmp=_m_by_types;
-  if(!tmp)
-    return ;
-  (const_cast<MEDCouplingUMesh *>(tmp))->setName(master.getName());
-  (const_cast<MEDCouplingUMesh *>(tmp))->setDescription(master.getDescription());
-  (const_cast<MEDCouplingUMesh *>(tmp))->setTime(master.getTimeValue(),master.getIteration(),master.getOrder());
-  (const_cast<MEDCouplingUMesh *>(tmp))->setTimeUnit(master.getTimeUnit());
+  _m_by_types.synchronizeTinyInfo(master);
 }
 
 void MEDFileUMeshSplitL1::clearNonDiscrAttributes() const
 {
-  ClearNonDiscrAttributes(_m_by_types);
+  _m_by_types.clearNonDiscrAttributes();
 }
 
 void MEDFileUMeshSplitL1::ClearNonDiscrAttributes(const MEDCouplingMesh *tmp)
@@ -682,20 +648,25 @@ void MEDFileUMeshSplitL1::ClearNonDiscrAttributes(const MEDCouplingMesh *tmp)
   (const_cast<MEDCouplingMesh *>(tmp))->setTimeUnit("");
 }
 
+void MEDFileUMeshSplitL1::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
+{
+  _m_by_types.setCoords(coords);
+}
+
 void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
 {
   if(newOrOld)
     {
       m->incrRef();
       _m=m;
-      _m_by_types=(MEDCouplingUMesh *)m->deepCpy();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_N_CELL_FIXED_GEO);
+      _m_by_types.assignUMesh(dynamic_cast<MEDCouplingUMesh *>(m->deepCpy()));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types.getUmesh()->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_N_CELL_FIXED_GEO);
       if(!da->isIdentity())
         {
           _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
           _m.updateTime();
           computeRevNum();
-          _m_by_types->renumberCells(da->getConstPointer(),false);
+          _m_by_types.getUmesh()->renumberCells(da->getConstPointer(),false);
         }
     }
   else
@@ -703,7 +674,7 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(I
       if(!m->checkConsecutiveCellTypesAndOrder(typmai2,typmai2+MED_N_CELL_FIXED_GEO))
         throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::assignMesh : the mode of mesh setting expects to follow the MED file numbering convention ! it is not the case !");
       m->incrRef();
-      _m_by_types=m;
+      _m_by_types.assignUMesh(m);
     }
   _fam=DataArrayInt::New();
   _fam->alloc(m->getNumberOfCells(),1);
@@ -712,7 +683,7 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(I
 
 bool MEDFileUMeshSplitL1::empty() const
 {
-  return ((const MEDCouplingUMesh *)_m_by_types)==0;
+  return _m_by_types.empty();
 }
 
 bool MEDFileUMeshSplitL1::presenceOfOneFams(const std::vector<int>& ids) const
@@ -725,12 +696,12 @@ bool MEDFileUMeshSplitL1::presenceOfOneFams(const std::vector<int>& ids) const
 
 int MEDFileUMeshSplitL1::getMeshDimension() const
 {
-  return _m_by_types->getMeshDimension();
+  return _m_by_types.getMeshDimension();
 }
 
 void MEDFileUMeshSplitL1::simpleRepr(std::ostream& oss) const
 {
-  std::vector<int> code=_m_by_types->getDistributionOfTypes();
+  std::vector<int> code=_m_by_types.getDistributionOfTypes();
   int nbOfTypes=code.size()/3;
   for(int i=0;i<nbOfTypes;i++)
     {
@@ -741,15 +712,13 @@ void MEDFileUMeshSplitL1::simpleRepr(std::ostream& oss) const
 
 int MEDFileUMeshSplitL1::getSize() const throw(INTERP_KERNEL::Exception)
 {
-  if((const MEDCouplingUMesh *)_m_by_types==0)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::getSize : no mesh specified at level !");
-  return _m_by_types->getNumberOfCells();
+  return _m_by_types.getSize();
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsToKeep=_fam->getIdsEqualList(idsBg,idsEnd);
-  MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types->buildPartOfMySelf(eltsToKeep->getConstPointer(),eltsToKeep->getConstPointer()+eltsToKeep->getNumberOfTuples(),true);
+  MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types.getUmesh()->buildPartOfMySelf(eltsToKeep->getConstPointer(),eltsToKeep->getConstPointer()+eltsToKeep->getNumberOfTuples(),true);
   if(renum)
     return renumIfNeeded(m,eltsToKeep->getConstPointer());
   return m;
@@ -769,7 +738,7 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
   if(renum && ((const DataArrayInt *)_num))
     tmp=_m;
   else
-    tmp=_m_by_types;
+    { tmp=_m_by_types.getUmesh(); if(tmp) tmp->incrRef(); }
   return tmp.retn();
 }
 
@@ -777,10 +746,7 @@ DataArrayInt *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField() throw(INTERP_K
 {
   if((DataArrayInt *)_fam)
     return _fam;
-  MEDCouplingUMesh *m(_m_by_types);
-  if(!m)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField : impossible to create a family field array because no mesh specified on this level !");
-  int nbOfTuples=m->getNumberOfCells();
+  int nbOfTuples=_m_by_types.getSize();
   _fam=DataArrayInt::New(); _fam->alloc(nbOfTuples,1); _fam->fillWithZero();
   return _fam;
 }
@@ -833,10 +799,9 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
 
 void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
 {
-  std::vector<MEDCouplingUMesh *> ms=_m_by_types->splitByType();
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(ms.begin(),ms.end());
+  std::vector<MEDCoupling1GTUMesh *> ms(_m_by_types.getParts());
   int start=0;
-  for(std::vector<MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+  for(std::vector<MEDCoupling1GTUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
       int nbCells=(*it)->getNumberOfCells();
       int end=start+nbCells;
@@ -848,14 +813,14 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
         num=_num->substr(start,end);
       if((const DataArrayAsciiChar *)_names)
         names=static_cast<DataArrayAsciiChar *>(_names->substr(start,end));
-      MEDFileUMeshPerType::write(fid,mName,mdim,(*it),fam,num,names);
+      MEDFileUMeshPerType::Write(fid,mName,mdim,(*it),fam,num,names);
       start=end;
     }
 }
 
 void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingUMesh *m(_m_by_types);
+  MEDCouplingUMesh *m(_m_by_types.getUmesh());
   if(!m)
     return;
   m->renumberNodesInConn(newNodeNumbersO2N);
@@ -875,10 +840,8 @@ void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
       _fam=0;
       return ;
     }
-  MEDCouplingUMesh *mbt(_m_by_types);
-  if(!mbt)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setFamilyArr : no mesh defined on this level !");
-  famArr->checkNbOfTuplesAndComp(mbt->getNumberOfCells(),1,"MEDFileUMeshSplitL1::setFamilyArr : Problem in size of Family arr ! ");
+  int sz(_m_by_types.getSize());
+  famArr->checkNbOfTuplesAndComp(sz,1,"MEDFileUMeshSplitL1::setFamilyArr : Problem in size of Family arr ! ");
   famArr->incrRef();
   _fam=famArr;
 }
@@ -891,10 +854,8 @@ void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
       _rev_num=0;
       return ;
     }
-  MEDCouplingUMesh *mbt(_m_by_types);
-  if(!mbt)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setRenumArr : no mesh defined on this level !");
-  renumArr->checkNbOfTuplesAndComp(mbt->getNumberOfCells(),1,"MEDFileUMeshSplitL1::setRenumArr : Problem in size of numbering arr ! ");
+  int sz(_m_by_types.getSize());
+  renumArr->checkNbOfTuplesAndComp(sz,1,"MEDFileUMeshSplitL1::setRenumArr : Problem in size of numbering arr ! ");
   renumArr->incrRef();
   _num=renumArr;
   computeRevNum();
@@ -907,10 +868,8 @@ void MEDFileUMeshSplitL1::setNameArr(DataArrayAsciiChar *nameArr)
       _names=0;
       return ;
     }
-  MEDCouplingUMesh *mbt(_m_by_types);
-  if(!mbt)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setNameArr : no mesh defined on this level !");
-  nameArr->checkNbOfTuplesAndComp(mbt->getNumberOfCells(),MED_SNAME_SIZE,"MEDFileUMeshSplitL1::setNameArr : Problem in size of name arr ! ");
+  int sz(_m_by_types.getSize());
+  nameArr->checkNbOfTuplesAndComp(sz,MED_SNAME_SIZE,"MEDFileUMeshSplitL1::setNameArr : Problem in size of name arr ! ");
   nameArr->incrRef();
   _names=nameArr;
 }
@@ -966,7 +925,7 @@ void MEDFileUMeshSplitL1::TraduceFamilyNumber(const std::vector< std::vector<int
                                               std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams)
 {
   std::set<int> allfids;
-  
+  //tony
 }
 
 void MEDFileUMeshSplitL1::computeRevNum() const
@@ -974,4 +933,307 @@ void MEDFileUMeshSplitL1::computeRevNum() const
   int pos;
   int maxValue=_num->getMaxValue(pos);
   _rev_num=_num->invertArrayN2O2O2N(maxValue+1);
+}
+
+//=
+
+MEDFileUMeshAggregateCompute::MEDFileUMeshAggregateCompute():_mp_time(0),_m_time(0)
+{
+}
+
+void MEDFileUMeshAggregateCompute::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
+{
+  std::size_t sz(mParts.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCoupling1GTUMesh *elt(mParts[i]);
+      if(!elt)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::assignParts : presence of null pointer !");
+      ret[i]=const_cast<MEDCoupling1GTUMesh *>(elt); elt->incrRef();
+    }
+  _m_parts=ret;
+  _mp_time=std::max(_mp_time,_m_time)+1;
+  _m=0;
+}
+
+void MEDFileUMeshAggregateCompute::assignUMesh(MEDCouplingUMesh *m)
+{
+  _m=m;
+  _m_parts.clear();
+  _m_time=std::max(_mp_time,_m_time)+1;
+}
+
+MEDCouplingUMesh *MEDFileUMeshAggregateCompute::getUmesh() const
+{
+  if(_mp_time<=_m_time)
+    return _m;
+  std::vector< const MEDCoupling1GTUMesh *> mp(_m_parts.size());
+  std::copy(_m_parts.begin(),_m_parts.end(),mp.begin());
+  _m=MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(mp);
+  _m_parts.clear();//to avoid memory peak !
+  _m_time=_mp_time+1;//+1 is important ! That is to say that only _m is OK not _m_parts because cleared !
+  return _m;
+}
+
+std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() const
+{
+  if(_mp_time>=_m_time)
+    {
+      std::vector<MEDCoupling1GTUMesh *> ret(_m_parts.size());
+      std::size_t i(0);
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++,i++)
+        {
+          const MEDCoupling1GTUMesh *elt(*it);
+          ret[i]=const_cast<MEDCoupling1GTUMesh *>(elt);
+        }
+      return ret;
+    }
+  forceComputationOfPartsFromUMesh();
+  std::vector<MEDCoupling1GTUMesh *> ret(_m_parts.size());
+  std::size_t i(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++,i++)
+    {
+      const MEDCoupling1GTUMesh *elt(*it);
+      ret[i]=const_cast<MEDCoupling1GTUMesh *>(elt);
+    }
+  return ret;
+}
+
+void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
+{
+  const MEDCouplingUMesh *m(_m);
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh : null UMesh !");
+  std::vector<MEDCouplingUMesh *> ms(m->splitByType());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(ms.begin(),ms.end());
+  std::size_t sz(msMSafe.size());
+  _m_parts.resize(sz);
+  for(std::size_t i=0;i<sz;i++)
+    _m_parts[i]=MEDCoupling1GTUMesh::New(ms[i]);
+  _mp_time=std::max(_mp_time,_m_time)+1;
+}
+
+std::size_t MEDFileUMeshAggregateCompute::getTimeOfThis() const
+{
+  if(_mp_time>_m_time)
+    return getTimeOfParts();
+  if(_m_time>_mp_time)
+    return getTimeOfUMesh();
+  return std::max(getTimeOfParts(),getTimeOfUMesh());
+}
+
+std::size_t MEDFileUMeshAggregateCompute::getTimeOfParts() const
+{
+  std::size_t ret(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+    {
+      const MEDCoupling1GTUMesh *elt(*it);
+      if(!elt)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getTimeOfParts : null obj in parts !");
+      ret=std::max(ret,elt->getTimeOfThis());
+    }
+  if(ret==0)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getTimeOfParts : parts is empty !");
+  return ret;
+}
+
+std::size_t MEDFileUMeshAggregateCompute::getTimeOfUMesh() const
+{
+  const MEDCouplingUMesh *m(_m);
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getTimeOfUMesh : unmesh is null !");
+  return m->getTimeOfThis();
+}
+
+/*!
+ * Coordinates pointer is not counted because father instance already count it !
+ */
+std::size_t MEDFileUMeshAggregateCompute::getHeapMemorySize() const
+{ 
+  std::size_t ret(0);
+  ret+=_m_parts.size()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>);
+  std::size_t sz(_m_parts.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCoupling1GTUMesh *pt(_m_parts[i]);
+      if(pt)
+        {
+          ret+=pt->getHeapMemorySize();
+          const DataArrayDouble *coo(pt->getCoords());
+          if(coo)
+            ret-=coo->getHeapMemorySize();
+        }
+    }
+  const MEDCouplingUMesh *m(_m);
+  if(m)
+    {
+      ret+=m->getHeapMemorySize();
+      const DataArrayDouble *coo(m->getCoords());
+      if(coo)
+            ret-=coo->getHeapMemorySize();
+    }
+  return ret;
+}
+
+MEDFileUMeshAggregateCompute MEDFileUMeshAggregateCompute::deepCpy(DataArrayDouble *coords) const
+{
+  MEDFileUMeshAggregateCompute ret;
+  ret._m_parts.resize(_m_parts.size());
+  for(std::size_t i=0;i<_m_parts.size();i++)
+    {
+      const MEDCoupling1GTUMesh *elt(_m_parts[i]);
+      if(elt)
+        {
+          ret._m_parts[i]=static_cast<ParaMEDMEM::MEDCoupling1GTUMesh*>(elt->deepCpy());
+          ret._m_parts[i]->setCoords(coords);
+        }
+    }
+  ret._mp_time=_mp_time; ret._m_time=_m_time;
+  if((const MEDCouplingUMesh *)_m)
+    {
+      ret._m=static_cast<ParaMEDMEM::MEDCouplingUMesh*>(_m->deepCpy());
+      ret._m->setCoords(coords);
+    }
+  return ret;
+}
+
+bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const
+{
+  const MEDCouplingUMesh *m1(getUmesh());
+  const MEDCouplingUMesh *m2(other.getUmesh());
+  if((m1==0 && m2!=0) || (m1!=0 && m2==0))
+    {
+      what="Presence of mesh in one sublevel and not in other!";
+      return false;
+    }
+  if(m1)
+    {
+      std::string what2;
+      if(!m1->isEqualIfNotWhy(m2,eps,what2))
+        {
+          what=std::string("meshes at a sublevel are not deeply equal (")+what2+std::string(")!");
+          return false;
+        }
+    }
+  return true;
+}
+
+void MEDFileUMeshAggregateCompute::clearNonDiscrAttributes() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+    MEDFileUMeshSplitL1::ClearNonDiscrAttributes(*it);
+  MEDFileUMeshSplitL1::ClearNonDiscrAttributes(_m);
+}
+
+void MEDFileUMeshAggregateCompute::synchronizeTinyInfo(const MEDFileMesh& master) const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+    {
+      const MEDCoupling1GTUMesh *tmp(*it);
+      if(tmp)
+        {
+          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setName(master.getName());
+          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setDescription(master.getDescription());
+          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setTime(master.getTimeValue(),master.getIteration(),master.getOrder());
+          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setTimeUnit(master.getTimeUnit());
+        }
+    }
+  const MEDCouplingUMesh *m(_m);
+  if(m)
+    {
+      (const_cast<MEDCouplingUMesh *>(m))->setName(master.getName());
+      (const_cast<MEDCouplingUMesh *>(m))->setDescription(master.getDescription());
+      (const_cast<MEDCouplingUMesh *>(m))->setTime(master.getTimeValue(),master.getIteration(),master.getOrder());
+      (const_cast<MEDCouplingUMesh *>(m))->setTimeUnit(master.getTimeUnit());
+    }
+}
+
+bool MEDFileUMeshAggregateCompute::empty() const
+{
+  if(_mp_time<_m_time)
+    return ((const MEDCouplingUMesh *)_m)==0;
+  //else _mp_time>=_m_time)
+  return _m_parts.empty();
+  
+}
+
+int MEDFileUMeshAggregateCompute::getMeshDimension() const
+{
+  if(_mp_time<_m_time)
+    {
+      const MEDCouplingUMesh *m(_m);
+      if(!m)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getMeshDimension : no umesh in this !");
+      return m->getMeshDimension();
+    }
+  else
+    {
+      if(_m_parts.empty())
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getMeshDimension : part mesh is empty !");
+      const MEDCoupling1GTUMesh *m(_m_parts[0]);
+      if(!m)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getMeshDimension : part mesh contains null instance !");
+      return m->getMeshDimension();
+    }
+}
+
+std::vector<int> MEDFileUMeshAggregateCompute::getDistributionOfTypes() const
+{
+  if(_mp_time<_m_time)
+    {
+      const MEDCouplingUMesh *m(_m);
+      if(!m)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getDistributionOfTypes : no umesh in this !");
+      return m->getDistributionOfTypes();
+    }
+  else
+    {
+      std::vector<int> ret;
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+        {
+          const MEDCoupling1GTUMesh *tmp(*it);
+          if(!tmp)
+            throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getDistributionOfTypes : part mesh contains null instance !");
+          std::vector<int> ret0(tmp->getDistributionOfTypes());
+          ret.insert(ret.end(),ret0.begin(),ret0.end());
+        }
+      return ret;
+    }
+}
+
+int MEDFileUMeshAggregateCompute::getSize() const throw(INTERP_KERNEL::Exception)
+{
+  if(_mp_time<_m_time)
+    {
+      const MEDCouplingUMesh *m(_m);
+      if(!m)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getSize : no umesh in this !");
+      return m->getNumberOfCells();
+    }
+  else
+    {
+      int ret=0;
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+        {
+          const MEDCoupling1GTUMesh *m(*it);
+          if(!m)
+            throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getSize : part mesh contains null instance !");
+          ret+=m->getNumberOfCells();
+        }
+      return ret;
+    }
+}
+
+void MEDFileUMeshAggregateCompute::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+    {
+      MEDCoupling1GTUMesh *tmp(*it);
+      if(tmp)
+        (*it)->setCoords(coords);
+    }
+  MEDCouplingUMesh *m(_m);
+  if(m)
+    m->setCoords(coords);
 }

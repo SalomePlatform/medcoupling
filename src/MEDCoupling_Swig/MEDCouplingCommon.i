@@ -2765,6 +2765,7 @@ namespace ParaMEDMEM
     INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
     int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
+    virtual void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       virtual void insertNextCell(PyObject *li) throw(INTERP_KERNEL::Exception)

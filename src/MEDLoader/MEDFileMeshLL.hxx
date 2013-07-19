@@ -26,6 +26,7 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
@@ -130,11 +131,41 @@ namespace ParaMEDMEM
     void updateTime() const;
   private:
     const MEDFileUMeshSplitL1 *_st;
-    mutable unsigned int _mpt_time;
-    mutable unsigned int _num_time;
+    mutable std::size_t _mpt_time;
+    mutable std::size_t _num_time;
     mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
   };
 
+  class MEDFileUMeshAggregateCompute
+  {
+  public:
+    MEDFileUMeshAggregateCompute();
+    void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
+    void assignUMesh(MEDCouplingUMesh *m);
+    MEDCouplingUMesh *getUmesh() const;
+    std::vector<MEDCoupling1GTUMesh *> getParts() const;
+    std::size_t getTimeOfThis() const;
+    std::size_t getHeapMemorySize() const;
+    MEDFileUMeshAggregateCompute deepCpy(DataArrayDouble *coords) const;
+    bool isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const;
+    void clearNonDiscrAttributes() const;
+    void synchronizeTinyInfo(const MEDFileMesh& master) const;
+    bool empty() const;
+    int getMeshDimension() const;
+    std::vector<int> getDistributionOfTypes() const;
+    int getSize() const throw(INTERP_KERNEL::Exception);
+    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+  private:
+    void forceComputationOfPartsFromUMesh() const;
+    std::size_t getTimeOfParts() const;
+    std::size_t getTimeOfUMesh() const;
+  private:
+    mutable std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> > _m_parts;
+    mutable std::size_t _mp_time;
+    mutable std::size_t _m_time;
+    mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
+  };
+  
   class MEDFileUMeshSplitL1 : public RefCountObject
   {
     friend class MEDFileUMeshPermCompute;
@@ -144,7 +175,8 @@ namespace ParaMEDMEM
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
     std::size_t getHeapMemorySize() const;
-    MEDFileUMeshSplitL1 *deepCpy() const;
+    MEDFileUMeshSplitL1 *deepCpy(DataArrayDouble *coords) const;
+    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
@@ -185,7 +217,7 @@ namespace ParaMEDMEM
     DataArrayInt *renumIfNeededArr(const DataArrayInt *da) const;
     void computeRevNum() const;
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m_by_types;
+    MEDFileUMeshAggregateCompute _m_by_types;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names;
