@@ -36,6 +36,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCoupling1GTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT const INTERP_KERNEL::CellModel& getCellModel() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMeshDimension() const;
@@ -81,6 +82,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
@@ -147,6 +149,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject

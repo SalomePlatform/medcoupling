@@ -46,6 +46,20 @@ MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const char *name, INTERP_KERNEL::N
     return MEDCoupling1DGTUMesh::New(name,type);
 }
 
+MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+{
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::New : input mesh is null !");
+  std::set<INTERP_KERNEL::NormalizedCellType> gts(m->getAllGeoTypes());
+  if(gts.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::New : input mesh must have exactly one geometric type !");
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(*gts.begin());
+  if(!cm.isDynamic())
+    return MEDCoupling1SGTUMesh::New(m);
+  else
+    return MEDCoupling1DGTUMesh::New(m);
+}
+
 const INTERP_KERNEL::CellModel& MEDCoupling1GTUMesh::getCellModel() const throw(INTERP_KERNEL::Exception)
 {
   return *_cm;
@@ -384,7 +398,7 @@ MEDCouplingUMesh *MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(const std::v
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : the first instance in input parts is null !");
   const DataArrayDouble *coords(firstPart->getCoords());
   int meshDim(firstPart->getMeshDimension());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(firstPart->getName(),meshDim));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(firstPart->getName(),meshDim)); ret->setDescription(firstPart->getDescription());
   ret->setCoords(coords);
   int nbOfCells(0),connSize(0);
   for(std::vector< const MEDCoupling1GTUMesh *>::const_iterator it=parts.begin();it!=parts.end();it++)
@@ -462,6 +476,43 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const char *name, INTERP_KERNEL:
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return new MEDCoupling1SGTUMesh(name,cm);
+}
+
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+{
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::New : input mesh is null !");
+  std::set<INTERP_KERNEL::NormalizedCellType> gts(m->getAllGeoTypes());
+  if(gts.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::New : input mesh must have exactly one geometric type !");
+  int geoType((int)*gts.begin());
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(m->getName(),*gts.begin()));
+  ret->setCoords(m->getCoords()); ret->setDescription(m->getDescription());
+  int nbCells(m->getNumberOfCells());
+  int nbOfNodesPerCell(ret->getNumberOfNodesPerCell());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()); conn->alloc(nbCells*nbOfNodesPerCell,1);
+  int *c(conn->getPointer());
+  const int *cin(m->getNodalConnectivity()->begin()),*ciin(m->getNodalConnectivityIndex()->begin());
+  for(int i=0;i<nbCells;i++,ciin++)
+    {
+      if(cin[ciin[0]]==geoType)
+        {
+          if(ciin[1]-ciin[0]==nbOfNodesPerCell+1)
+            c=std::copy(cin+ciin[0]+1,cin+ciin[1],c);
+          else
+            {
+              std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m) : something is wrong in the input mesh at cell #" << i << " ! The size of cell is not those expected (" << nbOfNodesPerCell << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m) : something is wrong in the input mesh at cell #" << i << " ! The geometric type is not those expected !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->setNodalConnectivity(conn);
+  return ret.retn();
 }
 
 MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
@@ -1273,7 +1324,7 @@ void MEDCoupling1SGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, do
   MEDCouplingPointSet::checkFastEquivalWith(other,prec);
   const MEDCoupling1SGTUMesh *otherC=dynamic_cast<const MEDCoupling1SGTUMesh *>(other);
   if(!otherC)
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : Two meshes are not not unstructured with single static geometric type !");
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFastEquivalWith : Two meshes are not unstructured with single static geometric type !");
   const DataArrayInt *c1(_conn),*c2(otherC->_conn);
   if(c1==c2)
     return;
@@ -1406,7 +1457,7 @@ void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const in
     }
 }
 
-//== find static tony
+//== 
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
 {
@@ -1571,7 +1622,7 @@ void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, do
   MEDCouplingPointSet::checkFastEquivalWith(other,prec);
   const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
   if(!otherC)
-    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : Two meshes are not not unstructured with single static geometric type !");
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFastEquivalWith : Two meshes are not unstructured with single dynamic geometric type !");
   const DataArrayInt *c1(_conn),*c2(otherC->_conn);
   if(c1!=c2)
     {
@@ -2601,5 +2652,45 @@ DataArrayInt *MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(const std:
             *pt=-1;
         }
     }
+  return ret.retn();
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+{
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::New : input mesh is null !");
+  std::set<INTERP_KERNEL::NormalizedCellType> gts(m->getAllGeoTypes());
+  if(gts.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::New : input mesh must have exactly one geometric type !");
+  int geoType((int)*gts.begin());
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(m->getName(),*gts.begin()));
+  ret->setCoords(m->getCoords()); ret->setDescription(m->getDescription());
+  int nbCells(m->getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
+  conn->alloc(m->getMeshLength()-nbCells,1); connI->alloc(nbCells+1,1);
+  int *c(conn->getPointer()),*ci(connI->getPointer()); *ci=0;
+  const int *cin(m->getNodalConnectivity()->begin()),*ciin(m->getNodalConnectivityIndex()->begin());
+  for(int i=0;i<nbCells;i++,ciin++,ci++)
+    {
+      if(cin[ciin[0]]==geoType)
+        {
+          if(ciin[1]-ciin[0]>=1)
+            {
+              c=std::copy(cin+ciin[0]+1,cin+ciin[1],c);
+              ci[1]=ci[0]+ciin[1]-ciin[0]-1;
+            }
+          else
+            {
+              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::New(const MEDCouplingUMesh *m) : something is wrong in the input mesh at cell #" << i << " ! The size of cell is not >=0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::New(const MEDCouplingUMesh *m) : something is wrong in the input mesh at cell #" << i << " ! The geometric type is not those expected !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->setNodalConnectivity(conn,connI);
   return ret.retn();
 }

@@ -2761,6 +2761,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1GTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
     int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
@@ -2795,7 +2796,8 @@ namespace ParaMEDMEM
   class MEDCoupling1SGTUMesh : public ParaMEDMEM::MEDCoupling1GTUMesh
   {
   public:
-    static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1SGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     void setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception);
     int getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
@@ -2843,6 +2845,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     void setNodalConnectivity(DataArrayInt *nodalConn, DataArrayInt *nodalConnIndex) throw(INTERP_KERNEL::Exception);
     MEDCoupling1DGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     bool isPacked() const throw(INTERP_KERNEL::Exception);
