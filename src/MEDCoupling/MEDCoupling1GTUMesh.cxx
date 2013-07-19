@@ -350,6 +350,91 @@ void MEDCoupling1GTUMesh::findCommonCells(int compType, int startCellId, DataArr
   m->findCommonCells(compType,startCellId,commonCellsArr,commonCellsIArr);
 }
 
+int MEDCoupling1GTUMesh::getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayInt *c1(getNodalConnectivity());
+  if(!c1)
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::getNodalConnectivityLength : no connectivity set !");
+  if(c1->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::getNodalConnectivityLength : Nodal connectivity array set must have exactly one component !");
+  if(!c1->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::getNodalConnectivityLength : Nodal connectivity array must be allocated !");
+  return c1->getNumberOfTuples();
+}
+
+/*!
+ * This method aggregates all the meshes in \a parts to put them in a single unstructured mesh (those returned).
+ * The order of cells is the returned instance is those in the order of instances in \a parts.
+ *
+ * \param [in] parts - all not null parts of single geo type meshes to be aggreagated having the same mesh dimension and same coordinates.
+ * \return MEDCouplingUMesh * - new object to be dealt by the caller.
+ *
+ * \throw If one element is null in \a parts.
+ * \throw If not all the parts do not have the same mesh dimension.
+ * \throw If not all the parts do not share the same coordinates.
+ * \throw If not all the parts have their connectivity set properly.
+ * \throw If \a parts is empty.
+ */
+MEDCouplingUMesh *MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(const std::vector< const MEDCoupling1GTUMesh *>& parts) throw(INTERP_KERNEL::Exception)
+{
+  if(parts.empty())
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : input parts vector is empty !");
+  const MEDCoupling1GTUMesh *firstPart(parts[0]);
+  if(!firstPart)
+    throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : the first instance in input parts is null !");
+  const DataArrayDouble *coords(firstPart->getCoords());
+  int meshDim(firstPart->getMeshDimension());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(firstPart->getName(),meshDim));
+  ret->setCoords(coords);
+  int nbOfCells(0),connSize(0);
+  for(std::vector< const MEDCoupling1GTUMesh *>::const_iterator it=parts.begin();it!=parts.end();it++)
+    {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : presence of null pointer in input vector !");
+      if((*it)->getMeshDimension()!=meshDim)
+        throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : all the instances in input vector must have same mesh dimension !");
+      if((*it)->getCoords()!=coords)
+        throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : all the instances must share the same coordinates pointer !");
+      nbOfCells+=(*it)->getNumberOfCells();
+      connSize+=(*it)->getNodalConnectivityLength();
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
+  connI->alloc(nbOfCells+1,1); conn->alloc(connSize+nbOfCells,1);
+  int *c(conn->getPointer()),*ci(connI->getPointer()); *ci=0;
+  for(std::vector< const MEDCoupling1GTUMesh *>::const_iterator it=parts.begin();it!=parts.end();it++)
+    {
+      int curNbCells((*it)->getNumberOfCells());
+      int geoType((int)(*it)->getCellModelEnum());
+      const int *cinPtr((*it)->getNodalConnectivity()->begin());
+      const MEDCoupling1SGTUMesh *ps(dynamic_cast<const MEDCoupling1SGTUMesh *>(*it));
+      const MEDCoupling1DGTUMesh *pd(dynamic_cast<const MEDCoupling1DGTUMesh *>(*it));
+      if(ps && !pd)
+        {
+          int nNodesPerCell(ps->getNumberOfNodesPerCell());
+          for(int i=0;i<curNbCells;i++,ci++,cinPtr+=nNodesPerCell)
+            {
+              *c++=geoType;
+              c=std::copy(cinPtr,cinPtr+nNodesPerCell,c);
+              ci[1]=ci[0]+nNodesPerCell+1;
+            }
+        }
+      else if(!ps && pd)
+        {
+          const int *ciinPtr(pd->getNodalConnectivityIndex()->begin());
+          for(int i=0;i<curNbCells;i++,ci++,ciinPtr++)
+            {
+              *c++=geoType;
+              c=std::copy(cinPtr+ciinPtr[0],cinPtr+ciinPtr[1],c);
+              ci[1]=ci[0]+ciinPtr[1]-ciinPtr[0]+1;
+            }
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : presence of instance which type is not in [MEDCoupling1SGTUMesh,MEDCoupling1DGTUMesh] !");
+    }
+  ret->setConnectivity(conn,connI,true);
+  return ret.retn();
+}
+
 //==
 
 MEDCoupling1SGTUMesh::MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy):MEDCoupling1GTUMesh(other,recDeepCpy),_conn(other._conn)
@@ -542,18 +627,6 @@ int MEDCoupling1SGTUMesh::getNumberOfNodesPerCell() const throw(INTERP_KERNEL::E
 {
   checkNonDynamicGeoType();
   return (int)_cm->getNumberOfNodes();
-}
-
-int MEDCoupling1SGTUMesh::getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception)
-{
-  const DataArrayInt *c1(_conn);
-  if(!c1)
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::getNodalConnectivityLength : no connectivity set !");
-  if(c1->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::getNodalConnectivityLength : Nodal connectivity array set must have exactly one component !");
-  if(!c1->isAllocated())
-    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::getNodalConnectivityLength : Nodal connectivity array must be allocated !");
-  return c1->getNumberOfTuples();
 }
 
 DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)

@@ -444,13 +444,13 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCoupling1GTUMesh::New;
+%newobject ParaMEDMEM::MEDCoupling1GTUMesh::getNodalConnectivity;
+%newobject ParaMEDMEM::MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::New;
-%newobject ParaMEDMEM::MEDCoupling1SGTUMesh::getNodalConnectivity;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::Merge1SGTUMeshes;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::New;
-%newobject ParaMEDMEM::MEDCoupling1DGTUMesh::getNodalConnectivity;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::getNodalConnectivityIndex;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::Merge1DGTUMeshes;
@@ -2762,6 +2762,7 @@ namespace ParaMEDMEM
   public:
     static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
+    int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -2771,6 +2772,20 @@ namespace ParaMEDMEM
         std::vector<int> stdvecTyyppArr;
         const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->insertNextCell(tmp,tmp+szArr);
+      }
+
+      virtual DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret=self->getNodalConnectivity();
+        if(ret) ret->incrRef();
+        return ret;
+      }
+      
+      static MEDCouplingUMesh *AggregateOnSameCoordsToUMesh(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< const MEDCoupling1GTUMesh *> parts;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCoupling1GTUMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCoupling1GTUMesh,"MEDCoupling1GTUMesh",parts);
+        return MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(parts);
       }
     }
   };
@@ -2782,7 +2797,6 @@ namespace ParaMEDMEM
   public:
     static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     void setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception);
-    int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
@@ -2803,13 +2817,6 @@ namespace ParaMEDMEM
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
-      }
-
-      DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret=self->getNodalConnectivity();
-        if(ret) ret->incrRef();
-        return ret;
       }
 
       static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -2856,13 +2863,6 @@ namespace ParaMEDMEM
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
-      }
-
-      DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
-      {
-        DataArrayInt *ret=self->getNodalConnectivity();
-        if(ret) ret->incrRef();
-        return ret;
       }
 
       DataArrayInt *getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception)

@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
     //
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    MEDCOUPLING_EXPORT int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -64,9 +65,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *findBoundaryNodes() const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT void findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *AggregateOnSameCoordsToUMesh(const std::vector< const MEDCoupling1GTUMesh *>& parts) throw(INTERP_KERNEL::Exception);
   public:
     MEDCOUPLING_EXPORT virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
@@ -121,7 +124,6 @@ namespace ParaMEDMEM
   public://specific
     MEDCOUPLING_EXPORT void setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
