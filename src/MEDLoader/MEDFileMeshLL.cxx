@@ -976,20 +976,11 @@ MEDCouplingUMesh *MEDFileUMeshAggregateCompute::getUmesh() const
   return _m;
 }
 
-std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() const
+std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getPartsWithoutComputation() const throw(INTERP_KERNEL::Exception)
 {
-  if(_mp_time>=_m_time)
-    {
-      std::vector<MEDCoupling1GTUMesh *> ret(_m_parts.size());
-      std::size_t i(0);
-      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++,i++)
-        {
-          const MEDCoupling1GTUMesh *elt(*it);
-          ret[i]=const_cast<MEDCoupling1GTUMesh *>(elt);
-        }
-      return ret;
-    }
-  forceComputationOfPartsFromUMesh();
+  if(_mp_time<_m_time)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartsWithoutComputation : the parts require a computation !");
+  //
   std::vector<MEDCoupling1GTUMesh *> ret(_m_parts.size());
   std::size_t i(0);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++,i++)
@@ -998,6 +989,26 @@ std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() cons
       ret[i]=const_cast<MEDCoupling1GTUMesh *>(elt);
     }
   return ret;
+}
+
+std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() const
+{
+  if(_mp_time<_m_time)
+    forceComputationOfPartsFromUMesh();
+  return getPartsWithoutComputation();
+}
+
+MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<MEDCoupling1GTUMesh *> v(getPartsWithoutComputation());
+  std::size_t sz(v.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(v[i])
+        if(v[i]->getCellModelEnum()==gt)
+          return v[i];
+    }
+  throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartWithoutComputation : the geometric type is not existing !");
 }
 
 void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const

@@ -2934,6 +2934,29 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const throw(INTERP_KE
   return getMeshAtLevel(-3,renum);
 }
 
+/*!
+ * This method returns a vector of mesh parts containing each exactly one geometric type.
+ * This method will never launch an automatic computation of split by type (an INTERP_KERNEL::Exception will be then thrown).
+ * This method is only for memory aware users.
+ */
+std::vector<MEDCoupling1GTUMesh *> MEDFileUMesh::getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(meshDimRelToMax));
+  return sp->getDirectUndergroundSingleGeoTypeMeshes();
+}
+
+/*!
+ * This method returns the part of \a this having the geometric type \a gt.
+ * If such part is not existing an exception will be thrown.
+ */
+MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  int lev=(int)cm.getDimension()-getMeshDimension();
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
+  return sp->getDirectUndergroundSingleGeoTypeMesh(gt);
+}
+
 const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)

@@ -144,6 +144,8 @@ namespace ParaMEDMEM
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
+    std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySize() const;
     MEDFileUMeshAggregateCompute deepCpy(DataArrayDouble *coords) const;
@@ -189,6 +191,8 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
+    std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const throw(INTERP_KERNEL::Exception) { return _m_by_types.getPartsWithoutComputation(); }
+    MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception) { return _m_by_types.getPartWithoutComputation(gt); }
     DataArrayInt *getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getFamilyField() const;
     const DataArrayInt *getNumberField() const;

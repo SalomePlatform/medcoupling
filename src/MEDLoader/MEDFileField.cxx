@@ -8327,7 +8327,8 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
       MEDFileAnyTypeFieldMultiTS *ref(*it);
       std::vector<MEDFileAnyTypeFieldMultiTS *> elt;
       elt.push_back(ref); it=lstFMTS.erase(it);
-      MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> cmp(MEDFileFastCellSupportComparator::New(mesh,ref));
+      MEDCouplingAutoRefCountObjectPtr<MEDFileMeshStruct> mst(MEDFileMeshStruct::New(mesh));
+      MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> cmp(MEDFileFastCellSupportComparator::New(mst,ref));
       while(it!=lstFMTS.end())
         {
           MEDFileAnyTypeFieldMultiTS *curIt(*it);
