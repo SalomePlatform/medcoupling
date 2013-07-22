@@ -2618,7 +2618,7 @@ int MEDFileUMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
   return coo->getNumberOfTuples();
 }
 
-void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
 {
   std::size_t sz(st.getNumberOfItems());
   int mdim(getMeshDimension());
@@ -4372,7 +4372,7 @@ int MEDFileStructuredMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Excepti
   return cmesh->getNumberOfNodes();
 }
 
-void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
+void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception)
 {
   if(st.getNumberOfItems()!=1)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::whichAreNodesFetched : The sturture of field is not lying on single geo type ! it is not managed yet for structured mesh !");

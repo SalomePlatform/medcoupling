@@ -418,7 +418,7 @@ namespace ParaMEDMEM
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
-  public:
+  protected:
     MEDFileFieldGlobs *contentNotNull() throw(INTERP_KERNEL::Exception);
     const MEDFileFieldGlobs *contentNotNull() const throw(INTERP_KERNEL::Exception);
   protected:

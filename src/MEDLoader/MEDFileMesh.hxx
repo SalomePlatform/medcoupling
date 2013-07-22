@@ -31,7 +31,7 @@
 
 namespace ParaMEDMEM
 {
-  class MEDFileFieldGlobs;
+  class MEDFileFieldGlobsReal;
   class MEDFileField1TSStructItem;
   
   class MEDLOADER_EXPORT MEDFileMesh : public RefCountObject, public MEDFileWritable
@@ -73,7 +73,7 @@ namespace ParaMEDMEM
     virtual void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     virtual int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception) = 0;
     //
     bool areFamsEqual(const MEDFileMesh *other, std::string& what) const;
     bool areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
@@ -211,7 +211,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
-    void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
+    void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
     std::vector<int> getFamArrNonEmptyLevelsExt() const;
@@ -308,7 +308,7 @@ namespace ParaMEDMEM
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
-    void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobs *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
+    void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
     // tools
     bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
   protected:

@@ -113,20 +113,20 @@ MEDFileField1TSStructItem2::MEDFileField1TSStructItem2(INTERP_KERNEL::Normalized
   _pfl->setName(c.c_str());
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   checkInRange(nbOfEnt,1,globs);
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   checkInRange(nbOfEnt,(int)cm.getNumberOfNodes(),globs);
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   if(!globs)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT : no globals specified !");
@@ -159,7 +159,7 @@ const DataArrayInt *MEDFileField1TSStructItem2::getPfl(const MEDFileFieldGlobsRe
  * \param [in] nbOfEntity - number of entity that can be either cells or nodes. Not other possiblity.
  * \param [in] nip - number of integration points. 1 for ON_CELLS and NO_NODES
  */
-void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   _nb_of_entity=nbOfEntity;
   if(_pfl->getName().empty())
@@ -208,7 +208,7 @@ bool MEDFileField1TSStructItem2::isNodeSupportEqual(const MEDFileField1TSStructI
 /*!
  * \a objs must be non empty. \a objs should contain items having same geometric type.
  */
-MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const std::vector<const MEDFileField1TSStructItem2 *>& objs, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const std::vector<const MEDFileField1TSStructItem2 *>& objs, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   if(objs.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : empty input !");
@@ -271,7 +271,7 @@ MEDFileField1TSStructItem::MEDFileField1TSStructItem(TypeOfField a, const std::v
 {
 }
 
-void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   switch(_type)
     {
@@ -359,7 +359,7 @@ private:
   INTERP_KERNEL::NormalizedCellType _geo_type;
 };
 
-MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(const MEDFileFieldGlobs *globs) const throw(INTERP_KERNEL::Exception)
+MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
 {
   if(!isEntityCell())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::simplifyMeOnCellEntity : must be on ON_CELLS, ON_GAUSS_NE or ON_GAUSS_PT !");
@@ -397,7 +397,7 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(cons
 /*!
  * \a this is expected to be ON_CELLS and simplified.
  */
-bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobs *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
 {
   if(other._type!=ON_NODES)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isCompatibleWithNodesDiscr : other must be on nodes !");
@@ -503,7 +503,7 @@ MEDFileField1TSStruct::MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, 
   _already_checked.push_back(BuildItemFrom(ref,mst));
 }
 
-void MEDFileField1TSStruct::checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobs *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStruct::checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::checkWithMeshStruct : not correctly initialized !");
@@ -531,7 +531,7 @@ bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other,
   MEDFileField1TSStructItem b(BuildItemFrom(other,meshSt));
   if(!_already_checked[0].isEntityCell() || !b.isEntityCell())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isSupportSameAs : only available on cell entities !");
-  MEDFileField1TSStructItem other1(b.simplifyMeOnCellEntity(other->contentNotNull()));
+  MEDFileField1TSStructItem other1(b.simplifyMeOnCellEntity(other));
   int found=-1,i=0;
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
     if((*it).isComputed())
@@ -539,7 +539,7 @@ bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other,
   bool ret(false);
   if(found==-1)
     {
-      MEDFileField1TSStructItem this1(_already_checked[0].simplifyMeOnCellEntity(other->contentNotNull()));
+      MEDFileField1TSStructItem this1(_already_checked[0].simplifyMeOnCellEntity(other));
       ret=this1.isCellSupportEqual(other1,other);
       if(ret)
         _already_checked.push_back(this1);
@@ -566,13 +566,13 @@ bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField
   bool ret(false);
   if(found==-1)
     {
-      MEDFileField1TSStructItem this1(_already_checked[0].simplifyMeOnCellEntity(other->contentNotNull()));
-      ret=this1.isCompatibleWithNodesDiscr(other1,meshSt,other->contentNotNull());
+      MEDFileField1TSStructItem this1(_already_checked[0].simplifyMeOnCellEntity(other));
+      ret=this1.isCompatibleWithNodesDiscr(other1,meshSt,other);
       if(ret)
         _already_checked.push_back(this1);
     }
   else
-    ret=_already_checked[found].isCompatibleWithNodesDiscr(other1,meshSt,other->contentNotNull());
+    ret=_already_checked[found].isCompatibleWithNodesDiscr(other1,meshSt,other);
   if(ret)
     _already_checked.push_back(other1);
   return ret;
@@ -619,7 +619,7 @@ MEDFileField1TSStructItem MEDFileField1TSStruct::BuildItemFrom(const MEDFileAnyT
         }
     }
   MEDFileField1TSStructItem ret(atype,anItems);
-  ret.checkWithMeshStruct(meshSt,ref->contentNotNull());
+  ret.checkWithMeshStruct(meshSt,ref);
   return ret;
 }
 
@@ -728,7 +728,7 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=ref->getTimeStepAtPos(i);
       _f1ts_cmps[i]=MEDFileField1TSStruct::New(elt,_mesh_comp);
-      _f1ts_cmps[i]->checkWithMeshStruct(_mesh_comp,elt->contentNotNull());
+      _f1ts_cmps[i]->checkWithMeshStruct(_mesh_comp,elt);
     }
 }
 
