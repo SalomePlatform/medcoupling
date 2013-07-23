@@ -73,23 +73,30 @@ namespace ParaMEDMEM
     static MEDMeshMultiLev *NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode) throw(INTERP_KERNEL::Exception);
     void setNodeReduction(const DataArrayInt *nr);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDMeshMultiLev();
+    MEDMeshMultiLev(const MEDMeshMultiLev& other);
     MEDMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
-    protected:
+  protected:
     std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _pfls;
     std::vector< INTERP_KERNEL::NormalizedCellType > _geo_types;
     std::vector<int> _nb_entities;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_reduction;
   };
-
+  
+  class MEDStructuredMeshMultiLev;
+  
   class MEDUMeshMultiLev : public MEDMeshMultiLev
   {
   public:
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception);
     void selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception);
+    MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
+    MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part);
   private:
+    MEDUMeshMultiLev(const MEDUMeshMultiLev& other);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
@@ -103,6 +110,7 @@ namespace ParaMEDMEM
     virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDStructuredMeshMultiLev();
+    MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
     MEDStructuredMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   };
   
@@ -112,7 +120,9 @@ namespace ParaMEDMEM
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception);
     std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
+    MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
   private:
+    MEDCMeshMultiLev(const MEDCMeshMultiLev& other);
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>& levs);
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
@@ -125,7 +135,9 @@ namespace ParaMEDMEM
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls , const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception);
     std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
+    MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
   private:
+    MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other);
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:

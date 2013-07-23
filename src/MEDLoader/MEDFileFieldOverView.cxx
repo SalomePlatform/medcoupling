@@ -885,6 +885,12 @@ MEDMeshMultiLev::MEDMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCell
     }
 }
 
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction)
+{
+}
+
+//=
+
 MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
 {
   return new MEDUMeshMultiLev(m,levs);
@@ -938,17 +944,87 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INT
 {
    if(!pflNodes || !pflNodes->isAllocated())
      return ;
-   /*std::vector<int> ngs(getNodeGridStructure());
+   std::size_t sz(_parts.size());
+   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a(sz);
+   std::vector< const DataArrayInt *> aa(sz);
+   for(std::size_t i=0;i<sz;i++)
+     {
+       
+       const DataArrayInt *pfl(_pfls[i]);
+       MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m(_parts[i]);
+       if(pfl)
+         m=dynamic_cast<MEDCoupling1GTUMesh *>(_parts[i]->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+       DataArrayInt *cellIds=0;
+       m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
+       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
+       MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
+       int tmp=-1;
+       a[i]=m2->getNodeIdsInUse(tmp); aa[i]=a[i];
+       if(pfl)
+         _pfls[i]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
+       else
+         _pfls[i]=cellIdsSafe;
+     }
+   _node_reduction=DataArrayInt::Aggregate(aa);
+   _node_reduction->sort(true);
+   _node_reduction=_node_reduction->buildUnique();
+}
+
+MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exception)
+{
+  return new MEDUMeshMultiLev(*this);
+}
+
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDUMeshMultiLev& other):MEDMeshMultiLev(other),_parts(other._parts)
+{
+}
+
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part):MEDMeshMultiLev(other)
+{
+  _parts.resize(1);
+  _parts[0]=part;
+}
+
+//=
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev()
+{
+}
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
+{
+}
+
+void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception)
+{
+  if(!pflNodes || !pflNodes->isAllocated())
+    return ;
+  std::vector<int> ngs(getNodeGridStructure());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",GMEDCouplingStructuredMesh::etGeoTypeGivenMeshDimension(ngs.size())));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(ngs.size())));
   m->setNodalConnectivity(conn);
+  const DataArrayInt *pfl(_pfls[0]);
+  if(pfl)
+    {
+      m=dynamic_cast<MEDCoupling1SGTUMesh *>(m->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+    }
   DataArrayInt *cellIds=0;
   m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
   int tmp=-1;
-  _node_reduction=m2->getNodeIdsInUse(tmp);*/
+  _node_reduction=m2->getNodeIdsInUse(tmp);
+  if(pfl)
+    _pfls[0]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
+  else
+    _pfls[0]=cellIdsSafe;
 }
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other):MEDMeshMultiLev(other)
+{
+}
+
+//=
 
 MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
 {
@@ -996,12 +1072,61 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTE
     }
 }
 
+MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDCMeshMultiLev& other):MEDStructuredMeshMultiLev(other)
+{
+}
+
 std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> ret(_coords.size());
   for(std::size_t i=0;i<_coords.size();i++)
     ret[i]=_coords[i]->getNumberOfTuples();
   return ret;
+}
+
+MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayInt *pfl(_pfls[0]),*nr(_node_reduction);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
+  std::vector<int> cgs,ngs(getNodeGridStructure());
+  cgs.resize(ngs.size());
+  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<int>(),-1));
+  if(pfl)
+    {
+      std::vector< std::pair<int,int> > cellParts;
+      if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
+          if(nr)
+            { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+          ret->_nb_entities[0]=pfl->getNumberOfTuples();
+          ret->_pfls[0]=0;
+          std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > coords(_coords.size());
+          for(std::size_t i=0;i<_coords.size();i++)
+            coords[i]=_coords[i]->selectByTupleId2(cellParts[i].first,cellParts[i].second+1,1);
+          ret->_coords=coords;
+          return ret.retn();
+        }
+      else
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> m(MEDCouplingCMesh::New());
+          for(std::size_t i=0;i<ngs.size();i++)
+            m->setCoordsAt(i,_coords[i]);
+          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
+          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+          MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
+          if(nr)
+            { m3->zipCoords(); nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+          return ret.retn();
+        }
+    }
+  else
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
+      if(nr)
+        { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+      return ret.retn();
+    }
 }
 
 //=
@@ -1047,33 +1172,61 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
   _structure=m->getMesh()->getNodeGridStructure();
 }
 
+MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other):MEDStructuredMeshMultiLev(other),_coords(other._coords),_structure(other._structure)
+{
+}
+
 std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
 {
   return _structure;
 }
 
-//=
-
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev()
+MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exception)
 {
-}
-
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
-{
-}
-
-void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception)
-{
-  if(!pflNodes || !pflNodes->isAllocated())
-    return ;
-  std::vector<int> ngs(getNodeGridStructure());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(ngs.size())));
-  m->setNodalConnectivity(conn);
-  DataArrayInt *cellIds=0;
-  m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
-  int tmp=-1;
-  _node_reduction=m2->getNodeIdsInUse(tmp);
+  const DataArrayInt *pfl(_pfls[0]),*nr(_node_reduction);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
+  std::vector<int> cgs,ngs(getNodeGridStructure());
+  cgs.resize(ngs.size());
+  std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<int>(),-1));
+  if(pfl)
+    {
+      std::vector< std::pair<int,int> > cellParts,nodeParts;
+      if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
+        {
+          nodeParts=cellParts;
+          std::vector<int> st(ngs.size());
+          for(std::size_t i=0;i<ngs.size();i++)
+            {
+              nodeParts[i].second++;
+              st[i]=nodeParts[i].second-nodeParts[i].first;
+            }
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
+          MEDCouplingAutoRefCountObjectPtr<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
+          if(nr)
+            { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+          ret->_nb_entities[0]=pfl->getNumberOfTuples();
+          ret->_pfls[0]=0;
+          ret->_coords=_coords->selectByTupleIdSafe(p->begin(),p->end());
+          ret->_structure=st;
+          return ret.retn();
+        }
+      else
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> m(MEDCouplingCurveLinearMesh::New());
+          m->setCoords(_coords); m->setNodeGridStructure(&_structure[0],&_structure[0]+_structure.size());
+          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
+          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+          MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
+          if(nr)
+            { m3->zipCoords(); nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+          return ret.retn();
+        }
+    }
+  else
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
+      if(nr)
+        { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+      return ret.retn();
+    }
 }
