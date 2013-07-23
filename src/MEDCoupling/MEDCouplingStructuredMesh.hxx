@@ -26,6 +26,8 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCoupling1SGTUMesh;
+
   class MEDCOUPLING_EXPORT MEDCouplingStructuredMesh : public MEDCouplingMesh
   {
   public:
@@ -45,6 +47,7 @@ namespace ParaMEDMEM
     std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;

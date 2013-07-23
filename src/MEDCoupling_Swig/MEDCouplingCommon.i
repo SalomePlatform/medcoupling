@@ -458,6 +458,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::buildStructuredSubPart;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::build1SGTUnstructured;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::BuildExplicitIdsFrom;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -2935,6 +2936,7 @@ namespace ParaMEDMEM
     int getNodeIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     %extend
     {

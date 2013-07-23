@@ -255,6 +255,26 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
 }
 
 /*!
+ * Creates a new unstructured mesh (MEDCoupling1SGTUMesh) from \a this structured one.
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
+ * delete this array using decrRef() as it is no more needed. 
+ *  \throw If \a this->getMeshDimension() is not among [1,2,3].
+ */
+MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const throw(INTERP_KERNEL::Exception)
+{
+  int meshDim=getMeshDimension(); 
+  if(meshDim<0 || meshDim>3)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTUnstructured : meshdim must be in [1,2,3] !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
+  int ns[3];
+  getNodeGridStructure(ns);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+meshDim));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName().c_str(),GetGeoTypeGivenMeshDimension(meshDim)));
+  ret->setNodalConnectivity(conn); ret->setCoords(coords);
+  return ret.retn();
+}
+
+/*!
  * Creates a new unstructured mesh (MEDCouplingUMesh) from \a this structured one.
  *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is to
  * delete this array using decrRef() as it is no more needed. 
@@ -262,17 +282,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
  */
 MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
-  int meshDim=getMeshDimension(); 
-  if(meshDim<0 || meshDim>3)
-    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::buildUnstructured : meshdim must be in [1,2,3] !");
-  
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
-  int ns[3];
-  getNodeGridStructure(ns);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+meshDim));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName().c_str(),GetGeoTypeGivenMeshDimension(meshDim)));
-  ret->setNodalConnectivity(conn); ret->setCoords(coords);
-  return ret->buildUnstructured();
+  return build1SGTUnstructured()->buildUnstructured();
 }
 
 /*!
