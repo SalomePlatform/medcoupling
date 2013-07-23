@@ -21,6 +21,7 @@
 #include "MEDCouplingStructuredMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 
 #include <numeric>
@@ -261,26 +262,17 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
  */
 MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
-  int meshDim=getMeshDimension();
-  MEDCouplingUMesh *ret=MEDCouplingUMesh::New(getName(),meshDim);
-  DataArrayDouble *coords=getCoordinatesAndOwner();
-  ret->setCoords(coords);
-  coords->decrRef();
-  switch(meshDim)
-    {
-    case 1:
-      fill1DUnstructuredMesh(ret);
-      break;
-    case 2:
-      fill2DUnstructuredMesh(ret);
-      break;
-    case 3:
-      fill3DUnstructuredMesh(ret);
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::buildUnstructured : big problem spacedim must be in 1,2 or 3 !");
-    };
-  return ret;
+  int meshDim=getMeshDimension(); 
+  if(meshDim<0 || meshDim>3)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::buildUnstructured : meshdim must be in [1,2,3] !");
+  
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
+  int ns[3];
+  getNodeGridStructure(ns);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+meshDim));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
+  ret->setNodalConnectivity(conn); ret->setCoords(coords);
+  return ret->buildUnstructured();
 }
 
 /*!
@@ -358,93 +350,82 @@ MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
   return ret;
 }
 
-void MEDCouplingStructuredMesh::fill1DUnstructuredMesh(MEDCouplingUMesh *m) const
+/*!
+ * \return DataArrayInt * - newly allocated instance of nodal connectivity compatible for MEDCoupling1SGTMesh instance
+ */
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfCells=-1;
-  getNodeGridStructure(&nbOfCells);
-  nbOfCells--;
-  DataArrayInt *connI=DataArrayInt::New();
-  connI->alloc(nbOfCells+1,1);
-  int *ci=connI->getPointer();
-  DataArrayInt *conn=DataArrayInt::New();
-  conn->alloc(3*nbOfCells,1);
-  ci[0]=0;
+  std::size_t dim=std::distance(nodeStBg,nodeStEnd);
+  switch(dim)
+    {
+    case 1:
+      return Build1GTNodalConnectivity1D(nodeStBg);
+    case 2:
+      return Build1GTNodalConnectivity2D(nodeStBg);
+    case 3:
+      return Build1GTNodalConnectivity3D(nodeStBg);
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivity : only dimension in [1,2,3] supported !");
+    }
+}
+
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCells(*nodeStBg-1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  conn->alloc(2*nbOfCells,1);
   int *cp=conn->getPointer();
   for(int i=0;i<nbOfCells;i++)
     {
-      cp[3*i]=(int)INTERP_KERNEL::NORM_SEG2;
-      cp[3*i+1]=i;
-      cp[3*i+2]=i+1;
-      ci[i+1]=3*(i+1);
+      cp[2*i+0]=i;
+      cp[2*i+1]=i+1;
     }
-  m->setConnectivity(conn,connI,true);
-  conn->decrRef();
-  connI->decrRef();
+  return conn.retn();
 }
 
-void MEDCouplingStructuredMesh::fill2DUnstructuredMesh(MEDCouplingUMesh *m) const
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *nodeStBg) throw(INTERP_KERNEL::Exception)
 {
-  int ns[2];
-  getNodeGridStructure(ns);
-  int n1=ns[0]-1;
-  int n2=ns[1]-1;
-  DataArrayInt *connI=DataArrayInt::New();
-  connI->alloc(n1*n2+1,1);
-  int *ci=connI->getPointer();
-  DataArrayInt *conn=DataArrayInt::New();
-  conn->alloc(5*n1*n2,1);
-  ci[0]=0;
+  int n1=nodeStBg[0]-1;
+  int n2=nodeStBg[1]-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  conn->alloc(4*n1*n2,1);
   int *cp=conn->getPointer();
   int pos=0;
   for(int j=0;j<n2;j++)
     for(int i=0;i<n1;i++,pos++)
       {
-        cp[5*pos]=(int)INTERP_KERNEL::NORM_QUAD4;
-        cp[5*pos+1]=i+1+j*(n1+1);
-        cp[5*pos+2]=i+j*(n1+1);
-        cp[5*pos+3]=i+(j+1)*(n1+1);
-        cp[5*pos+4]=i+1+(j+1)*(n1+1);
-        ci[pos+1]=5*(pos+1);
+        cp[4*pos+0]=i+1+j*(n1+1);
+        cp[4*pos+1]=i+j*(n1+1);
+        cp[4*pos+2]=i+(j+1)*(n1+1);
+        cp[4*pos+3]=i+1+(j+1)*(n1+1);
     }
-  m->setConnectivity(conn,connI,true);
-  conn->decrRef();
-  connI->decrRef();
+  return conn.retn();
 }
 
-void MEDCouplingStructuredMesh::fill3DUnstructuredMesh(MEDCouplingUMesh *m) const
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *nodeStBg) throw(INTERP_KERNEL::Exception)
 {
-  int ns[3];
-  getNodeGridStructure(ns);
-  int n1=ns[0]-1;
-  int n2=ns[1]-1;
-  int n3=ns[2]-1;
-  DataArrayInt *connI=DataArrayInt::New();
-  connI->alloc(n1*n2*n3+1,1);
-  int *ci=connI->getPointer();
-  DataArrayInt *conn=DataArrayInt::New();
-  conn->alloc(9*n1*n2*n3,1);
-  ci[0]=0;
+  int n1=nodeStBg[0]-1;
+  int n2=nodeStBg[1]-1;
+  int n3=nodeStBg[2]-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  conn->alloc(8*n1*n2*n3,1);
   int *cp=conn->getPointer();
   int pos=0;
   for(int k=0;k<n3;k++)
     for(int j=0;j<n2;j++)
       for(int i=0;i<n1;i++,pos++)
         {
-          cp[9*pos]=(int)INTERP_KERNEL::NORM_HEXA8;
           int tmp=(n1+1)*(n2+1);
-          cp[9*pos+1]=i+1+j*(n1+1)+k*tmp;
-          cp[9*pos+2]=i+j*(n1+1)+k*tmp;
-          cp[9*pos+3]=i+(j+1)*(n1+1)+k*tmp;
-          cp[9*pos+4]=i+1+(j+1)*(n1+1)+k*tmp;
-          cp[9*pos+5]=i+1+j*(n1+1)+(k+1)*tmp;
-          cp[9*pos+6]=i+j*(n1+1)+(k+1)*tmp;
-          cp[9*pos+7]=i+(j+1)*(n1+1)+(k+1)*tmp;
-          cp[9*pos+8]=i+1+(j+1)*(n1+1)+(k+1)*tmp;
-          ci[pos+1]=9*(pos+1);
+          cp[8*pos+0]=i+1+j*(n1+1)+k*tmp;
+          cp[8*pos+1]=i+j*(n1+1)+k*tmp;
+          cp[8*pos+2]=i+(j+1)*(n1+1)+k*tmp;
+          cp[8*pos+3]=i+1+(j+1)*(n1+1)+k*tmp;
+          cp[8*pos+4]=i+1+j*(n1+1)+(k+1)*tmp;
+          cp[8*pos+5]=i+j*(n1+1)+(k+1)*tmp;
+          cp[8*pos+6]=i+(j+1)*(n1+1)+(k+1)*tmp;
+          cp[8*pos+7]=i+1+(j+1)*(n1+1)+(k+1)*tmp;
         }
-  m->setConnectivity(conn,connI,true);
-  conn->decrRef();
-  connI->decrRef();
+  return conn.retn();
 }
 
 /*!

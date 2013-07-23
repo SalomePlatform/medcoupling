@@ -50,9 +50,6 @@ namespace ParaMEDMEM
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildOrthogonalField() const;
-    void fill1DUnstructuredMesh(MEDCouplingUMesh *m) const;
-    void fill2DUnstructuredMesh(MEDCouplingUMesh *m) const;
-    void fill3DUnstructuredMesh(MEDCouplingUMesh *m) const;
     //some useful methods
     int getCellIdFromPos(int i, int j, int k) const;
     int getNodeIdFromPos(int i, int j, int k) const;
@@ -64,6 +61,11 @@ namespace ParaMEDMEM
     virtual MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception) = 0;
     static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd) throw(INTERP_KERNEL::Exception);
+  private:
+    static DataArrayInt *Build1GTNodalConnectivity1D(const int *nodeStBg) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *Build1GTNodalConnectivity2D(const int *nodeStBg) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg) throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingStructuredMesh();
     MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy);
