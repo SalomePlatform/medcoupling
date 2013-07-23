@@ -61,6 +61,7 @@ SET(MEDOPGUITS_SOURCES
   MED_images.ts
   MED_msg_en.ts
   MED_msg_fr.ts
+  MED_msg_ja.ts
 )
 
 SET(COMMON_FLAGS
