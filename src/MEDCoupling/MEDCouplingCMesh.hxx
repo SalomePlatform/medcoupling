@@ -79,6 +79,8 @@ namespace ParaMEDMEM
     void getSplitCellValues(int *res) const;
     void getSplitNodeValues(int *res) const;
     void getNodeGridStructure(int *res) const;
+    std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception);
     //serialisation-unserialization
     void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;

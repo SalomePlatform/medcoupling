@@ -341,6 +341,37 @@ std::vector<int> MEDCouplingCurveLinearMesh::getNodeGridStructure() const throw(
   return _structure;
 }
 
+MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  int dim(getMeshDimension());
+  std::vector<int> dims(getMeshDimension());
+  if(dim!=(int)cellPart.size())
+    {
+      std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::buildStructuredSubPart : the mesh dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector< std::pair<int,int> > nodePartFormat(cellPart);
+  for(std::vector< std::pair<int,int> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
+    (*it).second++;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> ret(dynamic_cast<MEDCouplingCurveLinearMesh *>(deepCpy()));
+  const DataArrayDouble *coo(ret->getCoords());
+  if(coo)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo2(coo->selectByTupleIdSafe(tmp1->begin(),tmp1->end()));
+      ret->setCoords(coo2);
+    }
+  for(int i=0;i<dim;i++)
+    {
+      dims[i]=cellPart[i].second-cellPart[i].first+1;
+      if(dims[i]<1)
+        throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::buildStructuredSubPart : invalid input cellPart !");
+    }
+  ret->setNodeGridStructure(&dims[0],&dims[0]+dims.size());
+  return ret.retn();
+}
+
 void MEDCouplingCurveLinearMesh::getBoundingBox(double *bbox) const
 {
   if(!((const DataArrayDouble *)_coords))

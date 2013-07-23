@@ -457,6 +457,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::buildStructuredSubPart;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::BuildExplicitIdsFrom;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
@@ -2930,7 +2932,91 @@ namespace ParaMEDMEM
   public:
     int getCellIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     int getNodeIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
+    virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      virtual MEDCouplingStructuredMesh *buildStructuredSubPart(PyObject *cellPart) const throw(INTERP_KERNEL::Exception)
+      {
+        int tmpp1=-1,tmpp2=-1;
+        std::vector<int> tmp=fillArrayWithPyListInt2(cellPart,tmpp1,tmpp2);
+        std::vector< std::pair<int,int> > inp;
+        if(tmpp2==2)
+          {
+            inp.resize(tmpp1);
+            for(int i=0;i<tmpp1;i++)
+              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
+          }
+        else if(tmpp2==1)
+          {
+            if(tmpp1%2!=0)
+              throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.buildStructuredSubPart : invalid input size ! Must be even size !");
+            inp.resize(tmpp1/2);
+            for(int i=0;i<tmpp1/2;i++)
+              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
+          }
+        else
+          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.buildStructuredSubPart : invalid input size !");
+        return self->buildStructuredSubPart(inp);
+      }
+
+      static DataArrayInt *BuildExplicitIdsFrom(PyObject *st, PyObject *part) throw(INTERP_KERNEL::Exception)
+      {
+        int tmpp1=-1,tmpp2=-1;
+        std::vector<int> tmp=fillArrayWithPyListInt2(part,tmpp1,tmpp2);
+        std::vector< std::pair<int,int> > inp;
+        if(tmpp2==2)
+          {
+            inp.resize(tmpp1);
+            for(int i=0;i<tmpp1;i++)
+              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
+          }
+        else if(tmpp2==1)
+          {
+            if(tmpp1%2!=0)
+              throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size ! Must be even size !");
+            inp.resize(tmpp1/2);
+            for(int i=0;i<tmpp1/2;i++)
+              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
+          }
+        else
+          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size !");
+        //
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp4=convertObjToPossibleCpp1_Safe(st,sw,szArr,iTypppArr,stdvecTyyppArr);
+        std::vector<int> tmp5(tmp4,tmp4+szArr);
+        //
+        return MEDCouplingStructuredMesh::BuildExplicitIdsFrom(tmp5,inp);
+      }
+
+      static PyObject *IsPartStructured(PyObject *li, PyObject *st) throw(INTERP_KERNEL::Exception)
+      {
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        int szArr2,sw2,iTypppArr2;
+        std::vector<int> stdvecTyyppArr2;
+        const int *tmp2=convertObjToPossibleCpp1_Safe(st,sw2,szArr2,iTypppArr2,stdvecTyyppArr2);
+        std::vector<int> tmp3(tmp2,tmp2+szArr2);
+        std::vector< std::pair<int,int> > partCompactFormat;
+        bool ret0=MEDCouplingStructuredMesh::IsPartStructured(tmp,tmp+szArr,tmp3,partCompactFormat);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False; Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyObject *ret1Py=PyList_New(partCompactFormat.size());
+        for(std::size_t i=0;i<partCompactFormat.size();i++)
+          {
+            PyObject *tmp4=PyTuple_New(2);
+            PyTuple_SetItem(tmp4,0,PyInt_FromLong(partCompactFormat[i].first));
+            PyTuple_SetItem(tmp4,1,PyInt_FromLong(partCompactFormat[i].second));
+            PyList_SetItem(ret1Py,i,tmp4);
+          }
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
+    }
   };
 
   //== MEDCouplingCMesh
@@ -2985,7 +3071,6 @@ namespace ParaMEDMEM
     static MEDCouplingCurveLinearMesh *New(const char *meshName);
     MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
-    std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingCurveLinearMesh()
       {

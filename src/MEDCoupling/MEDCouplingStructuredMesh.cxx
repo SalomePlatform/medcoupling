@@ -303,10 +303,29 @@ MEDCouplingMesh *MEDCouplingStructuredMesh::buildPart(const int *start, const in
 
 MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
 {
-  MEDCouplingUMesh *um=buildUnstructured();
-  MEDCouplingMesh *ret=um->buildPartAndReduceNodes(start,end,arr);
-  um->decrRef();
-  return ret;
+  std::vector<int> cgs(getCellGridStructure());
+  std::vector< std::pair<int,int> > cellPartFormat,nodePartFormat;
+  if(IsPartStructured(start,end,cgs,cellPartFormat))
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingStructuredMesh> ret(buildStructuredSubPart(cellPartFormat));
+      nodePartFormat=cellPartFormat;
+      for(std::vector< std::pair<int,int> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
+        (*it).second++;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2(DataArrayInt::New()); tmp2->alloc(getNumberOfNodes(),1);
+      tmp2->fillWithValue(-1);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp3(DataArrayInt::New()); tmp3->alloc(tmp1->getNumberOfTuples(),1); tmp3->iota(0);
+      tmp2->setPartOfValues3(tmp3,tmp1->begin(),tmp1->end(),0,1,1);
+      arr=tmp2.retn();
+      return ret.retn();
+    }
+  else
+    {
+      MEDCouplingUMesh *um=buildUnstructured();
+      MEDCouplingMesh *ret=um->buildPartAndReduceNodes(start,end,arr);
+      um->decrRef();
+      return ret;
+    }
 }
 
 DataArrayInt *MEDCouplingStructuredMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
@@ -472,4 +491,163 @@ void MEDCouplingStructuredMesh::GetPosFromId(int nodeId, int meshDim, const int 
       work=work%split[i];
       res[i]=pos;
     }
+}
+
+std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret(getNodeGridStructure());
+  std::transform(ret.begin(),ret.end(),ret.begin(),std::bind2nd(std::plus<int>(),-1));
+  return ret;
+}
+
+/*!
+ * This method states if given part ids [ \a startIds, \a stopIds) and a structure \a st returns if it can be considered as a structured dataset.
+ * If true is returned \a partCompactFormat will contain the information to build the corresponding part.
+ *
+ * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom
+ */
+bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception)
+{
+  int dim((int)st.size());
+  partCompactFormat.resize(dim);
+  if(dim<1 || dim>3)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::isPartStructured : input structure must be of dimension in [1,2,3] !");
+  std::vector<int> tmp2(dim),tmp(dim),tmp3(dim),tmp4(dim); tmp2[0]=1;
+  for(int i=1;i<dim;i++)
+    tmp2[i]=tmp2[i-1]*st[i-1];
+  std::size_t sz(std::distance(startIds,stopIds));
+  if(sz==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IsPartStructured : empty input !");
+  GetPosFromId(*startIds,dim,&tmp2[0],&tmp[0]);
+  partCompactFormat.resize(dim);
+  for(int i=0;i<dim;i++)
+    partCompactFormat[i].first=tmp[i];
+  if(tmp[dim-1]<0 || tmp[dim-1]>=st[dim-1])
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IsPartStructured : first id in input is not in valid range !");
+  if(sz==1)
+    {
+      for(int i=0;i<dim;i++)
+        partCompactFormat[i].second=tmp[i]+1;
+      return true;
+    }
+  GetPosFromId(startIds[sz-1],dim,&tmp2[0],&tmp3[0]);
+  for(int i=0;i<dim;i++)
+    {
+      if(tmp3[i]<0 || tmp3[i]>=st[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IsPartStructured : last id in input is not in valid range !");
+      partCompactFormat[i].second=tmp3[i]+1;
+      tmp4[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+      if(tmp4[i]<=0)
+        return false;
+    }
+  const int *w(startIds);
+  switch(dim)
+    {
+    case 3:
+      {
+        for(int i=0;i<tmp4[2];i++)
+          {
+            int a=tmp2[2]*(partCompactFormat[2].first+i);
+            for(int j=0;j<tmp4[1];j++)
+              {
+                int b=tmp2[1]*(partCompactFormat[1].first+j);
+                for(int k=0;k<tmp4[0];k++,w++)
+                  {
+                    if(partCompactFormat[0].first+k+b+a!=*w)
+                      return false;
+                  }
+              }
+          }
+        return true;
+      }
+    case 2:
+      {
+        for(int j=0;j<tmp4[1];j++)
+          {
+            int b=tmp2[1]*(partCompactFormat[1].first+j);
+            for(int k=0;k<tmp4[0];k++,w++)
+              {
+                if(partCompactFormat[0].first+k+b!=*w)
+                  return false;
+              }
+          }
+        return true;
+      }
+    case 1:
+      {
+        for(int k=0;k<tmp4[0];k++,w++)
+          {
+            if(partCompactFormat[0].first+k!=*w)
+              return false;
+          }
+        return true;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IsPartStructured : internal error !");
+    }
+}
+
+/*!
+ * This method builds the explicit entity array from the structure in \a st and the range in \a partCompactFormat.
+ *If the range contains invalid values regarding sructure an exception will be thrown.
+ *
+ * \return DataArrayInt * - a new object.
+ * \sa MEDCouplingStructuredMesh::IsPartStructured
+ */
+DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception)
+{
+  if(st.size()!=partCompactFormat.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : input arrays must have the same size !");
+  int nbOfItems(1);
+  std::vector<int> dims(st.size());
+  for(std::size_t i=0;i<st.size();i++)
+    {
+      if(partCompactFormat[i].first<0 || partCompactFormat[i].first>st[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : invalid input range 1 !");
+      if(partCompactFormat[i].second<0 || partCompactFormat[i].second>st[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : invalid input range 2 !");
+      if(partCompactFormat[i].second<=partCompactFormat[i].first)
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : invalid input range 3 !");
+      dims[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+      nbOfItems*=dims[i];
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  ret->alloc(nbOfItems,1);
+  int *pt(ret->getPointer());
+  switch(st.size())
+    {
+    case 3:
+      {
+        for(int i=0;i<dims[2];i++)
+          {
+            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(int j=0;j<dims[1];j++)
+              {
+                int b=(partCompactFormat[1].first+j)*st[0];
+                for(int k=0;k<dims[0];k++,pt++)
+                  *pt=partCompactFormat[0].first+k+b+a;
+              }
+          }
+        break;
+      }
+    case 2:
+      {
+        for(int j=0;j<dims[1];j++)
+          {
+            int b=(partCompactFormat[1].first+j)*st[0];
+            for(int k=0;k<dims[0];k++,pt++)
+              *pt=partCompactFormat[0].first+k+b;
+          }
+        break;
+      }
+    case 1:
+      {
+        for(int k=0;k<dims[0];k++,pt++)
+          *pt=partCompactFormat[0].first+k;
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : Dimension supported are 1,2 or 3 !");
+    }
+  return ret.retn();
 }

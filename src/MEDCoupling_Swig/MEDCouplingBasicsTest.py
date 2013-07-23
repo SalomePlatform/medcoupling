@@ -1867,7 +1867,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         
         cells2=[25, 26]
         partMesh2, arr1=mesh1.buildPartAndReduceNodes(cells2)
-        self.assertTrue(isinstance(partMesh2,MEDCouplingUMesh))
+        self.assertTrue(isinstance(partMesh2,MEDCouplingCMesh))
         self.assertEqual(2,partMesh2.getNumberOfCellsWithType(NORM_HEXA8));
         self.assertEqual(12,partMesh2.getNumberOfNodes());
         
@@ -13388,6 +13388,87 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(not d.isAllocated())
         self.assertEqual(d.getInfoOnComponents(),["aa","bbb"])
         self.assertRaises(InterpKernelException,d.checkAllocated)
+        pass
+
+    def testSwig2IsPartStructured1(self):
+        #dim 1
+        d10=DataArrayInt([2,3,4,5,6,7,8,9,10,11])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d10,[13])
+        self.assertTrue(a) ; self.assertEqual(b,[(2,12)])
+        d11=DataArrayInt([2,3,4,5,6,7,8,10,9,11])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d11,[13])
+        self.assertTrue(not a)
+        self.assertRaises(InterpKernelException,MEDCouplingStructuredMesh.IsPartStructured,d10,[11])
+        #dim 2
+        st=[10,4]
+        d20=DataArrayInt([1,2,3,4,11,12,13,14,21,22,23,24])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d20,st)
+        self.assertTrue(a) ; self.assertEqual(b,[(1,5),(0,3)])
+        d20=DataArrayInt([1,2,3,4,12,11,13,14,21,22,23,24])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d20,st)
+        self.assertTrue(not a)
+        d20=DataArrayInt([1,2,3,4,11,12,13,15,21,22,23,24])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d20,st)
+        self.assertTrue(not a)
+        d21=DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d21,st)
+        self.assertTrue(a) ; self.assertEqual(b,[(0,10),(0,4)])
+        d22=DataArrayInt([1,2,3,4,11,12,13,14,21,22,23,24,31,32,33,34,41,42,43,44])
+        self.assertRaises(InterpKernelException,MEDCouplingStructuredMesh.IsPartStructured,d22,st)
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d22,[10,5])
+        self.assertTrue(a) ; self.assertEqual(b,[(1,5),(0,5)])
+        #dim 3
+        d30=DataArrayInt([11,12,13,14,21,22,23,24,51,52,53,54,61,62,63,64])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d30,[10,4,2])
+        self.assertTrue(a) ; self.assertEqual(b,[(1,5),(1,3),(0,2)])
+        d31=DataArrayInt([11,12,13,14,21,22,24,23,51,52,53,54,61,62,63,64])
+        a,b=MEDCouplingStructuredMesh.IsPartStructured(d31,[10,4,2])
+        self.assertTrue(not a)
+        self.assertRaises(InterpKernelException,MEDCouplingStructuredMesh.IsPartStructured,d30,[10,4,1])
+        pass
+
+    def testSwig2PartStructured1(self):
+        c=MEDCouplingCMesh() ; c.setName("toto")
+        arr0=DataArrayDouble(10); arr0.iota()
+        arr1=DataArrayDouble(4) ; arr1.iota(3)
+        c.setCoords(arr0,arr1)
+        self.assertEqual(c.getNodeGridStructure(),(10,4))
+        self.assertEqual(c.getCellGridStructure(),(9,3))
+        d20=DataArrayInt([1,2,3,4,10,11,12,13,19,20,21,22])
+        self.assertEqual(27,c.getNumberOfCells())
+        self.assertEqual(40,c.getNumberOfNodes())
+        self.assertEqual(2,c.getMeshDimension())
+        c.checkCoherency()
+        #
+        arr2=MEDCouplingStructuredMesh.BuildExplicitIdsFrom([9,3],[(1,5),(0,3)])
+        self.assertTrue(arr2.isEqual(DataArrayInt([1,2,3,4,10,11,12,13,19,20,21,22])))
+        # CMesh
+        c2=c.buildStructuredSubPart([(1,5),(0,3)])
+        c2.checkCoherency()
+        self.assertTrue(isinstance(c2,MEDCouplingCMesh))
+        self.assertEqual(12,c2.getNumberOfCells())
+        self.assertEqual(20,c2.getNumberOfNodes())
+        self.assertEqual(2,c2.getMeshDimension())
+        self.assertEqual("toto",c2.getName())
+        self.assertTrue(c2.getCoordsAt(0).isEqual(DataArrayDouble([1.,2.,3.,4.,5.]),1e-12))
+        self.assertTrue(c2.getCoordsAt(1).isEqual(DataArrayDouble([3.,4.,5.,6.]),1e-12))
+        #
+        a,b=c.buildPartAndReduceNodes(d20)
+        a.checkCoherency()
+        exp2=DataArrayInt([-1,0,1,2,3,4,-1,-1,-1,-1,-1,5,6,7,8,9,-1,-1,-1,-1,-1,10,11,12,13,14,-1,-1,-1,-1,-1,15,16,17,18,19,-1,-1,-1,-1])
+        self.assertTrue(exp2.isEqual(b))
+        self.assertTrue(isinstance(a,MEDCouplingCMesh))
+        self.assertTrue(a.buildUnstructured().isEqual(c.buildUnstructured().buildPartAndReduceNodes(d20)[0],1e-12))
+        # CurveLinearMesh
+        c2=MEDCouplingCurveLinearMesh() ; c2.setName("toto")
+        c2.setCoords(c.buildUnstructured().getCoords())
+        c2.setNodeGridStructure([10,4])
+        c2.checkCoherency()
+        a,b=c2.buildPartAndReduceNodes(d20)
+        a.checkCoherency()
+        self.assertTrue(exp2.isEqual(b))
+        self.assertTrue(isinstance(a,MEDCouplingCurveLinearMesh))
+        self.assertTrue(a.buildUnstructured().isEqual(c2.buildUnstructured().buildPartAndReduceNodes(d20)[0],1e-12))
         pass
 
     def setUp(self):

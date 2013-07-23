@@ -325,6 +325,31 @@ void MEDCouplingCMesh::getNodeGridStructure(int *res) const
     res[i]=getCoordsAt(i)->getNbOfElems();
 }
 
+std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret(getMeshDimension());
+  getNodeGridStructure(&ret[0]);
+  return ret;
+}
+
+MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  int dim(getMeshDimension());
+  if(dim!=(int)cellPart.size())
+    {
+      std::ostringstream oss; oss << "MEDCouplingCMesh::buildStructuredSubPart : the mesh dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> ret(dynamic_cast<MEDCouplingCMesh *>(deepCpy()));
+  for(int i=0;i<dim;i++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(ret->getCoordsAt(i)->selectByTupleId2(cellPart[i].first,cellPart[i].second+1,1));
+      ret->setCoordsAt(i,tmp);
+    }
+  return ret.retn();
+}
+
 int MEDCouplingCMesh::getSpaceDimension() const
 {
   int ret=0;

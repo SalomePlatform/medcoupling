@@ -62,6 +62,7 @@ namespace ParaMEDMEM
     void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     void setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd) throw(INTERP_KERNEL::Exception);
     std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception);
     // tools
     void getBoundingBox(double *bbox) const;
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;

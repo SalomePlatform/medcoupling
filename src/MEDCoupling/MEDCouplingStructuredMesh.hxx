@@ -59,6 +59,11 @@ namespace ParaMEDMEM
     virtual void getNodeGridStructure(int *res) const = 0;
     virtual void getSplitCellValues(int *res) const = 0;
     virtual void getSplitNodeValues(int *res) const = 0;
+    virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception) = 0;
+    std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception) = 0;
+    static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingStructuredMesh();
     MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy);
