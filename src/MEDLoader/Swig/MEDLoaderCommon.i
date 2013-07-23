@@ -438,12 +438,12 @@ namespace ParaMEDMEM
     virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
     virtual void clearNonDiscrAttributes() const throw(INTERP_KERNEL::Exception);
     void setName(const char *name);
-    const char *getName();
+    std::string getName();
     const char *getUnivName() const;
     bool getUnivNameWrStatus() const;
     void setUnivNameWrStatus(bool newStatus);
     void setDescription(const char *name);
-    const char *getDescription() const;
+    std::string getDescription() const;
     void setOrder(int order);
     int getOrder() const;
     void setIteration(int it);
@@ -865,7 +865,7 @@ namespace ParaMEDMEM
     static MEDFileMeshMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
     MEDFileMeshMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
-    const char *getName() const throw(INTERP_KERNEL::Exception);
+    std::string getName() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
     %extend
@@ -1004,7 +1004,7 @@ namespace ParaMEDMEM
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
-    const std::string& getName() const;
+    std::string getName() const;
     int getDimension() const;
     int getNumberOfGaussPoints() const;
     int getNumberOfPointsInCells() const;
@@ -2338,9 +2338,9 @@ namespace ParaMEDMEM
   {
   public:
     void setDescription(const char *name);
-    const char *getDescription() const;
+    std::string getDescription() const;
     void setTimeUnit(const char *unit);
-    const char *getTimeUnit() const;
+    std::string getTimeUnit() const;
   };
 
   class MEDFileParameterDouble1TS : public MEDFileParameterDouble1TSWTI, public MEDFileParameterTinyInfo
@@ -2353,7 +2353,7 @@ namespace ParaMEDMEM
     virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void setName(const char *name) throw(INTERP_KERNEL::Exception);
-    const char *getName() const throw(INTERP_KERNEL::Exception);
+    std::string getName() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -2402,7 +2402,7 @@ namespace ParaMEDMEM
     static MEDFileParameterMultiTS *New();
     static MEDFileParameterMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileParameterMultiTS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
-    const char *getName() const;
+    std::string getName() const;
     void setName(const char *name);
     MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);

@@ -459,6 +459,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::buildStructuredSubPart;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::BuildExplicitIdsFrom;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
@@ -659,9 +660,9 @@ namespace ParaMEDMEM
   {
   public:
     void setName(const char *name);
-    const char *getName() const;
+    std::string getName() const;
     void setDescription(const char *descr);
-    const char *getDescription() const;
+    std::string getDescription() const;
     void setTime(double val, int iteration, int order);
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
@@ -2991,6 +2992,14 @@ namespace ParaMEDMEM
         return MEDCouplingStructuredMesh::BuildExplicitIdsFrom(tmp5,inp);
       }
 
+      static DataArrayInt *Build1GTNodalConnectivity(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        return MEDCouplingStructuredMesh::Build1GTNodalConnectivity(tmp,tmp+szArr);
+      }
+
       static PyObject *IsPartStructured(PyObject *li, PyObject *st) throw(INTERP_KERNEL::Exception)
       {
         int szArr,sw,iTypppArr;
@@ -3231,9 +3240,9 @@ namespace ParaMEDMEM
     virtual void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     void setName(const char *name) throw(INTERP_KERNEL::Exception);
-    const char *getDescription() const throw(INTERP_KERNEL::Exception);
+    std::string getDescription() const throw(INTERP_KERNEL::Exception);
     void setDescription(const char *desc) throw(INTERP_KERNEL::Exception);
-    const char *getName() const throw(INTERP_KERNEL::Exception);
+    std::string getName() const throw(INTERP_KERNEL::Exception);
     TypeOfField getTypeOfField() const throw(INTERP_KERNEL::Exception);
     NatureOfField getNature() const throw(INTERP_KERNEL::Exception);
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);

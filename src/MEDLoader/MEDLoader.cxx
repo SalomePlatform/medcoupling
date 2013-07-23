@@ -1368,7 +1368,7 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
         MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(fileName,f,false);
       else
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,f->getMesh()->getName());
+          MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,f->getMesh()->getName().c_str());
           const MEDFileMesh *mmPtr(mm);
           const MEDFileUMesh *mmuPtr=dynamic_cast<const MEDFileUMesh *>(mmPtr);
           if(!mmuPtr)

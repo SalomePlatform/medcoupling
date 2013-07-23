@@ -1144,8 +1144,8 @@ void MEDFileUMeshAggregateCompute::synchronizeTinyInfo(const MEDFileMesh& master
       const MEDCoupling1GTUMesh *tmp(*it);
       if(tmp)
         {
-          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setName(master.getName());
-          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setDescription(master.getDescription());
+          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setName(master.getName().c_str());
+          (const_cast<MEDCoupling1GTUMesh *>(tmp))->setDescription(master.getDescription().c_str());
           (const_cast<MEDCoupling1GTUMesh *>(tmp))->setTime(master.getTimeValue(),master.getIteration(),master.getOrder());
           (const_cast<MEDCoupling1GTUMesh *>(tmp))->setTimeUnit(master.getTimeUnit());
         }
@@ -1153,8 +1153,8 @@ void MEDFileUMeshAggregateCompute::synchronizeTinyInfo(const MEDFileMesh& master
   const MEDCouplingUMesh *m(_m);
   if(m)
     {
-      (const_cast<MEDCouplingUMesh *>(m))->setName(master.getName());
-      (const_cast<MEDCouplingUMesh *>(m))->setDescription(master.getDescription());
+      (const_cast<MEDCouplingUMesh *>(m))->setName(master.getName().c_str());
+      (const_cast<MEDCouplingUMesh *>(m))->setDescription(master.getDescription().c_str());
       (const_cast<MEDCouplingUMesh *>(m))->setTime(master.getTimeValue(),master.getIteration(),master.getOrder());
       (const_cast<MEDCouplingUMesh *>(m))->setTimeUnit(master.getTimeUnit());
     }

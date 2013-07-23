@@ -47,12 +47,12 @@ namespace ParaMEDMEM
     virtual void clearNonDiscrAttributes() const;
     void setName(const char *name) { _name=name; }
     bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
-    const char *getName() const { return _name.c_str(); }
+    std::string getName() const { return _name; }
     const char *getUnivName() const { return _univ_name.c_str(); }
     bool getUnivNameWrStatus() const { return _univ_wr_status; }
     void setUnivNameWrStatus(bool newStatus) { _univ_wr_status=newStatus; }
     void setDescription(const char *name) { _desc_name=name; }
-    const char *getDescription() const { return _desc_name.c_str(); }
+    std::string getDescription() const { return _desc_name; }
     void setOrder(int order) { _order=order; }
     int getOrder() const { return _order; }
     void setIteration(int it) { _iteration=it; }
@@ -395,7 +395,7 @@ namespace ParaMEDMEM
     static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
     MEDFileMeshMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
-    const char *getName() const throw(INTERP_KERNEL::Exception);
+    std::string getName() const throw(INTERP_KERNEL::Exception);
     void setName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
     bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception);

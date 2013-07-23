@@ -306,7 +306,7 @@ void SauvLoaderTest::testMed2Sauv()
     }
   // "Field on 2 faces"
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldOnFaces =
-    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName(f1->getName()));
+    dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName(f1->getName().c_str()));
   io1 = fieldOnFaces->getIterations();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fof =
     fieldOnFaces->getFieldOnMeshAtLevel(f1->getTypeOfField(),io1[0].first,io1[0].second,um1);

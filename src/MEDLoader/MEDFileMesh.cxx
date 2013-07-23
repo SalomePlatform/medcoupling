@@ -2855,7 +2855,7 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renu
           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> cc=_coords->deepCpy();
           umesh->setCoords(cc);
           MEDFileUMeshSplitL1::ClearNonDiscrAttributes(umesh);
-          umesh->setName(getName());
+          umesh->setName(getName().c_str());
           return umesh;
         }
     }
@@ -3125,7 +3125,7 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> szOfCellGrpOfSameType(tmp00);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idInMsOfCellGrpOfSameType(tmp11);
   //
-  newm1->setName(getName());
+  newm1->setName(getName().c_str());
   const DataArrayInt *fam=getFamilyFieldAtLevel(-1);
   if(!fam)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::duplicateNodesOnM1Group : internal problem !");
@@ -3526,7 +3526,7 @@ void MEDFileUMesh::setMeshes(const std::vector<const MEDCouplingUMesh *>& ms, bo
   for(std::vector<const MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
       int mdim=(*it)->getMeshDimension();
-      setName((*it)->getName());
+      setName((*it)->getName().c_str());
       setMeshAtLevel(mdim-zeDim,const_cast<MEDCouplingUMesh *>(*it),renum);
     }
   setName(name.c_str());
@@ -5050,7 +5050,7 @@ std::size_t MEDFileMeshMultiTS::getHeapMemorySize() const
   return ret;
 }
 
-const char *MEDFileMeshMultiTS::getName() const throw(INTERP_KERNEL::Exception)
+std::string MEDFileMeshMultiTS::getName() const throw(INTERP_KERNEL::Exception)
 {
   if(_mesh_one_ts.empty())
     throw INTERP_KERNEL::Exception("MEDFileMeshMultiTS::getName : no time steps set !");

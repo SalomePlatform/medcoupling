@@ -80,9 +80,9 @@ namespace ParaMEDMEM
   {
   public:
     void setDescription(const char *name) { _desc_name=name; }
-    const char *getDescription() const { return _desc_name.c_str(); }
+    std::string getDescription() const { return _desc_name; }
     void setTimeUnit(const char *unit) { _dt_unit=unit; }
-    const char *getTimeUnit() const { return _dt_unit.c_str(); }
+    std::string getTimeUnit() const { return _dt_unit; }
     std::size_t getHeapMemSizeOfStrings() const;
     bool isEqualStrings(const MEDFileParameterTinyInfo& other, std::string& what) const;
   protected:
@@ -106,7 +106,7 @@ namespace ParaMEDMEM
     virtual std::string simpleRepr() const;
     std::size_t getHeapMemorySize() const;
     void setName(const char *name) throw(INTERP_KERNEL::Exception) { _name=name; }
-    const char *getName() const throw(INTERP_KERNEL::Exception) { return _name.c_str(); }
+    std::string getName() const throw(INTERP_KERNEL::Exception) { return _name; }
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   private:
     MEDFileParameterDouble1TS();
@@ -121,7 +121,7 @@ namespace ParaMEDMEM
     static MEDFileParameterMultiTS *New();
     static MEDFileParameterMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileParameterMultiTS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
-    const char *getName() const { return _name.c_str(); }
+    std::string getName() const { return _name; }
     void setName(const char *name) { _name=name; }
     std::size_t getHeapMemorySize() const;
     MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);

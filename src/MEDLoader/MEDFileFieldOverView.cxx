@@ -642,6 +642,8 @@ MEDMeshMultiLev *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MED
           std::vector<int> levs(1,0);
           return MEDMeshMultiLev::New(mst->getTheMesh(),levs);
         }
+      else
+        return MEDMeshMultiLev::NewOnlyOnNode(mst->getTheMesh(),_already_checked[pos1][0].getPfl(globs));
     }
 }
 
@@ -850,6 +852,14 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<IN
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New 2 : unrecognized type of mesh ! Must be in [MEDFileUMesh,MEDFileCMesh,MEDFileCurveLinearMesh] !");
 }
 
+MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> levs(1,0);
+  MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,levs));
+  ret->selectPartOfNodes(pflOnNode);
+  return ret.retn();
+}
+
 void MEDMeshMultiLev::setNodeReduction(const DataArrayInt *nr)
 {
   if(nr)
@@ -924,6 +934,22 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
     }
 }
 
+void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception)
+{
+   if(!pflNodes || !pflNodes->isAllocated())
+     return ;
+   /*std::vector<int> ngs(getNodeGridStructure());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",GMEDCouplingStructuredMesh::etGeoTypeGivenMeshDimension(ngs.size())));
+  m->setNodalConnectivity(conn);
+  DataArrayInt *cellIds=0;
+  m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
+  int tmp=-1;
+  _node_reduction=m2->getNodeIdsInUse(tmp);*/
+}
+
 MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
 {
   return new MEDCMeshMultiLev(m,levs);
@@ -951,7 +977,7 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>
     }
 }
 
-MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
+MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(gts,pfls,nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : null input pointer !");
@@ -969,6 +995,16 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTE
       _coords[i]=elt;
     }
 }
+
+std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret(_coords.size());
+  for(std::size_t i=0;i<_coords.size();i++)
+    ret[i]=_coords[i]->getNumberOfTuples();
+  return ret;
+}
+
+//=
 
 MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
 {
@@ -994,7 +1030,7 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
   _structure=m->getMesh()->getNodeGridStructure();
 }
 
-MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
+MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(gts,pfls,nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : null input pointer !");
@@ -1009,4 +1045,35 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
   coords->incrRef();
   _coords=coords;
   _structure=m->getMesh()->getNodeGridStructure();
+}
+
+std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+{
+  return _structure;
+}
+
+//=
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev()
+{
+}
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
+{
+}
+
+void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception)
+{
+  if(!pflNodes || !pflNodes->isAllocated())
+    return ;
+  std::vector<int> ngs(getNodeGridStructure());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(ngs.size())));
+  m->setNodalConnectivity(conn);
+  DataArrayInt *cellIds=0;
+  m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
+  int tmp=-1;
+  _node_reduction=m2->getNodeIdsInUse(tmp);
 }

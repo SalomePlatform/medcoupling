@@ -464,7 +464,7 @@ void SauvWriter::fillProfileSubMeshes()
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           fields[i]->getFieldSplitedByType( iters[0].first, iters[0].second,
-                                            _fileMesh->getName(), types, typesF, pfls, locs);
+                                            _fileMesh->getName().c_str(), types, typesF, pfls, locs);
           int dimRelExt;
           for ( size_t iType = 0; iType < types.size(); ++iType )
             {
@@ -512,7 +512,7 @@ int SauvWriter::evaluateNbProfileSubMeshes() const
       vector< vector<TypeOfField> > typesF;
       vector< vector<string> > pfls, locs;
       _cellFields[i]->getFieldSplitedByType( iters[0].first, iters[0].second,
-                                             _fileMesh->getName(), types, typesF, pfls, locs);
+                                             _fileMesh->getName().c_str(), types, typesF, pfls, locs);
       nb += 2 * types.size(); // x 2 - a type can be on nodes and on cells at the same time
     }
 
@@ -1062,7 +1062,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           vector< vector< std::pair<int,int> > > valsVec;
-          valsVec=_nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
+          valsVec=_nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                           types, typesF, pfls, locs);
           // believe that there can be only one type in a nodal field,
           // so do not use a loop on types
@@ -1111,7 +1111,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           vector< vector< std::pair<int,int> > > valsVec;
-          valsVec = _nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
+          valsVec = _nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                             types, typesF, pfls, locs);
           // believe that there can be only one type in a nodal field,
           // so do not perform a loop on types
@@ -1172,7 +1172,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
           vector< vector< std::pair<int,int> > > valsVec;
-          valsVec = _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
+          valsVec = _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                             types, typesF, pfls, locs);
           for ( size_t i = 0; i < valsVec.size(); ++i )
             nbSub += valsVec[i].size();
@@ -1199,7 +1199,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
-          _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
+          _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName().c_str(),
                                                   types, typesF, pfls, locs);
           for ( size_t iType = 0; iType < pfls.size(); ++iType )
             for ( size_t iP = 0; iP < pfls[iType].size(); ++iP )
@@ -1265,7 +1265,7 @@ void SauvWriter::writeElemTimeStamp(int iF, int iter, int order)
   vector< vector<TypeOfField> > typesF;
   vector< vector<string> > pfls, locs;
   vector< vector< std::pair<int,int> > > valsVec;
-  valsVec = _cellFields[iF]->getFieldSplitedByType( iter, order, _fileMesh->getName(),
+  valsVec = _cellFields[iF]->getFieldSplitedByType( iter, order, _fileMesh->getName().c_str(),
                                                     types, typesF, pfls, locs);
   for ( size_t iType = 0; iType < pfls.size(); ++iType )
     for ( size_t iP = 0; iP < pfls[iType].size(); ++iP )

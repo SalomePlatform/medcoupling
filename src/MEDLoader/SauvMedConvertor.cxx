@@ -1160,7 +1160,7 @@ ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
 
   coords->decrRef();
 
-  if ( !mesh->getName() || strlen( mesh->getName() ) == 0 )
+  if ( !mesh->getName().c_str() || strlen( mesh->getName().c_str() ) == 0 )
     mesh->setName( "MESH" );
 
   return mesh;

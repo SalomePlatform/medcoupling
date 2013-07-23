@@ -208,7 +208,7 @@ bool MEDFileData::unPolyzeMeshes() throw(INTERP_KERNEL::Exception)
       MEDFileFields *fs=_fields;
       if(fs)
         for(std::size_t i=0;i<meshesImpacted.size();i++)
-          fs->renumberEntitiesLyingOnMesh(meshesImpacted[i]->getName(),oldCodeOfMeshImpacted[i],newCodeOfMeshImpacted[i],renumParamsOfMeshImpacted[i]);
+          fs->renumberEntitiesLyingOnMesh(meshesImpacted[i]->getName().c_str(),oldCodeOfMeshImpacted[i],newCodeOfMeshImpacted[i],renumParamsOfMeshImpacted[i]);
     }
   return !meshesImpacted.empty();
 }

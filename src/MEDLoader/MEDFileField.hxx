@@ -50,7 +50,7 @@ namespace ParaMEDMEM
   {
   public:
     void MEDLOADER_EXPORT simpleRepr(std::ostream& oss) const;
-    const MEDLOADER_EXPORT std::string& getName() const { return _name; }
+    std::string MEDLOADER_EXPORT getName() const { return _name; }
     void MEDLOADER_EXPORT setName(const char *name);
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
     static MEDFileFieldLoc *New(med_idt fid, int id);
