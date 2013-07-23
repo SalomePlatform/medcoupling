@@ -212,8 +212,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
     disc=_type->clone();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),tdo,disc.retn());
   ret->setMesh(getMesh());
-  ret->setName(getName());
-  ret->setDescription(getDescription());
+  ret->setName(getName().c_str());
+  ret->setDescription(getDescription().c_str());
   return ret.retn();
 }
 
@@ -2531,7 +2531,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std
   MEDCouplingTimeDiscretization *td=_time_discr->keepSelectedComponents(compoIds);
   td->copyTinyAttrFrom(*_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
-  ret->setName(getName());
+  ret->setName(getName().c_str());
   ret->setMesh(getMesh());
   return ret.retn();
 }
@@ -2598,8 +2598,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(m);
-  ret->setName(f1->getName());
-  ret->setDescription(f1->getDescription());
+  ret->setName(f1->getName().c_str());
+  ret->setDescription(f1->getDescription().c_str());
   return ret.retn();
 }
 
@@ -2644,13 +2644,13 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
       tds[i]=a[i]->_time_discr;
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
-  m->setName(ms2[0]->getName()); m->setDescription(ms2[0]->getDescription());
+  m->setName(ms2[0]->getName().c_str()); m->setDescription(ms2[0]->getDescription().c_str());
   MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
   td->copyTinyAttrFrom(*(a[0]->_time_discr));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
   ret->setMesh(m);
-  ret->setName(a[0]->getName());
-  ret->setDescription(a[0]->getDescription());
+  ret->setName(a[0]->getName().c_str());
+  ret->setDescription(a[0]->getDescription().c_str());
   return ret.retn();
 }
 
@@ -3098,9 +3098,9 @@ void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<co
         }
       TypeOfField typ=cur->getTypeOfField();
       if(typ==ON_CELLS)
-        cur->getArray()->writeVTK(coss,8,cur->getName());
+        cur->getArray()->writeVTK(coss,8,cur->getName().c_str());
       else if(typ==ON_NODES)
-        cur->getArray()->writeVTK(noss,8,cur->getName());
+        cur->getArray()->writeVTK(noss,8,cur->getName().c_str());
     }
   m->writeVTKAdvanced(fileName,coss.str(),noss.str());
 }

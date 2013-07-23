@@ -1714,7 +1714,7 @@ void MEDCouplingBasicsTest4::testUMeshMergeMeshesCVW1()
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   MEDCouplingUMesh *m2=MEDCouplingUMesh::New("toto",2);
   MEDCouplingUMesh *m3=MEDCouplingUMesh::MergeUMeshes(m,m2);
-  m3->setName(m->getName());
+  m3->setName(m->getName().c_str());
   CPPUNIT_ASSERT(m->isEqual(m3,1e-12));
   m3->decrRef();
   m->decrRef();

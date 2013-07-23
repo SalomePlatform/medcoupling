@@ -1346,15 +1346,15 @@ void MEDCouplingBasicsTest1::testMergeMeshOnSameCoords1()
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
   const int cells1[5]={0,1,2,3,4};
   MEDCouplingPointSet *m1_1=m4->buildPartOfMySelf(cells1,cells1+5,true);
-  m1_1->setName(m1->getName());
+  m1_1->setName(m1->getName().c_str());
   CPPUNIT_ASSERT(m1->isEqual(m1_1,1e-12));
   const int cells2[5]={5,6,7,8,9};
   MEDCouplingPointSet *m2_1=m4->buildPartOfMySelf(cells2,cells2+5,true);
-  m2_1->setName(m2->getName());
+  m2_1->setName(m2->getName().c_str());
   CPPUNIT_ASSERT(m2->isEqual(m2_1,1e-12));
   const int cells3[5]={10,11,12,13,14};
   MEDCouplingPointSet *m3_1=m4->buildPartOfMySelf(cells3,cells3+5,true);
-  m3_1->setName(m3->getName());
+  m3_1->setName(m3->getName().c_str());
   CPPUNIT_ASSERT(m3->isEqual(m3_1,1e-12));
   m1_1->decrRef(); m2_1->decrRef(); m3_1->decrRef();
   //
@@ -2012,7 +2012,7 @@ void MEDCouplingBasicsTest1::testSplitByType()
   CPPUNIT_ASSERT_EQUAL(3,(int)v.size());
   std::vector<const MEDCouplingUMesh *> v2(v.begin(),v.end());
   MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(v2);
-  m2->setName(m1->getName());
+  m2->setName(m1->getName().c_str());
   CPPUNIT_ASSERT(m1->isEqual(m2,1.e-12));
   for(std::vector<MEDCouplingUMesh *>::const_iterator iter=v.begin();iter!=v.end();iter++)
     (*iter)->decrRef();
@@ -2504,8 +2504,8 @@ void MEDCouplingBasicsTest1::testCMesh2()
   
   int cells2[2]={25,26};
   DataArrayInt* arr1;
-  MEDCouplingUMesh *partMesh2=
-    dynamic_cast<MEDCouplingUMesh *>(mesh1->buildPartAndReduceNodes(cells2,cells2+2,arr1));
+  MEDCouplingCMesh *partMesh2=
+    dynamic_cast<MEDCouplingCMesh *>(mesh1->buildPartAndReduceNodes(cells2,cells2+2,arr1));
   CPPUNIT_ASSERT(partMesh2);
   CPPUNIT_ASSERT_EQUAL(2,partMesh2->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
   CPPUNIT_ASSERT_EQUAL(12,partMesh2->getNumberOfNodes());
@@ -2666,7 +2666,7 @@ void MEDCouplingBasicsTest1::testChangeSpaceDimension()
   CPPUNIT_ASSERT_EQUAL(3,m1->getSpaceDimension());
   m1->changeSpaceDimension(2);
   CPPUNIT_ASSERT_EQUAL(2,m1->getSpaceDimension());
-  m1->setName(m2->getName());
+  m1->setName(m2->getName().c_str());
   CPPUNIT_ASSERT(m1->isEqual(m2,1e-12));
   m1->changeSpaceDimension(3);
   CPPUNIT_ASSERT_EQUAL(3,m1->getSpaceDimension());

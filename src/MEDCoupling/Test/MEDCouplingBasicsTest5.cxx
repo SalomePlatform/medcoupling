@@ -1353,7 +1353,7 @@ void MEDCouplingBasicsTest5::testComputeSkin1()
   CPPUNIT_ASSERT_EQUAL((std::size_t)18,ids->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(expected3,expected3+18,ids->getConstPointer()));
   MEDCouplingUMesh *part=dynamic_cast<MEDCouplingUMesh *>(umesh->buildFacePartOfMySelfNode(ids->begin(),ids->end(),true));
-  part->setName(skin->getName());
+  part->setName(skin->getName().c_str());
   CPPUNIT_ASSERT(part->isEqual(skin,1e-12));
   MEDCouplingUMesh *part2=dynamic_cast<MEDCouplingUMesh *>(part->buildPartOfMySelf2(1,18,2,true));
   DataArrayInt *ids2=DataArrayInt::Range(0,18,2);

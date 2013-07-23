@@ -1496,7 +1496,7 @@ DataArrayInt *MEDCouplingPointSet::getCellIdsLyingOnNodes(const int *begin, cons
 {
   DataArrayInt *cellIdsKept=0;
   fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
-  cellIdsKept->setName(getName());
+  cellIdsKept->setName(getName().c_str());
   return cellIdsKept;
 }
 

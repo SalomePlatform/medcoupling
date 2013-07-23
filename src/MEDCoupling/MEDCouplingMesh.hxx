@@ -53,9 +53,9 @@ namespace ParaMEDMEM
   public:
     std::size_t getHeapMemorySize() const;
     void setName(const char *name) { _name=name; }
-    const char *getName() const { return _name.c_str(); }
+    std::string getName() const { return _name; }
     void setDescription(const char *descr) { _description=descr; }
-    const char *getDescription() const { return _description.c_str(); }
+    std::string getDescription() const { return _description; }
     double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _time; }
     void setTime(double val, int iteration, int order) { _time=val; _iteration=iteration; _order=order; }
     void setTimeUnit(const char *unit) { _time_unit=unit; }

@@ -1785,7 +1785,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType,nbOfCells);
   arr=o2n->substr(nbOfCells);
-  arr->setName(other->getName());
+  arr->setName(other->getName().c_str());
   int tmp;
   if(other->getNumberOfCells()==0)
     return true;
@@ -1829,7 +1829,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn2(const MEDCouplingUMesh *other, DataAr
             }
         }
     }
-  arr2->setName(other->getName());
+  arr2->setName(other->getName().c_str());
   if(arr2->presenceOfValue(0))
     return false;
   arr=arr2.retn();
@@ -2799,7 +2799,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSetInstanceFromThis(int spaceDim) const
   int mdim=getMeshDimension();
   if(mdim<0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSetInstanceFromThis : invalid mesh dimension ! Should be >= 0 !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),mdim);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName().c_str(),mdim);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1,tmp2;
   bool needToCpyCT=true;
   if(!_nodal_connec)
@@ -6709,7 +6709,7 @@ MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const thro
     if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : current mesh does not contain exactly one geometric type !");
   INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName(),typ);
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName().c_str(),typ);
   ret->setCoords(getCoords());
   MEDCoupling1SGTUMesh *retC=dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh*)ret);
   if(retC)
@@ -7408,7 +7408,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
       tmp->alloc(curNbOfCells,1);
       std::copy(o2nPtr+offset,o2nPtr+offset+curNbOfCells,tmp->getPointer());
       offset+=curNbOfCells;
-      tmp->setName(meshes[i]->getName());
+      tmp->setName(meshes[i]->getName().c_str());
       corr[i]=tmp;
     }
   return ret.retn();
@@ -9175,7 +9175,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const throw(INTER
   std::vector<DataArrayInt *> partition=partitionBySpreadZone();
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > partitionAuto; partitionAuto.reserve(partition.size());
   std::copy(partition.begin(),partition.end(),std::back_insert_iterator<std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > >(partitionAuto));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),mdim);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName().c_str(),mdim);
   ret->setCoords(getCoords());
   ret->allocateCells((int)partition.size());
   //

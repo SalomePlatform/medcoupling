@@ -270,7 +270,7 @@ MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INT
   int ns[3];
   getNodeGridStructure(ns);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+meshDim));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName().c_str(),GetGeoTypeGivenMeshDimension(meshDim)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   return ret->buildUnstructured();
 }

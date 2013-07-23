@@ -54,9 +54,9 @@ namespace ParaMEDMEM
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
     void setName(const char *name) { _name=name; }
-    const char *getDescription() const { return _desc.c_str(); }
+    std::string getDescription() const { return _desc; }
     void setDescription(const char *desc) { _desc=desc; }
-    const char *getName() const { return _name.c_str(); }
+    std::string getName() const { return _name; }
     TypeOfField getTypeOfField() const;
     NatureOfField getNature() const;
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);

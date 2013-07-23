@@ -2406,7 +2406,7 @@ void MEDCouplingBasicsTest3::testMergeUMeshes2()
   //
   const int vec3[5]={0,1,2,3,4};
   MEDCouplingUMesh *m4_1=(MEDCouplingUMesh *)m4->buildPartOfMySelf(vec3,vec3+5,false);
-  m4_1->setName(m1->getName());
+  m4_1->setName(m1->getName().c_str());
   CPPUNIT_ASSERT(m4_1->isEqual(m1,1e-12));
   m4_1->decrRef();
   //
@@ -2424,7 +2424,7 @@ void MEDCouplingBasicsTest3::testMergeUMeshes2()
   CPPUNIT_ASSERT_EQUAL(2,m4_3->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(3,m4_3->getNumberOfNodes());
   m3_2->zipCoords();
-  m4_3->setName(m3_2->getName());
+  m4_3->setName(m3_2->getName().c_str());
   CPPUNIT_ASSERT(m4_3->isEqual(m3_2,1e-12));
   m4_3->decrRef();
   //
