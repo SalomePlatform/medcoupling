@@ -80,6 +80,7 @@ namespace ParaMEDMEM
     virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     std::string getPflNameOfId(int id) const;
+    DataArray *constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
   protected:
     MEDMeshMultiLev();
     MEDMeshMultiLev(const MEDMeshMultiLev& other);
@@ -164,7 +165,10 @@ namespace ParaMEDMEM
     //
     const DataArrayInt *getPfl(const MEDFileFieldGlobsReal *globs) const;
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
+    int getNbEntity() const { return _nb_of_entity; }
+    const std::pair<int,int>& getStartStop() const { return _start_end; }
     std::string getPflName() const;
+    int getNbOfIntegrationPts(const MEDFileFieldGlobsReal *globs) const;
     //! warning this method also set _nb_of_entity attribute !
     void checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception);
     bool isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const char *pflName) const;

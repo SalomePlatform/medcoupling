@@ -137,6 +137,22 @@ void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMesh
   checkInRange(nbOfEnt,loc.getNumberOfGaussPoints(),globs);
 }
 
+int MEDFileField1TSStructItem2::getNbOfIntegrationPts(const MEDFileFieldGlobsReal *globs) const
+{
+  if(_loc.empty())
+    {
+      if(getPflName().empty())
+        return (_start_end.second-_start_end.first)/_nb_of_entity;
+      else
+        return (_start_end.second-_start_end.first)/getPfl(globs)->getNumberOfTuples();
+    }
+  else
+    {
+      const MEDFileFieldLoc& loc(globs->getLocalization(_loc.c_str()));
+      return loc.getNumberOfGaussPoints();
+    }
+}
+
 std::string MEDFileField1TSStructItem2::getPflName() const
 {
   return _pfl->getName();
@@ -915,9 +931,8 @@ DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst,
   MEDCouplingAutoRefCountObjectPtr<DataArray> ret(const_cast<DataArray *>(vals)); ret->incrRef();
   if(isFastlyTheSameStruct(fst,globs))
     return ret.retn();
-  //else
-  //  return constructDataArray(fst,globs,vals);
-  return 0;
+  else
+    return constructDataArray(fst,globs,vals);
 }
 
 std::string MEDMeshMultiLev::getPflNameOfId(int id) const
@@ -929,6 +944,108 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
   if(!pfl)
     return std::string("");
   return pfl->getName();
+}
+
+DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception)
+{
+  if(fst.getType()==ON_NODES)
+    {
+      if(fst.getNumberOfItems()!=1)
+        throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes !");
+      const MEDFileField1TSStructItem2& p(fst[0]);
+      std::string pflName(p.getPflName());
+      const DataArrayInt *nr(_node_reduction);
+      if(pflName.empty() && !nr)
+        return vals->deepCpy();
+      if(pflName.empty() && nr)
+         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 2 !");
+      if(!pflName.empty() && nr)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(nr->deepCpy());
+          p1->sort(true); p2->sort(true);
+          if(!p1->isEqualWithoutConsideringStr(*p2))
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 3 !");
+          p1=globs->getProfile(pflName.c_str())->checkAndPreparePermutation();
+          p2=nr->checkAndPreparePermutation();
+          p1=p1->invertArrayO2N2N2O(p1->getNumberOfTuples());
+          p2=p1->selectByTupleIdSafe(p2->begin(),p2->end());
+          MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
+          ret->renumberInPlace(p2->begin());
+          return ret.retn();
+        }
+      if(!pflName.empty() && !nr)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
+          p1->sort(true);
+          if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 4 !");
+          MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
+          ret->renumberInPlace(globs->getProfile(pflName.c_str())->begin());
+          return ret.retn();
+        }
+      throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 5 !");
+    }
+  else
+    {
+      std::size_t sz(fst.getNumberOfItems());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArray> > arrSafe(sz);
+      std::vector< const DataArray *> arr(sz);
+      for(std::size_t i=0;i<sz;i++)
+        {
+          const MEDFileField1TSStructItem2& p(fst[i]);
+          const std::pair<int,int>& strtStop(p.getStartStop());
+          std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator it(std::find(_geo_types.begin(),_geo_types.end(),p.getGeo()));
+          if(it==_geo_types.end())
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 1 !");
+          if(std::find(it+1,_geo_types.end(),p.getGeo())!=_geo_types.end())
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 2 !");
+          std::size_t pos(std::distance(_geo_types.begin(),it));
+          const DataArrayInt *thisP(_pfls[pos]),*otherP(p.getPfl(globs));
+          MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+          if(!thisP && !otherP)
+            {
+              arrSafe[i]=ret; arr[i]=ret;
+              continue;
+            }
+          int nbi(p.getNbOfIntegrationPts(globs)),nc(ret->getNumberOfComponents());
+          if(!thisP && otherP)
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
+              p1->sort(true);
+              if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
+                throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
+              ret->rearrange(nbi*nc); ret->renumberInPlace(otherP->begin()); ret->rearrange(nc);
+              arrSafe[i]=ret; arr[i]=ret;
+              continue;
+            }
+          if(thisP && otherP)
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(thisP->deepCpy());
+              p1->sort(true); p2->sort(true);
+              if(!p1->isEqualWithoutConsideringStr(*p2))
+                throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
+              p1=otherP->checkAndPreparePermutation();
+              p2=thisP->checkAndPreparePermutation();
+              p1=p1->invertArrayO2N2N2O(p1->getNumberOfTuples());
+              p2=p1->selectByTupleIdSafe(p2->begin(),p2->end());
+              ret->rearrange(nbi*nc); ret->renumberInPlace(otherP->begin()); ret->rearrange(nc);
+              continue;
+            }
+          if(thisP && !otherP)
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(thisP->deepCpy());
+              p1->sort(true);
+              if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
+                throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
+              ret->rearrange(nbi*nc); ret->renumberInPlaceR(otherP->begin()); ret->rearrange(nc);
+              arrSafe[i]=ret; arr[i]=ret;
+              continue;
+            }
+          throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 6 !");
+        }
+    }
 }
 
 MEDMeshMultiLev::MEDMeshMultiLev()
