@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual DataArray *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -172,6 +173,46 @@ namespace ParaMEDMEM
         return self->selectByTupleRanges(ranges);
       }
 
+      virtual DataArray *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            return self->selectByTupleId(tmp,tmp+size);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            return self->selectByTupleId(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+          }
+      }
+
+      virtual DataArray *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            return self->selectByTupleIdSafe(tmp,tmp+size);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            return self->selectByTupleIdSafe(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+          }
+      }
+
       virtual PyObject *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> tmp;
@@ -290,7 +331,6 @@ namespace ParaMEDMEM
     DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);
@@ -680,46 +720,6 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
               }
             return self->renumberAndReduce(da2->getConstPointer(),newNbOfTuple);
-          }
-      }
-
-      DataArrayDouble *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->selectByTupleId(tmp,tmp+size);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->selectByTupleId(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
-          }
-      }
-
-      DataArrayDouble *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->selectByTupleIdSafe(tmp,tmp+size);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->selectByTupleIdSafe(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
           }
       }
 
@@ -2851,46 +2851,6 @@ namespace ParaMEDMEM
           }
       }
 
-      DataArrayInt *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->selectByTupleId(tmp,tmp+size);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->selectByTupleId(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
-          }
-      }
-
-      DataArrayInt *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->selectByTupleIdSafe(tmp,tmp+size);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->selectByTupleIdSafe(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
-          }
-      }
-
       void setSelectedComponents(const DataArrayInt *a, PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> tmp;
@@ -4574,8 +4534,6 @@ namespace ParaMEDMEM
     DataArrayChar *renumber(const int *old2New) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     bool isUniform(char val) const throw(INTERP_KERNEL::Exception);
     void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     DataArrayChar *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
@@ -4708,26 +4666,6 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
               }
             return self->renumberAndReduce(da2->getConstPointer(),newNbOfTuple);
-          }
-      }
-      
-      DataArrayChar *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
-      {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->selectByTupleIdSafe(tmp,tmp+size);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->selectByTupleIdSafe(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
           }
       }
       

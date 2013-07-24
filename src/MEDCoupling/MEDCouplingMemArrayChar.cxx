@@ -514,6 +514,27 @@ DataArrayChar *DataArrayChar::renumberAndReduce(const int *old2New, int newNbOfT
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
  * This method is equivalent to renumberAndReduce() except that convention in input is
  * \c new2old and \b not \c old2new.
+ * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
+ *              tuple index in \a this array to fill the i-th tuple in the new array.
+ *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
+ *              \a new2OldBg, so that pointer to a tuple index (\a pi) varies as this:
+ *              \a new2OldBg <= \a pi < \a new2OldEnd.
+ *  \return DataArrayChar * - the new instance of DataArrayChar that the caller
+ *          is to delete using decrRef() as it is no more needed.
+ */
+DataArrayChar *DataArrayChar::selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
+{
+  return selectByTupleIdSafe(new2OldBg,new2OldEnd);
+}
+
+/*!
+ * Returns a shorten and permuted copy of \a this array. The new DataArrayChar is
+ * of size \a new2OldEnd - \a new2OldBg and it's values are permuted as required by
+ * \a new2OldBg array.
+ * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
+ * This method is equivalent to renumberAndReduce() except that convention in input is
+ * \c new2old and \b not \c old2new.
  * This method is equivalent to selectByTupleId() except that it prevents coping data
  * from behind the end of \a this array.
  * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
@@ -671,7 +692,7 @@ DataArrayChar *DataArrayChar::substr(int tupleIdBg, int tupleIdEnd) const throw(
  * components.  
  *  \param [in] newNbOfComp - number of components for the new array to have.
  *  \param [in] dftValue - value assigned to new values added to the new array.
- *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
+ *  \return DataArrayChar * - the new instance of DataArrayChar that the caller
  *          is to delete using decrRef() as it is no more needed.
  *  \throw If \a this is not allocated.
  */
@@ -1448,7 +1469,7 @@ DataArray *DataArrayChar::selectByTupleRanges(const std::vector<std::pair<int,in
  * all values of \a this.
  *  \param [in] tupleId - index of tuple of interest.
  *  \param [in] compoId - index of component of interest.
- *  \return double - value located by \a tupleId and \a compoId.
+ *  \return char - value located by \a tupleId and \a compoId.
  *  \throw If \a this is not allocated.
  *  \throw If condition <em>( 0 <= tupleId < this->getNumberOfTuples() )</em> is violated.
  *  \throw If condition <em>( 0 <= compoId < this->getNumberOfComponents() )</em> is violated.
@@ -1689,7 +1710,7 @@ int DataArrayChar::locateValue(const std::vector<char>& vals) const throw(INTERP
 /*!
  * Returns the maximal value and its location within \a this one-dimensional array.
  *  \param [out] tupleId - index of the tuple holding the maximal value.
- *  \return double - the maximal value among all values of \a this array.
+ *  \return char - the maximal value among all values of \a this array.
  *  \throw If \a this->getNumberOfComponents() != 1
  *  \throw If \a this->getNumberOfTuples() < 1
  */
@@ -1991,7 +2012,7 @@ DataArrayByte *DataArrayByte::performCpy(bool dCpy) const
 /*!
  * Returns the only one value in \a this, if and only if number of elements
  * (nb of tuples * nb of components) is equal to 1, and that \a this is allocated.
- *  \return double - the sole value stored in \a this array.
+ *  \return char - the sole value stored in \a this array.
  *  \throw If at least one of conditions stated above is not fulfilled.
  */
 char DataArrayByte::byteValue() const throw(INTERP_KERNEL::Exception)
@@ -2324,7 +2345,7 @@ DataArrayAsciiChar *DataArrayAsciiChar::performCpy(bool dCpy) const
 /*!
  * Returns the only one value in \a this, if and only if number of elements
  * (nb of tuples * nb of components) is equal to 1, and that \a this is allocated.
- *  \return double - the sole value stored in \a this array.
+ *  \return char - the sole value stored in \a this array.
  *  \throw If at least one of conditions stated above is not fulfilled.
  */
 char DataArrayAsciiChar::asciiCharValue() const throw(INTERP_KERNEL::Exception)

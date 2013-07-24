@@ -149,6 +149,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual DataArray *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -673,6 +676,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayChar *renumber(const int *old2New) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayChar *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isUniform(char val) const throw(INTERP_KERNEL::Exception);
