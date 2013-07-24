@@ -269,7 +269,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
   //     MEDLoader::WriteUMesh(distfilename.c_str(), boundaryMesh, false);
   //     boundaryMesh->decrRef();
   //   }
-  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(distfilename.c_str(), _collection->getMesh(idomain)->getName());
+  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(distfilename.c_str(), _collection->getMesh(idomain)->getName().c_str());
 
   mfm->setFamilyInfo(_collection->getFamilyInfo());
   mfm->setGroupInfo(_collection->getGroupInfo());
