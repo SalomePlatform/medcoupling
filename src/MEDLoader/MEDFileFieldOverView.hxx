@@ -62,7 +62,9 @@ namespace ParaMEDMEM
     int _nb_nodes;
     std::vector< std::vector<int> > _geo_types_distrib;
   }; 
-
+  
+  class MEDFileField1TSStructItem;
+  
   class MEDMeshMultiLev : public RefCountObject
   {
   public:
@@ -72,8 +74,12 @@ namespace ParaMEDMEM
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
     static MEDMeshMultiLev *NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode) throw(INTERP_KERNEL::Exception);
     void setNodeReduction(const DataArrayInt *nr);
+    bool isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+    DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception) = 0;
+  protected:
+    std::string getPflNameOfId(int id) const;
   protected:
     MEDMeshMultiLev();
     MEDMeshMultiLev(const MEDMeshMultiLev& other);
@@ -161,6 +167,7 @@ namespace ParaMEDMEM
     std::string getPflName() const;
     //! warning this method also set _nb_of_entity attribute !
     void checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception);
+    bool isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const char *pflName) const;
     bool operator==(const MEDFileField1TSStructItem2& other) const throw(INTERP_KERNEL::Exception);
     bool isCellSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
     bool isNodeSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
@@ -211,9 +218,9 @@ namespace ParaMEDMEM
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
     bool isDataSetSupportFastlyEqualTo(const MEDFileField1TSStruct& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
   private:
     MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
-    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
     bool presenceOfCellDiscr(int& pos) const throw(INTERP_KERNEL::Exception);
     bool presenceOfPartialNodeDiscr(int& pos) const throw(INTERP_KERNEL::Exception);
   private:

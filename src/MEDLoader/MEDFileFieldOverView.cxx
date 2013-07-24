@@ -179,6 +179,18 @@ void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MED
     }
 }
 
+bool MEDFileField1TSStructItem2::isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const char *pflName) const
+{
+  if(startExp!=_start_end.first)
+    return false;
+  if(gt!=_geo_type)
+    return false;
+  if(getPflName()!=pflName)
+    return false;
+  startExp=_start_end.second;
+  return true;
+}
+
 bool MEDFileField1TSStructItem2::operator==(const MEDFileField1TSStructItem2& other) const throw(INTERP_KERNEL::Exception)
 {
   //_nb_of_entity is not taken into account here. It is not a bug, because no mesh consideration needed here to perform fast compare.
@@ -865,6 +877,58 @@ void MEDMeshMultiLev::setNodeReduction(const DataArrayInt *nr)
   if(nr)
     nr->incrRef();
   _node_reduction=const_cast<DataArrayInt*>(nr);
+}
+
+bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+{
+  if(fst.getType()==ON_NODES)
+    {
+      if(fst.getNumberOfItems()!=1)
+        throw INTERP_KERNEL::Exception("MEDMeshMultiLev::isFastlyTheSameStruct : unexpected situation for nodes !");
+      const MEDFileField1TSStructItem2& p(fst[0]);
+      std::string pflName(p.getPflName());
+      const DataArrayInt *nr(_node_reduction);
+      if(pflName.empty() && !nr)
+        return true;
+      if(pflName==nr->getName())
+        return true;
+      return false;
+    }
+  else
+    {
+      std::size_t sz(fst.getNumberOfItems());
+      if(sz!=_geo_types.size())
+        return false;
+      int strt(0);
+      for(std::size_t i=0;i<sz;i++)
+        {
+          const MEDFileField1TSStructItem2& p(fst[i]);
+          if(!p.isFastlyEqual(strt,_geo_types[i],getPflNameOfId(i).c_str()))
+            return false;
+        }
+      return true;
+    }
+}
+
+DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArray> ret(const_cast<DataArray *>(vals)); ret->incrRef();
+  if(isFastlyTheSameStruct(fst,globs))
+    return ret.retn();
+  //else
+  //  return constructDataArray(fst,globs,vals);
+  return 0;
+}
+
+std::string MEDMeshMultiLev::getPflNameOfId(int id) const
+{
+  std::size_t sz(_pfls.size());
+  if(id<0 || id>=sz)
+    throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getPflNameOfId : invalid input id !");
+  const DataArrayInt *pfl(_pfls[id]);
+  if(!pfl)
+    return std::string("");
+  return pfl->getName();
 }
 
 MEDMeshMultiLev::MEDMeshMultiLev()
