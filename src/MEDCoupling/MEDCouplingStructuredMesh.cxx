@@ -522,6 +522,7 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
       return true;
     }
   GetPosFromId(startIds[sz-1],dim,&tmp2[0],&tmp3[0]);
+  int szExp(1);
   for(int i=0;i<dim;i++)
     {
       if(tmp3[i]<0 || tmp3[i]>=st[i])
@@ -530,7 +531,10 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
       tmp4[i]=partCompactFormat[i].second-partCompactFormat[i].first;
       if(tmp4[i]<=0)
         return false;
+      szExp*=tmp4[i];
     }
+  if(szExp!=(int)sz)
+    return false;
   const int *w(startIds);
   switch(dim)
     {
