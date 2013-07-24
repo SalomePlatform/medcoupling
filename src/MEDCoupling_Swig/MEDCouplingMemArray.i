@@ -48,6 +48,7 @@ namespace ParaMEDMEM
     virtual int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
+    virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception);
     void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -266,7 +267,6 @@ namespace ParaMEDMEM
     static DataArrayDouble *New();
     double doubleValue() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *deepCpy() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
     void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
@@ -2289,7 +2289,6 @@ namespace ParaMEDMEM
     int intValue() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *deepCpy() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
     void cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
@@ -4555,7 +4554,6 @@ namespace ParaMEDMEM
   {
   public:
     virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayChar *deepCpy() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
     void cpyFrom(const DataArrayChar& other) throw(INTERP_KERNEL::Exception);

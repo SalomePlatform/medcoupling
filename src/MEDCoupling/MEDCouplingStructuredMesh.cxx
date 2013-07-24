@@ -282,7 +282,8 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const t
  */
 MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
-  return build1SGTUnstructured()->buildUnstructured();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret0(build1SGTUnstructured());
+  return ret0->buildUnstructured();
 }
 
 /*!

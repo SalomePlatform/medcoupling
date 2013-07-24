@@ -1965,7 +1965,7 @@ DataArrayByteIterator *DataArrayByte::iterator()
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayByte * - a new instance of DataArrayByte.
  */
-DataArrayByte *DataArrayByte::deepCpy() const
+DataArrayByte *DataArrayByte::deepCpy() const throw(INTERP_KERNEL::Exception)
 {
   return new DataArrayByte(*this);
 }
@@ -2298,7 +2298,7 @@ DataArrayAsciiCharIterator *DataArrayAsciiChar::iterator()
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayAsciiChar * - a new instance of DataArrayAsciiChar.
  */
-DataArrayAsciiChar *DataArrayAsciiChar::deepCpy() const
+DataArrayAsciiChar *DataArrayAsciiChar::deepCpy() const throw(INTERP_KERNEL::Exception)
 {
   return new DataArrayAsciiChar(*this);
 }

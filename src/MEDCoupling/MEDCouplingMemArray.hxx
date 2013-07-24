@@ -134,6 +134,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
+    MEDCOUPLING_EXPORT virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual bool isAllocated() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void checkAllocated() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void desallocate() throw(INTERP_KERNEL::Exception) = 0;
@@ -640,7 +641,6 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayChar *deepCpy() const = 0;
     MEDCOUPLING_EXPORT bool isAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void desallocate() throw(INTERP_KERNEL::Exception);
@@ -746,7 +746,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayByte *New();
     MEDCOUPLING_EXPORT DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayByteIterator *iterator();
-    MEDCOUPLING_EXPORT DataArrayByte *deepCpy() const;
+    MEDCOUPLING_EXPORT DataArrayByte *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayByte *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT char byteValue() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
@@ -803,7 +803,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayAsciiChar *New(const std::vector<std::string>& vst, char defaultChar) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayAsciiCharIterator *iterator();
-    MEDCOUPLING_EXPORT DataArrayAsciiChar *deepCpy() const;
+    MEDCOUPLING_EXPORT DataArrayAsciiChar *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayAsciiChar *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT char asciiCharValue() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
