@@ -13471,6 +13471,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(a.buildUnstructured().isEqual(c2.buildUnstructured().buildPartAndReduceNodes(d20)[0],1e-12))
         pass
 
+    def testSwig2FindPermutationFromFirstToSecond1(self):
+        ids1=DataArrayInt([3,1,103,4,6,10,-7,205])
+        ids2=DataArrayInt([-7,1,205,10,6,3,103,4])
+        ids3=DataArrayInt.FindPermutationFromFirstToSecond(ids1,ids2)
+        self.assertTrue(ids3.isEqual(DataArrayInt([5,1,6,7,4,3,0,2])))
+        ids2ToTest=ids1.renumber(ids3)
+        self.assertTrue(ids2ToTest.isEqual(ids2))
+        self.assertRaises(InterpKernelException,DataArrayInt.FindPermutationFromFirstToSecond,DataArrayInt([3,1,103]),DataArrayInt([1,103]))
+        self.assertRaises(InterpKernelException,DataArrayInt.FindPermutationFromFirstToSecond,DataArrayInt([3,1,103]),DataArrayInt([1,103,2]))
+        self.assertRaises(InterpKernelException,DataArrayInt.FindPermutationFromFirstToSecond,DataArrayInt([3,1,103]),DataArrayInt([1,103,1]))
+        self.assertTrue(DataArrayInt.FindPermutationFromFirstToSecond(DataArrayInt([]),DataArrayInt([])).empty())
+        pass
+    
     def setUp(self):
         pass
     pass

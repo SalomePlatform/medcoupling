@@ -6854,6 +6854,44 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const throw(INTERP_KERN
 }
 
 /*!
+ * This method tries to find the permutation to apply to the first input \a ids1 to obtain the same array (without considering strings informations) the second
+ * input array \a ids2.
+ * \a ids1 and \a ids2 are expected to be both a list of ids (both with number of components equal to one) not sorted and with values that can be negative.
+ * This method will throw an exception is no such permutation array can be obtained. It is typically the case if there is some ids in \a ids1 not in \a ids2 or
+ * inversely.
+ * In case of success (no throw) : \c ids1->renumber(ret)->isEqual(ids2) where \a ret is the return of this method.
+ *
+ * \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
+ *          array using decrRef() as it is no more needed.
+ * \throw If either ids1 or ids2 is null not allocated or not with one components.
+ * 
+ */
+DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2) throw(INTERP_KERNEL::Exception)
+{
+  if(!ids1 || !ids2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two input arrays must be not null !");
+  if(!ids1->isAllocated() || !ids2->isAllocated())
+    throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two input arrays must be allocated !");
+  if(ids1->getNumberOfComponents()!=1 || ids2->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two input arrays have exactly one component !");
+  if(ids1->getNumberOfTuples()!=ids2->getNumberOfTuples())
+    {
+      std::ostringstream oss; oss << "DataArrayInt::FindPermutationFromFirstToSecond : first array has " << ids1->getNumberOfTuples() << " tuples and the second one " << ids2->getNumberOfTuples() << " tuples ! No chance to find a permutation between the 2 arrays !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(ids1->deepCpy());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(ids2->deepCpy());
+  p1->sort(true); p2->sort(true);
+  if(!p1->isEqualWithoutConsideringStr(*p2))
+    throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two arrays are not lying on same ids ! Impossible to find a permutation betwenn the 2 arrays !");
+  p1=ids1->checkAndPreparePermutation();
+  p2=ids2->checkAndPreparePermutation();
+  p2=p2->invertArrayO2N2N2O(p2->getNumberOfTuples());
+  p2=p2->selectByTupleIdSafe(p1->begin(),p1->end());
+  return p2.retn();
+}
+
+/*!
  * Returns two arrays describing a surjective mapping from \a this set of values (\a A)
  * onto a set of values of size \a targetNb (\a B). The surjective function is 
  * \a B[ \a A[ i ]] = i. That is to say that for each \a id in [0,\a targetNb), where \a
