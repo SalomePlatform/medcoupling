@@ -18,6 +18,8 @@
 #
 
 SET(indoxfiles Doxyfile_med_user.in static/header.html.in)
+SET(builddir ${CMAKE_CURRENT_BINARY_DIR})
+SET(srcdir   ${CMAKE_CURRENT_SOURCE_DIR})
 FOREACH(indoxfile ${indoxfiles})
   STRING(REGEX REPLACE ".in" "" baseindoxfile ${indoxfile})
   SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${indoxfile})
