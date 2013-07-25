@@ -134,7 +134,7 @@ namespace ParaMEDMEM
     virtual void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception) = 0;
     //tools
   public:
-    MEDCOUPLING_EXPORT bool areCellsFrom2MeshEqual(const MEDCouplingPointSet *other, int cellId, double prec) const;
+    bool areCellsFrom2MeshEqual(const MEDCouplingPointSet *other, int cellId, double prec) const;
   protected:
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
