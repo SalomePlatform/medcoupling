@@ -380,6 +380,53 @@ std::string DataArray::GetUnitFromInfo(const std::string& info) throw(INTERP_KER
 }
 
 /*!
+ * Returns a new DataArray by concatenating all given arrays, so that (1) the number
+ * of tuples in the result array is a sum of the number of tuples of given arrays and (2)
+ * the number of component in the result array is same as that of each of given arrays.
+ * Info on components is copied from the first of the given arrays. Number of components
+ * in the given arrays must be  the same.
+ *  \param [in] arrs - a sequence of arrays to include in the result array. All arrays must have the same type.
+ *  \return DataArray * - the new instance of DataArray (that can be either DataArrayInt, DataArrayDouble, DataArrayChar).
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If all arrays within \a arrs are NULL.
+ *  \throw If all not null arrays in \a arrs have not the same type.
+ *  \throw If getNumberOfComponents() of arrays within \a arrs.
+ */
+DataArray *DataArray::Aggregate(const std::vector<const DataArray *>& arrs) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<const DataArray *> arr2;
+  for(std::vector<const DataArray *>::const_iterator it=arrs.begin();it!=arrs.end();it++)
+    if(*it)
+      arr2.push_back(*it);
+  if(arr2.empty())
+    throw INTERP_KERNEL::Exception("DataArray::Aggregate : only null instance in input vector !");
+  std::vector<const DataArrayDouble *> arrd;
+  std::vector<const DataArrayInt *> arri;
+  std::vector<const DataArrayChar *> arrc;
+  for(std::vector<const DataArray *>::const_iterator it=arr2.begin();it!=arr2.end();it++)
+    {
+      const DataArrayDouble *a=dynamic_cast<const DataArrayDouble *>(*it);
+      if(a)
+        { arrd.push_back(a); continue; }
+      const DataArrayInt *b=dynamic_cast<const DataArrayInt *>(*it);
+      if(b)
+        { arri.push_back(b); continue; }
+      const DataArrayChar *c=dynamic_cast<const DataArrayChar *>(*it);
+      if(c)
+        { arrc.push_back(c); continue; }
+      throw INTERP_KERNEL::Exception("DataArray::Aggregate : presence of not null instance in inuput that is not in [DataArrayDouble, DataArrayInt, DataArrayChar] !");
+    }
+  if(arr2.size()==arrd.size())
+    return DataArrayDouble::Aggregate(arrd);
+  if(arr2.size()==arri.size())
+    return DataArrayInt::Aggregate(arri);
+  if(arr2.size()==arrc.size())
+    return DataArrayChar::Aggregate(arrc);
+  throw INTERP_KERNEL::Exception("DataArray::Aggregate : all input arrays must have the same type !");
+}
+
+/*!
  * Sets information on a component specified by an index.
  * To know more on format of this information
  * see \ref MEDCouplingArrayBasicsCompoName "DataArrays infos".

@@ -1045,6 +1045,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
             }
           throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 6 !");
         }
+      return DataArray::Aggregate(arr);
     }
 }
 

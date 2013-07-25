@@ -226,6 +226,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArray::selectByTupleId;
 %newobject ParaMEDMEM::DataArray::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArray::selectByTupleId2;
+%newobject ParaMEDMEM::DataArray::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::New;
 %newobject ParaMEDMEM::DataArrayInt::__iter__;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;

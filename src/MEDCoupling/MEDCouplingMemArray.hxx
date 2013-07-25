@@ -152,6 +152,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -163,6 +164,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArray *Aggregate(const std::vector<const DataArray *>& arrs) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT virtual void reprStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void reprZipStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void reprWithoutNameStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);

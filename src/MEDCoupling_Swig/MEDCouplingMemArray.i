@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
+    virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -274,6 +275,13 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice contains some unknowns that can't be determined in static method !");
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
+      
+      static DataArray *Aggregate(PyObject *arrs) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const DataArray *> tmp;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArray *>(arrs,SWIGTYPE_p_ParaMEDMEM__DataArray,"DataArray",tmp);
+        return DataArray::Aggregate(tmp);
+      }
 
       int getNumberOfItemGivenBES(PyObject *slic) const throw(INTERP_KERNEL::Exception)
       {
@@ -332,7 +340,6 @@ namespace ParaMEDMEM
     DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
-    void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);
     DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
@@ -2323,7 +2330,6 @@ namespace ParaMEDMEM
     bool isIdentity() const throw(INTERP_KERNEL::Exception);
     bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
-    void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);
     DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
@@ -4535,7 +4541,6 @@ namespace ParaMEDMEM
     DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
     bool isUniform(char val) const throw(INTERP_KERNEL::Exception);
-    void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     DataArrayChar *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
