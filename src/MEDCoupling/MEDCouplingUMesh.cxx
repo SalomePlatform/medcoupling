@@ -1391,6 +1391,7 @@ DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const thro
  * So for pohyhedrons some nodes can be counted several times in the returned result.
  * 
  * \return a newly allocated array
+ * \sa MEDCouplingUMesh::computeEffectiveNbOfNodesPerCell
  */
 DataArrayInt *MEDCouplingUMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
 {
@@ -1407,6 +1408,36 @@ DataArrayInt *MEDCouplingUMesh::computeNbOfNodesPerCell() const throw(INTERP_KER
         *retPtr=connI[i+1]-connI[i]-1;
       else
         *retPtr=connI[i+1]-connI[i]-1-std::count(conn+connI[i]+1,conn+connI[i+1],-1);
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method computes effective number of nodes per cell. That is to say nodes appearing several times in nodal connectivity of a cell,
+ * will be counted only once here whereas it will be counted several times in MEDCouplingUMesh::computeNbOfNodesPerCell method.
+ *
+ * \return DataArrayInt * - new object to be deallocated by the caller.
+ * \sa MEDCouplingUMesh::computeNbOfNodesPerCell
+ */
+DataArrayInt *MEDCouplingUMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  int nbOfCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *retPtr=ret->getPointer();
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  for(int i=0;i<nbOfCells;i++,retPtr++)
+    {
+      std::set<int> s(conn+connI[i]+1,conn+connI[i+1]);
+      if(conn[connI[i]]!=(int)INTERP_KERNEL::NORM_POLYHED)
+        *retPtr=(int)s.size();
+      else
+        {
+          s.erase(-1);
+          *retPtr=(int)s.size();
+        }
     }
   return ret.retn();
 }

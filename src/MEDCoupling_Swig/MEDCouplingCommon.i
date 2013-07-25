@@ -364,6 +364,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
 %newobject ParaMEDMEM::MEDCouplingMesh::computeNbOfNodesPerCell;
 %newobject ParaMEDMEM::MEDCouplingMesh::computeNbOfFacesPerCell;
+%newobject ParaMEDMEM::MEDCouplingMesh::computeEffectiveNbOfNodesPerCell;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildPartRange;
 %newobject ParaMEDMEM::MEDCouplingMesh::giveCellsWithType;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
@@ -682,6 +683,7 @@ namespace ParaMEDMEM
     virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayInt *computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);

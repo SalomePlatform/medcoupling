@@ -301,6 +301,11 @@ DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfFacesPerCell() const throw(INT
   return ret3D->renumberR(_mesh3D_ids->begin());
 }
 
+DataArrayInt *MEDCouplingExtrudedMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  return computeNbOfNodesPerCell();
+}
+
 int MEDCouplingExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   int ret=0;

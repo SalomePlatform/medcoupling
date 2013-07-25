@@ -125,6 +125,18 @@ DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const throw(I
   return ret.retn();
 }
 
+/*!
+ * This method computes effective number of nodes per cell. That is to say nodes appearing several times in nodal connectivity of a cell,
+ * will be counted only once here whereas it will be counted several times in MEDCouplingMesh::computeNbOfNodesPerCell method.
+ * Here for structured mesh it returns exactly as MEDCouplingStructuredMesh::computeNbOfNodesPerCell does.
+ *
+ * \return DataArrayInt * - new object to be deallocated by the caller.
+ */
+DataArrayInt *MEDCouplingStructuredMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  return computeNbOfNodesPerCell();
+}
+
 void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   int meshDim=getMeshDimension();

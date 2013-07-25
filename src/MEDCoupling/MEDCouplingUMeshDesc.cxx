@@ -177,6 +177,11 @@ DataArrayInt *MEDCouplingUMeshDesc::computeNbOfFacesPerCell() const throw(INTERP
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeNbOfFacesPerCell : not implemented yet !");
 }
 
+DataArrayInt *MEDCouplingUMeshDesc::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeEffectiveNbOfNodesPerCell : not implemented yet !");
+}
+
 int MEDCouplingUMeshDesc::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   const int *desc_connec=_desc_connec->getConstPointer();

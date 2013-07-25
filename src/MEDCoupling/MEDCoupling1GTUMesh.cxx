@@ -703,6 +703,23 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfFacesPerCell() const throw(INTERP
   return ret.retn();
 }
 
+DataArrayInt *MEDCoupling1SGTUMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkNonDynamicGeoType();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  int nbCells(getNumberOfCells());
+  ret->alloc(nbCells,1);
+  int *retPtr(ret->getPointer());
+  int nbNodesPerCell(getNumberOfNodesPerCell());
+  const int *conn(_conn->begin());
+  for(int i=0;i<nbCells;i++,conn+=nbNodesPerCell,retPtr++)
+    {
+      std::set<int> s(conn,conn+nbNodesPerCell);
+      *retPtr=(int)s.size();
+    }
+  return ret.retn();
+}
+
 void MEDCoupling1SGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   int sz=getNumberOfNodesPerCell();
@@ -1800,6 +1817,41 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const throw(INTERP
   const int *ci=_conn_indx->begin(),*c=_conn->begin();
   for(int i=0;i<nbOfCells;i++,retPtr++,ci++)
     *retPtr=std::count(c+ci[0],c+ci[1],-1)+1;
+  return ret.retn();
+}
+
+/*!
+ * This method computes effective number of nodes per cell. That is to say nodes appearing several times in nodal connectivity of a cell,
+ * will be counted only once here whereas it will be counted several times in MEDCoupling1DGTUMesh::computeNbOfNodesPerCell method.
+ *
+ * \return DataArrayInt * - new object to be deallocated by the caller.
+ * \sa MEDCoupling1DGTUMesh::computeNbOfNodesPerCell
+ */
+DataArrayInt *MEDCoupling1DGTUMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  _conn_indx->checkMonotonic(true);
+  int nbOfCells(_conn_indx->getNumberOfTuples()-1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *retPtr(ret->getPointer());
+  const int *ci(_conn_indx->begin()),*c(_conn->begin());
+  if(getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+    {
+      for(int i=0;i<nbOfCells;i++,retPtr++,ci++)
+        {
+          std::set<int> s(c+ci[0],c+ci[1]);
+          *retPtr=(int)s.size();
+        }
+    }
+  else
+    {
+      for(int i=0;i<nbOfCells;i++,retPtr++,ci++)
+        {
+          std::set<int> s(c+ci[0],c+ci[1]); s.erase(-1);
+          *retPtr=(int)s.size();
+        }
+    }
   return ret.retn();
 }
 

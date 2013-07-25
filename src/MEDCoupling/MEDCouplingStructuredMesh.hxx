@@ -37,6 +37,7 @@ namespace ParaMEDMEM
     DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     static void GetPosFromId(int nodeId, int meshDim, const int *split, int *res);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
