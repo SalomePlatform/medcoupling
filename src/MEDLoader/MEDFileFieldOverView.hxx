@@ -90,6 +90,9 @@ namespace ParaMEDMEM
     std::vector< INTERP_KERNEL::NormalizedCellType > _geo_types;
     std::vector<int> _nb_entities;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_reduction;
+  public:
+    static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
+    static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
   };
   
   class MEDStructuredMeshMultiLev;
@@ -102,6 +105,9 @@ namespace ParaMEDMEM
     void selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part);
+    void buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const throw(INTERP_KERNEL::Exception);
+  private:
+    void reorderNodesIfNecessary(DataArrayDouble *coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception);
   private:
     MEDUMeshMultiLev(const MEDUMeshMultiLev& other);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);

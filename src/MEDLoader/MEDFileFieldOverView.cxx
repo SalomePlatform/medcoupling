@@ -26,6 +26,9 @@
 
 using namespace ParaMEDMEM;
 
+const unsigned char MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE[MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE_LGTH]=
+  {1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,-1,4};
+
 const char MEDFileField1TSStructItem2::NEWLY_CREATED_PFL_NAME[]="???";
 
 MEDFileMeshStruct *MEDFileMeshStruct::New(const MEDFileMesh *mesh)
@@ -966,12 +969,9 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
           p1->sort(true); p2->sort(true);
           if(!p1->isEqualWithoutConsideringStr(*p2))
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 3 !");
-          p1=globs->getProfile(pflName.c_str())->checkAndPreparePermutation();
-          p2=nr->checkAndPreparePermutation();
-          p1=p1->invertArrayO2N2N2O(p1->getNumberOfTuples());
-          p2=p1->selectByTupleIdSafe(p2->begin(),p2->end());
+          p1=DataArrayInt::FindPermutationFromFirstToSecond(globs->getProfile(pflName.c_str()),nr);
           MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
-          ret->renumberInPlace(p2->begin());
+          ret->renumberInPlace(p1->begin());
           return ret.retn();
         }
       if(!pflName.empty() && !nr)
@@ -1026,11 +1026,8 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
               p1->sort(true); p2->sort(true);
               if(!p1->isEqualWithoutConsideringStr(*p2))
                 throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
-              p1=otherP->checkAndPreparePermutation();
-              p2=thisP->checkAndPreparePermutation();
-              p1=p1->invertArrayO2N2N2O(p1->getNumberOfTuples());
-              p2=p1->selectByTupleIdSafe(p2->begin(),p2->end());
-              ret->rearrange(nbi*nc); ret->renumberInPlace(otherP->begin()); ret->rearrange(nc);
+              p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,thisP);
+              ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc);
               continue;
             }
           if(thisP && !otherP)
@@ -1165,6 +1162,184 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
 {
   _parts.resize(1);
   _parts[0]=part;
+}
+
+void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const throw(INTERP_KERNEL::Exception)
+{
+  if(_parts.empty())
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : empty array !");
+  if(!(const MEDCoupling1GTUMesh *)_parts[0])
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : first part is null !");
+  const DataArrayDouble *tmp(_parts[0]->getCoords());
+  if(!tmp)
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : the coordinates are null !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
+  int szBCE(0),szD(0),szF(0);
+  bool isPolyh(false);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++)
+    {
+      const MEDCoupling1GTUMesh *cur(*it);
+      if(!cur)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : a part is null !");
+      int curNbCells(cur->getNumberOfCells());
+      szBCE+=curNbCells;
+      if((*it)->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+        szD=(*it)->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
+      else
+        {
+          isPolyh=true;
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp((*it)->computeEffectiveNbOfNodesPerCell());
+          szD+=tmp->accumulate(0)+curNbCells;
+          szF+=2*curNbCells+(*it)->getNodalConnectivity()->getNumberOfTuples();
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()); c->alloc(szBCE,1); int *cPtr(c->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d(DataArrayInt::New()); d->alloc(szD,1); int *dPtr(d->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> e(DataArrayInt::New()),f(DataArrayInt::New()); int *ePtr(0),*fPtr(0);
+  if(isPolyh)
+    { e->alloc(szBCE,1); ePtr=e->getPointer(); f->alloc(szF,1); fPtr=f->getPointer(); }
+  int k(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++)
+    {
+      const MEDCoupling1GTUMesh *cur(*it);
+      int curNbCells(cur->getNumberOfCells());
+      int gt((int)cur->getCellModelEnum());
+      if(gt<0 || gt>=PARAMEDMEM_2_VTKTYPE_LGTH)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : invalid geometric type !");
+      unsigned char gtvtk(PARAMEDMEM_2_VTKTYPE[gt]);
+      if(gtvtk==-1)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : no VTK type for the requested INTERP_KERNEL geometric type !");
+      std::fill(bPtr,bPtr+curNbCells,gtvtk); bPtr+=curNbCells;
+      const MEDCoupling1SGTUMesh *scur(dynamic_cast<const MEDCoupling1SGTUMesh *>(cur));
+      const MEDCoupling1DGTUMesh *dcur(dynamic_cast<const MEDCoupling1DGTUMesh *>(cur));
+      const int *connPtr(cur->getNodalConnectivity()->begin());
+      if(!scur && !dcur)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : internal error !");
+      if(scur)
+        {
+          int nnpc(scur->getNumberOfNodesPerCell());
+          for(int i=0;i<curNbCells;i++,connPtr+=nnpc)
+            {
+              *dPtr++=nnpc;
+              dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
+              *cPtr=k+nnpc; k=*cPtr++;
+            }
+          if(isPolyh)
+            { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
+        }
+      else
+        {
+          const int *connIPtr(dcur->getNodalConnectivityIndex()->begin());
+          if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+            {
+              for(int i=0;i<curNbCells;i++,connIPtr++)
+                {
+                  *dPtr++=connIPtr[1]-connIPtr[0];
+                  dPtr=std::copy(connPtr+connIPtr[0],connPtr+connIPtr[1],dPtr);
+                  *cPtr=k+connIPtr[1]-connIPtr[0]; k=*cPtr++;
+                }
+            }
+          else
+            {
+              for(int i=0;i<curNbCells;i++,connIPtr++)
+                {
+                  std::set<int> s(connPtr+connIPtr[0],connPtr+connIPtr[1]);
+                  *dPtr++=(int)s.size();
+                  dPtr=std::copy(s.begin(),s.end(),dPtr);
+                  *cPtr=k+(int)s.size(); k=*cPtr++;
+                }
+            }
+          if(isPolyh)
+            {
+              connIPtr=dcur->getNodalConnectivityIndex()->begin();
+              if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+                { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
+              else
+                {
+                  int kk(0);
+                  for(int i=0;i<curNbCells;i++,connIPtr++)
+                    {
+                      int nbFace(std::count(connPtr+connIPtr[0],connPtr+connIPtr[1],-1)+1);
+                      *fPtr++=nbFace;
+                      const int *work(connPtr+connIPtr[0]);
+                      for(int j=0;j<nbFace;j++)
+                        {
+                          const int *work2=std::find(work,connPtr+connIPtr[1],-1);
+                          *fPtr++=std::distance(work,work2);
+                          fPtr=std::copy(work,work2,fPtr);
+                          work=work2+1;
+                        }
+                      *ePtr=kk; kk+=connIPtr[1]-connIPtr[0]+2;
+                    }
+                }
+            }
+        }
+    }
+  if(!isPolyh)
+    reorderNodesIfNecessary(a,d,0);
+  else
+    reorderNodesIfNecessary(a,d,f);
+  coords=a.retn(); types=b.retn(); cellLocations=c.retn(); cells=d.retn();
+  if(!isPolyh)
+    { faceLocations=0; faces=0; }
+  else
+    { faceLocations=e.retn(); faces=f.retn(); }
+}
+
+void MEDUMeshMultiLev::reorderNodesIfNecessary(DataArrayDouble *coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayInt *nr(_node_reduction);
+  if(!nr)
+    return ;
+  int sz(coords->getNumberOfTuples());
+  std::vector<bool> b(sz,false);
+  const int *work(nodalConnVTK->begin()),*endW(nodalConnVTK->end());
+  while(work!=endW)
+    {
+      int nb(*work++);
+      for(int i=0;i<nb && work!=endW;i++,work++)
+        {
+          if(*work>=0 && *work<sz)
+            b[sz]=true;
+          else
+            throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::reorderNodesIfNecessary : internal error !");
+        }
+    }
+  if(polyhedNodalConnVTK)
+    {
+      work=polyhedNodalConnVTK->begin(); endW=polyhedNodalConnVTK->end();
+      while(work!=endW)
+        {
+          int nb(*work++);
+          for(int i=0;i<nb && work!=endW;i++)
+            {
+              int nb2(*work++);
+              for(int j=0;j<nb2 && work!=endW;j++,work++)
+                {
+                  if(*work>=0 && *work<sz)
+                    b[sz]=true;
+                  else
+                    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::reorderNodesIfNecessary : internal error #2 !");
+                }
+            }
+        }
+    }
+  int szExp(std::count(b.begin(),b.end(),true));
+  if(szExp!=nr->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::reorderNodesIfNecessary : internal error #3 !");
+  // Go renumbering !
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(DataArrayInt::New()); o2n->alloc(sz,1);
+  int *o2nPtr(o2n->getPointer());
+  int newId(0);
+  for(int i=0;i<sz;i++,o2nPtr++)
+    if(b[i]) *o2nPtr=newId++; else *o2nPtr=-1;
+  //tony you have to finish
+  /*MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(o2n->invertO2N2N2O(nr->getNumberOfTuples()));
+  
+  const int *o2nc(o2n->begin());
+  int *work2(nodalConnVTK->getPointer()),*endW2(nodalConnVTK->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(coords->selectByTupleIdSafe(nr->begin(),nr->end()));*/
 }
 
 //=
