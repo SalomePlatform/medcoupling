@@ -3757,41 +3757,34 @@ namespace ParaMEDMEM
       }
       void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
       {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            self->renumberCells(tmp,check);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            self->renumberCells(da2->getConstPointer(),check);
-          }
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        self->renumberCells(tmp,check);
       }
+      
+      void renumberCellsWithoutMesh(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
+      {
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        self->renumberCellsWithoutMesh(tmp,check);
+      }
+      
       void renumberNodes(PyObject *li, double eps=1e-15) throw(INTERP_KERNEL::Exception)
       {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
-          {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            self->renumberNodes(tmp,eps);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            self->renumberNodes(da2->getConstPointer(),eps);
-          }
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        self->renumberNodes(tmp,eps);
+      }
+
+      void renumberNodesWithoutMesh(PyObject *li, int newNbOfNodes, double eps=1e-15) throw(INTERP_KERNEL::Exception)
+      {
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
+        self->renumberNodesWithoutMesh(tmp,newNbOfNodes,eps);
       }
 
       MEDCouplingFieldDouble *buildSubPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
