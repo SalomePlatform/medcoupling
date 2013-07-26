@@ -147,6 +147,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False) # False is important to not read the values
+        refMem=fields.getHeapMemorySize()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -183,6 +184,9 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(5):
             fsst=MEDFileField1TSStructItem.BuildItemFrom(fields[0][i],mst)
             fields[0][i].loadArraysIfNecessary()
+            tmpMem=fields.getHeapMemorySize()
+            self.assertTrue(tmpMem-refMem>=41*2*8)
+            refMem=tmpMem
             v=mml.buildDataArray(fsst,fields,fields[0][i].getUndergroundDataArray())
             self.assertEqual(v.getHiddenCppPointer(),fields[0][i].getUndergroundDataArray().getHiddenCppPointer())
             vExp=DataArrayDouble([200.,201.,202.,203.,204.,205.,206.,207.,208.,209.,210.,211.,212.,213.,214.,215.,216.,217.,218.,219.,220.,221.,222.,223.,224.,225.,226.,227.,228.,229.,230.,231.,232.,233.,234.,235.,236.,237.,238.,239.,240.,241.,242.,243.,244.,245.,246.,247.,248.,249.,250.,251.,252.,253.,254.,255.,256.,257.,258.,259.,260.,261.,262.,263.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.,111.,112.,113.,114.,115.,116.,117.],41,2) ; vExp.setInfoOnComponents(['Comp1 [m]','Com2 [s^2]']) ; vExp+=i*1000
