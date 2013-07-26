@@ -2789,13 +2789,13 @@ namespace ParaMEDMEM
   class MEDFileField1TSStructItem
   {
   public:
-    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
+    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileMeshStruct : public RefCountObject
   {
   public:
-    static MEDFileMeshStruct *New(const MEDFileMesh *mesh);
+    static MEDFileMeshStruct *New(const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
   private:
     ~MEDFileMeshStruct();
   };
