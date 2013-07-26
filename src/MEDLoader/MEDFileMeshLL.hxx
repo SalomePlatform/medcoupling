@@ -154,7 +154,7 @@ namespace ParaMEDMEM
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     bool empty() const;
     int getMeshDimension() const;
-    std::vector<int> getDistributionOfTypes() const;
+    std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception);
     int getSize() const throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
   private:
@@ -193,6 +193,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const throw(INTERP_KERNEL::Exception) { return _m_by_types.getPartsWithoutComputation(); }
     MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception) { return _m_by_types.getPartWithoutComputation(gt); }
+    std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception) { return _m_by_types.getDistributionOfTypes(); }
     DataArrayInt *getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getFamilyField() const;
     const DataArrayInt *getNumberField() const;

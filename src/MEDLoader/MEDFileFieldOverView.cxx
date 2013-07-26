@@ -52,10 +52,7 @@ MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
   _nb_nodes=mesh->getNumberOfNodes();
   _geo_types_distrib.resize(levs.size());
   for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
-    {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mLev=mesh->getGenMeshAtLevel(*lev);
-      _geo_types_distrib[-(*lev)]=mLev->getDistributionOfTypes();
-    }
+    _geo_types_distrib[-(*lev)]=mesh->getDistributionOfTypes(*lev);
 }
 
 int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception)
@@ -1295,9 +1292,10 @@ std::size_t MEDFileField1TSStructItem::getHeapMemorySize() const
 
 MEDMeshMultiLev *MEDFileField1TSStructItem::buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
 {
-  std::vector<INTERP_KERNEL::NormalizedCellType> a0;
-  std::vector<const DataArrayInt *> a1;
-  std::vector<int> a2;
+  std::size_t sz(_items.size());
+  std::vector<INTERP_KERNEL::NormalizedCellType> a0(sz);
+  std::vector<const DataArrayInt *> a1(sz);
+  std::vector<int> a2(sz);
   std::size_t i(0);
   for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++,i++)
     {

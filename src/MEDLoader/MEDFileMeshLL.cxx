@@ -1189,7 +1189,7 @@ int MEDFileUMeshAggregateCompute::getMeshDimension() const
     }
 }
 
-std::vector<int> MEDFileUMeshAggregateCompute::getDistributionOfTypes() const
+std::vector<int> MEDFileUMeshAggregateCompute::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
 {
   if(_mp_time<_m_time)
     {

@@ -1738,6 +1738,12 @@ void MEDFileMesh::appendFamilyEntries(const DataArrayInt *famIds, const std::vec
     }
 }
 
+std::vector<int> MEDFileMesh::getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mLev(getGenMeshAtLevel(meshDimRelToMax));
+  return mLev->getDistributionOfTypes();
+}
+
 void MEDFileMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp)
 {
   famArr->applyLin(offset>0?1:-1,offset,0);
@@ -2882,6 +2888,12 @@ MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum
   return getMeshAtLevel(meshDimRelToMax,renum);
 }
 
+std::vector<int> MEDFileUMesh::getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDFileUMeshSplitL1 *l1(getMeshAtLevSafe(meshDimRelToMax));
+  return l1->getDistributionOfTypes();
+}
+
 /*!
  * Returns a MEDCouplingUMesh of a relative dimension == 0.
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
@@ -2938,6 +2950,7 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const throw(INTERP_KE
  * This method returns a vector of mesh parts containing each exactly one geometric type.
  * This method will never launch an automatic computation of split by type (an INTERP_KERNEL::Exception will be then thrown).
  * This method is only for memory aware users.
+ * The returned pointers are **NOT** new object pointer. No need to mange them.
  */
 std::vector<MEDCoupling1GTUMesh *> MEDFileUMesh::getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
 {
@@ -2948,6 +2961,7 @@ std::vector<MEDCoupling1GTUMesh *> MEDFileUMesh::getDirectUndergroundSingleGeoTy
 /*!
  * This method returns the part of \a this having the geometric type \a gt.
  * If such part is not existing an exception will be thrown.
+ * The returned pointer is **NOT** new object pointer. No need to mange it.
  */
 MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception)
 {
