@@ -20,7 +20,7 @@
 
 #include <vector>
 
-static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(!mesh)
@@ -39,7 +39,7 @@ static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner) th
   return ret;
 }
 
-static PyObject* convertMEDFileParameter1TS(ParaMEDMEM::MEDFileParameter1TS* p1ts, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileParameter1TS(ParaMEDMEM::MEDFileParameter1TS* p1ts, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(!p1ts)
@@ -56,7 +56,7 @@ static PyObject* convertMEDFileParameter1TS(ParaMEDMEM::MEDFileParameter1TS* p1t
   return ret;
 }
 
-static PyObject* convertMEDFileField1TS(ParaMEDMEM::MEDFileAnyTypeField1TS *p, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileField1TS(ParaMEDMEM::MEDFileAnyTypeField1TS *p, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(!p)
@@ -73,7 +73,7 @@ static PyObject* convertMEDFileField1TS(ParaMEDMEM::MEDFileAnyTypeField1TS *p, i
   return ret;
 }
 
-static PyObject* convertMEDFileFieldMultiTS(ParaMEDMEM::MEDFileAnyTypeFieldMultiTS *p, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMEDFileFieldMultiTS(ParaMEDMEM::MEDFileAnyTypeFieldMultiTS *p, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(!p)
@@ -87,6 +87,25 @@ static PyObject* convertMEDFileFieldMultiTS(ParaMEDMEM::MEDFileAnyTypeFieldMulti
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDFileIntFieldMultiTS,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of MEDFileAnyTypeFieldMultiTS on downcast !");
+  return ret;
+}
+
+static PyObject *convertMEDMeshMultiLev(ParaMEDMEM::MEDMeshMultiLev *p, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!p)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDUMeshMultiLev *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDUMeshMultiLev,owner);
+  if(dynamic_cast<MEDCMeshMultiLev *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDCMeshMultiLev,owner);
+  if(dynamic_cast<MEDStructuredMeshMultiLev *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDStructuredMeshMultiLev,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of MEDMeshMultiLev on downcast !");
   return ret;
 }
 

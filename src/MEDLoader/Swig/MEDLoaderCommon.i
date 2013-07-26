@@ -32,6 +32,7 @@
 #include "MEDFileParameter.hxx"
 #include "MEDFileData.hxx"
 #include "MEDFileMeshReadSelector.hxx"
+#include "MEDFileFieldOverView.hxx"
 #include "MEDLoaderTypemaps.i"
 #include "SauvReader.hxx"
 #include "SauvWriter.hxx"
@@ -61,6 +62,11 @@ using namespace ParaMEDMEM;
 %typemap(out) ParaMEDMEM::MEDFileAnyTypeField1TS*
 {
   $result=convertMEDFileField1TS($1,$owner);
+}
+
+%typemap(out) ParaMEDMEM::MEDMeshMultiLev*
+{
+  $result=convertMEDMeshMultiLev($1,$owner);
 }
 
 %newobject MEDLoader::ReadUMeshFromFamilies;
@@ -175,6 +181,11 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::SauvReader::New;
 %newobject ParaMEDMEM::SauvReader::loadInMEDFileDS;
 
+%newobject ParaMEDMEM::MEDFileMeshStruct::New;
+%newobject ParaMEDMEM::MEDMeshMultiLev::buildDataArray;
+%newobject ParaMEDMEM::MEDFileFastCellSupportComparator::New;
+%newobject ParaMEDMEM::MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport;
+
 %feature("unref") MEDFileMesh "$this->decrRef();"
 %feature("unref") MEDFileUMesh "$this->decrRef();"
 %feature("unref") MEDFileCMesh "$this->decrRef();"
@@ -196,6 +207,11 @@ using namespace ParaMEDMEM;
 %feature("unref") MEDFileData "$this->decrRef();"
 %feature("unref") SauvReader "$this->decrRef();"
 %feature("unref") SauvWriter "$this->decrRef();"
+%feature("unref") MEDFileFastCellSupportComparator "$this->decrRef();"
+%feature("unref") MEDMeshMultiLev "$this->decrRef();"
+%feature("unref") MEDUMeshMultiLev "$this->decrRef();"
+%feature("unref") MEDCMeshMultiLev "$this->decrRef();"
+%feature("unref") MEDCurveLinearMeshMultiLev "$this->decrRef();"
 
 class MEDLoader
 {
@@ -2756,5 +2772,112 @@ namespace ParaMEDMEM
     void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0) throw(INTERP_KERNEL::Exception);
     void write(const char* fileName) throw(INTERP_KERNEL::Exception);
   };
+  
+  ///////////////
 
+  class MEDFileMeshStruct;
+
+  class MEDFileField1TSStructItem
+  {
+  public:
+    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
+  };
+
+  class MEDFileMeshStruct : public RefCountObject
+  {
+  public:
+    static MEDFileMeshStruct *New(const MEDFileMesh *mesh);
+  private:
+    ~MEDFileMeshStruct();
+  };
+  
+  class MEDMeshMultiLev : public RefCountObject
+  {
+  public:
+    DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
+  private:
+    ~MEDMeshMultiLev();
+  };
+
+  class MEDUMeshMultiLev : public MEDMeshMultiLev
+  {
+  private:
+    ~MEDUMeshMultiLev();
+  public:
+    %extend
+     {
+       PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
+       {
+         DataArrayDouble *coords(0); DataArrayByte *types(0); DataArrayInt *cellLocations(0),*cells(0),*faceLocations(0),*faces(0);
+         self->buildVTUArrays(coords,types,cellLocations,cells,faceLocations,faces);
+         PyObject *ret=PyTuple_New(6);
+         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(coords),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(types),SWIGTYPE_p_ParaMEDMEM__DataArrayByte, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(cellLocations),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(cells),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(faceLocations),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(faces),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         return ret;
+       }
+     }
+  };
+
+  class MEDStructuredMeshMultiLev : public MEDMeshMultiLev
+  {
+  private:
+    ~MEDStructuredMeshMultiLev();
+  };
+
+  class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
+  {
+  private:
+    ~MEDCMeshMultiLev();
+  public:
+    %extend
+    {
+      PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< DataArrayDouble * > objs(self->buildVTUArrays());
+        std::size_t sz(objs.size());
+        PyObject *ret=PyList_New(sz);
+        for(std::size_t i=0;i<sz;i++)
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(objs[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+    }
+  };
+
+  class MEDCurveLinearMeshMultiLev : public MEDStructuredMeshMultiLev
+  {
+  private:
+    ~MEDCurveLinearMeshMultiLev();
+  public:
+    %extend
+    {
+      PyObject *buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayDouble *ret0(0);
+        std::vector<int> ret1;
+        self->buildVTUArrays(ret0,ret1);
+        std::size_t sz(ret1.size());
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        PyObject *ret1Py=PyList_New(sz);
+        for(std::size_t i=0;i<sz;i++)
+          PyList_SetItem(ret1Py,i,SWIG_From_int(ret1[i]));
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
+    }
+  };
+
+  class MEDFileFastCellSupportComparator : public RefCountObject
+  {
+  public:
+    static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception);
+    MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+    bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+  private:
+    ~MEDFileFastCellSupportComparator();
+  };
 }

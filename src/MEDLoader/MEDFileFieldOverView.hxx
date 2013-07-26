@@ -134,6 +134,7 @@ namespace ParaMEDMEM
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception);
     std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
+    std::vector< DataArrayDouble * > buildVTUArrays() const throw(INTERP_KERNEL::Exception);
   private:
     MEDCMeshMultiLev(const MEDCMeshMultiLev& other);
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>& levs);
@@ -149,6 +150,7 @@ namespace ParaMEDMEM
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls , const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception);
     std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
+    void buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const throw(INTERP_KERNEL::Exception);
   private:
     MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other);
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
@@ -195,6 +197,7 @@ namespace ParaMEDMEM
   class MEDFileField1TSStructItem : public RefCountObject
   {
   public:
+    MEDFileField1TSStructItem() { }
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception);
     bool operator==(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception);
@@ -211,6 +214,7 @@ namespace ParaMEDMEM
     bool isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
     bool isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
   private:
     bool _computed;
     TypeOfField _type;
@@ -228,7 +232,6 @@ namespace ParaMEDMEM
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
     bool isDataSetSupportFastlyEqualTo(const MEDFileField1TSStruct& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
-    static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
   private:
     MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
     bool presenceOfCellDiscr(int& pos) const throw(INTERP_KERNEL::Exception);
