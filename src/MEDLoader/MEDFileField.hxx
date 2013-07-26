@@ -514,7 +514,7 @@ namespace ParaMEDMEM
     void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
     void loadBigArraysRecursivelyIfNecessary(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
     void loadStructureAndBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid, const MEDFileWritable& opts, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
   protected:
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
@@ -655,7 +655,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitComponents() const throw(INTERP_KERNEL::Exception);
     std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitDiscretizations() const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
@@ -818,7 +818,7 @@ namespace ParaMEDMEM
     void writeLL(med_idt fid, const MEDFileWritable& opts) const throw(INTERP_KERNEL::Exception);
     void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
     void loadBigArraysRecursivelyIfNecessary(med_idt fid, const MEDFileFieldNameScope& nasc) throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
   public:
     const MEDFileAnyTypeField1TSWithoutSDA *getTimeStepAtPos2(int pos) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TSWithoutSDA *getTimeStepAtPos2(int pos) throw(INTERP_KERNEL::Exception);
@@ -901,7 +901,7 @@ namespace ParaMEDMEM
     static MEDFileAnyTypeFieldMultiTS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySize() const;
@@ -1071,7 +1071,7 @@ std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iterati
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector< std::pair<int,int> > getCommonIterations(bool& areThereSomeForgottenTS) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);

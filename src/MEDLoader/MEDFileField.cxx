@@ -4177,7 +4177,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::loadStructureAndBigArraysRecursively(med_
   loadBigArraysRecursively(fid,nasc);
 }
 
-void MEDFileAnyTypeField1TSWithoutSDA::releaseArrays() throw(INTERP_KERNEL::Exception)
+void MEDFileAnyTypeField1TSWithoutSDA::unloadArrays() throw(INTERP_KERNEL::Exception)
 {
   DataArray *thisArr(getUndergroundDataArray());
   if(thisArr && thisArr->isAllocated())
@@ -5525,7 +5525,7 @@ void MEDFileAnyTypeField1TS::loadArrays() throw(INTERP_KERNEL::Exception)
  * But once data loaded once, this method does nothing.
  * 
  * \throw If the fileName is not set or points to a non readable MED file.
- * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::releaseArrays
+ * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::unloadArrays
  */
 void MEDFileAnyTypeField1TS::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
 {
@@ -5539,9 +5539,9 @@ void MEDFileAnyTypeField1TS::loadArraysIfNecessary() throw(INTERP_KERNEL::Except
  * 
  * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::loadArraysIfNecessary
  */
-void MEDFileAnyTypeField1TS::releaseArrays() throw(INTERP_KERNEL::Exception)
+void MEDFileAnyTypeField1TS::unloadArrays() throw(INTERP_KERNEL::Exception)
 {
-  contentNotNullBase()->releaseArrays();
+  contentNotNullBase()->unloadArrays();
 }
 
 void MEDFileAnyTypeField1TS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
@@ -7029,13 +7029,13 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadBigArraysRecursivelyIfNecessary(m
     }
 }
 
-void MEDFileAnyTypeFieldMultiTSWithoutSDA::releaseArrays() throw(INTERP_KERNEL::Exception)
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::unloadArrays() throw(INTERP_KERNEL::Exception)
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
     {
       MEDFileAnyTypeField1TSWithoutSDA *elt(*it);
       if(elt)
-        elt->releaseArrays();
+        elt->unloadArrays();
     }
 }
 
@@ -8089,7 +8089,7 @@ void MEDFileAnyTypeFieldMultiTS::loadArrays() throw(INTERP_KERNEL::Exception)
  * But once data loaded once, this method does nothing.
  * 
  * \throw If the fileName is not set or points to a non readable MED file.
- * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::releaseArrays
+ * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::unloadArrays
  */
 void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
 {
@@ -8103,9 +8103,9 @@ void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary() throw(INTERP_KERNEL::Ex
  * 
  * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary
  */
-void MEDFileAnyTypeFieldMultiTS::releaseArrays() throw(INTERP_KERNEL::Exception)
+void MEDFileAnyTypeFieldMultiTS::unloadArrays() throw(INTERP_KERNEL::Exception)
 {
-  contentNotNullBase()->releaseArrays();
+  contentNotNullBase()->unloadArrays();
 }
 
 std::string MEDFileAnyTypeFieldMultiTS::simpleRepr() const
@@ -9513,7 +9513,7 @@ void MEDFileFields::loadArrays() throw(INTERP_KERNEL::Exception)
  * But once data loaded once, this method does nothing.
  * 
  * \throw If the fileName is not set or points to a non readable MED file.
- * \sa MEDFileFields::loadArrays, MEDFileFields::releaseArrays
+ * \sa MEDFileFields::loadArrays, MEDFileFields::unloadArrays
  */
 void MEDFileFields::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
 {
@@ -9532,14 +9532,14 @@ void MEDFileFields::loadArraysIfNecessary() throw(INTERP_KERNEL::Exception)
  * 
  * \sa MEDFileFields::loadArrays, MEDFileFields::loadArraysIfNecessary
  */
-void MEDFileFields::releaseArrays() throw(INTERP_KERNEL::Exception)
+void MEDFileFields::unloadArrays() throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
       MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
       if(elt)
-        elt->releaseArrays();
+        elt->unloadArrays();
     }
 }
 

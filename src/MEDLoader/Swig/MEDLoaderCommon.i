@@ -1176,7 +1176,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     int getDimension() const throw(INTERP_KERNEL::Exception);
     int getIteration() const throw(INTERP_KERNEL::Exception);
     int getOrder() const throw(INTERP_KERNEL::Exception);
@@ -1592,7 +1592,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     //
     virtual MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
@@ -2167,7 +2167,7 @@ namespace ParaMEDMEM
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
-    void releaseArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArrays() throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);

@@ -442,7 +442,7 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       int curNbCells(cur->getNumberOfCells());
       szBCE+=curNbCells;
       if((*it)->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
-        szD=(*it)->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
+        szD+=(*it)->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
       else
         {
           isPolyh=true;

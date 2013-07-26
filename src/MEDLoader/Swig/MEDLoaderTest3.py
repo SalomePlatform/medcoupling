@@ -2928,7 +2928,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(not ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
         heap_memory_ref=ff0.getHeapMemorySize()
         self.assertTrue(heap_memory_ref>=1000 and heap_memory_ref<=1100)
-        ff0.releaseArrays()
+        ff0.unloadArrays()
         hmd=ff0.getHeapMemorySize()-heap_memory_ref
         self.assertEqual(hmd,-800) # -50*8*2
         ff0.loadArrays() ##
