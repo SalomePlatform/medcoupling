@@ -2631,29 +2631,14 @@ void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, con
   for(std::size_t i=0;i<sz;i++)
     {
       INTERP_KERNEL::NormalizedCellType curGt(st[i].getGeo());
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(curGt);
-      int relDim((int)cm.getDimension()-mdim);
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> um(getMeshAtLevel(relDim));
-      std::vector<int> d(um->getDistributionOfTypes());
-      std::size_t nbOfTypes(d.size()/3);
-      int offset=0,nbOfEltWT=-1;
-      for(std::size_t j=0;j<nbOfTypes;j++)
-        {
-          if(d[3*j]!=(int)curGt)
-            offset+=d[3*j+1];
-          else
-            { nbOfEltWT=d[3*j+1]; break; }
-        }
-      if(nbOfEltWT==-1)
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : asking for a geo type not present in this !");
-      um=dynamic_cast<MEDCouplingUMesh *>(um->buildPartOfMySelf2(offset,offset+nbOfEltWT,1,true));
+      const MEDCoupling1GTUMesh *m(getDirectUndergroundSingleGeoTypeMesh(curGt));
       if(st[i].getPflName().empty())
-        um->computeNodeIdsAlg(nodesFetched);
+        m->computeNodeIdsAlg(nodesFetched);
       else
         {
           const DataArrayInt *arr(globs->getProfile(st[i].getPflName().c_str()));
-          um=dynamic_cast<MEDCouplingUMesh *>(um->buildPartOfMySelf(arr->begin(),arr->end(),true));
-          um->computeNodeIdsAlg(nodesFetched);
+          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m2(dynamic_cast<MEDCoupling1GTUMesh *>(m->buildPartOfMySelf(arr->begin(),arr->end(),true)));
+          m2->computeNodeIdsAlg(nodesFetched);
         }
     }
 }

@@ -1192,6 +1192,25 @@ MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords2(int star
   return ret.retn();
 }
 
+void MEDCoupling1SGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const throw(INTERP_KERNEL::Exception)
+{
+  int sz((int)nodeIdsInUse.size());
+  int nbCells(getNumberOfCells());
+  int nbOfNodesPerCell(getNumberOfNodesPerCell());
+  const int *w(_conn->begin());
+  for(int i=0;i<nbCells;i++)
+    for(int j=0;j<nbOfNodesPerCell;j++,w++)
+      {
+        if(*w>=0 && *w<sz)
+          nodeIdsInUse[*w]=true;
+        else
+          {
+            std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeNodeIdsAlg : At cell #" << i << " presence of node id #" << *w << " should be in [0," << sz << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+}
+
 MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName().c_str(),*_cm));
@@ -2175,6 +2194,25 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords2(int star
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
   ret->setNodalConnectivity(c,ci);
   return ret.retn();
+}
+
+void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const throw(INTERP_KERNEL::Exception)
+{
+  int sz((int)nodeIdsInUse.size());
+  int nbCells(getNumberOfCells());
+  const int *w(_conn->begin()),*wi(_conn_indx->begin());
+  for(int i=0;i<nbCells;i++,wi++)
+    for(const int *pt=w+wi[0];pt!=w+wi[1];pt++)
+      if(*pt!=-1)
+        {
+          if(*pt>=0 && *pt<sz)
+            nodeIdsInUse[*pt]=true;
+          else
+            {
+              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::computeNodeIdsAlg : At cell #" << i << " presence of node id #" << *pt << " should be in [0," << sz << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
 }
 
 void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception)

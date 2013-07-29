@@ -423,6 +423,11 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfKeepCoords2(int star
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+void MEDCouplingUMeshDesc::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 DataArrayInt *MEDCouplingUMeshDesc::simplexize(int policy) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::simplexize : Not implemented yet !");
