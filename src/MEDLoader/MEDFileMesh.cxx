@@ -2642,7 +2642,7 @@ void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, con
           if(d[3*j]!=(int)curGt)
             offset+=d[3*j+1];
           else
-            { break; nbOfEltWT=d[3*j+1]; }
+            { nbOfEltWT=d[3*j+1]; break; }
         }
       if(nbOfEltWT==-1)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::whichAreNodesFetched : asking for a geo type not present in this !");

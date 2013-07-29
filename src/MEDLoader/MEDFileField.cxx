@@ -8297,24 +8297,19 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
   for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it2=vectFMTSNodes.begin();it2!=vectFMTSNodes.end();it2++)
     {
       i=0;
-      if(retCell.empty())
-        {
-          std::vector<MEDFileAnyTypeFieldMultiTS *> tmp(1,*it2);
-          MEDCouplingAutoRefCountObjectPtr<MEDFileMeshStruct> tmp2(MEDFileMeshStruct::New(mesh));
-          ret.push_back(tmp); retCell.push_back(tmp); cmps.push_back(MEDFileFastCellSupportComparator::New(tmp2,*it2));
-          continue;
-        }
+      bool isFetched(false);
       for(std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> >::const_iterator it0=retCell.begin();it0!=retCell.end();it0++,i++)
         {
           if((*it0).empty())
             throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : internal error !");
           if(cmps[i]->isCompatibleWithNodesDiscr(*it2))
-            ret[i].push_back(*it2);
-          else
-            {
-              std::vector<MEDFileAnyTypeFieldMultiTS *> ret0(1,*it2);
-              ret.push_back(ret0);
-            }
+            { ret[i].push_back(*it2); isFetched=true; }
+        }
+      if(!isFetched)
+        {
+          std::vector<MEDFileAnyTypeFieldMultiTS *> tmp(1,*it2);
+          MEDCouplingAutoRefCountObjectPtr<MEDFileMeshStruct> tmp2(MEDFileMeshStruct::New(mesh));
+          ret.push_back(tmp); retCell.push_back(tmp); cmps.push_back(MEDFileFastCellSupportComparator::New(tmp2,*it2));
         }
     }
   return ret;
