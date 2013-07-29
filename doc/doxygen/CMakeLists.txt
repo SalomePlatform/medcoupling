@@ -31,7 +31,7 @@ FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/medcouplingexamples.doxy" input
 FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BuildPyExamplesFromCPP.py" pythondocexamplesgenerator)
 FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" output)
 
-ADD_CUSTOM_TARGET(usr_docs
+ADD_CUSTOM_TARGET(usr_docs ALL
   COMMAND ${PYTHON_EXECUTABLE} ${pythondocexamplesgenerator} ${input} ${output}
   COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_user
   COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/MED''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/MED'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/MED''')"
