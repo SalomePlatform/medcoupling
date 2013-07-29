@@ -6245,7 +6245,8 @@ bool DataArrayInt::isFittingWith(const std::vector<bool>& v) const throw(INTERP_
                       throw INTERP_KERNEL::Exception(oss.str().c_str());
                     }
                 }
-              return false;
+              else
+                return false;
             }
           else
             return false;
