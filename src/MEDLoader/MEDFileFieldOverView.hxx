@@ -171,7 +171,7 @@ namespace ParaMEDMEM
     void checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception);
     void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception);
     //
-    std::size_t getHeapMemorySize() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySize() const;
     //
     const DataArrayInt *getPfl(const MEDFileFieldGlobsReal *globs) const;
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
@@ -203,7 +203,7 @@ namespace ParaMEDMEM
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception);
     bool operator==(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySize() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySize() const;
     bool isEntityCell() const;
     bool isComputed() const { return _computed; }
     TypeOfField getType() const { return _type; }
