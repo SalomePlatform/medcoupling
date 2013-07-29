@@ -407,6 +407,9 @@ class MEDLoaderTest4(unittest.TestCase):
         pass
 
     def test3(self):
+        """ This test is more advanced a same field is defined on CELLS for time steps 0, 2 and 4, and on NODES for time steps 1 and 3.
+        So two time step series on the same field. No profile here neither on cells nor on nodes.
+        """
         fname="ForMEDReader3.med"
         # building a mesh containing 4 tri3 + 5 quad4
         tri=MEDCouplingUMesh("tri",2)
@@ -544,6 +547,7 @@ class MEDLoaderTest4(unittest.TestCase):
             f=allFMTSLeavesPerCommonSupport[0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
+            self.assertEqual(f.getName(),"zeField")
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
             self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
             vExp=DataArrayDouble([200.,201.,202.,203.,204.,205.,206.,207.,208.,209.,210.,211.,212.,213.,214.,215.,216.,217.,218.,219.,220.,221.,222.,223.,224.,225.,226.,227.,228.,229.,230.,231.,232.,233.,234.,235.,236.,237.,238.,239.,240.,241.,242.,243.,244.,245.,246.,247.,248.,249.,250.,251.,252.,253.,254.,255.,256.,257.,258.,259.,260.,261.,262.,263.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.,111.,112.,113.,114.,115.,116.,117.],41,2) ; vExp.setInfoOnComponents(['Comp1 [m]','Com2 [s^2]']) ; vExp+=i*2000
@@ -570,6 +574,7 @@ class MEDLoaderTest4(unittest.TestCase):
             f=allFMTSLeavesPerCommonSupport[0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
+            self.assertEqual(f.getName(),"zeField")
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
             self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
             vExp=DataArrayDouble([300.,301.,302.,303.,304.,305.,306.,307.,308.,309.,310.,311.,312.,313.,314.,315.,316.,317.,318.,319.,320.,321.,322.,323.,324.,325.,326.,327.,328.,329.,330.,331.,332.,333.,334.,335.,336.,337.,338.,339.,340.,341.,342.,343.,344.,345.,346.,347.,348.,349.,350.,351.,352.,353.,354.,355.,356.,357.,358.,359.,360.,361.,362.,363.],32,2) ; vExp.setInfoOnComponents(['Comp1 [m]','Com2 [s^2]']) ; vExp.setInfoOnComponents(['Comp1 [m]','Com2 [s^2]']) ; vExp+=i*2000+1000
