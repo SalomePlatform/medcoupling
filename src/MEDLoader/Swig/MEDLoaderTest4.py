@@ -369,7 +369,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),2)
         allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
         self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
-        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),2)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),2)
         #
         mst=MEDFileMeshStruct.New(ms[0])
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
