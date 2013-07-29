@@ -559,9 +559,9 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(DataArrayDouble *coords, DataArra
       for(int i=0;i<nb && work!=endW;i++,work++)
         {
           if(*work>=0 && *work<sz)
-            b[sz]=true;
+            b[*work]=true;
           else
-            throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::reorderNodesIfNecessary : internal error !");
+            throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::reorderNodesIfNecessary : internal error !");
         }
     }
   if(polyhedNodalConnVTK)
@@ -576,16 +576,16 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(DataArrayDouble *coords, DataArra
               for(int j=0;j<nb2 && work!=endW;j++,work++)
                 {
                   if(*work>=0 && *work<sz)
-                    b[sz]=true;
+                    b[*work]=true;
                   else
-                    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::reorderNodesIfNecessary : internal error #2 !");
+                    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::reorderNodesIfNecessary : internal error #2 !");
                 }
             }
         }
     }
   int szExp(std::count(b.begin(),b.end(),true));
   if(szExp!=nr->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::reorderNodesIfNecessary : internal error #3 !");
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::reorderNodesIfNecessary : internal error #3 !");
   // Go renumbering !
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(DataArrayInt::New()); o2n->alloc(sz,1);
   int *o2nPtr(o2n->getPointer());
