@@ -582,7 +582,248 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
-    
+    def test4(self):
+        """ This test defines 3 fields on nodes on the same mesh. All of these fields have no profile.
+        """
+        fname="ForMEDReader4.med"
+        # building a mesh containing 4 tri3 + 5 quad4
+        tri=MEDCouplingUMesh("tri",2)
+        tri.allocateCells() ; tri.insertNextCell(NORM_TRI3,[0,1,2])
+        tri.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,0.)]))
+        tris=[tri.deepCpy() for i in xrange(4)]
+        for i,elt in enumerate(tris): elt.translate([i,0])
+        tris=MEDCouplingUMesh.MergeUMeshes(tris)
+        quad=MEDCouplingUMesh("quad",2)
+        quad.allocateCells() ; quad.insertNextCell(NORM_QUAD4,[0,1,2,3])
+        quad.setCoords(DataArrayDouble([(0.,0.),(0.,1.),(1.,1.),(1.,0.)]))
+        quads=[quad.deepCpy() for i in xrange(5)]
+        for i,elt in enumerate(quads): elt.translate([5+i,0])
+        quads=MEDCouplingUMesh.MergeUMeshes(quads)
+        m=MEDCouplingUMesh.MergeUMeshes(tris,quads)
+        m.setName("mesh") ; m.getCoords().setInfoOnComponents(["XX [m]","YYY [km]"])
+        mm=MEDFileUMesh() ; mm.setMeshes([m])
+        #
+        fieldName1="zeField1"
+        fieldName2="zeField2"
+        fieldName3="zeField3"
+        fs1=MEDFileFieldMultiTS() ; fs2=MEDFileFieldMultiTS() ; fs3=MEDFileFieldMultiTS()
+        ##### Time step 0
+        i=0
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName1) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(0+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs1.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName2) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(100+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_1 [m]","Com2_1 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs2.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName3) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(200+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs3.pushBackTimeStep(f)
+        ##### Time step 1
+        i=1
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName1) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(0+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs1.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName2) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(100+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_1 [m]","Com2_1 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs2.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName3) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(200+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs3.pushBackTimeStep(f)
+        ##### Time step 2
+        i=2
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName1) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(0+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs1.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName2) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(100+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_1 [m]","Com2_1 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs2.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName3) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(200+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs3.pushBackTimeStep(f)
+        ##### Time step 3
+        i=3
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName1) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(0+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs1.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName2) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(100+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_1 [m]","Com2_1 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs2.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName3) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(200+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs3.pushBackTimeStep(f)
+        ##### Time step 4
+        i=4
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName1) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(0+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs1.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName2) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(100+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_1 [m]","Com2_1 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs2.pushBackTimeStep(f)
+        #
+        f=MEDFileField1TS()
+        fNode=MEDCouplingFieldDouble(ON_NODES) ; fNode.setTime(float(i),i,0)
+        fNode.setName(fieldName3) ; fNode.setMesh(m)
+        arr=DataArrayDouble(2*m.getNumberOfNodes()) ; arr.iota(200+1000*i) ; arr.rearrange(2)
+        fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"])
+        fNode.checkCoherency()
+        f.setFieldNoProfileSBT(fNode)
+        fs3.pushBackTimeStep(f)
+        #
+        mm.write(fname,2)
+        fs1.write(fname,0) ; fs2.write(fname,0) ; fs3.write(fname,0)
+        a0Exp=mm.getCoords().deepCpy()
+        del m,mm,fs1,fs2,fs3,f,fNode
+        ########## GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),3)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1) # one time serie here : because the 3 fields are defined on the same time steps
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),3)
+        allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),3)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),3)
+        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        for i in xrange(1,5):
+            self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
+            pass
+        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        self.assertTrue(a0.isEqual(a0Exp,1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,9,9,9,9,9])))
+        self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,16,20,24,28,32])))
+        self.assertTrue(a3.isEqual(DataArrayInt([3,0,1,2,3,3,4,5,3,6,7,8,3,9,10,11,4,12,13,14,15,4,16,17,18,19,4,20,21,22,23,4,24,25,26,27,4,28,29,30,31])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        # test all the time steps of the 1/1 time step serie, on field 1
+        for i in xrange(5):
+            f=allFMTSLeavesPerCommonSupport[0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
+            f.loadArraysIfNecessary()
+            v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
+            self.assertEqual(f.getName(),fieldName1)
+            self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
+            vExp=DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.,41.,42.,43.,44.,45.,46.,47.,48.,49.,50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.],32,2) ; vExp.setInfoOnComponents(['Comp1_0 [m]','Com2_0 [s^2]']) ; vExp+=i*1000
+            self.assertTrue(v.isEqual(vExp,1e-12))
+            pass
+        # test all the time steps of the 1/1 time step serie, on field 2
+        for i in xrange(5):
+            f=allFMTSLeavesPerCommonSupport[0][1][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
+            f.loadArraysIfNecessary()
+            v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
+            self.assertEqual(f.getName(),fieldName2)
+            self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
+            vExp=DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.,41.,42.,43.,44.,45.,46.,47.,48.,49.,50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.],32,2) ; vExp.setInfoOnComponents(['Comp1_1 [m]','Com2_1 [s^2]']) ; vExp+=i*1000+100
+            self.assertTrue(v.isEqual(vExp,1e-12))
+            pass
+        # test all the time steps of the 1/1 time step serie, on field 3
+        for i in xrange(5):
+            f=allFMTSLeavesPerCommonSupport[0][2][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
+            f.loadArraysIfNecessary()
+            v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
+            self.assertEqual(f.getName(),fieldName3)
+            self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
+            vExp=DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.,41.,42.,43.,44.,45.,46.,47.,48.,49.,50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.],32,2) ; vExp.setInfoOnComponents(['Comp1_2 [m]','Com2_2 [s^2]']) ; vExp+=i*1000+200
+            self.assertTrue(v.isEqual(vExp,1e-12))
+            pass
+        pass
     
     pass
 

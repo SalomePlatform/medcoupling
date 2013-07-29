@@ -1402,31 +1402,36 @@ bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other,
   return ret;
 }
 
+/*!
+ * \param [in] other - a field with only one spatial discretization : ON_NODES.
+ */
 bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception)
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isCompatibleWithNodesDiscr : no ref !");
-  if(!_already_checked[0].isEntityCell())
-    throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isCompatibleWithNodesDiscr : only available on cell entities !");
   MEDFileField1TSStructItem other1(MEDFileField1TSStructItem::BuildItemFrom(other,meshSt));
-  //
-  int found=-1,i=0;
-  for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
-    if((*it).isComputed())
-      { found=i; break; }
-  bool ret(false);
-  if(found==-1)
+  if(_already_checked[0].isEntityCell())
     {
-      MEDFileField1TSStructItem this1(_already_checked[0].simplifyMeOnCellEntity(other));
-      ret=this1.isCompatibleWithNodesDiscr(other1,meshSt,other);
+      int found=-1,i=0;
+      for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
+        if((*it).isComputed())
+          { found=i; break; }
+      bool ret(false);
+      if(found==-1)
+        {
+          MEDFileField1TSStructItem this1(_already_checked[0].simplifyMeOnCellEntity(other));
+          ret=this1.isCompatibleWithNodesDiscr(other1,meshSt,other);
+          if(ret)
+            _already_checked.push_back(this1);
+        }
+      else
+        ret=_already_checked[found].isCompatibleWithNodesDiscr(other1,meshSt,other);
       if(ret)
-        _already_checked.push_back(this1);
+        _already_checked.push_back(other1);
+      return ret;
     }
   else
-    ret=_already_checked[found].isCompatibleWithNodesDiscr(other1,meshSt,other);
-  if(ret)
-    _already_checked.push_back(other1);
-  return ret;
+    return _already_checked[0].isNodeSupportEqual(other1,other);
 }
 
 std::size_t MEDFileField1TSStruct::getHeapMemorySize() const
