@@ -168,7 +168,7 @@ class MEDLoaderTest4(unittest.TestCase):
         allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
         #
         mst=MEDFileMeshStruct.New(ms[0])
-        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
         for i in xrange(1,5):
@@ -372,7 +372,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),2)
         #
         mst=MEDFileMeshStruct.New(ms[0])
-        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         assert isinstance(mml,MEDUMeshMultiLev)
         for i in xrange(1,5):
@@ -387,7 +387,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a5 is None)
         # for cells
         for i in xrange(5):
-            f=allFMTSLeavesPerCommonSupport[0][0][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
@@ -396,7 +396,7 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         for i in xrange(5):
-            f=allFMTSLeavesPerCommonSupport[0][1][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][1][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
@@ -526,10 +526,10 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerTimeSeries[1]),1)
         allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
         self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
-        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),1)
         #
         mst=MEDFileMeshStruct.New(ms[0])
-        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0]) # start with the cells
+        fcscp=allFMTSLeavesPerCommonSupport[0][1] # start with the cells
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
         for i in xrange(1,3):
@@ -544,7 +544,7 @@ class MEDLoaderTest4(unittest.TestCase):
         assert a5 is None
         # for cells
         for i in xrange(3):
-            f=allFMTSLeavesPerCommonSupport[0][0][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
             self.assertEqual(f.getName(),"zeField")
@@ -556,8 +556,8 @@ class MEDLoaderTest4(unittest.TestCase):
         # for nodes
         allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[1],ms[ms.getMeshesNames()[0]])
         self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
-        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),1)
-        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),1)
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
         for i in xrange(1,2):
@@ -571,7 +571,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         for i in xrange(2):
-            f=allFMTSLeavesPerCommonSupport[0][0][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)# Second 0 is for cells
             f.loadArraysIfNecessary()
             self.assertEqual(f.getName(),"zeField")
@@ -771,13 +771,13 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),3)
         allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
         self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
-        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),3)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),3)
         #
         mst=MEDFileMeshStruct.New(ms[0])
-        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
         self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
-        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0]),3)
-        fcscp=MEDFileFastCellSupportComparator.New(mst,allFMTSLeavesPerCommonSupport[0][0])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),3)
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
         for i in xrange(1,5):
@@ -792,7 +792,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a5 is None)
         # test all the time steps of the 1/1 time step serie, on field 1
         for i in xrange(5):
-            f=allFMTSLeavesPerCommonSupport[0][0][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
@@ -803,7 +803,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         # test all the time steps of the 1/1 time step serie, on field 2
         for i in xrange(5):
-            f=allFMTSLeavesPerCommonSupport[0][1][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][1][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
@@ -814,7 +814,7 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         # test all the time steps of the 1/1 time step serie, on field 3
         for i in xrange(5):
-            f=allFMTSLeavesPerCommonSupport[0][2][i]
+            f=allFMTSLeavesPerCommonSupport[0][0][2][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
             f.loadArraysIfNecessary()
             v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())

@@ -1898,12 +1898,19 @@ namespace ParaMEDMEM
       {
         std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
         convertFromPyObjVectorOfObj<ParaMEDMEM::MEDFileAnyTypeFieldMultiTS *>(li,SWIGTYPE_p_ParaMEDMEM__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",vectFMTS);
-        std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret=MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(vectFMTS,mesh);
+        std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> > ret2;
+        std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret=MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(vectFMTS,mesh,ret2);
+        if(ret2.size()!=ret.size())
+          {
+            std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport (PyWrap) : internal error ! Size of 2 vectors must match ! (" << ret.size() << "!=" << ret2.size() << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
           {
             std::size_t sz2=ret[i].size();
+            PyObject *ret0Py=PyTuple_New(2);
             PyObject *ret1Py=PyList_New(sz2);
             for(std::size_t j=0;j<sz2;j++)
               {
@@ -1912,7 +1919,9 @@ namespace ParaMEDMEM
                   elt->incrRef();
                 PyList_SetItem(ret1Py,j,convertMEDFileFieldMultiTS(elt,SWIG_POINTER_OWN | 0 ));
               }
-            PyList_SetItem(retPy,i,ret1Py);
+            PyTuple_SetItem(ret0Py,0,ret1Py);
+            PyTuple_SetItem(ret0Py,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret2[i].retn()),SWIGTYPE_p_ParaMEDMEM__MEDFileFastCellSupportComparator, SWIG_POINTER_OWN | 0 ));
+            PyList_SetItem(retPy,i,ret0Py);
           }
         return retPy;
       }

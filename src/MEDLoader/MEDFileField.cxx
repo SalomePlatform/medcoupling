@@ -8255,6 +8255,7 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
  *
  * \param [in] vectFMTS - list of multi times step part all defined each on a same spatial discretization along time and pointing to a mesh whose name is equal to \c mesh->getName().
  * \param [in] mesh - the mesh shared by all items in \a vectFMTS across time.
+ * \param [out] fsc - A vector having same size than returned vector. It specifies the support comporator of the corresponding vector of MEDFileAnyTypeFieldMultiTS in returned vector of vector.
  *
  * \throw If an element in \a vectFMTS has not only one spatial discretization set.
  * \throw If an element in \a vectFMTS change of spatial discretization along time.
@@ -8264,7 +8265,7 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
  * \throw If an element in \a vectFMTS is null.
  * \sa MEDFileAnyTypeFieldMultiTS::AreOnSameSupportAcrossTime
  */
-std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(const std::vector<MEDFileAnyTypeFieldMultiTS *>& vectFMTS, const MEDFileMesh *mesh, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> >& fsc) throw(INTERP_KERNEL::Exception)
 {
   static const char msg[]="MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport : presence of a null instance in the input vector !";
   if(!mesh)
@@ -8312,6 +8313,7 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
           ret.push_back(tmp); retCell.push_back(tmp); cmps.push_back(MEDFileFastCellSupportComparator::New(tmp2,*it2));
         }
     }
+  fsc=cmps;
   return ret;
 }
 
