@@ -102,8 +102,8 @@ static PyObject *convertMEDMeshMultiLev(ParaMEDMEM::MEDMeshMultiLev *p, int owne
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDUMeshMultiLev,owner);
   if(dynamic_cast<MEDCMeshMultiLev *>(p))
     ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDCMeshMultiLev,owner);
-  if(dynamic_cast<MEDStructuredMeshMultiLev *>(p))
-    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDStructuredMeshMultiLev,owner);
+  if(dynamic_cast<MEDCurveLinearMeshMultiLev *>(p))
+    ret=SWIG_NewPointerObj((void*)p,SWIGTYPE_p_ParaMEDMEM__MEDCurveLinearMeshMultiLev,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of MEDMeshMultiLev on downcast !");
   return ret;

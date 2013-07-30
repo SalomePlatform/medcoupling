@@ -712,8 +712,9 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTE
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : null input pointer !");
   if(gts.size()!=1 || pfls.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : lengthes of gts and pfls must be equal to one !");
-  int mdim(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(m->getMeshDimension()));
-  if(mdim!=gts[0])
+  int mdim(m->getMeshDimension());
+  INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(mdim));
+  if(gt!=gts[0])
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : the unique geo type is invalid regarding meshdim !");
   _coords.resize(mdim);
   for(int i=0;i<mdim;i++)
