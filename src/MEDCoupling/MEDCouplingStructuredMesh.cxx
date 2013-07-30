@@ -244,8 +244,8 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
  */
 void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
-  if(!profile)
-    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL !");
+  if(!profile || !profile->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL or not allocated !");
   if(profile->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile should have exactly one component !");
   int nbTuples=profile->getNumberOfTuples();
@@ -256,13 +256,15 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
   if(profile->isIdentity() && nbTuples==nbOfCells)
     {
       code[2]=-1;
-      idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();
-      idsPerType.clear(); 
+      idsInPflPerType[0]=0;
+      idsPerType.clear();
+      return ;
     }
+  code[1]=profile->getNumberOfTuples();
   code[2]=0;
   profile->checkAllIdsInRange(0,nbOfCells);
   idsPerType.resize(1);
-  idsPerType[0]=const_cast<DataArrayInt *>(profile); idsPerType[0]->incrRef();
+  idsPerType[0]=profile->deepCpy();
   idsInPflPerType[0]=DataArrayInt::Range(0,nbTuples,1);
 }
 
