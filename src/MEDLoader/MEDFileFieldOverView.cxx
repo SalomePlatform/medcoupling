@@ -207,25 +207,21 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
   return pfl->getName();
 }
 
-int MEDMeshMultiLev::getNumberOfCells() const throw(INTERP_KERNEL::Exception)
+int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception)
 {
-  std::size_t sz(_nb_entities.size()/3);
-  if(_nb_entities.size()%3!=0)
-    throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : invalid code !");
-  int ret(0);
+  std::size_t sz(_nb_entities.size());
   for(std::size_t i=0;i<sz;i++)
     {
-      if(_nb_entities[3*i+2]==-1)
-        ret+=_nb_entities[3*i+1];
-      else
+      if(_geo_types[i]==t)
         {
-          const DataArrayInt *pfl(_pfls[_nb_entities[3*i+2]]);
+          const DataArrayInt *pfl(_pfls[i]);
           if(!pfl)
-            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : internal error !");
-          ret+=pfl->getNumberOfTuples();
+            return _nb_entities[i];
+          else
+            return pfl->getNumberOfTuples();
         }
     }
-  return ret;
+  throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : not existing geometric type in this !");
 }
 
 int MEDMeshMultiLev::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
@@ -287,6 +283,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
           std::size_t pos(std::distance(_geo_types.begin(),it));
           const DataArrayInt *thisP(_pfls[pos]),*otherP(p.getPfl(globs));
           MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+          std::vector<std::string> compInfo(vals->getInfoOnComponents());
           if(!thisP && !otherP)
             {
               arrSafe[i]=ret; arr[i]=ret;
@@ -297,9 +294,9 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
               p1->sort(true);
-              if(!p1->isIdentity() || p1->getNumberOfTuples()!=getNumberOfCells())
-                throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
-              ret->rearrange(nbi*nc); ret->renumberInPlace(otherP->begin()); ret->rearrange(nc);
+              p1->checkAllIdsInRange(0,getNumberOfCells(p.getGeo()));
+              p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,p1);
+              ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
               arrSafe[i]=ret; arr[i]=ret;
               continue;
             }
@@ -311,7 +308,8 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
               if(!p1->isEqualWithoutConsideringStr(*p2))
                 throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
               p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,thisP);
-              ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc);
+              ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
+              arrSafe[i]=ret; arr[i]=ret;
               continue;
             }
           if(thisP && !otherP)
@@ -320,7 +318,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
               p1->sort(true);
               if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
                 throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
-              ret->rearrange(nbi*nc); ret->renumberInPlaceR(otherP->begin()); ret->rearrange(nc);
+              ret->rearrange(nbi*nc); ret->renumberInPlaceR(otherP->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
               arrSafe[i]=ret; arr[i]=ret;
               continue;
             }

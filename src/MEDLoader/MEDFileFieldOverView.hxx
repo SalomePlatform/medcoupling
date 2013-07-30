@@ -80,7 +80,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception) = 0;
-    int getNumberOfCells() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
   protected:
     std::string getPflNameOfId(int id) const;
