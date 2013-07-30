@@ -2874,7 +2874,7 @@ namespace ParaMEDMEM
   public:
     %extend
     {
-      PyObject *buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const throw(INTERP_KERNEL::Exception)
+      PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
       {
         DataArrayDouble *ret0(0);
         std::vector<int> ret1;
