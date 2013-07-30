@@ -13498,6 +13498,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([8,9,14,13],m.getNodeIdsOfCell(7))
         pass
 
+    def testSwig2ThrowOnDAIInvertN2O2ON2(self):
+        p1=DataArrayInt([3,5,8])
+        p2=DataArrayInt([0,3,4,5,6,7,8,9,10])
+        p1.transformWithIndArr(p2.invertArrayN2O2O2N(11))
+        self.assertTrue(p1.isEqual(DataArrayInt([1,3,6])))
+        self.assertTrue(p2.invertArrayN2O2O2N(11).isEqual(DataArrayInt([0,-1,-1,1,2,3,4,5,6,7,8])))
+        self.assertRaises(InterpKernelException,p2.invertArrayN2O2O2N,10)
+        pass
+
     def setUp(self):
         pass
     pass

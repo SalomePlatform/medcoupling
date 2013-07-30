@@ -6149,7 +6149,16 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
   std::fill(pt,pt+oldNbOfElem,-1);
   int nbOfNewElems=getNumberOfTuples();
   for(int i=0;i<nbOfNewElems;i++)
-    pt[new2Old[i]]=i;
+    {
+      int v(new2Old[i]);
+      if(v>=0 && v<oldNbOfElem)
+         pt[v]=i;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::invertArrayN2O2O2N : in new id #" << i << " old value is " << v << " expected to be in [0," << oldNbOfElem << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   return ret.retn();
 }
 
