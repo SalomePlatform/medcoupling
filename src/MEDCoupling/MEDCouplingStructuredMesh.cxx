@@ -151,13 +151,13 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& c
       conn.push_back(tmp2[0]); conn.push_back(tmp2[0]+1);
       break;
     case 2:
-      conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]); conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+1);
-      conn.push_back((tmp2[1]+1)*(tmpCell[1]+1)+tmp2[0]+1); conn.push_back((tmp2[1]+1)*(tmpCell[1]+1)+tmp2[0]);
+      conn.push_back(tmp2[1]*tmpNode[1]+tmp2[0]); conn.push_back(tmp2[1]*tmpNode[1]+tmp2[0]+1);
+      conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+1); conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]);
       break;
     case 3:
-      conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+tmp2[2]*tmpNode[2]); conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+1+tmp2[2]*tmpNode[2]);
+      conn.push_back(tmp2[1]*tmpNode[1]+tmp2[0]+tmp2[2]*tmpNode[2]); conn.push_back(tmp2[1]*tmpNode[1]+tmp2[0]+1+tmp2[2]*tmpNode[2]);
       conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+1+tmp2[2]*tmpNode[2]); conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+tmp2[2]*tmpNode[2]);
-      conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+(tmp2[2]+1)*tmpNode[2]); conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+1+(tmp2[2]+1)*tmpNode[2]);
+      conn.push_back(tmp2[1]*tmpNode[1]+tmp2[0]+(tmp2[2]+1)*tmpNode[2]); conn.push_back(tmp2[1]*tmpNode[1]+tmp2[0]+1+(tmp2[2]+1)*tmpNode[2]);
       conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+1+(tmp2[2]+1)*tmpNode[2]); conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+(tmp2[2]+1)*tmpNode[2]);
       break;
     default:
