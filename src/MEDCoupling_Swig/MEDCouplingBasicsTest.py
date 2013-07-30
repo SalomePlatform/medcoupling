@@ -1851,7 +1851,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         code, idsInPflPerType, pfls=mesh1.splitProfilePerType(ids);
         self.assertEqual(1, len(code));
         self.assertEqual(NORM_HEXA8, code[0][0]);
-        self.assertEqual(27, code[0][1]);
+        self.assertEqual(10, code[0][1]);
         self.assertEqual(0, code[0][2]);
         self.assertEqual(1, len(idsInPflPerType));
         self.assertEqual(1, len(pfls));

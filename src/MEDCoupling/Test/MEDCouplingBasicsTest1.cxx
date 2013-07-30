@@ -2481,7 +2481,7 @@ void MEDCouplingBasicsTest1::testCMesh2()
   mesh1->splitProfilePerType(ids,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(3,(int)code.size());
   CPPUNIT_ASSERT_EQUAL((int) INTERP_KERNEL::NORM_HEXA8,code[0]);
-  CPPUNIT_ASSERT_EQUAL(27,code[1]);
+  CPPUNIT_ASSERT_EQUAL(10,code[1]);
   CPPUNIT_ASSERT_EQUAL(0,code[2]);
   CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
