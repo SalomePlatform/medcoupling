@@ -109,7 +109,7 @@ namespace ParaMEDMEM
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part);
     MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const throw(INTERP_KERNEL::Exception);
   private:
-    void reorderNodesIfNecessary(DataArrayDouble *coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception);
+    void reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception);
   private:
     MEDUMeshMultiLev(const MEDUMeshMultiLev& other);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);

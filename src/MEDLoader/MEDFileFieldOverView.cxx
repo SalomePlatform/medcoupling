@@ -434,21 +434,30 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
   int szBCE(0),szD(0),szF(0);
   bool isPolyh(false);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++)
+  int iii(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
     {
       const MEDCoupling1GTUMesh *cur(*it);
       if(!cur)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : a part is null !");
+      //
+      const DataArrayInt *pfl(_pfls[iii]);
+      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> cur2;
+      if(!pfl)
+        { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
+      else
+        { cur2=dynamic_cast<MEDCoupling1GTUMesh *>(cur->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end())); cur=cur2; }
+      //
       int curNbCells(cur->getNumberOfCells());
       szBCE+=curNbCells;
       if((*it)->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
-        szD+=(*it)->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
+        szD+=cur->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
       else
         {
           isPolyh=true;
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp((*it)->computeEffectiveNbOfNodesPerCell());
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(cur->computeEffectiveNbOfNodesPerCell());
           szD+=tmp->accumulate(0)+curNbCells;
-          szF+=2*curNbCells+(*it)->getNodalConnectivity()->getNumberOfTuples();
+          szF+=2*curNbCells+cur->getNodalConnectivity()->getNumberOfTuples();
         }
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
@@ -458,9 +467,18 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
   if(isPolyh)
     { e->alloc(szBCE,1); ePtr=e->getPointer(); f->alloc(szF,1); fPtr=f->getPointer(); }
   int k(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++)
+  iii=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
     {
       const MEDCoupling1GTUMesh *cur(*it);
+      //
+      const DataArrayInt *pfl(_pfls[iii]);
+      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> cur2;
+      if(!pfl)
+        { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
+      else
+        { cur2=dynamic_cast<MEDCoupling1GTUMesh *>(cur->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end())); cur=cur2; }
+      //
       int curNbCells(cur->getNumberOfCells());
       int gt((int)cur->getCellModelEnum());
       if(gt<0 || gt>=PARAMEDMEM_2_VTKTYPE_LGTH)
@@ -545,7 +563,7 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
     { faceLocations=e.retn(); faces=f.retn(); }
 }
 
-void MEDUMeshMultiLev::reorderNodesIfNecessary(DataArrayDouble *coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception)
+void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayInt *nr(_node_reduction);
   if(!nr)
@@ -617,8 +635,7 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(DataArrayDouble *coords, DataArra
             }
         }
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(coords->selectByTupleIdSafe(nr->begin(),nr->end()));
-  coords->cpyFrom(*coo);
+  coords=(coords->selectByTupleIdSafe(nr->begin(),nr->end()));
 }
 
 //=
