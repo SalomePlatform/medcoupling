@@ -829,7 +829,7 @@ class MEDLoaderTest4(unittest.TestCase):
         fname="ForMEDReader5.med"
         # building a mesh containing 6 tri3 + 5 quad4
         m=MEDCouplingUMesh("mesh",2)
-        coords=DataArrayDouble([(0,0),(1,0),(2,0),(3,0),(0,1),(1,1),(2,1),(3,1),(0,2),(1,2),(2,2),(3,2),(0,3),(1,3),(2,3),(3,3)]) ; coords.setInfoOnComponents(["XX [m]","YYY [km]"])
+        coords=DataArrayDouble([(0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(1,1),(2,1),(3,1),(4,1),(0,2),(1,2),(2,2),(3,2),(4,2)]) ; coords.setInfoOnComponents(["XX [m]","YYY [km]"])
         m.setCoords(coords)
         m.allocateCells()
         m.insertNextCell(NORM_TRI3,[2,7,3]) ; m.insertNextCell(NORM_TRI3,[7,8,3]) ; m.insertNextCell(NORM_TRI3,[3,8,4]) ; m.insertNextCell(NORM_TRI3,[8,9,4])
