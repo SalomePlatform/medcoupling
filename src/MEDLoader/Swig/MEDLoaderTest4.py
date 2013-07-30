@@ -170,11 +170,12 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp,1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,67,70,73,76,80,84,88,92,96])))
@@ -374,11 +375,12 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        assert isinstance(mml,MEDUMeshMultiLev)
+        mml2=mml.prepare()
+        assert isinstance(mml2,MEDUMeshMultiLev)
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp,1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,67,70,73,76,80,84,88,92,96])))
@@ -531,11 +533,12 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         fcscp=allFMTSLeavesPerCommonSupport[0][1] # start with the cells
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         for i in xrange(1,3):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp,1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,67,70,73,76,80,84,88,92,96])))
@@ -559,11 +562,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),1)
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         for i in xrange(1,2):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp,1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,16,20,24,28,32])))
@@ -779,11 +783,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),3)
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp,1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,16,20,24,28,32])))
@@ -901,11 +906,12 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp[pfl2],1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,5,5])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,15,18])))
@@ -930,11 +936,12 @@ class MEDLoaderTest4(unittest.TestCase):
         # Let's go for the 2nd support
         fcscp=allFMTSLeavesPerCommonSupport[1][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        self.assertTrue(isinstance(mml,MEDUMeshMultiLev))
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml.buildVTUArrays()
+        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(a0.isEqual(a0Exp,1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,5,5,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,15,18,22,26])))
@@ -1043,11 +1050,12 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         #
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
-        mml=fcscp.buildFromScratchDataSetSupport(0,fields).prepare()
-        a,b=mml.buildVTUArrays()
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        a,b=mml2.buildVTUArrays()
         self.assertTrue(a.isEqual(coordsX,1e-12))
         self.assertTrue(b.isEqual(coordsY,1e-12))
-        self.assertTrue(isinstance(mml,MEDCMeshMultiLev))
+        self.assertTrue(isinstance(mml2,MEDCMeshMultiLev))
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
