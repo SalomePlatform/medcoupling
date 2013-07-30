@@ -80,18 +80,21 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception) = 0;
+    int getNumberOfCells() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
   protected:
     std::string getPflNameOfId(int id) const;
     DataArray *constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
   protected:
     MEDMeshMultiLev();
     MEDMeshMultiLev(const MEDMeshMultiLev& other);
-    MEDMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDMeshMultiLev(int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   protected:
     std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _pfls;
     std::vector< INTERP_KERNEL::NormalizedCellType > _geo_types;
     std::vector<int> _nb_entities;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_reduction;
+    int _nb_nodes;
   public:
     static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
@@ -126,7 +129,7 @@ namespace ParaMEDMEM
   protected:
     MEDStructuredMeshMultiLev();
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
-    MEDStructuredMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDStructuredMeshMultiLev(int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   };
   
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev

@@ -207,6 +207,32 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
   return pfl->getName();
 }
 
+int MEDMeshMultiLev::getNumberOfCells() const throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz(_nb_entities.size()/3);
+  if(_nb_entities.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : invalid code !");
+  int ret(0);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(_nb_entities[3*i+2]==-1)
+        ret+=_nb_entities[3*i+1];
+      else
+        {
+          const DataArrayInt *pfl(_pfls[_nb_entities[3*i+2]]);
+          if(!pfl)
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : internal error !");
+          ret+=pfl->getNumberOfTuples();
+        }
+    }
+  return ret;
+}
+
+int MEDMeshMultiLev::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
+{
+  return _nb_nodes;
+}
+
 DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception)
 {
   if(fst.getType()==ON_NODES)
@@ -236,7 +262,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
           p1->sort(true);
-          if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
+          if(!p1->isIdentity() || p1->getNumberOfTuples()!=getNumberOfNodes())
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 4 !");
           MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
           ret->renumberInPlace(globs->getProfile(pflName.c_str())->begin());
@@ -271,7 +297,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
               p1->sort(true);
-              if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
+              if(!p1->isIdentity() || p1->getNumberOfTuples()!=getNumberOfCells())
                 throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
               ret->rearrange(nbi*nc); ret->renumberInPlace(otherP->begin()); ret->rearrange(nc);
               arrSafe[i]=ret; arr[i]=ret;
@@ -308,7 +334,7 @@ MEDMeshMultiLev::MEDMeshMultiLev()
 {
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):_geo_types(gts),_nb_entities(nbEntities)
+MEDMeshMultiLev::MEDMeshMultiLev(int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):_geo_types(gts),_nb_entities(nbEntities),_nb_nodes(nbNodes)
 {
   std::size_t sz(_geo_types.size());
   if(sz!=pfls.size() || sz!=nbEntities.size())
@@ -322,7 +348,7 @@ MEDMeshMultiLev::MEDMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCell
     }
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction)
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction),_nb_nodes(other._nb_nodes)
 {
 }
 
@@ -364,7 +390,7 @@ MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector
   return new MEDUMeshMultiLev(m,gts,pfls,nbEntities);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   std::size_t sz(gts.size());
   _parts.resize(sz);
@@ -420,6 +446,9 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
 {
   _parts.resize(1);
   _parts[0]=part;
+  _geo_types.resize(1); _geo_types[0]=part->getCellModelEnum();
+  _nb_entities.resize(1); _nb_entities[0]=part->getNumberOfCells();
+  _pfls.resize(1); _pfls[0]=0;
 }
 
 void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const throw(INTERP_KERNEL::Exception)
@@ -644,7 +673,7 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev()
 {
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(gts,pfls,nbEntities)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(nbOfNodes,gts,pfls,nbEntities)
 {
 }
 
@@ -706,7 +735,7 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>
     }
 }
 
-MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(gts,pfls,nbEntities)
+MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : null input pointer !");
@@ -722,11 +751,11 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTE
       DataArrayDouble *elt(const_cast<DataArrayDouble *>(m->getMesh()->getCoordsAt(i)));
       if(!elt)
         throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : presence of null pointer for an vector of double along an axis !");
-      _coords[i]=elt;
+      _coords[i]=elt; _coords[i]->incrRef();
     }
 }
 
-MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDCMeshMultiLev& other):MEDStructuredMeshMultiLev(other)
+MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDCMeshMultiLev& other):MEDStructuredMeshMultiLev(other),_coords(other._coords)
 {
 }
 
@@ -821,7 +850,7 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
   _structure=m->getMesh()->getNodeGridStructure();
 }
 
-MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(gts,pfls,nbEntities)
+MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDStructuredMeshMultiLev(m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : null input pointer !");

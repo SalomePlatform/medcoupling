@@ -182,6 +182,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::SauvReader::loadInMEDFileDS;
 
 %newobject ParaMEDMEM::MEDFileMeshStruct::New;
+%newobject ParaMEDMEM::MEDMeshMultiLev::prepare;
 %newobject ParaMEDMEM::MEDMeshMultiLev::buildDataArray;
 %newobject ParaMEDMEM::MEDFileFastCellSupportComparator::New;
 %newobject ParaMEDMEM::MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport;
@@ -2812,6 +2813,7 @@ namespace ParaMEDMEM
   class MEDMeshMultiLev : public RefCountObject
   {
   public:
+    virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
     DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
   private:
     ~MEDMeshMultiLev();
