@@ -3169,6 +3169,15 @@ namespace ParaMEDMEM
     PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
     return pyRet;
   }
+
+  int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, PyObject *code, PyObject *idsPerType) const throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<int> inp0;
+    convertPyToNewIntArr4(code,1,3,inp0);
+    std::vector<const DataArrayInt *> inp1;
+    convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(idsPerType,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",inp1);
+    return self->getNumberOfTuplesExpectedRegardingCode(mesh,inp0,inp1);
+  }
 }
 
 %extend ParaMEDMEM::MEDCouplingFieldDiscretizationP0
@@ -3402,6 +3411,15 @@ namespace ParaMEDMEM
         ret->alloc((int)tmp.size(),1);
         std::copy(tmp.begin(),tmp.end(),ret->getPointer());
         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+      }
+      
+      int getNumberOfTuplesExpectedRegardingCode(PyObject *code, PyObject *idsPerType) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> inp0;
+        convertPyToNewIntArr4(code,1,3,inp0);
+        std::vector<const DataArrayInt *> inp1;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(idsPerType,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",inp1);
+        return self->getNumberOfTuplesExpectedRegardingCode(inp0,inp1);
       }
     }
   };
