@@ -207,20 +207,16 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
   return pfl->getName();
 }
 
+/*!
+ * Returns the number of cells having geometric type \a t.
+ * The profiles are **NOT** taken into account here.
+ */
 int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception)
 {
   std::size_t sz(_nb_entities.size());
   for(std::size_t i=0;i<sz;i++)
-    {
-      if(_geo_types[i]==t)
-        {
-          const DataArrayInt *pfl(_pfls[i]);
-          if(!pfl)
-            return _nb_entities[i];
-          else
-            return pfl->getNumberOfTuples();
-        }
-    }
+    if(_geo_types[i]==t)
+        return _nb_entities[i];
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : not existing geometric type in this !");
 }
 
@@ -302,26 +298,17 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
             }
           if(thisP && otherP)
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(p.getGeo())));
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(thisP->deepCpy());
-              p1->sort(true); p2->sort(true);
-              if(!p1->isEqualWithoutConsideringStr(*p2))
-                throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
-              p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,thisP);
-              ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
+              p2->transformWithIndArr(p1->begin(),p1->end());
+              p1=p2->getIdsNotEqual(-1);
+              p1=p2->selectByTupleIdSafe(p1->begin(),p1->end());
+              ret->rearrange(nbi*nc); ret=ret->selectByTupleIdSafe(p1->begin(),p1->end()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
               arrSafe[i]=ret; arr[i]=ret;
               continue;
             }
           if(thisP && !otherP)
-            {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(thisP->deepCpy());
-              p1->sort(true);
-              if(!p1->isIdentity() || p1->getNumberOfTuples()!=p.getNbEntity())
-                throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
-              ret->rearrange(nbi*nc); ret->renumberInPlaceR(otherP->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
-              arrSafe[i]=ret; arr[i]=ret;
-              continue;
-            }
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
           throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 6 !");
         }
       return DataArray::Aggregate(arr);
@@ -420,7 +407,8 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INT
        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
        MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
        int tmp=-1;
-       a[i]=m2->getNodeIdsInUse(tmp); aa[i]=a[i];
+       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(m2->getNodeIdsInUse(tmp));
+       a[i]=o2n->invertArrayO2N2N2O(tmp); aa[i]=a[i];
        if(pfl)
          _pfls[i]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
        else

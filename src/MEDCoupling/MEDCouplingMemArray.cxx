@@ -6893,7 +6893,7 @@ DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt 
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(ids2->deepCpy());
   p1->sort(true); p2->sort(true);
   if(!p1->isEqualWithoutConsideringStr(*p2))
-    throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two arrays are not lying on same ids ! Impossible to find a permutation betwenn the 2 arrays !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two arrays are not lying on same ids ! Impossible to find a permutation between the 2 arrays !");
   p1=ids1->checkAndPreparePermutation();
   p2=ids2->checkAndPreparePermutation();
   p2=p2->invertArrayO2N2N2O(p2->getNumberOfTuples());
