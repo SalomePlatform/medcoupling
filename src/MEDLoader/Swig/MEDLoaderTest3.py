@@ -172,6 +172,17 @@ class MEDLoaderTest(unittest.TestCase):
         mmCpy.write(outFileName,2);
         #
         mm=MEDFileMesh.New(outFileName)
+        #
+        mm0=mm.getDirectUndergroundSingleGeoTypeMesh(NORM_POLYGON)
+        self.assertTrue(isinstance(mm0,MEDCoupling1DGTUMesh))
+        self.assertTrue(mm0.getNodalConnectivity().isEqual(DataArrayInt([6,7,4,3,7,8,5,4])))
+        self.assertTrue(mm0.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,8])))
+        lmm=mm.getDirectUndergroundSingleGeoTypeMeshes(0)
+        self.assertEqual(3,len(lmm))
+        self.assertTrue(isinstance(lmm[0],MEDCoupling1SGTUMesh))
+        self.assertTrue(isinstance(lmm[1],MEDCoupling1SGTUMesh))
+        self.assertTrue(isinstance(lmm[2],MEDCoupling1DGTUMesh))
+        #
         self.assertTrue(mm.getUnivNameWrStatus())
         self.assertTrue(isinstance(mm.getUnivName(),str))
         self.assertTrue(len(mm.getUnivName())!=0)
