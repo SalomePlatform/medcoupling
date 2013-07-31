@@ -592,7 +592,7 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
             {
               for(int i=0;i<curNbCells;i++,connIPtr++)
                 {
-                  std::set<int> s(connPtr+connIPtr[0],connPtr+connIPtr[1]);
+                  std::set<int> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
                   *dPtr++=(int)s.size();
                   dPtr=std::copy(s.begin(),s.end(),dPtr);
                   *cPtr=k+(int)s.size(); k=*cPtr++;
@@ -618,7 +618,7 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
                           fPtr=std::copy(work,work2,fPtr);
                           work=work2+1;
                         }
-                      *ePtr=kk; kk+=connIPtr[1]-connIPtr[0]+2;
+                      *ePtr++=kk; kk+=connIPtr[1]-connIPtr[0]+2;
                     }
                 }
             }
