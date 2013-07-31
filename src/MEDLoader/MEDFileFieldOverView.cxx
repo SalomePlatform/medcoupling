@@ -265,51 +265,108 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
   else
     {
       std::size_t sz(fst.getNumberOfItems());
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArray> > arrSafe(sz);
-      std::vector< const DataArray *> arr(sz);
-      for(std::size_t i=0;i<sz;i++)
+      std::set<INTERP_KERNEL::NormalizedCellType> s(_geo_types.begin(),_geo_types.end());
+      if(s.size()!=_geo_types.size())
+        throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 2 !");
+      std::vector< const DataArray *> arr(s.size());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArray> > arrSafe(s.size());
+      int iii(0);
+      int nc(vals->getNumberOfComponents());
+      std::vector<std::string> compInfo(vals->getInfoOnComponents());
+      for(std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator it=_geo_types.begin();it!=_geo_types.end();it++,iii++)
         {
-          const MEDFileField1TSStructItem2& p(fst[i]);
-          const std::pair<int,int>& strtStop(p.getStartStop());
-          std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator it(std::find(_geo_types.begin(),_geo_types.end(),p.getGeo()));
-          if(it==_geo_types.end())
+          const DataArrayInt *thisP(_pfls[iii]);
+          std::vector<const MEDFileField1TSStructItem2 *> ps;
+          for(std::size_t i=0;i<sz;i++)
+            {
+              const MEDFileField1TSStructItem2& p(fst[i]);
+              if(p.getGeo()==*it)
+                ps.push_back(&p);
+            }
+          if(ps.empty())
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 1 !");
-          if(std::find(it+1,_geo_types.end(),p.getGeo())!=_geo_types.end())
-            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 2 !");
-          std::size_t pos(std::distance(_geo_types.begin(),it));
-          const DataArrayInt *thisP(_pfls[pos]),*otherP(p.getPfl(globs));
-          MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
-          std::vector<std::string> compInfo(vals->getInfoOnComponents());
-          if(!thisP && !otherP)
+          if(ps.size()==1)
             {
-              arrSafe[i]=ret; arr[i]=ret;
+              int nbi(ps[0]->getNbOfIntegrationPts(globs));
+              const DataArrayInt *otherP(ps[0]->getPfl(globs));
+              const std::pair<int,int>& strtStop(ps[0]->getStartStop());
+              MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+              if(!thisP && !otherP)
+                {
+                  arrSafe[iii]=ret; arr[iii]=ret;
+                  continue;
+                }
+              if(thisP && otherP)
+                {
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(ps[0]->getGeo())));
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(thisP->deepCpy());
+                  p2->transformWithIndArr(p1->begin(),p1->end());
+                  //p1=p2->getIdsNotEqual(-1);
+                  //p1=p2->selectByTupleIdSafe(p1->begin(),p1->end());
+                  ret->rearrange(nbi*nc); ret=ret->selectByTupleIdSafe(p2->begin(),p2->end()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
+                  arrSafe[iii]=ret; arr[iii]=ret;
+                  continue;
+                }
+              if(!thisP && otherP)
+                {
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
+                  p1->sort(true);
+                  p1->checkAllIdsInRange(0,getNumberOfCells(ps[0]->getGeo()));
+                  p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,p1);
+                  ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
+                  arrSafe[iii]=ret; arr[iii]=ret;
+                  continue;
+                }
+              throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
+            }
+          else
+            {
+              std::vector< const DataArrayInt * >otherPS(ps.size());
+              std::vector< const DataArray * > arr2(ps.size());
+              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArray> > arr2Safe(ps.size());
+              std::vector< const DataArrayInt * > nbis(ps.size());
+              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > nbisSafe(ps.size());
+              int jj(0);
+              for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
+                {
+                  int nbi((*it2)->getNbOfIntegrationPts(globs));
+                  const DataArrayInt *otherPfl((*it2)->getPfl(globs));
+                  const std::pair<int,int>& strtStop((*it2)->getStartStop());
+                  MEDCouplingAutoRefCountObjectPtr<DataArray> ret2(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+                  if(!otherPfl)
+                    throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
+                  arr2[jj]=ret2; arr2Safe[jj]=ret2; otherPS[jj]=otherPfl;
+                  nbisSafe[jj]=DataArrayInt::New(); nbisSafe[jj]->alloc(otherPfl->getNumberOfTuples(),1); nbisSafe[jj]->fillWithValue(nbi);
+                  nbis[jj]=nbisSafe[jj];
+                }
+              MEDCouplingAutoRefCountObjectPtr<DataArray> arr3(DataArray::Aggregate(arr2));
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> otherP(DataArrayInt::Aggregate(otherPS));
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> zenbis(DataArrayInt::Aggregate(nbis));
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> otherPN(otherP->invertArrayN2O2O2N(getNumberOfCells(*it)));
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1;
+              if(thisP)
+                p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,thisP);
+              else
+                p1=otherP->deepCpy();
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> zenbisN(zenbis->renumber(p1->begin()));
+              zenbisN->computeOffsets2();
+              jj=0;
+              for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
+                {
+                  int nbi((*it2)->getNbOfIntegrationPts(globs));
+                  const DataArrayInt *otherPfl((*it2)->getPfl(globs));
+                  const std::pair<int,int>& strtStop((*it2)->getStartStop());
+                  MEDCouplingAutoRefCountObjectPtr<DataArray> ret2(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+                  //
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(otherPfl->deepCpy());
+                  p2->transformWithIndArr(otherPN->begin(),otherPN->end());
+                  p2->transformWithIndArr(p1->begin(),p1->end());
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsN(p2->buildExplicitArrByRanges(zenbisN));
+                  arr3->setPartOfValuesBase3(ret2,idsN->begin(),idsN->end(),0,nc,1);
+                }
+              arrSafe[iii]=arr3; arr[iii]=arr3;
               continue;
             }
-          int nbi(p.getNbOfIntegrationPts(globs)),nc(ret->getNumberOfComponents());
-          if(!thisP && otherP)
-            {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
-              p1->sort(true);
-              p1->checkAllIdsInRange(0,getNumberOfCells(p.getGeo()));
-              p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,p1);
-              ret->rearrange(nbi*nc); ret->renumberInPlace(p1->begin()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
-              arrSafe[i]=ret; arr[i]=ret;
-              continue;
-            }
-          if(thisP && otherP)
-            {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(p.getGeo())));
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(thisP->deepCpy());
-              p2->transformWithIndArr(p1->begin(),p1->end());
-              p1=p2->getIdsNotEqual(-1);
-              p1=p2->selectByTupleIdSafe(p1->begin(),p1->end());
-              ret->rearrange(nbi*nc); ret=ret->selectByTupleIdSafe(p1->begin(),p1->end()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
-              arrSafe[i]=ret; arr[i]=ret;
-              continue;
-            }
-          if(thisP && !otherP)
-            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 3 !");
-          throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 6 !");
         }
       return DataArray::Aggregate(arr);
     }

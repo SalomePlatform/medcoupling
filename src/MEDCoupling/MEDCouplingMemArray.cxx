@@ -247,6 +247,42 @@ void DataArray::setInfoOnComponents(const std::vector<std::string>& info) throw(
   _info_on_compo=info;
 }
 
+/*!
+ * This method is only a dispatcher towards DataArrayDouble::setPartOfValues3, DataArrayInt::setPartOfValues3, DataArrayChar::setPartOfValues3 depending on the true
+ * type of \a this and \a aBase.
+ *
+ * \throw If \a aBase and \a this do not have the same type.
+ *
+ * \sa DataArrayDouble::setPartOfValues3, DataArrayInt::setPartOfValues3, DataArrayChar::setPartOfValues3.
+ */
+void DataArray::setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  if(!aBase)
+    throw INTERP_KERNEL::Exception("DataArray::setPartOfValuesBase3 : input aBase object is NULL !");
+  DataArrayDouble *this1(dynamic_cast<DataArrayDouble *>(this));
+  DataArrayInt *this2(dynamic_cast<DataArrayInt *>(this));
+  DataArrayChar *this3(dynamic_cast<DataArrayChar *>(this));
+  const DataArrayDouble *a1(dynamic_cast<const DataArrayDouble *>(aBase));
+  const DataArrayInt *a2(dynamic_cast<const DataArrayInt *>(aBase));
+  const DataArrayChar *a3(dynamic_cast<const DataArrayChar *>(aBase));
+  if(this1 && a1)
+    {
+      this1->setPartOfValues3(a1,bgTuples,endTuples,bgComp,endComp,stepComp,strictCompoCompare);
+      return ;
+    }
+  if(this2 && a2)
+    {
+      this2->setPartOfValues3(a2,bgTuples,endTuples,bgComp,endComp,stepComp,strictCompoCompare);
+      return ;
+    }
+  if(this3 && a3)
+    {
+      this3->setPartOfValues3(a3,bgTuples,endTuples,bgComp,endComp,stepComp,strictCompoCompare);
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("DataArray::setPartOfValuesBase3 : input aBase object and this do not have the same type !");
+}
+
 std::vector<std::string> DataArray::getVarsOnComponent() const throw(INTERP_KERNEL::Exception)
 {
   int nbOfCompo=(int)_info_on_compo.size();
@@ -2631,7 +2667,7 @@ void DataArrayDouble::setPartOfValuesAdv(const DataArrayDouble *a, const DataArr
 }
 
 /*!
- * Copy some tuples from another DataArrayDouble (\a a) into contiguous tuples
+ * Copy some tuples from another DataArrayDouble (\a aBase) into contiguous tuples
  * of \a this array. Textual data is not copied. Both arrays must have equal number of
  * components.
  * The tuples to assign to are defined by index of the first tuple, and
@@ -2640,18 +2676,18 @@ void DataArrayDouble::setPartOfValuesAdv(const DataArrayDouble *a, const DataArr
  * All components of selected tuples are copied.
  *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
  *              values to.
- *  \param [in] a - the array to copy values from.
+ *  \param [in] aBase - the array to copy values from.
  *  \param [in] tuplesSelec - the array specifying tuples of \a a to copy.
  *  \throw If \a this is not allocated.
- *  \throw If \a a is NULL.
- *  \throw If \a a is not allocated.
+ *  \throw If \a aBase is NULL.
+ *  \throw If \a aBase is not allocated.
  *  \throw If \a tuplesSelec is NULL.
  *  \throw If \a tuplesSelec is not allocated.
- *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
  *  \throw If \a tuplesSelec->getNumberOfComponents() != 1.
  *  \throw If <em>tupleIdStart + tuplesSelec->getNumberOfTuples() > this->getNumberOfTuples().</em>
  *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
- *         \a a array.
+ *         \a aBase array.
  */
 void DataArrayDouble::setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
 {
@@ -2691,7 +2727,7 @@ void DataArrayDouble::setContigPartOfSelectedValues(int tupleIdStart, const Data
 }
 
 /*!
- * Copy some tuples from another DataArrayDouble (\a a) into contiguous tuples
+ * Copy some tuples from another DataArrayDouble (\a aBase) into contiguous tuples
  * of \a this array. Textual data is not copied. Both arrays must have equal number of
  * components.
  * The tuples to copy are defined by three values similar to parameters of
@@ -2701,19 +2737,19 @@ void DataArrayDouble::setContigPartOfSelectedValues(int tupleIdStart, const Data
  * All components of selected tuples are copied.
  *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
  *              values to.
- *  \param [in] a - the array to copy values from.
- *  \param [in] bg - index of the first tuple to copy of the array \a a.
- *  \param [in] end2 - index of the tuple of \a a before which the tuples to copy
+ *  \param [in] aBase - the array to copy values from.
+ *  \param [in] bg - index of the first tuple to copy of the array \a aBase.
+ *  \param [in] end2 - index of the tuple of \a aBase before which the tuples to copy
  *              are located.
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \throw If \a this is not allocated.
- *  \throw If \a a is NULL.
- *  \throw If \a a is not allocated.
- *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If \a aBase is NULL.
+ *  \throw If \a aBase is not allocated.
+ *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
  *  \throw If <em>tupleIdStart + len(range(bg,end2,step)) > this->getNumberOfTuples().</em>
  *  \throw If parameters specifying tuples to copy, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for the array \a a.
+ *            for the array \a aBase.
  */
 void DataArrayDouble::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
 {
@@ -7884,7 +7920,7 @@ void DataArrayInt::setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt 
 }
 
 /*!
- * Copy some tuples from another DataArrayInt (\a a) into contiguous tuples
+ * Copy some tuples from another DataArrayInt (\a aBase) into contiguous tuples
  * of \a this array. Textual data is not copied. Both arrays must have equal number of
  * components.
  * The tuples to assign to are defined by index of the first tuple, and
@@ -7893,18 +7929,18 @@ void DataArrayInt::setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt 
  * All components of selected tuples are copied.
  *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
  *              values to.
- *  \param [in] a - the array to copy values from.
- *  \param [in] tuplesSelec - the array specifying tuples of \a a to copy.
+ *  \param [in] aBase - the array to copy values from.
+ *  \param [in] tuplesSelec - the array specifying tuples of \a aBase to copy.
  *  \throw If \a this is not allocated.
- *  \throw If \a a is NULL.
- *  \throw If \a a is not allocated.
+ *  \throw If \a aBase is NULL.
+ *  \throw If \a aBase is not allocated.
  *  \throw If \a tuplesSelec is NULL.
  *  \throw If \a tuplesSelec is not allocated.
  *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
  *  \throw If \a tuplesSelec->getNumberOfComponents() != 1.
  *  \throw If <em>tupleIdStart + tuplesSelec->getNumberOfTuples() > this->getNumberOfTuples().</em>
  *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
- *         \a a array.
+ *         \a aBase array.
  */
 void DataArrayInt::setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
 {
@@ -7944,7 +7980,7 @@ void DataArrayInt::setContigPartOfSelectedValues(int tupleIdStart, const DataArr
 }
 
 /*!
- * Copy some tuples from another DataArrayInt (\a a) into contiguous tuples
+ * Copy some tuples from another DataArrayInt (\a aBase) into contiguous tuples
  * of \a this array. Textual data is not copied. Both arrays must have equal number of
  * components.
  * The tuples to copy are defined by three values similar to parameters of
@@ -7954,19 +7990,19 @@ void DataArrayInt::setContigPartOfSelectedValues(int tupleIdStart, const DataArr
  * All components of selected tuples are copied.
  *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
  *              values to.
- *  \param [in] a - the array to copy values from.
- *  \param [in] bg - index of the first tuple to copy of the array \a a.
- *  \param [in] end2 - index of the tuple of \a a before which the tuples to copy
+ *  \param [in] aBase - the array to copy values from.
+ *  \param [in] bg - index of the first tuple to copy of the array \a aBase.
+ *  \param [in] end2 - index of the tuple of \a aBase before which the tuples to copy
  *              are located.
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \throw If \a this is not allocated.
- *  \throw If \a a is NULL.
- *  \throw If \a a is not allocated.
- *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If \a aBase is NULL.
+ *  \throw If \a aBase is not allocated.
+ *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
  *  \throw If <em>tupleIdStart + len(range(bg,end2,step)) > this->getNumberOfTuples().</em>
  *  \throw If parameters specifying tuples to copy, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for the array \a a.
+ *            for the array \a aBase.
  */
 void DataArrayInt::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
 {

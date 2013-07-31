@@ -1286,7 +1286,7 @@ void DataArrayChar::setPartOfValuesAdv(const DataArrayChar *a, const DataArrayCh
 }
 
 /*!
- * Copy some tuples from another DataArrayChar (\a a) into contiguous tuples
+ * Copy some tuples from another DataArrayChar (\a aBase) into contiguous tuples
  * of \a this array. Textual data is not copied. Both arrays must have equal number of
  * components.
  * The tuples to assign to are defined by index of the first tuple, and
@@ -1295,18 +1295,18 @@ void DataArrayChar::setPartOfValuesAdv(const DataArrayChar *a, const DataArrayCh
  * All components of selected tuples are copied.
  *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
  *              values to.
- *  \param [in] a - the array to copy values from.
- *  \param [in] tuplesSelec - the array specifying tuples of \a a to copy.
+ *  \param [in] aBase - the array to copy values from.
+ *  \param [in] tuplesSelec - the array specifying tuples of \a aBase to copy.
  *  \throw If \a this is not allocated.
- *  \throw If \a a is NULL.
- *  \throw If \a a is not allocated.
+ *  \throw If \a aBase is NULL.
+ *  \throw If \a aBase is not allocated.
  *  \throw If \a tuplesSelec is NULL.
  *  \throw If \a tuplesSelec is not allocated.
- *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
  *  \throw If \a tuplesSelec->getNumberOfComponents() != 1.
  *  \throw If <em>tupleIdStart + tuplesSelec->getNumberOfTuples() > this->getNumberOfTuples().</em>
  *  \throw If any tuple index given by \a tuplesSelec is out of a valid range for 
- *         \a a array.
+ *         \a aBase array.
  */
 void DataArrayChar::setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
 {
@@ -1346,7 +1346,7 @@ void DataArrayChar::setContigPartOfSelectedValues(int tupleIdStart, const DataAr
 }
 
 /*!
- * Copy some tuples from another DataArrayChar (\a a) into contiguous tuples
+ * Copy some tuples from another DataArrayChar (\a aBase) into contiguous tuples
  * of \a this array. Textual data is not copied. Both arrays must have equal number of
  * components.
  * The tuples to copy are defined by three values similar to parameters of
@@ -1356,19 +1356,19 @@ void DataArrayChar::setContigPartOfSelectedValues(int tupleIdStart, const DataAr
  * All components of selected tuples are copied.
  *  \param [in] tupleIdStart - index of the first tuple of \a this array to assign
  *              values to.
- *  \param [in] a - the array to copy values from.
- *  \param [in] bg - index of the first tuple to copy of the array \a a.
- *  \param [in] end2 - index of the tuple of \a a before which the tuples to copy
+ *  \param [in] aBase - the array to copy values from.
+ *  \param [in] bg - index of the first tuple to copy of the array \a aBase.
+ *  \param [in] end2 - index of the tuple of \a aBase before which the tuples to copy
  *              are located.
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \throw If \a this is not allocated.
- *  \throw If \a a is NULL.
- *  \throw If \a a is not allocated.
- *  \throw If <em>this->getNumberOfComponents() != a->getNumberOfComponents()</em>.
+ *  \throw If \a aBase is NULL.
+ *  \throw If \a aBase is not allocated.
+ *  \throw If <em>this->getNumberOfComponents() != aBase->getNumberOfComponents()</em>.
  *  \throw If <em>tupleIdStart + len(range(bg,end2,step)) > this->getNumberOfTuples().</em>
  *  \throw If parameters specifying tuples to copy, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for the array \a a.
+ *            for the array \a aBase.
  */
 void DataArrayChar::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
 {

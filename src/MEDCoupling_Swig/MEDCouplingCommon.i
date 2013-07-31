@@ -2811,6 +2811,11 @@ namespace ParaMEDMEM
         return MEDCoupling1SGTUMesh::New(name,type);
       }
 
+      MEDCoupling1SGTUMesh(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCoupling1SGTUMesh::New(m);
+      }
+
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -2856,6 +2861,11 @@ namespace ParaMEDMEM
       MEDCoupling1DGTUMesh(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1DGTUMesh::New(name,type);
+      }
+
+      MEDCoupling1DGTUMesh(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCoupling1DGTUMesh::New(m);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)

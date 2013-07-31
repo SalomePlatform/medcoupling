@@ -134,6 +134,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
+    MEDCOUPLING_EXPORT void setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual bool isAllocated() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void checkAllocated() const throw(INTERP_KERNEL::Exception) = 0;
