@@ -363,7 +363,7 @@ namespace INTERP_KERNEL
     
     /// Smallest volume of the intersecting elements in the transformed space that will be returned as non-zero. 
     /// Since the scale is always the same in the transformed space (the target tetrahedron is unitary), this number is independent of the scale of the meshes.
-    static const double SPARSE_TRUNCATION_LIMIT=1.0e-14;
+    static const double SPARSE_TRUNCATION_LIMIT;
   };
 
   /**

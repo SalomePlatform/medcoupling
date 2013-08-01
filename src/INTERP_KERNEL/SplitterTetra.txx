@@ -38,6 +38,9 @@
 
 namespace INTERP_KERNEL
 {
+  template<class MyMeshType> 
+  const double SplitterTetra<MyMeshType>::SPARSE_TRUNCATION_LIMIT=1.0e-14;
+
   /*!
    * output is expected to be allocated with 24*sizeof(void*) in order to store the 24 tetras.
    * These tetras have to be deallocated.
