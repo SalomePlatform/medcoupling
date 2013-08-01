@@ -527,10 +527,7 @@ namespace INTERP_KERNEL
               counter++;
             }
         }
-      if (counter == 3)
-        return true;
-      else
-        return false;
+      return counter == 3;
   }
 
   /**
@@ -590,9 +587,6 @@ namespace INTERP_KERNEL
         const int globalNodeNum = polyNodes[i];
         if(_nodes.find(globalNodeNum) == _nodes.end())
           {
-            //for(HashMap< int , double* >::iterator iter3=_nodes.begin();iter3!=_nodes.end();iter3++)
-            //  std::cout << (*iter3).first << " ";
-            //std::cout << std::endl << "*** " << globalNodeNum << std::endl;
             calculateNode2(globalNodeNum, polyCoords[i]);
           }
 
