@@ -36,33 +36,8 @@
 #include <sstream>
 #include <vector>
 
-/// Smallest volume of the intersecting elements in the transformed space that will be returned as non-zero. 
-/// Since the scale is always the same in the transformed space (the target tetrahedron is unitary), this number is independent of the scale of the meshes.
-#define SPARSE_TRUNCATION_LIMIT 1.0e-14
-
 namespace INTERP_KERNEL
 {
-  
-  /**
-   * Constructor creating object from target cell global number 
-   * 
-   * @param srcMesh     mesh containing the source elements
-   * @param targetMesh  mesh containing the target elements
-   * @param targetCell  global number of the target cell
-   *
-   */
-  /*template<class MyMeshType>
-  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const MyMeshType& targetMesh, typename MyMeshType::MyConnType targetCell)
-    : _src_mesh(srcMesh), _t(0)
-  {   
-    // get array of corners of target tetraedron
-    const double* tetraCorners[4];
-    for(int i = 0 ; i < 4 ; ++i)
-      tetraCorners[i] = getCoordsOfNode(i, targetCell, targetMesh);
-    // create the affine transform
-    createAffineTransform(tetraCorners);
-    }*/
-
   /*!
    * output is expected to be allocated with 24*sizeof(void*) in order to store the 24 tetras.
    * These tetras have to be deallocated.
@@ -99,21 +74,7 @@ namespace INTERP_KERNEL
     // create the affine transform
     createAffineTransform(tetraCorners);
   }
-
-  /*!
-   * This contructor is used to build part of 1/24th dual cell of tetraCorners.
-   * @param i is in 0..23 included.
-   * @param nodeId is the id of first node of this in target mesh in C mode.
-   */
-  /*template<class MyMeshType>
-  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, int i, typename MyMeshType::MyConnType nodeId)
-    : _t(0), _src_mesh(srcMesh), _conn(nodeId)
-  {
-    double *newCoords[4];
-    splitMySelfForDual(tetraCorners,newCoords,i);
-    createAffineTransform(newCoords);
-    }*/
-
+  
   /**
    * Destructor
    *
