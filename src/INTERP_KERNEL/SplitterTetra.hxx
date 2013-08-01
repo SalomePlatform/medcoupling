@@ -152,7 +152,7 @@ namespace INTERP_KERNEL
      */
     TriangleFaceKey(int node1, int node2, int node3)
     {
-      sort3Ints(_nodes, node1, node2, node3);
+      Sort3Ints(_nodes, node1, node2, node3);
       _hashVal = ( _nodes[0] + _nodes[1] + _nodes[2] ) % 29;
     }
 
@@ -201,7 +201,7 @@ namespace INTERP_KERNEL
       return _hashVal;
     }
      
-    inline void sort3Ints(int* sorted, int node1, int node2, int node3);
+    inline static void Sort3Ints(int* sorted, int node1, int node2, int node3);
 
   private:
     /// global numbers of the three nodes, sorted in ascending order
@@ -219,7 +219,7 @@ namespace INTERP_KERNEL
    * @param x2   second integer
    * @param x3   third integer
    */
-  inline void TriangleFaceKey::sort3Ints(int* sorted, int x1, int x2, int x3)
+  inline void TriangleFaceKey::Sort3Ints(int* sorted, int x1, int x2, int x3)
   {
     if(x1 < x2)
       {
@@ -316,8 +316,6 @@ namespace INTERP_KERNEL
     void clearVolumesCache();
 
   private:
-    // member functions
-    inline void createAffineTransform(const double** corners);
     inline void checkIsOutside(const double* pt, bool* isOutside, const double errTol = DEFAULT_ABS_TOL) const;
     inline void checkIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol = DEFAULT_ABS_TOL) const;
     inline void calculateNode(typename MyMeshType::MyConnType globalNodeNum);
@@ -347,11 +345,7 @@ namespace INTERP_KERNEL
     HashMap< int , double* > _nodes;
     
     /// HashMap relating triangular faces to calculated volume contributions, used for caching
-    HashMap< TriangleFaceKey, double
-// #ifdef WIN32
-//         , hash_compare<TriangleFaceKey,TriangleFaceKeyComparator> 
-// #endif
-    > _volumes;
+    HashMap< TriangleFaceKey, double > _volumes;
 
     /// reference to the source mesh
     const MyMeshType& _src_mesh;
@@ -365,19 +359,6 @@ namespace INTERP_KERNEL
     /// Since the scale is always the same in the transformed space (the target tetrahedron is unitary), this number is independent of the scale of the meshes.
     static const double SPARSE_TRUNCATION_LIMIT;
   };
-
-  /**
-   * Creates the affine transform _t from the corners of the tetrahedron. Used by the constructors
-   *
-   * @param corners  double*[4] array containing pointers to four double[3] arrays with the 
-   *                 coordinates of the corners of the tetrahedron
-   */
-  template<class MyMeshType>
-  inline void SplitterTetra<MyMeshType>::createAffineTransform(const double** corners)
-  {
-    // create AffineTransform from tetrahedron
-    _t = new TetraAffineTransform( corners );
-  }
 
   /**
    * Function used to filter out elements by checking if they belong to one of the halfspaces

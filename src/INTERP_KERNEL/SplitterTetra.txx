@@ -59,6 +59,13 @@ namespace INTERP_KERNEL
   }
 
   /**
+   * SplitterTetra class computes for a list of cell ids of a given mesh \a srcMesh (badly named) the intersection with a 
+   * single TETRA4 cell given by \a tetraCorners (of length 4) and \a nodesId (of length 4 too). \a nodedIds is given only to establish
+   * if a partial computation of a triangle has already been performed (to increase performance).
+   *
+   * The \a srcMesh can contain polyhedron cells.
+   * 
+   * 
    * Constructor creating object from the four corners of the tetrahedron.
    *
    * @param srcMesh       mesh containing the source elements
@@ -75,7 +82,7 @@ namespace INTERP_KERNEL
     _coords[6]=tetraCorners[2][0]; _coords[7]=tetraCorners[2][1]; _coords[8]=tetraCorners[2][2];
     _coords[9]=tetraCorners[3][0]; _coords[10]=tetraCorners[3][1]; _coords[11]=tetraCorners[3][2];
     // create the affine transform
-    createAffineTransform(tetraCorners);
+    _t=new TetraAffineTransform(_coords);
   }
   
   /**

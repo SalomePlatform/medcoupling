@@ -38,13 +38,12 @@ namespace INTERP_KERNEL
    * with corners specified in pts. If the tetrahedron is degenerate or almost degenerate, 
    * construction succeeds, but the determinant of the transform is set to 0.
    *
-   * @param pts  a 4x3 matrix containing 4 points (pts[0], ..., pts[3]) of 3 coordinates each
+   * @param pts  a 4x3 matrix containing 4 points (P0X,P0Y,P0Z,P1X,P1Y,P1Z,...) of 3 coordinates each
    */
-  TetraAffineTransform::TetraAffineTransform(const double** pts)
+  TetraAffineTransform::TetraAffineTransform(const double *pts)
   {
     
     LOG(2,"Creating transform from tetraeder : ");
-    LOG(2, vToStr(pts[0]) << ", " << vToStr(pts[1]) << ", " << vToStr(pts[2]) << ", " << vToStr(pts[3]));
     
     // three last points -> linear transform
     for(int i = 0; i < 3 ; ++i)
@@ -52,13 +51,13 @@ namespace INTERP_KERNEL
         for(int j = 0 ; j < 3 ; ++j)
           {
             // NB we insert columns, not rows
-            _linear_transform[3*j + i] = (pts[i+1])[j] - (pts[0])[j];
+            _linear_transform[3*j + i] = pts[(i+1)*3+j] - pts[j];
           }
       }
 
     // remember _linear_transform for the reverse transformation
     memcpy( _back_linear_transform, _linear_transform, 9*sizeof(double));
-    memcpy( _back_translation,      pts[0],          3*sizeof(double));
+    memcpy( _back_translation,      pts,          3*sizeof(double));
     
     calculateDeterminant();
     
@@ -81,7 +80,7 @@ namespace INTERP_KERNEL
     // and O is the position vector of the point that is mapped onto the origin
     for(int i = 0 ; i < 3 ; ++i)
       {
-        _translation[i] = -(_linear_transform[3*i]*(pts[0])[0] + _linear_transform[3*i+1]*(pts[0])[1] + _linear_transform[3*i+2]*(pts[0])[2]) ;
+        _translation[i] = -(_linear_transform[3*i]*pts[0] + _linear_transform[3*i+1]*pts[1] + _linear_transform[3*i+2]*pts[2]) ;
       }
     
     // precalculate determinant (again after inversion of transform)
@@ -95,7 +94,7 @@ namespace INTERP_KERNEL
     for(int i = 0; i < 4 ; ++i)
       {
         double v[3];
-        apply(v, pts[i]);
+        apply(v, pts+3*i);
         LOG(4, vToStr(v))
           for(int j = 0; j < 3; ++j)
             {

@@ -35,7 +35,7 @@ namespace INTERP_KERNEL
   {
 
   public:
-    TetraAffineTransform(const double** pts);
+    TetraAffineTransform(const double *pts);
 
     void apply(double* destPt, const double* srcPt) const;
 

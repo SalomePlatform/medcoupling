@@ -301,15 +301,14 @@ namespace INTERP_TEST
 
   void UnitTetraIntersectionBaryTest::test_TetraAffineTransform_reverseApply()
   {
-    double nodes[4][3] = { {-4.0, 9.0, 3.0 }, 
-                           {11.0, 0.0, 2.0 }, 
-                           { 0.0, 0.0, 0.0 }, 
-                           { 2.0, 1.0,10.0 }};
+    double nodes[12] = { -4.0, 9.0, 3.0, 
+                         11.0, 0.0, 2.0, 
+                         0.0, 0.0, 0.0, 
+                         2.0, 1.0,10.0 };
     //    double pSrc[3] = { -4.0, 9.0, 3.0 };
     double pSrc[3] = { 40., -20., 100. };
     double pDest[] = {1,1,1};
-    const double* n[4] = { &nodes[0][0], &nodes[1][0], &nodes[2][0], &nodes[3][0] };
-    TetraAffineTransform a(&n[0]);
+    TetraAffineTransform a(nodes);
     a.apply( pDest, pSrc );
     a.reverseApply( pDest, pDest );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( pSrc[0], pDest[0], 1e-12);
