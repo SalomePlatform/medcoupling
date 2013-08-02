@@ -13589,6 +13589,78 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m3.getNodalConnectivityIndex().isEqual(DataArrayInt([0,9,18,27,36,45,54,63,72,186,286,330,423])))
         pass
 
+    def testSwig2Simplexize3D1(self):
+        d=DataArrayInt([0,3,6,10,14,20])
+        d2=d.buildExplicitArrOfSliceOnScaledArr(slice(0,5,2))
+        self.assertTrue(d2.isEqual(DataArrayInt([0,0,0, 2,2,2,2, 4,4,4,4,4,4])))
+        m=MEDCouplingUMesh("Penta6",3)
+        m.setCoords(DataArrayDouble([0,0,0,0,1,0,1,0,0,0,0,2,0,1,2,1,0,2],6,3)) ; m.getCoords().setInfoOnComponents(["X","YY","ZZZ"])
+        m.allocateCells()
+        m.insertNextCell(NORM_PENTA6,[1,2,0,4,5,3])
+        st=m.getCoords().getHiddenCppPointer()
+        a,b=m.simplexize3D(PLANAR_FACE_5)
+        m.checkCoherency2()
+        self.assertTrue(a.isEqual(DataArrayInt([0,0,0])))
+        self.assertEqual(0,b)
+        self.assertEqual(m.getCoords().getHiddenCppPointer(),st)
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([14,1,2,0,4,14,4,3,5,0,14,5,0,2,4])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15])))
+        del m
+        #
+        m2=MEDCouplingUMesh("octa12",3)
+        coords=DataArrayDouble([1.,0.,0.,0.5,0.8660254037844386,0.,-0.5,0.8660254037844387,0.,-1.,1.2246467991473532e-16,0.,-0.5,-0.8660254037844384,0.,0.5,-0.866025403784439,0.,1.,0.,2.,0.5,0.8660254037844386,2.,-0.5,0.8660254037844387,2.,-1.,1.2246467991473532e-16,2.,-0.5,-0.8660254037844384,2.,0.5,-0.866025403784439,2.0],12,3)
+        m2.setCoords(coords)
+        m2.allocateCells()
+        m2.insertNextCell(NORM_HEXGP12,[3,2,1,0,5,4,9,8,7,6,11,10])
+        a,b=m2.simplexize3D(PLANAR_FACE_5)
+        m2.checkCoherency2()
+        self.assertTrue(a.isEqual(DataArrayInt([0,0,0,0,0,0,0,0,0,0,0,0])))
+        self.assertEqual(0,b)
+        self.assertEqual(m2.getCoords().getHiddenCppPointer(),coords.getHiddenCppPointer())
+        self.assertTrue(m2.getNodalConnectivity().isEqual(DataArrayInt([14,3,2,4,9,14,9,10,8,4,14,8,4,2,9,14,2,5,4,8,14,8,10,11,4,14,11,4,5,8,14,2,1,5,8,14,8,11,7,5,14,7,5,1,8,14,1,0,5,7,14,7,11,6,5,14,6,5,0,7])))
+        self.assertTrue(m2.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45,50,55,60])))
+        del m2,coords
+        #
+        coords=DataArrayDouble([0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,2.,1.,0.,2.,1.,1.,2.,0.,1.,2.],8,3) ; coords.setInfoOnComponents(["X","YY","ZZZ"])
+        m3=MEDCouplingUMesh("hexa8",3)
+        m3.setCoords(coords)
+        m3.allocateCells(0)
+        m3.insertNextCell(NORM_HEXA8,[3,2,1,0,7,6,5,4])
+        st=m3.getCoords().getHiddenCppPointer()
+        a,b=m3.simplexize3D(PLANAR_FACE_5)
+        m3.checkCoherency2()
+        a.isEqual(DataArrayInt([0,0,0,0,0]))
+        self.assertEqual(0,b)
+        self.assertEqual(m3.getCoords().getHiddenCppPointer(),coords.getHiddenCppPointer())
+        self.assertTrue(m3.getNodalConnectivity().isEqual(DataArrayInt([14,3,6,2,1,14,3,7,6,4,14,3,0,4,1,14,6,4,5,1,14,3,6,1,4])))
+        self.assertTrue(m3.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25])))
+        #
+        m3=MEDCouplingUMesh("hexa8",3)
+        m3.setCoords(coords)
+        m3.allocateCells(0)
+        m3.insertNextCell(NORM_HEXA8,[3,2,1,0,7,6,5,4])
+        st=m3.getCoords().getHiddenCppPointer()
+        a,b=m3.simplexize3D(PLANAR_FACE_6)
+        m3.checkCoherency2()
+        a.isEqual(DataArrayInt([0,0,0,0,0,0]))
+        self.assertEqual(0,b)
+        self.assertEqual(m3.getCoords().getHiddenCppPointer(),coords.getHiddenCppPointer())
+        self.assertTrue(m3.getNodalConnectivity().isEqual(DataArrayInt([14,3,6,2,5,14,3,2,1,5,14,3,7,6,5,14,3,4,7,5,14,3,1,0,5,14,3,0,4,5])))
+        self.assertTrue(m3.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30])))
+        #
+        #m3=MEDCouplingUMesh("hexa8",3)
+        #m3.setCoords(coords)
+        #m3.allocateCells(0)
+        #m3.insertNextCell(NORM_HEXA8,[3,2,1,0,7,6,5,4])
+        #st=m3.getCoords().getHiddenCppPointer()
+        #a,b=m3.simplexize3D(GENERAL_24)
+        #m3.checkCoherency2()
+        #a.isEqual(DataArrayInt([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]))
+        #self.assertEqual(7,b)
+        #self.assertTrue(m3.getCoords().getHiddenCppPointer()!=coords.getHiddenCppPointer())
+        #self.assertTrue(m3.getCoords()[:8].isEqual(coords,0))
+        pass
+
     def setUp(self):
         pass
     pass

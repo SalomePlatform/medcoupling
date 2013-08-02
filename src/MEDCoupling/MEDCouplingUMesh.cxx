@@ -9310,13 +9310,13 @@ DataArrayInt *MEDCouplingUMesh::simplexize3D(int policy, int& nbOfAdditionalPoin
 {
   INTERP_KERNEL::SplittingPolicy pol((INTERP_KERNEL::SplittingPolicy)policy);
   checkConnectivityFullyDefined();
-  if(getMeshDimension()!=3 || getSpaceDimension())
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexize3D : only available for mesh with meshdim == 3 and spacedim == 3 !");
   int nbOfCells(getNumberOfCells()),nbNodes(getNumberOfNodes());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfCells,1);
   int *retPt(ret->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()),newConnI(DataArrayInt::New()); newConnI->alloc(1,0); newConnI->setIJ(0,0,0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addPts(DataArrayDouble::New()); addPts->alloc(0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()),newConnI(DataArrayInt::New()); newConn->alloc(0,1); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addPts(DataArrayDouble::New()); addPts->alloc(0,1);
   const int *oldc(_nodal_connec->begin());
   const int *oldci(_nodal_connec_index->begin());
   const double *coords(_coords->begin());
@@ -9345,9 +9345,12 @@ DataArrayInt *MEDCouplingUMesh::simplexize3D(int policy, int& nbOfAdditionalPoin
   if(!addPts->empty())
     {
       addPts->rearrange(3);
-      addPts->copyStringInfoFrom(*getCoords());
+      nbOfAdditionalPoints=addPts->getNumberOfTuples();
+      addPts=DataArrayDouble::Aggregate(getCoords(),addPts);
       setCoords(addPts);
     }
+  else
+    nbOfAdditionalPoints=0;
   setConnectivity(newConn,newConnI,false);
   _types.clear(); _types.insert(INTERP_KERNEL::NORM_TETRA4);
   computeTypes();

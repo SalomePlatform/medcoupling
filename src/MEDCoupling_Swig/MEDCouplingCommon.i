@@ -269,6 +269,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildUnique;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
+%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
 %newobject ParaMEDMEM::DataArrayInt::findRangeIdForEachTuple;
 %newobject ParaMEDMEM::DataArrayInt::findIdInRangeForEachTuple;
 %newobject ParaMEDMEM::DataArrayInt::duplicateEachTupleNTimes;
@@ -2018,6 +2019,16 @@ namespace ParaMEDMEM
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      PyObject *simplexize3D(int policy) throw(INTERP_KERNEL::Exception)
+      {
+        int ret1(-1);
+        DataArrayInt *ret0(self->simplexize3D(policy,ret1));
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
         return ret;
       }
       

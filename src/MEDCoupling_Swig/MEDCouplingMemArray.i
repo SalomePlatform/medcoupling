@@ -2558,6 +2558,19 @@ namespace ParaMEDMEM
         const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
         return self->accumulatePerChunck(bg,bg+sz);
       }
+
+      DataArrayInt *buildExplicitArrOfSliceOnScaledArr(PyObject *slic) const throw(INTERP_KERNEL::Exception)
+      {
+        if(!PySlice_Check(slic))
+          throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : expecting a pyslice as second (first) parameter !");
+        Py_ssize_t strt=2,stp=2,step=2;
+        PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
+        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
+          throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice is invalid !");
+        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
+          throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice contains some unknowns that can't be determined in static method ! Call DataArray::getSlice (non static) instead !");
+        return self->buildExplicitArrOfSliceOnScaledArr(strt,stp,step);
+      }
    
       static PyObject *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, PyObject *arr, PyObject *arrI) throw(INTERP_KERNEL::Exception)
       {

@@ -9629,7 +9629,7 @@ DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int end, 
 {
   if(!isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : not allocated array !");
-  if(getNumberOfComponents()==1)
+  if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : number of components is expected to be equal to one !");
   int nbOfTuples(getNumberOfTuples());
   if(nbOfTuples==0)
