@@ -5239,6 +5239,7 @@ void MEDCouplingUMesh::tessellate2DCurve(double eps) throw(INTERP_KERNEL::Except
  *          and \a this->getMeshDimension() != 3. 
  *  \throw If \a policy is not one of the four discussed above.
  *  \throw If the nodal connectivity of cells is not defined.
+ * \sa MEDCouplingUMesh::simplexize3D
  */
 DataArrayInt *MEDCouplingUMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
 {
@@ -9240,7 +9241,6 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const throw(INTER
  */
 std::vector<DataArrayInt *> MEDCouplingUMesh::partitionBySpreadZone() const throw(INTERP_KERNEL::Exception)
 {
-  //#if 0
   int nbOfCellsCur=getNumberOfCells();
   std::vector<DataArrayInt *> ret;
   if(nbOfCellsCur<=0)
@@ -9260,36 +9260,6 @@ std::vector<DataArrayInt *> MEDCouplingUMesh::partitionBySpreadZone() const thro
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=ret2.begin();it!=ret2.end();it++)
     ret.push_back((*it).retn());
   return ret;
-  //#endif
-#if 0
-  int nbOfCellsCur=getNumberOfCells();
-  DataArrayInt *neigh=0,*neighI=0;
-  computeNeighborsOfCells(neigh,neighI);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighAuto(neigh),neighIAuto(neighI);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=DataArrayInt::New(); ids->alloc(nbOfCellsCur,1); ids->iota();
-  std::vector<DataArrayInt *> ret;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > ret2;
-  while(nbOfCellsCur>0)
-    {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=MEDCouplingUMesh::ComputeSpreadZoneGradually(neighAuto,neighIAuto);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp3=tmp->buildComplement(nbOfCellsCur);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2=ids->selectByTupleId(tmp->begin(),tmp->end());
-      ret2.push_back(tmp2);  ret.push_back(tmp2);
-      nbOfCellsCur=tmp3->getNumberOfTuples();
-      if(nbOfCellsCur>0)
-        {
-          ids=ids->selectByTupleId(tmp3->begin(),tmp3->end());
-          MEDCouplingUMesh::ExtractFromIndexedArrays(tmp3->begin(),tmp3->end(),neighAuto,neighIAuto,neigh,neighI);
-          neighAuto=neigh;
-          neighIAuto=neighI;
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum=tmp3->invertArrayN2O2O2N(nbOfCellsCur+tmp->getNumberOfTuples());
-          neighAuto->transformWithIndArr(renum->begin(),renum->end());
-        }
-    }
-  for(std::vector<DataArrayInt *>::const_iterator it=ret.begin();it!=ret.end();it++)
-    (*it)->incrRef();
-  return ret;
-#endif
 }
 
 /*!
@@ -9314,6 +9284,77 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
       retPtr[1]=code[3*i+2]+code[3*i+1];
     }
   return ret.retn();
+}
+
+/*!
+ * This method expects that \a this a 3D mesh (spaceDim=3 and meshDim=3) with all coordinates and connectivities set.
+ * All cells in \a this are expected to be linear 3D cells.
+ * This method will split all 3D cells in \a this into INTERP_KERNEL::NORM_TETRA4 cells. It leads to an increase to number of cells.
+ * This method contrary to MEDCouplingUMesh::simplexize3D can append coordinates in \a this to perform its work.
+ * The \a nbOfAdditionalPoints returned value informs about it. If > 0, the coordinates array in \a this will be replaced by an another one 
+ * having \a nbOfAdditionalPoints more tuples (nodes) than previously. Anyway, The nodes and their order initially present in \a this
+ * before the call are kept.
+ *
+ * \param [in] policy - the policy of splitting that must be in (PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48). The policy will be used only for INTERP_KERNEL::NORM_HEXA8 cells.
+ *                      For all other cells, the splitting policy will be ignored.
+ * \param [out] nbOfAdditionalPoints - number of nodes added to \c this->_coords. If > 0 a new coordinates object will be constructed result of the aggregation of the old one and the new points added. 
+ * \return DataArrayInt * - a new instance of DataArrayInt holding, for each new cell,
+ *          an id of old cell producing it. The caller is to delete this array using
+ *         decrRef() as it is no more needed. 
+ * 
+ * \throw If \a this is not a 3D mesh (spaceDim==3 and meshDim==3).
+ * \throw If \a this is not fully constituted with linear 3D cells.
+ * \sa MEDCouplingUMesh::simplexize
+ */
+DataArrayInt *MEDCouplingUMesh::simplexize3D(int policy, int& nbOfAdditionalPoints) throw(INTERP_KERNEL::Exception)
+{
+  INTERP_KERNEL::SplittingPolicy pol((INTERP_KERNEL::SplittingPolicy)policy);
+  checkConnectivityFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexize3D : only available for mesh with meshdim == 3 and spacedim == 3 !");
+  int nbOfCells(getNumberOfCells()),nbNodes(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfCells,1);
+  int *retPt(ret->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()),newConnI(DataArrayInt::New()); newConnI->alloc(1,0); newConnI->setIJ(0,0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addPts(DataArrayDouble::New()); addPts->alloc(0,0);
+  const int *oldc(_nodal_connec->begin());
+  const int *oldci(_nodal_connec_index->begin());
+  const double *coords(_coords->begin());
+  for(int i=0;i<nbOfCells;i++,oldci,retPt++)
+    {
+      std::vector<int> a; std::vector<double> b;
+      INTERP_KERNEL::SplitIntoTetras(pol,(INTERP_KERNEL::NormalizedCellType)oldc[oldci[0]],oldc+oldci[0]+1,oldc+oldci[1],coords,a,b);
+      std::size_t nbOfTet(a.size()/4); *retPt=(int)nbOfTet;
+      const int *aa(&a[0]);
+      if(!b.empty())
+        {
+          for(std::vector<int>::iterator it=a.begin();it!=a.end();it++)
+            if(*it<0)
+              *it=(-(*(it))-1+nbNodes);
+          addPts->insertAtTheEnd(b.begin(),b.end());
+          nbNodes+=(int)b.size()/3;
+        }
+      for(std::size_t j=0;j<nbOfTet;j++,aa+=4)
+        {
+          int idx(newConnI->back());
+          int val(idx+4+1);
+          newConnI->pushBackSilent(val);
+          newConn->writeOnPlace(idx,(int)INTERP_KERNEL::NORM_TETRA4,aa,4);
+        }
+    }
+  if(!addPts->empty())
+    {
+      addPts->rearrange(3);
+      addPts->copyStringInfoFrom(*getCoords());
+      setCoords(addPts);
+    }
+  setConnectivity(newConn,newConnI,false);
+  _types.clear(); _types.insert(INTERP_KERNEL::NORM_TETRA4);
+  computeTypes();
+  updateTime();
+  //
+  ret->computeOffsets2();
+  return ret->buildExplicitArrOfSliceOnScaledArr(0,nbOfCells,1);
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),

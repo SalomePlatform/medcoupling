@@ -9606,6 +9606,67 @@ DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets
 }
 
 /*!
+ * Returns a new DataArrayInt whose contents is computed using \a this that must be a 
+ * scaled array (monotonically increasing).
+from that of \a this and \a
+ * offsets arrays as follows. \a offsets is a one-dimensional array considered as an
+ * "index" array of a "iota" array, thus, whose each element gives an index of a group
+ * beginning within the "iota" array. And \a this is a one-dimensional array
+ * considered as a selector of groups described by \a offsets to include into the result array.
+ *  \throw If \a  is NULL.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != 1.
+ *  \throw If \a this->getNumberOfTuples() == 0.
+ *  \throw If \a this is not monotonically increasing.
+ *  \throw If any element of ids in ( \a gb \a end \a step ) points outside the scale in \a this.
+ *
+ *  \b Example: <br>
+ *          - \a bg , \a end and \a step : (0,5,2)
+ *          - \a this: [0,3,6,10,14,20]
+ *          - result array: [0,0,0, 2,2,2,2, 4,4,4,4,4,4] == <br>
+ */
+DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int end, int step) const throw(INTERP_KERNEL::Exception)
+{
+  if(!isAllocated())
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : not allocated array !");
+  if(getNumberOfComponents()==1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : number of components is expected to be equal to one !");
+  int nbOfTuples(getNumberOfTuples());
+  if(nbOfTuples==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : number of tuples must be != 0 !");
+  const int *ids(begin());
+  int nbOfEltsInSlc(GetNumberOfItemGivenBESRelative(bg,end,step,"DataArrayInt::buildExplicitArrOfSliceOnScaledArr")),sz(0),pos(bg);
+  for(int i=0;i<nbOfEltsInSlc;i++,pos+=step)
+    {
+      if(pos>=0 && pos<nbOfTuples-1)
+        {
+          int delta(ids[pos+1]-ids[pos]);
+          sz+=delta;
+          if(delta<0)
+            {
+              std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrOfSliceOnScaledArr : At pos #" << i << " of input slice, value is " << pos << " and at this pos this is not monotonically increasing !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }          
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrOfSliceOnScaledArr : At pos #" << i << " of input slice, value is " << pos << " should be in [0," << nbOfTuples-1 << ") !";  
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  int *retPtr(ret->getPointer());
+  pos=bg;
+  for(int i=0;i<nbOfEltsInSlc;i++,pos+=step)
+    {
+      int delta(ids[pos+1]-ids[pos]);
+      for(int j=0;j<delta;j++,retPtr++)
+        *retPtr=pos;
+    }
+  return ret.retn();
+}
+
+/*!
  * Given in input ranges \a ranges, it returns a newly allocated DataArrayInt instance having one component and the same number of tuples than \a this.
  * For each tuple at place **i** in \a this it tells which is the first range in \a ranges that contains value \c this->getIJ(i,0) and put the result
  * in tuple **i** of returned DataArrayInt.
