@@ -23,6 +23,7 @@
 #include "TransformedTriangle.hxx"
 #include "TetraAffineTransform.hxx"
 #include "InterpolationOptions.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelHashMap.hxx"
 #include "VectorUtils.hxx"
 
@@ -98,6 +99,17 @@ namespace INTERP_KERNEL
       2,3,6,7,// sub-node 13 (face)
       8,9,10,11// sub-node 14 (cell)
     };
+
+  static const int GENERAL_24_SUB_NODES_WO[28] = 
+    {
+      0,4,5,1,// sub-node 8  (face)
+      0,1,2,3,// sub-node 9  (face)
+      0,3,7,4,// sub-node 10 (face)
+      1,5,6,2,// sub-node 11 (face)
+      4,7,6,5,// sub-node 12 (face)
+      2,6,7,3,// sub-node 13 (face)
+      8,9,10,11// sub-node 14 (cell)
+    };
   
   static const int TETRA_EDGES_GENERAL_24[48] = 
     {
@@ -132,6 +144,65 @@ namespace INTERP_KERNEL
       7,3,
       3,2
     };
+  
+  // Each sub-node is the barycenter of two other nodes.
+  // For the edges, these lie on the original mesh.
+  // For the faces, these are the edge sub-nodes.
+  // For the cell these are two face sub-nodes.
+  static const int GENERAL_48_SUB_NODES[38] = 
+    {
+      0,1,   // sub-node 8 (edge)
+      0,4,   // sub-node 9 (edge)
+      1,5,   // sub-node 10 (edge)
+      4,5,   // sub-node 11 (edge)
+      0,3,   // sub-node 12 (edge)
+      1,2,   // sub-node 13 (edge)
+      4,7,   // sub-node 14 (edge)
+      5,6,   // sub-node 15 (edge)
+      2,3,   // sub-node 16 (edge)
+      3,7,   // sub-node 17 (edge)
+      2,6,   // sub-node 18 (edge)
+      6,7,   // sub-node 19 (edge)
+      8,11,  // sub-node 20 (face)
+      12,13, // sub-node 21 (face)
+      9,17,  // sub-node 22 (face)
+      10,18, // sub-node 23 (face)
+      14,15, // sub-node 24 (face)
+      16,19, // sub-node 25 (face)
+      20,25  // sub-node 26 (cell)
+    };
+
+  // Define 8 hexahedral subzones as in Grandy, p449
+  // the values correspond to the nodes that correspond to nodes 1,2,3,4,5,6,7,8 in the subcell
+  // For the correspondance of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
+  static const int GENERAL_48_SUBZONES[64] = 
+    {
+      0,8,21,12,9,20,26,22,
+      8,1,13,21,20,10,23,26,
+      12,21,16,3,22,26,25,17,
+      21,13,2,16,26,23,18,25,
+      9,20,26,22,4,11,24,14,
+      20,10,23,26,11,5,15,24,
+      22,26,25,17,14,24,19,7,
+      26,23,18,25,24,15,6,19
+    };
+
+  static const int GENERAL_48_SUBZONES_2[64] = 
+    {
+      0,-1,-14,-5,-2,-13,-19,-15,
+      -1,1,-6,-14,-13,-3,-16,-19,
+      -5,-14,-9,3,-15,-19,-18,-10,
+      -14,-6,2,-9,-19,-16,-11,-18,
+      -2,-13,-19,-15,4,-4,-17,-7,
+      -13,-3,-16,-19,-4,5,-8,-17,
+      -15,-19,-18,-10,-7,-17,-12,7,
+      -19,-16,-11,-18,-17,-8,6,-12};
+
+  void SplitHexa8IntoTetras(SplittingPolicy policy, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
+                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
+  
+  void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
+                       std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
   
   /**
    * \brief Class representing a triangular face, used as key in caching hash map in SplitterTetra.
@@ -280,7 +351,6 @@ namespace INTERP_KERNEL
 
 namespace INTERP_KERNEL
 {
-
   /** 
    * \brief Class calculating the volume of intersection between a tetrahedral target element and
    * source elements with triangular or quadratilateral faces.

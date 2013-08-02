@@ -81,7 +81,6 @@ namespace INTERP_KERNEL
    * 
    * @param targetCell in C mode.
    * @param srcCells in C mode.
-   *
    */
   template<class MyMeshType, class MyMatrixType>
   void Polyhedron3D2DIntersectorP0P0<MyMeshType,MyMatrixType>::intersectCells(ConnType targetCell,
@@ -111,7 +110,7 @@ namespace INTERP_KERNEL
           {
             // we could store mapping local -> global numbers too, but not sure it is worth it
             const int globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(*iterCellS), src_mesh);
-            polyNodes[i]=globalNodeNum;
+            polyNodes[i] = globalNodeNum;
             polyCoords[i] = const_cast<double*>(src_mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum);
           }
 
@@ -125,46 +124,43 @@ namespace INTERP_KERNEL
                                                     listOfTetraFacesTreated,
                                                     listOfTetraFacesColinear);
 
-        if(surface!=0.) {
-
-          matrix[targetCell].insert(std::make_pair(cellSrcIdx, surface));
-
-          bool isSrcFaceColinearWithFaceOfTetraTargetCell = false;
-          std::set<TriangleFaceKey>::iterator iter;
-          for (iter = listOfTetraFacesColinear.begin(); iter != listOfTetraFacesColinear.end(); ++iter)
-            {
-              if (listOfTetraFacesTreated.count(*iter) != 1)
-                {
-                  isSrcFaceColinearWithFaceOfTetraTargetCell = false;
-                  break;
-                }
-              else
-                {
-                  isSrcFaceColinearWithFaceOfTetraTargetCell = true;
-                }
-            }
-
-          if (isSrcFaceColinearWithFaceOfTetraTargetCell)
-            {
-              DuplicateFacesType::iterator intersectFacesIter = _intersect_faces.find(cellSrcIdx);
-              if (intersectFacesIter != _intersect_faces.end())
-                {
-                  intersectFacesIter->second.insert(targetCell);
-                }
-              else
-                {
-                  std::set<int> targetCellSet;
-                  targetCellSet.insert(targetCell);
-                  _intersect_faces.insert(std::make_pair(cellSrcIdx, targetCellSet));
-                }
-
-            }
-
-        }
-
-        delete[] polyNodes;
-        delete[] polyCoords;
-
+        if(surface!=0.)
+          {
+            
+            matrix[targetCell].insert(std::make_pair(cellSrcIdx, surface));
+            
+            bool isSrcFaceColinearWithFaceOfTetraTargetCell = false;
+            std::set<TriangleFaceKey>::iterator iter;
+            for (iter = listOfTetraFacesColinear.begin(); iter != listOfTetraFacesColinear.end(); ++iter)
+              {
+                if (listOfTetraFacesTreated.count(*iter) != 1)
+                  {
+                    isSrcFaceColinearWithFaceOfTetraTargetCell = false;
+                    break;
+                  }
+                else
+                  {
+                    isSrcFaceColinearWithFaceOfTetraTargetCell = true;
+                  }
+              }
+            
+            if (isSrcFaceColinearWithFaceOfTetraTargetCell)
+              {
+                DuplicateFacesType::iterator intersectFacesIter = _intersect_faces.find(cellSrcIdx);
+                if (intersectFacesIter != _intersect_faces.end())
+                  {
+                    intersectFacesIter->second.insert(targetCell);
+                  }
+                else
+                  {
+                    std::set<int> targetCellSet;
+                    targetCellSet.insert(targetCell);
+                    _intersect_faces.insert(std::make_pair(cellSrcIdx, targetCellSet));
+                  }
+              }
+          }
+        delete [] polyNodes;
+        delete [] polyCoords;
       }
     _split.releaseArrays();
   }

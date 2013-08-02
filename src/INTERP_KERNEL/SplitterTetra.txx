@@ -557,7 +557,6 @@ namespace INTERP_KERNEL
    * @param polyNodesNbr number of the nodes of the polygon source face
    * @param polyNodes numbers of the nodes of the polygon source face
    * @param polyCoords coordinates of the nodes of the polygon source face
-   * @param polyCoords coordinates of the nodes of the polygon source face
    * @param dimCaracteristic characteristic size of the meshes containing the triangles
    * @param precision precision for double float data used for comparison
    * @param listOfTetraFacesTreated list of tetra faces treated
@@ -1085,25 +1084,10 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
-  {
-    // Define 8 hexahedral subzones as in Grandy, p449
-    // the values correspond to the nodes that correspond to nodes 1,2,3,4,5,6,7,8 in the subcell
-    // For the correspondance of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
-    static const int subZones[64] = 
-      {
-        0,8,21,12,9,20,26,22,
-        8,1,13,21,20,10,23,26,
-        12,21,16,3,22,26,25,17,
-        21,13,2,16,26,23,18,25,
-        9,20,26,22,4,11,24,14,
-        20,10,23,26,11,5,15,24,
-        22,26,25,17,14,24,19,7,
-        26,23,18,25,24,15,6,19
-      };
-    
+  { 
     for(int i = 0; i < 8; ++i)
       {
-        sixSplit(&subZones[8*i],tetra);
+        sixSplit(GENERAL_48_SUBZONES+8*i,tetra);
       }
   }
   
@@ -1238,33 +1222,6 @@ namespace INTERP_KERNEL
 
           case GENERAL_48:
             {
-              // Each sub-node is the barycenter of two other nodes.
-              // For the edges, these lie on the original mesh.
-              // For the faces, these are the edge sub-nodes.
-              // For the cell these are two face sub-nodes.
-              static const int GENERAL_48_SUB_NODES[38] = 
-                {
-                  0,1,   // sub-node 9 (edge)
-                  0,4,   // sub-node 10 (edge)
-                  1,5,   // sub-node 11 (edge)
-                  4,5,   // sub-node 12 (edge)
-                  0,3,   // sub-node 13 (edge)
-                  1,2,   // sub-node 14 (edge)
-                  4,7,   // sub-node 15 (edge)
-                  5,6,   // sub-node 16 (edge)
-                  2,3,   // sub-node 17 (edge)
-                  3,7,   // sub-node 18 (edge)
-                  2,6,   // sub-node 19 (edge)
-                  6,7,   // sub-node 20 (edge)
-                  8,11,  // sub-node 21 (face)
-                  12,13, // sub-node 22 (face)
-                  9,17,  // sub-node 23 (face)
-                  10,18, // sub-node 24 (face)
-                  14,15, // sub-node 25 (face)
-                  16,19, // sub-node 26 (face)
-                  20,25  // sub-node 27 (cell)
-                };
-
               for(int i = 0; i < 19; ++i)
                 {
                   double* barycenter = new double[3];

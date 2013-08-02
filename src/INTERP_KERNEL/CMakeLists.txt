@@ -38,6 +38,7 @@ SET(interpkernel_SOURCES
   InterpKernelCellSimplify.cxx
   InterpKernelMatrixTools.cxx
   VolSurfUser.cxx
+  SplitterTetra.cxx
   Bases/InterpKernelException.cxx
   Geometric2D/InterpKernelGeo2DAbstractEdge.cxx
   Geometric2D/InterpKernelGeo2DBounds.cxx
