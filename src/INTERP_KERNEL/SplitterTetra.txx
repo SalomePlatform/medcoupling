@@ -99,9 +99,12 @@ namespace INTERP_KERNEL
    * \param [in] tetraCorners  array 4*3 doubles containing corners of input tetrahedron (P0X,P0Y,P0Y,P1X,P1Y,P1Z,P2X,P2Y,P2Z,P3X,P3Y,P3Z).
    */
   template<class MyMeshType>
-  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12]): _t(0),_src_mesh(srcMesh)
+  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const int *conn): _t(0),_src_mesh(srcMesh)
   {
-    _conn[0]=0; _conn[1]=1; _conn[2]=2; _conn[3]=3;
+    if(!conn)
+      { _conn[0]=0; _conn[1]=1; _conn[2]=2; _conn[3]=3; }
+    else
+      { _conn[0]=conn[0]; _conn[1]=conn[1]; _conn[2]=conn[2]; _conn[3]=conn[3]; }
     _coords[0]=tetraCorners[0]; _coords[1]=tetraCorners[1]; _coords[2]=tetraCorners[2]; _coords[3]=tetraCorners[3]; _coords[4]=tetraCorners[4]; _coords[5]=tetraCorners[5];
     _coords[6]=tetraCorners[6]; _coords[7]=tetraCorners[7]; _coords[8]=tetraCorners[8]; _coords[9]=tetraCorners[9]; _coords[10]=tetraCorners[10]; _coords[11]=tetraCorners[11];
     // create the affine transform
@@ -207,8 +210,7 @@ namespace INTERP_KERNEL
             //std::cout << std::endl << "*** " << globalNodeNum << std::endl;
             calculateNode(globalNodeNum);
           }
-
-        checkIsOutside(_nodes[globalNodeNum], isOutside);       
+        CheckIsOutside(_nodes[globalNodeNum], isOutside);       
       }
 
     // halfspace filtering check
@@ -622,8 +624,8 @@ namespace INTERP_KERNEL
             calculateNode2(globalNodeNum, polyCoords[i]);
           }
 
-        checkIsStrictlyOutside(_nodes[globalNodeNum], isStrictlyOutside, precision);
-        checkIsOutside(_nodes[globalNodeNum], isOutside, precision);
+        CheckIsStrictlyOutside(_nodes[globalNodeNum], isStrictlyOutside, precision);
+        CheckIsOutside(_nodes[globalNodeNum], isOutside, precision);
       }
 
     // halfspace filtering check
@@ -848,7 +850,7 @@ namespace INTERP_KERNEL
     for(int i = 0;i<(int)nbOfNodes4Type;++i)
     {
       _t->apply(nodes[i], tetraCorners[i]);
-      checkIsOutside(nodes[i], isOutside);
+      CheckIsOutside(nodes[i], isOutside);
     }
 
     // halfspace filtering check
@@ -938,11 +940,13 @@ namespace INTERP_KERNEL
     SplitIntoTetras(_splitting_pol,gt,cellConn,refConn+_target_mesh.getConnectivityIndexPtr()[targetCell+1],coords,tetrasNodalConn,addCoords);
     std::size_t nbTetras(tetrasNodalConn.size()/4); tetra.resize(nbTetras);
     double tmp[12];
+    int tmp2[4];
     for(std::size_t i=0;i<nbTetras;i++)
       {
         for(int j=0;j<4;j++)
           {
             int cellId(tetrasNodalConn[4*i+j]);
+            tmp2[j]=cellId;
             if(cellId>=0)
               {
                 tmp[j*3+0]=coords[3*cellId+0];
@@ -956,7 +960,7 @@ namespace INTERP_KERNEL
                 tmp[j*3+2]=addCoords[3*(-cellId-1)+2];
               }
           }
-        tetra[i]=new SplitterTetra<MyMeshTypeS>(_src_mesh,tmp);
+        tetra[i]=new SplitterTetra<MyMeshTypeS>(_src_mesh,tmp,tmp2);
       }
   }
 

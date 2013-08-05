@@ -363,7 +363,7 @@ namespace INTERP_KERNEL
     
     SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, const typename MyMeshType::MyConnType *nodesId);
 
-    SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12]);
+    SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const int *conn = 0);
 
     ~SplitterTetra();
 
@@ -388,8 +388,8 @@ namespace INTERP_KERNEL
     void clearVolumesCache();
 
   private:
-    inline void checkIsOutside(const double* pt, bool* isOutside, const double errTol = DEFAULT_ABS_TOL) const;
-    inline void checkIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol = DEFAULT_ABS_TOL) const;
+    inline static void CheckIsOutside(const double* pt, bool* isOutside, const double errTol = DEFAULT_ABS_TOL);
+    inline static void CheckIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol = DEFAULT_ABS_TOL);
     inline void calculateNode(typename MyMeshType::MyConnType globalNodeNum);
     inline void calculateNode2(typename MyMeshType::MyConnType globalNodeNum, const double* node);
     inline void calculateVolume(TransformedTriangle& tri, const TriangleFaceKey& key);
@@ -442,7 +442,7 @@ namespace INTERP_KERNEL
    * @param isOutside bool[8] which indicate the results of earlier checks. 
    */
   template<class MyMeshType>
-  inline void SplitterTetra<MyMeshType>::checkIsOutside(const double* pt, bool* isOutside, const double errTol) const
+  inline void SplitterTetra<MyMeshType>::CheckIsOutside(const double* pt, bool* isOutside, const double errTol)
   {
     isOutside[0] = isOutside[0] && (pt[0] < errTol);
     isOutside[1] = isOutside[1] && (pt[0] > (1.0-errTol) );
@@ -455,7 +455,7 @@ namespace INTERP_KERNEL
   }
   
   template<class MyMeshType>
-  inline void SplitterTetra<MyMeshType>::checkIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol) const
+  inline void SplitterTetra<MyMeshType>::CheckIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol)
   {
     isStrictlyOutside[0] = isStrictlyOutside[0] && (pt[0] < -errTol);
     isStrictlyOutside[1] = isStrictlyOutside[1] && (pt[0] > (1.0 + errTol));

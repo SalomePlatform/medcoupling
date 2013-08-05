@@ -78,9 +78,8 @@ namespace INTERP_KERNEL
   void PolyhedronIntersectorP0P1<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
     SplitterTetra<MyMeshType>* subTetras[24];
-    int nbOfNodesT=Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell));
     releaseArrays();
-    _split.splitTargetCell(targetCell,nbOfNodesT,_tetra);
+    _split.splitTargetCell2(targetCell,_tetra);
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
       {
         for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
@@ -92,7 +91,13 @@ namespace INTERP_KERNEL
                 double volume = tmp->intersectSourceCell(*iterCellS);
                 if(volume!=0.)
                   {
-                    typename MyMatrix::value_type& resRow=res[tmp->getId(0)];
+                    int targetNodeId(tmp->getId(0));
+                    if(targetNodeId<0)
+                      {
+                        std::ostringstream oss; oss << "PolyhedronIntersectorP0P1::intersectCells : On target cell #" <<  targetCell << " the splitting into tetra4 leads to the creation of an additional point that interacts with source cell Id #" << *iterCellS << " !";
+                        throw INTERP_KERNEL::Exception(oss.str().c_str());
+                      }
+                    typename MyMatrix::value_type& resRow=res[targetNodeId];
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(*iterCellS));
                     if(iterRes==resRow.end())
                       resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(*iterCellS),volume));
