@@ -2022,13 +2022,15 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *simplexize3D(int policy) throw(INTERP_KERNEL::Exception)
+      PyObject *tetrahedrize(int policy) throw(INTERP_KERNEL::Exception)
       {
-        int ret1(-1);
-        DataArrayInt *ret0(self->simplexize3D(policy,ret1));
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
+        int ret2(-1);
+        DataArrayInt *ret1(0);
+        MEDCoupling1SGTUMesh *ret0(self->tetrahedrize(policy,ret1,ret2));
+        PyObject *ret=PyTuple_New(3);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__MEDCoupling1SGTUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,PyInt_FromLong(ret2));
         return ret;
       }
       

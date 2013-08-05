@@ -13637,7 +13637,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m4.allocateCells(0)
         m4.insertNextCell(NORM_HEXA8,[3,2,1,0,7,6,5,4])
         c,a,b=m4.tetrahedrize(PLANAR_FACE_6)
-        m4.checkCoherency2()
+        c.checkCoherency2()
         a.isEqual(DataArrayInt([0,0,0,0,0,0]))
         self.assertEqual(0,b)
         self.assertEqual(c.getCoords().getHiddenCppPointer(),coords.getHiddenCppPointer())
