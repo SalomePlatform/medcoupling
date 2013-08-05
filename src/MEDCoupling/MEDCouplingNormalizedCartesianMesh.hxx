@@ -40,8 +40,8 @@ public:
   MEDCouplingNormalizedCartesianMesh(const ParaMEDMEM::MEDCouplingCMesh *mesh);
   //void getBoundingBox(double *boundingBox) const;
   //INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
-  //unsigned char getNumberOfNodesOfElement(int eltId) const;
-  //unsigned long getNumberOfNodes() const;
+  //int getNumberOfNodesOfElement(int eltId) const;
+  //int getNumberOfNodes() const;
   unsigned long getNumberOfElements() const;
   unsigned long nbCellsAlongAxis(int axis) const;
   const double * getCoordsAlongAxis(int axis) const;

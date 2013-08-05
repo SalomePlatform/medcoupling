@@ -1311,7 +1311,7 @@ const double coordsTrgData[36]={-2,1.1547005383792521,264.85199999999998,-2,0.57
  std::vector<std::map<int,double> > matrx(remapper.getCrudeMatrix());
  CPPUNIT_ASSERT_EQUAL(1,(int)matrx.size());
  CPPUNIT_ASSERT_EQUAL(1,(int)matrx[0].size());
- std::cerr << std::endl << matrx[0][0] << std::endl;
+ CPPUNIT_ASSERT_DOUBLES_EQUAL(valExpected,matrx[0][0],1e-13);
  //
  srcMesh->decrRef(); trgMesh->decrRef();
 }

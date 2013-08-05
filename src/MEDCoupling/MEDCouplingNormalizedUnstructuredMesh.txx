@@ -66,19 +66,19 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingNormalizedUnstructuredMesh<SPACEDIM
 }
 
 template<int SPACEDIM,int MESHDIM>
-unsigned char MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfNodesOfElement(int eltId) const
+int MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfNodesOfElement(int eltId) const
 {
   return _mesh->getNumberOfNodesInCell(eltId);
 }
 
 template<int SPACEDIM,int MESHDIM>
-unsigned long MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfElements() const
+int MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfElements() const
 {
   return _mesh->getNumberOfCells();
 }
 
 template<int SPACEDIM,int MESHDIM>
-unsigned long MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfNodes() const
+int MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfNodes() const
 {
   return _mesh->getNumberOfNodes();
 }

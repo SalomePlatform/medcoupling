@@ -40,9 +40,9 @@ public:
   MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingUMesh *mesh);
   void getBoundingBox(double *boundingBox) const;
   INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
-  unsigned char getNumberOfNodesOfElement(int eltId) const;
-  unsigned long getNumberOfElements() const;
-  unsigned long getNumberOfNodes() const;
+  int getNumberOfNodesOfElement(int eltId) const;
+  int getNumberOfElements() const;
+  int getNumberOfNodes() const;
   const int *getConnectivityPtr() const;
   const double *getCoordinatesPtr() const;
   const int *getConnectivityIndexPtr() const;

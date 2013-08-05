@@ -77,9 +77,8 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void PolyhedronIntersectorP0P0<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
-    int nbOfNodesT=Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell));
     releaseArrays();
-    _split.splitTargetCell(targetCell,nbOfNodesT,_tetra);
+    _split.splitTargetCell2(targetCell,_tetra);
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
       {
         double volume = 0.;

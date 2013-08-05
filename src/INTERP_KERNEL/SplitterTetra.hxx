@@ -363,6 +363,8 @@ namespace INTERP_KERNEL
     
     SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, const typename MyMeshType::MyConnType *nodesId);
 
+    SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12]);
+
     ~SplitterTetra();
 
     double intersectSourceCell(typename MyMeshType::MyConnType srcCell, double* baryCentre=0);
@@ -539,20 +541,21 @@ namespace INTERP_KERNEL
     SplitterTetra2(const MyMeshTypeT& targetMesh, const MyMeshTypeS& srcMesh, SplittingPolicy policy);
     ~SplitterTetra2();
     void releaseArrays();
+    void splitTargetCell2(typename MyMeshTypeT::MyConnType targetCell, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void splitTargetCell(typename MyMeshTypeT::MyConnType targetCell, typename MyMeshTypeT::MyConnType nbOfNodesT,
-                         typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void splitPyram5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void splitConvex(typename MyMeshTypeT::MyConnType                     targetCell,
-                     typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell);
-    inline const double* getCoordsOfSubNode(typename MyMeshTypeT::MyConnType node);
-    inline const double* getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId);
+                         typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void splitPyram5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void splitConvex(typename MyMeshTypeT::MyConnType                     targetCell,//to suppress
+                     typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);//to suppress
+    void calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell);//to suppress
+    inline const double* getCoordsOfSubNode(typename MyMeshTypeT::MyConnType node);//to suppress
+    inline const double* getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId);//to suppress
     //template<int n>
-    inline void calcBarycenter(int n, double* barycenter, const typename MyMeshTypeT::MyConnType* pts);
+    inline void calcBarycenter(int n, double* barycenter, const typename MyMeshTypeT::MyConnType* pts);//to suppress
   private:
     const MyMeshTypeT& _target_mesh;
     const MyMeshTypeS& _src_mesh;

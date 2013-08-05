@@ -84,6 +84,29 @@ namespace INTERP_KERNEL
     // create the affine transform
     _t=new TetraAffineTransform(_coords);
   }
+
+  /**
+   * SplitterTetra class computes for a list of cell ids of a given mesh \a srcMesh (badly named) the intersection with a 
+   * single TETRA4 cell given by \a tetraCorners (of length 4) and \a nodesId (of length 4 too). \a nodedIds is given only to establish
+   * if a partial computation of a triangle has already been performed (to increase performance).
+   *
+   * The \a srcMesh can contain polyhedron cells.
+   * 
+   * 
+   * Constructor creating object from the four corners of the tetrahedron.
+   *
+   * \param [in] srcMesh       mesh containing the source elements
+   * \param [in] tetraCorners  array 4*3 doubles containing corners of input tetrahedron (P0X,P0Y,P0Y,P1X,P1Y,P1Z,P2X,P2Y,P2Z,P3X,P3Y,P3Z).
+   */
+  template<class MyMeshType>
+  SplitterTetra<MyMeshType>::SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12]): _t(0),_src_mesh(srcMesh)
+  {
+    _conn[0]=0; _conn[1]=1; _conn[2]=2; _conn[3]=3;
+    _coords[0]=tetraCorners[0]; _coords[1]=tetraCorners[1]; _coords[2]=tetraCorners[2]; _coords[3]=tetraCorners[3]; _coords[4]=tetraCorners[4]; _coords[5]=tetraCorners[5];
+    _coords[6]=tetraCorners[6]; _coords[7]=tetraCorners[7]; _coords[8]=tetraCorners[8]; _coords[9]=tetraCorners[9]; _coords[10]=tetraCorners[10]; _coords[11]=tetraCorners[11];
+    // create the affine transform
+    _t=new TetraAffineTransform(_coords);
+  }
   
   /**
    * Destructor
@@ -897,6 +920,44 @@ namespace INTERP_KERNEL
           }
       }
     _nodes.clear();
+  }
+  
+  /*!
+   * \param [in] targetCell in C mode.
+   * \param [out] tetra is the output result tetra containers.
+   */
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitTargetCell2(typename MyMeshTypeT::MyConnType targetCell, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  {
+    const int *refConn(_target_mesh.getConnectivityPtr());
+    const int *cellConn(refConn+_target_mesh.getConnectivityIndexPtr()[targetCell]);
+    INTERP_KERNEL::NormalizedCellType gt(_target_mesh.getTypeOfElement(targetCell));
+    std::vector<int> tetrasNodalConn;
+    std::vector<double> addCoords;
+    const double *coords(_target_mesh.getCoordinatesPtr());
+    SplitIntoTetras(_splitting_pol,gt,cellConn,refConn+_target_mesh.getConnectivityIndexPtr()[targetCell+1],coords,tetrasNodalConn,addCoords);
+    std::size_t nbTetras(tetrasNodalConn.size()/4); tetra.resize(nbTetras);
+    double tmp[12];
+    for(std::size_t i=0;i<nbTetras;i++)
+      {
+        for(int j=0;j<4;j++)
+          {
+            int cellId(tetrasNodalConn[4*i+j]);
+            if(cellId>=0)
+              {
+                tmp[j*3+0]=coords[3*cellId+0];
+                tmp[j*3+1]=coords[3*cellId+1];
+                tmp[j*3+2]=coords[3*cellId+2];
+              }
+            else
+              {
+                tmp[j*3+0]=addCoords[3*(-cellId-1)+0];
+                tmp[j*3+1]=addCoords[3*(-cellId-1)+1];
+                tmp[j*3+2]=addCoords[3*(-cellId-1)+2];
+              }
+          }
+        tetra[i]=new SplitterTetra<MyMeshTypeS>(_src_mesh,tmp);
+      }
   }
 
   /*!
