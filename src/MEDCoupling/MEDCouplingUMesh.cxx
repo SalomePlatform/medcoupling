@@ -5239,7 +5239,7 @@ void MEDCouplingUMesh::tessellate2DCurve(double eps) throw(INTERP_KERNEL::Except
  *          and \a this->getMeshDimension() != 3. 
  *  \throw If \a policy is not one of the four discussed above.
  *  \throw If the nodal connectivity of cells is not defined.
- * \sa MEDCouplingUMesh::simplexize3D
+ * \sa MEDCouplingUMesh::tetrahedrize
  */
 DataArrayInt *MEDCouplingUMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
 {
@@ -9289,33 +9289,35 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
 /*!
  * This method expects that \a this a 3D mesh (spaceDim=3 and meshDim=3) with all coordinates and connectivities set.
  * All cells in \a this are expected to be linear 3D cells.
- * This method will split all 3D cells in \a this into INTERP_KERNEL::NORM_TETRA4 cells. It leads to an increase to number of cells.
- * This method contrary to MEDCouplingUMesh::simplexize3D can append coordinates in \a this to perform its work.
- * The \a nbOfAdditionalPoints returned value informs about it. If > 0, the coordinates array in \a this will be replaced by an another one 
- * having \a nbOfAdditionalPoints more tuples (nodes) than previously. Anyway, The nodes and their order initially present in \a this
- * before the call are kept.
+ * This method will split **all** 3D cells in \a this into INTERP_KERNEL::NORM_TETRA4 cells and put them in the returned mesh.
+ * It leads to an increase to number of cells.
+ * This method contrary to MEDCouplingUMesh::simplexize can append coordinates in \a this to perform its work.
+ * The \a nbOfAdditionalPoints returned value informs about it. If > 0, the coordinates array in returned mesh will have \a nbOfAdditionalPoints 
+ * more tuples (nodes) than in \a this. Anyway, all the nodes in \a this (with the same order) will be in the returned mesh.
  *
  * \param [in] policy - the policy of splitting that must be in (PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48). The policy will be used only for INTERP_KERNEL::NORM_HEXA8 cells.
  *                      For all other cells, the splitting policy will be ignored.
  * \param [out] nbOfAdditionalPoints - number of nodes added to \c this->_coords. If > 0 a new coordinates object will be constructed result of the aggregation of the old one and the new points added. 
- * \return DataArrayInt * - a new instance of DataArrayInt holding, for each new cell,
+ * \param [out] n2oCells - A new instance of DataArrayInt holding, for each new cell,
  *          an id of old cell producing it. The caller is to delete this array using
- *         decrRef() as it is no more needed. 
+ *         decrRef() as it is no more needed.
+ * \return MEDCoupling1SGTUMesh * - the mesh containing only INTERP_KERNEL::NORM_TETRA4 cells.
  * 
  * \throw If \a this is not a 3D mesh (spaceDim==3 and meshDim==3).
  * \throw If \a this is not fully constituted with linear 3D cells.
  * \sa MEDCouplingUMesh::simplexize
  */
-DataArrayInt *MEDCouplingUMesh::simplexize3D(int policy, int& nbOfAdditionalPoints) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCouplingUMesh::tetrahedrize(int policy, DataArrayInt *& n2oCells, int& nbOfAdditionalPoints) const throw(INTERP_KERNEL::Exception)
 {
   INTERP_KERNEL::SplittingPolicy pol((INTERP_KERNEL::SplittingPolicy)policy);
   checkConnectivityFullyDefined();
   if(getMeshDimension()!=3 || getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexize3D : only available for mesh with meshdim == 3 and spacedim == 3 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tetrahedrize : only available for mesh with meshdim == 3 and spacedim == 3 !");
   int nbOfCells(getNumberOfCells()),nbNodes(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret0(MEDCoupling1SGTUMesh::New(getName().c_str(),INTERP_KERNEL::NORM_TETRA4));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfCells,1);
   int *retPt(ret->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()),newConnI(DataArrayInt::New()); newConn->alloc(0,1); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()); newConn->alloc(0,1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addPts(DataArrayDouble::New()); addPts->alloc(0,1);
   const int *oldc(_nodal_connec->begin());
   const int *oldci(_nodal_connec_index->begin());
@@ -9335,29 +9337,25 @@ DataArrayInt *MEDCouplingUMesh::simplexize3D(int policy, int& nbOfAdditionalPoin
           nbNodes+=(int)b.size()/3;
         }
       for(std::size_t j=0;j<nbOfTet;j++,aa+=4)
-        {
-          int idx(newConnI->back());
-          int val(idx+4+1);
-          newConnI->pushBackSilent(val);
-          newConn->writeOnPlace(idx,(int)INTERP_KERNEL::NORM_TETRA4,aa,4);
-        }
+        newConn->insertAtTheEnd(aa,aa+4);
     }
   if(!addPts->empty())
     {
       addPts->rearrange(3);
       nbOfAdditionalPoints=addPts->getNumberOfTuples();
       addPts=DataArrayDouble::Aggregate(getCoords(),addPts);
-      setCoords(addPts);
+      ret0->setCoords(addPts);
     }
   else
-    nbOfAdditionalPoints=0;
-  setConnectivity(newConn,newConnI,false);
-  _types.clear(); _types.insert(INTERP_KERNEL::NORM_TETRA4);
-  computeTypes();
-  updateTime();
+    {
+      nbOfAdditionalPoints=0;
+      ret0->setCoords(getCoords());
+    }
+  ret0->setNodalConnectivity(newConn);
   //
   ret->computeOffsets2();
-  return ret->buildExplicitArrOfSliceOnScaledArr(0,nbOfCells,1);
+  n2oCells=ret->buildExplicitArrOfSliceOnScaledArr(0,nbOfCells,1);
+  return ret0.retn();
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),

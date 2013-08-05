@@ -31,8 +31,9 @@
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingUMeshCellIterator;
   class MEDCouplingUMeshCellByTypeEntry;
+  class MEDCouplingUMeshCellIterator;
+  class MEDCoupling1SGTUMesh;
   class MEDCoupling1GTUMesh;
 
   class MEDCouplingUMesh : public MEDCouplingPointSet
@@ -170,7 +171,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void tessellate2DCurve(double eps) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *simplexize3D(int policy, int& nbOfAdditionalPoints) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *tetrahedrize(int policy, DataArrayInt *& n2oCells, int& nbOfAdditionalPoints) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool areOnlySimplexCells() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
