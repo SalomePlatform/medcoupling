@@ -66,10 +66,11 @@ namespace INTERP_KERNEL
               tmp2[0]=0.; tmp2[1]=0.; tmp2[2]=0.;
               for(int j=0;j<4;j++,conn+=4)
                 {
-                  tmp2[0]+=coords[3*nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]+0];
-                  tmp2[1]+=coords[3*nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]+1];
-                  tmp2[2]+=coords[3*nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]+3];
-                  conn[0]=nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]];
+                  int tmp3(nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]);
+                  tmp2[0]+=coords[3*tmp3+0];
+                  tmp2[1]+=coords[3*tmp3+1];
+                  tmp2[2]+=coords[3*tmp3+2];
+                  conn[0]=tmp3;
                   conn[1]=nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+(j+1)%4]];
                   conn[2]=-(i+1); conn[3]=-7;
                 }
@@ -92,9 +93,9 @@ namespace INTERP_KERNEL
             }
           for(int i=0;i<7;i++,tmp2+=3)
             {
-              tmp2[0]=(tmp[3*nodalConnBg[(GENERAL_48_SUB_NODES[2*i+24]-8)]+0]+tmp[3*nodalConnBg[(GENERAL_48_SUB_NODES[2*i+25]-8)]+0])/2.;
-              tmp2[1]=(tmp[3*nodalConnBg[(GENERAL_48_SUB_NODES[2*i+24]-8)]+1]+tmp[3*nodalConnBg[(GENERAL_48_SUB_NODES[2*i+25]-8)]+1])/2.;
-              tmp2[2]=(tmp[3*nodalConnBg[(GENERAL_48_SUB_NODES[2*i+24]-8)]+2]+tmp[3*nodalConnBg[(GENERAL_48_SUB_NODES[2*i+25]-8)]+2])/2.;
+              tmp2[0]=(tmp[3*(GENERAL_48_SUB_NODES[2*i+24]-8)+0]+tmp[3*(GENERAL_48_SUB_NODES[2*i+25]-8)+0])/2.;
+              tmp2[1]=(tmp[3*(GENERAL_48_SUB_NODES[2*i+24]-8)+1]+tmp[3*(GENERAL_48_SUB_NODES[2*i+25]-8)+1])/2.;
+              tmp2[2]=(tmp[3*(GENERAL_48_SUB_NODES[2*i+24]-8)+2]+tmp[3*(GENERAL_48_SUB_NODES[2*i+25]-8)+2])/2.;
             }
           int *conn(&tetrasNodalConn[0]);
           std::vector<double> dummy;
