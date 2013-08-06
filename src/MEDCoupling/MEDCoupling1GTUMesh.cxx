@@ -1527,13 +1527,13 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTE
   /*static const int DUAL_CONN_TETRA_0[48]={
     8,5,14,4, 10,4,14,7, 11,7,14,5, 
     8,4,14,5, 9,6,14,4, 12,5,14,6,
-    10,7,14,4, 9,4,14,6, 13,7,14,6,
+    10,7,14,4, 9,4,14,6, 13,6,14,7,
     11,5,14,7, 13,7,14,6, 12,6,14,5
     };*/
   static const int DUAL_TETRA_0[36]={
     4,1,0, 6,0,3, 7,3,1,
     4,0,1, 5,2,0, 8,1,2,
-    6,3,0, 5,0,2, 9,3,2,
+    6,3,0, 5,0,2, 9,2,3,
     7,1,3, 9,3,2, 8,2,1
   };
   static const int DUAL_TETRA_1[36]={
@@ -1563,7 +1563,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTE
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0; facesBaryArr=0;
   std::string name("DualOf_"); name+=getName();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name.c_str(),INTERP_KERNEL::NORM_POLYHED)); ret->setCoords(zeArr);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,0); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,1); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
   for(int i=0;i<nbOfNodes;i++,revNodI++)
     {
       int nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
@@ -1606,7 +1606,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTE
                 }
             }
         }
-      ciArr->pushBackSilent(cArr->getNumberOfTuples());
+      ciArr->setIJ(i+1,0,cArr->getNumberOfTuples());
     }
   ret->setNodalConnectivity(cArr,ciArr);
   return ret.retn();
@@ -1634,7 +1634,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTE
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0;
   std::string name("DualOf_"); name+=getName();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name.c_str(),INTERP_KERNEL::NORM_POLYGON)); ret->setCoords(zeArr);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,0); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,1); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
   for(int i=0;i<nbOfNodes;i++,revNodI++)
     {
       int nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
@@ -1674,7 +1674,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTE
         }
       std::vector<int> zePolyg(MEDCoupling1DGTUMesh::BuildAPolygonFromParts(polyg));
       cArr->insertAtTheEnd(zePolyg.begin(),zePolyg.end());
-      ciArr->pushBackSilent(cArr->getNumberOfTuples());
+      ciArr->setIJ(i+1,0,cArr->getNumberOfTuples());
     }
   ret->setNodalConnectivity(cArr,ciArr);
   return ret.retn();
@@ -2493,7 +2493,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const 
           int nodeId=conn[conni[0]+j];
           if(nodeId==-1) continue;
           if(nodeId>=0 && nodeId<nbOfNodes)
-            traducer[*conn]=1;
+            traducer[nodeId]=1;
           else
             {
               std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getNodeIdsInUse : In cell #" << i  << " presence of node id " <<  nodeId << " not in [0," << nbOfNodes << ") !";
