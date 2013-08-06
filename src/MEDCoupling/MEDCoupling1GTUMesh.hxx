@@ -79,6 +79,8 @@ namespace ParaMEDMEM
     const INTERP_KERNEL::CellModel *_cm;
   };
 
+  class MEDCoupling1DGTUMesh;
+
   class MEDCoupling1SGTUMesh : public MEDCoupling1GTUMesh
   {
   public:
@@ -135,6 +137,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshesOnSameCoords(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCoupling1GTUMesh *computeDualMesh() const throw(INTERP_KERNEL::Exception);
   private:
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy);
@@ -145,6 +148,8 @@ namespace ParaMEDMEM
     DataArrayInt *simplexizePol1() throw(INTERP_KERNEL::Exception);
     DataArrayInt *simplexizePlanarFace5() throw(INTERP_KERNEL::Exception);
     DataArrayInt *simplexizePlanarFace6() throw(INTERP_KERNEL::Exception);
+    MEDCoupling1DGTUMesh *computeDualMesh3D() const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1DGTUMesh *computeDualMesh2D() const throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
   };
@@ -208,6 +213,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *Merge1DGTUMeshes(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *Merge1DGTUMeshesOnSameCoords(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *AggregateNodalConnAndShiftNodeIds(const std::vector<const DataArrayInt *>& nodalConns, const std::vector<int>& offsetInNodeIdsPerElt) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static std::vector<int> BuildAPolygonFromParts(const std::vector< std::vector<int> >& parts) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
   private:
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);

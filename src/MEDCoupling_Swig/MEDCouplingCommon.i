@@ -445,6 +445,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::New;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::buildSetInstanceFromThis;
+%newobject ParaMEDMEM::MEDCoupling1SGTUMesh::computeDualMesh;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::Merge1SGTUMeshes;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::New;
@@ -2817,6 +2818,7 @@ namespace ParaMEDMEM
     int getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1GTUMesh *computeDualMesh() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDCoupling1SGTUMesh(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)

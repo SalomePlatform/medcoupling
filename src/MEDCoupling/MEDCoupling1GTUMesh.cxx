@@ -1498,6 +1498,188 @@ void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const in
     }
 }
 
+/*!
+ * This method builds the dual mesh of \a this and returns it.
+ * 
+ * \return MEDCoupling1SGTUMesh * - newly object created to be managed by the caller.
+ * \throw If \a this is not a mesh containing only simplex cells.
+ * \throw If \a this is not correctly allocated (coordinates and connectivities have to be correctly set !).
+ * \throw If at least one node in \a this is orphan (without any simplex cell lying on it !)
+ */
+MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm(getCellModel());
+  if(!cm.isSimplex())
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh : this mesh is not a simplex mesh ! Please invoke simplexize of tetrahedrize on this before calling this method !");
+  switch(getMeshDimension())
+    {
+    case 3:
+      return computeDualMesh3D();
+    case 2:
+      return computeDualMesh2D();
+    default:
+      throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh : meshdimension must be in [2,3] !");
+    }
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTERP_KERNEL::Exception)
+{
+  /*static const int DUAL_CONN_TETRA_0[48]={
+    8,5,14,4, 10,4,14,7, 11,7,14,5, 
+    8,4,14,5, 9,6,14,4, 12,5,14,6,
+    10,7,14,4, 9,4,14,6, 13,7,14,6,
+    11,5,14,7, 13,7,14,6, 12,6,14,5
+    };*/
+  static const int DUAL_TETRA_0[36]={
+    4,1,0, 6,0,3, 7,3,1,
+    4,0,1, 5,2,0, 8,1,2,
+    6,3,0, 5,0,2, 9,3,2,
+    7,1,3, 9,3,2, 8,2,1
+  };
+  static const int DUAL_TETRA_1[36]={
+    8,4,10, 11,5,8, 10,7,11,
+    9,4,8, 8,5,12, 12,6,9,
+    10,4,9, 9,6,13, 13,7,10,
+    12,5,11, 13,6,12, 11,7,13
+  };
+  static const int FACEID_NOT_SH_NODE[4]={2,3,1,0};
+  if(getCellModelEnum()!=INTERP_KERNEL::NORM_TETRA4)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh3D : only TETRA4 supported !");
+  checkFullyDefined();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> thisu(buildUnstructured());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodArr(DataArrayInt::New()),revNodIArr(DataArrayInt::New());
+  thisu->getReverseNodalConnectivity(revNodArr,revNodIArr);
+  const int *revNod(revNodArr->begin()),*revNodI(revNodIArr->begin()),*nodal(_conn->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1Arr(DataArrayInt::New()),di1Arr(DataArrayInt::New()),rd1Arr(DataArrayInt::New()),rdi1Arr(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> edges(thisu->explode3DMeshTo1D(d1Arr,di1Arr,rd1Arr,rdi1Arr));
+  const int *d1(d1Arr->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> faces(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
+  const int *d2(d2Arr->begin()),*rd2(rd2Arr->begin()),*rdi2(rdi2Arr->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),facesBaryArr(faces->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
+  edges=0; faces=0;
+  std::vector<const DataArrayDouble *> v(4); v[0]=getCoords(); v[1]=facesBaryArr; v[2]=edgesBaryArr; v[3]=baryArr;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0; facesBaryArr=0;
+  const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+faces->getNumberOfCells()),offset1(offset0+edges->getNumberOfCells());
+  std::string name("DualOf_"); name+=getName();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name.c_str(),INTERP_KERNEL::NORM_POLYHED)); ret->setCoords(zeArr);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,0); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
+  for(int i=0;i<nbOfNodes;i++,revNodI++)
+    {
+      int nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
+      if(nbOfCellsSharingNode==0)
+        {
+          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeDualMesh3D : Node #" << i << " is orphan !"; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      for(int j=0;j<nbOfCellsSharingNode;j++)
+        {
+          int curCellId(revNod[revNodI[0]+j]);
+          const int *connOfCurCell(nodal+4*curCellId);
+          std::size_t nodePosInCurCell(std::distance(connOfCurCell,std::find(connOfCurCell,connOfCurCell+4,i)));
+          int tmp[14];
+          //
+          tmp[0]=d1[6*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+0]-4]+offset0; tmp[1]=d2[4*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+1]]+nbOfNodes;
+          tmp[2]=curCellId+offset1; tmp[3]=d2[4*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+2]]+nbOfNodes;
+          tmp[4]=-1;
+          tmp[5]=d1[6*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+3]-4]+offset0; tmp[6]=d2[4*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+4]]+nbOfNodes;
+          tmp[7]=curCellId+offset1; tmp[8]=d2[4*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+5]]+nbOfNodes;
+          tmp[9]=-1;
+          tmp[10]=d1[6*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+6]-4]+offset0; tmp[11]=d2[4*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+7]]+nbOfNodes;
+          tmp[12]=curCellId+offset1; tmp[13]=d2[4*curCellId+DUAL_TETRA_0[nodePosInCurCell*9+8]]+nbOfNodes;
+          cArr->insertAtTheEnd(tmp,tmp+14);
+          int kk(0);
+          for(int k=0;k<4;k++)
+            {
+              if(FACEID_NOT_SH_NODE[k]!=(int)nodePosInCurCell)
+                {
+                  const int *faceId(d2+4*curCellId+k);
+                  if(rdi2[*faceId+1]-rdi2[*faceId]==1)
+                    {
+                      int tmp2[5]; tmp2[0]=-1; tmp2[1]=i;
+                      tmp2[2]=d1[6*curCellId+DUAL_TETRA_1[9*nodePosInCurCell+3*kk+0]-8]+offset0;
+                      tmp2[3]=d2[4*curCellId+DUAL_TETRA_1[9*nodePosInCurCell+3*kk+1]-4]+nbOfNodes;
+                      tmp2[4]=d1[6*curCellId+DUAL_TETRA_1[9*nodePosInCurCell+3*kk+2]-8]+offset0;
+                      cArr->insertAtTheEnd(tmp2,tmp2+5);
+                    }
+                  kk++;
+                }
+            }
+        }
+      ciArr->pushBackSilent(cArr->getNumberOfTuples());
+    }
+  ret->setNodalConnectivity(cArr,ciArr);
+  return ret.retn();
+}
+
+MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTERP_KERNEL::Exception)
+{
+  static const int DUAL_TRI_0[6]={2,0, 0,1, 1,2};
+  static const int DUAL_TRI_1[6]={+3,-5, -3,+4, -4,+5};
+  static const int FACEID_NOT_SH_NODE[3]={1,2,0};
+  if(getCellModelEnum()!=INTERP_KERNEL::NORM_TRI3)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh2D : only TRI3 supported !");
+  checkFullyDefined();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> thisu(buildUnstructured());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodArr(DataArrayInt::New()),revNodIArr(DataArrayInt::New());
+  thisu->getReverseNodalConnectivity(revNodArr,revNodIArr);
+  const int *revNod(revNodArr->begin()),*revNodI(revNodIArr->begin()),*nodal(_conn->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> edges(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
+  const int *d2(d2Arr->begin()),*rd2(rd2Arr->begin()),*rdi2(rdi2Arr->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
+  edges=0;
+  std::vector<const DataArrayDouble *> v(3); v[0]=getCoords(); v[1]=edgesBaryArr; v[2]=baryArr;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0;
+  const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+edges->getNumberOfCells());
+  std::string name("DualOf_"); name+=getName();
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name.c_str(),INTERP_KERNEL::NORM_POLYGON)); ret->setCoords(zeArr);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,0); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
+  for(int i=0;i<nbOfNodes;i++,revNodI++)
+    {
+      int nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
+      if(nbOfCellsSharingNode==0)
+        {
+          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeDualMesh2D : Node #" << i << " is orphan !"; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      std::vector< std::vector<int> > polyg;
+      for(int j=0;j<nbOfCellsSharingNode;j++)
+        {
+          int curCellId(revNod[revNodI[0]+j]);
+          const int *connOfCurCell(nodal+3*curCellId);
+          std::size_t nodePosInCurCell(std::distance(connOfCurCell,std::find(connOfCurCell,connOfCurCell+4,i)));
+          std::vector<int> locV(3);
+          locV[0]=d2[3*curCellId+DUAL_TRI_0[2*nodePosInCurCell+0]]+nbOfNodes; locV[1]=curCellId+offset0; locV[2]=d2[3*curCellId+DUAL_TRI_0[2*nodePosInCurCell+1]]+nbOfNodes;
+          polyg.push_back(locV);
+          int kk(0);
+          for(int k=0;k<3;k++)
+            {
+              if(FACEID_NOT_SH_NODE[k]!=(int)nodePosInCurCell)
+                {
+                  const int *edgeId(d2+3*curCellId+k);
+                  if(rdi2[*edgeId+1]-rdi2[*edgeId]==1)
+                    {
+                      std::vector<int> locV2(2);
+                      int zeLocEdgeIdRel(DUAL_TRI_1[2*nodePosInCurCell+kk]);
+                      if(zeLocEdgeIdRel>0)
+                        {  locV2[0]=d2[3*curCellId+zeLocEdgeIdRel-3]+nbOfNodes;  locV2[1]=i; }
+                      else
+                        {  locV2[0]=i; locV2[1]=d2[3*curCellId-zeLocEdgeIdRel-3]+nbOfNodes; }
+                      polyg.push_back(locV2);
+                    }
+                  kk++;
+                }
+            }
+        }
+      std::vector<int> zePolyg(MEDCoupling1DGTUMesh::BuildAPolygonFromParts(polyg));
+      cArr->insertAtTheEnd(zePolyg.begin(),zePolyg.end());
+      ciArr->pushBackSilent(cArr->getNumberOfTuples());
+    }
+  ret->setNodalConnectivity(cArr,ciArr);
+  return ret.retn();
+}
+
 //== 
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
@@ -2703,6 +2885,29 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDi
   else
     ret->setCoords(_coords);
   return ret.retn();
+}
+
+std::vector<int> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::vector< std::vector<int> >& parts) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret;
+  if(parts.empty())
+    return ret;
+  ret.insert(ret.end(),parts[0].begin(),parts[0].end());
+  int ref(ret.back());
+  std::size_t sz(parts.size()),nbh(1);
+  std::vector<bool> b(sz,true); b[0]=false;
+  while(nbh<sz)
+    {
+      std::size_t i(0);
+      for(;i<sz;i++) if(b[i] && parts[i].front()==ref) { ret.insert(ret.end(),parts[i].begin()+1,parts[i].end()); nbh++; break; }
+      if(i<sz)
+        ref=ret.back();
+      else
+        throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::BuildAPolygonFromParts : the input vector is not a part of a single polygon !");
+    }
+  if(ret.back()==ret.front())
+    ret.pop_back();
+  return ret;
 }
 
 /*!
