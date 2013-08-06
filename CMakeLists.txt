@@ -133,8 +133,9 @@ ENDIF(SALOME_BUILD_GUI)
 
 LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local/cmake_files")
 
+ENABLE_TESTING() # let it outsite because even if SALOME_BUILD_TESTS is OFF, python tests that not need additional compilation can be run.
+
 IF(SALOME_BUILD_TESTS)
-  ENABLE_TESTING()
   FIND_PACKAGE(SalomeCppUnit REQUIRED)
 ENDIF(SALOME_BUILD_TESTS)
 
