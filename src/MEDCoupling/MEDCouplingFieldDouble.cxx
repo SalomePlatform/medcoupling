@@ -3114,7 +3114,7 @@ void MEDCouplingFieldDouble::reprQuickOverview(std::ostream& stream) const throw
       nat=MEDCouplingNatureOfField::GetRepr(_nature);
       stream << "Nature of field : " << nat << ".\n";
     }
-  catch(INTERP_KERNEL::Exception& e)
+  catch(INTERP_KERNEL::Exception& /*e*/)
     {  }
   const MEDCouplingFieldDiscretization *fd(_type);
   if(!fd)

@@ -801,7 +801,7 @@ bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const throw(INTERP_KERNE
             INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method.c_str(),tmp1,tmp2);
             return true;
           }
-        catch(INTERP_KERNEL::Exception& e)
+        catch(INTERP_KERNEL::Exception& /*e*/)
           {
             return false;
           }
@@ -813,7 +813,7 @@ bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const throw(INTERP_KERNE
             CheckInterpolationMethodManageableByNotOnlyInterpKernel(method);
             return false;
           }
-        catch(INTERP_KERNEL::Exception& e)
+        catch(INTERP_KERNEL::Exception& /*e*/)
           {
             return true;
           }

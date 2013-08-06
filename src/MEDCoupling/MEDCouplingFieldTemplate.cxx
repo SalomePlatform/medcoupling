@@ -139,7 +139,7 @@ void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const thr
       nat=MEDCouplingNatureOfField::GetRepr(_nature);
       stream << "Nature of field template : " << nat << ".\n";
     }
-  catch(INTERP_KERNEL::Exception& e)
+  catch(INTERP_KERNEL::Exception& /*e*/)
     {  }
   const MEDCouplingFieldDiscretization *fd(_type);
   if(!fd)
