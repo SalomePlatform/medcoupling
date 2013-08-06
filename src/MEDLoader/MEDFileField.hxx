@@ -1042,7 +1042,7 @@ std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iterati
     MEDFileIntFieldMultiTS(const char *fileName, const char *fieldName, bool loadAll) throw(INTERP_KERNEL::Exception);
   };
 
-  class MEDCOUPLING_EXPORT MEDFileAnyTypeFieldMultiTSIterator
+  class MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSIterator
   {
   public:
     MEDFileAnyTypeFieldMultiTSIterator(MEDFileAnyTypeFieldMultiTS *fmts);
@@ -1110,7 +1110,7 @@ std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iterati
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > _fields;
   };
 
-  class MEDCOUPLING_EXPORT MEDFileFieldsIterator
+  class MEDLOADER_EXPORT MEDFileFieldsIterator
   {
   public:
     MEDFileFieldsIterator(MEDFileFields *fs);

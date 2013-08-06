@@ -446,7 +446,7 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> > _meshes;
   };
 
-  class MEDCOUPLING_EXPORT MEDFileMeshesIterator
+  class MEDLOADER_EXPORT MEDFileMeshesIterator
   {
   public:
     MEDFileMeshesIterator(MEDFileMeshes *ms);

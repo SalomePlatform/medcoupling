@@ -5301,7 +5301,7 @@ try
   {
     loadFromFile(fileName);
   }
-catch(INTERP_KERNEL::Exception& e)
+catch(INTERP_KERNEL::Exception& /*e*/)
   {
   }
 
