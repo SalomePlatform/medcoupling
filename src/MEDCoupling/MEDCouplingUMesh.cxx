@@ -9322,7 +9322,7 @@ MEDCoupling1SGTUMesh *MEDCouplingUMesh::tetrahedrize(int policy, DataArrayInt *&
   const int *oldc(_nodal_connec->begin());
   const int *oldci(_nodal_connec_index->begin());
   const double *coords(_coords->begin());
-  for(int i=0;i<nbOfCells;i++,oldci,retPt++)
+  for(int i=0;i<nbOfCells;i++,oldci++,retPt++)
     {
       std::vector<int> a; std::vector<double> b;
       INTERP_KERNEL::SplitIntoTetras(pol,(INTERP_KERNEL::NormalizedCellType)oldc[oldci[0]],oldc+oldci[0]+1,oldc+oldci[1],coords,a,b);

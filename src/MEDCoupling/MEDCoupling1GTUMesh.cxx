@@ -1557,10 +1557,10 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTE
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> faces(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
   const int *d2(d2Arr->begin()),*rd2(rd2Arr->begin()),*rdi2(rdi2Arr->begin());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),facesBaryArr(faces->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
+  const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+faces->getNumberOfCells()),offset1(offset0+edges->getNumberOfCells());
   edges=0; faces=0;
   std::vector<const DataArrayDouble *> v(4); v[0]=getCoords(); v[1]=facesBaryArr; v[2]=edgesBaryArr; v[3]=baryArr;
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0; facesBaryArr=0;
-  const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+faces->getNumberOfCells()),offset1(offset0+edges->getNumberOfCells());
   std::string name("DualOf_"); name+=getName();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name.c_str(),INTERP_KERNEL::NORM_POLYHED)); ret->setCoords(zeArr);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,0); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
@@ -1628,10 +1628,10 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTE
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> edges(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
   const int *d2(d2Arr->begin()),*rd2(rd2Arr->begin()),*rdi2(rdi2Arr->begin());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
+  const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+edges->getNumberOfCells());
   edges=0;
   std::vector<const DataArrayDouble *> v(3); v[0]=getCoords(); v[1]=edgesBaryArr; v[2]=baryArr;
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0;
-  const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+edges->getNumberOfCells());
   std::string name("DualOf_"); name+=getName();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name.c_str(),INTERP_KERNEL::NORM_POLYGON)); ret->setCoords(zeArr);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,0); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
