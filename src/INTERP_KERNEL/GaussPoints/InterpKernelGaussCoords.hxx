@@ -32,28 +32,28 @@ namespace INTERP_KERNEL
   typedef std::vector<int>    IndexVector;
 
   //Class to store Gauss Points information
-  class INTERPKERNEL_EXPORT GaussInfo 
+  class GaussInfo 
   {
   public:
-    GaussInfo( NormalizedCellType theGeometry,
-               const DataVector& theGaussCoord,
-               int theNbGauss,
-               const DataVector& theReferenceCoord,
-               int theNbRef
-               );
-    ~GaussInfo();
+    INTERPKERNEL_EXPORT GaussInfo( NormalizedCellType theGeometry,
+                                   const DataVector& theGaussCoord,
+                                   int theNbGauss,
+                                   const DataVector& theReferenceCoord,
+                                   int theNbRef
+                                   );
+    INTERPKERNEL_EXPORT ~GaussInfo();
 
-    NormalizedCellType getCellType() const;    
+    INTERPKERNEL_EXPORT NormalizedCellType getCellType() const;    
 
-    int getGaussCoordDim() const;
-    int getReferenceCoordDim() const;
+    INTERPKERNEL_EXPORT int getGaussCoordDim() const;
+    INTERPKERNEL_EXPORT int getReferenceCoordDim() const;
 
-    int getNbGauss() const;
-    int getNbRef() const;
+    INTERPKERNEL_EXPORT int getNbGauss() const;
+    INTERPKERNEL_EXPORT int getNbRef() const;
 
-    const double* getFunctionValues( const int theGaussId ) const;
+    INTERPKERNEL_EXPORT const double* getFunctionValues( const int theGaussId ) const;
 
-    void initLocalInfo() throw (INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void initLocalInfo() throw (INTERP_KERNEL::Exception);
 
   protected:
 
@@ -124,30 +124,30 @@ namespace INTERP_KERNEL
 
 
   //Class for calculation of the coordinates of the gauss points 
-  class INTERPKERNEL_EXPORT GaussCoords 
+  class GaussCoords 
   {
   public:
 
-    GaussCoords();
-    ~GaussCoords();
+    INTERPKERNEL_EXPORT GaussCoords();
+    INTERPKERNEL_EXPORT ~GaussCoords();
 
-    void addGaussInfo( NormalizedCellType theGeometry,
-                       int coordDim,
-                       const double* theGaussCoord,
-                       int theNbGauss,
-                       const double* theReferenceCoord,
-                       int theNbRef) throw (INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void addGaussInfo( NormalizedCellType theGeometry,
+                                           int coordDim,
+                                           const double* theGaussCoord,
+                                           int theNbGauss,
+                                           const double* theReferenceCoord,
+                                           int theNbRef) throw (INTERP_KERNEL::Exception);
 
-    double* calculateCoords( NormalizedCellType theGeometry, 
-                             const double* theNodeCoords, 
-                             const int theSpaceDim,
-                             const int* theIndex) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT double* calculateCoords( NormalizedCellType theGeometry, 
+                                                 const double* theNodeCoords, 
+                                                 const int theSpaceDim,
+                                                 const int* theIndex) throw(INTERP_KERNEL::Exception);
 
-    void calculateCoords( NormalizedCellType theGeometry, 
-                          const double* theNodeCoords, 
-                          const int theSpaceDim,
-                          const int* theIndex,
-                          double *result) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void calculateCoords( NormalizedCellType theGeometry, 
+                                              const double* theNodeCoords, 
+                                              const int theSpaceDim,
+                                              const int* theIndex,
+                                              double *result) throw(INTERP_KERNEL::Exception);
   private:
     const GaussInfo *getInfoGivenCellType(NormalizedCellType cellType);
     void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const int *theIndex,

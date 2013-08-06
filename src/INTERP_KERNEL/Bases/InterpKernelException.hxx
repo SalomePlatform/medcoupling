@@ -28,13 +28,13 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT Exception : public std::exception
+  class Exception : public std::exception
   {
   public:
-    Exception(const char *reason);
-    Exception(const char *reason, const char *file, int line);
-    ~Exception() throw ();
-    const char *what() const throw();
+    INTERPKERNEL_EXPORT Exception(const char *reason);
+    INTERPKERNEL_EXPORT Exception(const char *reason, const char *file, int line);
+    INTERPKERNEL_EXPORT ~Exception() throw ();
+    INTERPKERNEL_EXPORT const char *what() const throw();
   protected:
     std::string _reason;
   };
