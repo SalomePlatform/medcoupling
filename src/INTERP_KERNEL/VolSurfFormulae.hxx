@@ -721,37 +721,37 @@ namespace INTERP_KERNEL
   }
 
   template<>
-  inline void calculateBarycenter<2,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<2,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<3,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<3,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<4,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<4,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<5,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<5,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<6,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<6,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<7,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<7,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<8,0>(const double **/*pts*/, double */*bary*/)
+  inline void calculateBarycenter<8,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
 
