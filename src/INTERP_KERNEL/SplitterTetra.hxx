@@ -20,6 +20,7 @@
 #ifndef __SPLITTERTETRA_HXX__
 #define __SPLITTERTETRA_HXX__
 
+#include "INTERPKERNELDefines.hxx"
 #include "TransformedTriangle.hxx"
 #include "TetraAffineTransform.hxx"
 #include "InterpolationOptions.hxx"
@@ -201,8 +202,8 @@ namespace INTERP_KERNEL
   void SplitHexa8IntoTetras(SplittingPolicy policy, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
                             std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
   
-  void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                       std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
+  INTERPKERNEL_EXPORT void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
+                                           std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
   
   /**
    * \brief Class representing a triangular face, used as key in caching hash map in SplitterTetra.
