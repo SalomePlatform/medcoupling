@@ -2806,7 +2806,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileMeshStruct *New(const MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
-  private:
+  protected:
     ~MEDFileMeshStruct();
   };
   
@@ -2815,13 +2815,13 @@ namespace ParaMEDMEM
   public:
     virtual MEDMeshMultiLev *prepare() const throw(INTERP_KERNEL::Exception);
     DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
-  private:
+  protected:
     ~MEDMeshMultiLev();
   };
 
   class MEDUMeshMultiLev : public MEDMeshMultiLev
   {
-  private:
+  protected:
     ~MEDUMeshMultiLev();
   public:
     %extend
@@ -2844,13 +2844,13 @@ namespace ParaMEDMEM
 
   class MEDStructuredMeshMultiLev : public MEDMeshMultiLev
   {
-  private:
+  protected:
     ~MEDStructuredMeshMultiLev();
   };
 
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
   {
-  private:
+  protected:
     ~MEDCMeshMultiLev();
   public:
     %extend
@@ -2869,7 +2869,7 @@ namespace ParaMEDMEM
 
   class MEDCurveLinearMeshMultiLev : public MEDStructuredMeshMultiLev
   {
-  private:
+  protected:
     ~MEDCurveLinearMeshMultiLev();
   public:
     %extend
@@ -2897,7 +2897,7 @@ namespace ParaMEDMEM
     static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
     bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
-  private:
+  protected:
     ~MEDFileFastCellSupportComparator();
   };
 }
