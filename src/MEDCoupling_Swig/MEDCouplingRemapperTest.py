@@ -18,8 +18,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from MEDCouplingRemapper import *
 from MEDCouplingDataForTest import MEDCouplingDataForTest
+from MEDCouplingRemapper import *
 from math import *
 import unittest
 
@@ -421,6 +421,135 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #values given after interpolation in ASTER
         arrExpected2=DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,1.,0.,1.,1.,1.,0.,1.,1.,1.,1.,0.,1.,1.,1.,0.,1.]) ; arrExpected2.setInfoOnComponents(["DOMA"])
         self.assertTrue(src.getArray().isEqual(arrExpected2,1e-12))
+        pass
+
+    def testSwig2MixOfUMesh(self):
+        arr0=DataArrayDouble([0,1,1.5]) ; arr1=DataArrayDouble([0,1])
+        sc=MEDCouplingCMesh() ; sc.setCoords(arr0,arr1,arr1)
+        tc=sc.deepCpy() ; tc.translate([0.4,0.3,0.3])
+        # umesh-umesh
+        # 90 (umesh-1sgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.buildUnstructured() ; t=tc.build1SGTUnstructured()
+        self.assertTrue(isinstance(s,MEDCouplingUMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1SGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 91 (umesh-1dgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.buildUnstructured() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
+        self.assertTrue(isinstance(s,MEDCouplingUMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 165 (1sgtumesh-umesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.build1SGTUnstructured() ; t=tc.buildUnstructured()
+        self.assertTrue(isinstance(s,MEDCoupling1SGTUMesh))
+        self.assertTrue(isinstance(t,MEDCouplingUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 181 (1dgtumesh-umesh
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.buildUnstructured()
+        self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
+        self.assertTrue(isinstance(t,MEDCouplingUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 170 (1sgtumesh-1sgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.build1SGTUnstructured() ; t=tc.build1SGTUnstructured()
+        self.assertTrue(isinstance(s,MEDCoupling1SGTUMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1SGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 171 (1sgtumesh-1dgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.build1SGTUnstructured() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
+        self.assertTrue(isinstance(s,MEDCoupling1SGTUMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 186 (1dgtumesh-1sgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.build1SGTUnstructured()
+        self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1SGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 187 (1dgtumesh-1dgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
+        self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # (umesh-cmesh)
+        # 167 (1sgtumesh-cmesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.build1SGTUnstructured() ; t=tc.deepCpy()
+        self.assertTrue(isinstance(s,MEDCoupling1SGTUMesh))
+        self.assertTrue(isinstance(t,MEDCouplingCMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 183 (1dgtumesh-cmesh)
+        #rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        #s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.deepCpy()
+        #self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
+        #self.assertTrue(isinstance(t,MEDCouplingCMesh))
+        #rem.prepare(s,t,"P0P0")
+        #mat=rem.getCrudeMatrix()
+        #self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        #self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        #del s,t
+        # (cmesh-umesh)
+        # 122 (cmesh-1sgtumesh)
+        rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        s=sc.deepCpy() ; t=tc.build1SGTUnstructured()
+        self.assertTrue(isinstance(s,MEDCouplingCMesh))
+        self.assertTrue(isinstance(t,MEDCoupling1SGTUMesh))
+        rem.prepare(s,t,"P0P0")
+        mat=rem.getCrudeMatrix()
+        self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        del s,t
+        # 123 (cmesh-1dgtumesh)
+        #rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        #s=sc.deepCpy() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
+        #self.assertTrue(isinstance(s,MEDCouplingCMesh))
+        #self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
+        #rem.prepare(s,t,"P0P0")
+        #mat=rem.getCrudeMatrix()
+        #self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        #self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        #del s,t
         pass
     
     def build2DSourceMesh_1(self):
