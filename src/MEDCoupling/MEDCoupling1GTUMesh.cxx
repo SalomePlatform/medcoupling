@@ -2079,7 +2079,11 @@ int MEDCoupling1DGTUMesh::getNumberOfNodesInCell(int cellId) const throw(INTERP_
 {
   int nbOfCells(getNumberOfCells());//performs checks
   if(cellId>=0 && cellId<nbOfCells)
-    return _conn_indx->getIJ(cellId+1,0)-_conn_indx->getIJ(cellId,0);
+    {
+      const int *conn(_conn->begin());
+      int strt=_conn_indx->getIJ(cellId,0),stp=_conn_indx->getIJ(cellId+1,0);
+      return stp-strt-std::count(conn+strt,conn+stp,-1);
+    }
   else
     {
       std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getNumberOfNodesInCell : request for cellId #" << cellId << " must be in [0," << nbOfCells << ") !";
