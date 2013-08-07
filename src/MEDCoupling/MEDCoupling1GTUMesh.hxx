@@ -73,8 +73,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception) = 0;
   protected:
-    MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
-    MEDCOUPLING_EXPORT MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
+    MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
+    MEDCoupling1GTUMesh();
   protected:
     const INTERP_KERNEL::CellModel *_cm;
   };
@@ -86,6 +87,8 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
+    //! useless constructor only for CORBA -> not swigged
+    MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New();
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
@@ -140,8 +143,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh *computeDualMesh() const throw(INTERP_KERNEL::Exception);
   private:
-    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
-    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy);
+    MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy);
+    MEDCoupling1SGTUMesh();
   private:
     void checkNonDynamicGeoType() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshesLL(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception);
@@ -160,6 +164,8 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
+    //! useless constructor only for CORBA -> not swigged
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New();
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
@@ -218,8 +224,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static std::vector<int> BuildAPolygonFromParts(const std::vector< std::vector<int> >& parts) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
   private:
-    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
-    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy);
+    MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy);
+    MEDCoupling1DGTUMesh();
   private:
     void checkDynamicGeoT2ype() const throw(INTERP_KERNEL::Exception);
     static MEDCoupling1DGTUMesh *Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception);

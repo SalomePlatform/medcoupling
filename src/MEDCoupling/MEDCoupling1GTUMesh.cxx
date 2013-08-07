@@ -26,6 +26,10 @@
 
 using namespace ParaMEDMEM;
 
+MEDCoupling1GTUMesh::MEDCoupling1GTUMesh()
+{
+}
+
 MEDCoupling1GTUMesh::MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm):_cm(&cm)
 {
   setName(name);
@@ -463,6 +467,15 @@ MEDCoupling1SGTUMesh::MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bo
 
 MEDCoupling1SGTUMesh::MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm):MEDCoupling1GTUMesh(name,cm)
 {
+}
+
+MEDCoupling1SGTUMesh::MEDCoupling1SGTUMesh()
+{
+}
+
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New()
+{
+  return new MEDCoupling1SGTUMesh;
 }
 
 MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
@@ -1682,6 +1695,11 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTE
 
 //== 
 
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New()
+{
+  return new MEDCoupling1DGTUMesh;
+}
+
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
 {
   if(type==INTERP_KERNEL::NORM_ERROR)
@@ -1693,6 +1711,10 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL:
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return new MEDCoupling1DGTUMesh(name,cm);
+}
+
+MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh()
+{
 }
 
 MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm):MEDCoupling1GTUMesh(name,cm)
