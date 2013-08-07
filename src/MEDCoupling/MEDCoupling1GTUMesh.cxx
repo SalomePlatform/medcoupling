@@ -1368,6 +1368,94 @@ bool MEDCoupling1SGTUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
   throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::isEmptyMesh : not implemented yet !");
 }
 
+void MEDCoupling1SGTUMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+{
+  int it,order;
+  double time=getTime(it,order);
+  tinyInfo.clear(); tinyInfoD.clear(); littleStrings.clear();
+  //
+  littleStrings.push_back(getName());
+  littleStrings.push_back(getDescription());
+  littleStrings.push_back(getTimeUnit());
+  //
+  std::vector<std::string> littleStrings2,littleStrings3;
+  if((const DataArrayDouble *)_coords)
+    _coords->getTinySerializationStrInformation(littleStrings2);
+  if((const DataArrayInt *)_conn)
+    _conn->getTinySerializationStrInformation(littleStrings3);
+  int sz0((int)littleStrings2.size()),sz1((int)littleStrings3.size());
+  littleStrings.insert(littleStrings.end(),littleStrings2.begin(),littleStrings2.end());
+  littleStrings.insert(littleStrings.end(),littleStrings3.begin(),littleStrings3.end());
+  //
+  tinyInfo.push_back(getCellModelEnum());
+  tinyInfo.push_back(it);
+  tinyInfo.push_back(order);
+  std::vector<int> tinyInfo2,tinyInfo3;
+  if((const DataArrayDouble *)_coords)
+    _coords->getTinySerializationIntInformation(tinyInfo2);
+  if((const DataArrayInt *)_conn)
+    _conn->getTinySerializationIntInformation(tinyInfo3);
+  int sz2((int)tinyInfo2.size()),sz3((int)tinyInfo3.size());
+  tinyInfo.push_back(sz0); tinyInfo.push_back(sz1); tinyInfo.push_back(sz2); tinyInfo.push_back(sz3);
+  tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
+  tinyInfo.insert(tinyInfo.end(),tinyInfo3.begin(),tinyInfo3.end());
+  //
+  tinyInfoD.push_back(time);
+}
+
+void MEDCoupling1SGTUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
+{
+  std::vector<int> tinyInfo2(tinyInfo.begin()+7,tinyInfo.begin()+7+tinyInfo[5]);
+  std::vector<int> tinyInfo1(tinyInfo.begin()+7+tinyInfo[5],tinyInfo.begin()+7+tinyInfo[5]+tinyInfo[6]);
+  a1->resizeForUnserialization(tinyInfo1);
+  a2->resizeForUnserialization(tinyInfo2);
+}
+
+void MEDCoupling1SGTUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
+{
+  int sz(0);
+  if((const DataArrayInt *)_conn)
+    if(_conn->isAllocated())
+      sz=_conn->getNbOfElems();
+  a1=DataArrayInt::New();
+  a1->alloc(sz,1);
+  if(sz!=0 && (const DataArrayInt *)_conn)
+    std::copy(_conn->begin(),_conn->end(),a1->getPointer());
+  sz=0;
+  if((const DataArrayDouble *)_coords)
+    if(_coords->isAllocated())
+      sz=_coords->getNbOfElems();
+  a2=DataArrayDouble::New();
+  a2->alloc(sz,1);
+  if(sz!=0 && (const DataArrayDouble *)_coords)
+    std::copy(_coords->begin(),_coords->end(),a2->getPointer());
+}
+
+void MEDCoupling1SGTUMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                                           const std::vector<std::string>& littleStrings)
+{
+  INTERP_KERNEL::NormalizedCellType gt((INTERP_KERNEL::NormalizedCellType)tinyInfo[0]);
+  _cm=&INTERP_KERNEL::CellModel::GetCellModel(gt);
+  setName(littleStrings[0].c_str());
+  setDescription(littleStrings[1].c_str());
+  setTimeUnit(littleStrings[2].c_str());
+  setTime(tinyInfoD[0],tinyInfo[1],tinyInfo[2]);
+  int sz0(tinyInfo[3]),sz1(tinyInfo[4]),sz2(tinyInfo[5]),sz3(tinyInfo[6]);
+  //
+  _coords=DataArrayDouble::New();
+  std::vector<int> tinyInfo2(tinyInfo.begin()+7,tinyInfo.begin()+7+sz2);
+  _coords->resizeForUnserialization(tinyInfo2);
+  std::copy(a2->begin(),a2->end(),_coords->getPointer());
+  _conn=DataArrayInt::New();
+  std::vector<int> tinyInfo3(tinyInfo.begin()+7+sz2,tinyInfo.begin()+7+sz2+sz3);
+  _conn->resizeForUnserialization(tinyInfo3);
+  std::copy(a1->begin(),a1->end(),_conn->getPointer());
+  std::vector<std::string> littleStrings2(littleStrings.begin()+3,littleStrings.begin()+3+sz0);
+  _coords->finishUnserialization(tinyInfo2,littleStrings2);
+  std::vector<std::string> littleStrings3(littleStrings.begin()+3+sz0,littleStrings.begin()+3+sz0+sz1);
+  _conn->finishUnserialization(tinyInfo3,littleStrings3);
+}
+
 /*!
  * Checks if \a this and \a other meshes are geometrically equivalent with high
  * probability, else an exception is thrown. The meshes are considered equivalent if
@@ -2498,6 +2586,117 @@ void MEDCoupling1DGTUMesh::checkFullyDefined() const throw(INTERP_KERNEL::Except
 bool MEDCoupling1DGTUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
 {
   throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::isEmptyMesh : not implemented yet !");
+}
+
+void MEDCoupling1DGTUMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+{
+  int it,order;
+  double time=getTime(it,order);
+  tinyInfo.clear(); tinyInfoD.clear(); littleStrings.clear();
+  //
+  littleStrings.push_back(getName());
+  littleStrings.push_back(getDescription());
+  littleStrings.push_back(getTimeUnit());
+  //
+  std::vector<std::string> littleStrings2,littleStrings3,littleStrings4;
+  if((const DataArrayDouble *)_coords)
+    _coords->getTinySerializationStrInformation(littleStrings2);
+  if((const DataArrayInt *)_conn)
+    _conn->getTinySerializationStrInformation(littleStrings3);
+  if((const DataArrayInt *)_conn_indx)
+    _conn_indx->getTinySerializationStrInformation(littleStrings4);
+  int sz0((int)littleStrings2.size()),sz1((int)littleStrings3.size()),sz2((int)littleStrings4.size());
+  littleStrings.insert(littleStrings.end(),littleStrings2.begin(),littleStrings2.end());
+  littleStrings.insert(littleStrings.end(),littleStrings3.begin(),littleStrings3.end());
+  littleStrings.insert(littleStrings.end(),littleStrings4.begin(),littleStrings4.end());
+  //
+  tinyInfo.push_back(getCellModelEnum());
+  tinyInfo.push_back(it);
+  tinyInfo.push_back(order);
+  std::vector<int> tinyInfo2,tinyInfo3,tinyInfo4;
+  if((const DataArrayDouble *)_coords)
+    _coords->getTinySerializationIntInformation(tinyInfo2);
+  if((const DataArrayInt *)_conn)
+    _conn->getTinySerializationIntInformation(tinyInfo3);
+  if((const DataArrayInt *)_conn_indx)
+    _conn_indx->getTinySerializationIntInformation(tinyInfo4);
+  int sz3((int)tinyInfo2.size()),sz4((int)tinyInfo3.size()),sz5((int)tinyInfo4.size());
+  tinyInfo.push_back(sz0); tinyInfo.push_back(sz1); tinyInfo.push_back(sz2); tinyInfo.push_back(sz3); tinyInfo.push_back(sz4);  tinyInfo.push_back(sz5);
+  tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
+  tinyInfo.insert(tinyInfo.end(),tinyInfo3.begin(),tinyInfo3.end());
+  tinyInfo.insert(tinyInfo.end(),tinyInfo4.begin(),tinyInfo4.end());
+  //
+  tinyInfoD.push_back(time);
+}
+
+void MEDCoupling1DGTUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
+{
+  std::vector<int> tinyInfo2(tinyInfo.begin()+9,tinyInfo.begin()+9+tinyInfo[6]);
+  std::vector<int> tinyInfo1(tinyInfo.begin()+9+tinyInfo[6],tinyInfo.begin()+9+tinyInfo[6]+tinyInfo[7]);
+  std::vector<int> tinyInfo12(tinyInfo.begin()+9+tinyInfo[6]+tinyInfo[7],tinyInfo.begin()+9+tinyInfo[6]+tinyInfo[7]+tinyInfo[8]);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(DataArrayInt::New()); p1->resizeForUnserialization(tinyInfo1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(DataArrayInt::New()); p2->resizeForUnserialization(tinyInfo12);
+  std::vector<const DataArrayInt *> v(2); v[0]=p1; v[1]=p2;
+  p2=DataArrayInt::Aggregate(v);
+  a2->resizeForUnserialization(tinyInfo2);
+  a1->alloc(p2->getNbOfElems(),1);
+}
+
+void MEDCoupling1DGTUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
+{
+  int sz(0);
+  if((const DataArrayInt *)_conn)
+    if(_conn->isAllocated())
+      sz=_conn->getNbOfElems();
+  if((const DataArrayInt *)_conn_indx)
+    if(_conn_indx->isAllocated())
+      sz+=_conn_indx->getNbOfElems();
+  a1=DataArrayInt::New();
+  a1->alloc(sz,1);
+  int *work(a1->getPointer());
+  if(sz!=0 && (const DataArrayInt *)_conn)
+    work=std::copy(_conn->begin(),_conn->end(),a1->getPointer());
+  if(sz!=0 && (const DataArrayInt *)_conn_indx)
+    std::copy(_conn_indx->begin(),_conn_indx->end(),work);
+  sz=0;
+  if((const DataArrayDouble *)_coords)
+    if(_coords->isAllocated())
+      sz=_coords->getNbOfElems();
+  a2=DataArrayDouble::New();
+  a2->alloc(sz,1);
+  if(sz!=0 && (const DataArrayDouble *)_coords)
+    std::copy(_coords->begin(),_coords->end(),a2->getPointer());
+}
+
+void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                                           const std::vector<std::string>& littleStrings)
+{
+  INTERP_KERNEL::NormalizedCellType gt((INTERP_KERNEL::NormalizedCellType)tinyInfo[0]);
+  _cm=&INTERP_KERNEL::CellModel::GetCellModel(gt);
+  setName(littleStrings[0].c_str());
+  setDescription(littleStrings[1].c_str());
+  setTimeUnit(littleStrings[2].c_str());
+  setTime(tinyInfoD[0],tinyInfo[1],tinyInfo[2]);
+  int sz0(tinyInfo[3]),sz1(tinyInfo[4]),sz2(tinyInfo[5]),sz3(tinyInfo[6]),sz4(tinyInfo[7]),sz5(tinyInfo[8]);
+  //
+  _coords=DataArrayDouble::New();
+  std::vector<int> tinyInfo2(tinyInfo.begin()+9,tinyInfo.begin()+9+sz3);
+  _coords->resizeForUnserialization(tinyInfo2);
+  std::copy(a2->begin(),a2->end(),_coords->getPointer());
+  _conn=DataArrayInt::New();
+  std::vector<int> tinyInfo3(tinyInfo.begin()+9+sz3,tinyInfo.begin()+9+sz3+sz4);
+  _conn->resizeForUnserialization(tinyInfo3);
+  std::copy(a1->begin(),a1->begin()+_conn->getNbOfElems(),_conn->getPointer());
+  _conn_indx=DataArrayInt::New();
+  std::vector<int> tinyInfo4(tinyInfo.begin()+9+sz3+sz4,tinyInfo.begin()+9+sz3+sz4+sz5);
+  _conn_indx->resizeForUnserialization(tinyInfo4);
+  std::copy(a1->begin()+_conn->getNbOfElems(),a1->end(),_conn_indx->getPointer());
+  std::vector<std::string> littleStrings2(littleStrings.begin()+3,littleStrings.begin()+3+sz0);
+  _coords->finishUnserialization(tinyInfo2,littleStrings2);
+  std::vector<std::string> littleStrings3(littleStrings.begin()+3+sz0,littleStrings.begin()+3+sz0+sz1);
+  _conn->finishUnserialization(tinyInfo3,littleStrings3);
+  std::vector<std::string> littleStrings4(littleStrings.begin()+3+sz0+sz1,littleStrings.begin()+3+sz0+sz1+sz2);
+  _conn_indx->finishUnserialization(tinyInfo4,littleStrings4);
 }
 
 /*!

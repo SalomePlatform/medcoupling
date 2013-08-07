@@ -10797,7 +10797,7 @@ void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, cons
   setName(tinyInfoS[0].c_str());
   if(isAllocated())
     {
-      int nbOfCompo=getNumberOfComponents();
+      int nbOfCompo=tinyInfoI[1];
       for(int i=0;i<nbOfCompo;i++)
         setInfoOnComponent(i,tinyInfoS[i+1].c_str());
     }
