@@ -82,10 +82,22 @@ int MEDCouplingRemapper::prepareInterpKernelOnly() throw(INTERP_KERNEL::Exceptio
   int meshInterpType=((int)_src_ft->getMesh()->getType()*16)+(int)_target_ft->getMesh()->getType();
   switch(meshInterpType)
     {
+    case 90:
+    case 91:
+    case 165:
+    case 181:
+    case 170:
+    case 171:
+    case 186:
+    case 187:
     case 85://Unstructured-Unstructured
       return prepareInterpKernelOnlyUU();
+    case 167:
+    case 183:
     case 87://Unstructured-Cartesian
       return prepareInterpKernelOnlyUC();
+    case 122:
+    case 123:
     case 117://Cartesian-Unstructured
       return prepareInterpKernelOnlyCU();
     case 119://Cartesian-Cartesian
@@ -289,8 +301,8 @@ void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol) thro
 
 int MEDCouplingRemapper::prepareInterpKernelOnlyUU() throw(INTERP_KERNEL::Exception)
 {
-  const MEDCouplingUMesh *src_mesh=static_cast<const MEDCouplingUMesh *>(_src_ft->getMesh());
-  const MEDCouplingUMesh *target_mesh=static_cast<const MEDCouplingUMesh *>(_target_ft->getMesh());
+  const MEDCouplingPointSet *src_mesh=static_cast<const MEDCouplingPointSet *>(_src_ft->getMesh());
+  const MEDCouplingPointSet *target_mesh=static_cast<const MEDCouplingPointSet *>(_target_ft->getMesh());
   std::string srcMeth,trgMeth;
   std::string method=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
   const int srcMeshDim=src_mesh->getMeshDimension();

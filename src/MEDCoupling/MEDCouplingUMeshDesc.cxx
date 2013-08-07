@@ -560,3 +560,8 @@ void MEDCouplingUMeshDesc::reprQuickOverview(std::ostream& stream) const throw(I
 {
   stream << "MEDCouplingUMeshDesc C++ instance at " << this << ". Name : \"" << getName() << "\".";
 }
+
+int MEDCouplingUMeshDesc::getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getNumberOfNodesInCell : not implemented yet !");
+}

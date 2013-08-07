@@ -57,6 +57,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED_DESC; }

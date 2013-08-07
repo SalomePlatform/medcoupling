@@ -1150,6 +1150,7 @@ namespace ParaMEDMEM
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       static DataArrayDouble *MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
       static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type) throw(INTERP_KERNEL::Exception);
+      virtual int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
       virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const throw(INTERP_KERNEL::Exception);
       virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) throw(INTERP_KERNEL::Exception);
       virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception);
@@ -1733,7 +1734,6 @@ namespace ParaMEDMEM
     void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     void setPartOfMySelf2(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception);
-    int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getMeshLength() const throw(INTERP_KERNEL::Exception);
     void computeTypes() throw(INTERP_KERNEL::Exception);
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);

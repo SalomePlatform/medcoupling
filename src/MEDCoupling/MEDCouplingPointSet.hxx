@@ -116,6 +116,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
     virtual DataArrayInt *findBoundaryNodes() const = 0;
     virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
+    virtual int getNumberOfNodesInCell(int cellId) const = 0;
     virtual DataArrayInt *getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const = 0;
     virtual void renumberNodesInConn(const int *newNodeNumbersO2N) = 0;

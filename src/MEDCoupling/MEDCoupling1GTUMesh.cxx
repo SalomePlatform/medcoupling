@@ -679,6 +679,11 @@ int MEDCoupling1SGTUMesh::getNumberOfCells() const
   return nbOfTuples/nbOfNodesPerCell;
 }
 
+int MEDCoupling1SGTUMesh::getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  return getNumberOfNodesPerCell();
+}
+
 int MEDCoupling1SGTUMesh::getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
 {
   checkNonDynamicGeoType();
@@ -2053,7 +2058,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeEffectiveNbOfNodesPerCell() const thr
 
 void MEDCoupling1DGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
-  int nbOfCells=getNumberOfCells();//performs checks
+  int nbOfCells(getNumberOfCells());//performs checks
   if(cellId>=0 && cellId<nbOfCells)
     {
       int strt=_conn_indx->getIJ(cellId,0),stp=_conn_indx->getIJ(cellId+1,0);
@@ -2065,7 +2070,19 @@ void MEDCoupling1DGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) 
     }
   else
     {
-      std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::getNodeIdsOfCell : request for cellId #" << cellId << " must be in [0," << nbOfCells << ") !";
+      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getNodeIdsOfCell : request for cellId #" << cellId << " must be in [0," << nbOfCells << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+int MEDCoupling1DGTUMesh::getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCells(getNumberOfCells());//performs checks
+  if(cellId>=0 && cellId<nbOfCells)
+    return _conn_indx->getIJ(cellId+1,0)-_conn_indx->getIJ(cellId,0);
+  else
+    {
+      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getNumberOfNodesInCell : request for cellId #" << cellId << " must be in [0," << nbOfCells << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }

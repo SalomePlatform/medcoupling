@@ -25,7 +25,7 @@
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingUMesh;
+  class MEDCouplingPointSet;
 }
 
 template<int SPACEDIM,int MESHDIM>
@@ -37,7 +37,7 @@ public:
   typedef int MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
-  MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingUMesh *mesh);
+  MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingPointSet *mesh);
   void getBoundingBox(double *boundingBox) const;
   INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
   int getNumberOfNodesOfElement(int eltId) const;
@@ -51,7 +51,7 @@ public:
 private:
   void prepare();
 private:
-  const ParaMEDMEM::MEDCouplingUMesh *_mesh;
+  const ParaMEDMEM::MEDCouplingPointSet *_mesh;
   int *_conn_for_interp;
   int *_conn_index_for_interp;
 };
