@@ -31,6 +31,8 @@ SET(medcouplingclient_SOURCES
   DataArrayDoubleClient.cxx
   DataArrayIntClient.cxx
   MEDCouplingCMeshClient.cxx
+  MEDCoupling1SGTUMeshClient.cxx
+  MEDCoupling1DGTUMeshClient.cxx
   MEDCouplingCurveLinearMeshClient.cxx
   MEDCouplingExtrudedMeshClient.cxx
   MEDCouplingFieldDoubleClient.cxx
