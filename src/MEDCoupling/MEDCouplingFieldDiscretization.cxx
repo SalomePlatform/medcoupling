@@ -621,8 +621,9 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP0::getValueOnMulti(const DataArr
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getValueOnMulti : NULL input mesh !");
-  std::vector<int> elts,eltsIndex;
-  mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,elts,eltsIndex);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsArr,eltsIndexArr;
+  mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,eltsArr,eltsIndexArr);
+  const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
   int spaceDim=mesh->getSpaceDimension();
   int nbOfComponents=arr->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
@@ -1002,8 +1003,9 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArr
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::getValueOnMulti : NULL input mesh !");
-  std::vector<int> elts,eltsIndex;
-  mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,elts,eltsIndex);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsArr,eltsIndexArr;
+  mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,eltsArr,eltsIndexArr);
+  const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
   int spaceDim=mesh->getSpaceDimension();
   int nbOfComponents=arr->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();

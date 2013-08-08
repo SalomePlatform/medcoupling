@@ -945,12 +945,12 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoints()
                             0.3, 0.3,              // point located somewhere inside the mesh
                             coords[2], coords[3]}; // point at the node #1
   const double eps = 1e-4; // ball radius
-  std::vector<int> cells, cellsIndex;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cells, cellsIndex;
   mesh->getCellsContainingPoints( pos, 3, eps, cells, cellsIndex );
   const int cellsExpected[3]={4, 0, 1};
   const int cellsIndexExpected[4]={0, 0, 1, 3};
-  CPPUNIT_ASSERT(std::equal( cellsExpected,      cellsExpected+3,      &cells[0]));
-  CPPUNIT_ASSERT(std::equal( cellsIndexExpected, cellsIndexExpected+4, &cellsIndex[0]));
+  CPPUNIT_ASSERT(std::equal( cellsExpected,      cellsExpected+3,      cells->begin()));
+  CPPUNIT_ASSERT(std::equal( cellsIndexExpected, cellsIndexExpected+4, cellsIndex->begin()));
   //! [CppSnippet_MEDCouplingUMesh_getCellsContainingPoints_2]
 }
 

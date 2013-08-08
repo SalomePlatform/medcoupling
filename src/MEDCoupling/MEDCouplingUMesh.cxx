@@ -33,7 +33,6 @@
 #include "InterpKernelMeshQuality.hxx"
 #include "InterpKernelCellSimplify.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
@@ -4014,7 +4013,7 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
  *          faster. 
  *  \param [in] pos - array of coordinates of the ball central point.
  *  \param [in] eps - ball radius.
- *  \param [in,out] elts - vector returning ids of the found cells. It is cleared
+ *  \param [out] elts - vector returning ids of the found cells. It is cleared
  *         before inserting ids.
  *  \throw If the coordinates array is not set.
  *  \throw If \a this->getMeshDimension() != \a this->getSpaceDimension().
@@ -4024,8 +4023,9 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
  */
 void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
-  std::vector<int> eltsIndex;
-  getCellsContainingPoints(pos,1,eps,elts,eltsIndex);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsUg,eltsIndexUg;
+  getCellsContainingPoints(pos,1,eps,eltsUg,eltsIndexUg);
+  elts.clear(); elts.insert(elts.end(),eltsUg->begin(),eltsUg->end());
 }
 
 /// @cond INTERNAL
@@ -4154,11 +4154,10 @@ namespace ParaMEDMEM
 
 template<int SPACEDIM>
 void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
-                                                   double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
+                                                   double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const
 {
-  eltsIndex.resize(nbOfPoints+1);
-  eltsIndex[0]=0;
-  elts.clear();
+  elts=DataArrayInt::New(); eltsIndex=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
+  int *eltsIndexPtr(eltsIndex->getPointer());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree());
   const double *bbox(bboxArr->begin());
   int nbOfCells=getNumberOfCells();
@@ -4168,7 +4167,7 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
   BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,-eps);
   for(int i=0;i<nbOfPoints;i++)
     {
-      eltsIndex[i+1]=eltsIndex[i];
+      eltsIndexPtr[i+1]=eltsIndexPtr[i];
       for(int j=0;j<SPACEDIM;j++)
         {
           bb[2*j]=pos[SPACEDIM*i+j];
@@ -4183,8 +4182,8 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
                                                                                                (INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]],
                                                                                                coords,conn+connI[*iter]+1,sz,eps))
             {
-              eltsIndex[i+1]++;
-              elts.push_back(*iter);
+              eltsIndexPtr[i+1]++;
+              elts->pushBackSilent(*iter);
             }
         }
     }
@@ -4198,8 +4197,8 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
  *         this->getSpaceDimension() * \a nbOfPoints 
  *  \param [in] nbOfPoints - number of points to locate within \a this mesh.
  *  \param [in] eps - radius of balls (i.e. the precision).
- *  \param [in,out] elts - vector returning ids of found cells.
- *  \param [in,out] eltsIndex - an array, of length \a nbOfPoints + 1,
+ *  \param [out] elts - vector returning ids of found cells.
+ *  \param [out] eltsIndex - an array, of length \a nbOfPoints + 1,
  *         dividing cell ids in \a elts into groups each referring to one
  *         point. Its every element (except the last one) is an index pointing to the
  *         first id of a group of cells. For example cells in contact with the *i*-th
@@ -4215,7 +4214,7 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
  */
 void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps,
-                                                std::vector<int>& elts, std::vector<int>& eltsIndex) const
+                                                MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const
 {
   int spaceDim=getSpaceDimension();
   int mDim=getMeshDimension();

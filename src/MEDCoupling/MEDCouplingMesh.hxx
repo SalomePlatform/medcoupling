@@ -25,6 +25,8 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+
 #include "InterpKernelException.hxx"
 
 #include <set>
@@ -108,7 +110,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
     virtual int getCellContainingPoint(const double *pos, double eps) const = 0;
     virtual void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
-    virtual void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
+    virtual void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const;
     virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const;

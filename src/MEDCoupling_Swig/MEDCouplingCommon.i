@@ -755,23 +755,17 @@ namespace ParaMEDMEM
            int spaceDim=self->getSpaceDimension();
            const char msg[]="Python wrap of MEDCouplingMesh::getCellsContainingPoint : ";
            const double *pos=convertObjToPossibleCpp5_Safe(p,sw,val,a,aa,bb,msg,nbOfPoints,spaceDim,true);
-           std::vector<int> elts,eltsIndex;
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elts,eltsIndex;
            self->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-           d0->alloc(elts.size(),1);
-           d1->alloc(eltsIndex.size(),1);
-           std::copy(elts.begin(),elts.end(),d0->getPointer());
-           std::copy(eltsIndex.begin(),eltsIndex.end(),d1->getPointer());
            PyObject *ret=PyTuple_New(2);
-           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elts.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(eltsIndex.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
            return ret;
          }
 
          PyObject *getCellsContainingPoints(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
          {
-           std::vector<int> elts,eltsIndex;
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elts,eltsIndex;
            int spaceDim=self->getSpaceDimension();
            void *da=0;
            int res1=SWIG_ConvertPtr(p,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 |  0 );
@@ -800,15 +794,9 @@ namespace ParaMEDMEM
                  }
                self->getCellsContainingPoints(da2->getConstPointer(),size,eps,elts,eltsIndex);
              }
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-           d0->alloc(elts.size(),1);
-           d1->alloc(eltsIndex.size(),1);
-           std::copy(elts.begin(),elts.end(),d0->getPointer());
-           std::copy(eltsIndex.begin(),eltsIndex.end(),d1->getPointer());
            PyObject *ret=PyTuple_New(2);
-           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elts.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(eltsIndex.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
            return ret;
          }
 

@@ -631,8 +631,8 @@ void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std
  *         this->getSpaceDimension() * \a nbOfPoints 
  *  \param [in] nbOfPoints - number of points to locate within \a this mesh.
  *  \param [in] eps - radius of balls (i.e. the precision).
- *  \param [in,out] elts - vector returning ids of found cells.
- *  \param [in,out] eltsIndex - an array, of length \a nbOfPoints + 1,
+ *  \param [out] elts - vector returning ids of found cells.
+ *  \param [out] eltsIndex - an array, of length \a nbOfPoints + 1,
  *         dividing cell ids in \a elts into groups each referring to one
  *         point. Its every element (except the last one) is an index pointing to the
  *         first id of a group of cells. For example cells in contact with the *i*-th
@@ -645,23 +645,22 @@ void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std
  *  \ref cpp_mcumesh_getCellsContainingPoints "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
  */
-void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
+void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const
 {
-  eltsIndex.resize(nbOfPoints+1);
-  eltsIndex[0]=0;
-  elts.clear();
-  int spaceDim=getSpaceDimension();
-  const double *work=pos;
+  eltsIndex=DataArrayInt::New(); elts=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
+  int *eltsIndexPtr(eltsIndex->getPointer());
+  int spaceDim(getSpaceDimension());
+  const double *work(pos);
   for(int i=0;i<nbOfPoints;i++,work+=spaceDim)
     {
       int ret=getCellContainingPoint(work,eps);
       if(ret>=0)
         {
-          elts.push_back(ret);
-          eltsIndex[i+1]=eltsIndex[i]+1;
+          elts->pushBackSilent(ret);
+          eltsIndexPtr[i+1]=eltsIndexPtr[i]+1;
         }
       else
-        eltsIndex[i+1]=eltsIndex[i];
+        eltsIndexPtr[i+1]=eltsIndexPtr[i];
     }
 }
 

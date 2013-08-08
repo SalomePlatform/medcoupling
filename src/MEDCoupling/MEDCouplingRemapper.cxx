@@ -739,12 +739,12 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss() throw(INTERP_KER
   const int *srcOffsetArrPtr=srcOffsetArr->begin();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> srcLoc=_src_ft->getLocalizationOfDiscr();
   const double *srcLocPtr=srcLoc->begin();
-  std::vector<int> elts,eltsIndex;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsArr,eltsIndexArr;
   int trgNbOfGaussPts=trgLoc->getNumberOfTuples();
   _matrix.resize(trgNbOfGaussPts);
-  _src_ft->getMesh()->getCellsContainingPoints(trgLoc->begin(),trgNbOfGaussPts,getPrecision(),elts,eltsIndex);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsIndex2=DataArrayInt::New(); eltsIndex2->useArray(&eltsIndex[0],false,CPP_DEALLOC,(int)eltsIndex.size(),1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfSrcCellsShTrgPts=eltsIndex2->deltaShiftIndex();
+  _src_ft->getMesh()->getCellsContainingPoints(trgLoc->begin(),trgNbOfGaussPts,getPrecision(),eltsArr,eltsIndexArr);
+  const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfSrcCellsShTrgPts(eltsIndexArr->deltaShiftIndex());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids0=nbOfSrcCellsShTrgPts->getIdsNotEqual(0);
   for(const int *trgId=ids0->begin();trgId!=ids0->end();trgId++)
     {
