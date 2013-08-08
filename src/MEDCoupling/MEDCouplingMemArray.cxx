@@ -9932,7 +9932,10 @@ std::vector< std::pair<int,int> > DataArrayInt::splitInBalancedSlices(int nbOfSl
       std::pair<int,int> p(pos,-1);
       int locSum(0);
       while(locSum<sumPerSlc && pos<nbOfTuples) { pos++; locSum+=*w++; }
-      p.second=pos;
+      if(i!=nbOfSlices-1)
+        p.second=pos;
+      else
+        p.second=nbOfTuples;
       ret[i]=p;
     }
   return ret;

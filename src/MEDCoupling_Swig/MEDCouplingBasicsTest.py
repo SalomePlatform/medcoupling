@@ -13733,6 +13733,25 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(16.,d.getMeasureField(False).accumulate()[0],1e-13)
         pass
 
+    def testSwig2LoadBalanceBBox1(self):
+        arr=DataArrayDouble(5) ; arr.iota()
+        t=MEDCouplingCMesh() ; t.setCoords(arr,arr)
+        arr=DataArrayDouble(16) ; arr.iota() ; arr*=2./15
+        s=MEDCouplingCMesh() ; s.setCoords(arr,arr[:]) ; s.translate([2.,1.])
+        #
+        s1=s.build1SGTUnstructured()
+        t1=t.build1SGTUnstructured()
+        w=MEDCouplingPointSet.ComputeNbOfInteractionsWithSrcCells(s1,t1,1e-12)
+        wExp=DataArrayInt([0,0,0,0,0,0,64,64,0,0,64,64,0,0,0,0])
+        self.assertTrue(w.isEqual(wExp))
+        slcs=w.splitInBalancedSlices(4)
+        self.assertEqual(len(slcs),4)
+        self.assertEqual(slcs,[slice(0,7,1),slice(7,8,1),slice(8,11,1),slice(11,16,1)])
+        bbs=s1.getBoundingBoxForBBTree()
+        bbt=t1.getBoundingBoxForBBTree()
+        self.assertTrue(bbt.computeNbOfInteractionsWith(bbs,1e-12).isEqual(wExp))
+        pass
+
     def setUp(self):
         pass
     pass
