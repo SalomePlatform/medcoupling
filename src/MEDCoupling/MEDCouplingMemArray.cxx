@@ -21,6 +21,7 @@
 #include "MEDCouplingMemArray.txx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
+#include "BBTree.txx"
 #include "GenMathFormulae.hxx"
 #include "InterpKernelExprParser.hxx"
 
@@ -2081,6 +2082,68 @@ DataArrayInt *DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) 
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for findClosestTupleId. Must be 1, 2 or 3.");
     }
+  return ret.retn();
+}
+
+/*!
+ * This method expects that \a this and \a otherBBoxFrmt arrays are bounding box arrays ( as the output of MEDCouplingPointSet::getBoundingBoxForBBTree method ).
+ * This method will return a DataArrayInt array having the same number of tuples than \a this. This returned array tells for each cell in \a this
+ * how many bounding boxes in \a otherBBoxFrmt.
+ * So, this method expects that \a this and \a otherBBoxFrmt have the same number of components.
+ *
+ * \param [in] otherBBoxFrmt - It is an array .
+ * \param [in] eps - the absolute precision of the detection. when eps < 0 the bboxes are enlarged so more interactions are detected. Inversely when > 0 the bboxes are stretched.
+ * \sa MEDCouplingPointSet::getBoundingBoxForBBTree
+ * \throw If \a this and \a otherBBoxFrmt have not the same number of components.
+ * \throw If \a this and \a otherBBoxFrmt number of components is not even (BBox format).
+ */
+DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const throw(INTERP_KERNEL::Exception)
+{
+  if(!otherBBoxFrmt)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : input array is NULL !");
+  if(!isAllocated() || !otherBBoxFrmt->isAllocated())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : this and input array must be allocated !");
+  int nbOfComp(getNumberOfComponents()),nbOfTuples(getNumberOfTuples());
+  if(nbOfComp!=otherBBoxFrmt->getNumberOfComponents())
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : this number of components (" << nbOfComp << ") must be equal to the number of components of input array (" << otherBBoxFrmt->getNumberOfComponents() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(nbOfComp%2!=0)
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : Number of components (" << nbOfComp << ") is not even ! It should be to be compatible with bbox format !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfTuples,1);
+  const double *thisBBPtr(begin());
+  int *retPtr(ret->getPointer());
+  switch(nbOfComp/2)
+    {
+    case 3:
+      {
+        BBTree<3,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
+        for(int i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
+          *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
+        break;
+      }
+    case 2:
+      {
+        BBTree<2,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
+        for(int i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
+          *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
+        break;
+      }
+    case 1:
+      {
+        BBTree<1,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
+        for(int i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
+          *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
+        break;
+      }
+    defaut:
+      throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : space dimension supported are [1,2,3] !");
+    }
+  
   return ret.retn();
 }
 
@@ -9839,6 +9902,38 @@ std::vector<DataArrayInt *> DataArrayInt::partitionByDifferentValues(std::vector
   for(const int *w=begin();w!=end();w++,id++)
     {
       retPtr[m2[*w]][m3[*w]++]=id;
+    }
+  return ret;
+}
+
+/*!
+ * This method split ids in [0, \c this->getNumberOfTuples() ) using \a this array as a field of weight (>=0 each).
+ * The aim of this method is to return a set of \a nbOfSlices chunk of contiguous ids as balanced as possible.
+ *
+ * \param [in] nbOfSlices - number of slices expected.
+ * \return - a vector having a size equal to \a nbOfSlices giving the start (included) and the stop (excluded) of each chunks.
+ * 
+ * \sa DataArray::GetSlice
+ * \throw If \a this is not allocated or not with exactly one component.
+ * \throw If an element in \a this if < 0.
+ */
+std::vector< std::pair<int,int> > DataArrayInt::splitInBalancedSlices(int nbOfSlices) const throw(INTERP_KERNEL::Exception)
+{
+  if(!isAllocated() || getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::splitInBalancedSlices : this array should have number of components equal to one and must be allocated !");
+  if(nbOfSlices<=0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::splitInBalancedSlices : number of slices must be >= 1 !");
+  int sum(accumulate(0)),nbOfTuples(getNumberOfTuples());
+  int sumPerSlc(sum/nbOfSlices),pos(0);
+  const int *w(begin());
+  std::vector< std::pair<int,int> > ret(nbOfSlices);
+  for(int i=0;i<nbOfSlices;i++)
+    {
+      std::pair<int,int> p(pos,-1);
+      int locSum(0);
+      while(locSum<sumPerSlc && pos<nbOfTuples) { pos++; locSum+=*w++; }
+      p.second=pos;
+      ret[i]=p;
     }
   return ret;
 }

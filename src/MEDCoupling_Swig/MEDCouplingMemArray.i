@@ -346,6 +346,7 @@ namespace ParaMEDMEM
     DataArrayDouble *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getDifferentValues(double prec, int limitTupleId=-1) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findClosestTupleId(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const throw(INTERP_KERNEL::Exception);
     void setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
@@ -2557,6 +2558,15 @@ namespace ParaMEDMEM
         std::vector<int> val2;
         const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
         return self->accumulatePerChunck(bg,bg+sz);
+      }
+
+      PyObject *splitInBalancedSlices(int nbOfSlices) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > slcs(self->splitInBalancedSlices(nbOfSlices));
+        PyObject *ret=PyList_New(slcs.size());
+        for(std::size_t i=0;i<slcs.size();i++)
+          PyList_SetItem(ret,i,PySlice_New(PyInt_FromLong(slcs[i].first),PyInt_FromLong(slcs[i].second),PyInt_FromLong(1)));
+        return ret;
       }
 
       DataArrayInt *buildExplicitArrOfSliceOnScaledArr(PyObject *slic) const throw(INTERP_KERNEL::Exception)

@@ -102,6 +102,7 @@ namespace ParaMEDMEM
     static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type);
     static void Rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);
     static void Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
+    static DataArrayInt *ComputeNbOfInteractionsWithSrcCells(const MEDCouplingPointSet *srcMesh, const MEDCouplingPointSet *trgMesh, double eps) throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     MEDCouplingMesh *buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception);

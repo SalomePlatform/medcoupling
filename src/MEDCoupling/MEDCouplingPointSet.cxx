@@ -1040,6 +1040,25 @@ void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, 
 }
 
 /*!
+ * This method allows to give for each cell in \a trgMesh, how much it interacts with cells of \a srcMesh.
+ * The returned array can be seen as a weighted array on the target cells of \a trgMesh input parameter.
+ *
+ * \param [in] srcMesh - source mesh
+ * \param [in] trgMesh - target mesh
+ * \param [in] eps - precision of the detection
+ * \return DataArrayInt * - An array that gives for each cell of \a trgMesh, how many cells in \a srcMesh (regarding the precision of detection \a eps) can interacts.
+ * 
+ * \throw If \a srcMesh and \a trgMesh have not the same space dimension.
+ */
+DataArrayInt *MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells(const MEDCouplingPointSet *srcMesh, const MEDCouplingPointSet *trgMesh, double eps) throw(INTERP_KERNEL::Exception)
+{
+  if(!srcMesh || !trgMesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells : the input meshes must be not NULL !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> sbbox(srcMesh->getBoundingBoxForBBTree()),tbbox(trgMesh->getBoundingBoxForBBTree());
+  return tbbox->computeNbOfInteractionsWith(sbbox,eps);
+}
+
+/*!
  * Creates a new MEDCouplingMesh containing a part of cells of \a this mesh. The new
  * mesh shares a coordinates array with \a this one. The cells to include to the
  * result mesh are specified by an array of cell ids.

@@ -194,6 +194,39 @@ public:
     _right->getIntersectingElems(bb,elems);
   }
 
+  /*!
+   * This method is very close to getIntersectingElems except that it returns number of elems instead of elems themselves.
+   */
+  int getNbOfIntersectingElems(const double* bb)
+  {
+    //  terminal node : return list of elements intersecting bb
+    int ret(0);
+    if (_terminal)
+      {
+        for (int i=0; i<_nbelems; i++)
+          {
+            const double* const  bb_ptr=_bb+_elems[i]*2*dim;
+            bool intersects = true;
+            for (int idim=0; idim<dim; idim++)
+              {
+                if (bb_ptr[idim*2]-bb[idim*2+1]>-_epsilon|| bb_ptr[idim*2+1]-bb[idim*2]<_epsilon)
+                  intersects=false;
+              }
+            if (intersects)
+              ret++;
+          }
+        return ret;
+      }
+    //non terminal node 
+    double min = bb[(_level%dim)*2];
+    double max = bb[(_level%dim)*2+1];
+    if (max < _min_right)
+      return _left->getNbOfIntersectingElems(bb);
+    if (min> _max_left)
+      return _right->getNbOfIntersectingElems(bb);
+    return _left->getNbOfIntersectingElems(bb)+_right->getNbOfIntersectingElems(bb);
+  }
+
  
   /*! returns in \a elems the list of elements potentially containing the point pointed to by \a xx
     \param xx pointer to query point coords

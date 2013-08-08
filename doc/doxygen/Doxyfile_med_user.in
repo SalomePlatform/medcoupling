@@ -108,7 +108,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          ParaFIELD.* \
                          MEDCouplingMesh.* \
                          MEDCouplingUMesh.* \
-                         MEDCouplingUMeshDesc.* \
+			 MEDCoupling1GTUMesh.* \
                          MEDCouplingPointSet.* \
                          MEDCouplingCMesh.* \
 			 MEDCouplingStructuredMesh.* \
