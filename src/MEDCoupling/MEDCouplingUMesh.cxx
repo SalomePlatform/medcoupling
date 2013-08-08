@@ -3877,13 +3877,13 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New(); ret1->alloc(nbOfPts,1);
   const int *nc=_nodal_connec->begin(),*ncI=_nodal_connec_index->begin(); const double *coords=_coords->begin();
   double *ret0Ptr=ret0->getPointer(); int *ret1Ptr=ret1->getPointer(); const double *ptsPtr=pts->begin();
-  std::vector<double> bbox;
-  getBoundingBoxForBBTree(bbox);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree());
+  const double *bbox(bboxArr->begin());
   switch(spaceDim)
     {
     case 3:
       {
-        BBTreeDst<3> myTree(&bbox[0],0,0,nbCells);
+        BBTreeDst<3> myTree(bbox,0,0,nbCells);
         for(int i=0;i<nbOfPts;i++,ret0Ptr++,ret1Ptr++,ptsPtr+=3)
           {
             double x=std::numeric_limits<double>::max();
@@ -3896,7 +3896,7 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
       }
     case 2:
       {
-        BBTreeDst<2> myTree(&bbox[0],0,0,nbCells);
+        BBTreeDst<2> myTree(bbox,0,0,nbCells);
         for(int i=0;i<nbOfPts;i++,ret0Ptr++,ret1Ptr++,ptsPtr+=2)
           {
             double x=std::numeric_limits<double>::max();
@@ -4156,11 +4156,11 @@ template<int SPACEDIM>
 void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                                    double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
 {
-  std::vector<double> bbox;
   eltsIndex.resize(nbOfPoints+1);
   eltsIndex[0]=0;
   elts.clear();
-  getBoundingBoxForBBTree(bbox);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree());
+  const double *bbox(bboxArr->begin());
   int nbOfCells=getNumberOfCells();
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
@@ -6176,21 +6176,25 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const throw(INTERP_KERN
 
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
- * \param bbox out parameter of size 2*spacedim*nbOfcells.
+ * 
+ * \return DataArrayDouble * - having \a this number of cells tuples and 2*spacedim components.
+ * 
+ * \throw If \a this is not fully set (coordinates and connectivity).
+ * \throw If a cell in \a this has no valid nodeId.
  */
-void MEDCouplingUMesh::getBoundingBoxForBBTree(std::vector<double>& bbox) const
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
 {
-  int spaceDim=getSpaceDimension();
-  int nbOfCells=getNumberOfCells();
-  bbox.resize(2*nbOfCells*spaceDim);
+  checkFullyDefined();
+  int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  double *bbox(ret->getPointer());
   for(int i=0;i<nbOfCells*spaceDim;i++)
     {
       bbox[2*i]=std::numeric_limits<double>::max();
       bbox[2*i+1]=-std::numeric_limits<double>::max();
     }
-  const double *coordsPtr=_coords->getConstPointer();
-  const int *conn=_nodal_connec->getConstPointer();
-  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coordsPtr(_coords->getConstPointer());
+  const int *conn(_nodal_connec->getConstPointer()),*connI(_nodal_connec_index->getConstPointer());
   for(int i=0;i<nbOfCells;i++)
     {
       int offset=connI[i]+1;
@@ -6198,14 +6202,24 @@ void MEDCouplingUMesh::getBoundingBoxForBBTree(std::vector<double>& bbox) const
       for(int j=0;j<nbOfNodesForCell;j++)
         {
           int nodeId=conn[offset+j];
-          if(nodeId>=0)
-            for(int k=0;k<spaceDim;k++)
-              {
-                bbox[2*spaceDim*i+2*k]=std::min(bbox[2*spaceDim*i+2*k],coordsPtr[spaceDim*nodeId+k]);
-                bbox[2*spaceDim*i+2*k+1]=std::max(bbox[2*spaceDim*i+2*k+1],coordsPtr[spaceDim*nodeId+k]);
-              }
+          int kk(0);
+          if(nodeId>=0 && nodeId<nbOfNodes)
+            {
+              for(int k=0;k<spaceDim;k++)
+                {
+                  bbox[2*spaceDim*i+2*k]=std::min(bbox[2*spaceDim*i+2*k],coordsPtr[spaceDim*nodeId+k]);
+                  bbox[2*spaceDim*i+2*k+1]=std::max(bbox[2*spaceDim*i+2*k+1],coordsPtr[spaceDim*nodeId+k]);
+                }
+              kk++;
+            }
+          if(kk==0)
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
     }
+  return ret.retn();
 }
 
 /// @cond INTERNAL
@@ -8241,7 +8255,6 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
                                                          std::vector<double>& addCoordsQuadratic, std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2)
 {
   static const int SPACEDIM=2;
-  std::vector<double> bbox1,bbox2;
   const double *coo1=m1->getCoords()->getConstPointer();
   const int *conn1=m1->getNodalConnectivity()->getConstPointer();
   const int *connI1=m1->getNodalConnectivityIndex()->getConstPointer();
@@ -8251,15 +8264,15 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
   const int *connI2=m2->getNodalConnectivityIndex()->getConstPointer();
   int offset2=offset1+m2->getNumberOfNodes();
   int offset3=offset2+((int)addCoords.size())/2;
-  m1->getBoundingBoxForBBTree(bbox1);
-  m2->getBoundingBoxForBBTree(bbox2);
-  BBTree<SPACEDIM,int> myTree(&bbox2[0],0,0,m2->getNumberOfCells(),eps);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox1Arr(m1->getBoundingBoxForBBTree()),bbox2Arr(m2->getBoundingBoxForBBTree());
+  const double *bbox1(bbox1Arr->begin()),*bbox2(bbox2Arr->begin());
+  BBTree<SPACEDIM,int> myTree(bbox2,0,0,m2->getNumberOfCells(),eps);
   int ncell1=m1->getNumberOfCells();
   crI.push_back(0);
   for(int i=0;i<ncell1;i++)
     {
       std::vector<int> candidates2;
-      myTree.getIntersectingElems(&bbox1[i*2*SPACEDIM],candidates2);
+      myTree.getIntersectingElems(bbox1+i*2*SPACEDIM,candidates2);
       std::map<INTERP_KERNEL::Node *,int> mapp;
       std::map<int,INTERP_KERNEL::Node *> mappRev;
       INTERP_KERNEL::QuadraticPolygon pol1;
@@ -8334,22 +8347,21 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd9(m1Desc),dd10(m2Desc);
   const int *c1=m1Desc->getNodalConnectivity()->getConstPointer();
   const int *ci1=m1Desc->getNodalConnectivityIndex()->getConstPointer();
-  std::vector<double> bbox1,bbox2;
-  m1Desc->getBoundingBoxForBBTree(bbox1);
-  m2Desc->getBoundingBoxForBBTree(bbox2);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox1Arr(m1Desc->getBoundingBoxForBBTree()),bbox2Arr(m2Desc->getBoundingBoxForBBTree());
+  const double *bbox1(bbox1Arr->begin()),*bbox2(bbox2Arr->begin());
   int ncell1=m1Desc->getNumberOfCells();
   int ncell2=m2Desc->getNumberOfCells();
   intersectEdge1.resize(ncell1);
   colinear2.resize(ncell2);
   subDiv2.resize(ncell2);
-  BBTree<SPACEDIM,int> myTree(&bbox2[0],0,0,m2Desc->getNumberOfCells(),-eps);
+  BBTree<SPACEDIM,int> myTree(bbox2,0,0,m2Desc->getNumberOfCells(),-eps);
   std::vector<int> candidates1(1);
   int offset1=m1->getNumberOfNodes();
   int offset2=offset1+m2->getNumberOfNodes();
   for(int i=0;i<ncell1;i++)
     {
       std::vector<int> candidates2;
-      myTree.getIntersectingElems(&bbox1[i*2*SPACEDIM],candidates2);
+      myTree.getIntersectingElems(bbox1+i*2*SPACEDIM,candidates2);
       if(!candidates2.empty())
         {
           std::map<INTERP_KERNEL::Node *,int> map1,map2;

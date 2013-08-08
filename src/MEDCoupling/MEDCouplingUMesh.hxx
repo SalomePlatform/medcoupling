@@ -163,7 +163,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *convexEnvelop2D() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *findAndCorrectBadOriented3DCells() throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void getBoundingBoxForBBTree(std::vector<double>& bbox) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy);
     MEDCOUPLING_EXPORT bool isFullyQuadratic() const;
     MEDCOUPLING_EXPORT bool isPresenceOfQuadratic() const;

@@ -129,6 +129,7 @@ namespace ParaMEDMEM
     void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                          const std::vector<std::string>& littleStrings);
+    virtual DataArrayDouble *getBoundingBoxForBBTree() const = 0;
     virtual DataArrayInt *getCellsInBoundingBox(const double *bbox, double eps) const = 0;
     virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) = 0;
     virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception);

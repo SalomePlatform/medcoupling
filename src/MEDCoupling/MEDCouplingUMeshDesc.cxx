@@ -306,6 +306,11 @@ void MEDCouplingUMeshDesc::unserialization(const std::vector<double>& tinyInfoD,
   setMeshDimension(tinyInfo[2]);
 }
 
+DataArrayDouble *MEDCouplingUMeshDesc::getBoundingBoxForBBTree() const
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getBoundingBoxForBBTree : not implemented yet !");
+}
+
 DataArrayInt *MEDCouplingUMeshDesc::getCellsInBoundingBox(const double *bbox, double eps) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elems=DataArrayInt::New(); elems->alloc(0,1);

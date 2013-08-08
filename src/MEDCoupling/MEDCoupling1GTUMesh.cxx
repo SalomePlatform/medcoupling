@@ -1781,6 +1781,50 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTE
   return ret.retn();
 }
 
+/*!
+ * This method aggregate the bbox of each cell and put it into bbox 
+ *
+ * \return DataArrayDouble * - having \a this number of cells tuples and 2*spacedim components.
+ * 
+ * \throw If \a this is not fully set (coordinates and connectivity).
+ * \throw If a cell in \a this has no valid nodeId.
+ */
+DataArrayDouble *MEDCoupling1SGTUMesh::getBoundingBoxForBBTree() const
+{
+  int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes()),nbOfNodesPerCell(getNumberOfNodesPerCell());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  double *bbox(ret->getPointer());
+  for(int i=0;i<nbOfCells*spaceDim;i++)
+    {
+      bbox[2*i]=std::numeric_limits<double>::max();
+      bbox[2*i+1]=-std::numeric_limits<double>::max();
+    }
+  const double *coordsPtr(_coords->getConstPointer());
+  const int *conn(_conn->getConstPointer());
+  for(int i=0;i<nbOfCells;i++)
+    {
+      for(int j=0;j<nbOfNodesPerCell;j++,conn++)
+        {
+          int nodeId(*conn),kk(0);
+          if(nodeId>=0 && nodeId<nbOfNodes)
+            {
+              for(int k=0;k<spaceDim;k++)
+                {
+                  bbox[2*spaceDim*i+2*k]=std::min(bbox[2*spaceDim*i+2*k],coordsPtr[spaceDim*nodeId+k]);
+                  bbox[2*spaceDim*i+2*k+1]=std::max(bbox[2*spaceDim*i+2*k+1],coordsPtr[spaceDim*nodeId+k]);
+                }
+              kk++;
+            }
+          if(kk==0)
+            {
+              std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  return ret.retn();
+}
+
 //== 
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New()
@@ -3121,6 +3165,54 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDi
     }
   else
     ret->setCoords(_coords);
+  return ret.retn();
+}
+
+/*!
+ * This method aggregate the bbox of each cell and put it into bbox parameter.
+ * 
+ * \return DataArrayDouble * - having \a this number of cells tuples and 2*spacedim components.
+ * 
+ * \throw If \a this is not fully set (coordinates and connectivity).
+ * \throw If a cell in \a this has no valid nodeId.
+ */
+DataArrayDouble *MEDCoupling1DGTUMesh::getBoundingBoxForBBTree() const
+{
+  checkFullyDefined();
+  int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  double *bbox(ret->getPointer());
+  for(int i=0;i<nbOfCells*spaceDim;i++)
+    {
+      bbox[2*i]=std::numeric_limits<double>::max();
+      bbox[2*i+1]=-std::numeric_limits<double>::max();
+    }
+  const double *coordsPtr(_coords->getConstPointer());
+  const int *conn(_conn->getConstPointer()),*connI(_conn_indx->getConstPointer());
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int offset=connI[i];
+      int nbOfNodesForCell=connI[i+1]-offset;
+      for(int j=0;j<nbOfNodesForCell;j++)
+        {
+          int nodeId=conn[offset+j];
+          int kk(0);
+          if(nodeId>=0 && nodeId<nbOfNodes)
+            {
+              for(int k=0;k<spaceDim;k++)
+                {
+                  bbox[2*spaceDim*i+2*k]=std::min(bbox[2*spaceDim*i+2*k],coordsPtr[spaceDim*nodeId+k]);
+                  bbox[2*spaceDim*i+2*k+1]=std::max(bbox[2*spaceDim*i+2*k+1],coordsPtr[spaceDim*nodeId+k]);
+                }
+              kk++;
+            }
+          if(kk==0)
+            {
+              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
   return ret.retn();
 }
 

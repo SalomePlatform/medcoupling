@@ -129,6 +129,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree() const;
     // overload of MEDCoupling1GTUMesh
     MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
@@ -212,6 +213,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree() const;
     // overload of MEDCoupling1GTUMesh
     MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
