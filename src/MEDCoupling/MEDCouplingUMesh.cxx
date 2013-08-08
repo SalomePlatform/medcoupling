@@ -6177,7 +6177,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const throw(INTERP_KERN
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * 
- * \return DataArrayDouble * - having \a this number of cells tuples and 2*spacedim components.
+ * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * 
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
@@ -6198,11 +6198,10 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
   for(int i=0;i<nbOfCells;i++)
     {
       int offset=connI[i]+1;
-      int nbOfNodesForCell=connI[i+1]-offset;
+      int nbOfNodesForCell(connI[i+1]-offset),kk(0);
       for(int j=0;j<nbOfNodesForCell;j++)
         {
           int nodeId=conn[offset+j];
-          int kk(0);
           if(nodeId>=0 && nodeId<nbOfNodes)
             {
               for(int k=0;k<spaceDim;k++)
@@ -6212,11 +6211,11 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
                 }
               kk++;
             }
-          if(kk==0)
-            {
-              std::ostringstream oss; oss << "MEDCouplingUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
+        }
+      if(kk==0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
   return ret.retn();
