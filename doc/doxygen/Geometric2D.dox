@@ -6,7 +6,7 @@ polygons.\n
 The specificity of this intersector is to deal with \b any \b type of
 polygons even those with \b quadratic \b edges.
 Its quite generic architecture allows him to deal with some other
-patentially usefull functions.\n
+potentially useful functions.\n
 This page described Geometric2D intersector basic principles and
 specific usage.
 
@@ -65,9 +65,9 @@ The process of boolean operations between two polygons P1 and P2 is done in thre
 
 The principle used to do boolean operations between 2 polygons P1 and
 P2 is to intersect each edge of P1 with each edge of P2. \n After this
-edge-splitting, polygon P1 is splitted, so that each 
+edge-splitting, polygon P1 is splitted, so that each
 \ref INTERP_KERNEL::ElementaryEdge "elementary edge" constituting P1
-is either \b in, \b out or \b on polygon P2. And inversely, polygon P2 is splitted so that each 
+is either \b in, \b out or \b on polygon P2. And inversely, polygon P2 is splitted so that each
 \ref INTERP_KERNEL::ElementaryEdge "elementary edge" constituting P2
 is either \b in, \b out or \b on polygon P1.
 
@@ -83,7 +83,7 @@ Perform localization of each splitted edge. As \ref interpkernelGeo2DBoolOpStep1
      is common to all boolean operations.
 
 When the location of edges has \b not been
-already deduced in previous computation and there is no predecessor, the 
+already deduced in previous computation and there is no predecessor, the
 \ref interpkernelGeo2DAlgLoc "localization is done in absolute".
 After it deduces the localization relatively to the previous edge
 thanks to node localization.\n The relative localization is done
@@ -113,7 +113,7 @@ edges localized as \b in or \b on.
 Generally, the principle is to take an edge in \a P1 with wanted loc and linking
 direct neighbour-edges (with correct loc) until closing a polygon. If
 not, using \a P2 edges to try to close polygon. The process is
-repeated until all edges with correct loc have been consumed. 
+repeated until all edges with correct loc have been consumed.
 
 The method in charge of that is INTERP_KERNEL::QuadraticPolygon::buildIntersectionPolygons.
 
@@ -128,11 +128,11 @@ that we are sure that the edge is either \b fully \b in ,or \b fully \b on or \b
 The principle chosen to know if an edge \a E is completely included in an
 any polygon \a P is to see if its barycenter \a B is inside this any
 polygon \a P.
-After, for each nodes \f$ P_i \f$ of polygon \a P we store angle in \f$ [-\pi/2,\pi/2 ] \f$ 
+After, for each nodes \f$ P_i \f$ of polygon \a P we store angle in \f$ [-\pi/2,\pi/2 ] \f$
 that represents the slope of line \f$ (BP_i) \f$.\n
 Then a line \a L going through \a B with a slope being as far as
-possible from all slopes found above. Then the algorithm goes along \a L 
-and number of times \a N it intersects \b non-tangentally the any polygon \a P.
+possible from all slopes found above. Then the algorithm goes along \a L
+and number of times \a N it intersects \b non-tangentially the any polygon \a P.
 
 If \a N is odd \a B (and then \a E) is IN.
 If \a N is even \a B (and then \a E) is OUT.
@@ -144,7 +144,7 @@ during intersecting process.
 \subsection interpkernelGeo2DAlgIntsect Intersection algorithms.
 
 The only mathematical intersections performed are edges intersections.
-The algorithms used are : 
+The algorithms used are :
 
   -# Lin-Lin intersection : http://mathworld.wolfram.com/Line-LineIntersection.html
   -# Lin-Arc intersection : http://mathworld.wolfram.com/Circle-LineIntersection.html
@@ -229,7 +229,7 @@ Too finish \ref interpkernelGeo2DBoolOpStep3 "closing" polygons.
 \image html SampGeo2D4.png "Close-up of final result after close polygons phase."
 \image latex SampGeo2D4.eps "Close-up of final result after close polygons phase."
 
-\note The result polygon is constitued from 2 sub-edges coming from \a P1
+\note The result polygon is constituted of 2 sub-edges coming from \a P1
 and 1 sub-edge from \a P2 closing the polygon. For the 2 edges of \a P1
 they are green because they are fully included in \a P2. Inversely,
 the only sub-edge coming from \a P2 is fully included in \a P1.

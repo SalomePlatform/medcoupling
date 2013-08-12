@@ -10,7 +10,7 @@
 - Compliant with coupling :
   - Fields definition defined enough to perform well defined interpolation
   - exchangeable through process as well in parallel case in SPMD paradigm ( \ref paramedmem "ParaMEDMEM" ), as in distributed paradigm using CORBA.
-- minimize as much as possible the number of prerequisites needed to use it ; So \ref medcoupling "MEDCoupling" only depends from
+- minimize as much as possible the number of prerequisites needed to use it ; So \ref medcoupling "MEDCoupling" only depends on
 \ref interpkernel "INTERP_KERNEL library"
 - light enough to be agile in order to :
    - maximize the amount of algorithms being applied on it
@@ -55,15 +55,15 @@ In MEDCoupling library there is no presence of faces nor edges.
 As a mesh has one dimension and only once, that is to say every cells in
 mesh have the same dimension called MeshDimension.
 
-For exemple a mesh with a meshDimension equal to 1, have \b cells of type
-NORM_SEG2. An another exemple, a mesh with a meshDimension equal
+For example a mesh with a meshDimension equal to 1, have \b cells of type
+NORM_SEG2. Another example, a mesh with a meshDimension equal
 to 2, have \b cells of type
 NORM_TRI3 and NORM_POLYGON for example.
 
 The class that incarnates the concept described above is :
 \ref ParaMEDMEM::MEDCouplingMesh.
 
-\section MEDCouplingMeshesAvailInstan Available instaciable mesh types in MEDCoupling
+\section MEDCouplingMeshesAvailInstan Available instantiable mesh types in MEDCoupling
 
 - \subpage MEDCouplingUMeshPage "Unstructured meshes"
 - \subpage MEDCouplingCMeshPage "Cartesian meshes"
@@ -82,7 +82,7 @@ possibly temporal support.
 
 The spatial support is a \ref MEDCouplingMeshesPage "mesh".
 A field is lying on an entity that will be specified by the spatial
-discretization of the field. For exemple a field on node will lie on
+discretization of the field. For example a field on node will lie on
 all nodes of its mesh.
 
 A field on cell will lie on all cells of its mesh.
@@ -114,7 +114,7 @@ Some of most important implemented methods are :
 - \ref ParaMEDMEM::MEDCouplingFieldDouble::addFields "cross instances operations"
 \section MEDCouplingSpatialDisc Spatial discretization concept
 
-This is the concept that makes the link, independantly from temporal
+This is the concept that makes the link, independently from temporal
 discretization, between the field and its spatial support(\ref MEDCouplingMeshesPage "mesh"). This
 concept allows the field to make a check and interpretation of an
 array of values given a spatial support (\ref MEDCouplingMeshesPage "mesh").
@@ -129,7 +129,7 @@ The most important pure virtual methods are :
 
 \section MEDCouplingTemporalDisc Temporal discretization concept
 
-This information allows, independantly from spatial discretization, to
+This information allows, independently from spatial discretization, to
 associate a time interval, if it exists, on which the field will be
 defined. This concept is able to give the value at any time of
 the definition interval (if any).
@@ -207,7 +207,7 @@ There are for the moment two types of arrays :
  - double precision float (64 bits) array incarnated by \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble class".
  - signed integer (32 bits) array incarnated by \ref ParaMEDMEM::DataArrayInt "DataArrayInt class".
 
-\ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt" classes inherits from 
+\ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt" classes inherits from
 \ref ParaMEDMEM::DataArray "DataArray" \b non \b instanciable \b class that factorizes some common methods of inherited instanciable classes.
 
 In the rest of the documentation \b DataArray will be used for both \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt".
@@ -220,7 +220,7 @@ It will be presented in this section common concept shared by the two classes to
 
 A \ref ParaMEDMEM::DataArray "DataArray" instance has an attribute **name**.
 
-**name** is particulary useful for \ref ParaMEDMEM::DataArray "DataArray" representing profiles, families, groups, fields in MEDLoader.
+**name** is particularly useful for \ref ParaMEDMEM::DataArray "DataArray" representing profiles, families, groups, fields in MEDLoader.
 But excepted these useful usecases, **name** attribute is often ignored when \ref ParaMEDMEM::DataArray "DataArrays" are aggregated (field array, connectivity, coordinates) in a bigger object.
 Whatever the usage of the **name** attribute of \ref ParaMEDMEM::DataArray "DataArrays", all methods in ParaMEDMEM::DataArrayDouble and ParaMEDMEM::DataArrayInt class deal with **name** as they do for components names.
 
@@ -264,12 +264,12 @@ For example, let's consider a DataArray having 3 components (called *x* for the 
 
 As seen in the sub section above, a \ref ParaMEDMEM::DataArray "DataArray" instance has a defined number of components.
 
-Their is an information attached to each of these components constiting the \ref ParaMEDMEM::DataArray "DataArray".
+There is an information attached to each of these components constituting the \ref ParaMEDMEM::DataArray "DataArray".
 
-This information is concretely a string of caracters that allows, if needed, to give information about the conresponding component.
+This information is concretely a string of characters that allows, if needed, to give information about the corresponding component.
 
 The format chosen in **MEDCoupling** for information on is "MY_COMPO_INFO [MYUNIT]". If needed, the unit attached to the component
-should be put between "[" and "]" after the information of the components after one space caracter.
+should be put between "[" and "]" after the information of the components after one space character.
 
 \subsection MEDCouplingArrayBasicsTimeLabel DataArrays and TimeLabel.
 
@@ -282,7 +282,7 @@ If the user in C++ or Python wants to modify intensively its **big** \ref ParaME
 \c setIJSilent just after invokation of \c declareAsNew instead of calling \c setIJ method that will increment time label of \ref ParaMEDMEM::DataArray "DataArray" instance
 on each call.
 
-\c setIJ method usage should be reduced to little modification sessions.  
+\c setIJ method usage should be reduced to little modification sessions.
 
 \section MEDCouplingArraySteps0 Building an array from scratch in Python
 
@@ -348,13 +348,13 @@ but the use of \ref ParaMEDMEM::DataArrayInt "DataArrayInt" is strictly equivale
 As \ref ParaMEDMEM::DataArray "DataArrays" are the atomic entity of potentially big memory objects into \ref medcoupling "MEDCoupling"
 , \ref ParaMEDMEM::DataArray "DataArrays" introduces concepts of copy and comparison that will be used by aggregating classes.
 
-For more complex objects (that aggregate themselves big objects) 
+For more complex objects (that aggregate themselves big objects)
 like ParaMEDMEM::MEDCouplingFieldDouble the concept of copy (shallow or deep) is less straight forward because which aggregated subobjects are copied or not.
 
 \subsection MEDCouplingArrayBasicsCopyDeep Deep copy of DataArray
 
 As for all potentially heavy memory consumer objects in \ref medcoupling "MEDCoupling", \ref ParaMEDMEM::DataArray "DataArrays" implement
- method \c deepCpy. This method deeply copies an instance. The life cycle of the returned object is *fully* independant from the instance on which the method
+ method \c deepCpy. This method deeply copies an instance. The life cycle of the returned object is *fully* independent from the instance on which the method
 \c deepCpy has been invoked.
 
 To perform a deep copy of a DataArray instance simply invoke :
@@ -365,7 +365,7 @@ or :
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_5bis
 
-\c myCoordsCpy is the deep copy of \c myCoords so they are independant and their *raw data* has been deeply copied.
+\c myCoordsCpy is the deep copy of \c myCoords so they are independent and their *raw data* has been deeply copied.
 
 So it leads to the following behaviour :
 \anchor MEDCouplingArrayBasicsCopyDeepTestEqual
@@ -413,7 +413,7 @@ But the behaviour is the same than those seen for \ref MEDCouplingArrayBasicsCop
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_13
 
-As always, in C++, \c myCoordsCpy is an object whose life cycle is fully independant from \c myCoords so decrement is needed.
+As always, in C++, \c myCoordsCpy is an object whose life cycle is fully independent from \c myCoords so decrement is needed.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_14
 
@@ -455,7 +455,7 @@ Formally a renumbering is a mathematical application that can be surjective, inj
 
 \subsection MEDCouplingArrayRenumberingO2N Old to new mode
 
-The old to new mode is particulary recommanded for surjective and bijective application. This is typically the case of \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
+The old to new mode is particularly recommended for surjective and bijective application. This is typically the case of \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
 Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes" that reduces the number of nodes from 5 nodes to 3 nodes.\n
 In old to new mode the array \b MySurjection that specifies this surjection will have 5 tuples and 1 component. The content of the 5*1 values will be in {0,1,2}.\n
 
@@ -478,11 +478,11 @@ Method in old to new mode that works on surjective applications :
 
 - \ref ParaMEDMEM::DataArrayDouble::renumberAndReduce "DataArrayDouble::renumberAndReduce"
 
-Sometimes the format old to new for sujections can be replaced by another format with 2 arrays. Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that. 
+Sometimes the format old to new for surjections can be replaced by another format with 2 arrays. Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that.
 
 \subsection MEDCouplingArrayRenumberingN2O New to old mode
 
-The new to old mode is particulary recommanded for strictly injective and bijective permutations. This is particulary usefull for methods that increase the number of entities like for example
+The new to old mode is particularly recommended for strictly injective and bijective permutations. This is particularly useful for methods that increase the number of entities like for example
 \ref ParaMEDMEM::MEDCouplingUMesh::simplexize "MEDCouplingUMesh::simplexize".\n
 All non static methods in \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" or \ref ParaMEDMEM::DataArrayInt "DataArrayInt" having as last letter \b R (meaning Reversed) in capital works with
 the mode new to old.
@@ -519,11 +519,11 @@ There are different API for applyFunc* methods of \ref ParaMEDMEM::DataArrayDoub
 
 \subsection MEDCouplingArrayApplyFuncExpr Expressions supported
 
-In order to reduce as much as possible dependancies, a little dynamic formula interpretor has been developped into INTERP_KERNEL.
+In order to reduce as much as possible dependencies, a little dynamic formula interpretor has been developed into INTERP_KERNEL.
 This dynamic expression evaluator can deal the following exhaustive list :
 
 - +,-,*,^ (^ for exponent 3^2==9)
-- sin,cos,tan,sqrt,abs,exp,max,min,ln (neper logarithm), log (neper logarithm), log10 (decimal logarithm), 
+- sin,cos,tan,sqrt,abs,exp,max,min,ln (neper logarithm), log (neper logarithm), log10 (decimal logarithm),
 - >,<
 - if
 
@@ -539,7 +539,7 @@ The dynamic expression evaluator works tuple by tuple through the *raw data* of 
 The principle of the dynamic expression evaluator is the following :
 
 - Given the input string a compilation tree is built whose leaves are either constants or variables.
-  At this phase only syntax errors are thrown.  
+  At this phase only syntax errors are thrown.
 \anchor MEDCouplingArrayApplyFuncExprA1
 - Then given the computed tree, a link phase is performed to accelerate evaluation. At this phase the incoherence between the number of
   components and the number of variables are detected.
@@ -569,8 +569,8 @@ So \c smth represent a tuple of size 2.
 
 As the example shows, the output \c d1 has 2 components as \c d.
 
-Whereas all the components of the input of \c d be not considered separetely, it is also, possible with \ref ParaMEDMEM::DataArrayDouble::applyFunc(const char *) const applyFunc method with one parameter
-to build an output having same number of components than input but where components in input are treated separetely.
+Whereas all the components of the input of \c d be not considered separately, it is also, possible with \ref ParaMEDMEM::DataArrayDouble::applyFunc(const char *) const applyFunc method with one parameter
+to build an output having same number of components than input but where components in input are treated separately.
 
 Let's build an example using DataArrayDouble instance \c d defined just above.
 
@@ -580,7 +580,7 @@ In this example using IVec and JVec it is possible to differentiate output in co
 
 \subsection MEDCouplingArrayApplyFunc1 applyFunc method with only two parameters
 
-This method alse returns a newly allocated DataArrayDouble instance having the same number of tuples than the DataArrayDouble instance on which \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const applyFunc method is called, but the contrary to pervious \ref MEDCouplingArrayApplyFunc0 "applyFunc with one parameter version" here the number of components is set by the user.
+This method also returns a newly allocated DataArrayDouble instance having the same number of tuples than the DataArrayDouble instance on which \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const applyFunc method is called, but the contrary to previous \ref MEDCouplingArrayApplyFunc0 "applyFunc with one parameter version" here the number of components is set by the user.
 
 The big difference with \ref MEDCouplingArrayApplyFunc0 "applyFunc method with one parameter" seen above is that here components of tuples are treated separately.
 
@@ -592,8 +592,8 @@ Let's consider the following DataArrayDouble having 4 tuples with 3 components c
 
 \snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_4
 
-If you intend to create a new DataArrayDouble instance called \c dd1 having only one component that is the result of the sum of first component le square root of the second component and the thrid component
-the invokation should be something like this :
+If you intend to create a new DataArrayDouble instance called \c dd1 having only one component that is the result of the sum of first component and the square root of the second component and the third component
+the invocation should be something like this :
 
 \snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_5
 
@@ -606,7 +606,7 @@ the component id. The strategy of expression evaluator is the following. Sort as
 Considering the previous warning, let's try to perform an application of function to compute in a DataArrayDouble instance called \c dd2 starting by adding component #0 and component #2
 of \c dd.
 \nThe expression \c "a+c" will add component #0 to component #1 as seen in warning section !!!! It can appear silly, but this strategy has been chosen in order to support different set of variables.
-\n \ref ParaMEDMEM::DataArrayDouble::applyFunc2 "applyFunc2" and \ref ParaMEDMEM::DataArrayDouble::applyFunc3 "applyFunc3" methods have been developped to remedy to that feature that can be surprising.
+\n \ref ParaMEDMEM::DataArrayDouble::applyFunc2 "applyFunc2" and \ref ParaMEDMEM::DataArrayDouble::applyFunc3 "applyFunc3" methods have been developed to remedy to that feature that can be surprising.
 \n These two methods are explained respectively \ref MEDCouplingArrayApplyFunc2 "here for applyFunc2" and \ref MEDCouplingArrayApplyFunc3 "here for applyFunc3".
 
 Whatever it is possible to find a workaround using \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const applyFunc with 2 parameters.
@@ -653,7 +653,7 @@ Let's consider DataArrayDouble instance \c ddd constituted with 4 tuples contain
 It has five possible values:
 -      "NoNature", the default value, does not allow the use of any interpolation tools
 
--      \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pression fields.
+-      \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pressure fields.
 
 -      \ref TableNatureOfFieldExampleRevIntegral "RevIntegral", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
 
@@ -673,7 +673,7 @@ Finally we consider that fields with P1 or P2 representations are necessarily in
 
 \section Usage
 
-In order to employ the various \ref interptools, you have to specify the nature of your field. 
+In order to employ the various \ref interptools, you have to specify the nature of your field.
 When the source and target meshes do not overlap, different treatments will be employed depending on the nature of the source and target fields.
 You can specify the nature of the field when you create a \ref medcoupling field with the following constructor:
 \code
@@ -704,7 +704,7 @@ sourceField->setNature(ConservativeVolumic);
 
 /*!
   \page MEDCouplingUMeshPage Unstructured meshes in MEDCoupling
-	
+
 [TOC]
 
 An unstructured mesh in \ref medcoupling MEDCoupling is defined by :
@@ -712,7 +712,7 @@ An unstructured mesh in \ref medcoupling MEDCoupling is defined by :
   - a point clouds where the explicit coordinates of each point must be specified (inherited from \subpage MEDCouplingPointSetPage "MEDCouplingPointSet class").
   - nodal connectivity that specifies for each cell, the points in the previous point clouds that constitutes the cell.
 
-As unstructured mesh is dynamically defined enough, this class is also used by MEDCoupling to instanciate degenerated meshes as :
+As unstructured mesh is dynamically defined enough, this class is also used by MEDCoupling to instantiate degenerated meshes as :
 
 - points cloud only meshes. This type of mesh will have mesh dimension 0.
 - abstract meshes containing only one cell that covers a potentially
@@ -733,7 +733,7 @@ The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingUMes
 The described method here is called standard, because no special knowledge of underneath nodal connectivity is needed here.
 This method of building unstructured mesh is easiest but not the most CPU/memory efficient one.
 
-All of exemples given here make the assumption that the \c ParaMEDMEM namespace is visible ( by calling for example \c using \c namespace \c ParaMEDMEM; ).
+All of examples given here make the assumption that the \c ParaMEDMEM namespace is visible ( by calling for example \c using \c namespace \c ParaMEDMEM; ).
 
 Here we will create a mesh with spacedim==3 and meshdim==2. \b mesh contains 5 cells (with geometric type INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4)
 and 9 nodes.
@@ -772,11 +772,11 @@ The same mesh than \ref MEDCouplingUMeshStdBuild "in the standard section above"
 /*!
   \page MEDCouplingPointSetPage Point set meshes in MEDCoupling
 
-This is a \b non \b instanciable class that implements many algorithm working only on a set of points without any connectivity aspect.
+This is a \b non \b instantiable class that implements many algorithm working only on a set of points without any connectivity aspect.
 The presence of this class is only for factorization reasons.
 
 The class that incarnates this concept in \ref medcoupling "MEDCoupling" is : \ref ParaMEDMEM::MEDCouplingPointSet.
-Instanciable class ParaMEDMEM::MEDCouplingUMesh inherits from ParaMEDMEM::MEDCouplingPointSet.
+Instantiable class ParaMEDMEM::MEDCouplingUMesh inherits from ParaMEDMEM::MEDCouplingPointSet.
 
 Some of most important implemented methods by \ref ParaMEDMEM::MEDCouplingPointSet "MEDCouplingPointSet" class are :
 
@@ -795,17 +795,17 @@ Some of most important implemented methods by \ref ParaMEDMEM::MEDCouplingPointS
 
 A cartesian mesh is a mesh that represents structured mesh whose nodes are arranged along axes of trihedron.
 
-To instanciate an object of this type, only n arrays are needed.
+To instantiate an object of this type, only n arrays are needed.
 
 In this type of mesh space dimension \b and mesh dimension are equals and the value is n ( with n in [1,2,3] ).
 
-The n arrays will have only one component and the values contained in these arrays will be ascendantly sorted.
+The n arrays will have only one component and the values contained in these arrays will be ascendently sorted.
 
 The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingCMesh.
 
 \section MEDCouplingCMeshStdBuild Standard building of a cartesian mesh from scratch
 
-Let's present an exemple of a 2D cartesian mesh.
+Let's present an example of a 2D cartesian mesh.
 
 \subpage medcouplingcppexamplesCmeshStdBuild1 "Here the C++ implementation."
 
@@ -834,7 +834,7 @@ The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDC
   \page MEDCouplingFieldTemplatesPage Field templates in MEDCoupling
 
 This concept appears in ICOCO API.
-field template is the adequate datastructure to perform costly interpolation matrix computation as \ref RemapperClasses "Remapper class" does.
+field template is the adequate data structure to perform costly interpolation matrix computation as \ref RemapperClasses "Remapper class" does.
 So, a field template can be seen as field without double values. The double values are only used for light matrix vector multiplication.
 
 Concretely a field template is a pair containing :
@@ -868,3 +868,5 @@ The usage is simple :
 The virtual call to ParaMEDMEM::TimeLabel::updateTime change the behaviour of ParaMEDMEM::TimeLabel::getTimeOfThis it is a bug, so please notify the bug into the salome forum.
 
 */
+
+ LocalWords:  discretization

@@ -4,8 +4,8 @@
 \section InterpKerIntro Introduction
 
 The main purpose of this module is to propose a set of algorithms for
-mesh interpolation \b fully \b independant \b of \b the \b mesh \b datastructure to
-support several type of format. This component is parameterized as
+mesh interpolation \b fully \b independent \b of \b the \b mesh \b datas tructure to
+support several type of format. This component is parametrized as
 much as possible using C++ templates.
 For the moment only interpolators for unstructured meshes are present in
 the %interpolation kernel.
@@ -20,7 +20,7 @@ filling the interpolation matrix W (which is generally sparse). For each pair (i
 by calling the desired intersector. The problem is that each call to this algorithm
 is CPU-expensive.
 To reduce the computational time, a first filtering is done to detect
-pairs (i,j) \f$ W_{ij} \f$ is obviously equal to 0. It is typically the case when a cell in the source mesh 
+pairs (i,j) \f$ W_{ij} \f$ is obviously equal to 0. It is typically the case when a cell in the source mesh
 is too far from an another cell in the target mesh each.
 
 So for a given type of interpolation, the computation of W is
@@ -35,11 +35,11 @@ template (CRTP) class than enable an easy access to the main API without useless
 
 \subsection InterpKerMeshType class MeshType
 
-Each Interpolators and Intersectors are parameterized (templated in
-C++ langage) with \c class \c MeshType . This type of generalization
+Each Interpolators and Intersectors are parametrized (templated in
+C++ language) with \c class \c MeshType . This type of generalization
 has been chosen to reduce at maximum overhead. \n
 Thanks to this principle intersectors and interpolators are usable
-with \bseveral \b mesh \b formats such as \c MED or \c VTK, \b without \b preformance \b loss.
+with \b several \b mesh \b formats such as \c MED or \c VTK, \b without \b performance \b loss.
 \c MeshType is a concept that should strictly fulfilled the following
 rules :
 

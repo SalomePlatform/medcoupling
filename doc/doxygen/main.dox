@@ -18,7 +18,7 @@ library:
 
 \image html medlayers_70pc.png
 
-The fondamentals consists in three atomic libraries:
+The fundamentals consists in three atomic libraries:
 
 - \ref medcoupling that describes DataStructures used for cross process exchange of meshes and fields.
 - \ref medloader that provides I/O functions to the MED file format
@@ -63,7 +63,7 @@ installing the module an be found in \ref paramedmem_install.
 The libraries in SALOME MED can be configured in several manners so that it can run inside or outside the Salome platform.
 Also, partitioning and parallel functionalities are optional.
 
-The sources of the library are located in the \a MED_SRC directory. 
+The sources of the library are located in the \a MED_SRC directory.
 The first step consists in preparing the configuration of the library :
 \verbatim
 cd ${MED_SRC}

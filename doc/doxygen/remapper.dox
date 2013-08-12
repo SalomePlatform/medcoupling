@@ -32,14 +32,14 @@ med_target_mesh->decrRef();
 \section InterpKerMidLevUsage Middle-level usage
 
 This mode is the mode that needs the minimum of prerequisites
-(algorithms and the datastructure you intend to use). On the other
+(algorithms and the data structure you intend to use). On the other
 hand it is needed to specify precisely nature of interpolator.
 
 As consequence of the genericity of the interpolators,  they are usable only by
-instanciating an underlying \ref InterpKerMeshType "mesh" and \ref  InterpKerMatrixType "matrix" data structure fulfilling some requirements. The two following
+instantiating an underlying \ref InterpKerMeshType "mesh" and \ref  InterpKerMatrixType "matrix" data structure fulfilling some requirements. The two following
 examples show how to use interpolator at this level.
 
-- The simplest way to use the interpolator with \ref medcoupling datastruture is illustrated in the following example.
+- The simplest way to use the interpolator with \ref medcoupling data struture is illustrated in the following example.
 
 \code
 ...
@@ -61,7 +61,7 @@ myInterpolator.interpolateMeshes(wrap_source_mesh,wrap_target_mesh,resultMatrix2
 \endcode
 
 
-- Same with VTK datastructure :
+- Same with VTK data structure :
 
 \code
 ...
@@ -79,7 +79,7 @@ VTKNormalizedUnstructuredMesh<2> wrap_source_mesh(vtk_source_mesh);
 VTKNormalizedUnstructuredMesh<2> wrap_target_mesh(vtk_target_mesh);
 // Go for interpolation...
 INTERP_KERNEL::Interpolation2D myInterpolator;
-//optionnal call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
+//optional call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
 myInterpolator.setOptions(1e-7,0,Geometric2D);
 INTERP_KERNEL::Matrix<double,ALL_C_MODE> resultMatrix;
 myInterpolator.interpolateMeshes(wrap_source_mesh,wrap_target_mesh,resultMatrix,"P0P0");

@@ -1,7 +1,7 @@
 /*!
 \page InterpKerRemapGlobal Linear remapping
 
-For fields with polynomial representation on each cell, the components of the discretized field  \f$ \phi_s \f$ on the source side can be expressed as linear combinations of the components of the discretized field \f$ \phi_t \f$ on the target side, in terms of a matrix-vector product: 
+For fields with polynomial representation on each cell, the components of the discretized field  \f$ \phi_s \f$ on the source side can be expressed as linear combinations of the components of the discretized field \f$ \phi_t \f$ on the target side, in terms of a matrix-vector product:
 
 \f[
  \phi_t=W.\phi_s.
@@ -9,7 +9,7 @@ For fields with polynomial representation on each cell, the components of the di
 
 \f$W\f$ is called the \anchor interpolationmatrix interpolation matrix.
 The objective of interpolators is to compute the matrix W depending on their physical
-properties (\ref IntExtFields) and their mesh discretisation (on cells P0, on nodes P1,...).
+properties (\ref IntExtFields) and their mesh discretization (on cells P0, on nodes P1,...).
 
 \section ConsInterp Conservative interpolation
 
@@ -25,7 +25,7 @@ formula \anchor InterpKerGenralEq has to
 be satisfied :
 
 \f[
-\int_{T_i} \phi_t = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi_s. 
+\int_{T_i} \phi_t = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi_s.
 \f]
 
 This equation is used to compute \f$ W_{ij} \f$, based on the fields representation ( P0, P1, P1d etc..) and the
@@ -43,16 +43,16 @@ fully overlapped by cells of S that is
 \f]
 then the meshes S and T are said to be \b
 overlapping. In this case the two formulas in a given column in the table below give the same
-result. All intensive formulas result in the same output, and all the extensive formulas give also the same output. 
+result. All intensive formulas result in the same output, and all the extensive formulas give also the same output.
 
 The ideal interpolation algorithm should be conservative and respect the maximum principle. However such an algorithm can be impossible to design if the two meshes do not overlap. When the meshes do not overlap, using either \f$Vol(T_i)\f$ or \f$\sum_{S_j} Vol(T_i\cap S_j)\f$ one obtains an algorithm that respects either the conservativity or the maximum principle (see the nature of field \ref TableNatureOfField "summary table").
 
 
 \section InterpKerRemapInt Linear conservative remapping of P0 (cell based) fields
 
-We assume that the field is represented by a vector with a discrete value on each cell. 
-This value can represent either 
-- an average value of the field in the cell (average density, velocity or temperature in the cell) in which case the representation is said to be \b intensive, 
+We assume that the field is represented by a vector with a discrete value on each cell.
+This value can represent either
+- an average value of the field in the cell (average density, velocity or temperature in the cell) in which case the representation is said to be \b intensive,
 - an integrated value over the cell (total mass, power of the cell) in which case the representation is said to be \b extensive
 
 \section InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive fields
@@ -61,7 +61,7 @@ For intensive fields such as mass density or power density, the
 left hand side in the \ref InterpKerGenralEq "general interpolation equation" becomes :
 
 \f[
-\int_{T_i} \phi = Vol(T_i).\phi_{T_i}. 
+\int_{T_i} \phi = Vol(T_i).\phi_{T_i}.
 \f]
 
 Here Vol represents the volume when the mesh dimension is equal to 3, the
@@ -71,7 +71,7 @@ In the \ref InterpKerGenralEq "general interpolation equation" the
 right hand side becomes :
 
 \f[
-\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi = \sum_{S_j\cap T_i \neq \emptyset} {Vol(T_i\cap S_j)}.\phi_{S_j}. 
+\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi = \sum_{S_j\cap T_i \neq \emptyset} {Vol(T_i\cap S_j)}.\phi_{S_j}.
 \f]
 
 As the field values are constant on each
@@ -79,20 +79,20 @@ cell, the coefficients of the linear remapping matrix \f$ W \f$ are
 given by the formula :
 
 \f[
- W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(T_i) }. 
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(T_i) }.
 \f]
 
 
 \section InterpKerP0P0Ext cell-cell (P0->P0) conservative remapping of extensive fields
 
 In code coupling from neutronics to hydraulics, \b extensive field
-of power is exchanged and the total power should remain the same. 
-The discrete values of the field represent the total power contained in the cell. 
+of power is exchanged and the total power should remain the same.
+The discrete values of the field represent the total power contained in the cell.
 Hence in the \ref InterpKerGenralEq "general interpolation equation" the
 left hand side becomes :
 
 \f[
-\int_{T_i} \phi = P_{T_i}, 
+\int_{T_i} \phi = P_{T_i},
 \f]
 
 while the right hand side is now :
@@ -106,10 +106,10 @@ The coefficients of the linear remapping matrix \f$ W \f$ are then
 given by the formula :
 
 \f[
- W_{ij}=\frac{Vol(T_i\cap S_j)}{  Vol(S_j) }. 
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{  Vol(S_j) }.
 \f]
 
-\section TableNatureOfField Summary 
+\section TableNatureOfField Summary
 In the case of fields with a P0 representation (cell based) and when the meshes do not overlap, the scheme is either conservative or maximum preserving (not both). Depending on the \ref NatureOfField the interpolation coefficients take the following value:
 
  * <TABLE BORDER=1 >
@@ -137,7 +137,7 @@ The first step of the interpolation leads to the following M1 matrix :
     0.125 & 0.75 \\
     \end{tabular}\right]
     \f]
- 
+
 \subsection TableNatureOfFieldExampleConservVol Conservative volumic case
 
 If we apply the formula \ref TableNatureOfField "above" it leads to the following \f$ M_{Conservative Volumic} \f$ matrix :
@@ -162,8 +162,8 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
     \end{tabular}\right]
 \f]
 
-As we can see here the maximum principle is respected.This nature of field is particulary recommended to interpolate an intensive
-field such as \b temperature or \b pression.
+As we can see here the maximum principle is respected.This nature of field is particularly recommended to interpolate an intensive
+field such as \b temperature or \b pressure.
 
 \subsection TableNatureOfFieldExampleIntegral Integral case
 
@@ -202,8 +202,8 @@ This type of interpolation is equivalent to the computation of \f$ FS_{vol} \f$ 
 
 In the particular case treated \ref TableNatureOfFieldEx1 "here", it means that only a power of 25.055 W is intercepted by the target cell !
 
-So from the 104 W of the source field \f$ FS \f$, only 25.055 W are transmited in the target field using this nature of field.
-In order to treat differently a power field, another policy, \ref TableNatureOfFieldExampleIntegralGlobConstraint "integral global constraint nature" is available. 
+So from the 104 W of the source field \f$ FS \f$, only 25.055 W are transmitted in the target field using this nature of field.
+In order to treat differently a power field, another policy, \ref TableNatureOfFieldExampleIntegralGlobConstraint "integral global constraint nature" is available.
 
 \subsection TableNatureOfFieldExampleIntegralGlobConstraint Integral with global constraints case
 
@@ -261,11 +261,12 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
 This type of nature is particulary recommended to interpolate an intensive \b density
 field (moderator density, power density).
 The difference with \ref TableNatureOfFieldExampleConservVol "conservative volumic" seen above is that here the
-target field is homogeneized to the \b whole target cell. It explains why this nature of field does not follow the maximum principle.
+target field is homogenized to the \b whole target cell. It explains why this nature of field does not follow the maximum principle.
 
 To illustrate the case, let's consider that \f$ FS \f$ is a power density field in \f$ W/m^2 \f$.
-With this nature of field the target cell #0 cumulates 0.125*4=0.5 W of power from the source cell #0 and 0.75*100=75 W of power from the source cell #1.
+With this nature of field the target cell #0 accumulates 0.125*4=0.5 W of power from the source cell #0 and 0.75*100=75 W of power from the source cell #1.
 It leads to 75.5 W of power on the \b whole target cell #0. So, the final power density is equal to 75.5/1.5=50.333 W/m^2.
 
 */
+
 

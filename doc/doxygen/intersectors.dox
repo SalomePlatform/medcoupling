@@ -25,11 +25,11 @@ For the moment, it is only possible to remap two dimensional fields on
 meshes with mixed triangular and quadrangular elements.
 - Geometric2D: Any type of 2D cells (linear, quadratic, convex-polygons,
 non-convex polygons) is supported by this algorithm. Due to its
-flexibility this algo is slower than the other.
+flexibility this algorithm is slower than the other.
 - \anchor pointlocator PointLocator: This is a \b non \b conservative interpolator. For P0P0, it
 locates the barycenter of target cell in the source cells. For P1P0, it
 locates barycenter of target cell and compute barycentric coordinates
-in source cell (Works only with trangle). For P0P1 locate target nodes
+in source cell (Works only with Triangle). For P0P1 locate target nodes
 in source cells. For P1P1 compute for each target node its barycentric
 coordinates in source cell.
 
@@ -43,10 +43,10 @@ The following options are available for the 2D intersection computations:
  * <TR><TD>PrintLevel </TD><TD>Level of verboseness during the computations </TD><TD> 0, 1, 2, 3 </TD><TD>0 </TD></TR>
  *</TABLE>
 
-\section interpolation3Dsurf Special features of 3D surface intersectors 
+\section interpolation3Dsurf Special features of 3D surface intersectors
 
 When remapping a three dimensional surfaces, one should give a meaning to the area of intersection between two three-dimensional non coplanar polygons. A projection phase is thus necessary to have both polygons on the same plane. Care must be taken when defining this projection to avoid non conservative remappings. After the projection step, the source and target cells lie in the same plane and the same algorithms as for 2D remapping can be employed.
-For the moment, it is only possible to remap fields on  three dimension surfacic meshes with mixed triangular and quadrangular elements.
+For the moment, it is only possible to remap fields on  three dimension surface meshes with mixed triangular and quadrangular elements.
 Similar options as for the 2D remapping are available, plus some additional options specific to 3D surface remapping:
 
  * <TABLE BORDER=1 >
@@ -61,8 +61,8 @@ Similar options as for the 2D remapping are available, plus some additional opti
  system such that the median plane is the Oxy plane </TD><TD>
  boolean true or false </TD><TD> true </TD></TR>
  * <TR><TD>BoundingBoxAdjustment</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded by a factor (1+BoundingBoxAdjustment). It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect. </TD><TD> positive real numbers </TD><TD> 1.e-4 </TD></TR>
- * <TR><TD>BoundingBoxAdjustmentAbs</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded uniformaly in the 3 dimension of space with the absolute value BoundingBoxAdjustmentAbs. It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect. </TD><TD> positive real numbers </TD><TD> 0. </TD></TR>
- * <TR><TD>MaxDistance3DSurfIntersect</TD><TD>Before atempting an intersection in 3D surf test the distance D between fast barycenter of target cell and medium source plane P. If option < 0. no interpretation of D is done. If option > 0. then if D<option intersection is taken into account and if D>option intersection is equal to 0. . This option exists in order to have an iso behaviour whatever the angle of plane P and OXY OYZ OXZ contrary to BBoxAdjestments options.  </TD><TD> real numbers </TD><TD> -1. </TD></TR>
+ * <TR><TD>BoundingBoxAdjustmentAbs</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded uniformly in the 3 dimension of space with the absolute value BoundingBoxAdjustmentAbs. It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect. </TD><TD> positive real numbers </TD><TD> 0. </TD></TR>
+ * <TR><TD>MaxDistance3DSurfIntersect</TD><TD>Before attempting an intersection in 3D surf test the distance D between fast barycenter of target cell and medium source plane P. If option < 0. no interpretation of D is done. If option > 0. then if D<option intersection is taken into account and if D>option intersection is equal to 0. . This option exists in order to have an iso behaviour whatever the angle of plane P and OXY OYZ OXZ contrary to BBoxAdjestments options.  </TD><TD> real numbers </TD><TD> -1. </TD></TR>
  *</TABLE>
 
 Note that choosing the Triangle Intersection_type necessarily set the DoRotate option to true.
@@ -90,7 +90,7 @@ polyhedra into several tetrahedron-polyhedron intersection
 calculations. For the moment it is only possible to remap fields on
 meshes having mixed tetrahedral and hexahedral cells. When using a
 mesh with hexahedral cells, several splitting techniques may be
-employed depending mainly on wether the faces are planar or not. The
+employed depending mainly on whether the faces are planar or not. The
 following options are available for the splitting:
 - PointLocator : \b non \b conservative intersector based on the same
 principle than described in 2D.
@@ -106,9 +106,9 @@ principle than described in 2D.
  * </TABLE>
 
 Note that a SplittingPolicy values starting with the word "PLANAR" presume that each face is to be considered planar, while the SplittingPolicy values starting with the word GENERAL does not. The integer at the end gives the number of tetrahedra that result from the split.
- Consider an hexahedron with with planar faces and nodes numbered according to the following picture:
+ Consider an hexahedron with planar faces and nodes numbered according to the following picture:
 \verbatim
-   
+
               7 ------ 6
              /|       /|
             / |      / |

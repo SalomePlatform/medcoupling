@@ -8,9 +8,9 @@
 \ref medloader "MEDLoader" is a package in charge of loading from a file or write to a file
 in MED format a \ref medcoupling data structure. The fact that these
 functionalities are not merged in \ref medcoupling is explained by a
-willingness of reducing as much as possible the dependancies of \ref medcoupling libraries.
+willingness of reducing as much as possible the dependencies of \ref medcoupling libraries.
 
-As a MED file can combine several \ref medcoupling aspects in one (for exemple meshes in
+As a MED file can combine several \ref medcoupling aspects in one (for example meshes in
 MED file on different mesh dimension with families and groups) the API
 of \ref medloader "MEDLoader" is much more rich than simply read and write.
 
@@ -22,7 +22,7 @@ But it is possible to emulate with a very good fidelity a MED file mesh and a ME
 \ref medloader "MEDLoader" module offers two different approaches to perform Read/Write from/to MED file.
 
 - \ref MEDLoaderAdvApproach "advanced API approach"
-- \ref MEDLoaderBasicApproach "basic API apprach"
+- \ref MEDLoaderBasicApproach "basic API approach"
 
 Whatever the approach(es) you choose, it is advisable to know main concepts of MED files \ref MEDLoaderMainC "that are quickly reminded here."
 
@@ -45,9 +45,9 @@ This is typically the case for a user that wants to precisely set/get mesh/group
 
 The level of coherency check is variable across methods, to let to the user the maximal capacity of modification of its MED file data in memory.
 
-This API is particulary recommended :
+This API is particularly recommended :
 
-1. For users that want to repare a MED file (invalid family ids, invalid mesh dimension, mismatch of family ids, numbering cells/nodes array modification)
+1. For users that want to repair a MED file (invalid family ids, invalid mesh dimension, mismatch of family ids, numbering cells/nodes array modification)
 2. For users that want to operate directly on complex MED file objects (split of MED files for example, duplication of nodes).
 
 \subsection MEDLoaderBasicApproach Basic API approach
@@ -73,8 +73,8 @@ As MED file concepts are more complex than MEDCoupling concepts, this approach i
 
 The two approaches are \b NOT opposed, they are compatible each other so it is possible to mix them.
 
-Typically it it is possible to read rich information of a complex MED file using advanced API in read mode, and write a simpler MED file model
-coming from a post treatement of the complex input MED file data to a simple output MED file using basic API for writing.
+Typically it is possible to read rich information of a complex MED file using advanced API in read mode, and write a simpler MED file model
+coming from a postprocessing of the complex input MED file data to a simple output MED file using basic API for writing.
 
 \section MEDLoaderMainC Main concepts of MED files
 
@@ -85,7 +85,7 @@ use the best methods proposed by \ref medloader "MEDLoader API".
 
 First of all **MEDLoader will not read MED files whose version is strictly lower than 2.2.**
 
-For new comers in MED file world some of basics principles are recalled in the following graphic : 
+For new comers in MED file world some of basics principles are recalled in the following graphic :
 
 \image html MEDFileConcepts.png "Resumed MED file concepts"
 
@@ -95,7 +95,7 @@ Inside the parenthesis, there is multiplicity :
 - * stands for [0,inf)
 - ? stands for 0 or 1
 
-Each box are **independant in MED file format during read write session.**
+Each box are **independent in MED file format during read write session.**
 
 **Boxes instances are linked each other only by red arrows using string as discriminating key.** It implies that empty names in basic concepts objects of MED file are forbidden.
 
@@ -117,7 +117,7 @@ This specificity leads to a constraint during writing phase because some mesh op
 
 \subsection MEDLoaderCommonVocRelMeshDimMesh Relative mesh dimension in meshes
 
-As it has been seen \ref BasicMEDLoaderAPIGen "above", all big arrays in fields and meshes (execpted coordinates) are sorted by geometric type, without any awareness of the dimension.
+As it has been seen \ref BasicMEDLoaderAPIGen "above", all big arrays in fields and meshes (except coordinates) are sorted by geometric type, without any awareness of the dimension.
 
 For example an unstructured mesh in MED file world can lie simultaneously on MED_TRI3, MED_POINT1, MED_POLYHED, MED_TETRA4..., \ref MEDCouplingMeshes "which is impossible in MEDCoupling" for manipulation reasons.
 
@@ -134,7 +134,7 @@ For each geometric type on which \a myMesh is defined the mesh dimension are :
 - MED_POLYHED -> mesh dimension=3
 - MED_TETRA4 -> mesh dimension=3
 
-The mesh dimension of \a myMesh is equal to 3 ( \f max(2,0,3,3) ). The **relative mesh dimension** is equal to the difference between mesh dimension of geometic type and the mesh dimension
+The mesh dimension of \a myMesh is equal to 3 ( \f max(2,0,3,3) ). The **relative mesh dimension** is equal to the difference between mesh dimension of geometric type and the mesh dimension
 of the whole MED file dimension. It leads to the following **relative mesh dimension** :
 
 - MED_TRI3 -> **relative mesh dimension** = -1
@@ -142,7 +142,7 @@ of the whole MED file dimension. It leads to the following **relative mesh dimen
 - MED_POLYHED -> **relative mesh dimension** = 0
 - MED_TETRA4 -> **relative mesh dimension** = 0
 
-In \ref medloader "MEDLoader" all geometric information are then grouped relative dimension per relative dimension. It leads to the following geometric sorting of 
+In \ref medloader "MEDLoader" all geometric information are then grouped relative dimension per relative dimension. It leads to the following geometric sorting of
 MED file data structure of \a myMesh :
 
 - Level 0
@@ -161,9 +161,7 @@ The mesh dimension of \a myMesh is 3. The relative mesh dimensions available are
 
 As it has been seen previously in \ref MEDLoaderCommonVocRelMeshDimMesh "for meshes", the values of fields are sorted by levels too.
 
-The principle is the same than those explained for meshes. The only difference is in the fact that it is possible for fields on cell and fields on
-
-gauss points that mesh dimension of underlying mesh of a field is not always (but very often) equal to the dimension of geometric types on which this field is defined.
+The principle is the same than those explained for meshes. The only difference is in the fact that it is possible for fields on cell and fields on Gauss points that mesh dimension of underlying mesh of a field is not always (but very often) equal to the dimension of geometric types on which this field is defined.
 
 So it is advised, to compare the non empty level of a field **and** of its underlying mesh before trying to request heavy data from a MED file.
 
@@ -197,8 +195,8 @@ internal state. That's why the basic API of MEDLoader offers \b only \b static m
 character in capital. You are intended to use these methods. The following
 chapters will try to describe in details some of important ones.
 
-The basic idea of MEDLoader is to exploite as much as possible MED
- file capabilities to store MEDCoupling data file in a MED file and 
+The basic idea of MEDLoader is to exploit as much as possible MED
+ file capabilities to store MEDCoupling data file in a MED file and
 reversely to load from a MED file into a MEDCoupling data structure.
 Basically, the info on components of ParaMEDMEM::DataArrayDouble
 
@@ -209,8 +207,8 @@ MED file. A field f with \ref ParaMEDMEM::MEDCouplingTimeDiscretization
 \c f->getTime(time,iteration,order) are used by MEDLoader to store
 to identify the field into MED file. All strings used by MEDLoader to
 use it into MED file should fulfill the rules of MED file where length
-are limited. 
-That's why the user should be aware of these constaints when trying to read/write a MED file using MEDLoader. 
+are limited.
+That's why the user should be aware of these constraints when trying to read/write a MED file using MEDLoader.
 MEDLoader tries to manage that by protecting the user by throwing exceptions when the rules are not followed.
 
 \section BasicMEDLoaderBasicAPIGlobalInfo Retrieving tiny global information from MED files using basic API
@@ -222,13 +220,13 @@ respectively on cells and on nodes lying on a specified mesh.
  A field is defined by several time steps discriminated by a pair of int
 (iteration,order). It is \b not possible to store 2 time steps of a same
 field having the same iteration and order
-number. The floatting point value attached on this couple of ids (iteration,order) is only present for information.
+number. The floating point value attached on this couple of ids (iteration,order) is only present for information.
 Static methods MEDLoader::GetCellFieldIterations and
 MEDLoader::GetNodeFieldIterations return a vector of pair containing
 each respectively iteration and order.
 
-A time step of a field lyies on one \b or \b more mesh(es) specified by its \b or \b their name. A time step of a field in
-MED file could be defined on point \b and on cell \b and, \b or on gauss points \b and, \b or on point per element.
+A time step of a field lies on one \b or \b more mesh(es) specified by its \b or \b their name. A time step of a field in
+MED file could be defined on point \b and on cell \b and, \b or on Gauss points \b and, \b or on point per element.
 
 This recalled specificities of MED file explains that it is necessary to specify each time, at field-read time, the type of field, the iteration and order number the mesh you are interested in.
 
@@ -302,7 +300,7 @@ A mesh contains one or more families on nodes and/or on cells. A family is a par
 by an integer field on \b all nodes and on \b all cells of a same mesh.
 All cells and nodes having the same ids defines this family. This id
 is called the familyId. A family is discriminated by its id. MED file
-attach a name to its id to be more userfriendly. So by construction, 2 different
+attach a name to its id to be more user friendly. So by construction, 2 different
 families could not share anything. The user can retrieve all the
 families names available on a mesh with the static method MEDLoader::GetMeshFamiliesNames.
 
@@ -319,11 +317,11 @@ same returned mesh.
 \subsection BasicMEDLoaderAPIField Reading a field at one time step in MED files
 
 A field at one time step on one mesh, with one entity (cell, node)
-lies on all mesh on on a part of it. In this last case a definition of
+lies on all mesh on a part of it. In this last case a definition of
 a profile is needed. Even if the notions of profile on mesh and group
 on mesh could appear close, these two concepts are totally
 disconnected in MED file.
-The aspect of profile is managed by MEDLoader, thats why this
+The aspect of profile is managed by MEDLoader, that is why this
 aspect does not appear in the MEDLoader API.
 So to retrieve a field on 3D cell called "F1Cell" in example file
 \ref MEDLoaderExample2 "file2.med (seen in meshes section)" on a mesh "Example2" on time
@@ -331,7 +329,7 @@ step defined by iteration number 2 and iteration 3 the request will be :
 
 \snippet MEDLoaderExamplesTest.py PySnippetMeshAdvAPI1_12
 
-To retrive the same field (same iteration) on 2D cells only the call will be : 
+To retrieve the same field (same iteration) on 2D cells only the call will be :
 
 \snippet MEDLoaderExamplesTest.py PySnippetMeshAdvAPI1_13
 
@@ -340,7 +338,7 @@ To retrive the same field (same iteration) on 2D cells only the call will be :
 It is possible with MEDLoader to read several time steps of a field at
 a time.
 The advantage with this approach is to avoid to read and load several
-time a same mesh. This is typically recommanded to use the following
+time a same mesh. This is typically recommended to use the following
 code when you desire to load all time steps of a field on cell "myField" lying on
 same mesh "mesh1" in one shot :
 
@@ -370,7 +368,7 @@ Two classes of MEDLoader write methods exists when \b writeFromScratch
 is set to \b false :
 
 -  Methods \b MEDLoader::Write*Dep : The write operation is performed without any question in file. The
-   responsability is let to the user because the MED file could be
+   responsibility is let to the user because the MED file could be
    corrupted. The advantage of this method is that it is faster
    because no check is done.
 - Methods \b MEDLoader::Write* : MEDLoader will not corrupt your file
@@ -425,9 +423,9 @@ possiblities are possible :
   groups and families from given meshes. As in the previous case the
   check of same coords will be done (if not an INTERP_KERNEL::Exception is
   thrown). After this step this method will
-  merge (by concerving the order in input) and will simplify the
+  merge (by preserving order in input) and will simplify the
   merged mesh. After this operation, the groups will be constituted by
-  assigning the groups names with the conresponding names of
+  assigning the groups names with the corresponding names of
   instance. That's why all meshes have to have a not empty name and
   different each other. The method to use in this case is
   MEDLoader::WriteUMeshesPartition.
@@ -443,8 +441,8 @@ MEDLoader::WriteUMeshes.
 \subsection MEDLoaderWriteField Writing one time step of a field in a MED file with MEDLoader
 
 To write \b one \b time \b step of a field from scratch with MEDLoader is to
-use MEDLoader::WriteField method. The behviour of this method depends
-on the value of the \b writeFromScratch paramter :
+use MEDLoader::WriteField method. The behaviour of this method depends
+on the value of the \b writeFromScratch parameter :
 
 - When \b writeFromScratch equals to \b true, this method performs two things, it
 writes the underlying mesh and write the specified time step on it.
@@ -526,7 +524,7 @@ nodes, (for example families, groups, numbering ) that's why for a simpler API t
 concept has been introduced. \c meshDimRelToMaxExt parameter can take a value in at
 most {1,0,-1,-2,-3}.
 1 stands for node and 0,-1,-2,-3 has exactly the
-same semantic than those described in \c meshDimRelToMax decribed
+same semantic than those described in \c meshDimRelToMax described
 before.
 
 - A parameter that also often appears in advanced %MEDLoader API is \c renum.
@@ -543,13 +541,13 @@ exactly the behaviour of \ref MEDLoader::ReadUMeshFromFile "basic MEDLoader API"
 If the user expects to ignore this renumbering even in case of
 presence of renumbering array, false should be passed to \c renum
 parameter. \b The \b parameter \b renum \b should \b be \b set \b with
-\b cauton \b for \b users \b concerned \b by \b cells \b orders.
+\b caution \b for \b users \b concerned \b by \b cells \b orders.
 
-- A laster important parameter is the \c mode during writing. The
+- A last important parameter is the \c mode during writing. The
   available values for the parameter \c mode are :
   - 2 : for a write from scratch. If file already exists, file will be
   erased and replace by the content of the instance on which \c write
-  method has been calles.
+  method has been called.
   - 1 : If the file does not exists equivalent to 2. If file already
   exists, the write is done on APPEND mode. That is to say that no
   data loss will occur. But in case that an element with same ids than
@@ -632,7 +630,7 @@ family id of each cell or node. If it does not exist an exception will
 be thrown.
 
 An important point is that families and groups are \b not sorted in
-MED file. No sort is stored in MED file explicitely for Groups and
+MED file. No sort is stored in MED file explicitly for Groups and
 Families. Advanced %MEDLoader API, uses the same order than underlying
 mesh at specified level.
 
@@ -665,7 +663,7 @@ medmesh->decrRef();
 
 \subsection AdvMEDLoaderAPIMeshWriting Writing a mesh.
 
-The use is very symetric to reading part. It is possible to either
+The use is very symmetric to reading part. It is possible to either
 build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance from
 scratch, or to work with an existing instance coming from a loading
 from a file.
@@ -743,11 +741,11 @@ Here the list of classes in %MEDLoader advanced API top down sorted :
 - Level -5 : ParaMEDMEM::MEDFileFieldPerMeshPerTypePerDisc
 
 
-In each level in tree of the the cyan box of field is represented by a class. The only difference is that values are grouped in a single big array located 
+In each level in tree of the cyan box of field is represented by a class. The only difference is that values are grouped in a single big array located
 in level -2 (ParaMEDMEM::MEDFileField1TSWithoutSDA)  in which each leaves (level -5) of MED file field
 point to using a range [\a start, \a end).
 
-As different time steps of a same field and different field inside a MED file can shared or not profiles (yellow box) and Locatization (red box) a manipulable field classes instance
+As different time steps of a same field and different field inside a MED file can shared or not profiles (yellow box) and localization (red box) a manipulable field classes instance
 (ParaMEDMEM::MEDFileField1TS and ParaMEDMEM::MEDFileFieldMultiTS) in advanced API are the result of a subclass of a data class
 (respectively ParaMEDMEM::MEDFileField1TSWithoutSDA, ParaMEDMEM::MEDFileFieldMultiTSWithoutSDA) and a instance of ParaMEDMEM::MEDFileFieldGlobsReal representing the shared data arrays (SDA)
 at a specified scope inside the MED file.
@@ -788,7 +786,7 @@ by \a iteration and \a order.
 
 Fields defined partially on a meshes can been read using 2 main approaches :
 
-- Either the user wants to retreave it's field in %MEDCoupling sense, that is to say for interpolation, to evaluate such field on different points...
+- Either the user wants to retrieve it's field in %MEDCoupling sense, that is to say for interpolation, to evaluate such field on different points...
 \n In this mode the link with the whole mesh is not useful for the user
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldPartial1_3
@@ -798,13 +796,13 @@ Fields defined partially on a meshes can been read using 2 main approaches :
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldPartial1_4
 
 \ref medcoupling "MEDCoupling" allows to make bridges between the approaches. For example \a pfl \ref ParaMEDMEM::DataArrayInt "DataArrayInt instance" retrieved directly
-from the file in the second approach can be retrived starting from first approach.
+from the file in the second approach can be retrieved starting from first approach.
 
 Starting from mesh \a firstApproachMesh of read field in first approach \a fread, whith the whole mesh \a wholeMesh the profile \a pflComputed can be computed :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldPartial1_5
 
-Inversely, it is possible to rebuild field obtained in first apprach starting from second approach :
+Inversely, it is possible to rebuild field obtained in first approach starting from second approach :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldPartial1_6
 
