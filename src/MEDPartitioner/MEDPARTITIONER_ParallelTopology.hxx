@@ -20,8 +20,10 @@
 #ifndef __MEDPARTITIONER_PARALLELTOPOLOGY_HXX__
 #define __MEDPARTITIONER_PARALLELTOPOLOGY_HXX__
 
+#include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
+
 
 #include "InterpKernelHashMap.hxx"
 
@@ -34,7 +36,7 @@ namespace MEDPARTITIONER
   class MeshCollection;
   class MEDPARTITIONER_FaceModel;
 
-  class ParallelTopology : public Topology
+  class MEDPARTITIONER_EXPORT ParallelTopology : public Topology
   {
 
   public:
