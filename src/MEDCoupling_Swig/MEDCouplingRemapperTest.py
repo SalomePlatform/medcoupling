@@ -342,7 +342,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f.setTime(5.6,7,8)
         f.setName("toto") ; f.setDescription("aDescription")
         p=MEDCouplingRemapper()
-        p.setP1P0BaryMethod(True)
+        p.setIntersectionType(Barycentric)
         p.prepare(um,um,"P1P0")
         fNode=p.reverseTransferField(f,1e300)
         self.assertEqual("toto",fNode.getName())

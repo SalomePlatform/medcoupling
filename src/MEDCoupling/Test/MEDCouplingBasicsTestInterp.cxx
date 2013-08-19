@@ -1932,9 +1932,8 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P0Bary_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
-  myInterpolator.setP1P0BaryMethod(true);
   std::vector<std::map<int,double> > res;
-  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
+  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Barycentric,INTERP_KERNEL::BarycentricGeo2D};
   for(int i=0;i<2;i++)
     {
       myInterpolator.setPrecision(1e-12);
@@ -1974,9 +1973,8 @@ void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0Bary_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
-  myInterpolator.setP1P0BaryMethod(true);
   std::vector<std::map<int,double> > res;
-  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
+  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Barycentric,INTERP_KERNEL::BarycentricGeo2D};
   for(int i=0;i<2;i++)
     {
       myInterpolator.setPrecision(1e-12);
@@ -2017,9 +2015,9 @@ void MEDCouplingBasicsTestInterp::test3DInterpP1P0Bary_1()
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
-  myInterpolator.setP1P0BaryMethod(true);
   std::vector<std::map<int,double> > res;
   myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::Barycentric);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
   CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
 

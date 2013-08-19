@@ -132,16 +132,12 @@ namespace INTERP_KERNEL
           case PointLocator:
             intersector=new PointLocator3DIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
             break;
+          case Barycentric:
+            intersector=new PolyhedronIntersectorP1P0Bary<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+            break;
           default:
-            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P1P0 interp specified : must be Triangle or PointLocator.");
+            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P1P0 interp specified : must be Triangle, PointLocator or Barycentric.");
           }
-      }
-    else if(methC=="P1P0Bary")
-      {
-        if(InterpolationOptions::getIntersectionType()==Triangulation)
-          intersector=new PolyhedronIntersectorP1P0Bary<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
-        else
-          throw INTERP_KERNEL::Exception("Invalid 3D intersection type specified : must be Triangle.");
       }
     else if(methC=="P1P1")
       {

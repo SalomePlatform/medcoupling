@@ -58,6 +58,10 @@ const char INTERP_KERNEL::InterpolationOptions::GEOMETRIC_INTERSECT2D_STR[]="Geo
 
 const char INTERP_KERNEL::InterpolationOptions::POINTLOCATOR_INTERSECT_STR[]="PointLocator";
 
+const char INTERP_KERNEL::InterpolationOptions::BARYCENTRIC_INTERSECT_STR[]="Barycentric";
+
+const char INTERP_KERNEL::InterpolationOptions::BARYCENTRICGEO2D_INTERSECT_STR[]="BarycentricGeo2D";
+
 const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_5_STR[]="PLANAR_FACE_5";
 
 const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_6_STR[]="PLANAR_FACE_6";
@@ -79,7 +83,6 @@ void INTERP_KERNEL::InterpolationOptions::init()
   _orientation=0;
   _measure_abs=true;
   _splitting_policy=PLANAR_FACE_5;
-  _P1P0_bary_method=false;
 }
 
 std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const
@@ -92,6 +95,10 @@ std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const
     return std::string(GEOMETRIC_INTERSECT2D_STR);
   else if(_intersection_type==INTERP_KERNEL::PointLocator)
     return std::string(POINTLOCATOR_INTERSECT_STR);
+  else if(_intersection_type==INTERP_KERNEL::Barycentric)
+    return std::string(BARYCENTRIC_INTERSECT_STR);
+  else if(_intersection_type==INTERP_KERNEL::BarycentricGeo2D)
+    return std::string(BARYCENTRICGEO2D_INTERSECT_STR);
   else
     return std::string("UNKNOWN_INTERSECT_TYPE");
 }
@@ -178,6 +185,16 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
           setIntersectionType(INTERP_KERNEL::PointLocator);
           return true;
         }
+      else if(value==BARYCENTRIC_INTERSECT_STR)
+        {
+          setIntersectionType(INTERP_KERNEL::Barycentric);
+          return true;
+        }
+      else if(value==BARYCENTRICGEO2D_INTERSECT_STR)
+        {
+          setIntersectionType(INTERP_KERNEL::BarycentricGeo2D);
+          return true;
+        }
     }
   else if(key==SPLITTING_POLICY_STR) 
     {
@@ -223,9 +240,7 @@ std::string INTERP_KERNEL::InterpolationOptions::getSplittingPolicyRepr() const
 
 std::string INTERP_KERNEL::InterpolationOptions::filterInterpolationMethod(const std::string& meth) const
 {
-  if ( _P1P0_bary_method && meth == "P1P0" )
-    return "P1P0Bary";
-  return meth;
+  return std::string(meth);
 }
 
 bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_level,
@@ -238,8 +253,7 @@ bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_lev
                                                                   double max_distance_for_3Dsurf_intersect,
                                                                   long orientation,
                                                                   bool measure_abs,
-                                                                  std::string splitting_policy,
-                                                                  bool P1P0_bary_method )
+                                                                  std::string splitting_policy)
 {
   _print_level=print_level;
   _precision=precision;
@@ -250,7 +264,6 @@ bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_lev
   _max_distance_for_3Dsurf_intersect=max_distance_for_3Dsurf_intersect;
   _orientation=orientation;
   _measure_abs=measure_abs;
-  _P1P0_bary_method=P1P0_bary_method;
   return(setOptionString(INTERSEC_TYPE_STR,intersection_type) && setOptionString(SPLITTING_POLICY_STR,splitting_policy));
 }
 
@@ -268,7 +281,6 @@ std::string INTERP_KERNEL::InterpolationOptions::printOptions() const
   oss << "Orientation : " << _orientation << std::endl;
   oss << "Measure abs : " << _measure_abs << std::endl;
   oss << "Splitting policy : " << getSplittingPolicyRepr() << std::endl;
-  oss << "P1P0 Barycentric method : " << _P1P0_bary_method << std::endl;
   oss << "****************************" << std::endl;
   return oss.str();
 }

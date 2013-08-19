@@ -28,7 +28,7 @@
 
 namespace INTERP_KERNEL
 {
-  typedef enum { Triangulation, Convex, Geometric2D, PointLocator } IntersectionType;
+  typedef enum { Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D } IntersectionType;
   
   /*!
    * \class InterpolationOptions
@@ -53,8 +53,6 @@ namespace INTERP_KERNEL
     int _orientation ;
     bool _measure_abs;
     SplittingPolicy _splitting_policy ;
-    bool _P1P0_bary_method; // issue 0020440
-
   public:
     InterpolationOptions() { init(); }
     int getPrintLevel() const { return _print_level; }
@@ -92,9 +90,6 @@ namespace INTERP_KERNEL
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
     std::string getSplittingPolicyRepr() const;
 
-    void setP1P0BaryMethod(bool isP1P0) { _P1P0_bary_method=isP1P0; }
-    bool getP1P0BaryMethod() const { return _P1P0_bary_method; }
-
     std::string filterInterpolationMethod(const std::string& meth) const;
 
     void init();
@@ -109,8 +104,7 @@ namespace INTERP_KERNEL
                                  double max_distance_for_3Dsurf_intersect,
                                  long orientation,
                                  bool measure_abs,
-                                 std::string splitting_policy,
-                                 bool P1P0_bary_method );
+                                 std::string splitting_policy);
     void copyOptions(const InterpolationOptions & other) { *this = other; }
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionInt(const std::string& key, int value);
@@ -136,6 +130,8 @@ namespace INTERP_KERNEL
     static const char CONVEX_INTERSECT2D_STR[];
     static const char GEOMETRIC_INTERSECT2D_STR[];
     static const char POINTLOCATOR_INTERSECT_STR[];
+    static const char BARYCENTRIC_INTERSECT_STR[];
+    static const char BARYCENTRICGEO2D_INTERSECT_STR[];
     static const char PLANAR_SPLIT_FACE_5_STR[];
     static const char PLANAR_SPLIT_FACE_6_STR[];
     static const char GENERAL_SPLIT_24_STR[];
