@@ -33,6 +33,7 @@
 #include "PointLocator3DIntersectorP1P0.txx"
 #include "PolyhedronIntersectorP1P1.txx"
 #include "PointLocator3DIntersectorP1P1.txx"
+#include "Barycentric3DIntersectorP1P1.txx"
 #include "Log.hxx"
 /// If defined, use recursion to traverse the binary search tree, else use the BBTree class
 //#define USE_RECURSIVE_BBOX_FILTER
@@ -148,6 +149,9 @@ namespace INTERP_KERNEL
             break;
           case PointLocator:
             intersector=new PointLocator3DIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+            break;
+          case Barycentric:
+            intersector=new Barycentric3DIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
             break;
           default:
             throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P1P1 interp specified : must be Triangle or PointLocator.");
