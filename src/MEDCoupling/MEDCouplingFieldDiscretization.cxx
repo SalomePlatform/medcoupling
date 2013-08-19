@@ -2673,8 +2673,23 @@ void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimens
           }
         break;
       }
+    case 2:
+      {
+        for(int i=0;i<nbOfElems;i++)
+          {
+            double val=matrixPtr[i];
+            if(val!=0.)
+              matrixPtr[i]=val*val*log(val);
+          }
+        break;
+      }
+    case 3:
+      {
+        //nothing here : it is not a bug g(h)=h with spaceDim 3.
+        break;
+      }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : only dimension 1 implemented !");
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : only dimension 1, 2 and 3 implemented !");
     }
 }
 
@@ -2717,7 +2732,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataA
       destWork=std::copy(srcWork2,srcWork2+szOfMatrix,destWork);
       srcWork2+=szOfMatrix;
       std::fill(destWork,destWork+spaceDimension+1,0.);
-      destWork+=spaceDimension;
+      destWork+=spaceDimension+1;
     }
   //
   return ret.retn();
