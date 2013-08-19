@@ -6202,8 +6202,19 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
   const int *old2New=getConstPointer();
   int *pt=ret->getPointer();
   for(int i=0;i!=nbOfOldNodes;i++)
-    if(old2New[i]!=-1)
-      pt[old2New[i]]=i;
+    {
+      int newp(old2New[i]);
+      if(newp!=-1)
+        {
+          if(newp>=0 && newp<newNbOfElem)
+            pt[newp]=i;
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::invertArrayO2N2N2O : At place #" << i << " the newplace is " << newp << " must be in [0," << newNbOfElem << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
   return ret.retn();
 }
 
@@ -6219,8 +6230,19 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const throw(I
   const int *old2New=getConstPointer();
   int *pt=ret->getPointer();
   for(int i=nbOfOldNodes-1;i>=0;i--)
-    if(old2New[i]!=-1)
-      pt[old2New[i]]=i;
+    {
+      int newp(old2New[i]);
+      if(newp!=-1)
+        {
+          if(newp>=0 && newp<newNbOfElem)
+            pt[newp]=i;
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::invertArrayO2N2N2OBis : At place #" << i << " the newplace is " << newp << " must be in [0," << newNbOfElem << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
   return ret.retn();
 }
 
