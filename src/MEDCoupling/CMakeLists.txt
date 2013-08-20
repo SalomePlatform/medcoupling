@@ -46,7 +46,6 @@ SET(medcoupling_SOURCES
   MEDCouplingFieldDiscretization.cxx
   MEDCouplingRefCountObject.cxx
   MEDCouplingPointSet.cxx
-  MEDCouplingUMeshDesc.cxx
   MEDCouplingFieldTemplate.cxx
   MEDCouplingExtrudedMesh.cxx
   MEDCouplingMesh.cxx
