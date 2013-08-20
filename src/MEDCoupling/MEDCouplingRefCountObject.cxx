@@ -46,6 +46,28 @@ int ParaMEDMEM::MEDCouplingSizeOfVoidStar()
   return 8*sizeof(std::size_t);
 }
 
+/*!
+ * If true is returned it is a LittleEndian machine.
+ * If false it is a BigEndian machine.
+ * \return the coding mode of integers of the machine.
+ */
+bool ParaMEDMEM::MEDCouplingByteOrder()
+{
+  unsigned int x(1);
+  unsigned char *xc(reinterpret_cast<unsigned char *>(&x));
+  return xc[0]==1;
+}
+
+const char *ParaMEDMEM::MEDCouplingByteOrderStr()
+{
+  static const char LITTLEENDIAN_STR[]="LittleEndian";
+  static const char BIGENDIAN_STR[]="BigEndian";
+  if(MEDCouplingByteOrder())
+    return LITTLEENDIAN_STR;
+  else
+    return BIGENDIAN_STR;
+}
+
 RefCountObject::RefCountObject():_cnt(1)
 {
 }

@@ -555,6 +555,8 @@ namespace ParaMEDMEM
   const char *MEDCouplingVersionStr();
   int MEDCouplingVersion();
   int MEDCouplingSizeOfVoidStar();
+  bool MEDCouplingByteOrder();
+  const char *MEDCouplingByteOrderStr();
 
   class RefCountObject
   {
