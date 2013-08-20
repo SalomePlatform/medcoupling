@@ -383,6 +383,8 @@ namespace ParaMEDMEM
     DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
     void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   public://specific part
+    DataArrayDouble *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const;
+    DataArrayDouble *computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const;
     DataArrayDouble *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const;
   protected:
     void operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const;

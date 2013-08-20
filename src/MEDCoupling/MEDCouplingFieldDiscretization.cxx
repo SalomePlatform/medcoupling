@@ -2579,37 +2579,19 @@ void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *ar
 
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints) const
 {
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::getValueOnMulti : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
-  int nbOfPts=coords->getNumberOfTuples();
-  int dimension=coords->getNumberOfComponents();
-  //
-  int delta=0;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK=computeVectorOfCoefficients(mesh,arr,delta);
-  //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> locArr=DataArrayDouble::New();
-  locArr->useArray(loc,false,CPP_DEALLOC,nbOfTargetPoints,dimension);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
-  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfTargetPoints,matrix2->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix3=DataArrayDouble::New();
-  matrix3->alloc((nbOfPts+delta)*nbOfTargetPoints,1);
-  double *work=matrix3->getPointer();
-  const double *workCst=matrix2->getConstPointer();
-  const double *workCst2=loc;
-  for(int i=0;i<nbOfTargetPoints;i++,workCst+=nbOfPts,workCst2+=delta-1)
+  if(!arr || !arr->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::getValueOnMulti : input array is null or not allocated !");
+  int nbOfRows(getNumberOfMeshPlaces(mesh));
+  if(arr->getNumberOfTuples()!=nbOfRows)
     {
-      for(int j=0;j<nbOfPts;j++)
-        work[j*nbOfTargetPoints+i]=workCst[j];
-      work[nbOfPts*nbOfTargetPoints+i]=1.0;
-      for(int j=0;j<delta-1;j++)
-        work[(nbOfPts+1+j)*nbOfTargetPoints+i]=workCst2[j];
+      std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationKriging::getValueOnMulti : input array does not have correct number of tuples ! Excepted " << nbOfRows << " having " << arr->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  //
-  int nbOfCompo=arr->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-  ret->alloc(nbOfTargetPoints,nbOfCompo);
-  INTERP_KERNEL::matrixProduct(KnewiK->getConstPointer(),1,nbOfPts+delta,matrix3->getConstPointer(),nbOfPts+delta,nbOfTargetPoints*nbOfCompo,ret->getPointer());
+  int nbCols(-1),nbCompo(arr->getNumberOfComponents());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m(computeEvaluationMatrixOnGivenPts(mesh,loc,nbOfTargetPoints,nbCols));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  ret->alloc(nbOfTargetPoints,nbCompo);
+  INTERP_KERNEL::matrixProduct(m->begin(),nbOfTargetPoints,nbCols,arr->begin(),nbOfRows,nbCompo,ret->getPointer());
   return ret.retn();
 }
 
@@ -2619,37 +2601,93 @@ void MEDCouplingFieldDiscretizationKriging::reprQuickOverview(std::ostream& stre
 }
 
 /*!
- * This method computes coefficients to apply to each representing points of \a mesh, that is to say the nodes of \a mesh given a field array \a arr whose
- * number of tuples should be equal to the number of representing points in \a mesh.
+ * Returns the matrix of size nbRows = \a nbOfTargetPoints and \a nbCols = \a nbCols. This matrix is useful if 
  * 
- * \param [in] mesh is the sources of nodes on which kriging will be done regarding the parameters and the value of \c this->getSpaceDimension()
- * \param [in] arr input field DataArrayDouble whose number of tuples must be equal to the number of nodes in \a mesh
- * \param [out] isDrift return if drift coefficients are present in the returned vector of coefficients, and if. If different from 0 there is presence of drift coefficients.
- *              Whatever the value of \a isDrift the number of tuples of returned DataArrayDouble  will be equal to \c arr->getNumberOfTuples() + \a isDrift.
- * \return a newly allocated array containing coefficients including or not drift coefficient at the end depending the value of \a isDrift parameter.
+ * \return the new result matrix to be deallocated by the caller.
  */
-DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const
+{
+  int isDrift(-1),nbRows(-1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
+  int nbOfPts(coords->getNumberOfTuples()),dimension(coords->getNumberOfComponents());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> locArr=DataArrayDouble::New();
+  locArr->useArray(loc,false,CPP_DEALLOC,nbOfTargetPoints,dimension);
+  nbCols=nbOfPts;
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
+  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfTargetPoints*nbOfPts,matrix2->getPointer());
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix3=DataArrayDouble::New();
+  matrix3->alloc(nbOfTargetPoints*nbRows,1);
+  double *work=matrix3->getPointer();
+  const double *workCst(matrix2->begin()),*workCst2(loc);
+  for(int i=0;i<nbOfTargetPoints;i++,workCst+=nbOfPts,workCst2+=isDrift-1)
+    {
+      for(int j=0;j<nbOfPts;j++)
+        work[i*nbRows+j]=workCst[j];
+      work[i*nbRows+nbOfPts]=1.0;
+      for(int j=0;j<isDrift-1;j++)
+        work[i*nbRows+(nbOfPts+1+j)]=workCst2[j];
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  ret->alloc(nbOfTargetPoints,nbRows);
+  INTERP_KERNEL::matrixProduct(matrix3->begin(),nbOfTargetPoints,nbRows,matrixInv->begin(),nbRows,nbRows,ret->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret2(DataArrayDouble::New());
+  ret2->alloc(nbOfTargetPoints*nbOfPts,1);
+  workCst=ret->begin(); work=ret2->getPointer();
+  for(int i=0;i<nbOfTargetPoints;i++,workCst+=nbRows)
+    work=std::copy(workCst,workCst+nbOfPts,work);
+  return ret2.retn();
+}
+
+/*!
+ * This method returns the square matrix of size \a matSz that is the inverse of the kriging matrix. The returned matrix can returned all the coeffs of kriging
+ * when multiplied by the vector of values attached to each point.
+ * 
+ * \param [out] isDrift return if drift coefficients are present in the returned vector of coefficients. If different from 0 there is presence of drift coefficients.
+ * \param [out] matSz the size of returned square matrix
+ * \return the new result matrix to be deallocated by the caller.
+ */
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficients : NULL input mesh !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
   int nbOfPts=coords->getNumberOfTuples();
-  //int dimension=coords->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix=coords->buildEuclidianDistanceDenseMatrix();
   operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfPts,matrix->getPointer());
   // Drift
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift=performDrift(matrix,coords,isDrift);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv=DataArrayDouble::New();
-  matrixInv->alloc((nbOfPts+isDrift)*(nbOfPts+isDrift),1);
-  INTERP_KERNEL::inverseMatrix(matrixWithDrift->getConstPointer(),nbOfPts+isDrift,matrixInv->getPointer());
-  //
+  matSz=nbOfPts+isDrift;
+  matrixInv->alloc(matSz*matSz,1);
+  INTERP_KERNEL::inverseMatrix(matrixWithDrift->getConstPointer(),matSz,matrixInv->getPointer());
+  return matrixInv.retn();
+}
+
+/*!
+ * This method computes coefficients to apply to each representing points of \a mesh, that is to say the nodes of \a mesh given a field array \a arr whose
+ * number of tuples should be equal to the number of representing points in \a mesh.
+ * 
+ * \param [in] mesh is the sources of nodes on which kriging will be done regarding the parameters and the value of \c this->getSpaceDimension()
+ * \param [in] arr input field DataArrayDouble whose number of tuples must be equal to the number of nodes in \a mesh
+ * \param [out] isDrift return if drift coefficients are present in the returned vector of coefficients. If different from 0 there is presence of drift coefficients.
+ *              Whatever the value of \a isDrift the number of tuples of returned DataArrayDouble  will be equal to \c arr->getNumberOfTuples() + \a isDrift.
+ * \return a newly allocated array containing coefficients including or not drift coefficient at the end depending the value of \a isDrift parameter.
+ */
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const
+{
+  int nbRows(-1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK=DataArrayDouble::New();
-  KnewiK->alloc((nbOfPts+isDrift)*1,1);
+  KnewiK->alloc(nbRows*1,1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2=DataArrayDouble::New();
-  arr2->alloc((nbOfPts+isDrift)*1,1);
+  arr2->alloc(nbRows*1,1);
   double *work=std::copy(arr->begin(),arr->end(),arr2->getPointer());
   std::fill(work,work+isDrift,0.);
-  INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbOfPts+isDrift,nbOfPts+isDrift,arr2->getConstPointer(),nbOfPts+isDrift,1,KnewiK->getPointer());
+  INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbRows,nbRows,arr2->getConstPointer(),nbRows,1,KnewiK->getPointer());
   return KnewiK.retn();
 }
 

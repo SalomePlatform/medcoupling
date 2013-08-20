@@ -3243,10 +3243,38 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::MEDCouplingFieldDiscretizationKriging
 {
-  PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const
+  PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
   {
     int ret1;
     DataArrayDouble *ret0=self->computeVectorOfCoefficients(mesh,arr,ret1);
+    PyObject *ret=PyTuple_New(2);
+    PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+    PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
+    return ret;
+  }
+  
+  PyObject *computeInverseMatrix(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+  {
+    int ret1(-1),ret2(-1);
+    DataArrayDouble *ret0=self->computeInverseMatrix(mesh,ret1,ret2);
+    PyObject *ret=PyTuple_New(3);
+    PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+    PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
+    PyTuple_SetItem(ret,2,PyInt_FromLong(ret2));
+    return ret;
+  }
+
+  PyObject *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, PyObject *locs) const throw(INTERP_KERNEL::Exception)
+  {
+    if(!mesh)
+      throw INTERP_KERNEL::Exception("wrap of MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts : input mesh is empty !");
+    int sw,nbPts;
+    double v0; ParaMEDMEM::DataArrayDouble *v1(0); ParaMEDMEM::DataArrayDoubleTuple *v2(0); std::vector<double> v3;
+    const double *inp=convertObjToPossibleCpp5_Safe2(locs,sw,v0,v1,v2,v3,"wrap of MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts",
+                                                     mesh->getSpaceDimension(),true,nbPts);
+    //
+    int ret1(-1);
+    DataArrayDouble *ret0=self->computeEvaluationMatrixOnGivenPts(mesh,inp,nbPts,ret1);
     PyObject *ret=PyTuple_New(2);
     PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
     PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));

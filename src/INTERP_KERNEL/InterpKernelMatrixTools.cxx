@@ -19,8 +19,10 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpKernelMatrixTools.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
+#include <sstream>
 #include <algorithm>
 
 namespace INTERP_KERNEL
@@ -396,6 +398,11 @@ namespace INTERP_KERNEL
 
   void matrixProduct(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C)
   {
+    if(p1!=n2)
+      {
+        std::ostringstream oss; oss << "matrixProduct : the size of input matrix are not coherent the nb of cols of input matrix #0 is " <<  p1 << " whereas the number of rows of input matrix #1 is " << n2 << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
     for(int i=0;i<n1;i++)
       {
         for(int j=0;j<p2;j++)
