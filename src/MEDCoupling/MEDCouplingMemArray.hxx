@@ -110,6 +110,7 @@ namespace ParaMEDMEM
   };
 
   class DataArrayInt;
+  class DataArrayByte;
 
   class DataArray : public RefCountObject, public TimeLabel
   {
@@ -225,7 +226,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *nameInFile, DataArrayByte *byteArr) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
@@ -457,7 +458,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void iota(int init=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string reprZip() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile, DataArrayByte *byteArr) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
@@ -734,6 +735,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const std::vector<const DataArrayChar *>& arr) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useArray(const char *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
+    template<class InputIterator>
+    void insertAtTheEnd(InputIterator first, InputIterator last) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const char *array, int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void updateTime() const { }
     MEDCOUPLING_EXPORT MemArray<char>& accessToMemArray() { return _mem; }
@@ -866,7 +869,7 @@ namespace ParaMEDMEM
   template<class InputIterator>
   void DataArrayDouble::insertAtTheEnd(InputIterator first, InputIterator last) throw(INTERP_KERNEL::Exception)
   {
-    int nbCompo=getNumberOfComponents();
+    int nbCompo(getNumberOfComponents());
     if(nbCompo==1)
       _mem.insertAtTheEnd(first,last);
     else if(nbCompo==0)
@@ -881,7 +884,7 @@ namespace ParaMEDMEM
   template<class InputIterator>
   void DataArrayInt::insertAtTheEnd(InputIterator first, InputIterator last) throw(INTERP_KERNEL::Exception)
   {
-    int nbCompo=getNumberOfComponents();
+    int nbCompo(getNumberOfComponents());
     if(nbCompo==1)
       _mem.insertAtTheEnd(first,last);
     else if(nbCompo==0)
@@ -891,6 +894,21 @@ namespace ParaMEDMEM
       }
     else
       throw INTERP_KERNEL::Exception("DataArrayInt::insertAtTheEnd : not available for DataArrayInt with number of components different than 1 !");
+  }
+
+  template<class InputIterator>
+  void DataArrayChar::insertAtTheEnd(InputIterator first, InputIterator last) throw(INTERP_KERNEL::Exception)
+  {
+    int nbCompo(getNumberOfComponents());
+    if(nbCompo==1)
+      _mem.insertAtTheEnd(first,last);
+    else if(nbCompo==0)
+      {
+        _info_on_compo.resize(1);
+        _mem.insertAtTheEnd(first,last);
+      }
+    else
+      throw INTERP_KERNEL::Exception("DataArrayChar::insertAtTheEnd : not available for DataArrayChar with number of components different than 1 !");
   }
 }
 

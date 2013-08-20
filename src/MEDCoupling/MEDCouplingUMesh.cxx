@@ -8069,7 +8069,7 @@ void MEDCouplingUMesh::FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::FillInCompact3DMode : Invalid spaceDim specified : must be 2 or 3 !");
 }
 
-void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
 {
   int nbOfCells=getNumberOfCells();
   if(nbOfCells<=0)
@@ -8083,11 +8083,11 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   ofs << "      </CellData>\n";
   ofs << "      <Points>\n";
   if(getSpaceDimension()==3)
-    _coords->writeVTK(ofs,8,"Points");
+    _coords->writeVTK(ofs,8,"Points",byteData);
   else
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=_coords->changeNbOfComponents(3,0.);
-      coo->writeVTK(ofs,8,"Points");
+      coo->writeVTK(ofs,8,"Points",byteData);
     }
   ofs << "      </Points>\n";
   ofs << "      <Cells>\n";
@@ -8118,12 +8118,12 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
         }
     }
   types->transformWithIndArr(PARAMEDMEM2VTKTYPETRADUCER,PARAMEDMEM2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE);
-  types->writeVTK(ofs,8,"UInt8","types");
-  offsets->writeVTK(ofs,8,"Int32","offsets");
+  types->writeVTK(ofs,8,"UInt8","types",byteData);
+  offsets->writeVTK(ofs,8,"Int32","offsets",byteData);
   if(szFaceOffsets!=0)
     {//presence of Polyhedra
       connectivity->reAlloc(szConn);
-      faceoffsets->writeVTK(ofs,8,"Int32","faceoffsets");
+      faceoffsets->writeVTK(ofs,8,"Int32","faceoffsets",byteData);
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> faces=DataArrayInt::New(); faces->alloc(szFaceOffsets,1);
       w1=faces->getPointer();
       for(int i=0;i<nbOfCells;i++)
@@ -8140,9 +8140,9 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
                 w6=w5+1;
               }
           }
-      faces->writeVTK(ofs,8,"Int32","faces");
+      faces->writeVTK(ofs,8,"Int32","faces",byteData);
     }
-  connectivity->writeVTK(ofs,8,"Int32","connectivity");
+  connectivity->writeVTK(ofs,8,"Int32","connectivity",byteData);
   ofs << "      </Cells>\n";
   ofs << "    </Piece>\n";
   ofs << "  </" << getVTKDataSetType() << ">\n";

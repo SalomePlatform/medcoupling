@@ -352,10 +352,10 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
   return ret.str();
 }
 
-void MEDCouplingFieldDouble::writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::writeVTK(const char *fileName, bool isBinary) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<const MEDCouplingFieldDouble *> fs(1,this);
-  MEDCouplingFieldDouble::WriteVTK(fileName,fs);
+  MEDCouplingFieldDouble::WriteVTK(fileName,fs,isBinary);
 }
 
 bool MEDCouplingFieldDouble::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception)
@@ -3063,6 +3063,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCoupli
  * \warning All the fields must be named and lie on the same non NULL mesh.
  *  \param [in] fileName - the name of a VTK file to write in.
  *  \param [in] fs - the fields to write.
+ *  \param [in] isBinary - specifies the VTK format of the written file. By default true (Binary mode)
  *  \throw If \a fs[ 0 ] == NULL.
  *  \throw If the fields lie not on the same mesh.
  *  \throw If the mesh is not set.
@@ -3071,7 +3072,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCoupli
  *  \ref cpp_mcfielddouble_WriteVTK "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_WriteVTK "Here is a Python example".
  */
-void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary) throw(INTERP_KERNEL::Exception)
 {
   if(fs.empty())
     return;
@@ -3086,6 +3087,9 @@ void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<co
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are not lying on a same mesh ! Expected by VTK ! MEDCouplingFieldDouble::setMesh or MEDCouplingFieldDouble::changeUnderlyingMesh can help to that.");
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are lying on a same mesh but it is empty !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
+  if(isBinary)
+    { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
   std::ostringstream coss,noss;
   for(std::size_t i=0;i<nfs;i++)
     {
@@ -3098,11 +3102,13 @@ void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<co
         }
       TypeOfField typ=cur->getTypeOfField();
       if(typ==ON_CELLS)
-        cur->getArray()->writeVTK(coss,8,cur->getName().c_str());
+        cur->getArray()->writeVTK(coss,8,cur->getName().c_str(),byteArr);
       else if(typ==ON_NODES)
-        cur->getArray()->writeVTK(noss,8,cur->getName().c_str());
+        cur->getArray()->writeVTK(noss,8,cur->getName().c_str(),byteArr);
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : only node and cell fields supported for the moment !");
     }
-  m->writeVTKAdvanced(fileName,coss.str(),noss.str());
+  m->writeVTKAdvanced(fileName,coss.str(),noss.str(),byteArr);
 }
 
 void MEDCouplingFieldDouble::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)

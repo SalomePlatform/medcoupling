@@ -23,6 +23,7 @@
 
 #include "BBTree.txx"
 #include "GenMathFormulae.hxx"
+#include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelExprParser.hxx"
 
 #include <set>
@@ -1144,13 +1145,28 @@ std::string DataArrayDouble::reprZip() const throw(INTERP_KERNEL::Exception)
   return ret.str();
 }
 
-void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception)
+void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameInFile, DataArrayByte *byteArr) const throw(INTERP_KERNEL::Exception)
 {
+  static const char SPACE[4]={' ',' ',' ',' '};
+  checkAllocated();
   std::string idt(indent,' ');
   ofs.precision(17);
   ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
-  ofs << " format=\"ascii\" RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\">\n" << idt;
-  std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
+  if(byteArr)
+    {
+      ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
+      INTERP_KERNEL::AutoPtr<float> tmp(new float[getNbOfElems()]);
+      std::copy(begin(),end(),(float *)tmp);
+      const char *data(reinterpret_cast<const char *>((float *)tmp));
+      std::size_t sz(getNbOfElems()*sizeof(float));
+      byteArr->insertAtTheEnd(data,data+sz);
+      byteArr->insertAtTheEnd(SPACE,SPACE+4);
+    }
+  else
+    {
+      ofs << " RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\" format=\"ascii\">\n" << idt;
+      std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
+    }
   ofs << std::endl << idt << "</DataArray>\n";
 }
 
@@ -5897,13 +5913,44 @@ std::string DataArrayInt::reprZip() const throw(INTERP_KERNEL::Exception)
   return ret.str();
 }
 
-void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile) const throw(INTERP_KERNEL::Exception)
+void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile, DataArrayByte *byteArr) const throw(INTERP_KERNEL::Exception)
 {
+  static const char SPACE[4]={' ',' ',' ',' '};
   checkAllocated();
   std::string idt(indent,' ');
   ofs << idt << "<DataArray type=\"" << type << "\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
-  ofs << " format=\"ascii\" RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\">\n" << idt;
-  std::copy(begin(),end(),std::ostream_iterator<int>(ofs," "));
+  if(byteArr)
+    {
+      ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
+      if(std::string(type)=="Int32")
+        {
+          const char *data(reinterpret_cast<const char *>(begin()));
+          std::size_t sz(getNbOfElems()*sizeof(int));
+          byteArr->insertAtTheEnd(data,data+sz);
+          byteArr->insertAtTheEnd(SPACE,SPACE+4);
+        }
+      else if(std::string(type)=="Int8")
+        {
+          INTERP_KERNEL::AutoPtr<char> tmp(new char[getNbOfElems()]);
+          std::copy(begin(),end(),(char *)tmp);
+          byteArr->insertAtTheEnd((char *)tmp,(char *)tmp+getNbOfElems());
+          byteArr->insertAtTheEnd(SPACE,SPACE+4);
+        }
+      else if(std::string(type)=="UInt8")
+        {
+          INTERP_KERNEL::AutoPtr<unsigned char> tmp(new unsigned char[getNbOfElems()]);
+          std::copy(begin(),end(),(unsigned char *)tmp);
+          byteArr->insertAtTheEnd((unsigned char *)tmp,(unsigned char *)tmp+getNbOfElems());
+          byteArr->insertAtTheEnd(SPACE,SPACE+4);
+        }
+      else
+        throw INTERP_KERNEL::Exception("DataArrayInt::writeVTK : Only Int32, Int8 and UInt8 supported !");
+    }
+  else
+    {
+      ofs << " RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\" format=\"ascii\">\n" << idt;
+      std::copy(begin(),end(),std::ostream_iterator<int>(ofs," "));
+    }
   ofs << std::endl << idt << "</DataArray>\n";
 }
 

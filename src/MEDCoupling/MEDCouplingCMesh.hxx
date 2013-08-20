@@ -92,7 +92,7 @@ namespace ParaMEDMEM
     MEDCouplingCMesh();
     MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy);
     ~MEDCouplingCMesh();
-    void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception);
+    void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception);
     std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
   private:
     DataArrayDouble *_x_array;

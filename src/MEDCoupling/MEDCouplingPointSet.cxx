@@ -20,8 +20,8 @@
 
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingUMeshDesc.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "PlanarIntersector.txx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
@@ -815,8 +815,10 @@ MEDCouplingPointSet *MEDCouplingPointSet::BuildInstanceFromMeshType(MEDCouplingM
     {
     case UNSTRUCTURED:
       return MEDCouplingUMesh::New();
-    case UNSTRUCTURED_DESC:
-      return MEDCouplingUMeshDesc::New();
+    case SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED:
+      return MEDCoupling1SGTUMesh::New();
+    case SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED:
+      return MEDCoupling1DGTUMesh::New();
     default:
       throw INTERP_KERNEL::Exception("Invalid type of mesh specified");
     }

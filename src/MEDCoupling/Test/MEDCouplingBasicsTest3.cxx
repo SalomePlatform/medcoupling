@@ -935,7 +935,7 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   CPPUNIT_ASSERT(!((dbl->reprZip().find("Number of components : 1"))==std::string::npos));
   
   std::ostringstream ret;
-  dbl->writeVTK(ret,2,"file.tmp");
+  dbl->writeVTK(ret,2,"file.tmp",0);
   CPPUNIT_ASSERT(!((ret.str().find("<DataArray"))==std::string::npos));
   CPPUNIT_ASSERT(!((ret.str().find("Float32"))==std::string::npos));
   CPPUNIT_ASSERT(!((ret.str().find("16 15 14 13 12 11 10"))==std::string::npos));

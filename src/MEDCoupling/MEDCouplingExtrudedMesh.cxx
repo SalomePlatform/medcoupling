@@ -932,10 +932,10 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInf
   std::copy(a1Ptr,a1Ptr+szIds,_mesh3D_ids->getPointer());
 }
 
-void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
-  m->writeVTKLL(ofs,cellData,pointData);
+  m->writeVTKLL(ofs,cellData,pointData,byteData);
 }
 
 void MEDCouplingExtrudedMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)

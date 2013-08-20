@@ -891,7 +891,7 @@ void MEDCouplingCurveLinearMesh::unserialization(const std::vector<double>& tiny
     }
 }
 
-void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
 {
   std::ostringstream extent;
   int meshDim=(int)_structure.size();
@@ -907,11 +907,11 @@ void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string
   ofs << "      </CellData>\n";
   ofs << "      <Points>\n";
   if(getSpaceDimension()==3)
-    _coords->writeVTK(ofs,8,"Points");
+    _coords->writeVTK(ofs,8,"Points",byteData);
   else
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=_coords->changeNbOfComponents(3,0.);
-      coo->writeVTK(ofs,8,"Points");
+      coo->writeVTK(ofs,8,"Points",byteData);
     }
   ofs << "      </Points>\n";
   ofs << "    </Piece>\n";

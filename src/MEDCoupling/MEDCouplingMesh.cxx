@@ -669,17 +669,31 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
  *  \param [in] fileName - the name of the file to write in.
  *  \throw If \a fileName is not a writable file.
  */
-void MEDCouplingMesh::writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::writeVTK(const char *fileName, bool isBinary) const throw(INTERP_KERNEL::Exception)
 {
   std::string cda,pda;
-  writeVTKAdvanced(fileName,cda,pda);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
+  if(isBinary)
+    { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
+  writeVTKAdvanced(fileName,cda,pda,byteArr);
 }
 
-void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
 {
   std::ofstream ofs(fileName);
-  ofs << "<VTKFile type=\""  << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
-  writeVTKLL(ofs,cda,pda);
-  ofs << "</VTKFile>\n";
-  ofs.close();
+  ofs << "<VTKFile type=\""  << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"" << MEDCouplingByteOrderStr() << "\">\n";
+  writeVTKLL(ofs,cda,pda,byteData);
+  if(byteData)
+    {
+      ofs << "<AppendedData encoding=\"raw\">\n_1234";
+      ofs << std::flush; ofs.close();
+      std::ofstream ofs2(fileName,std::ios_base::binary | std::ios_base::app);
+      ofs2.write(byteData->begin(),byteData->getNbOfElems()); ofs2 << std::flush; ofs2.close();
+      std::ofstream ofs3(fileName,std::ios_base::app); ofs3 << "\n  </AppendedData>\n</VTKFile>\n"; ofs3.close();
+    }
+  else
+    {
+      ofs << "</VTKFile>\n";
+      ofs.close();
+    }
 }

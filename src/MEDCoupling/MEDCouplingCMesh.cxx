@@ -851,7 +851,7 @@ void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, con
   setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
 }
 
-void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
 {
   std::ostringstream extent;
   DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
@@ -872,12 +872,12 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   for(int i=0;i<3;i++)
     {
       if(thisArr[i])
-        thisArr[i]->writeVTK(ofs,8,"Array");
+        thisArr[i]->writeVTK(ofs,8,"Array",byteData);
       else
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=DataArrayDouble::New(); coo->alloc(1,1);
           coo->setIJ(0,0,0.);
-          coo->writeVTK(ofs,8,"Array");
+          coo->writeVTK(ofs,8,"Array",byteData);
         }
     }
   ofs << "      </Coordinates>\n";

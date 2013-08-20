@@ -237,10 +237,10 @@ DataArrayInt *MEDCoupling1GTUMesh::checkTypeConsistencyAndContig(const std::vect
   return const_cast<DataArrayInt *>(pfl);
 }
 
-void MEDCoupling1GTUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1GTUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
-  m->writeVTKLL(ofs,cellData,pointData);
+  m->writeVTKLL(ofs,cellData,pointData,byteData);
 }
 
 std::string MEDCoupling1GTUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)

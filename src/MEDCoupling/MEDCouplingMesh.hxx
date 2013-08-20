@@ -37,15 +37,16 @@ namespace ParaMEDMEM
   typedef enum
     {
       UNSTRUCTURED = 5,
-      UNSTRUCTURED_DESC = 6,
       CARTESIAN = 7,
       EXTRUDED = 8,
       CURVE_LINEAR = 9,
       SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED = 10,
       SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED = 11
     } MEDCouplingMeshType;
+  // -- WARNING this enum must be synchronized with MEDCouplingCommon.i file ! --
 
   class DataArrayInt;
+  class DataArrayByte;
   class DataArrayDouble;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
@@ -142,11 +143,11 @@ namespace ParaMEDMEM
     virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
     virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings) = 0;
-    void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
+    void writeVTK(const char *fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
     /// @cond INTERNAL
-    void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const throw(INTERP_KERNEL::Exception);
+    void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception);
     /// @endcond
-    virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCouplingMesh();
