@@ -66,9 +66,6 @@ namespace INTERP_KERNEL
   /// policies make no such hypothesis. The integer at the end gives the number of tetrahedra
   /// that result from the split.
   typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
-
-  class GenericMesh
-  {};
 }
 
 #endif

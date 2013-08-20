@@ -40,7 +40,7 @@ namespace INTERP_KERNEL
    */
   //================================================================================
 
-  class _Cartesian3D2UnstructHexMesh : public INTERP_KERNEL::GenericMesh
+  class _Cartesian3D2UnstructHexMesh
   {
   public:
     static const int MY_SPACEDIM=3;

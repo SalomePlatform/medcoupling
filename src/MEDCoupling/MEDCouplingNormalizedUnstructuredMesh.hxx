@@ -29,7 +29,7 @@ namespace ParaMEDMEM
 }
 
 template<int SPACEDIM,int MESHDIM>
-class MEDCouplingNormalizedUnstructuredMesh : public INTERP_KERNEL::GenericMesh
+class MEDCouplingNormalizedUnstructuredMesh
 {
 public:
   static const int MY_SPACEDIM=SPACEDIM;

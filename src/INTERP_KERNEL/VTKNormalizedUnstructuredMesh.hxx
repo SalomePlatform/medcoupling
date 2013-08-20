@@ -28,7 +28,7 @@
 class vtkUnstructuredGrid;
 
 template<int MESHDIM>
-class INTERPKERNEL_EXPORT VTKNormalizedUnstructuredMesh : public INTERP_KERNEL::GenericMesh
+class INTERPKERNEL_EXPORT VTKNormalizedUnstructuredMesh
 {
 public:
   static const int MY_SPACEDIM=3;
