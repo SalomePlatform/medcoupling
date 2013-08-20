@@ -689,7 +689,7 @@ void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& 
       ofs << std::flush; ofs.close();
       std::ofstream ofs2(fileName,std::ios_base::binary | std::ios_base::app);
       ofs2.write(byteData->begin(),byteData->getNbOfElems()); ofs2 << std::flush; ofs2.close();
-      std::ofstream ofs3(fileName,std::ios_base::app); ofs3 << "\n  </AppendedData>\n</VTKFile>\n"; ofs3.close();
+      std::ofstream ofs3(fileName,std::ios_base::app); ofs3 << "\n</AppendedData>\n</VTKFile>\n"; ofs3.close();
     }
   else
     {
