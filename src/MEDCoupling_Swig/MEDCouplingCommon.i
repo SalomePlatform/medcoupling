@@ -1090,7 +1090,40 @@ namespace ParaMEDMEM
 %include "NormalizedUnstructuredMesh.hxx"
 %include "MEDCouplingNatureOfField.hxx"
 %include "MEDCouplingTimeDiscretization.hxx"
-%include "MEDCouplingGaussLocalization.hxx"
+
+namespace ParaMEDMEM
+{
+  class MEDCouplingGaussLocalization
+  {
+  public:
+    MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                 const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
+    MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ) throw(INTERP_KERNEL::Exception);
+    INTERP_KERNEL::NormalizedCellType getType() const throw(INTERP_KERNEL::Exception);
+    void setType(INTERP_KERNEL::NormalizedCellType typ) throw(INTERP_KERNEL::Exception);
+    int getNumberOfGaussPt() const throw(INTERP_KERNEL::Exception);
+    int getDimension() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfPtsInRefCell() const throw(INTERP_KERNEL::Exception);
+    std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
+    void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const throw(INTERP_KERNEL::Exception);
+    //
+    const std::vector<double>& getRefCoords() const throw(INTERP_KERNEL::Exception);
+    double getRefCoord(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception);
+    const std::vector<double>& getGaussCoords() const throw(INTERP_KERNEL::Exception);
+    double getGaussCoord(int gaussPtIdInCell, int comp) const throw(INTERP_KERNEL::Exception);
+    const std::vector<double>& getWeights() const throw(INTERP_KERNEL::Exception);
+    double getWeight(int gaussPtIdInCell, double newVal) const throw(INTERP_KERNEL::Exception);
+    void setRefCoord(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
+    void setGaussCoord(int gaussPtIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
+    void setWeight(int gaussPtIdInCell, double newVal) throw(INTERP_KERNEL::Exception);
+    void setRefCoords(const std::vector<double>& refCoo) throw(INTERP_KERNEL::Exception);
+    void setGaussCoords(const std::vector<double>& gsCoo) throw(INTERP_KERNEL::Exception);
+    void setWeights(const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
+    //
+    static bool AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);
+  };
+}
 
 %include "MEDCouplingFieldDiscretization.i"
 
