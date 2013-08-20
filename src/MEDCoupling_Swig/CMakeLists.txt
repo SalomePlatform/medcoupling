@@ -28,6 +28,7 @@ ENDIF(NUMPY_FOUND)
 SET (MEDCoupling_SWIG_DPYS_FILES
     MEDCouplingCommon.i
     MEDCouplingMemArray.i
+    MEDCouplingFieldDiscretization.i
     MEDCouplingFinalize.i
     MEDCouplingTypemaps.i)   
 
@@ -77,7 +78,7 @@ INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRe
 SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py)
 INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_SCRIPT_PYTHON})
 
-INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingMemArray.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingMemArray.i MEDCouplingFieldDiscretization.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i DESTINATION ${SALOME_INSTALL_HEADERS})
 INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py DESTINATION ${SALOME_INSTALL_SCRIPT_PYTHON})
 INSTALL(FILES MEDCouplingExamplesTest.py DESTINATION ${SALOME_INSTALL_SCRIPT_PYTHON})
 
