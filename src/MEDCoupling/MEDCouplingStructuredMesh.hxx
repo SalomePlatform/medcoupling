@@ -41,7 +41,7 @@ namespace ParaMEDMEM
     static void GetPosFromId(int nodeId, int meshDim, const int *split, int *res);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     //tools

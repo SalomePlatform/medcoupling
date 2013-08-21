@@ -36,13 +36,18 @@ MEDFileMeshStruct *MEDFileMeshStruct::New(const MEDFileMesh *mesh)
   return new MEDFileMeshStruct(mesh);
 }
 
-std::size_t MEDFileMeshStruct::getHeapMemorySize() const
+std::size_t MEDFileMeshStruct::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(0);
   for(std::vector< std::vector<int> >::const_iterator it0=_geo_types_distrib.begin();it0!=_geo_types_distrib.end();it0++)
     ret+=(*it0).capacity()*sizeof(int);
   ret+=_geo_types_distrib.capacity()*sizeof(std::vector<int>);
   return ret;
+}
+
+std::vector<RefCountObject *> MEDFileMeshStruct::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
@@ -104,9 +109,14 @@ int MEDFileMeshStruct::getNumberOfGeoTypesInLev(int relativeLev) const throw(INT
 
 //=
 
-std::size_t MEDMeshMultiLev::getHeapMemorySize() const
+std::size_t MEDMeshMultiLev::getHeapMemorySizeWithoutChildren() const
 {
   return 0;
+}
+
+std::vector<RefCountObject *> MEDMeshMultiLev::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
@@ -1159,13 +1169,18 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
     }
 }
 
-std::size_t MEDFileField1TSStructItem2::getHeapMemorySize() const
+std::size_t MEDFileField1TSStructItem2::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret(0);
+  std::size_t ret(_loc.capacity());
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileField1TSStructItem2::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   const DataArrayInt *pfl(_pfl);
   if(pfl)
-    ret+=pfl->getHeapMemorySize();
-  ret+=_loc.capacity();
+    ret.push_back(const_cast<DataArrayInt *>(pfl));
   return ret;
 }
 
@@ -1371,12 +1386,17 @@ const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::siz
   return _items[i];
 }
 
-std::size_t MEDFileField1TSStructItem::getHeapMemorySize() const
+std::size_t MEDFileField1TSStructItem::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret(0);
+  std::size_t ret(_items.size()*sizeof(MEDFileField1TSStructItem2));
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileField1TSStructItem::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++)
-    ret+=(*it).getHeapMemorySize();
-  ret+=_items.size()*sizeof(MEDFileField1TSStructItem2);
+    ret.push_back(const_cast<MEDFileField1TSStructItem2 *>(&(*it)));
   return ret;
 }
 
@@ -1524,12 +1544,17 @@ bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField
     return _already_checked[0].isNodeSupportEqual(other1,other);
 }
 
-std::size_t MEDFileField1TSStruct::getHeapMemorySize() const
+std::size_t MEDFileField1TSStruct::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret(0);
+  std::size_t ret(_already_checked.capacity()*sizeof(MEDFileField1TSStructItem));
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileField1TSStruct::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++)
-    ret+=(*it).getHeapMemorySize();
-  ret+=_already_checked.capacity()*sizeof(MEDFileField1TSStructItem);
+    ret.push_back(const_cast<MEDFileField1TSStructItem *>(&(*it)));
   return ret;
 }
 
@@ -1644,19 +1669,24 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
     }
 }
 
-std::size_t MEDFileFastCellSupportComparator::getHeapMemorySize() const
+std::size_t MEDFileFastCellSupportComparator::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret(0);
+  std::size_t ret(_f1ts_cmps.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct>));
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileFastCellSupportComparator::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   const MEDFileMeshStruct *mst(_mesh_comp);
   if(mst)
-    ret+=mst->getHeapMemorySize();
+    ret.push_back(const_cast<MEDFileMeshStruct *>(mst));
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct> >::const_iterator it=_f1ts_cmps.begin();it!=_f1ts_cmps.end();it++)
     {
       const MEDFileField1TSStruct *cur(*it);
       if(cur)
-        ret+=cur->getHeapMemorySize()+sizeof(MEDFileField1TSStruct);
+        ret.push_back(const_cast<MEDFileField1TSStruct *>(cur));
     }
-  ret+=_f1ts_cmps.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct>);
   return ret;
 }
 

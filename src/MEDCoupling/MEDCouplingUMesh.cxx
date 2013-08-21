@@ -115,14 +115,20 @@ void MEDCouplingUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *ot
   setConnectivity(otherC2->getNodalConnectivity(),otherC2->getNodalConnectivityIndex(),true);
 }
 
-std::size_t MEDCouplingUMesh::getHeapMemorySize() const
+std::size_t MEDCouplingUMesh::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  std::size_t ret(MEDCouplingPointSet::getHeapMemorySizeWithoutChildren());
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDCouplingUMesh::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret(MEDCouplingPointSet::getDirectChildren());
   if(_nodal_connec)
-    ret+=_nodal_connec->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayInt *>(_nodal_connec));
   if(_nodal_connec_index)
-    ret+=_nodal_connec_index->getHeapMemorySize();
-  return MEDCouplingPointSet::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayInt *>(_nodal_connec_index));
+  return ret;
 }
 
 void MEDCouplingUMesh::updateTime() const

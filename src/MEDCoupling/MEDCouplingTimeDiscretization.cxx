@@ -93,11 +93,17 @@ void MEDCouplingTimeDiscretization::updateTime() const
     updateTimeWith(*_array);
 }
 
-std::size_t MEDCouplingTimeDiscretization::getHeapMemorySize() const
+std::size_t MEDCouplingTimeDiscretization::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=_time_unit.capacity();
+  std::size_t ret(_time_unit.capacity());
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDCouplingTimeDiscretization::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   if(_array)
-    ret+=_array->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayDouble *>(_array));
   return ret;
 }
 
@@ -2208,12 +2214,17 @@ void MEDCouplingTwoTimeSteps::synchronizeTimeWith(const MEDCouplingMesh *mesh) t
   _time_unit=tUnit;
 }
 
-std::size_t MEDCouplingTwoTimeSteps::getHeapMemorySize() const
+std::size_t MEDCouplingTwoTimeSteps::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return MEDCouplingTimeDiscretization::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCouplingTwoTimeSteps::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret(MEDCouplingTimeDiscretization::getDirectChildren());
   if(_end_array)
-    ret+=_end_array->getHeapMemorySize();
-  return MEDCouplingTimeDiscretization::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayDouble *>(_end_array));
+  return ret;
 }
 
 void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception)

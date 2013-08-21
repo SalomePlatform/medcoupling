@@ -67,9 +67,14 @@ bool MEDFileParameterDouble1TSWTI::isEqual(const MEDFileParameter1TS *other, dou
   return true;
 }
 
-std::size_t MEDFileParameterDouble1TSWTI::getHeapMemorySize() const
+std::size_t MEDFileParameterDouble1TSWTI::getHeapMemorySizeWithoutChildren() const
 {
   return sizeof(MEDFileParameterDouble1TSWTI);
+}
+
+std::vector<RefCountObject *> MEDFileParameterDouble1TSWTI::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 std::string MEDFileParameterDouble1TSWTI::simpleRepr() const
@@ -340,9 +345,14 @@ std::string MEDFileParameterDouble1TS::simpleRepr() const
   return oss.str();
 }
 
-std::size_t MEDFileParameterDouble1TS::getHeapMemorySize() const
+std::size_t MEDFileParameterDouble1TS::getHeapMemorySizeWithoutChildren() const
 {
   return getHeapMemSizeOfStrings()+sizeof(MEDFileParameterDouble1TS);
+}
+
+std::vector<RefCountObject *> MEDFileParameterDouble1TS::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 void MEDFileParameterDouble1TS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
@@ -469,17 +479,23 @@ void MEDFileParameterMultiTS::finishLoading(med_idt fid, med_parameter_type typ,
     }
 }
 
-std::size_t MEDFileParameterMultiTS::getHeapMemorySize() const
+std::size_t MEDFileParameterMultiTS::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=sizeof(MEDFileParameterMultiTS);
-  std::size_t ret2=sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS>)*_param_per_ts.capacity();
-  for(std::size_t i=0;i<_param_per_ts.size();i++)
+  std::size_t ret(sizeof(MEDFileParameterMultiTS));
+  ret+=sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS>)*_param_per_ts.capacity();
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileParameterMultiTS::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS> >::const_iterator it=_param_per_ts.begin();it!=_param_per_ts.end();it++)
     {
-      const MEDFileParameter1TS *pt(_param_per_ts[i]);
-      if(pt)
-        ret2+=pt->getHeapMemorySize();
+      const MEDFileParameter1TS *elt(*it);
+      if(elt)
+        ret.push_back(const_cast<MEDFileParameter1TS *>(elt));
     }
-  return ret2+ret;
+  return ret;
 }
 
 MEDFileParameterMultiTS *MEDFileParameterMultiTS::deepCpy() const throw(INTERP_KERNEL::Exception)
@@ -714,17 +730,23 @@ MEDFileParameters::MEDFileParameters()
 {
 }
 
-std::size_t MEDFileParameters::getHeapMemorySize() const
+std::size_t MEDFileParameters::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=sizeof(MEDFileParameters);
-  std::size_t ret2=sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS>)*_params.capacity();
-  for(std::size_t i=0;i<_params.size();i++)
+  std::size_t ret(sizeof(MEDFileParameters));
+  ret+=sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS>)*_params.capacity();
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileParameters::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS> >::const_iterator it=_params.begin();it!=_params.end();it++)
     {
-      const MEDFileParameterMultiTS *pt(_params[i]);
-      if(pt)
-        ret2+=pt->getHeapMemorySize();
+      const MEDFileParameterMultiTS *elt(*it);
+      if(elt)
+        ret.push_back(const_cast<MEDFileParameterMultiTS *>(elt));
     }
-  return ret2+ret;
+  return ret;
 }
 
 MEDFileParameters *MEDFileParameters::deepCpy() const throw(INTERP_KERNEL::Exception)

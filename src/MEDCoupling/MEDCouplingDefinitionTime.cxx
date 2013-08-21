@@ -109,9 +109,14 @@ MEDCouplingDefinitionTimeSlice::MEDCouplingDefinitionTimeSlice(const MEDCoupling
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSlice : End time strictly before Start time ...");
 }
 
-std::size_t MEDCouplingDefinitionTimeSlice::getHeapMemorySize() const
+std::size_t MEDCouplingDefinitionTimeSlice::getHeapMemorySizeWithoutChildren() const
 {
   return 0;
+}
+
+std::vector<RefCountObject *> MEDCouplingDefinitionTimeSlice::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 bool MEDCouplingDefinitionTimeSlice::isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
@@ -464,9 +469,14 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MED
     }
 }
 
-std::size_t MEDCouplingDefinitionTime::getHeapMemorySize() const
+std::size_t MEDCouplingDefinitionTime::getHeapMemorySizeWithoutChildren() const
 {
   return _slices.capacity()*(sizeof(MEDCouplingDefinitionTimeSlice)+sizeof(int));
+}
+
+std::vector<RefCountObject *> MEDCouplingDefinitionTime::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 void MEDCouplingDefinitionTime::assign(const MEDCouplingDefinitionTime& other)

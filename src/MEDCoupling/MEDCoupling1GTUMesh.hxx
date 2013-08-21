@@ -50,7 +50,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
     //
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
@@ -93,7 +93,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<RefCountObject *> getDirectChildren() const;
     // overload of MEDCouplingMesh
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED; }
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
@@ -177,7 +178,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<RefCountObject *> getDirectChildren() const;
     // overload of MEDCouplingMesh
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED; }
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;

@@ -248,9 +248,9 @@ std::string MEDCoupling1GTUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::
   return std::string("UnstructuredGrid");
 }
 
-std::size_t MEDCoupling1GTUMesh::getHeapMemorySize() const
+std::size_t MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren() const
 {
-  return MEDCouplingPointSet::getHeapMemorySize();
+  return MEDCouplingPointSet::getHeapMemorySizeWithoutChildren();
 }
 
 bool MEDCoupling1GTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
@@ -567,13 +567,18 @@ void MEDCoupling1SGTUMesh::updateTime() const
     updateTimeWith(*c);
 }
 
-std::size_t MEDCoupling1SGTUMesh::getHeapMemorySize() const
+std::size_t MEDCoupling1SGTUMesh::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCoupling1SGTUMesh::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret(MEDCoupling1GTUMesh::getDirectChildren());
   const DataArrayInt *c(_conn);
   if(c)
-    ret+=c->getHeapMemorySize();
-  return MEDCoupling1GTUMesh::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayInt *>(c));
+  return ret;
 }
 
 MEDCouplingMesh *MEDCoupling1SGTUMesh::deepCpy() const
@@ -1899,16 +1904,21 @@ void MEDCoupling1DGTUMesh::updateTime() const
     updateTimeWith(*c);
 }
 
-std::size_t MEDCoupling1DGTUMesh::getHeapMemorySize() const
+std::size_t MEDCoupling1DGTUMesh::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCoupling1DGTUMesh::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret(MEDCoupling1GTUMesh::getDirectChildren());
   const DataArrayInt *c(_conn);
   if(c)
-    ret+=c->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayInt *>(c));
   c=_conn_indx;
   if(c)
-    ret+=c->getHeapMemorySize();
-  return MEDCoupling1GTUMesh::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayInt *>(c));
+  return ret;
 }
 
 MEDCouplingMesh *MEDCoupling1DGTUMesh::deepCpy() const

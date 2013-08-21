@@ -153,15 +153,21 @@ void MEDCouplingField::updateTime() const
     updateTimeWith(*_type);
 }
 
-std::size_t MEDCouplingField::getHeapMemorySize() const
+std::size_t MEDCouplingField::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret=0;
   ret+=_name.capacity();
   ret+=_desc.capacity();
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDCouplingField::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   if(_mesh)
-    ret+=_mesh->getHeapMemorySize();
+    ret.push_back(const_cast<MEDCouplingMesh *>(_mesh));
   if((const MEDCouplingFieldDiscretization *)_type)
-    ret+=_type->getHeapMemorySize();
+    ret.push_back(const_cast<MEDCouplingFieldDiscretization *>((const MEDCouplingFieldDiscretization *)_type));
   return ret;
 }
 

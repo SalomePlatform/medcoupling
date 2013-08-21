@@ -60,10 +60,10 @@ void DataArrayChar::desallocate() throw(INTERP_KERNEL::Exception)
   _mem.destroy();
 }
 
-std::size_t DataArrayChar::getHeapMemorySize() const
+std::size_t DataArrayChar::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t sz=_mem.getNbOfElemAllocated();
-  return DataArray::getHeapMemorySize()+sz;
+  std::size_t sz(_mem.getNbOfElemAllocated());
+  return DataArray::getHeapMemorySizeWithoutChildren()+sz;
 }
 
 /*!

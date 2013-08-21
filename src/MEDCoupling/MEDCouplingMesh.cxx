@@ -43,7 +43,7 @@ MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name
 {
 }
 
-std::size_t MEDCouplingMesh::getHeapMemorySize() const
+std::size_t MEDCouplingMesh::getHeapMemorySizeWithoutChildren() const
 {
   return _name.capacity()+_description.capacity()+_time_unit.capacity();
 }

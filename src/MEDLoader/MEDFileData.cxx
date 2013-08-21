@@ -48,16 +48,22 @@ MEDFileData *MEDFileData::deepCpy() const throw(INTERP_KERNEL::Exception)
   return ret.retn();
 }
 
-std::size_t MEDFileData::getHeapMemorySize() const
+std::size_t MEDFileData::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return 0;
+}
+
+std::vector<RefCountObject *> MEDFileData::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   if((const MEDFileFields *)_fields)
-    ret+=_fields->getHeapMemorySize();
+    ret.push_back(const_cast<MEDFileFields *>((const MEDFileFields *)_fields));
   if((const MEDFileMeshes *)_meshes)
-    ret+=_meshes->getHeapMemorySize();
+    ret.push_back(const_cast<MEDFileMeshes *>((const MEDFileMeshes *)_meshes));
   if((const MEDFileParameters *)_params)
-    ret+=_params->getHeapMemorySize();
+    ret.push_back(const_cast<MEDFileParameters *>((const MEDFileParameters *)_params));
   return ret;
+  
 }
 
 MEDFileFields *MEDFileData::getFields() const

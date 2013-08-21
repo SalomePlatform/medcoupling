@@ -37,7 +37,8 @@ namespace ParaMEDMEM
     MEDCouplingMesh *deepCpy() const;
     MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void updateTime() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     MEDCouplingMeshType getType() const { return CARTESIAN; }
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);

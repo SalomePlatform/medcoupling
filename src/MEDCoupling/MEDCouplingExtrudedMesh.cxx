@@ -64,16 +64,21 @@ MEDCouplingMeshType MEDCouplingExtrudedMesh::getType() const
   return EXTRUDED;
 }
 
-std::size_t MEDCouplingExtrudedMesh::getHeapMemorySize() const
+std::size_t MEDCouplingExtrudedMesh::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return MEDCouplingMesh::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCouplingExtrudedMesh::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   if(_mesh2D)
-    ret+=_mesh2D->getHeapMemorySize();
+    ret.push_back(const_cast<MEDCouplingUMesh *>(_mesh2D));
   if(_mesh1D)
-    ret+=_mesh1D->getHeapMemorySize();
+    ret.push_back(const_cast<MEDCouplingUMesh *>(_mesh1D));
   if(_mesh3D_ids)
-    ret+=_mesh3D_ids->getHeapMemorySize();
-  return MEDCouplingMesh::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayInt *>(_mesh3D_ids));
+  return ret;
 }
 
 /*!

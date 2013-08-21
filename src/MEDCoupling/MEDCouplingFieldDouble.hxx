@@ -130,7 +130,8 @@ namespace ParaMEDMEM
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
     void updateTime() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     //
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;

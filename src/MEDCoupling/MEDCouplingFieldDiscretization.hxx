@@ -47,7 +47,8 @@ namespace ParaMEDMEM
     double getPrecision() const { return _precision; }
     void setPrecision(double val) { _precision=val; }
     void updateTime() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
@@ -208,7 +209,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other, int beginCellIds, int endCellIds, int stepCellIds);
     ~MEDCouplingFieldDiscretizationPerCell();
     void updateTime() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
@@ -232,7 +234,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
     std::string getStringRepr() const;
     const char *getRepr() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
     int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;

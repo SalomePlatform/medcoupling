@@ -106,16 +106,21 @@ void MEDCouplingCMesh::updateTime() const
     updateTimeWith(*_z_array);
 }
 
-std::size_t MEDCouplingCMesh::getHeapMemorySize() const
+std::size_t MEDCouplingCMesh::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
-  std::set<DataArrayDouble *> s;
-  s.insert(_x_array); s.insert(_y_array); s.insert(_z_array);
-  s.erase(NULL);
-  for(std::set<DataArrayDouble *>::const_iterator it=s.begin();it!=s.end();it++)
-    if(*it)
-      ret+=(*it)->getHeapMemorySize();
-  return MEDCouplingStructuredMesh::getHeapMemorySize()+ret;
+  return MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCouplingCMesh::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  if(_x_array)
+    ret.push_back(const_cast<DataArrayDouble *>(_x_array));
+  if(_y_array)
+    ret.push_back(const_cast<DataArrayDouble *>(_y_array));
+  if(_z_array)
+    ret.push_back(const_cast<DataArrayDouble *>(_z_array));
+  return ret;
 }
 
 /*!

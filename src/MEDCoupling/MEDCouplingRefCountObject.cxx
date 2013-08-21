@@ -21,6 +21,8 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "MED_version.h"
 
+#include <set>
+
 using namespace ParaMEDMEM;
 
 const char *ParaMEDMEM::MEDCouplingVersionStr()
@@ -83,6 +85,31 @@ RefCountObject::RefCountObject(const RefCountObject& other):_cnt(1)
 RefCountObject& RefCountObject::operator=(const RefCountObject& other)
 {
   return *this;
+}
+
+std::size_t RefCountObject::getHeapMemorySize() const
+{
+  std::size_t ret(getHeapMemorySizeWithoutChildren());
+  std::vector<RefCountObject *> v(getDirectChildren());
+  std::set<RefCountObject *> s1,s2(v.begin(),v.end());
+  while(!s2.empty())
+    {
+      std::set<RefCountObject *> s3;
+      for(std::set<RefCountObject *>::const_iterator it=s2.begin();it!=s2.end();it++)
+        {
+          if(s1.find(*it)==s1.end())
+            {
+              ret+=(*it)->getHeapMemorySizeWithoutChildren();
+              s1.insert(*it);
+              std::vector<RefCountObject *> v2((*it)->getDirectChildren());
+              for(std::vector<RefCountObject *>::const_iterator it2=v2.begin();it2!=v2.end();it2++)
+                if(s1.find(*it2)==s1.end())
+                  s3.insert(*it2);
+            }
+        }
+      s2=s3;
+    }
+  return ret;
 }
 
 bool RefCountObject::decrRef() const

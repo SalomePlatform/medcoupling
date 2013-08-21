@@ -80,13 +80,19 @@ void MEDCouplingCurveLinearMesh::updateTime() const
     updateTimeWith(*_coords);
 }
 
-std::size_t MEDCouplingCurveLinearMesh::getHeapMemorySize() const
+std::size_t MEDCouplingCurveLinearMesh::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  std::size_t ret(MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren());
   ret+=_structure.capacity()*sizeof(int);
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDCouplingCurveLinearMesh::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   if((const DataArrayDouble *)_coords)
-    ret+=_coords->getHeapMemorySize();
-  return MEDCouplingStructuredMesh::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayDouble *>((const DataArrayDouble *)_coords));
+  return ret;
 }
 
 /*!

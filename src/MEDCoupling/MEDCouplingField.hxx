@@ -84,7 +84,8 @@ namespace ParaMEDMEM
     void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
     void updateTime() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     // for MED file RW
     int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;

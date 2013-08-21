@@ -54,7 +54,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
     void setName(const char *name) { _name=name; }
     std::string getName() const { return _name; }
     void setDescription(const char *descr) { _description=descr; }

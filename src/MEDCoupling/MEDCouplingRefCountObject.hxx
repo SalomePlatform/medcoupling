@@ -23,6 +23,7 @@
 
 #include "MEDCoupling.hxx"
 
+#include <vector>
 #include <cstddef>
 
 namespace ParaMEDMEM
@@ -59,17 +60,19 @@ namespace ParaMEDMEM
   MEDCOUPLING_EXPORT bool MEDCouplingByteOrder();
   MEDCOUPLING_EXPORT const char *MEDCouplingByteOrderStr();
 
-  class MEDCOUPLING_EXPORT RefCountObject
+  class RefCountObject
   {
   protected:
     RefCountObject();
     RefCountObject(const RefCountObject& other);
   public:
-    bool decrRef() const;
-    void incrRef() const;
-    virtual std::size_t getHeapMemorySize() const = 0;
-    int getRCValue() const;
-    RefCountObject& operator=(const RefCountObject& other);
+    MEDCOUPLING_EXPORT bool decrRef() const;
+    MEDCOUPLING_EXPORT void incrRef() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
+    MEDCOUPLING_EXPORT virtual std::vector<RefCountObject *> getDirectChildren() const = 0;
+    MEDCOUPLING_EXPORT int getRCValue() const;
+    MEDCOUPLING_EXPORT RefCountObject& operator=(const RefCountObject& other);
   protected:
     virtual ~RefCountObject();
   private:

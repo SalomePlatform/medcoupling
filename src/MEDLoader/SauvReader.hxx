@@ -51,8 +51,8 @@ class MEDLOADER_EXPORT SauvReader : public ParaMEDMEM::RefCountObject
   ~SauvReader();
 
  private:
-  std::size_t getHeapMemorySize() const { return 0; }
-
+  std::size_t getHeapMemorySizeWithoutChildren() const;
+  std::vector<RefCountObject *> getDirectChildren() const;
   void readRecord2();
   void readRecord4();
   void readRecord7();

@@ -40,6 +40,16 @@ MEDFileMeshL2::MEDFileMeshL2():_name(MED_NAME_SIZE),_description(MED_COMMENT_SIZ
 {
 }
 
+std::size_t MEDFileMeshL2::getHeapMemorySizeWithoutChildren() const
+{
+  return 0;
+}
+
+std::vector<RefCountObject *> MEDFileMeshL2::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
+}
+
 int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1) throw(INTERP_KERNEL::Exception)
 {
   med_mesh_type type_maillage;
@@ -552,18 +562,23 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(
   assignMesh(m,newOrOld);
 }
 
-std::size_t MEDFileUMeshSplitL1::getHeapMemorySize() const
+std::size_t MEDFileUMeshSplitL1::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
-  ret+=_m_by_types.getHeapMemorySize();
+  return 0;
+}
+
+std::vector<RefCountObject *> MEDFileUMeshSplitL1::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  ret.push_back(const_cast<MEDFileUMeshAggregateCompute *>(&_m_by_types));
   if((const DataArrayInt*)_fam)
-    ret+=_fam->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayInt*>((const DataArrayInt*)_fam));
   if((const DataArrayInt*)_num)
-    ret+=_num->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayInt*>((const DataArrayInt*)_num));
   if((const DataArrayInt*)_rev_num)
-    ret+=_rev_num->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayInt*>((const DataArrayInt*)_rev_num));
   if((const DataArrayAsciiChar*)_names)
-    ret+=_names->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayAsciiChar*>((const DataArrayAsciiChar*)_names));
   return ret;
 }
 
@@ -1057,33 +1072,24 @@ std::size_t MEDFileUMeshAggregateCompute::getTimeOfUMesh() const
   return m->getTimeOfThis();
 }
 
-/*!
- * Coordinates pointer is not counted because father instance already count it !
- */
-std::size_t MEDFileUMeshAggregateCompute::getHeapMemorySize() const
-{ 
-  std::size_t ret(0);
-  ret+=_m_parts.size()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>);
-  std::size_t sz(_m_parts.size());
-  for(std::size_t i=0;i<sz;i++)
+std::size_t MEDFileUMeshAggregateCompute::getHeapMemorySizeWithoutChildren() const
+{
+  std::size_t ret(_m_parts.size()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>));
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDFileUMeshAggregateCompute::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
     {
-      const MEDCoupling1GTUMesh *pt(_m_parts[i]);
-      if(pt)
-        {
-          ret+=pt->getHeapMemorySize();
-          const DataArrayDouble *coo(pt->getCoords());
-          if(coo)
-            ret-=coo->getHeapMemorySize();
-        }
+      const MEDCoupling1GTUMesh *cur(*it);
+      if(cur)
+        ret.push_back(const_cast<MEDCoupling1GTUMesh *>(cur));
     }
   const MEDCouplingUMesh *m(_m);
   if(m)
-    {
-      ret+=m->getHeapMemorySize();
-      const DataArrayDouble *coo(m->getCoords());
-      if(coo)
-            ret-=coo->getHeapMemorySize();
-    }
+    ret.push_back(const_cast<MEDCouplingUMesh *>(m));
   return ret;
 }
 

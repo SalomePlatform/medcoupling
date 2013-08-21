@@ -190,19 +190,20 @@ void MEDCouplingMultiFields::updateTime() const
       updateTimeWith(*(*it));
 }
 
-std::size_t MEDCouplingMultiFields::getHeapMemorySize() const
+std::size_t MEDCouplingMultiFields::getHeapMemorySizeWithoutChildren() const
 {
-  std::vector<int> tmp;
-  std::vector< std::vector<int> > tmp2;
-  std::vector<MEDCouplingMesh *> ms=getDifferentMeshes(tmp);
-  std::vector<DataArrayDouble *> arrs=getDifferentArrays(tmp2);
-  std::size_t ret=0;
-  for(std::vector<MEDCouplingMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
-    if(*it)
-      ret+=(*it)->getHeapMemorySize();
-  for(std::vector<DataArrayDouble *>::const_iterator it=arrs.begin();it!=arrs.end();it++)
-    if(*it)
-      ret+=(*it)->getHeapMemorySize();
+  return 0;
+}
+
+std::vector<RefCountObject *> MEDCouplingMultiFields::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
+    {
+      const MEDCouplingFieldDouble *curF(*it);
+      if(curF)
+        ret.push_back(const_cast<MEDCouplingFieldDouble *>(curF));
+    }
   return ret;
 }
 

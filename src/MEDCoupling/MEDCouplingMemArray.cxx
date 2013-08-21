@@ -110,7 +110,7 @@ void DataArrayDouble::FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,int>& myTre
     }
 }
 
-std::size_t DataArray::getHeapMemorySize() const
+std::size_t DataArray::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t sz1=_name.capacity();
   std::size_t sz2=_info_on_compo.capacity();
@@ -118,6 +118,11 @@ std::size_t DataArray::getHeapMemorySize() const
   for(std::vector<std::string>::const_iterator it=_info_on_compo.begin();it!=_info_on_compo.end();it++)
     sz3+=(*it).capacity();
   return sz1+sz2+sz3;
+}
+
+std::vector<RefCountObject *> DataArray::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 /*!
@@ -748,11 +753,11 @@ void DataArrayDouble::desallocate() throw(INTERP_KERNEL::Exception)
   _mem.destroy();
 }
 
-std::size_t DataArrayDouble::getHeapMemorySize() const
+std::size_t DataArrayDouble::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t sz=_mem.getNbOfElemAllocated();
+  std::size_t sz(_mem.getNbOfElemAllocated());
   sz*=sizeof(double);
-  return DataArray::getHeapMemorySize()+sz;
+  return DataArray::getHeapMemorySizeWithoutChildren()+sz;
 }
 
 /*!
@@ -922,7 +927,7 @@ double DataArrayDouble::popBackSilent() throw(INTERP_KERNEL::Exception)
 /*!
  * This method \b do \b not modify content of \a this. It only modify its memory footprint if the allocated memory is to high regarding real data to store.
  *
- * \sa DataArrayDouble::getHeapMemorySize, DataArrayDouble::reserve
+ * \sa DataArrayDouble::getHeapMemorySizeWithoutChildren, DataArrayDouble::reserve
  */
 void DataArrayDouble::pack() const throw(INTERP_KERNEL::Exception)
 {
@@ -5614,11 +5619,11 @@ void DataArrayInt::desallocate() throw(INTERP_KERNEL::Exception)
   _mem.destroy();
 }
 
-std::size_t DataArrayInt::getHeapMemorySize() const
+std::size_t DataArrayInt::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t sz=_mem.getNbOfElemAllocated();
+  std::size_t sz(_mem.getNbOfElemAllocated());
   sz*=sizeof(int);
-  return DataArray::getHeapMemorySize()+sz;
+  return DataArray::getHeapMemorySizeWithoutChildren()+sz;
 }
 
 /*!
@@ -5808,7 +5813,7 @@ int DataArrayInt::popBackSilent() throw(INTERP_KERNEL::Exception)
 /*!
  * This method \b do \b not modify content of \a this. It only modify its memory footprint if the allocated memory is to high regarding real data to store.
  *
- * \sa DataArrayInt::getHeapMemorySize, DataArrayInt::reserve
+ * \sa DataArrayInt::getHeapMemorySizeWithoutChildren, DataArrayInt::reserve
  */
 void DataArrayInt::pack() const throw(INTERP_KERNEL::Exception)
 {

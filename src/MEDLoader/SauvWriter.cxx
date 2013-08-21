@@ -223,6 +223,16 @@ SauvWriter* SauvWriter::New()
   return new SauvWriter;
 }
 
+std::size_t SauvWriter::getHeapMemorySizeWithoutChildren() const
+{
+  return 0;
+}
+
+std::vector<RefCountObject *> SauvWriter::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
+}
+
 //================================================================================
 /*!
  * \brief Fills own DS by MEDFileData

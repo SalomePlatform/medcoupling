@@ -40,9 +40,9 @@ MEDCouplingStructuredMesh::~MEDCouplingStructuredMesh()
 {
 }
 
-std::size_t MEDCouplingStructuredMesh::getHeapMemorySize() const
+std::size_t MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren() const
 {
-  return MEDCouplingMesh::getHeapMemorySize();
+  return MEDCouplingMesh::getHeapMemorySizeWithoutChildren();
 }
 
 void MEDCouplingStructuredMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)

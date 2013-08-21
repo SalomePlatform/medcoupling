@@ -37,7 +37,8 @@ namespace ParaMEDMEM
     static MEDFileData *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileData *New();
     MEDFileData *deepCpy() const throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     MEDFileFields *getFields() const;
     MEDFileMeshes *getMeshes() const;
     MEDFileParameters *getParams() const;

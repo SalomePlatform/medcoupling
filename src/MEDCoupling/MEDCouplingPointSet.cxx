@@ -75,12 +75,17 @@ void MEDCouplingPointSet::updateTime() const
     }
 }
 
-std::size_t MEDCouplingPointSet::getHeapMemorySize() const
+std::size_t MEDCouplingPointSet::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return MEDCouplingMesh::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCouplingPointSet::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
   if(_coords)
-    ret+=_coords->getHeapMemorySize();
-  return MEDCouplingMesh::getHeapMemorySize()+ret;
+    ret.push_back(const_cast<DataArrayDouble *>(_coords));
+  return ret;
 }
 
 void MEDCouplingPointSet::setCoords(const DataArrayDouble *coords)

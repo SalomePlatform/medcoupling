@@ -81,6 +81,16 @@ SauvReader::~SauvReader()
   _fileReader->decrRef();
 }
 
+std::size_t SauvReader::getHeapMemorySizeWithoutChildren() const
+{
+  return 0;
+}
+
+std::vector<RefCountObject *> SauvReader::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
+}
+
 //================================================================================
 /*!
  * \brief Return current line of ASCII file to report an error

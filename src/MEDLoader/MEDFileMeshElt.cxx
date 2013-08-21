@@ -40,6 +40,25 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, in
   return new MEDFileUMeshPerType(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,mrs);
 }
 
+std::size_t MEDFileUMeshPerType::getHeapMemorySizeWithoutChildren() const
+{
+  return 0;
+}
+
+std::vector<RefCountObject *> MEDFileUMeshPerType::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret;
+  if((const MEDCoupling1GTUMesh *)_m)
+    ret.push_back(const_cast<MEDCoupling1GTUMesh *>((const MEDCoupling1GTUMesh *)_m));
+  if((const DataArrayInt *)_num)
+    ret.push_back(const_cast<DataArrayInt *>((const DataArrayInt *)_num));
+  if((const DataArrayInt *)_fam)
+    ret.push_back(const_cast<DataArrayInt *>((const DataArrayInt *)_fam));
+  if((const DataArrayAsciiChar *)_names)
+    ret.push_back(const_cast<DataArrayAsciiChar *>((const DataArrayAsciiChar *)_names));
+  return ret;
+}
+
 bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity)
 {
   static const med_entity_type entities[3]={MED_CELL,MED_DESCENDING_FACE,MED_DESCENDING_EDGE};

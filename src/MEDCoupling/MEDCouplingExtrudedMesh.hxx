@@ -39,7 +39,8 @@ namespace ParaMEDMEM
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     static MEDCouplingExtrudedMesh *New();
     MEDCouplingMeshType getType() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     int getNumberOfCells() const;
     int getNumberOfNodes() const;

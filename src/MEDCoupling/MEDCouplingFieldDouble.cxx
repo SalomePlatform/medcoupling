@@ -1780,12 +1780,20 @@ void MEDCouplingFieldDouble::updateTime() const
   updateTimeWith(*_time_discr);
 }
 
-std::size_t MEDCouplingFieldDouble::getHeapMemorySize() const
+std::size_t MEDCouplingFieldDouble::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  return MEDCouplingField::getHeapMemorySizeWithoutChildren();
+}
+
+std::vector<RefCountObject *> MEDCouplingFieldDouble::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret(MEDCouplingField::getDirectChildren());
   if(_time_discr)
-    ret+=_time_discr->getHeapMemorySize();
-  return MEDCouplingField::getHeapMemorySize()+ret;
+    {
+      std::vector<RefCountObject *> ret2(_time_discr->getDirectChildren());
+      ret.insert(ret.end(),ret2.begin(),ret2.end());
+    }
+  return ret;
 }
 
 /*!

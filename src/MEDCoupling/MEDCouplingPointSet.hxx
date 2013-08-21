@@ -52,7 +52,8 @@ namespace ParaMEDMEM
     ~MEDCouplingPointSet();
   public:
     void updateTime() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     void setCoords(const DataArrayDouble *coords);

@@ -41,7 +41,8 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy);
   public:
     void updateTime() const;
-    virtual std::size_t getHeapMemorySize() const;
+    virtual std::size_t getHeapMemorySizeWithoutChildren() const;
+    virtual std::vector<RefCountObject *> getDirectChildren() const;
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type) throw(INTERP_KERNEL::Exception);
     void setTimeUnit(const char *unit) { _time_unit=unit; }
     const char *getTimeUnit() const { return _time_unit.c_str(); }
@@ -367,7 +368,8 @@ namespace ParaMEDMEM
   public:
     void updateTime() const;
     void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     const DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception);

@@ -179,9 +179,14 @@ void MEDCouplingFieldDiscretization::updateTime() const
 {
 }
 
-std::size_t MEDCouplingFieldDiscretization::getHeapMemorySize() const
+std::size_t MEDCouplingFieldDiscretization::getHeapMemorySizeWithoutChildren() const
 {
   return 0;
+}
+
+std::vector<RefCountObject *> MEDCouplingFieldDiscretization::getDirectChildren() const
+{
+  return std::vector<RefCountObject *>();
 }
 
 /*!
@@ -1069,11 +1074,17 @@ void MEDCouplingFieldDiscretizationPerCell::updateTime() const
     updateTimeWith(*_discr_per_cell);
 }
 
-std::size_t MEDCouplingFieldDiscretizationPerCell::getHeapMemorySize() const
+std::size_t MEDCouplingFieldDiscretizationPerCell::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=0;
+  std::size_t ret(MEDCouplingFieldDiscretization::getHeapMemorySizeWithoutChildren());
+  return ret;
+}
+
+std::vector<RefCountObject *> MEDCouplingFieldDiscretizationPerCell::getDirectChildren() const
+{
+  std::vector<RefCountObject *> ret(MEDCouplingFieldDiscretization::getDirectChildren());
   if(_discr_per_cell)
-    ret+=_discr_per_cell->getHeapMemorySize();
+    ret.push_back(const_cast<DataArrayInt *>(_discr_per_cell));
   return ret;
 }
 
@@ -1307,12 +1318,13 @@ std::string MEDCouplingFieldDiscretizationGauss::getStringRepr() const
   return oss.str();
 }
 
-std::size_t MEDCouplingFieldDiscretizationGauss::getHeapMemorySize() const
+std::size_t MEDCouplingFieldDiscretizationGauss::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret=_loc.capacity()*sizeof(MEDCouplingGaussLocalization);
+  std::size_t ret(MEDCouplingFieldDiscretizationPerCell::getHeapMemorySizeWithoutChildren());
+  ret+=_loc.capacity()*sizeof(MEDCouplingGaussLocalization);
   for(std::vector<MEDCouplingGaussLocalization>::const_iterator it=_loc.begin();it!=_loc.end();it++)
     ret+=(*it).getHeapMemorySize();
-  return MEDCouplingFieldDiscretizationPerCell::getHeapMemorySize()+ret;
+  return ret;
 }
 
 const char *MEDCouplingFieldDiscretizationGauss::getRepr() const

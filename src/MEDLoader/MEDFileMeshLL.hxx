@@ -42,7 +42,8 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileMeshL2();
-    std::size_t getHeapMemorySize() const { return 0; }
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     const char *getName() const { return _name.getReprForWrite(); }
     const char *getDescription() const { return _description.getReprForWrite(); }
     const char *getUnivName() const { return _univ_name.getReprForWrite(); }
@@ -136,7 +137,7 @@ namespace ParaMEDMEM
     mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
   };
 
-  class MEDFileUMeshAggregateCompute
+  class MEDFileUMeshAggregateCompute : public RefCountObject
   {
   public:
     MEDFileUMeshAggregateCompute();
@@ -147,7 +148,8 @@ namespace ParaMEDMEM
     std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     std::size_t getTimeOfThis() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     MEDFileUMeshAggregateCompute deepCpy(DataArrayDouble *coords) const;
     bool isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
@@ -176,7 +178,8 @@ namespace ParaMEDMEM
     MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
-    std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<RefCountObject *> getDirectChildren() const;
     MEDFileUMeshSplitL1 *deepCpy(DataArrayDouble *coords) const;
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;
