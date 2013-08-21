@@ -21,6 +21,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "MED_version.h"
 
+#include <sstream>
 #include <set>
 
 using namespace ParaMEDMEM;
@@ -110,6 +111,46 @@ std::size_t RefCountObject::getHeapMemorySize() const
       s2=s3;
     }
   return ret;
+}
+
+std::string RefCountObject::getHeapMemorySizeStr() const
+{
+  static const char *UNITS[4]={"B","kB","MB","GB"};
+  std::size_t m(getHeapMemorySize());
+  std::ostringstream oss; oss.precision(3);
+  std::size_t remain(0);
+  int i(0);
+  for(;i<4;i++)
+    {
+      if(m<1024)
+        {
+          oss << m;
+          if(remain!=0)
+            {
+              std::ostringstream oss2; oss2 << std::fixed << ((double)remain)/1024.;
+              std::string s(oss2.str());
+              s=s.substr(1,4);
+              std::size_t pos(s.find_last_not_of('0'));
+              if(pos==4)
+                oss << s;
+              else
+                oss << s.substr(0,pos+1);
+            }
+          oss << " " << UNITS[i];
+          break;
+        }
+      else
+        {
+          if(i!=3)
+            {
+              remain=(m%1024);
+              m/=1024;
+            }
+        }
+    }
+  if(i==4)
+    oss << m << " " << UNITS[3];
+  return oss.str();
 }
 
 bool RefCountObject::decrRef() const

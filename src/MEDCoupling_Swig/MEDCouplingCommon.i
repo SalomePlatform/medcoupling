@@ -568,7 +568,8 @@ namespace ParaMEDMEM
     bool decrRef() const;
     void incrRef() const;
     int getRCValue() const;
-    virtual std::size_t getHeapMemorySize() const;
+    std::size_t getHeapMemorySize() const;
+    std::string RefCountObject::getHeapMemorySizeStr() const;
   };
 }
 
