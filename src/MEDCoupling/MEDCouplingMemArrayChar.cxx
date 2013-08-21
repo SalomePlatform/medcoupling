@@ -204,7 +204,7 @@ char DataArrayChar::popBackSilent() throw(INTERP_KERNEL::Exception)
 /*!
  * This method \b do \b not modify content of \a this. It only modify its memory footprint if the allocated memory is to high regarding real data to store.
  *
- * \sa DataArrayChar::getHeapMemorySize, DataArrayChar::reserve
+ * \sa DataArrayChar::getHeapMemorySizeWithoutChildren, DataArrayChar::reserve
  */
 void DataArrayChar::pack() const throw(INTERP_KERNEL::Exception)
 {

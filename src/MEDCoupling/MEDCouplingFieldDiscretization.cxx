@@ -1323,7 +1323,7 @@ std::size_t MEDCouplingFieldDiscretizationGauss::getHeapMemorySizeWithoutChildre
   std::size_t ret(MEDCouplingFieldDiscretizationPerCell::getHeapMemorySizeWithoutChildren());
   ret+=_loc.capacity()*sizeof(MEDCouplingGaussLocalization);
   for(std::vector<MEDCouplingGaussLocalization>::const_iterator it=_loc.begin();it!=_loc.end();it++)
-    ret+=(*it).getHeapMemorySize();
+    ret+=(*it).getMemorySize();
   return ret;
 }
 

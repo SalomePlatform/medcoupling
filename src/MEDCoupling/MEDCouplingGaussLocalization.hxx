@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     int getDimension() const;
     int getNumberOfPtsInRefCell() const;
     std::string getStringRepr() const;
-    std::size_t getHeapMemorySize() const;
+    std::size_t getMemorySize() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const;
     void pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const;

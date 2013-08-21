@@ -104,7 +104,7 @@ std::string ParaMEDMEM::MEDCouplingGaussLocalization::getStringRepr() const
   return oss.str();
 }
 
-std::size_t ParaMEDMEM::MEDCouplingGaussLocalization::getHeapMemorySize() const
+std::size_t ParaMEDMEM::MEDCouplingGaussLocalization::getMemorySize() const
 {
   std::size_t ret=0;
   ret+=_ref_coord.capacity()*sizeof(double);
