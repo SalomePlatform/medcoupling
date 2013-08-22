@@ -1161,7 +1161,10 @@ void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameIn
     {
       ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
       INTERP_KERNEL::AutoPtr<float> tmp(new float[getNbOfElems()]);
-      std::copy(begin(),end(),(float *)tmp);
+      float *pt(tmp);
+      // to make Visual C++ happy : instead of std::copy(begin(),end(),(float *)tmp);
+      for(const double *src=begin();src!=end();src++,pt++)
+        *pt=(int)*src;
       const char *data(reinterpret_cast<const char *>((float *)tmp));
       std::size_t sz(getNbOfElems()*sizeof(float));
       byteArr->insertAtTheEnd(data,data+sz);
@@ -1346,9 +1349,10 @@ DataArrayInt *DataArrayDouble::convertToIntArr() const
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(getNumberOfTuples(),getNumberOfComponents());
   std::size_t nbOfVals=getNbOfElems();
-  const double *src=getConstPointer();
   int *dest=ret->getPointer();
-  std::copy(src,src+nbOfVals,dest);
+  // to make Visual C++ happy : instead of std::copy(src,src+nbOfVals,dest);
+  for(const double *src=begin();src!=end();src++,dest++)
+    *dest=(int)*src;
   ret->copyStringInfoFrom(*this);
   return ret;
 }
