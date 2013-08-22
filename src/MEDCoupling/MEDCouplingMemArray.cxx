@@ -2161,7 +2161,7 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
           *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
         break;
       }
-    defaut:
+    default:
       throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : space dimension supported are [1,2,3] !");
     }
   
@@ -8607,7 +8607,7 @@ DataArrayInt *DataArrayInt::accumulatePerChunck(const int *bgOfIndex, const int 
   int *tmp=ret->getPointer();
   for(int i=0;i<sz;i++,tmp+=nbCompo,w++)
     {
-      std::fill(tmp,tmp+nbCompo,0.);
+      std::fill(tmp,tmp+nbCompo,0);
       if(w[1]>=w[0])
         {
           for(int j=w[0];j<w[1];j++,srcPt+=nbCompo)

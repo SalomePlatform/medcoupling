@@ -8851,7 +8851,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOf
   int *work=arrIo->getPointer();
   *work++=0;
   int lgth=0;
-  for(std::size_t i=0;i<sz;i++,work++,idsIt+=idsOfSelectStep)
+  for(int i=0;i<sz;i++,work++,idsIt+=idsOfSelectStep)
     {
       if(idsIt>=0 && idsIt<nbOfGrps)
         lgth+=arrIndxPtr[idsIt+1]-arrIndxPtr[idsIt];
@@ -8872,7 +8872,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOf
   arro->alloc(lgth,1);
   work=arro->getPointer();
   idsIt=idsOfSelectStart;
-  for(std::size_t i=0;i<sz;i++,idsIt+=idsOfSelectStep)
+  for(int i=0;i<sz;i++,idsIt+=idsOfSelectStep)
     {
       if(arrIndxPtr[idsIt]>=0 && arrIndxPtr[idsIt+1]<=maxSizeOfArr)
         work=std::copy(arrInPtr+arrIndxPtr[idsIt],arrInPtr+arrIndxPtr[idsIt+1],work);

@@ -215,7 +215,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=NO_TIME;
-    static const char REPR[];
+    MEDCOUPLING_EXPORT static const char REPR[];
   private:
     static const char EXCEPTION_MSG[];
   };
@@ -279,7 +279,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
-    static const char REPR[];
+    MEDCOUPLING_EXPORT static const char REPR[];
   private:
     static const char EXCEPTION_MSG[];
   protected:
@@ -347,7 +347,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=CONST_ON_TIME_INTERVAL;
-    static const char REPR[];
+    MEDCOUPLING_EXPORT static const char REPR[];
   private:
     static const char EXCEPTION_MSG[];
   protected:
@@ -450,7 +450,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=LINEAR_TIME;
-    static const char REPR[];
+    MEDCOUPLING_EXPORT static const char REPR[];
   };
 }
 
