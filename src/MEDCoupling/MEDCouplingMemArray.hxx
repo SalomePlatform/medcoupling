@@ -387,12 +387,12 @@ namespace ParaMEDMEM
 
   class DataArrayDoubleTuple;
 
-  class MEDCOUPLING_EXPORT DataArrayDoubleIterator
+  class DataArrayDoubleIterator
   {
   public:
-    DataArrayDoubleIterator(DataArrayDouble *da);
-    ~DataArrayDoubleIterator();
-     DataArrayDoubleTuple *nextt() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDoubleIterator(DataArrayDouble *da);
+    MEDCOUPLING_EXPORT ~DataArrayDoubleIterator();
+    MEDCOUPLING_EXPORT DataArrayDoubleTuple *nextt() throw(INTERP_KERNEL::Exception);
   private:
     DataArrayDouble *_da;
     double *_pt;
@@ -401,16 +401,16 @@ namespace ParaMEDMEM
     int _nb_tuple;
   };
 
-  class MEDCOUPLING_EXPORT DataArrayDoubleTuple
+  class DataArrayDoubleTuple
   {
   public:
-    DataArrayDoubleTuple(double *pt, int nbOfComp);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfCompo() const { return _nb_of_compo; }
-    const double *getConstPointer() const { return  _pt; }
-    double *getPointer() { return _pt; }
-    double doubleValue() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDoubleTuple(double *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
+    MEDCOUPLING_EXPORT const double *getConstPointer() const { return  _pt; }
+    MEDCOUPLING_EXPORT double *getPointer() { return _pt; }
+    MEDCOUPLING_EXPORT double doubleValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
   private:
     double *_pt;
     int _nb_of_compo;
@@ -620,12 +620,12 @@ namespace ParaMEDMEM
 
   class DataArrayIntTuple;
 
-  class MEDCOUPLING_EXPORT DataArrayIntIterator
+  class DataArrayIntIterator
   {
   public:
-    DataArrayIntIterator(DataArrayInt *da);
-    ~DataArrayIntIterator();
-     DataArrayIntTuple *nextt() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayIntIterator(DataArrayInt *da);
+    MEDCOUPLING_EXPORT ~DataArrayIntIterator();
+    MEDCOUPLING_EXPORT DataArrayIntTuple *nextt() throw(INTERP_KERNEL::Exception);
   private:
     DataArrayInt *_da;
     int *_pt;
@@ -634,16 +634,16 @@ namespace ParaMEDMEM
     int _nb_tuple;
   };
 
-  class MEDCOUPLING_EXPORT DataArrayIntTuple
+  class DataArrayIntTuple
   {
   public:
-    DataArrayIntTuple(int *pt, int nbOfComp);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfCompo() const { return _nb_of_compo; }
-    const int *getConstPointer() const { return  _pt; }
-    int *getPointer() { return _pt; }
-    int intValue() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayIntTuple(int *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
+    MEDCOUPLING_EXPORT const int *getConstPointer() const { return  _pt; }
+    MEDCOUPLING_EXPORT int *getPointer() { return _pt; }
+    MEDCOUPLING_EXPORT int intValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
   private:
     int *_pt;
     int _nb_of_compo;
@@ -779,12 +779,12 @@ namespace ParaMEDMEM
 
   class DataArrayByteTuple;
 
-  class MEDCOUPLING_EXPORT DataArrayByteIterator
+  class DataArrayByteIterator
   {
   public:
-    DataArrayByteIterator(DataArrayByte *da);
-    ~DataArrayByteIterator();
-     DataArrayByteTuple *nextt() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayByteIterator(DataArrayByte *da);
+    MEDCOUPLING_EXPORT ~DataArrayByteIterator();
+    MEDCOUPLING_EXPORT DataArrayByteTuple *nextt() throw(INTERP_KERNEL::Exception);
   private:
     DataArrayByte *_da;
     char *_pt;
@@ -793,16 +793,16 @@ namespace ParaMEDMEM
     int _nb_tuple;
   };
 
-  class MEDCOUPLING_EXPORT DataArrayByteTuple
+  class DataArrayByteTuple
   {
   public:
-    DataArrayByteTuple(char *pt, int nbOfComp);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfCompo() const { return _nb_of_compo; }
-    const char *getConstPointer() const { return  _pt; }
-    char *getPointer() { return _pt; }
-    char byteValue() const throw(INTERP_KERNEL::Exception);
-    DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayByteTuple(char *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
+    MEDCOUPLING_EXPORT const char *getConstPointer() const { return  _pt; }
+    MEDCOUPLING_EXPORT char *getPointer() { return _pt; }
+    MEDCOUPLING_EXPORT char byteValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayByte *buildDAByte(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
   private:
     char *_pt;
     int _nb_of_compo;
@@ -838,12 +838,12 @@ namespace ParaMEDMEM
 
   class DataArrayAsciiCharTuple;
 
-  class MEDCOUPLING_EXPORT DataArrayAsciiCharIterator
+  class DataArrayAsciiCharIterator
   {
   public:
-    DataArrayAsciiCharIterator(DataArrayAsciiChar *da);
-    ~DataArrayAsciiCharIterator();
-     DataArrayAsciiCharTuple *nextt() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayAsciiCharIterator(DataArrayAsciiChar *da);
+    MEDCOUPLING_EXPORT ~DataArrayAsciiCharIterator();
+    MEDCOUPLING_EXPORT DataArrayAsciiCharTuple *nextt() throw(INTERP_KERNEL::Exception);
   private:
     DataArrayAsciiChar *_da;
     char *_pt;
@@ -852,16 +852,16 @@ namespace ParaMEDMEM
     int _nb_tuple;
   };
 
-  class MEDCOUPLING_EXPORT DataArrayAsciiCharTuple
+  class DataArrayAsciiCharTuple
   {
   public:
-    DataArrayAsciiCharTuple(char *pt, int nbOfComp);
-    std::string repr() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfCompo() const { return _nb_of_compo; }
-    const char *getConstPointer() const { return  _pt; }
-    char *getPointer() { return _pt; }
-    char asciiCharValue() const throw(INTERP_KERNEL::Exception);
-    DataArrayAsciiChar *buildDAAsciiChar(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayAsciiCharTuple(char *pt, int nbOfComp);
+    MEDCOUPLING_EXPORT std::string repr() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfCompo() const { return _nb_of_compo; }
+    MEDCOUPLING_EXPORT const char *getConstPointer() const { return  _pt; }
+    MEDCOUPLING_EXPORT char *getPointer() { return _pt; }
+    MEDCOUPLING_EXPORT char asciiCharValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayAsciiChar *buildDAAsciiChar(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
   private:
     char *_pt;
     int _nb_of_compo;

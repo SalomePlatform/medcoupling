@@ -40,169 +40,169 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class MEDCouplingFieldDouble;
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization : public RefCountObject, public TimeLabel
+  class MEDCouplingFieldDiscretization : public RefCountObject, public TimeLabel
   {
   public:
-    static MEDCouplingFieldDiscretization *New(TypeOfField type);
-    double getPrecision() const { return _precision; }
-    void setPrecision(double val) { _precision=val; }
-    void updateTime() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
-    virtual TypeOfField getEnum() const = 0;
-    virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
-    virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
-    virtual MEDCouplingFieldDiscretization *deepCpy() const;
-    virtual MEDCouplingFieldDiscretization *clone() const = 0;
-    virtual MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
-    virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
-    virtual std::string getStringRepr() const = 0;
-    virtual const char *getRepr() const = 0;
-    virtual int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
-    virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
-    virtual void normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
-    virtual void normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
-    virtual void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const = 0;
-    virtual void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                                    DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
-    virtual void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                                       const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception) = 0;
-    virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const = 0;
-    virtual void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const = 0;
-    virtual void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const = 0;
-    virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const = 0;
-    virtual DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const = 0;
-    virtual MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const = 0;
-    virtual MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
-    virtual void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const = 0;
-    virtual void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const = 0;
-    virtual void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const = 0;
-    virtual void getSerializationIntArray(DataArrayInt *& arr) const;
-    virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    virtual void finishUnserialization(const std::vector<double>& tinyInfo);
-    virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
-    virtual void setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                            const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
-    virtual void setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
-                                             const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
-    virtual void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
-    virtual int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
-    virtual int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
-    virtual int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    virtual std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    virtual void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
-    virtual const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
-    virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual ~MEDCouplingFieldDiscretization();
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDiscretization *New(TypeOfField type);
+    MEDCOUPLING_EXPORT double getPrecision() const { return _precision; }
+    MEDCOUPLING_EXPORT void setPrecision(double val) { _precision=val; }
+    MEDCOUPLING_EXPORT void updateTime() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual TypeOfField getEnum() const = 0;
+    MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
+    MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *deepCpy() const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clone() const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
+    MEDCOUPLING_EXPORT virtual std::string getStringRepr() const = 0;
+    MEDCOUPLING_EXPORT virtual const char *getRepr() const = 0;
+    MEDCOUPLING_EXPORT virtual int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
+    MEDCOUPLING_EXPORT virtual void normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const = 0;
+    MEDCOUPLING_EXPORT virtual void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
+                                                                       DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
+                                                          const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const = 0;
+    MEDCOUPLING_EXPORT virtual void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const = 0;
+    MEDCOUPLING_EXPORT virtual void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT virtual void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const = 0;
+    MEDCOUPLING_EXPORT virtual void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const = 0;
+    MEDCOUPLING_EXPORT virtual void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const = 0;
+    MEDCOUPLING_EXPORT virtual void getSerializationIntArray(DataArrayInt *& arr) const;
+    MEDCOUPLING_EXPORT virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT virtual void finishUnserialization(const std::vector<double>& tinyInfo);
+    MEDCOUPLING_EXPORT virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
+    MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                                               const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
+                                                                const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual ~MEDCouplingFieldDiscretization();
   protected:
-    MEDCouplingFieldDiscretization();
-    static void RenumberEntitiesFromO2NArr(double epsOnVals, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const char *msg);
-    static void RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization();
+    MEDCOUPLING_EXPORT static void RenumberEntitiesFromO2NArr(double epsOnVals, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const char *msg);
+    MEDCOUPLING_EXPORT static void RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg);
   protected:
     double _precision;
     static const double DFLT_PRECISION;
   };
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationP0 : public MEDCouplingFieldDiscretization
+  class MEDCouplingFieldDiscretizationP0 : public MEDCouplingFieldDiscretization
   {
   public:
-    TypeOfField getEnum() const;
-    MEDCouplingFieldDiscretization *clone() const;
-    std::string getStringRepr() const;
-    const char *getRepr() const;
-    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
-    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                               const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
-    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
-    void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                            DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
-    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
-    void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
-    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
-    void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
-    void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
-    void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
-    MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
-    MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
-    DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
-    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT TypeOfField getEnum() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT const char *getRepr() const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
+                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
+                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
   };
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationOnNodes : public MEDCouplingFieldDiscretization
+  class MEDCouplingFieldDiscretizationOnNodes : public MEDCouplingFieldDiscretization
   {
   public:
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
-    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                               const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
-    void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                            DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
-    MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
-    DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
-    void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
-    void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
-    void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
+                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
+                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
   public:
-    void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
   };
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationP1 : public MEDCouplingFieldDiscretizationOnNodes
+  class MEDCouplingFieldDiscretizationP1 : public MEDCouplingFieldDiscretizationOnNodes
   {
   public:
-    TypeOfField getEnum() const;
-    MEDCouplingFieldDiscretization *clone() const;
-    std::string getStringRepr() const;
-    const char *getRepr() const;
-    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
-    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
-    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
-    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
-    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT TypeOfField getEnum() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT const char *getRepr() const;
+    MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
   protected:
-    void getValueInCell(const MEDCouplingMesh *mesh, int cellId, const DataArrayDouble *arr, const double *loc, double *res) const;
+    MEDCOUPLING_EXPORT void getValueInCell(const MEDCouplingMesh *mesh, int cellId, const DataArrayDouble *arr, const double *loc, double *res) const;
   };
 
   /*!
    * This class abstracts MEDCouplingFieldDiscretization that needs an information on each cell to perform their job.
    * All classes that inherits from this are more linked to mesh.
    */
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationPerCell : public MEDCouplingFieldDiscretization
+  class MEDCouplingFieldDiscretizationPerCell : public MEDCouplingFieldDiscretization
   {
   public:
-    const DataArrayInt *getArrayOfDiscIds() const;
-    void setArrayOfDiscIds(const DataArrayInt *adids) throw(INTERP_KERNEL::Exception);
-    void checkNoOrphanCells() const throw(INTERP_KERNEL::Exception);
-    std::vector<DataArrayInt *> splitIntoSingleGaussDicrPerCellType(std::vector< int >& locIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const DataArrayInt *getArrayOfDiscIds() const;
+    MEDCOUPLING_EXPORT void setArrayOfDiscIds(const DataArrayInt *adids) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkNoOrphanCells() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT std::vector<DataArrayInt *> splitIntoSingleGaussDicrPerCellType(std::vector< int >& locIds) const throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingFieldDiscretizationPerCell();
     MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other, const int *startCellIds, const int *endCellIds);
@@ -222,62 +222,62 @@ namespace ParaMEDMEM
     static const int DFT_INVALID_LOCID_VALUE;
   };
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGauss : public MEDCouplingFieldDiscretizationPerCell
+  class MEDCouplingFieldDiscretizationGauss : public MEDCouplingFieldDiscretizationPerCell
   {
   public:
-    MEDCouplingFieldDiscretizationGauss();
-    TypeOfField getEnum() const;
-    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
-    MEDCouplingFieldDiscretization *clone() const;
-    MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
-    MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
-    std::string getStringRepr() const;
-    const char *getRepr() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
-    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                               const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
-    void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                            DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
-    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    void finishUnserialization(const std::vector<double>& tinyInfo);
-    void getSerializationIntArray(DataArrayInt *& arr) const;
-    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
-    double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
-    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
-    void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
-    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
-    MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
-    MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
-    DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
-    void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
-    void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
-    void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
-    void setGaussLocalizationOnType(const MEDCouplingMesh *mesh, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                    const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
-    void setGaussLocalizationOnCells(const MEDCouplingMesh *mesh, const int *begin, const int *end, const std::vector<double>& refCoo,
-                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
-    void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
-    void setGaussLocalization(int locId, const MEDCouplingGaussLocalization& loc) throw(INTERP_KERNEL::Exception);
-    void resizeLocalizationVector(int newSz) throw(INTERP_KERNEL::Exception);
-    MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
-    int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
-    int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
-    int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
-    const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *buildNbOfGaussPointPerCellField() const throw(INTERP_KERNEL::Exception);
-    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGauss();
+    MEDCOUPLING_EXPORT TypeOfField getEnum() const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT const char *getRepr() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
+                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
+                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<double>& tinyInfo);
+    MEDCOUPLING_EXPORT void getSerializationIntArray(DataArrayInt *& arr) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
+    MEDCOUPLING_EXPORT double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void setGaussLocalizationOnType(const MEDCouplingMesh *mesh, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                                       const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setGaussLocalizationOnCells(const MEDCouplingMesh *mesh, const int *begin, const int *end, const std::vector<double>& refCoo,
+                                                        const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setGaussLocalization(int locId, const MEDCouplingGaussLocalization& loc) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void resizeLocalizationVector(int newSz) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *buildNbOfGaussPointPerCellField() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other, const int *startCellIds=0, const int *endCellIds=0);
     MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other, int beginCellIds, int endCellIds, int stepCellIds);
@@ -294,43 +294,43 @@ namespace ParaMEDMEM
   /*!
    * Gauss with points of values located on nodes of element. This is a specialization of MEDCouplingFieldDiscretizationGauss.
    */
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGaussNE : public MEDCouplingFieldDiscretization
+  class MEDCouplingFieldDiscretizationGaussNE : public MEDCouplingFieldDiscretization
   {
   public:
-    MEDCouplingFieldDiscretizationGaussNE();
-    TypeOfField getEnum() const;
-    MEDCouplingFieldDiscretization *clone() const;
-    std::string getStringRepr() const;
-    const char *getRepr() const;
-    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
-    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
-    void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                               const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
-    void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
-    void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                            DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
-    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
-    double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
-    void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
-    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
-    void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
-    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
-    MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
-    MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
-    DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
-    void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
-    void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
-    void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
-    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
-    static const double *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception);
-    static const double *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGaussNE();
+    MEDCOUPLING_EXPORT TypeOfField getEnum() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT const char *getRepr() const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
+                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
+    MEDCOUPLING_EXPORT void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
+                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static const double *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static const double *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception);
   protected:
-    MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
@@ -371,23 +371,23 @@ namespace ParaMEDMEM
     static const double REF_PYRA13[39];
   };
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes
+  class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes
   {
   public:
-    TypeOfField getEnum() const;
-    const char *getRepr() const;
-    MEDCouplingFieldDiscretization *clone() const;
-    std::string getStringRepr() const;
-    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
-    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
-    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
-    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
-    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT TypeOfField getEnum() const;
+    MEDCOUPLING_EXPORT const char *getRepr() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   public://specific part
-    DataArrayDouble *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const;
-    DataArrayDouble *computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const;
-    DataArrayDouble *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const;
   protected:
     void operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const;
     DataArrayDouble *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const;

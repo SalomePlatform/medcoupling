@@ -30,169 +30,169 @@ namespace ParaMEDMEM
 {
   class MEDCouplingFieldTemplate;
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDouble : public MEDCouplingField
+  class MEDCouplingFieldDouble : public MEDCouplingField
   {
   public:
-    static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
-    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    void setTimeUnit(const char *unit);
-    const char *getTimeUnit() const;
-    void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
-    void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
-    void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
-    void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
-    std::string advancedRepr() const;
-    void writeVTK(const char *fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
-    bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception);
-    bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
-    bool areCompatibleForMerge(const MEDCouplingField *other) const;
-    bool areStrictlyCompatible(const MEDCouplingField *other) const;
-    bool areCompatibleForMul(const MEDCouplingField *other) const;
-    bool areCompatibleForDiv(const MEDCouplingField *other) const;
-    bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
-    void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
-    void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
-    void renumberNodes(const int *old2NewBg, double eps=1e-15) throw(INTERP_KERNEL::Exception);
-    void renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *deepCpy() const;
-    MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
-    MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
-    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
-    TypeOfTimeDiscretization getTimeDiscretization() const;
-    void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
-    void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
-    double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
-    void setIteration(int it) throw(INTERP_KERNEL::Exception) { _time_discr->setIteration(it); }
-    void setEndIteration(int it) throw(INTERP_KERNEL::Exception) { _time_discr->setEndIteration(it); }
-    void setOrder(int order) throw(INTERP_KERNEL::Exception) { _time_discr->setOrder(order); }
-    void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _time_discr->setEndOrder(order); }
-    void setTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setTimeValue(val); }
-    void setEndTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setEndTimeValue(val); }
-    void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
-    void synchronizeTimeWithMesh() throw(INTERP_KERNEL::Exception);
-    void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
-    void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
-    double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
-    double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
-    double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
-    double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
-    double getIJK(int cellId, int nodeIdInCell, int compoId) const;
-    void setArray(DataArrayDouble *array);
-    void setEndArray(DataArrayDouble *array);
-    void setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception);
-    const DataArrayDouble *getArray() const { return _time_discr->getArray(); }
-    DataArrayDouble *getArray() { return _time_discr->getArray(); }
-    const DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
-    DataArrayDouble *getEndArray() { return _time_discr->getEndArray(); }
-    std::vector<DataArrayDouble *> getArrays() const { std::vector<DataArrayDouble *> ret; _time_discr->getArrays(ret); return ret; }
-    double accumulate(int compId) const;
-    void accumulate(double *res) const;
-    double getMaxValue() const throw(INTERP_KERNEL::Exception);
-    double getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
-    double getMinValue() const throw(INTERP_KERNEL::Exception);
-    double getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
-    double getAverageValue() const throw(INTERP_KERNEL::Exception);
-    double norm2() const throw(INTERP_KERNEL::Exception);
-    double normMax() const throw(INTERP_KERNEL::Exception);
-    void getWeightedAverageValue(double *res, bool isWAbs=true) const throw(INTERP_KERNEL::Exception);
-    double getWeightedAverageValue(int compId, bool isWAbs=true) const throw(INTERP_KERNEL::Exception);
-    double normL1(int compId) const throw(INTERP_KERNEL::Exception);
-    void normL1(double *res) const throw(INTERP_KERNEL::Exception);
-    double normL2(int compId) const throw(INTERP_KERNEL::Exception);
-    void normL2(double *res) const throw(INTERP_KERNEL::Exception);
-    double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
-    void integral(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
-    void getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception);
-    void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
-    void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception);
-    void applyLin(double a, double b, int compoId);
-    MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc(int nbOfComp, FunctionToEvaluate func);
-    void applyFunc(int nbOfComp, double val);
-    void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
-    int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
-    int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
-    void updateTime() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+    MEDCOUPLING_EXPORT void setTimeUnit(const char *unit);
+    MEDCOUPLING_EXPORT const char *getTimeUnit() const;
+    MEDCOUPLING_EXPORT void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT std::string simpleRepr() const;
+    MEDCOUPLING_EXPORT std::string advancedRepr() const;
+    MEDCOUPLING_EXPORT void writeVTK(const char *fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMul(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForDiv(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
+    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void renumberNodes(const int *old2NewBg, double eps=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
+    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getTimeDiscretization() const;
+    MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
+    MEDCOUPLING_EXPORT double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
+    MEDCOUPLING_EXPORT void setIteration(int it) throw(INTERP_KERNEL::Exception) { _time_discr->setIteration(it); }
+    MEDCOUPLING_EXPORT void setEndIteration(int it) throw(INTERP_KERNEL::Exception) { _time_discr->setEndIteration(it); }
+    MEDCOUPLING_EXPORT void setOrder(int order) throw(INTERP_KERNEL::Exception) { _time_discr->setOrder(order); }
+    MEDCOUPLING_EXPORT void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _time_discr->setEndOrder(order); }
+    MEDCOUPLING_EXPORT void setTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setTimeValue(val); }
+    MEDCOUPLING_EXPORT void setEndTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setEndTimeValue(val); }
+    MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
+    MEDCOUPLING_EXPORT void synchronizeTimeWithMesh() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
+    MEDCOUPLING_EXPORT void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
+    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
+    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
+    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
+    MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
+    MEDCOUPLING_EXPORT double getIJK(int cellId, int nodeIdInCell, int compoId) const;
+    MEDCOUPLING_EXPORT void setArray(DataArrayDouble *array);
+    MEDCOUPLING_EXPORT void setEndArray(DataArrayDouble *array);
+    MEDCOUPLING_EXPORT void setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const DataArrayDouble *getArray() const { return _time_discr->getArray(); }
+    MEDCOUPLING_EXPORT DataArrayDouble *getArray() { return _time_discr->getArray(); }
+    MEDCOUPLING_EXPORT const DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
+    MEDCOUPLING_EXPORT DataArrayDouble *getEndArray() { return _time_discr->getEndArray(); }
+    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getArrays() const { std::vector<DataArrayDouble *> ret; _time_discr->getArrays(ret); return ret; }
+    MEDCOUPLING_EXPORT double accumulate(int compId) const;
+    MEDCOUPLING_EXPORT void accumulate(double *res) const;
+    MEDCOUPLING_EXPORT double getMaxValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getMinValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getAverageValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double norm2() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double normMax() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getWeightedAverageValue(double *res, bool isWAbs=true) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getWeightedAverageValue(int compId, bool isWAbs=true) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double normL1(int compId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void normL1(double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double normL2(int compId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void normL2(double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void integral(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, FunctionToEvaluate func);
+    MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, double val);
+    MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void updateTime() const;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     //
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays);
-    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    void serialize(DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays) const;
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays);
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void serialize(DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays) const;
     //
-    void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps=1e-15) throw(INTERP_KERNEL::Exception);
-    void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps=1e-15) throw(INTERP_KERNEL::Exception);
-    bool mergeNodes(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
-    bool mergeNodes2(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
-    bool zipCoords(double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
-    bool zipConnectivity(int compType, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *extractSlice3D(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception);
-    bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *eigenValues() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *eigenVectors() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *inverse() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *trace() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *deviator() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *magnitude() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
-    void changeNbOfComponents(int newNbOfComp, double dftValue=0.) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
-    void setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
-    void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *DotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return DotFields(this,&other); }
-    static MEDCouplingFieldDouble *CrossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return CrossProductFields(this,&other); }
-    static MEDCouplingFieldDouble *MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return MaxFields(this,&other); }
-    static MEDCouplingFieldDouble *MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return MinFields(this,&other); }
-    MEDCouplingFieldDouble *negate() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return AddFields(this,&other); }
-    const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return SubstractFields(this,&other); }
-    const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool mergeNodes(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool mergeNodes2(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool zipCoords(double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool zipConnectivity(int compType, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *extractSlice3D(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *eigenValues() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *eigenVectors() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *inverse() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *trace() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deviator() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *magnitude() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void changeNbOfComponents(int newNbOfComp, double dftValue=0.) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *DotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return DotFields(this,&other); }
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *CrossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return CrossProductFields(this,&other); }
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return MaxFields(this,&other); }
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return MinFields(this,&other); }
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *negate() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return AddFields(this,&other); }
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return SubstractFields(this,&other); }
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return MultiplyFields(this,&other); }
-    const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return DivideFields(this,&other); }
-    const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
-    const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    static void WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return DivideFields(this,&other); }
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static void WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true) throw(INTERP_KERNEL::Exception);
   public:
-    const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
-    MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }
-    void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);

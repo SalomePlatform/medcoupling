@@ -74,8 +74,8 @@ namespace ParaMEDMEM
   class RefCountObjectOnly
   {
   protected:
-    RefCountObjectOnly();
-    RefCountObjectOnly(const RefCountObjectOnly& other);
+    MEDCOUPLING_EXPORT RefCountObjectOnly();
+    MEDCOUPLING_EXPORT RefCountObjectOnly(const RefCountObjectOnly& other);
   public:
     MEDCOUPLING_EXPORT bool decrRef() const;
     MEDCOUPLING_EXPORT void incrRef() const;
@@ -90,9 +90,9 @@ namespace ParaMEDMEM
   class RefCountObject : public RefCountObjectOnly, public BigMemoryObject
   {
   protected:
-    RefCountObject();
-    RefCountObject(const RefCountObject& other);
-    virtual ~RefCountObject();
+    MEDCOUPLING_EXPORT RefCountObject();
+    MEDCOUPLING_EXPORT RefCountObject(const RefCountObject& other);
+    MEDCOUPLING_EXPORT virtual ~RefCountObject();
   };
 }
 
