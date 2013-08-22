@@ -558,18 +558,41 @@ namespace ParaMEDMEM
   bool MEDCouplingByteOrder();
   const char *MEDCouplingByteOrderStr();
 
-  class RefCountObject
+  class BigMemoryObject
   {
-  protected:
-    RefCountObject();
-    RefCountObject(const RefCountObject& other);
-    ~RefCountObject();
+  public:
+    std::size_t getHeapMemorySize() const;
+    std::string getHeapMemorySizeStr() const;
+    virtual std::size_t getHeapMemorySizeWithoutChildren() const;
+    virtual ~BigMemoryObject();
+    %extend
+    {
+      virtual PyObject *getDirectChildren() const
+      {
+        std::vector<const BigMemoryObject *> c(self->getDirectChildren());
+        PyObject *ret(PyList_New(c.size()));
+        for(std::size_t i=0;i<c.size();i++)
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));
+        return ret;
+      }
+    }
+  };
+  
+  class RefCountObjectOnly
+  {
   public:
     bool decrRef() const;
     void incrRef() const;
     int getRCValue() const;
-    std::size_t getHeapMemorySize() const;
-    std::string RefCountObject::getHeapMemorySizeStr() const;
+    RefCountObjectOnly& operator=(const RefCountObjectOnly& other);
+  protected:
+    ~RefCountObjectOnly();
+  };
+
+  class RefCountObject : public RefCountObjectOnly, public BigMemoryObject
+  {
+  protected:
+    ~RefCountObject();
   };
 }
 

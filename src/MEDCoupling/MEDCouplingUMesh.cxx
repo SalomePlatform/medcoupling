@@ -121,13 +121,13 @@ std::size_t MEDCouplingUMesh::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<RefCountObject *> MEDCouplingUMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingUMesh::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret(MEDCouplingPointSet::getDirectChildren());
+  std::vector<const BigMemoryObject *> ret(MEDCouplingPointSet::getDirectChildren());
   if(_nodal_connec)
-    ret.push_back(const_cast<DataArrayInt *>(_nodal_connec));
+    ret.push_back(_nodal_connec);
   if(_nodal_connec_index)
-    ret.push_back(const_cast<DataArrayInt *>(_nodal_connec_index));
+    ret.push_back(_nodal_connec_index);
   return ret;
 }
 

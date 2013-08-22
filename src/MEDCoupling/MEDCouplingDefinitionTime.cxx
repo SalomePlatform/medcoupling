@@ -114,9 +114,9 @@ std::size_t MEDCouplingDefinitionTimeSlice::getHeapMemorySizeWithoutChildren() c
   return 0;
 }
 
-std::vector<RefCountObject *> MEDCouplingDefinitionTimeSlice::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingDefinitionTimeSlice::getDirectChildren() const
 {
-  return std::vector<RefCountObject *>();
+  return std::vector<const BigMemoryObject *>();
 }
 
 bool MEDCouplingDefinitionTimeSlice::isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
@@ -474,9 +474,9 @@ std::size_t MEDCouplingDefinitionTime::getHeapMemorySizeWithoutChildren() const
   return _slices.capacity()*(sizeof(MEDCouplingDefinitionTimeSlice)+sizeof(int));
 }
 
-std::vector<RefCountObject *> MEDCouplingDefinitionTime::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingDefinitionTime::getDirectChildren() const
 {
-  return std::vector<RefCountObject *>();
+  return std::vector<const BigMemoryObject *>();
 }
 
 void MEDCouplingDefinitionTime::assign(const MEDCouplingDefinitionTime& other)

@@ -111,7 +111,7 @@ namespace SauvUtilities
     virtual std::string getName() const = 0;
   protected:
     std::size_t getHeapMemorySizeWithoutChildren() const { return 0; }
-    std::vector<RefCountObject *> getDirectChildren() const { return std::vector<RefCountObject *>(); }
+    std::vector<const BigMemoryObject *> getDirectChildren() const { return std::vector<const BigMemoryObject *>(); }
   protected:
     std::string _fileName, _curLocale;
     int _iRead, _nbToRead;

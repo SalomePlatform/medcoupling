@@ -195,14 +195,14 @@ std::size_t MEDCouplingMultiFields::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<RefCountObject *> MEDCouplingMultiFields::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingMultiFields::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
     {
       const MEDCouplingFieldDouble *curF(*it);
       if(curF)
-        ret.push_back(const_cast<MEDCouplingFieldDouble *>(curF));
+        ret.push_back(curF);
     }
   return ret;
 }

@@ -53,7 +53,7 @@ namespace ParaMEDMEM
   public:
     void updateTime() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     void setCoords(const DataArrayDouble *coords);

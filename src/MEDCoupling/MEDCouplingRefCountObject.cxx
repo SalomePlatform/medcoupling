@@ -71,39 +71,24 @@ const char *ParaMEDMEM::MEDCouplingByteOrderStr()
     return BIGENDIAN_STR;
 }
 
-RefCountObject::RefCountObject():_cnt(1)
-{
-}
+//=
 
-RefCountObject::RefCountObject(const RefCountObject& other):_cnt(1)
-{
-}
-
-/*!
- * Do nothing here ! It is not a bug ( I hope :) ) because all subclasses that
- * copies using operator= should not copy the ref counter of \a other !
- */
-RefCountObject& RefCountObject::operator=(const RefCountObject& other)
-{
-  return *this;
-}
-
-std::size_t RefCountObject::getHeapMemorySize() const
+std::size_t BigMemoryObject::getHeapMemorySize() const
 {
   std::size_t ret(getHeapMemorySizeWithoutChildren());
-  std::vector<RefCountObject *> v(getDirectChildren());
-  std::set<RefCountObject *> s1,s2(v.begin(),v.end());
+  std::vector<const BigMemoryObject *> v(getDirectChildren());
+  std::set<const BigMemoryObject *> s1,s2(v.begin(),v.end());
   while(!s2.empty())
     {
-      std::set<RefCountObject *> s3;
-      for(std::set<RefCountObject *>::const_iterator it=s2.begin();it!=s2.end();it++)
+      std::set<const BigMemoryObject *> s3;
+      for(std::set<const BigMemoryObject *>::const_iterator it=s2.begin();it!=s2.end();it++)
         {
           if(s1.find(*it)==s1.end())
             {
               ret+=(*it)->getHeapMemorySizeWithoutChildren();
               s1.insert(*it);
-              std::vector<RefCountObject *> v2((*it)->getDirectChildren());
-              for(std::vector<RefCountObject *>::const_iterator it2=v2.begin();it2!=v2.end();it2++)
+              std::vector<const BigMemoryObject *> v2((*it)->getDirectChildren());
+              for(std::vector<const BigMemoryObject *>::const_iterator it2=v2.begin();it2!=v2.end();it2++)
                 if(s1.find(*it2)==s1.end())
                   s3.insert(*it2);
             }
@@ -113,7 +98,7 @@ std::size_t RefCountObject::getHeapMemorySize() const
   return ret;
 }
 
-std::string RefCountObject::getHeapMemorySizeStr() const
+std::string BigMemoryObject::getHeapMemorySizeStr() const
 {
   static const char *UNITS[4]={"B","kB","MB","GB"};
   std::size_t m(getHeapMemorySize());
@@ -153,7 +138,21 @@ std::string RefCountObject::getHeapMemorySizeStr() const
   return oss.str();
 }
 
-bool RefCountObject::decrRef() const
+BigMemoryObject::~BigMemoryObject()
+{
+}
+
+//=
+
+RefCountObjectOnly::RefCountObjectOnly():_cnt(1)
+{
+}
+
+RefCountObjectOnly::RefCountObjectOnly(const RefCountObjectOnly& other):_cnt(1)
+{
+}
+
+bool RefCountObjectOnly::decrRef() const
 {
   bool ret=((--_cnt)==0);
   if(ret)
@@ -161,14 +160,37 @@ bool RefCountObject::decrRef() const
   return ret;
 }
 
-void RefCountObject::incrRef() const
+void RefCountObjectOnly::incrRef() const
 {
   _cnt++;
 }
 
-int RefCountObject::getRCValue() const
+int RefCountObjectOnly::getRCValue() const
 {
   return _cnt;
+}
+
+RefCountObjectOnly::~RefCountObjectOnly()
+{
+}
+
+/*!
+ * Do nothing here ! It is not a bug ( I hope :) ) because all subclasses that
+ * copies using operator= should not copy the ref counter of \a other !
+ */
+RefCountObjectOnly& RefCountObjectOnly::operator=(const RefCountObjectOnly& other)
+{
+  return *this;
+}
+
+//=
+
+RefCountObject::RefCountObject()
+{
+}
+
+RefCountObject::RefCountObject(const RefCountObject& other):RefCountObjectOnly(other)
+{
 }
 
 RefCountObject::~RefCountObject()

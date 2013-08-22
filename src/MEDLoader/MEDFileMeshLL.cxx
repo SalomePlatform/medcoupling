@@ -45,9 +45,9 @@ std::size_t MEDFileMeshL2::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<RefCountObject *> MEDFileMeshL2::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildren() const
 {
-  return std::vector<RefCountObject *>();
+  return std::vector<const BigMemoryObject *>();
 }
 
 int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1) throw(INTERP_KERNEL::Exception)
@@ -567,18 +567,18 @@ std::size_t MEDFileUMeshSplitL1::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<RefCountObject *> MEDFileUMeshSplitL1::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileUMeshSplitL1::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
-  ret.push_back(const_cast<MEDFileUMeshAggregateCompute *>(&_m_by_types));
+  std::vector<const BigMemoryObject *> ret;
+  ret.push_back(&_m_by_types);
   if((const DataArrayInt*)_fam)
-    ret.push_back(const_cast<DataArrayInt*>((const DataArrayInt*)_fam));
+    ret.push_back((const DataArrayInt*)_fam);
   if((const DataArrayInt*)_num)
-    ret.push_back(const_cast<DataArrayInt*>((const DataArrayInt*)_num));
+    ret.push_back((const DataArrayInt*)_num);
   if((const DataArrayInt*)_rev_num)
-    ret.push_back(const_cast<DataArrayInt*>((const DataArrayInt*)_rev_num));
+    ret.push_back((const DataArrayInt*)_rev_num);
   if((const DataArrayAsciiChar*)_names)
-    ret.push_back(const_cast<DataArrayAsciiChar*>((const DataArrayAsciiChar*)_names));
+    ret.push_back((const DataArrayAsciiChar*)_names);
   return ret;
 }
 
@@ -1078,18 +1078,18 @@ std::size_t MEDFileUMeshAggregateCompute::getHeapMemorySizeWithoutChildren() con
   return ret;
 }
 
-std::vector<RefCountObject *> MEDFileUMeshAggregateCompute::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileUMeshAggregateCompute::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
     {
       const MEDCoupling1GTUMesh *cur(*it);
       if(cur)
-        ret.push_back(const_cast<MEDCoupling1GTUMesh *>(cur));
+        ret.push_back(cur);
     }
   const MEDCouplingUMesh *m(_m);
   if(m)
-    ret.push_back(const_cast<MEDCouplingUMesh *>(m));
+    ret.push_back(m);
   return ret;
 }
 

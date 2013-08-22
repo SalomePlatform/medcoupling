@@ -48,7 +48,7 @@ namespace ParaMEDMEM
     void setPrecision(double val) { _precision=val; }
     void updateTime() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
@@ -210,7 +210,7 @@ namespace ParaMEDMEM
     ~MEDCouplingFieldDiscretizationPerCell();
     void updateTime() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception);
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;

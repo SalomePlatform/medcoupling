@@ -63,7 +63,7 @@ namespace ParaMEDMEM
     double getValue() const throw(INTERP_KERNEL::Exception) { return _arr; }
     bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     void readValue(med_idt fid, const std::string& name) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
   protected:
@@ -106,7 +106,7 @@ namespace ParaMEDMEM
     virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     virtual std::string simpleRepr() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     void setName(const char *name) throw(INTERP_KERNEL::Exception) { _name=name; }
     std::string getName() const throw(INTERP_KERNEL::Exception) { return _name; }
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -126,7 +126,7 @@ namespace ParaMEDMEM
     std::string getName() const { return _name; }
     void setName(const char *name) { _name=name; }
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -157,7 +157,7 @@ namespace ParaMEDMEM
     static MEDFileParameters *New();
     static MEDFileParameters *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<RefCountObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDFileParameters *deepCpy() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);

@@ -572,12 +572,12 @@ std::size_t MEDCoupling1SGTUMesh::getHeapMemorySizeWithoutChildren() const
   return MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<RefCountObject *> MEDCoupling1SGTUMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCoupling1SGTUMesh::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret(MEDCoupling1GTUMesh::getDirectChildren());
+  std::vector<const BigMemoryObject *> ret(MEDCoupling1GTUMesh::getDirectChildren());
   const DataArrayInt *c(_conn);
   if(c)
-    ret.push_back(const_cast<DataArrayInt *>(c));
+    ret.push_back(c);
   return ret;
 }
 
@@ -1909,15 +1909,15 @@ std::size_t MEDCoupling1DGTUMesh::getHeapMemorySizeWithoutChildren() const
   return MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<RefCountObject *> MEDCoupling1DGTUMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCoupling1DGTUMesh::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret(MEDCoupling1GTUMesh::getDirectChildren());
+  std::vector<const BigMemoryObject *> ret(MEDCoupling1GTUMesh::getDirectChildren());
   const DataArrayInt *c(_conn);
   if(c)
-    ret.push_back(const_cast<DataArrayInt *>(c));
+    ret.push_back(c);
   c=_conn_indx;
   if(c)
-    ret.push_back(const_cast<DataArrayInt *>(c));
+    ret.push_back(c);
   return ret;
 }
 

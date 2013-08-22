@@ -87,11 +87,11 @@ std::size_t MEDCouplingCurveLinearMesh::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<RefCountObject *> MEDCouplingCurveLinearMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingCurveLinearMesh::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   if((const DataArrayDouble *)_coords)
-    ret.push_back(const_cast<DataArrayDouble *>((const DataArrayDouble *)_coords));
+    ret.push_back((const DataArrayDouble *)_coords);
   return ret;
 }
 

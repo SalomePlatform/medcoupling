@@ -61,24 +61,38 @@ namespace ParaMEDMEM
   MEDCOUPLING_EXPORT bool MEDCouplingByteOrder();
   MEDCOUPLING_EXPORT const char *MEDCouplingByteOrderStr();
 
-  class RefCountObject
+  class BigMemoryObject
+  {
+  public:
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
+    MEDCOUPLING_EXPORT std::string getHeapMemorySizeStr() const;
+    MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
+    MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildren() const = 0;
+    MEDCOUPLING_EXPORT virtual ~BigMemoryObject();
+  };
+  
+  class RefCountObjectOnly
+  {
+  protected:
+    RefCountObjectOnly();
+    RefCountObjectOnly(const RefCountObjectOnly& other);
+  public:
+    MEDCOUPLING_EXPORT bool decrRef() const;
+    MEDCOUPLING_EXPORT void incrRef() const;
+    MEDCOUPLING_EXPORT int getRCValue() const;
+    MEDCOUPLING_EXPORT RefCountObjectOnly& operator=(const RefCountObjectOnly& other);
+  protected:
+    virtual ~RefCountObjectOnly();
+  private:
+    mutable int _cnt;
+  };
+
+  class RefCountObject : public RefCountObjectOnly, public BigMemoryObject
   {
   protected:
     RefCountObject();
     RefCountObject(const RefCountObject& other);
-  public:
-    MEDCOUPLING_EXPORT bool decrRef() const;
-    MEDCOUPLING_EXPORT void incrRef() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
-    MEDCOUPLING_EXPORT std::string getHeapMemorySizeStr() const;
-    MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
-    MEDCOUPLING_EXPORT virtual std::vector<RefCountObject *> getDirectChildren() const = 0;
-    MEDCOUPLING_EXPORT int getRCValue() const;
-    MEDCOUPLING_EXPORT RefCountObject& operator=(const RefCountObject& other);
-  protected:
     virtual ~RefCountObject();
-  private:
-    mutable int _cnt;
   };
 }
 

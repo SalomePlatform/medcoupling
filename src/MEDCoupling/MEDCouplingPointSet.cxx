@@ -80,11 +80,11 @@ std::size_t MEDCouplingPointSet::getHeapMemorySizeWithoutChildren() const
   return MEDCouplingMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<RefCountObject *> MEDCouplingPointSet::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingPointSet::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   if(_coords)
-    ret.push_back(const_cast<DataArrayDouble *>(_coords));
+    ret.push_back(_coords);
   return ret;
 }
 

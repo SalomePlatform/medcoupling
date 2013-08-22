@@ -184,9 +184,9 @@ std::size_t MEDCouplingFieldDiscretization::getHeapMemorySizeWithoutChildren() c
   return 0;
 }
 
-std::vector<RefCountObject *> MEDCouplingFieldDiscretization::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingFieldDiscretization::getDirectChildren() const
 {
-  return std::vector<RefCountObject *>();
+  return std::vector<const BigMemoryObject *>();
 }
 
 /*!
@@ -1080,11 +1080,11 @@ std::size_t MEDCouplingFieldDiscretizationPerCell::getHeapMemorySizeWithoutChild
   return ret;
 }
 
-std::vector<RefCountObject *> MEDCouplingFieldDiscretizationPerCell::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingFieldDiscretizationPerCell::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret(MEDCouplingFieldDiscretization::getDirectChildren());
+  std::vector<const BigMemoryObject *> ret(MEDCouplingFieldDiscretization::getDirectChildren());
   if(_discr_per_cell)
-    ret.push_back(const_cast<DataArrayInt *>(_discr_per_cell));
+    ret.push_back(_discr_per_cell);
   return ret;
 }
 

@@ -45,17 +45,17 @@ std::size_t MEDFileUMeshPerType::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<RefCountObject *> MEDFileUMeshPerType::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileUMeshPerType::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   if((const MEDCoupling1GTUMesh *)_m)
-    ret.push_back(const_cast<MEDCoupling1GTUMesh *>((const MEDCoupling1GTUMesh *)_m));
+    ret.push_back((const MEDCoupling1GTUMesh *)_m);
   if((const DataArrayInt *)_num)
-    ret.push_back(const_cast<DataArrayInt *>((const DataArrayInt *)_num));
+    ret.push_back((const DataArrayInt *)_num);
   if((const DataArrayInt *)_fam)
-    ret.push_back(const_cast<DataArrayInt *>((const DataArrayInt *)_fam));
+    ret.push_back((const DataArrayInt *)_fam);
   if((const DataArrayAsciiChar *)_names)
-    ret.push_back(const_cast<DataArrayAsciiChar *>((const DataArrayAsciiChar *)_names));
+    ret.push_back((const DataArrayAsciiChar *)_names);
   return ret;
 }
 

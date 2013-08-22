@@ -72,9 +72,9 @@ std::size_t MEDFileParameterDouble1TSWTI::getHeapMemorySizeWithoutChildren() con
   return sizeof(MEDFileParameterDouble1TSWTI);
 }
 
-std::vector<RefCountObject *> MEDFileParameterDouble1TSWTI::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameterDouble1TSWTI::getDirectChildren() const
 {
-  return std::vector<RefCountObject *>();
+  return std::vector<const BigMemoryObject *>();
 }
 
 std::string MEDFileParameterDouble1TSWTI::simpleRepr() const
@@ -350,9 +350,9 @@ std::size_t MEDFileParameterDouble1TS::getHeapMemorySizeWithoutChildren() const
   return getHeapMemSizeOfStrings()+sizeof(MEDFileParameterDouble1TS);
 }
 
-std::vector<RefCountObject *> MEDFileParameterDouble1TS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameterDouble1TS::getDirectChildren() const
 {
-  return std::vector<RefCountObject *>();
+  return std::vector<const BigMemoryObject *>();
 }
 
 void MEDFileParameterDouble1TS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
@@ -486,14 +486,14 @@ std::size_t MEDFileParameterMultiTS::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<RefCountObject *> MEDFileParameterMultiTS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameterMultiTS::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS> >::const_iterator it=_param_per_ts.begin();it!=_param_per_ts.end();it++)
     {
       const MEDFileParameter1TS *elt(*it);
       if(elt)
-        ret.push_back(const_cast<MEDFileParameter1TS *>(elt));
+        ret.push_back(elt);
     }
   return ret;
 }
@@ -737,14 +737,14 @@ std::size_t MEDFileParameters::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<RefCountObject *> MEDFileParameters::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameters::getDirectChildren() const
 {
-  std::vector<RefCountObject *> ret;
+  std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS> >::const_iterator it=_params.begin();it!=_params.end();it++)
     {
       const MEDFileParameterMultiTS *elt(*it);
       if(elt)
-        ret.push_back(const_cast<MEDFileParameterMultiTS *>(elt));
+        ret.push_back(elt);
     }
   return ret;
 }
