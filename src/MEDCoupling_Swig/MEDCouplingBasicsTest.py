@@ -13814,6 +13814,22 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(fm2.isEqual(fm1,1e-12,1e-12))
         pass
 
+    # test the correct behaviour when attempting to aggregate two fields whose mesh is null
+    def testSwig2MergeFieldsOnFieldsHavingNoMesh(self):
+        a=DataArrayDouble(4) ; a.iota() ; a*=1.5
+        c=MEDCouplingCMesh() ; c.setCoords(a,a) ; f1=c.getMeasureField(False)
+        f1.setMesh(None) ; f2=f1.deepCpy() ; f2*=2
+        f3=MEDCouplingFieldDouble.MergeFields(f1,f2)
+        daExp=DataArrayDouble([2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5,4.5])
+        self.assertTrue(f3.getArray().isEqual(daExp,1e-12))
+        self.assertEqual(f3.getTypeOfField(),ON_CELLS)
+        self.assertEqual(f3.getMesh(),None)
+        f4=MEDCouplingFieldDouble.MergeFields([f1,f2])
+        self.assertTrue(f4.getArray().isEqual(daExp,1e-12))
+        self.assertEqual(f4.getTypeOfField(),ON_CELLS)
+        self.assertEqual(f4.getMesh(),None)
+        pass
+
     def setUp(self):
         pass
     pass

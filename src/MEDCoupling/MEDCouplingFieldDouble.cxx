@@ -2582,7 +2582,6 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Excepti
  *          MEDCouplingFieldDouble. The caller is to delete this mesh using decrRef() 
  *          as it is no more needed.
  *  \throw If the fields are not compatible for the merge.
- *  \throw If \a f2->getMesh() == NULL.
  *  \throw If the spatial discretization of \a f1 is NULL.
  *  \throw If the time discretization of \a f1 is NULL.
  *
@@ -2593,21 +2592,21 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
 {
   if(!f1->areCompatibleForMerge(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
-  const MEDCouplingMesh *m1=f1->getMesh();
-  const MEDCouplingMesh *m2=f2->getMesh();
-  if(!m1)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no underlying mesh of f1 !");
+  const MEDCouplingMesh *m1(f1->getMesh()),*m2(f2->getMesh());
   if(!f1->_time_discr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no time discr of f1 !");
   if(!f1->_type)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no spatial discr of f1 !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=m1->mergeMyselfWith(m2);
   MEDCouplingTimeDiscretization *td=f1->_time_discr->aggregate(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
-  ret->setMesh(m);
   ret->setName(f1->getName().c_str());
   ret->setDescription(f1->getDescription().c_str());
+  if(m1)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=m1->mergeMyselfWith(m2);
+      ret->setMesh(m);
+    }
   return ret.retn();
 }
 
@@ -2624,7 +2623,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
  *          as it is no more needed.
  *  \throw If \a a is empty.
  *  \throw If the fields are not compatible for the merge.
- *  \throw If \a a[ i ]->getMesh() == NULL.
  *
  *  \ref cpp_mcfielddouble_MergeFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MergeFields "Here is a Python example".
@@ -2645,20 +2643,23 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
       throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
   for(int i=0;i<(int)a.size();i++)
     {
-      if(!a[i]->getMesh())
-        throw INTERP_KERNEL::Exception("MergeFields : A field as no underlying mesh !");
-      ms[i]=a[i]->getMesh()->buildUnstructured();
-      ms2[i]=ms[i];
+      if(a[i]->getMesh())
+        { ms[i]=a[i]->getMesh()->buildUnstructured(); ms2[i]=ms[i]; }
+      else
+        { ms[i]=0; ms2[i]=0; }
       tds[i]=a[i]->_time_discr;
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
-  m->setName(ms2[0]->getName().c_str()); m->setDescription(ms2[0]->getDescription().c_str());
   MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
   td->copyTinyAttrFrom(*(a[0]->_time_discr));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
-  ret->setMesh(m);
   ret->setName(a[0]->getName().c_str());
   ret->setDescription(a[0]->getDescription().c_str());
+  if(ms2[0])
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
+      m->copyTinyInfoFrom(ms2[0]);
+      ret->setMesh(m);
+    }
   return ret.retn();
 }
 
