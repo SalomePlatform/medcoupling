@@ -31,35 +31,35 @@ namespace INTERP_KERNEL
    * \brief Class representing the bounding box of a number of points
    *  with box axes parallel to principal axes of inertia of points
    */
-  class INTERPKERNEL_EXPORT DirectedBoundingBox
+  class DirectedBoundingBox
   {
   public:
 
-    DirectedBoundingBox();
+    INTERPKERNEL_EXPORT DirectedBoundingBox();
 
-    DirectedBoundingBox(const double* pts, const unsigned numPts, const unsigned dim);
+    INTERPKERNEL_EXPORT DirectedBoundingBox(const double* pts, const unsigned numPts, const unsigned dim);
 
-    DirectedBoundingBox(const double** pts, const unsigned numPts, const unsigned dim);
+    INTERPKERNEL_EXPORT DirectedBoundingBox(const double** pts, const unsigned numPts, const unsigned dim);
 
     //~DirectedBoundingBox();
 
-    void enlarge(const double tol);
+    INTERPKERNEL_EXPORT void enlarge(const double tol);
     
-    bool isDisjointWith(const DirectedBoundingBox& box) const;
+    INTERPKERNEL_EXPORT bool isDisjointWith(const DirectedBoundingBox& box) const;
 
-    bool isDisjointWith(const double* box) const;
+    INTERPKERNEL_EXPORT bool isDisjointWith(const double* box) const;
 
-    bool isOut(const double* point) const;
+    INTERPKERNEL_EXPORT bool isOut(const double* point) const;
 
 
     // return internal data
-    std::vector<double> getData() const;
+    INTERPKERNEL_EXPORT std::vector<double> getData() const;
 
     // initialize with data returned by getData()
-    void setData(const double* data);
+    INTERPKERNEL_EXPORT void setData(const double* data);
 
     // return size of internal data
-    static int dataSize(int dim);
+    INTERPKERNEL_EXPORT static int dataSize(int dim);
 
   private:
 
