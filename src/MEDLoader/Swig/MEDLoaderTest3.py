@@ -3334,7 +3334,25 @@ class MEDLoaderTest(unittest.TestCase):
         f.setArray(vals)
         f1ts.setFieldProfile(f,mm,0,pfl)
         pass
-
+    
+    def testWRMeshWithNoCells(self):
+        fname="Pyfile71.med"
+        a=DataArrayDouble(4) ; a.iota()
+        c=MEDCouplingCMesh() ; c.setCoords(a,a) ; m0=c.buildUnstructured()
+        m00=MEDCouplingUMesh("mesh",1) ; m00.setCoords(m0.getCoords()) ; m00.allocateCells(0)
+        m=MEDFileUMesh()
+        m.setMeshAtLevel(0,m00)
+        m.setRenumFieldArr(1,DataArrayInt(range(10,26)))
+        m.setFamilyFieldArr(1,DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3]))
+        m.write(fname,2)
+        del m,a,c,m0,m00
+        #
+        m=MEDFileMesh.New(fname)
+        self.assertEqual((),m.getNonEmptyLevels())
+        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([(0,0),(1,0),(2,0),(3,0),(0,1),(1,1),(2,1),(3,1),(0,2),(1,2),(2,2),(3,2),(0,3),(1,3),(2,3),(3,3)]),1e-12))
+        self.assertTrue(m.getNumberFieldAtLevel(1).isEqual(DataArrayInt(range(10,26))))
+        self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3])))
+        pass
     pass
 
 unittest.main()
