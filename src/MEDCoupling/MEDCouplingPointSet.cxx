@@ -1101,13 +1101,28 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, 
 }
 
 /*!
- * This method specialized the MEDCouplingMesh::buildPartRange
+ * This method specialized the MEDCouplingMesh::buildPartRange.
+ * This method is equivalent to MEDCouplingMesh::buildPart method except that here the cell ids are specified using slice
+ * \a beginCellIds \a endCellIds and \a stepCellIds.
+ * \b WARNING , there is a big difference compared to MEDCouplingMesh::buildPart method.
+ * If the input range is equal all cells in \a this, \a this is returned !
+ *
+ * \return a new ref to be managed by the caller. Warning this ref can be equal to \a this if input slice is exactly equal to the whole cells in the same order.
  *
  * \sa MEDCouplingUMesh::buildPartOfMySelf2
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception)
 {
-  return buildPartOfMySelf2(beginCellIds,endCellIds,stepCellIds,true);
+  if(beginCellIds==0 && endCellIds==getNumberOfCells() && stepCellIds==1)
+    {
+      MEDCouplingMesh *ret(const_cast<MEDCouplingPointSet *>(this));
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      return buildPartOfMySelf2(beginCellIds,endCellIds,stepCellIds,true);
+    }
 }
 
 /*!

@@ -13798,6 +13798,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         pass
+    
+    # test the when input slice is all the same object is return by MEDCouplingMesh.buildPartRange
+    def testSwig2MeshPartSlice1(self):
+        a=DataArrayDouble(4) ; a.iota()
+        c=MEDCouplingCMesh() ; c.setCoords(a,a) ; m=c.buildUnstructured()
+        fc0=c.getMeasureField(False) ; fc1=fc0[:] ; fc2=fc0*fc1 ; fc2.setName(fc0.getName())
+        self.assertEqual(fc0.getMesh().getHiddenCppPointer(),fc1.getMesh().getHiddenCppPointer())
+        self.assertEqual(fc2.getMesh().getHiddenCppPointer(),fc1.getMesh().getHiddenCppPointer())
+        self.assertTrue(fc2.isEqual(fc1,1e-12,1e-12))
+        #
+        fm0=m.getMeasureField(False) ; fm1=fm0[:] ; fm2=fm0*fm1 ; fm2.setName(fm0.getName())
+        self.assertEqual(fm0.getMesh().getHiddenCppPointer(),fm1.getMesh().getHiddenCppPointer())
+        self.assertEqual(fm2.getMesh().getHiddenCppPointer(),fm1.getMesh().getHiddenCppPointer())
+        self.assertTrue(fm2.isEqual(fm1,1e-12,1e-12))
+        pass
 
     def setUp(self):
         pass
