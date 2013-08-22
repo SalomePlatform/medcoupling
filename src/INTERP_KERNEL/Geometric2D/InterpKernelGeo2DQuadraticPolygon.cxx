@@ -1107,10 +1107,10 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
                                        std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2)
 {
   pol1.initLocations();
-  for(std::set<Edge *>::const_iterator it=notUsedInPol1.begin();it!=notUsedInPol1.end();it++)
-    { (*it)->initLocs(); (*it)->declareOn(); }
-  for(std::set<Edge *>::const_iterator it=edgesInPol2OnBoundary.begin();it!=edgesInPol2OnBoundary.end();it++)
-    { (*it)->initLocs(); (*it)->declareIn(); }
+  for(std::set<Edge *>::const_iterator it9=notUsedInPol1.begin();it9!=notUsedInPol1.end();it9++)
+    { (*it9)->initLocs(); (*it9)->declareOn(); }
+  for(std::set<Edge *>::const_iterator itA=edgesInPol2OnBoundary.begin();itA!=edgesInPol2OnBoundary.end();itA++)
+    { (*itA)->initLocs(); (*itA)->declareIn(); }
   ////
   std::set<Edge *> notUsedInPol1L(notUsedInPol1);
   IteratorOnComposedEdge it(const_cast<QuadraticPolygon *>(&pol1));
