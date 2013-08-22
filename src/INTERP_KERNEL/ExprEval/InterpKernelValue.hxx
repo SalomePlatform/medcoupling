@@ -109,43 +109,43 @@ namespace INTERP_KERNEL
     double _data;
   };
 
-  class INTERPKERNEL_EXPORT ValueUnit : public Value
+  class ValueUnit : public Value
   {
   public:
-    ValueUnit();
-    Value *newInstance() const;
-    void setDouble(double val) throw(INTERP_KERNEL::Exception);
-    void setVarname(int fastPos, const std::string& var) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT ValueUnit();
+    INTERPKERNEL_EXPORT Value *newInstance() const;
+    INTERPKERNEL_EXPORT void setDouble(double val) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void setVarname(int fastPos, const std::string& var) throw(INTERP_KERNEL::Exception);
     //
-    DecompositionInUnitBase getData() const { return _data; }
-    void positive() throw(INTERP_KERNEL::Exception);
-    void negate() throw(INTERP_KERNEL::Exception);
-    void sqrt() throw(INTERP_KERNEL::Exception);
-    void cos() throw(INTERP_KERNEL::Exception);
-    void sin() throw(INTERP_KERNEL::Exception);
-    void tan() throw(INTERP_KERNEL::Exception);
-    void acos() throw(INTERP_KERNEL::Exception);
-    void asin() throw(INTERP_KERNEL::Exception);
-    void atan() throw(INTERP_KERNEL::Exception);
-    void cosh() throw(INTERP_KERNEL::Exception);
-    void sinh() throw(INTERP_KERNEL::Exception);
-    void tanh() throw(INTERP_KERNEL::Exception);
-    void abs() throw(INTERP_KERNEL::Exception);
-    void exp() throw(INTERP_KERNEL::Exception);
-    void ln() throw(INTERP_KERNEL::Exception);
-    void log10() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT DecompositionInUnitBase getData() const { return _data; }
+    INTERPKERNEL_EXPORT void positive() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void negate() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void sqrt() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void cos() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void sin() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void tan() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void acos() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void asin() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void atan() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void cosh() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void sinh() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void tanh() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void abs() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void exp() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void ln() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void log10() throw(INTERP_KERNEL::Exception);
     //
-    Value *plus(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *minus(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *mult(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *div(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *pow(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *max(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *min(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception);
-    Value *lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *plus(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *minus(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *mult(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *div(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *pow(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *max(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *min(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception);
     //
-    Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception);
   private:
     ValueUnit(const DecompositionInUnitBase& unit);
     static void unsupportedOp(const char *type) throw(INTERP_KERNEL::Exception);

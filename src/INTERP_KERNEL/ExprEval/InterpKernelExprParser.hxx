@@ -35,43 +35,43 @@ namespace INTERP_KERNEL
 {
   class ValueDouble;
 
-  class INTERPKERNEL_EXPORT LeafExpr
+  class LeafExpr
   {
   public:
-    virtual ~LeafExpr();
-    virtual void fillValue(Value *val) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void compileX86(std::vector<std::string>& ass) const = 0;
-    virtual void compileX86_64(std::vector<std::string>& ass) const = 0;
-    virtual void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception) = 0;
-    static LeafExpr *buildInstanceFrom(const std::string& expr) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT virtual ~LeafExpr();
+    INTERPKERNEL_EXPORT virtual void fillValue(Value *val) const throw(INTERP_KERNEL::Exception) = 0;
+    INTERPKERNEL_EXPORT virtual void compileX86(std::vector<std::string>& ass) const = 0;
+    INTERPKERNEL_EXPORT virtual void compileX86_64(std::vector<std::string>& ass) const = 0;
+    INTERPKERNEL_EXPORT virtual void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception) = 0;
+    INTERPKERNEL_EXPORT static LeafExpr *buildInstanceFrom(const std::string& expr) throw(INTERP_KERNEL::Exception);
   };
 
-  class INTERPKERNEL_EXPORT LeafExprVal : public LeafExpr
+  class LeafExprVal : public LeafExpr
   {
   public:
-    LeafExprVal(double value);
-    ~LeafExprVal();
-    void compileX86(std::vector<std::string>& ass) const;
-    void compileX86_64(std::vector<std::string>& ass) const;
-    void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
-    void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT LeafExprVal(double value);
+    INTERPKERNEL_EXPORT ~LeafExprVal();
+    INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
+    INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
+    INTERPKERNEL_EXPORT void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
   private:
     double _value;
   };
 
-  class INTERPKERNEL_EXPORT LeafExprVar : public LeafExpr
+  class LeafExprVar : public LeafExpr
   {
   public:
-    LeafExprVar(const std::string& var);
-    ~LeafExprVar();
-    void compileX86(std::vector<std::string>& ass) const;
-    void compileX86_64(std::vector<std::string>& ass) const;
-    void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
-    std::string getVar() const { return _var_name; }
-    void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception);
-    void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
-    void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
-    static bool isRecognizedKeyVar(const std::string& var, int& pos);
+    INTERPKERNEL_EXPORT LeafExprVar(const std::string& var);
+    INTERPKERNEL_EXPORT ~LeafExprVar();
+    INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
+    INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
+    INTERPKERNEL_EXPORT void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT std::string getVar() const { return _var_name; }
+    INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT static bool isRecognizedKeyVar(const std::string& var, int& pos);
   public:
     static const char END_OF_RECOGNIZED_VAR[];
   private:
