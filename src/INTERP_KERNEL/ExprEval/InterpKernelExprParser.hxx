@@ -79,30 +79,30 @@ namespace INTERP_KERNEL
     std::string _var_name;
   };
 
-  class INTERPKERNEL_EXPORT ExprParser
+  class ExprParser
   {
   public:
-    ExprParser(const char *expr, ExprParser *father=0);
-    ExprParser(const char *expr, int lgth, ExprParser *father=0);
-    ~ExprParser();
-    void parse() throw(INTERP_KERNEL::Exception);
-    bool isParsingSuccessfull() const { return _is_parsing_ok; }
-    double evaluate() const throw(INTERP_KERNEL::Exception);
-    DecompositionInUnitBase evaluateUnit() const throw(INTERP_KERNEL::Exception);
-    void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception);
-    void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const throw(INTERP_KERNEL::Exception);
-    void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
-    void getSetOfVars(std::set<std::string>& vars) const;
-    void getTrueSetOfVars(std::set<std::string>& vars) const;
+    INTERPKERNEL_EXPORT ExprParser(const char *expr, ExprParser *father=0);
+    INTERPKERNEL_EXPORT ExprParser(const char *expr, int lgth, ExprParser *father=0);
+    INTERPKERNEL_EXPORT ~ExprParser();
+    INTERPKERNEL_EXPORT void parse() throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT bool isParsingSuccessfull() const { return _is_parsing_ok; }
+    INTERPKERNEL_EXPORT double evaluate() const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT DecompositionInUnitBase evaluateUnit() const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void getSetOfVars(std::set<std::string>& vars) const;
+    INTERPKERNEL_EXPORT void getTrueSetOfVars(std::set<std::string>& vars) const;
     //
-    char *compileX86() const;
-    char *compileX86_64() const;
-    void compileX86LowLev(std::vector<std::string>& ass) const;
-    void compileX86_64LowLev(std::vector<std::string>& ass) const;
-    int getStackSizeToPlayX86(const ExprParser *asker) const;
+    INTERPKERNEL_EXPORT char *compileX86() const;
+    INTERPKERNEL_EXPORT char *compileX86_64() const;
+    INTERPKERNEL_EXPORT void compileX86LowLev(std::vector<std::string>& ass) const;
+    INTERPKERNEL_EXPORT void compileX86_64LowLev(std::vector<std::string>& ass) const;
+    INTERPKERNEL_EXPORT int getStackSizeToPlayX86(const ExprParser *asker) const;
     //
-    static std::string buildStringFromFortran(const char *expr, int lgth);
-    static std::string deleteWhiteSpaces(const std::string& expr);
+    INTERPKERNEL_EXPORT static std::string buildStringFromFortran(const char *expr, int lgth);
+    INTERPKERNEL_EXPORT static std::string deleteWhiteSpaces(const std::string& expr);
   private:
     Value *evaluateLowLev(Value *valGen) const throw(INTERP_KERNEL::Exception);
   private:

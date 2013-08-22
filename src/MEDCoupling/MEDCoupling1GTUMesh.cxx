@@ -2284,7 +2284,7 @@ std::string MEDCoupling1DGTUMesh::simpleRepr() const
     ret << msg0 << "\n";
   ret << "Number of cells : ";
   bool isOK=true;
-  try { checkCoherency(); } catch(INTERP_KERNEL::Exception& e)
+  try { checkCoherency(); } catch(INTERP_KERNEL::Exception& /* e */)
     {
       ret << "Nodal connectivity arrays are not set or badly set !\n";
       isOK=false;
@@ -2307,7 +2307,7 @@ std::string MEDCoupling1DGTUMesh::advancedRepr() const
   ret << "\n\nNodal Connectivity : \n____________________\n\n";
   //
   bool isOK=true;
-  try { checkCoherency1(); } catch(INTERP_KERNEL::Exception& e)
+  try { checkCoherency1(); } catch(INTERP_KERNEL::Exception& /* e */)
     {
       ret << "Nodal connectivity arrays are not set or badly set !\n";
       isOK=false;
@@ -2503,7 +2503,7 @@ void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const throw(I
   stream << " Space dimension : " << _coords->getNumberOfComponents() << "." << std::endl;
   stream << "Number of nodes : " << _coords->getNumberOfTuples() << ".";
   bool isOK=true;
-  try { checkCoherency(); } catch(INTERP_KERNEL::Exception& e)
+  try { checkCoherency(); } catch(INTERP_KERNEL::Exception&  /* e */)
     {
       stream << std::endl << "Nodal connectivity NOT set properly !\n";
       isOK=false;

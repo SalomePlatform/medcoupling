@@ -35,57 +35,57 @@ namespace INTERP_KERNEL
   class Edge;
   class MergePoints;
 
-  class INTERPKERNEL_EXPORT QuadraticPolygon : public ComposedEdge
+  class QuadraticPolygon : public ComposedEdge
   {
   public:
-    QuadraticPolygon() { }
-    QuadraticPolygon(const QuadraticPolygon& other):ComposedEdge(other) { }
-    QuadraticPolygon(const char *fileName);
-    static QuadraticPolygon *BuildLinearPolygon(std::vector<Node *>& nodes);
-    static QuadraticPolygon *BuildArcCirclePolygon(std::vector<Node *>& nodes);
-    static void BuildDbgFile(const std::vector<Node *>& nodes, const char *fileName);
-    ~QuadraticPolygon();
-    void closeMe() const;
-    void circularPermute();
-    bool isButterflyAbs();
-    bool isButterfly() const;
-    void dumpInXfigFile(const char *fileName) const;
-    void dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const;
+    INTERPKERNEL_EXPORT QuadraticPolygon() { }
+    INTERPKERNEL_EXPORT QuadraticPolygon(const QuadraticPolygon& other):ComposedEdge(other) { }
+    INTERPKERNEL_EXPORT QuadraticPolygon(const char *fileName);
+    INTERPKERNEL_EXPORT static QuadraticPolygon *BuildLinearPolygon(std::vector<Node *>& nodes);
+    INTERPKERNEL_EXPORT static QuadraticPolygon *BuildArcCirclePolygon(std::vector<Node *>& nodes);
+    INTERPKERNEL_EXPORT static void BuildDbgFile(const std::vector<Node *>& nodes, const char *fileName);
+    INTERPKERNEL_EXPORT ~QuadraticPolygon();
+    INTERPKERNEL_EXPORT void closeMe() const;
+    INTERPKERNEL_EXPORT void circularPermute();
+    INTERPKERNEL_EXPORT bool isButterflyAbs();
+    INTERPKERNEL_EXPORT bool isButterfly() const;
+    INTERPKERNEL_EXPORT void dumpInXfigFile(const char *fileName) const;
+    INTERPKERNEL_EXPORT void dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const;
     //! Before intersecting as intersectWith a normalization is done.
-    double intersectWithAbs(QuadraticPolygon& other);
-    double intersectWithAbs1D(QuadraticPolygon& other, bool& isColinear);
+    INTERPKERNEL_EXPORT double intersectWithAbs(QuadraticPolygon& other);
+    INTERPKERNEL_EXPORT double intersectWithAbs1D(QuadraticPolygon& other, bool& isColinear);
     //! Before intersecting as intersectWith a normalization is done.
-    double intersectWithAbs(QuadraticPolygon& other, double* barycenter);
-    void splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, const std::vector<int>& otherEdgeIds,
-                  std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
-    void buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
-                                 const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
-    void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
-                                  const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
-                                  const std::vector< std::vector<int> >& colinear1,
-                                  std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> >& alreadyExistingIn2);
-    void updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges, const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const;
-    void appendEdgeFromCrudeDataArray(std::size_t edgeId, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
-                                      const int *descBg,  const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
-    void appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size_t j, bool direct, int edgeId, const std::vector<int>& subEdge, const std::map<int,INTERP_KERNEL::Node *>& mapp);
-    void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, double xBary, double yBary, double fact, int offset, std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI) const;
-    void buildPartitionsAbs(QuadraticPolygon& other, std::set<INTERP_KERNEL::Edge *>& edgesThis, std::set<INTERP_KERNEL::Edge *>& edgesBoundaryOther, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, int offset,
-                            std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
+    INTERPKERNEL_EXPORT double intersectWithAbs(QuadraticPolygon& other, double* barycenter);
+    INTERPKERNEL_EXPORT void splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, const std::vector<int>& otherEdgeIds,
+                                      std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
+    INTERPKERNEL_EXPORT void buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
+                                                     const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
+    INTERPKERNEL_EXPORT void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
+                                                      const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
+                                                      const std::vector< std::vector<int> >& colinear1,
+                                                      std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> >& alreadyExistingIn2);
+    INTERPKERNEL_EXPORT void updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges, const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const;
+    INTERPKERNEL_EXPORT void appendEdgeFromCrudeDataArray(std::size_t edgeId, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
+                                                          const int *descBg,  const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
+    INTERPKERNEL_EXPORT void appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size_t j, bool direct, int edgeId, const std::vector<int>& subEdge, const std::map<int,INTERP_KERNEL::Node *>& mapp);
+    INTERPKERNEL_EXPORT void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, double xBary, double yBary, double fact, int offset, std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI) const;
+    INTERPKERNEL_EXPORT void buildPartitionsAbs(QuadraticPolygon& other, std::set<INTERP_KERNEL::Edge *>& edgesThis, std::set<INTERP_KERNEL::Edge *>& edgesBoundaryOther, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, int offset,
+                                                std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
     //
-    double intersectWith(const QuadraticPolygon& other) const;
-    double intersectWith(const QuadraticPolygon& other, double* barycenter) const;
-    std::vector<QuadraticPolygon *> intersectMySelfWith(const QuadraticPolygon& other) const;
-    void intersectForPerimeter(const QuadraticPolygon& other, double& perimeterThisPart, double& perimeterOtherPart, double& perimeterCommonPart) const;
-    void intersectForPerimeterAdvanced(const QuadraticPolygon& other, std::vector< double >& polThis, std::vector< double >& polOther) const;
-    void intersectForPoint(const QuadraticPolygon& other, std::vector< int >& numberOfCreatedPointsPerEdge) const;
+    INTERPKERNEL_EXPORT double intersectWith(const QuadraticPolygon& other) const;
+    INTERPKERNEL_EXPORT double intersectWith(const QuadraticPolygon& other, double* barycenter) const;
+    INTERPKERNEL_EXPORT std::vector<QuadraticPolygon *> intersectMySelfWith(const QuadraticPolygon& other) const;
+    INTERPKERNEL_EXPORT void intersectForPerimeter(const QuadraticPolygon& other, double& perimeterThisPart, double& perimeterOtherPart, double& perimeterCommonPart) const;
+    INTERPKERNEL_EXPORT void intersectForPerimeterAdvanced(const QuadraticPolygon& other, std::vector< double >& polThis, std::vector< double >& polOther) const;
+    INTERPKERNEL_EXPORT void intersectForPoint(const QuadraticPolygon& other, std::vector< int >& numberOfCreatedPointsPerEdge) const;
   public://Only public for tests reasons
-    void performLocatingOperation(QuadraticPolygon& pol2) const;
-    void performLocatingOperationSlow(QuadraticPolygon& pol2) const;
-    static void SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
-    std::vector<QuadraticPolygon *> buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const;
-    bool amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted, const QuadraticPolygon& pol2NotSplitted, bool& direction);
-    static void ComputeResidual(const QuadraticPolygon& pol1, const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, const std::map<INTERP_KERNEL::Node *,int>& mapp, int offset, int idThis,
-                                std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
+    INTERPKERNEL_EXPORT void performLocatingOperation(QuadraticPolygon& pol2) const;
+    INTERPKERNEL_EXPORT void performLocatingOperationSlow(QuadraticPolygon& pol2) const;
+    INTERPKERNEL_EXPORT static void SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
+    INTERPKERNEL_EXPORT std::vector<QuadraticPolygon *> buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const;
+    INTERPKERNEL_EXPORT bool amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted, const QuadraticPolygon& pol2NotSplitted, bool& direction);
+    INTERPKERNEL_EXPORT static void ComputeResidual(const QuadraticPolygon& pol1, const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, const std::map<INTERP_KERNEL::Node *,int>& mapp, int offset, int idThis,
+                                                    std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
   protected:
     std::list<QuadraticPolygon *> zipConsecutiveInSegments() const;
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;

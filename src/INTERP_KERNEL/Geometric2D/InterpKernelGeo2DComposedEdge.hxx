@@ -36,61 +36,61 @@ namespace INTERP_KERNEL
   class ElementaryEdge;
   class IteratorOnComposedEdge;
 
-  class INTERPKERNEL_EXPORT ComposedEdge
+  class ComposedEdge
   {
     friend class IteratorOnComposedEdge;
   public:
-    ComposedEdge() { }
-    ComposedEdge(const ComposedEdge& other);
-    ComposedEdge(int sz):_sub_edges(sz) { }
-    static void Delete(ComposedEdge *pt) { delete pt; }
-    static void SoftDelete(ComposedEdge *pt) { pt->_sub_edges.clear(); delete pt; }
-    void reverse();
-    int recursiveSize() const { return (int)_sub_edges.size(); }
-    bool presenceOfOn() const;
-    bool presenceOfQuadraticEdge() const;
-    void initLocations() const;
-    void initLocationsWithOther(const ComposedEdge& other) const;
-    ComposedEdge *clone() const;
-    bool isNodeIn(Node *n) const;
-    double getArea() const;
-    double getPerimeter() const;
-    double getHydraulicDiameter() const;
-    void getBarycenter(double *bary) const;
-    void getBarycenterGeneral(double *bary) const;
-    double normalize(ComposedEdge *other, double& xBary, double& yBary);
-    double normalizeExt(ComposedEdge *other, double& xBary, double& yBary);
-    void unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary, double yBary, double fact);
-    void fillBounds(Bounds& output) const;
-    void applySimilarity(double xBary, double yBary, double dimChar);
-    void applyGlobalSimilarity(double xBary, double yBary, double dimChar);
-    void applyGlobalSimilarity2(ComposedEdge *other, double xBary, double yBary, double dimChar);
-    void dispatchPerimeter(double& partConsidered) const;
-    void dispatchPerimeterExcl(double& partConsidered, double& commonPart) const;
-    double dispatchPerimeterAdv(const ComposedEdge& father, std::vector<double>& result) const;
-    void getAllNodes(std::set<Node *>& output) const;
-    void getBarycenter(double *bary, double& weigh) const;
-    bool completed() const { return getEndNode()==getStartNode(); }
-    void setValueAt(int i, Edge *e, bool direction=true);
-    double getCommonLengthWith(const ComposedEdge& other) const;
-    void clear();
-    bool empty() const { return _sub_edges.empty(); }
-    ElementaryEdge *front() const { return _sub_edges.front(); }
-    ElementaryEdge *back() const { return _sub_edges.back(); }
-    void resize(int i) { _sub_edges.resize(i); }
-    void pushBack(Edge *edge, bool direction=true);
-    void pushBack(ElementaryEdge *elem);
-    void pushBack(ComposedEdge *elem);
-    int size() const { return (int)_sub_edges.size(); }
-    ElementaryEdge *operator[](int i) const;
-    Node *getEndNode() const;
-    Node *getStartNode() const;
-    bool changeEndNodeWith(Node *node) const;
-    bool changeStartNodeWith(Node *node) const;
-    void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
-    bool isInOrOut(Node *nodeToTest) const;
-    bool getDirection() const;
-    bool intresincEqCoarse(const Edge *other) const;
+    INTERPKERNEL_EXPORT ComposedEdge() { }
+    INTERPKERNEL_EXPORT ComposedEdge(const ComposedEdge& other);
+    INTERPKERNEL_EXPORT ComposedEdge(int sz):_sub_edges(sz) { }
+    INTERPKERNEL_EXPORT static void Delete(ComposedEdge *pt) { delete pt; }
+    INTERPKERNEL_EXPORT static void SoftDelete(ComposedEdge *pt) { pt->_sub_edges.clear(); delete pt; }
+    INTERPKERNEL_EXPORT void reverse();
+    INTERPKERNEL_EXPORT int recursiveSize() const { return (int)_sub_edges.size(); }
+    INTERPKERNEL_EXPORT bool presenceOfOn() const;
+    INTERPKERNEL_EXPORT bool presenceOfQuadraticEdge() const;
+    INTERPKERNEL_EXPORT void initLocations() const;
+    INTERPKERNEL_EXPORT void initLocationsWithOther(const ComposedEdge& other) const;
+    INTERPKERNEL_EXPORT ComposedEdge *clone() const;
+    INTERPKERNEL_EXPORT bool isNodeIn(Node *n) const;
+    INTERPKERNEL_EXPORT double getArea() const;
+    INTERPKERNEL_EXPORT double getPerimeter() const;
+    INTERPKERNEL_EXPORT double getHydraulicDiameter() const;
+    INTERPKERNEL_EXPORT void getBarycenter(double *bary) const;
+    INTERPKERNEL_EXPORT void getBarycenterGeneral(double *bary) const;
+    INTERPKERNEL_EXPORT double normalize(ComposedEdge *other, double& xBary, double& yBary);
+    INTERPKERNEL_EXPORT double normalizeExt(ComposedEdge *other, double& xBary, double& yBary);
+    INTERPKERNEL_EXPORT void unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary, double yBary, double fact);
+    INTERPKERNEL_EXPORT void fillBounds(Bounds& output) const;
+    INTERPKERNEL_EXPORT void applySimilarity(double xBary, double yBary, double dimChar);
+    INTERPKERNEL_EXPORT void applyGlobalSimilarity(double xBary, double yBary, double dimChar);
+    INTERPKERNEL_EXPORT void applyGlobalSimilarity2(ComposedEdge *other, double xBary, double yBary, double dimChar);
+    INTERPKERNEL_EXPORT void dispatchPerimeter(double& partConsidered) const;
+    INTERPKERNEL_EXPORT void dispatchPerimeterExcl(double& partConsidered, double& commonPart) const;
+    INTERPKERNEL_EXPORT double dispatchPerimeterAdv(const ComposedEdge& father, std::vector<double>& result) const;
+    INTERPKERNEL_EXPORT void getAllNodes(std::set<Node *>& output) const;
+    INTERPKERNEL_EXPORT void getBarycenter(double *bary, double& weigh) const;
+    INTERPKERNEL_EXPORT bool completed() const { return getEndNode()==getStartNode(); }
+    INTERPKERNEL_EXPORT void setValueAt(int i, Edge *e, bool direction=true);
+    INTERPKERNEL_EXPORT double getCommonLengthWith(const ComposedEdge& other) const;
+    INTERPKERNEL_EXPORT void clear();
+    INTERPKERNEL_EXPORT bool empty() const { return _sub_edges.empty(); }
+    INTERPKERNEL_EXPORT ElementaryEdge *front() const { return _sub_edges.front(); }
+    INTERPKERNEL_EXPORT ElementaryEdge *back() const { return _sub_edges.back(); }
+    INTERPKERNEL_EXPORT void resize(int i) { _sub_edges.resize(i); }
+    INTERPKERNEL_EXPORT void pushBack(Edge *edge, bool direction=true);
+    INTERPKERNEL_EXPORT void pushBack(ElementaryEdge *elem);
+    INTERPKERNEL_EXPORT void pushBack(ComposedEdge *elem);
+    INTERPKERNEL_EXPORT int size() const { return (int)_sub_edges.size(); }
+    INTERPKERNEL_EXPORT ElementaryEdge *operator[](int i) const;
+    INTERPKERNEL_EXPORT Node *getEndNode() const;
+    INTERPKERNEL_EXPORT Node *getStartNode() const;
+    INTERPKERNEL_EXPORT bool changeEndNodeWith(Node *node) const;
+    INTERPKERNEL_EXPORT bool changeStartNodeWith(Node *node) const;
+    INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
+    INTERPKERNEL_EXPORT bool isInOrOut(Node *nodeToTest) const;
+    INTERPKERNEL_EXPORT bool getDirection() const;
+    INTERPKERNEL_EXPORT bool intresincEqCoarse(const Edge *other) const;
   private:
     std::list<ElementaryEdge *>* getListBehind() { return &_sub_edges; }
   protected:
