@@ -18,18 +18,19 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __NORMALIZEDUNSTRUCTUREDMESH_HXX__
-#define __NORMALIZEDUNSTRUCTUREDMESH_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELDENUM__
+#define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELDENUM__
 
-#include "NormalizedGeometricTypes"
-
-namespace INTERP_KERNEL
+namespace ParaMEDMEM
 {
   typedef enum
     {
-      ALL_C_MODE       ,
-      ALL_FORTRAN_MODE
-    } NumberingPolicy;
+      NoNature               = 17,
+      ConservativeVolumic    = 26,
+      Integral               = 32,
+      IntegralGlobConstraint = 35,
+      RevIntegral            = 37
+    } NatureOfField;
 }
 
 #endif

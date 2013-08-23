@@ -22,19 +22,12 @@
 #define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
+
 #include "InterpKernelException.hxx"
 
 namespace ParaMEDMEM
 {
-  typedef enum
-    {
-      NoNature               = 17,
-      ConservativeVolumic    = 26,
-      Integral               = 32,
-      IntegralGlobConstraint = 35,
-      RevIntegral            = 37
-    } NatureOfField;
-
   class MEDCouplingNatureOfField
   {
   public:

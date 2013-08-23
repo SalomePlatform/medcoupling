@@ -1114,8 +1114,20 @@ namespace ParaMEDMEM
 
 //== MEDCouplingMesh End
 
-%include "NormalizedUnstructuredMesh.hxx"
-%include "MEDCouplingNatureOfField.hxx"
+%include "NormalizedGeometricTypes"
+%include "MEDCouplingNatureOfFieldEnum"
+//
+namespace ParaMEDMEM
+{
+  class MEDCouplingNatureOfField
+  {
+  public:
+    static const char *GetRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    static std::string GetReprNoThrow(NatureOfField nat);
+    static std::string GetAllPossibilitiesStr();
+  };
+}
+//
 %include "MEDCouplingTimeDiscretization.hxx"
 
 namespace ParaMEDMEM

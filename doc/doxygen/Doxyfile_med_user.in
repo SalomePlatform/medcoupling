@@ -88,6 +88,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          ExplicitCoincidentDEC.* \
                          NonCoincidentDEC.* \
                          CommInterface.* \
+			 NormalizedGeometricTypes \
 			 NormalizedUnstructuredMesh.* \
                          Interpolation2D.* \
                          Interpolation3D.* \
@@ -116,6 +117,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          MEDCouplingExtrudedMesh.* \
                          MEDCouplingFieldDouble.* \
                          MEDCouplingField.* \
+			 MEDCouplingNatureOfFieldEnum
 			 MEDCouplingNatureOfField.hxx \
 			 MEDCouplingFieldTemplate.* \
                          MEDCouplingFieldDiscretization.* \
