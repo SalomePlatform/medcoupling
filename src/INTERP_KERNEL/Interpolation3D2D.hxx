@@ -47,10 +47,10 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT Interpolation3D2D();
     INTERPKERNEL_EXPORT Interpolation3D2D(const InterpolationOptions& io);
     template<class MyMeshType, class MyMatrixType>
-    INTERPKERNEL_EXPORT int interpolateMeshes(const MyMeshType& srcMesh,
-                                              const MyMeshType& targetMesh,
-                                              MyMatrixType& matrix,
-                                              const char *method);
+    int interpolateMeshes(const MyMeshType& srcMesh,
+                          const MyMeshType& targetMesh,
+                          MyMatrixType& matrix,
+                          const char *method);
     INTERPKERNEL_EXPORT DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
   private:
     SplittingPolicy _splitting_policy;

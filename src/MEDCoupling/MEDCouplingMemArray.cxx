@@ -1164,7 +1164,7 @@ void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameIn
       float *pt(tmp);
       // to make Visual C++ happy : instead of std::copy(begin(),end(),(float *)tmp);
       for(const double *src=begin();src!=end();src++,pt++)
-        *pt=(int)*src;
+        *pt=int(*src);
       const char *data(reinterpret_cast<const char *>((float *)tmp));
       std::size_t sz(getNbOfElems()*sizeof(float));
       byteArr->insertAtTheEnd(data,data+sz);
