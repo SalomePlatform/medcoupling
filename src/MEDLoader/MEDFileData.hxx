@@ -54,7 +54,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT bool changeMeshName(const char *oldMeshName, const char *newMeshName);
     MEDLOADER_EXPORT bool unPolyzeMeshes();
     //
-    void write(const char *fileName, int mode) const;
+    MEDLOADER_EXPORT void write(const char *fileName, int mode) const;
   private:
     MEDFileData();
     MEDFileData(const char *fileName);

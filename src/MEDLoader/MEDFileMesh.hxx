@@ -364,25 +364,25 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
   };
 
-  class MEDLOADER_EXPORT MEDFileCurveLinearMesh : public MEDFileStructuredMesh
+  class MEDFileCurveLinearMesh : public MEDFileStructuredMesh
   {
     friend class MEDFileMesh;
   public:
-    static MEDFileCurveLinearMesh *New();
-    static MEDFileCurveLinearMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0);
-    static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDFileMesh *createNewEmpty() const;
-    MEDFileMesh *deepCpy() const;
-    MEDFileMesh *shallowCpy() const;
-    bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
-    int getMeshDimension() const;
-    std::string simpleRepr() const;
-    std::string advancedRepr() const;
-    void clearNonDiscrAttributes() const;
-    const MEDCouplingCurveLinearMesh *getMesh() const;
-    void setMesh(MEDCouplingCurveLinearMesh *m);
+    MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New();
+    MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
+    MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
+    MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT int getMeshDimension() const;
+    MEDLOADER_EXPORT std::string simpleRepr() const;
+    MEDLOADER_EXPORT std::string advancedRepr() const;
+    MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
+    MEDLOADER_EXPORT const MEDCouplingCurveLinearMesh *getMesh() const;
+    MEDLOADER_EXPORT void setMesh(MEDCouplingCurveLinearMesh *m);
   private:
     MEDFileCurveLinearMesh();
     MEDFileCurveLinearMesh(med_idt fid, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs);
