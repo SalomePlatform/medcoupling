@@ -394,7 +394,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> _clmesh;
   };
 
-  class MEDLOADER_EXPORT MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
+  class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
   {
   public:
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New();
