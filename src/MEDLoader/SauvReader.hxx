@@ -35,9 +35,9 @@
 namespace SauvUtilities
 {
   class FileReader;
-  class IntermediateMED;
-  class Group;
-  class DoubleField;
+  struct IntermediateMED;
+  struct Group;
+  struct DoubleField;
 }
 namespace ParaMEDMEM
 {

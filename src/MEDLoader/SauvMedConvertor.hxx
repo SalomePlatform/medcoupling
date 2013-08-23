@@ -47,7 +47,7 @@ namespace ParaMEDMEM
 
 namespace SauvUtilities
 {
-  class IntermediateMED;
+  struct IntermediateMED;
 
   // ==============================================================================
   typedef int                TID;  // an ID countered from 1

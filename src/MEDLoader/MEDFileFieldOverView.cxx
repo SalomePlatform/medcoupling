@@ -99,7 +99,7 @@ int MEDFileMeshStruct::getNumberOfLevs() const
 int MEDFileMeshStruct::getNumberOfGeoTypesInLev(int relativeLev) const
 {
   int pos(-relativeLev);
-  if(pos<0 || pos>=_geo_types_distrib.size())
+  if(pos<0 || pos>=(int)_geo_types_distrib.size())
     throw INTERP_KERNEL::Exception("MEDFileMeshStruct::getNumberOfGeoTypesInLev : invalid level specified !");
   std::size_t sz=_geo_types_distrib[pos].size();
   if(sz%3!=0)
@@ -209,7 +209,7 @@ DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst,
 std::string MEDMeshMultiLev::getPflNameOfId(int id) const
 {
   std::size_t sz(_pfls.size());
-  if(id<0 || id>=sz)
+  if(id<0 || id>=(int)sz)
     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getPflNameOfId : invalid input id !");
   const DataArrayInt *pfl(_pfls[id]);
   if(!pfl)
