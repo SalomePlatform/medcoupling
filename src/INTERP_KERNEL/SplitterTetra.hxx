@@ -200,10 +200,10 @@ namespace INTERP_KERNEL
       -19,-16,-11,-18,-17,-8,6,-12};
 
   void SplitHexa8IntoTetras(SplittingPolicy policy, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
+                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords);
   
   INTERPKERNEL_EXPORT void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                                           std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception);
+                                           std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords);
   
   /**
    * \brief Class representing a triangular face, used as key in caching hash map in SplitterTetra.

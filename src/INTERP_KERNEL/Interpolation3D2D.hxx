@@ -39,22 +39,19 @@ namespace INTERP_KERNEL
    * more than one 3D target cell, and the value of '_duplicate_faces'
    * the 3D target cells. The size of the value of '_duplicate_faces' is more than or equal to 2.
    */
-  class INTERPKERNEL_EXPORT Interpolation3D2D : public Interpolation<Interpolation3D2D>
+  class Interpolation3D2D : public Interpolation<Interpolation3D2D>
   {
   public:
     typedef std::map<int,std::set<int> > DuplicateFacesType;
 
-    Interpolation3D2D();
-    Interpolation3D2D(const InterpolationOptions& io);
+    INTERPKERNEL_EXPORT Interpolation3D2D();
+    INTERPKERNEL_EXPORT Interpolation3D2D(const InterpolationOptions& io);
     template<class MyMeshType, class MyMatrixType>
-    int interpolateMeshes(const MyMeshType& srcMesh,
-                          const MyMeshType& targetMesh,
-                          MyMatrixType& matrix,
-                          const char *method);
-    DuplicateFacesType retrieveDuplicateFaces() const
-    {
-      return _duplicate_faces;
-    }
+    INTERPKERNEL_EXPORT int interpolateMeshes(const MyMeshType& srcMesh,
+                                              const MyMeshType& targetMesh,
+                                              MyMatrixType& matrix,
+                                              const char *method);
+    INTERPKERNEL_EXPORT DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
   private:
     SplittingPolicy _splitting_policy;
     DuplicateFacesType _duplicate_faces;

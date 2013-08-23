@@ -105,8 +105,7 @@ UnitDataBase::UnitDataBase()
     }
 }
 
-const short *UnitDataBase::getInfoForUnit(const std::string& unit,
-                                          double& addFact, double& mFact) const throw(INTERP_KERNEL::Exception)
+const short *UnitDataBase::getInfoForUnit(const std::string& unit, double& addFact, double& mFact) const
 {
   std::size_t lgth=unit.length();
   std::string work,work2;
@@ -247,7 +246,7 @@ DecompositionInUnitBase &DecompositionInUnitBase::operator/(const DecompositionI
  return *this;
 }
 
-DecompositionInUnitBase &DecompositionInUnitBase::operator^(const DecompositionInUnitBase& other) throw(INTERP_KERNEL::Exception)
+DecompositionInUnitBase &DecompositionInUnitBase::operator^(const DecompositionInUnitBase& other)
 {
   if(!other.isAdimensional())
     throw INTERP_KERNEL::Exception("Trying to execute operator ^ with a second member not adimensionnal");

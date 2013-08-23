@@ -24,7 +24,7 @@ namespace INTERP_KERNEL
 {
 
   void SplitHexa8IntoTetras(SplittingPolicy policy, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception)
+                            std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords)
   {
     if(std::distance(nodalConnBg,nodalConnEnd)!=8)
       throw INTERP_KERNEL::Exception("SplitHexa8IntoTetras : input hexa do not have 8 nodes !");
@@ -120,7 +120,7 @@ namespace INTERP_KERNEL
   }
 
   void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const int *nodalConnBg, const int *nodalConnEnd, const double *coords,
-                       std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords) throw(INTERP_KERNEL::Exception)
+                       std::vector<int>& tetrasNodalConn, std::vector<double>& addCoords)
   {
     switch(gt)
       {

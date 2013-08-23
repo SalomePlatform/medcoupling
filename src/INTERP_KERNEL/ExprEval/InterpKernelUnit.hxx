@@ -33,8 +33,7 @@ namespace INTERP_KERNEL
   {
   public:
     INTERPKERNEL_EXPORT UnitDataBase();
-    INTERPKERNEL_EXPORT const short *getInfoForUnit(const std::string& unit,
-                                                    double& addFact, double& mFact) const throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT const short *getInfoForUnit(const std::string& unit, double& addFact, double& mFact) const;
     INTERPKERNEL_EXPORT static UnitDataBase _uniqueMapForExpr;
     INTERPKERNEL_EXPORT static const int SIZE_OF_UNIT_BASE=5;
   private:
@@ -70,7 +69,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void tryToConvertInUnit(double val);
     INTERPKERNEL_EXPORT DecompositionInUnitBase &operator*(const DecompositionInUnitBase& other);
     INTERPKERNEL_EXPORT DecompositionInUnitBase &operator/(const DecompositionInUnitBase& other);
-    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator^(const DecompositionInUnitBase& other) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator^(const DecompositionInUnitBase& other);
   private:
     void dealWithAddFactor(const DecompositionInUnitBase& other);
     static int couldItBeConsideredAsInt(double val);

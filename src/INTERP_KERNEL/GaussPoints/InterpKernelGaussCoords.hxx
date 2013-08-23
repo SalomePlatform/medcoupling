@@ -53,7 +53,7 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT const double* getFunctionValues( const int theGaussId ) const;
 
-    INTERPKERNEL_EXPORT void initLocalInfo() throw (INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void initLocalInfo();
 
   protected:
 
@@ -136,18 +136,18 @@ namespace INTERP_KERNEL
                                            const double* theGaussCoord,
                                            int theNbGauss,
                                            const double* theReferenceCoord,
-                                           int theNbRef) throw (INTERP_KERNEL::Exception);
+                                           int theNbRef);
 
     INTERPKERNEL_EXPORT double* calculateCoords( NormalizedCellType theGeometry, 
                                                  const double* theNodeCoords, 
                                                  const int theSpaceDim,
-                                                 const int* theIndex) throw(INTERP_KERNEL::Exception);
+                                                 const int* theIndex);
 
     INTERPKERNEL_EXPORT void calculateCoords( NormalizedCellType theGeometry, 
                                               const double* theNodeCoords, 
                                               const int theSpaceDim,
                                               const int* theIndex,
-                                              double *result) throw(INTERP_KERNEL::Exception);
+                                              double *result);
   private:
     const GaussInfo *getInfoGivenCellType(NormalizedCellType cellType);
     void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const int *theIndex,

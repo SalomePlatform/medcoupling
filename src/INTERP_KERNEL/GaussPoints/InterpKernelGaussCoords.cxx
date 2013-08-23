@@ -190,7 +190,7 @@ bool GaussInfo::isSatisfy()
 /*!
  * Initialize the internal vectors
  */
-void GaussInfo::initLocalInfo() throw (INTERP_KERNEL::Exception) 
+void GaussInfo::initLocalInfo()
 {
   bool aSatify = false;
   const CellModel& cellModel=CellModel::GetCellModel(_my_geometry);
@@ -2038,7 +2038,7 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
                                 const double* theGaussCoord,
                                 int theNbGauss,
                                 const double* theReferenceCoord,
-                                int theNbRef) throw (INTERP_KERNEL::Exception) 
+                                int theNbRef)
 {
   GaussInfoVector::iterator it = _my_gauss_info.begin();
   for( ; it != _my_gauss_info.end(); it++ ) 
@@ -2083,7 +2083,7 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
 double* GaussCoords::calculateCoords( NormalizedCellType theGeometry, 
                                       const double *theNodeCoords, 
                                       const int theSpaceDim,
-                                      const int *theIndex) throw (INTERP_KERNEL::Exception) 
+                                      const int *theIndex)
 {
   const GaussInfo *info = getInfoGivenCellType(theGeometry);
   int nbCoords = theSpaceDim * info->getNbGauss();
@@ -2093,7 +2093,7 @@ double* GaussCoords::calculateCoords( NormalizedCellType theGeometry,
 }
 
 
-void GaussCoords::calculateCoords( NormalizedCellType theGeometry, const double *theNodeCoords, const int theSpaceDim, const int *theIndex, double *result) throw(INTERP_KERNEL::Exception)
+void GaussCoords::calculateCoords( NormalizedCellType theGeometry, const double *theNodeCoords, const int theSpaceDim, const int *theIndex, double *result)
 {
   const GaussInfo *info = getInfoGivenCellType(theGeometry);
   calculateCoordsAlg(info,theNodeCoords,theSpaceDim,theIndex,result);
