@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
    * matrix[3]=m_xy, matrix[4]=m_yz, matrix[5]=m_xz
    * This method returns the eigenvector of the corresponding eigenvalue in 'eigenVal'. The returned eigenValue is normalized.
    */
-  void computeEigenVectorForEigenValue6(const double *matrix, double eigenVal, double eps, double *eigenVector) throw(INTERP_KERNEL::Exception)
+  void computeEigenVectorForEigenValue6(const double *matrix, double eigenVal, double eps, double *eigenVector)
   {
     //if(fabs(eigenVal)>eps)
       {

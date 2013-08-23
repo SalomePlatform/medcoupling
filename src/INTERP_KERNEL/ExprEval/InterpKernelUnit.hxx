@@ -67,13 +67,13 @@ namespace INTERP_KERNEL
     //! \b WARNING no test is done on the fact that unit is adimensionnal.
     INTERPKERNEL_EXPORT void negate();
     INTERPKERNEL_EXPORT bool isAdimensional() const;
-    INTERPKERNEL_EXPORT void tryToConvertInUnit(double val) throw(INTERP_KERNEL::Exception);
+    INTERPKERNEL_EXPORT void tryToConvertInUnit(double val);
     INTERPKERNEL_EXPORT DecompositionInUnitBase &operator*(const DecompositionInUnitBase& other);
     INTERPKERNEL_EXPORT DecompositionInUnitBase &operator/(const DecompositionInUnitBase& other);
     INTERPKERNEL_EXPORT DecompositionInUnitBase &operator^(const DecompositionInUnitBase& other) throw(INTERP_KERNEL::Exception);
   private:
     void dealWithAddFactor(const DecompositionInUnitBase& other);
-    static int couldItBeConsideredAsInt(double val) throw(INTERP_KERNEL::Exception);
+    static int couldItBeConsideredAsInt(double val);
     static bool areDoubleEquals(double a, double b);
     static double powInt(double val, int exp);
   private:

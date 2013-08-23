@@ -39,11 +39,11 @@ namespace INTERP_KERNEL
   template<class ConnType, NumberingPolicy numPolConn>
   void computeBarycenter2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim, double *res);
 
-  double INTERPKERNEL_EXPORT SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint) throw(INTERP_KERNEL::Exception);
+  double INTERPKERNEL_EXPORT SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint);
 
-  double INTERPKERNEL_EXPORT DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3) throw(INTERP_KERNEL::Exception);
+  double INTERPKERNEL_EXPORT DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3);
 
-  double INTERPKERNEL_EXPORT DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords) throw(INTERP_KERNEL::Exception);
+  double INTERPKERNEL_EXPORT DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords);
 
   bool ComputeRotTranslationMatrixToPut3PointsOnOXY(const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3, double *matrix);
 }

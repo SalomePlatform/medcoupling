@@ -28,7 +28,7 @@
 
 namespace INTERP_KERNEL
 {
-  double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint) throw(INTERP_KERNEL::Exception)
+  double SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint)
   {
     double dx=pt1Seg2[0]-pt0Seg2[0],dy=pt1Seg2[1]-pt0Seg2[1];
     double norm=sqrt(dx*dx+dy*dy);
@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
     return (x-pt[0])*(x-pt[0])+(y-pt[1])*(y-pt[1]);
   }
 
-  double DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3) throw(INTERP_KERNEL::Exception)
+  double DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3)
   {
     double matrix[12];
     if(!ComputeRotTranslationMatrixToPut3PointsOnOXY(pt0Tri3,pt1Tri3,pt2Tri3,matrix))
@@ -69,7 +69,7 @@ namespace INTERP_KERNEL
   return sqrt(ret);
   }
 
-  double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords) throw(INTERP_KERNEL::Exception)
+  double DistanceFromPtToPolygonInSpaceDim3(const double *pt, const int *connOfPolygonBg, const int *connOfPolygonEnd, const double *coords)
   {
     std::size_t nbOfEdges=std::distance(connOfPolygonBg,connOfPolygonEnd);
     if(nbOfEdges<3)

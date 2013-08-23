@@ -38,7 +38,7 @@ const char ExprParser::WHITE_SPACES[]=" \n";
 
 const char ExprParser::EXPR_PARSE_ERR_MSG[]="Invalid expression detected : ";
 
-LeafExpr *LeafExpr::buildInstanceFrom(const std::string& expr) throw(INTERP_KERNEL::Exception)
+LeafExpr *LeafExpr::buildInstanceFrom(const std::string& expr)
 {
   std::istringstream stream;
   stream.str(expr);
@@ -70,12 +70,12 @@ LeafExprVal::~LeafExprVal()
 {
 }
 
-void LeafExprVal::fillValue(Value *val) const throw(INTERP_KERNEL::Exception)
+void LeafExprVal::fillValue(Value *val) const
 {
   val->setDouble(_value);
 }
 
-void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr)
 {
   int pos=(int)_value;
   int lgth=(int)valuesInExpr.size();
@@ -88,12 +88,12 @@ LeafExprVar::LeafExprVar(const std::string& var):_fast_pos(-1),_var_name(var)
 {
 }
 
-void LeafExprVar::fillValue(Value *val) const throw(INTERP_KERNEL::Exception)
+void LeafExprVar::fillValue(Value *val) const
 {
   val->setVarname(_fast_pos,_var_name);
 }
 
-void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception)
+void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const
 {
   std::vector<std::string>::const_iterator iter=std::find(vars.begin(),vars.end(),_var_name);
   if(iter==vars.end())
@@ -125,7 +125,7 @@ void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, in
     }
 }
 
-void LeafExprVar::prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception)
+void LeafExprVar::prepareExprEvaluationVec() const
 {
   if(!isRecognizedKeyVar(_var_name,_fast_pos))
     _fast_pos=-2;
@@ -148,7 +148,7 @@ bool LeafExprVar::isRecognizedKeyVar(const std::string& var, int& pos)
 /*!
  * Nothing to do it is not a bug.
  */
-void LeafExprVar::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+void LeafExprVar::replaceValues(const std::vector<double>& valuesInExpr)
 {
 }
 
@@ -225,7 +225,7 @@ std::string ExprParser::deleteWhiteSpaces(const std::string& expr)
   return ret;
 }
 
-void ExprParser::parse() throw(INTERP_KERNEL::Exception)
+void ExprParser::parse()
 {
   _is_parsed=true;
   _is_parsing_ok=false;
@@ -245,7 +245,7 @@ void ExprParser::parse() throw(INTERP_KERNEL::Exception)
   _is_parsing_ok=true;
 }
 
-double ExprParser::evaluate() const throw(INTERP_KERNEL::Exception)
+double ExprParser::evaluate() const
 {
   Value *gen=new ValueDouble;
   ValueDouble *res=(ValueDouble *)evaluateLowLev(gen);
@@ -255,7 +255,7 @@ double ExprParser::evaluate() const throw(INTERP_KERNEL::Exception)
   return ret;
 }
 
-DecompositionInUnitBase ExprParser::evaluateUnit() const throw(INTERP_KERNEL::Exception)
+DecompositionInUnitBase ExprParser::evaluateUnit() const
 {
   Value *gen=new ValueUnit;
   ValueUnit *res=0;
@@ -274,7 +274,7 @@ DecompositionInUnitBase ExprParser::evaluateUnit() const throw(INTERP_KERNEL::Ex
   return ret;
 }
 
-void ExprParser::evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const throw(INTERP_KERNEL::Exception)
+void ExprParser::evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const
 {
   Value *gen=new ValueDoubleExpr(szOfOutParam,inParam);
   ValueDoubleExpr *res=0;
@@ -292,7 +292,7 @@ void ExprParser::evaluateExpr(int szOfOutParam, const double *inParam, double *o
   delete res;
 }
 
-void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception)
+void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const
 {
   if(_leaf)
     {
@@ -305,7 +305,7 @@ void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int
       (*iter).prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
 }
 
-void ExprParser::prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception)
+void ExprParser::prepareExprEvaluationVec() const
 {
   std::set<std::string> trueVars;
   getTrueSetOfVars(trueVars);
@@ -319,7 +319,7 @@ void ExprParser::prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception
   prepareExprEvaluationVecLowLev();
 }
 
-void ExprParser::prepareExprEvaluationVecLowLev() const throw(INTERP_KERNEL::Exception)
+void ExprParser::prepareExprEvaluationVecLowLev() const
 {
   if(_leaf)
     {
@@ -332,7 +332,7 @@ void ExprParser::prepareExprEvaluationVecLowLev() const throw(INTERP_KERNEL::Exc
       (*iter).prepareExprEvaluationVecLowLev();
 }
 
-Value *ExprParser::evaluateLowLev(Value *valGen) const throw(INTERP_KERNEL::Exception)
+Value *ExprParser::evaluateLowLev(Value *valGen) const
 {
   if(!_is_parsing_ok)
     throw INTERP_KERNEL::Exception("Parsing fails ! Invalid expression !");
@@ -402,7 +402,7 @@ void ExprParser::getTrueSetOfVars(std::set<std::string>& trueVars) const
     }
 }
 
-void ExprParser::parseDeeper() throw(INTERP_KERNEL::Exception)
+void ExprParser::parseDeeper()
 {
   for(std::list<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
     if(!(*iter).simplify())
@@ -414,7 +414,7 @@ void ExprParser::parseDeeper() throw(INTERP_KERNEL::Exception)
  * Something defined as the contain of highest level barckets.
  * Typically '(3*x+2)' and 'cos(4*l+p*n)' will be intercepted by this method whereas '3*x+2' not...etc..
  */
-void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
+void ExprParser::parseUnaryFunc()
 {
   if(_expr[_expr.length()-1]!=')')
     return ;
@@ -461,7 +461,7 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
  * \return true if no recursion needed, false if this->_expr is too complex to be interpreted at this level.
  * \throw exception if this->_expr is simple enough to try to interprate this and this expression contains an error.  
  */
-bool ExprParser::tryToInterpALeaf() throw(INTERP_KERNEL::Exception)
+bool ExprParser::tryToInterpALeaf()
 {
   std::size_t pos=_expr.find_first_not_of("+-",0,2);
   std::string minimizedExpr=_expr.substr(pos);
@@ -480,7 +480,7 @@ bool ExprParser::tryToInterpALeaf() throw(INTERP_KERNEL::Exception)
   return true;
 }
 
-void ExprParser::parseForCmp() throw(INTERP_KERNEL::Exception)
+void ExprParser::parseForCmp()
 {
   std::string::const_iterator iter;
   int curLevel=0;
@@ -540,7 +540,7 @@ void ExprParser::parseForCmp() throw(INTERP_KERNEL::Exception)
     }
 }
 
-void ExprParser::parseForAddMin() throw(INTERP_KERNEL::Exception)
+void ExprParser::parseForAddMin()
 {
   std::string::const_iterator iter;
   int curLevel=0;
@@ -602,7 +602,7 @@ void ExprParser::parseForAddMin() throw(INTERP_KERNEL::Exception)
     }
 }
 
-void ExprParser::parseForMulDiv() throw(INTERP_KERNEL::Exception)
+void ExprParser::parseForMulDiv()
 {
   std::string::const_iterator iter;
   int curLevel=0;
@@ -665,7 +665,7 @@ void ExprParser::parseForMulDiv() throw(INTERP_KERNEL::Exception)
     }
 }
 
-void ExprParser::parseForPow() throw(INTERP_KERNEL::Exception)
+void ExprParser::parseForPow()
 {
   std::string::const_iterator iter;
   int curLevel=0;
@@ -737,7 +737,7 @@ void ExprParser::releaseFunctions()
  * This method first try to see if this->_expr is a leaf, if not it try a unary function of something (see INTERP_KERNEL::ExprParser::parseUnaryFunc method)
  * If true is returned, no deeper parsing needed, if false is returned for a full parsing of this->_expr INTERP_KERNEL::ExprParser::parseDeeper call needed.
  */
-bool ExprParser::simplify() throw(INTERP_KERNEL::Exception)
+bool ExprParser::simplify()
 {
   if(tryToInterpALeaf())
     return true;
@@ -767,7 +767,7 @@ bool ExprParser::simplify() throw(INTERP_KERNEL::Exception)
   return false;
 }
 
-void ExprParser::checkBracketsParity() const throw(INTERP_KERNEL::Exception)
+void ExprParser::checkBracketsParity() const
 {
   std::string::const_iterator iter;
   int curLevel=0;
@@ -802,7 +802,7 @@ void ExprParser::checkBracketsParity() const throw(INTERP_KERNEL::Exception)
  * If double representation is invalid an exception is thrown.
  * This method returns a delta that is the delta to operate to pos in expr after substitution.
  */
-double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, std::size_t end, int& delta) throw(INTERP_KERNEL::Exception)
+double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, std::size_t end, int& delta)
 {
   static const char MSG[]="Interal error : A string expected to be a float is not one ! Bug to signal !";
   std::istringstream stream;
@@ -829,7 +829,7 @@ double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, 
  * This method scans _expr finding in greedy mode the following pattern :
  * {0..9}+{.}?{0..9}*{{eE}{-}?{0..9}+}?
  */
-void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr)
 {
   const char FIGURES[]="0123456789";
   const std::string other("+-*^/(<>,");
@@ -918,7 +918,7 @@ void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTER
     }
 }
 
-void ExprParser::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+void ExprParser::replaceValues(const std::vector<double>& valuesInExpr)
 {
   if(_leaf)
     _leaf->replaceValues(valuesInExpr);

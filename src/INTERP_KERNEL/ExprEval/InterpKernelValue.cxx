@@ -40,152 +40,152 @@ ValueDouble::ValueDouble(double val):_data(val)
 {
 }
 
-void ValueDouble::setDouble(double val) throw(INTERP_KERNEL::Exception)
+void ValueDouble::setDouble(double val)
 {
   _data=val;
 }
 
-void ValueDouble::setVarname(int fastPos, const std::string& var) throw(INTERP_KERNEL::Exception)
+void ValueDouble::setVarname(int fastPos, const std::string& var)
 {
   std::string msg("Error var : "); msg+=var; msg+=" not numeric : use another expression evaluator !";
   throw INTERP_KERNEL::Exception(msg.c_str());
 }
 
-void ValueDouble::positive() throw(INTERP_KERNEL::Exception)
+void ValueDouble::positive()
 {
 }
 
-void ValueDouble::negate() throw(INTERP_KERNEL::Exception)
+void ValueDouble::negate()
 {
   _data=-_data;
 }
 
-void ValueDouble::sqrt() throw(INTERP_KERNEL::Exception)
+void ValueDouble::sqrt()
 {
   _data=std::sqrt(_data);
 }
 
-void ValueDouble::cos() throw(INTERP_KERNEL::Exception)
+void ValueDouble::cos()
 {
   _data=std::cos(_data);
 }
 
-void ValueDouble::sin() throw(INTERP_KERNEL::Exception)
+void ValueDouble::sin()
 {
   _data=std::sin(_data);
 }
 
-void ValueDouble::tan() throw(INTERP_KERNEL::Exception)
+void ValueDouble::tan()
 {
   _data=std::tan(_data);
 }
 
-void ValueDouble::acos() throw(INTERP_KERNEL::Exception)
+void ValueDouble::acos()
 {
   _data=std::acos(_data);
 }
 
-void ValueDouble::asin() throw(INTERP_KERNEL::Exception)
+void ValueDouble::asin()
 {
   _data=std::asin(_data);
 }
 
-void ValueDouble::atan() throw(INTERP_KERNEL::Exception)
+void ValueDouble::atan()
 {
   _data=std::atan(_data);
 }
 
-void ValueDouble::cosh() throw(INTERP_KERNEL::Exception)
+void ValueDouble::cosh()
 {
   _data=std::cosh(_data);
 }
 
-void ValueDouble::sinh() throw(INTERP_KERNEL::Exception)
+void ValueDouble::sinh()
 {
   _data=std::sinh(_data);
 }
 
-void ValueDouble::tanh() throw(INTERP_KERNEL::Exception)
+void ValueDouble::tanh()
 {
   _data=std::tanh(_data);
 }
 
-void ValueDouble::abs() throw(INTERP_KERNEL::Exception)
+void ValueDouble::abs()
 {
   if(_data<0.)
     _data=-_data;
 }
 
-void ValueDouble::exp() throw(INTERP_KERNEL::Exception)
+void ValueDouble::exp()
 {
   _data=std::exp(_data);
 }
 
-void ValueDouble::ln() throw(INTERP_KERNEL::Exception)
+void ValueDouble::ln()
 {
   _data=std::log(_data);
 }
 
-void ValueDouble::log10() throw(INTERP_KERNEL::Exception)
+void ValueDouble::log10()
 {
   _data=std::log10(_data);
 }
 
-Value *ValueDouble::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::plus(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(_data+valC->_data);
 }
 
-Value *ValueDouble::minus(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::minus(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(_data-valC->_data);
 }
 
-Value *ValueDouble::mult(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::mult(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(_data*valC->_data);
 }
 
-Value *ValueDouble::div(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::div(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(_data/valC->_data);
 }
 
-Value *ValueDouble::pow(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::pow(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(std::pow(_data,valC->_data));
 }
 
-Value *ValueDouble::max(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::max(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(std::max(_data,valC->_data));
 }
 
-Value *ValueDouble::min(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::min(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(std::min(_data,valC->_data));
 }
 
-Value *ValueDouble::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::greaterThan(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(_data>valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
 }
 
-Value *ValueDouble::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::lowerThan(const Value *other) const
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(_data<valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
 }
 
-Value *ValueDouble::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+Value *ValueDouble::ifFunc(const Value *the, const Value *els) const
 {
   const ValueDouble *theC=checkSameType(the);
   const ValueDouble *elsC=checkSameType(els);
@@ -196,7 +196,7 @@ Value *ValueDouble::ifFunc(const Value *the, const Value *els) const throw(INTER
   throw INTERP_KERNEL::Exception("ValueDouble::ifFunc : The fist element of ternary function if is not a binary op !");
 }
 
-const ValueDouble *ValueDouble::checkSameType(const Value *val) throw(INTERP_KERNEL::Exception)
+const ValueDouble *ValueDouble::checkSameType(const Value *val)
 {
   const ValueDouble *valC=dynamic_cast<const ValueDouble *>(val);
   if(!valC)
@@ -217,129 +217,129 @@ ValueUnit::ValueUnit(const DecompositionInUnitBase& unit):_data(unit)
 {
 }
 
-void ValueUnit::setDouble(double val) throw(INTERP_KERNEL::Exception)
+void ValueUnit::setDouble(double val)
 {
   _data.tryToConvertInUnit(val);
 }
 
-void ValueUnit::setVarname(int fastPos, const std::string& var) throw(INTERP_KERNEL::Exception)
+void ValueUnit::setVarname(int fastPos, const std::string& var)
 {
   double add,mul;
   const short *projInBase=UnitDataBase::_uniqueMapForExpr.getInfoForUnit(var,add,mul);
   _data.setInfo(projInBase,add,mul);
 }
 
-void ValueUnit::positive() throw(INTERP_KERNEL::Exception)
+void ValueUnit::positive()
 {
   unsupportedOp(PositiveFunction::REPR);
 }
 
-void ValueUnit::negate() throw(INTERP_KERNEL::Exception)
+void ValueUnit::negate()
 {
   _data.negate();
 }
 
-void ValueUnit::sqrt() throw(INTERP_KERNEL::Exception)
+void ValueUnit::sqrt()
 {
   unsupportedOp(SqrtFunction::REPR);
 }
 
-void ValueUnit::cos() throw(INTERP_KERNEL::Exception)
+void ValueUnit::cos()
 {
   unsupportedOp(CosFunction::REPR);
 }
 
-void ValueUnit::sin() throw(INTERP_KERNEL::Exception)
+void ValueUnit::sin()
 {
   unsupportedOp(SinFunction::REPR);
 }
 
-void ValueUnit::tan() throw(INTERP_KERNEL::Exception)
+void ValueUnit::tan()
 {
   unsupportedOp(TanFunction::REPR);
 }
 
-void ValueUnit::acos() throw(INTERP_KERNEL::Exception)
+void ValueUnit::acos()
 {
   unsupportedOp(ACosFunction::REPR);
 }
 
-void ValueUnit::asin() throw(INTERP_KERNEL::Exception)
+void ValueUnit::asin()
 {
   unsupportedOp(ASinFunction::REPR);
 }
 
-void ValueUnit::atan() throw(INTERP_KERNEL::Exception)
+void ValueUnit::atan()
 {
   unsupportedOp(ATanFunction::REPR);
 }
 
-void ValueUnit::cosh() throw(INTERP_KERNEL::Exception)
+void ValueUnit::cosh()
 {
   unsupportedOp(CoshFunction::REPR);
 }
 
-void ValueUnit::sinh() throw(INTERP_KERNEL::Exception)
+void ValueUnit::sinh()
 {
   unsupportedOp(SinhFunction::REPR);
 }
 
-void ValueUnit::tanh() throw(INTERP_KERNEL::Exception)
+void ValueUnit::tanh()
 {
   unsupportedOp(TanhFunction::REPR);
 }
 
-void ValueUnit::abs() throw(INTERP_KERNEL::Exception)
+void ValueUnit::abs()
 {
   unsupportedOp(AbsFunction::REPR);
 }
 
-void ValueUnit::exp() throw(INTERP_KERNEL::Exception)
+void ValueUnit::exp()
 {
   unsupportedOp(ExpFunction::REPR);
 }
 
-void ValueUnit::ln() throw(INTERP_KERNEL::Exception)
+void ValueUnit::ln()
 {
   unsupportedOp(LnFunction::REPR);
 }
 
-void ValueUnit::log10() throw(INTERP_KERNEL::Exception)
+void ValueUnit::log10()
 {
   unsupportedOp(Log10Function::REPR);
 }
 
-Value *ValueUnit::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::plus(const Value *other) const
 {
   unsupportedOp(PlusFunction::REPR);
   return 0;
 }
 
-Value *ValueUnit::minus(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::minus(const Value *other) const
 {
   unsupportedOp(MinusFunction::REPR);
   return 0;
 }
 
-Value *ValueUnit::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::greaterThan(const Value *other) const
 {
   unsupportedOp(GreaterThanFunction::REPR);
   return 0;
 }
 
-Value *ValueUnit::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::lowerThan(const Value *other) const
 {
   unsupportedOp(LowerThanFunction::REPR);
   return 0;
 }
 
-Value *ValueUnit::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::ifFunc(const Value *the, const Value *els) const
 {
   unsupportedOp(IfFunction::REPR);
   return 0;
 }
 
-Value *ValueUnit::mult(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::mult(const Value *other) const
 {
   const ValueUnit *valC=checkSameType(other);
   DecompositionInUnitBase tmp=_data;
@@ -347,7 +347,7 @@ Value *ValueUnit::mult(const Value *other) const throw(INTERP_KERNEL::Exception)
   return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::div(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::div(const Value *other) const
 {
   const ValueUnit *valC=checkSameType(other);
   DecompositionInUnitBase tmp=_data;
@@ -355,7 +355,7 @@ Value *ValueUnit::div(const Value *other) const throw(INTERP_KERNEL::Exception)
   return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::pow(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::pow(const Value *other) const
 {
   const ValueUnit *valC=checkSameType(other);
   DecompositionInUnitBase tmp=_data;
@@ -363,19 +363,19 @@ Value *ValueUnit::pow(const Value *other) const throw(INTERP_KERNEL::Exception)
   return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::max(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::max(const Value *other) const
 {
   unsupportedOp(MaxFunction::REPR);
   return 0;
 }
 
-Value *ValueUnit::min(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueUnit::min(const Value *other) const
 {
   unsupportedOp(MinFunction::REPR);
   return 0;
 }
 
-const ValueUnit *ValueUnit::checkSameType(const Value *val) throw(INTERP_KERNEL::Exception)
+const ValueUnit *ValueUnit::checkSameType(const Value *val)
 {
   const ValueUnit *valC=dynamic_cast<const ValueUnit *>(val);
   if(!valC)
@@ -383,7 +383,7 @@ const ValueUnit *ValueUnit::checkSameType(const Value *val) throw(INTERP_KERNEL:
   return valC;
 }
 
-void ValueUnit::unsupportedOp(const char *type) throw(INTERP_KERNEL::Exception)
+void ValueUnit::unsupportedOp(const char *type)
 {
   const char msg[]="Unsupported operation for units :";
   std::string msgStr(msg);
@@ -405,12 +405,12 @@ Value *ValueDoubleExpr::newInstance() const
   return new ValueDoubleExpr(_sz_dest_data,_src_data);
 }
 
-void ValueDoubleExpr::setDouble(double val) throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::setDouble(double val)
 {
   std::fill(_dest_data,_dest_data+_sz_dest_data,val);
 }
 
-void ValueDoubleExpr::setVarname(int fastPos, const std::string& var) throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::setVarname(int fastPos, const std::string& var)
 {
   if(fastPos==-2)
     std::copy(_src_data,_src_data+_sz_dest_data,_dest_data);
@@ -423,16 +423,16 @@ void ValueDoubleExpr::setVarname(int fastPos, const std::string& var) throw(INTE
     }
 }
 
-void ValueDoubleExpr::positive() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::positive()
 {
 }
 
-void ValueDoubleExpr::negate() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::negate()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::negate<double>());
 }
 
-void ValueDoubleExpr::sqrt() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::sqrt()
 {
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),0.));
   if(it!=_dest_data+_sz_dest_data)
@@ -440,22 +440,22 @@ void ValueDoubleExpr::sqrt() throw(INTERP_KERNEL::Exception)
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sqrt));
 }
 
-void ValueDoubleExpr::cos() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::cos()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::cos));
 }
 
-void ValueDoubleExpr::sin() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::sin()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sin));
 }
 
-void ValueDoubleExpr::tan() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::tan()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::tan));
 }
 
-void ValueDoubleExpr::acos() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::acos()
 {
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),-1.));
   if(it!=_dest_data+_sz_dest_data)
@@ -466,7 +466,7 @@ void ValueDoubleExpr::acos() throw(INTERP_KERNEL::Exception)
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::acos));
 }
 
-void ValueDoubleExpr::asin() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::asin()
 {
    double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),-1.));
    if(it!=_dest_data+_sz_dest_data)
@@ -477,37 +477,37 @@ void ValueDoubleExpr::asin() throw(INTERP_KERNEL::Exception)
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::asin));
 }
 
-void ValueDoubleExpr::atan() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::atan()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::atan));
 }
 
-void ValueDoubleExpr::cosh() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::cosh()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::cosh));
 }
 
-void ValueDoubleExpr::sinh() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::sinh()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sinh));
 }
 
-void ValueDoubleExpr::tanh() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::tanh()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::tanh));
 }
 
-void ValueDoubleExpr::abs() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::abs()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(fabs));
 }
 
-void ValueDoubleExpr::exp() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::exp()
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::exp));
 }
 
-void ValueDoubleExpr::ln() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::ln()
 {
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
   if(it!=_dest_data+_sz_dest_data)
@@ -515,7 +515,7 @@ void ValueDoubleExpr::ln() throw(INTERP_KERNEL::Exception)
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log));
 }
 
-void ValueDoubleExpr::log10() throw(INTERP_KERNEL::Exception)
+void ValueDoubleExpr::log10()
 {
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
   if(it!=_dest_data+_sz_dest_data)
@@ -523,7 +523,7 @@ void ValueDoubleExpr::log10() throw(INTERP_KERNEL::Exception)
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log10));
 }
 
-Value *ValueDoubleExpr::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::plus(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -531,7 +531,7 @@ Value *ValueDoubleExpr::plus(const Value *other) const throw(INTERP_KERNEL::Exce
   return ret;
 }
 
-Value *ValueDoubleExpr::minus(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::minus(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -539,7 +539,7 @@ Value *ValueDoubleExpr::minus(const Value *other) const throw(INTERP_KERNEL::Exc
   return ret;
 }
 
-Value *ValueDoubleExpr::mult(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::mult(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -547,7 +547,7 @@ Value *ValueDoubleExpr::mult(const Value *other) const throw(INTERP_KERNEL::Exce
   return ret;
 }
 
-Value *ValueDoubleExpr::div(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::div(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   double *it=std::find(otherC->getData(),otherC->getData()+_sz_dest_data,0.);
@@ -558,7 +558,7 @@ Value *ValueDoubleExpr::div(const Value *other) const throw(INTERP_KERNEL::Excep
   return ret;
 }
 
-Value *ValueDoubleExpr::pow(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::pow(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   double p=otherC->getData()[0];
@@ -570,7 +570,7 @@ Value *ValueDoubleExpr::pow(const Value *other) const throw(INTERP_KERNEL::Excep
   return ret;
 }
 
-Value *ValueDoubleExpr::max(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::max(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -578,7 +578,7 @@ Value *ValueDoubleExpr::max(const Value *other) const throw(INTERP_KERNEL::Excep
   return ret;
 }
 
-Value *ValueDoubleExpr::min(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::min(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -586,7 +586,7 @@ Value *ValueDoubleExpr::min(const Value *other) const throw(INTERP_KERNEL::Excep
   return ret;
 }
 
-Value *ValueDoubleExpr::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::greaterThan(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -600,7 +600,7 @@ Value *ValueDoubleExpr::greaterThan(const Value *other) const throw(INTERP_KERNE
   return ret;
 }
 
-Value *ValueDoubleExpr::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::lowerThan(const Value *other) const
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
@@ -614,7 +614,7 @@ Value *ValueDoubleExpr::lowerThan(const Value *other) const throw(INTERP_KERNEL:
   return ret;
 }
 
-Value *ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+Value *ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const
 {
   const ValueDoubleExpr *theC=static_cast<const ValueDoubleExpr *>(the);
   const ValueDoubleExpr *elsC=static_cast<const ValueDoubleExpr *>(els);

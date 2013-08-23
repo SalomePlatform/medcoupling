@@ -213,7 +213,7 @@ bool DecompositionInUnitBase::isUnitary() const
   return areDoubleEquals(_add_to_base,0.) && areDoubleEquals(_mult_fact_to_base,1.);
 }
 
-void DecompositionInUnitBase::tryToConvertInUnit(double val) throw(INTERP_KERNEL::Exception)
+void DecompositionInUnitBase::tryToConvertInUnit(double val)
 {
   int valI=(int)val;
   if((val-(double)valI)!=0.)
@@ -296,7 +296,7 @@ bool DecompositionInUnitBase::areDoubleEquals(double a, double b)
   return fabs((a-b)/ref)<1e-7;
 }
 
-int DecompositionInUnitBase::couldItBeConsideredAsInt(double val) throw(INTERP_KERNEL::Exception)
+int DecompositionInUnitBase::couldItBeConsideredAsInt(double val)
 {
   int ret=(int)val;
   double valT=(double) ret;

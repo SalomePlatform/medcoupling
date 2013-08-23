@@ -81,7 +81,7 @@ const char LowerThanFunction::REPR[]="<";
 
 const char IfFunction::REPR[]="if";
 
-Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams) throw(INTERP_KERNEL::Exception)
+Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams)
 {
   switch(nbOfParams)
     {
@@ -96,7 +96,7 @@ Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams
     }
 }
 
-Function *FunctionsFactory::buildUnaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+Function *FunctionsFactory::buildUnaryFuncFromString(const char *type)
 {
   std::string tmp(type);
   if(tmp.empty())
@@ -141,7 +141,7 @@ Function *FunctionsFactory::buildUnaryFuncFromString(const char *type) throw(INT
   throw INTERP_KERNEL::Exception(msg.c_str());
 }
 
-Function *FunctionsFactory::buildBinaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+Function *FunctionsFactory::buildBinaryFuncFromString(const char *type)
 {
   std::string tmp(type);
   if(tmp==PositiveFunction::REPR)
@@ -167,7 +167,7 @@ Function *FunctionsFactory::buildBinaryFuncFromString(const char *type) throw(IN
   throw INTERP_KERNEL::Exception(msg.c_str());
 }
 
-Function *FunctionsFactory::buildTernaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+Function *FunctionsFactory::buildTernaryFuncFromString(const char *type)
 {
   std::string tmp(type);
   if(tmp==IfFunction::REPR)
@@ -177,7 +177,7 @@ Function *FunctionsFactory::buildTernaryFuncFromString(const char *type) throw(I
   throw INTERP_KERNEL::Exception(msg.c_str());
 }
 
-Function *FunctionsFactory::buildBinaryFuncFromString(char type) throw(INTERP_KERNEL::Exception)
+Function *FunctionsFactory::buildBinaryFuncFromString(char type)
 {
   char tmp[2]; tmp[0]=type; tmp[1]='\0';
   return buildBinaryFuncFromString(tmp);
@@ -191,11 +191,11 @@ IdentityFunction::~IdentityFunction()
 {
 }
 
-void IdentityFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void IdentityFunction::operate(std::vector<Value *>& stack) const
 {
 }
 
-void IdentityFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void IdentityFunction::operateX86(std::vector<std::string>& asmb) const
 {
 }
 
@@ -218,11 +218,11 @@ int UnaryFunction::getNbInputParams() const
   return 1;
 }
 
-void PositiveFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void PositiveFunction::operate(std::vector<Value *>& stack) const
 {
 }
 
-void PositiveFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void PositiveFunction::operateX86(std::vector<std::string>& asmb) const
 {
 }
 
@@ -240,13 +240,13 @@ NegateFunction::~NegateFunction()
 {
 }
 
-void NegateFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void NegateFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->negate();
 }
 
-void NegateFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void NegateFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fchs");
 }
@@ -265,13 +265,13 @@ CosFunction::~CosFunction()
 {
 }
 
-void CosFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void CosFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->cos();
 }
 
-void CosFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void CosFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fcos");
 }
@@ -290,13 +290,13 @@ SinFunction::~SinFunction()
 {
 }
 
-void SinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void SinFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->sin();
 }
 
-void SinFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void SinFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fsin");
 }
@@ -315,13 +315,13 @@ TanFunction::~TanFunction()
 {
 }
 
-void TanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void TanFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->tan();
 }
 
-void TanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void TanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -340,13 +340,13 @@ ACosFunction::~ACosFunction()
 {
 }
 
-void ACosFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void ACosFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->acos();
 }
 
-void ACosFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void ACosFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -365,13 +365,13 @@ ASinFunction::~ASinFunction()
 {
 }
 
-void ASinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void ASinFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->asin();
 }
 
-void ASinFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void ASinFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -390,13 +390,13 @@ ATanFunction::~ATanFunction()
 {
 }
 
-void ATanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void ATanFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->atan();
 }
 
-void ATanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void ATanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -415,13 +415,13 @@ CoshFunction::~CoshFunction()
 {
 }
 
-void CoshFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void CoshFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->cosh();
 }
 
-void CoshFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void CoshFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -440,13 +440,13 @@ SinhFunction::~SinhFunction()
 {
 }
 
-void SinhFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void SinhFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->sinh();
 }
 
-void SinhFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void SinhFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -465,13 +465,13 @@ TanhFunction::~TanhFunction()
 {
 }
 
-void TanhFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void TanhFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->tanh();
 }
 
-void TanhFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void TanhFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -490,13 +490,13 @@ SqrtFunction::~SqrtFunction()
 {
 }
 
-void SqrtFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void SqrtFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->sqrt();
 }
 
-void SqrtFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void SqrtFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fsqrt");
 }
@@ -515,13 +515,13 @@ AbsFunction::~AbsFunction()
 {
 }
 
-void AbsFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void AbsFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->abs();
 }
 
-void AbsFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void AbsFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fabs");
 }
@@ -536,13 +536,13 @@ bool AbsFunction::isACall() const
   return false;
 }
 
-void ExpFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void ExpFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->exp();
 }
 
-void ExpFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void ExpFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -561,13 +561,13 @@ LnFunction::~LnFunction()
 {
 }
 
-void LnFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void LnFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->ln();
 }
 
-void LnFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void LnFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -586,13 +586,13 @@ LogFunction::~LogFunction()
 {
 }
 
-void LogFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void LogFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->ln();
 }
 
-void LogFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void LogFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
 }
@@ -611,13 +611,13 @@ Log10Function::~Log10Function()
 {
 }
 
-void Log10Function::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void Log10Function::operate(std::vector<Value *>& stack) const
 {
   Value *val=stack.back();
   val->log10();
 }
 
-void Log10Function::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void Log10Function::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
 }
@@ -641,7 +641,7 @@ PlusFunction::~PlusFunction()
 {
 }
 
-void PlusFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void PlusFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -661,7 +661,7 @@ void PlusFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNE
   val2=val3;
 }
 
-void PlusFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void PlusFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("faddp st1");
 }
@@ -680,7 +680,7 @@ MinusFunction::~MinusFunction()
 {
 }
 
-void MinusFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void MinusFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -700,7 +700,7 @@ void MinusFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERN
   val2=val3;
 }
 
-void MinusFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void MinusFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fsubp st1");
 }
@@ -719,7 +719,7 @@ MultFunction::~MultFunction()
 {
 }
 
-void MultFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void MultFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -730,7 +730,7 @@ void MultFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNE
   val2=val3;
 }
 
-void MultFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void MultFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fmulp st1");
 }
@@ -749,7 +749,7 @@ DivFunction::~DivFunction()
 {
 }
 
-void DivFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void DivFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -769,7 +769,7 @@ void DivFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL
   val2=val3;
 }
 
-void DivFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void DivFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fdivp st1");
 }
@@ -788,7 +788,7 @@ PowFunction::~PowFunction()
 {
 }
 
-void PowFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void PowFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -808,7 +808,7 @@ void PowFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL
   val2=val3;
 }
 
-void PowFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void PowFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -831,7 +831,7 @@ MaxFunction::~MaxFunction()
 {
 }
 
-void MaxFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void MaxFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -851,7 +851,7 @@ void MaxFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL
   val2=val3;
 }
 
-void MaxFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void MaxFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -870,7 +870,7 @@ MinFunction::~MinFunction()
 {
 }
 
-void MinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void MinFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -890,7 +890,7 @@ void MinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL
   val2=val3;
 }
 
-void MinFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void MinFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -909,7 +909,7 @@ GreaterThanFunction::~GreaterThanFunction()
 {
 }
 
-void GreaterThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void GreaterThanFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -929,7 +929,7 @@ void GreaterThanFunction::operate(std::vector<Value *>& stack) const throw(INTER
   val2=val3;
 }
 
-void GreaterThanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void GreaterThanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -948,7 +948,7 @@ LowerThanFunction::~LowerThanFunction()
 {
 }
 
-void LowerThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void LowerThanFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -968,7 +968,7 @@ void LowerThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_
   val2=val3;
 }
 
-void LowerThanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void LowerThanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
@@ -992,7 +992,7 @@ IfFunction::~IfFunction()
 {
 }
 
-void IfFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+void IfFunction::operate(std::vector<Value *>& stack) const
 {
   Value *val1=stack.back();
   stack.pop_back();
@@ -1016,7 +1016,7 @@ void IfFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL:
   val3=val4;
 }
 
-void IfFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+void IfFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }

@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
     int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshT,result,method); }
     template<class MyMeshType, class MatrixType>
     int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshS,result,method); }
-    static void CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception);
+    static void CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth);
     template<class MyMeshType>
     static double CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel);
   protected:

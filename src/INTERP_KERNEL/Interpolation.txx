@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
   }
 
   template<class TrueMainInterpolator>
-  void Interpolation<TrueMainInterpolator>::CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception)
+  void Interpolation<TrueMainInterpolator>::CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth)
   {
     const int NB_OF_METH_MANAGED=4;
     const char *METH_MANAGED[NB_OF_METH_MANAGED]={"P0P0","P0P1","P1P0","P1P1"};

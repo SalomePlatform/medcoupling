@@ -34,12 +34,12 @@ namespace INTERP_KERNEL
   class INTERPKERNEL_EXPORT FunctionsFactory
   {
   public:
-    static Function *buildFuncFromString(const char *type, int nbOfParams) throw(INTERP_KERNEL::Exception);
-    static Function *buildUnaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception);
-    //static Function *buildUnaryFuncFromString(char type) throw(INTERP_KERNEL::Exception);
-    static Function *buildBinaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception);
-    static Function *buildBinaryFuncFromString(char type) throw(INTERP_KERNEL::Exception);
-    static Function *buildTernaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception);
+    static Function *buildFuncFromString(const char *type, int nbOfParams);
+    static Function *buildUnaryFuncFromString(const char *type);
+    //static Function *buildUnaryFuncFromString(char type);
+    static Function *buildBinaryFuncFromString(const char *type);
+    static Function *buildBinaryFuncFromString(char type);
+    static Function *buildTernaryFuncFromString(const char *type);
   };
 
   class INTERPKERNEL_EXPORT Function
@@ -47,8 +47,8 @@ namespace INTERP_KERNEL
   public:
     virtual ~Function();
     virtual int getNbInputParams() const = 0;
-    virtual void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void operate(std::vector<Value *>& stack) const = 0;
+    virtual void operateX86(std::vector<std::string>& asmb) const = 0;
     virtual const char *getRepr() const = 0;
     virtual bool isACall() const = 0;
   };
@@ -63,8 +63,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~IdentityFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -75,8 +75,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~PositiveFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -87,8 +87,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~NegateFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -99,8 +99,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~CosFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -111,8 +111,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~SinFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -123,8 +123,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~TanFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -135,8 +135,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~ACosFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -147,8 +147,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~ASinFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -159,8 +159,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~ATanFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -171,8 +171,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~CoshFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -183,8 +183,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~SinhFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -195,8 +195,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~TanhFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -207,8 +207,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~SqrtFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -219,8 +219,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~AbsFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -231,8 +231,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~ExpFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -243,8 +243,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~LnFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -255,8 +255,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~LogFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -267,8 +267,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~Log10Function();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -285,8 +285,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~PlusFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -297,8 +297,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~MinusFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -309,8 +309,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~MultFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -321,8 +321,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~DivFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -333,8 +333,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~PowFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -345,8 +345,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~MaxFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -357,8 +357,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~MinFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -369,8 +369,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~GreaterThanFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -381,8 +381,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~LowerThanFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
@@ -399,8 +399,8 @@ namespace INTERP_KERNEL
   {
   public:
     ~IfFunction();
-    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
-    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    void operate(std::vector<Value *>& stack) const;
+    void operateX86(std::vector<std::string>& asmb) const;
     const char *getRepr() const;
     bool isACall() const;
   public:
