@@ -99,7 +99,7 @@ std::vector<const BigMemoryObject *> MEDCouplingCurveLinearMesh::getDirectChildr
  * This method copyies all tiny strings from other (name and components name).
  * @throw if other and this have not same mesh type.
  */
-void MEDCouplingCurveLinearMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 { 
   const MEDCouplingCurveLinearMesh *otherC=dynamic_cast<const MEDCouplingCurveLinearMesh *>(other);
   if(!otherC)
@@ -109,7 +109,7 @@ void MEDCouplingCurveLinearMesh::copyTinyStringsFrom(const MEDCouplingMesh *othe
     _coords->copyStringInfoFrom(*otherC->_coords);
 }
 
-bool MEDCouplingCurveLinearMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingCurveLinearMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::isEqualIfNotWhy : input other pointer is null !");
@@ -178,7 +178,7 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCoupli
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith : other is NOT a cartesian mesh ! Impossible to check equivalence !");
 }
 
-void MEDCouplingCurveLinearMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::checkCoherency() const
 {
   std::size_t sz=_structure.size(),i=0,nbOfNodes=1;
   if(sz<1)
@@ -202,12 +202,12 @@ void MEDCouplingCurveLinearMesh::checkCoherency() const throw(INTERP_KERNEL::Exc
     }
 }
 
-void MEDCouplingCurveLinearMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
 }
 
-void MEDCouplingCurveLinearMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::checkCoherency2(double eps) const
 {
   checkCoherency1(eps);
 }
@@ -271,7 +271,7 @@ int MEDCouplingCurveLinearMesh::getMeshDimension() const
   return (int)_structure.size();
 }
 
-void MEDCouplingCurveLinearMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
   if(!((const DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCoordinatesOfNode : Coordinates not set !");
@@ -306,17 +306,17 @@ std::string MEDCouplingCurveLinearMesh::advancedRepr() const
   return simpleRepr();
 }
 
-DataArrayDouble *MEDCouplingCurveLinearMesh::getCoords() throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingCurveLinearMesh::getCoords()
 {
   return _coords;
 }
 
-const DataArrayDouble *MEDCouplingCurveLinearMesh::getCoords() const throw(INTERP_KERNEL::Exception)
+const DataArrayDouble *MEDCouplingCurveLinearMesh::getCoords() const
 {
   return _coords;
 }
 
-void MEDCouplingCurveLinearMesh::setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::setCoords(const DataArrayDouble *coords)
 {
   if(coords!=(const DataArrayDouble *)_coords)
     {
@@ -327,7 +327,7 @@ void MEDCouplingCurveLinearMesh::setCoords(const DataArrayDouble *coords) throw(
     }
 }
 
-void MEDCouplingCurveLinearMesh::setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd)
 {
   std::size_t sz=std::distance(gridStructBg,gridStructEnd);
   if(sz>=1 && sz<=3)
@@ -342,12 +342,12 @@ void MEDCouplingCurveLinearMesh::setNodeGridStructure(const int *gridStructBg, c
     }
 }
 
-std::vector<int> MEDCouplingCurveLinearMesh::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCouplingCurveLinearMesh::getNodeGridStructure() const
 {
   return _structure;
 }
 
-MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception)
+MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
   checkCoherency();
   int dim(getMeshDimension());
@@ -409,7 +409,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
  * \param [in,out] f field feeded with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
-void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const
 {
   int nbnodes=getNumberOfNodes();
   int spaceDim=getSpaceDimension();
@@ -435,7 +435,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCoupling
  * \param [in,out] f field feeded with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
-void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const
 {
   int nbcells=getNumberOfCells();
   int spaceDim=getSpaceDimension();
@@ -461,7 +461,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCoupling
  * \param [in,out] f field feeded with good values.
  * \sa MEDCouplingCurveLinearMesh::getMeasureField
  */
-void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const
 {
   int nbcells=getNumberOfCells();
   int spaceDim=getSpaceDimension();
@@ -752,7 +752,7 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::getBarycenterAndOwner() const
     }
 }
 
-DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell() const
 {
   return MEDCouplingCurveLinearMesh::getBarycenterAndOwner();
 }
@@ -817,7 +817,7 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim1(DataArrayDouble *
   std::transform(bary->begin(),bary->end(),bary->getPointer(),std::bind2nd(std::multiplies<double>(),0.5));
 }
 
-void MEDCouplingCurveLinearMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::renumberCells(const int *old2NewBg, bool check)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CurveLinear Mesh !");
 }
@@ -897,7 +897,7 @@ void MEDCouplingCurveLinearMesh::unserialization(const std::vector<double>& tiny
     }
 }
 
-void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   std::ostringstream extent;
   int meshDim=(int)_structure.size();
@@ -924,7 +924,7 @@ void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string
   ofs << "  </" << getVTKDataSetType() << ">\n";
 }
 
-void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingCurveLinearMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
   stream << " Nodal structure : [";
@@ -948,7 +948,7 @@ void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const t
   coo->reprQuickOverviewData(stream,200);
 }
 
-std::string MEDCouplingCurveLinearMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+std::string MEDCouplingCurveLinearMesh::getVTKDataSetType() const
 {
   return std::string("StructuredGrid");
 }

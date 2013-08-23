@@ -120,7 +120,7 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
     }
 }
 
-TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception)
+TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const char *repr)
 {
   std::string reprCpp(repr);
   if(reprCpp==MEDCouplingFieldDiscretizationP0::REPR)
@@ -194,7 +194,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDiscretization::getDirectCh
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
  * @throw when the field discretization fails on getMeasure fields (gauss points for example)
  */
-void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=getMeasureField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
@@ -218,7 +218,7 @@ void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const D
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
  * @throw when the field discretization fails on getMeasure fields (gauss points for example)
  */
-void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=getMeasureField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
@@ -243,7 +243,7 @@ void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const D
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
  * @throw when the field discretization fails on getMeasure fields (gauss points for example)
  */
-void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::integral : mesh is NULL !");
@@ -320,12 +320,11 @@ void MEDCouplingFieldDiscretization::finishUnserialization(const std::vector<dou
  * This method is typically the first step of renumbering. The implementation is empty it is not a bug only gauss is impacted
  * virtualy by this method.
  */
-void MEDCouplingFieldDiscretization::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::renumberCells(const int *old2NewBg, bool check)
 {
 }
 
-double MEDCouplingFieldDiscretization::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da,
-                                              int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDiscretization::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const
 {
   throw INTERP_KERNEL::Exception("getIJK Invalid ! only for GaussPoint and GaussNE discretizations !");
 }
@@ -342,42 +341,42 @@ void MEDCouplingFieldDiscretization::setGaussLocalizationOnCells(const MEDCoupli
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-void MEDCouplingFieldDiscretization::clearGaussLocalizations() throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::clearGaussLocalizations()
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception)
+MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) const
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-int MEDCouplingFieldDiscretization::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretization::getNbOfGaussLocalization() const
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneCell(int cellId) const
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-std::set<int> MEDCouplingFieldDiscretization::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+std::set<int> MEDCouplingFieldDiscretization::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
@@ -477,7 +476,7 @@ bool MEDCouplingFieldDiscretizationP0::isEqualIfNotWhy(const MEDCouplingFieldDis
   return ret;
 }
 
-int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *mesh) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getNumberOfTuples : NULL input mesh !");
@@ -487,7 +486,7 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
 /*!
  * mesh is not used here. It is not a bug !
  */
-int MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
@@ -574,16 +573,16 @@ void MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds(const 
   trueTupleRestriction=tmp2.retn();
 }
 
-void MEDCouplingFieldDiscretizationP0::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP0::reprQuickOverview(std::ostream& stream) const
 {
   stream << "P0 spatial discretization.";
 }
 
-void MEDCouplingFieldDiscretizationP0::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP0::checkCompatibilityWithNature(NatureOfField nat) const
 {
 }
 
-void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const
 {
   if(!mesh || !da)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::checkCoherencyBetween : NULL input mesh or DataArray !");
@@ -718,7 +717,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshDataRange(const M
   return ret.retn();
 }
 
-int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMesh *mesh) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationNodes::getNumberOfTuples : NULL input mesh !");
@@ -728,7 +727,7 @@ int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMe
 /*!
  * mesh is not used here. It is not a bug !
  */
-int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
@@ -808,7 +807,7 @@ void MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds(c
   trueTupleRestriction=ret2.retn();
 }
 
-void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const
 {
   if(!mesh || !da)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationNodes::checkCoherencyBetween : NULL input mesh or DataArray !");
@@ -947,7 +946,7 @@ bool MEDCouplingFieldDiscretizationP1::isEqualIfNotWhy(const MEDCouplingFieldDis
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const
 {
   if(nat!=ConservativeVolumic)
     throw INTERP_KERNEL::Exception("Invalid nature for P1 field  : expected ConservativeVolumic !");
@@ -1029,7 +1028,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArr
   return ret.retn();
 }
 
-void MEDCouplingFieldDiscretizationP1::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP1::reprQuickOverview(std::ostream& stream) const
 {
   stream << "P1 spatial discretization.";
 }
@@ -1088,7 +1087,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDiscretizationPerCell::getD
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has no discretization per cell !");
@@ -1138,7 +1137,7 @@ bool MEDCouplingFieldDiscretizationPerCell::isEqualWithoutConsideringStr(const M
  * This method is typically the first step of renumbering. The impact on _discr_per_cell is necessary here.
  * virtualy by this method.
  */
-void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=_discr_per_cell->getNumberOfTuples();
   const int *array=old2NewBg;
@@ -1167,7 +1166,7 @@ void MEDCouplingFieldDiscretizationPerCell::buildDiscrPerCellIfNecessary(const M
     }
 }
 
-void MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells() const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells : no discretization defined !");
@@ -1186,7 +1185,7 @@ void MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells() const throw(INT
  * 
  * If no descretization is set in 'this' and exception will be thrown.
  */
-std::vector<DataArrayInt *> MEDCouplingFieldDiscretizationPerCell::splitIntoSingleGaussDicrPerCellType(std::vector<int>& locIds) const throw(INTERP_KERNEL::Exception)
+std::vector<DataArrayInt *> MEDCouplingFieldDiscretizationPerCell::splitIntoSingleGaussDicrPerCellType(std::vector<int>& locIds) const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::splitIntoSingleGaussDicrPerCellType : no descretization set !");
@@ -1198,7 +1197,7 @@ const DataArrayInt *MEDCouplingFieldDiscretizationPerCell::getArrayOfDiscIds() c
   return _discr_per_cell;
 }
 
-void MEDCouplingFieldDiscretizationPerCell::setArrayOfDiscIds(const DataArrayInt *adids) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationPerCell::setArrayOfDiscIds(const DataArrayInt *adids)
 {
   if(adids!=_discr_per_cell)
     {
@@ -1335,7 +1334,7 @@ const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
 /*!
  * mesh is not used here. It is not a bug !
  */
-int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(!_discr_per_cell || !_discr_per_cell->isAllocated() || _discr_per_cell->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode");
@@ -1373,7 +1372,7 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(
   return getNumberOfTuples(0);//0 is not an error ! It is to be sure that input mesh is not used
 }
 
-int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const
 {
   int ret=0;
   if (_discr_per_cell == 0)
@@ -1520,7 +1519,7 @@ void MEDCouplingFieldDiscretizationGauss::computeMeshRestrictionFromTupleIds(con
 /*!
  * Empty : not a bug
  */
-void MEDCouplingFieldDiscretizationGauss::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::checkCompatibilityWithNature(NatureOfField nat) const
 {
 }
 
@@ -1587,14 +1586,13 @@ void MEDCouplingFieldDiscretizationGauss::finishUnserialization(const std::vecto
   delete [] tmp;
 }
 
-double MEDCouplingFieldDiscretizationGauss::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da,
-                                                   int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDiscretizationGauss::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const
 {
   int offset=getOffsetOfCell(cellId);
   return da->getIJ(offset+nodeIdInCell,compoId);
 }
 
-void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const
 {
   if(!mesh || !da)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween : NULL input mesh or DataArray !");
@@ -1840,7 +1838,7 @@ void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(const MEDC
   zipGaussLocalizations();
 }
 
-void MEDCouplingFieldDiscretizationGauss::clearGaussLocalizations() throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::clearGaussLocalizations()
 {
   if(_discr_per_cell)
     {
@@ -1850,7 +1848,7 @@ void MEDCouplingFieldDiscretizationGauss::clearGaussLocalizations() throw(INTERP
   _loc.clear();
 }
 
-void MEDCouplingFieldDiscretizationGauss::setGaussLocalization(int locId, const MEDCouplingGaussLocalization& loc) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::setGaussLocalization(int locId, const MEDCouplingGaussLocalization& loc)
 {
   if(locId<0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::setGaussLocalization : localization id has to be >=0 !");
@@ -1861,7 +1859,7 @@ void MEDCouplingFieldDiscretizationGauss::setGaussLocalization(int locId, const 
   _loc[locId]=loc;
 }
 
-void MEDCouplingFieldDiscretizationGauss::resizeLocalizationVector(int newSz) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::resizeLocalizationVector(int newSz)
 {
   if(newSz<0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::resizeLocalizationVector : new size has to be >=0 !");
@@ -1869,18 +1867,18 @@ void MEDCouplingFieldDiscretizationGauss::resizeLocalizationVector(int newSz) th
   _loc.resize(newSz,gLoc);
 }
 
-MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception)
+MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaussLocalization(int locId)
 {
   checkLocalizationId(locId);
   return _loc[locId];
 }
 
-int MEDCouplingFieldDiscretizationGauss::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGauss::getNbOfGaussLocalization() const
 {
   return (int)_loc.size();
 }
 
-int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneCell(int cellId) const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("No Gauss localization still set !");
@@ -1890,7 +1888,7 @@ int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneCell(int cel
   return locId;
 }
 
-int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const
 {
   std::set<int> ret=getGaussLocalizationIdsOfOneType(type);
   if(ret.empty())
@@ -1900,7 +1898,7 @@ int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_
   return *ret.begin();
 }
 
-std::set<int> MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+std::set<int> MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("No Gauss localization still set !");
@@ -1912,7 +1910,7 @@ std::set<int> MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdsOfOneT
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const
 {
   if(locId<0 || locId>=(int)_loc.size())
     throw INTERP_KERNEL::Exception("Invalid locId given : must be in range [0:getNbOfGaussLocalization()) !");
@@ -1923,19 +1921,19 @@ void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int 
       cellIds.push_back(i);
 }
 
-const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaussLocalization(int locId) const
 {
   checkLocalizationId(locId);
   return _loc[locId];
 }
 
-void MEDCouplingFieldDiscretizationGauss::checkLocalizationId(int locId) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::checkLocalizationId(int locId) const
 {
   if(locId<0 || locId>=(int)_loc.size())
     throw INTERP_KERNEL::Exception("Invalid locId given : must be in range [0:getNbOfGaussLocalization()) !");
 }
 
-int MEDCouplingFieldDiscretizationGauss::getOffsetOfCell(int cellId) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGauss::getOffsetOfCell(int cellId) const
 {
   int ret=0;
   const int *start=_discr_per_cell->getConstPointer();
@@ -1950,7 +1948,7 @@ int MEDCouplingFieldDiscretizationGauss::getOffsetOfCell(int cellId) const throw
  * This method returns a newly created array with number of tuples equals to '_discr_per_cell->getNumberOfTuples' and number of components equal to 1.
  * The i_th tuple in returned array is the number of gauss point if the corresponding cell.
  */
-DataArrayInt *MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellField() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellField() const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellField : no discretization array set !");
@@ -1979,7 +1977,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellFie
   return ret.retn();
 }
 
-void MEDCouplingFieldDiscretizationGauss::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::reprQuickOverview(std::ostream& stream) const
 {
   stream << "Gauss points spatial discretization.";
 }
@@ -2059,7 +2057,7 @@ bool MEDCouplingFieldDiscretizationGaussNE::isEqualIfNotWhy(const MEDCouplingFie
   return ret;
 }
 
-int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
@@ -2097,7 +2095,7 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCod
   return getNumberOfTuples(mesh);
 }
 
-int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples : NULL input mesh !");
@@ -2201,7 +2199,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscVal
 /*!
  * Reimplemented from MEDCouplingFieldDiscretization::integral for performance reason. The default implementation is valid too for GAUSS_NE spatial discretization.
  */
-void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const
 {
   if(!mesh || !arr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::integral : input mesh or array is null !");
@@ -2237,7 +2235,7 @@ void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh
     }
 }
 
-const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception)
+const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth)
 {
   switch(geoType)
     {
@@ -2285,7 +2283,7 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometric
     }
 }
 
-const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception)
+const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth)
 {
   switch(geoType)
     {
@@ -2362,12 +2360,11 @@ void MEDCouplingFieldDiscretizationGaussNE::computeMeshRestrictionFromTupleIds(c
   nbOfNodesPerCell->searchRangesInListOfIds(tmp,cellRestriction,trueTupleRestriction);
 }
 
-void MEDCouplingFieldDiscretizationGaussNE::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGaussNE::checkCompatibilityWithNature(NatureOfField nat) const
 {
 }
 
-double MEDCouplingFieldDiscretizationGaussNE::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da,
-                                                     int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDiscretizationGaussNE::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getIJK : NULL input mesh !");
@@ -2381,7 +2378,7 @@ double MEDCouplingFieldDiscretizationGaussNE::getIJK(const MEDCouplingMesh *mesh
   return da->getIJ(offset+nodeIdInCell,compoId);
 }
 
-void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const
 {
   int nbOfTuples=getNumberOfTuples(mesh);
   if(nbOfTuples!=da->getNumberOfTuples())
@@ -2522,7 +2519,7 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCellsR(const MEDCoup
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-void MEDCouplingFieldDiscretizationGaussNE::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGaussNE::reprQuickOverview(std::ostream& stream) const
 {
   stream << "Gauss points on nodes per element spatial discretization.";
 }
@@ -2556,7 +2553,7 @@ std::string MEDCouplingFieldDiscretizationKriging::getStringRepr() const
   return std::string(REPR);
 }
 
-void MEDCouplingFieldDiscretizationKriging::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationKriging::checkCompatibilityWithNature(NatureOfField nat) const
 {
   if(nat!=ConservativeVolumic)
     throw INTERP_KERNEL::Exception("Invalid nature for Kriging field : expected ConservativeVolumic !");
@@ -2607,7 +2604,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const Da
   return ret.retn();
 }
 
-void MEDCouplingFieldDiscretizationKriging::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationKriging::reprQuickOverview(std::ostream& stream) const
 {
   stream << "Kriging spatial discretization.";
 }

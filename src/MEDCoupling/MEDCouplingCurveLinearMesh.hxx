@@ -41,29 +41,29 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return CURVE_LINEAR; }
-    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                             DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
-    MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getCoords() throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT const DataArrayDouble *getCoords() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *getCoords();
+    MEDCOUPLING_EXPORT const DataArrayDouble *getCoords() const;
+    MEDCOUPLING_EXPORT void setCoords(const DataArrayDouble *coords);
+    MEDCOUPLING_EXPORT void setNodeGridStructure(const int *gridStructBg, const int *gridStructEnd);
+    MEDCOUPLING_EXPORT std::vector<int> getNodeGridStructure() const;
+    MEDCOUPLING_EXPORT MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const;
     // tools
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
@@ -76,8 +76,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
+    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     //some useful methods
     MEDCOUPLING_EXPORT void getSplitCellValues(int *res) const;
     MEDCOUPLING_EXPORT void getSplitNodeValues(int *res) const;
@@ -88,11 +88,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
   private:
-    void getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception);
-    void getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception);
-    void getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception);
+    void getMeasureFieldMeshDim1(bool isAbs, MEDCouplingFieldDouble *field) const;
+    void getMeasureFieldMeshDim2(bool isAbs, MEDCouplingFieldDouble *field) const;
+    void getMeasureFieldMeshDim3(bool isAbs, MEDCouplingFieldDouble *field) const;
     void getBarycenterAndOwnerMeshDim3(DataArrayDouble *bary) const;
     void getBarycenterAndOwnerMeshDim2(DataArrayDouble *bary) const;
     void getBarycenterAndOwnerMeshDim1(DataArrayDouble *bary) const;
@@ -100,8 +100,8 @@ namespace ParaMEDMEM
     MEDCouplingCurveLinearMesh();
     MEDCouplingCurveLinearMesh(const MEDCouplingCurveLinearMesh& other, bool deepCpy);
     ~MEDCouplingCurveLinearMesh();
-    void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception);
-    std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
+    void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
+    std::string getVTKDataSetType() const;
   private:
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
     std::vector<int> _structure;

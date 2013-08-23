@@ -106,7 +106,7 @@ const char *MEDCouplingFieldDouble::getTimeUnit() const
  * \throw  If \c this->_mesh is null an exception will be thrown. An exception will also be throw if the spatial discretization is
  *         NO_TIME.
  */
-void MEDCouplingFieldDouble::synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::synchronizeTimeWithSupport()
 {
   _time_discr->synchronizeTimeWith(_mesh);
 }
@@ -224,7 +224,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
  *  \param [in] other - the field to copy the tiny info from.
  *  \throw If \a this->getNumberOfComponents() != \a other->getNumberOfComponents()
  */
-void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingField *other)
 {
   MEDCouplingField::copyTinyStringsFrom(other);
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
@@ -241,7 +241,7 @@ void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingField *other) 
  *  \param [in] other - the field to tiny attributes from.
  *  \throw If \a this->getNumberOfComponents() != \a other->getNumberOfComponents()
  */
-void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *other)
 {
   if(other)
     {
@@ -250,7 +250,7 @@ void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *othe
   
 }
 
-void MEDCouplingFieldDouble::copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other)
 {
   copyTinyStringsFrom(other);
   copyTinyAttrFrom(other);
@@ -352,13 +352,13 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
   return ret.str();
 }
 
-void MEDCouplingFieldDouble::writeVTK(const char *fileName, bool isBinary) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::writeVTK(const char *fileName, bool isBinary) const
 {
   std::vector<const MEDCouplingFieldDouble *> fs(1,this);
   MEDCouplingFieldDouble::WriteVTK(fileName,fs,isBinary);
 }
 
-bool MEDCouplingFieldDouble::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::isEqualIfNotWhy : other instance is NULL !");
@@ -501,7 +501,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
  *  \ref cpp_mcfielddouble_renumberCells "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_renumberCells "Here is a Python example".
  */
-void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check)
 {
   renumberCellsWithoutMesh(old2NewBg,check);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=_mesh->deepCpy();
@@ -531,7 +531,7 @@ void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check) thr
  *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
  *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
  */
-void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool check)
 {
    if(!_mesh)
      throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
@@ -564,7 +564,7 @@ void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool
  *  \ref cpp_mcfielddouble_renumberNodes "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_renumberNodes "Here is a Python example".
  */
-void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, double eps) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, double eps)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -599,7 +599,7 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, double eps) thr
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If values at merged nodes deffer more than \a eps.
  */
-void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps)
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("Expecting a spatial discretization to be able to operate a renumbering !");
@@ -623,7 +623,7 @@ void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int 
  *  \throw If the data array is not set.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getIdsInRange : no default array set !");
@@ -659,7 +659,7 @@ DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) co
  *  \sa MEDCouplingFieldDouble::buildSubPartRange
  */
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *part) const
 {
   if(part==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : not empty array must be passed to this method !");
@@ -697,7 +697,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * \ref py_mcfielddouble_subpart1 "Here a Python example."
  * \sa ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : Expecting a not NULL spatial discretization !");
@@ -732,7 +732,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, 
  * 
  * \sa MEDCouplingFieldDouble::buildSubPart
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPartRange(int begin, int end, int step) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPartRange(int begin, int end, int step) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : Expecting a not NULL spatial discretization !");
@@ -815,7 +815,7 @@ MEDCouplingFieldDouble::~MEDCouplingFieldDouble()
  *  \throw If the temporal discretization data is incorrect.
  *  \throw If mesh data does not correspond to field data.
  */
-void MEDCouplingFieldDouble::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::checkCoherency() const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Field invalid because no mesh specified !");
@@ -862,7 +862,7 @@ void MEDCouplingFieldDouble::accumulate(double *res) const
  *  \throw If the data array is not set.
  *  \throw If there is an empty data array in \a this field.
  */
-double MEDCouplingFieldDouble::getMaxValue() const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::getMaxValue() const
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
@@ -892,7 +892,7 @@ double MEDCouplingFieldDouble::getMaxValue() const throw(INTERP_KERNEL::Exceptio
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If there is an empty data array in \a this field.
  */
-double MEDCouplingFieldDouble::getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::getMaxValue2(DataArrayInt*& tupleIds) const
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
@@ -926,7 +926,7 @@ double MEDCouplingFieldDouble::getMaxValue2(DataArrayInt*& tupleIds) const throw
  *  \throw If the data array is not set.
  *  \throw If there is an empty data array in \a this field.
  */
-double MEDCouplingFieldDouble::getMinValue() const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::getMinValue() const
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
@@ -956,7 +956,7 @@ double MEDCouplingFieldDouble::getMinValue() const throw(INTERP_KERNEL::Exceptio
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If there is an empty data array in \a this field.
  */
-double MEDCouplingFieldDouble::getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::getMinValue2(DataArrayInt*& tupleIds) const
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
@@ -988,7 +988,7 @@ double MEDCouplingFieldDouble::getMinValue2(DataArrayInt*& tupleIds) const throw
  *  \throw If \a this->getNumberOfComponents() != 1
  *  \throw If the data array is not set or it is empty.
  */
-double MEDCouplingFieldDouble::getAverageValue() const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::getAverageValue() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getAverageValue : no default array defined !");
@@ -1002,7 +1002,7 @@ double MEDCouplingFieldDouble::getAverageValue() const throw(INTERP_KERNEL::Exce
  * \f]
  *  \throw If the data array is not set.
  */
-double MEDCouplingFieldDouble::norm2() const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::norm2() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::norm2 : no default array defined !");
@@ -1016,7 +1016,7 @@ double MEDCouplingFieldDouble::norm2() const throw(INTERP_KERNEL::Exception)
  * \f]
  *  \throw If the data array is not set.
  */
-double MEDCouplingFieldDouble::normMax() const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::normMax() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
@@ -1035,7 +1035,7 @@ double MEDCouplingFieldDouble::normMax() const throw(INTERP_KERNEL::Exception)
  *  \throw If the mesh is not set.
  *  \throw If the data array is not set.
  */
-void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getWeightedAverageValue : no default array defined !");
@@ -1060,7 +1060,7 @@ void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) c
  *  \throw If \a compId is not valid.
            A valid range is ( 0 <= \a compId < \a this->getNumberOfComponents() ).
  */
-double MEDCouplingFieldDouble::getWeightedAverageValue(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::getWeightedAverageValue(int compId, bool isWAbs) const
 {
   int nbComps=getArray()->getNumberOfComponents();
   if(compId<0 || compId>=nbComps)
@@ -1084,7 +1084,7 @@ double MEDCouplingFieldDouble::getWeightedAverageValue(int compId, bool isWAbs) 
  *  \throw If \a compId is not valid.
            A valid range is ( 0 <= \a compId < \a this->getNumberOfComponents() ).
  */
-double MEDCouplingFieldDouble::normL1(int compId) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::normL1(int compId) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1 !");
@@ -1111,7 +1111,7 @@ double MEDCouplingFieldDouble::normL1(int compId) const throw(INTERP_KERNEL::Exc
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-void MEDCouplingFieldDouble::normL1(double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::normL1(double *res) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1");
@@ -1131,7 +1131,7 @@ void MEDCouplingFieldDouble::normL1(double *res) const throw(INTERP_KERNEL::Exce
  *  \throw If \a compId is not valid.
            A valid range is ( 0 <= \a compId < \a this->getNumberOfComponents() ).
  */
-double MEDCouplingFieldDouble::normL2(int compId) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::normL2(int compId) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL2");
@@ -1158,7 +1158,7 @@ double MEDCouplingFieldDouble::normL2(int compId) const throw(INTERP_KERNEL::Exc
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-void MEDCouplingFieldDouble::normL2(double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::normL2(double *res) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL2");
@@ -1181,7 +1181,7 @@ void MEDCouplingFieldDouble::normL2(double *res) const throw(INTERP_KERNEL::Exce
  *  \throw If \a compId is not valid.
            A valid range is ( 0 <= \a compId < \a this->getNumberOfComponents() ).
  */
-double MEDCouplingFieldDouble::integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::integral(int compId, bool isWAbs) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform integral");
@@ -1212,7 +1212,7 @@ double MEDCouplingFieldDouble::integral(int compId, bool isWAbs) const throw(INT
  *  \throw If the data array is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-void MEDCouplingFieldDouble::integral(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::integral(bool isWAbs, double *res) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform integral2");
@@ -1239,7 +1239,7 @@ void MEDCouplingFieldDouble::integral(bool isWAbs, double *res) const throw(INTE
  *  \ref cpp_mcfielddouble_getValueOnPos "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOnPos "Here is a Python example".
  */
-void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const
 {
   const DataArrayDouble *arr=_time_discr->getArray();
   if(!_mesh)
@@ -1261,7 +1261,7 @@ void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) con
  *  \ref cpp_mcfielddouble_getValueOn "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOn "Here is a Python example".
  */
-void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const
 {
   const DataArrayDouble *arr=_time_discr->getArray();
   if(!_mesh)
@@ -1287,7 +1287,7 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) con
  *  \ref cpp_mcfielddouble_getValueOnMulti "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOnMulti "Here is a Python example".
  */
-DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc, int nbOfPoints) const
 {
   const DataArrayDouble *arr=_time_discr->getArray();
   if(!_mesh)
@@ -1312,7 +1312,7 @@ DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc,
  *  \ref cpp_mcfielddouble_getValueOn_time "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOn_time "Here is a Python example".
  */
-void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const
 {
   std::vector< const DataArrayDouble *> arrs=_time_discr->getArraysForTime(time);
   if(!_mesh)
@@ -1370,7 +1370,7 @@ MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value) throw(IN
  *
  *  \ref cpp_mcfielddouble_fillFromAnalytic_c_func "Here is a C++ example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic : no mesh defined !");
@@ -1415,7 +1415,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate f
  *  \ref cpp_mcfielddouble_fillFromAnalytic "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic "Here is a Python example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic : no mesh defined !");
@@ -1462,7 +1462,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) th
  *  \ref cpp_mcfielddouble_fillFromAnalytic2 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic2 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
@@ -1509,7 +1509,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func) t
  *  \ref cpp_mcfielddouble_fillFromAnalytic3 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic3 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
@@ -1586,7 +1586,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
  *  \ref cpp_mcfielddouble_applyFunc "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
 {
   _time_discr->applyFunc(nbOfComp,func);
 }
@@ -1624,7 +1624,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func) throw(INT
  *  \ref cpp_mcfielddouble_applyFunc2 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc2 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func)
 {
   _time_discr->applyFunc2(nbOfComp,func);
 }
@@ -1661,7 +1661,7 @@ void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func) throw(IN
  *  \ref cpp_mcfielddouble_applyFunc3 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc3 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
 {
   _time_discr->applyFunc3(nbOfComp,varsOrder,func);
 }
@@ -1691,7 +1691,7 @@ void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::str
  *  \ref cpp_mcfielddouble_applyFunc_same_nb_comp "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc_same_nb_comp "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc(const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::applyFunc(const char *func)
 {
   _time_discr->applyFunc(func);
 }
@@ -1701,7 +1701,7 @@ void MEDCouplingFieldDouble::applyFunc(const char *func) throw(INTERP_KERNEL::Ex
  * The field will contain exactly the same number of components after the call.
  * Use is not warranted for the moment !
  */
-void MEDCouplingFieldDouble::applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::applyFuncFast32(const char *func)
 {
   _time_discr->applyFuncFast32(func);
 }
@@ -1711,7 +1711,7 @@ void MEDCouplingFieldDouble::applyFuncFast32(const char *func) throw(INTERP_KERN
  * The field will contain exactly the same number of components after the call.
  * Use is not warranted for the moment !
  */
-void MEDCouplingFieldDouble::applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::applyFuncFast64(const char *func)
 {
   _time_discr->applyFuncFast64(func);
 }
@@ -1722,7 +1722,7 @@ void MEDCouplingFieldDouble::applyFuncFast64(const char *func) throw(INTERP_KERN
  *  \return int - the number of components in the data array.
  *  \throw If the data array is not set.
  */
-int MEDCouplingFieldDouble::getNumberOfComponents() const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDouble::getNumberOfComponents() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfComponents : No array specified !");
@@ -1747,7 +1747,7 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const throw(INTERP_KERNEL::E
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the spatial discretization is not fully defined.
  */
-int MEDCouplingFieldDouble::getNumberOfTuples() const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDouble::getNumberOfTuples() const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Impossible to retrieve number of tuples because no mesh specified !");
@@ -1763,7 +1763,7 @@ int MEDCouplingFieldDouble::getNumberOfTuples() const throw(INTERP_KERNEL::Excep
  *  data array.
  *  \throw If the data array is not set.
  */
-int MEDCouplingFieldDouble::getNumberOfValues() const throw(INTERP_KERNEL::Exception)
+int MEDCouplingFieldDouble::getNumberOfValues() const
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfValues : No array specified !");
@@ -1800,7 +1800,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDouble::getDirectChildren()
  * Sets \ref NatureOfField.
  *  \param [in] nat - an item of enum ParaMEDMEM::NatureOfField.
  */
-void MEDCouplingFieldDouble::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::setNature(NatureOfField nat)
 {
   MEDCouplingField::setNature(nat);
   if(_type)
@@ -1811,7 +1811,7 @@ void MEDCouplingFieldDouble::setNature(NatureOfField nat) throw(INTERP_KERNEL::E
  * This method synchronizes time information (time, iteration, order, time unit) regarding the information in \c this->_mesh.
  * \throw If no mesh is set in this. Or if \a this is not compatible with time setting (typically NO_TIME)
  */
-void MEDCouplingFieldDouble::synchronizeTimeWithMesh() throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::synchronizeTimeWithMesh()
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::synchronizeTimeWithMesh : no mesh set in this !");
@@ -1878,7 +1878,7 @@ void MEDCouplingFieldDouble::setEndArray(DataArrayDouble *array)
  *  \throw If number of arrays in \a arrs does not correspond to type of
  *         \ref MEDCouplingTemporalDisc "temporal discretization" of \a this field.
  */
-void MEDCouplingFieldDouble::setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::setArrays(const std::vector<DataArrayDouble *>& arrs)
 {
   _time_discr->setArrays(arrs,this);
 }
@@ -2006,7 +2006,7 @@ void MEDCouplingFieldDouble::serialize(DataArrayInt *&dataInt, std::vector<DataA
  *  \ref cpp_mcfielddouble_changeUnderlyingMesh "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_changeUnderlyingMesh "Here is a Python example".
  */
-void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps)
 {
   if(_mesh==0 || other==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
@@ -2053,7 +2053,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
  *  \ref  py_mcfielddouble_substractInPlaceDM "Here is a Python example".
  *  \sa changeUnderlyingMesh().
  */
-void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps)
 {
   checkCoherency();
   if(!f)
@@ -2080,7 +2080,7 @@ void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f,
  *  \throw If the data array is not set.
  *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
  */
-bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -2119,7 +2119,7 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals) throw(INTE
  *  \throw If the data array is not set.
  *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
  */
-bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -2156,7 +2156,7 @@ bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals) throw(INT
  *  \throw If the data array is not set.
  *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
  */
-bool MEDCouplingFieldDouble::zipCoords(double epsOnVals) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::zipCoords(double epsOnVals)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -2197,7 +2197,7 @@ bool MEDCouplingFieldDouble::zipCoords(double epsOnVals) throw(INTERP_KERNEL::Ex
  *  \throw If the data array is not set.
  *  \throw If field values at merged cells (if any) deffer more than \a epsOnVals.
  */
-bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals)
 {
   const MEDCouplingUMesh *meshC=dynamic_cast<const MEDCouplingUMesh *>(_mesh);
   if(!meshC)
@@ -2226,7 +2226,7 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals) thr
  * 
  * \return a newly allocated field double containing the result that the user should deallocate.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *origin, const double *vec, double eps) const
 {
   const MEDCouplingMesh *mesh=getMesh();
   if(!mesh)
@@ -2273,7 +2273,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *ori
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the data array is not set.
  */
-bool MEDCouplingFieldDouble::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::simplexize(int policy)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No underlying mesh on this field to perform simplexize !");
@@ -2305,7 +2305,7 @@ bool MEDCouplingFieldDouble::simplexize(int policy) throw(INTERP_KERNEL::Excepti
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform doublyContractedProduct !");
@@ -2328,7 +2328,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const 
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::determinant() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::determinant() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform determinant !");
@@ -2352,7 +2352,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::determinant() const throw(INTERP
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenValues() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenValues() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform eigenValues !");
@@ -2375,7 +2375,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenValues() const throw(INTERP
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenVectors() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenVectors() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform eigenVectors !");
@@ -2400,7 +2400,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenVectors() const throw(INTER
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::inverse() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::inverse() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform inverse !");
@@ -2425,7 +2425,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::inverse() const throw(INTERP_KER
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::trace() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::trace() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform trace !");
@@ -2449,7 +2449,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::trace() const throw(INTERP_KERNE
  *  \throw If \a this->getNumberOfComponents() != 6.
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::deviator() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::deviator() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform deviator !");
@@ -2471,7 +2471,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deviator() const throw(INTERP_KE
  *          delete this field using decrRef() as it is no more needed.  
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::magnitude() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::magnitude() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform magnitude !");
@@ -2491,7 +2491,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::magnitude() const throw(INTERP_K
  *          delete this field using decrRef() as it is no more needed.  
  *  \throw If the spatial discretization of \a this field is NULL.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform maxPerTuple !");
@@ -2515,7 +2515,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const throw(INTERP
  *  \param [in] dftValue - value assigned to new values added to \a this field.
  *  \throw If \a this is not allocated.
  */
-void MEDCouplingFieldDouble::changeNbOfComponents(int newNbOfComp, double dftValue) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::changeNbOfComponents(int newNbOfComp, double dftValue)
 {
   _time_discr->changeNbOfComponents(newNbOfComp,dftValue);
 }
@@ -2532,7 +2532,7 @@ void MEDCouplingFieldDouble::changeNbOfComponents(int newNbOfComp, double dftVal
  *  \throw If a component index (\a i) is not valid: 
  *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform keepSelectedComponents !");
@@ -2556,7 +2556,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std
  *  \throw If \a compoIds.size() != \a a->getNumberOfComponents().
  *  \throw If \a compoIds[i] < 0 or \a compoIds[i] > \a this->getNumberOfComponents().
  */
-void MEDCouplingFieldDouble::setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds)
 {
   _time_discr->setSelectedComponents(f->_time_discr,compoIds);
 }
@@ -2567,7 +2567,7 @@ void MEDCouplingFieldDouble::setSelectedComponents(const MEDCouplingFieldDouble 
  *              in descending order.
  *  \throw If a data array is not allocated.
  */
-void MEDCouplingFieldDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::sortPerTuple(bool asc)
 {
   _time_discr->sortPerTuple(asc);
 }
@@ -2588,7 +2588,7 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Excepti
  *  \ref cpp_mcfielddouble_MergeFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MergeFields "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1->areCompatibleForMerge(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
@@ -2627,7 +2627,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
  *  \ref cpp_mcfielddouble_MergeFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MergeFields "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a)
 {
   if(a.size()<1)
     throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : size of array must be >= 1 !");
@@ -2678,7 +2678,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
  *  \throw If any of data arrays is not allocated.
  *  \throw If \a f1->getNumberOfTuples() != \a f2->getNumberOfTuples()
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1->areCompatibleForMeld(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MeldFields on them !");
@@ -2703,7 +2703,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFiel
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::DotFields : input field is NULL !");
@@ -2734,7 +2734,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingField
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::CrossProductFields : input field is NULL !");
@@ -2762,7 +2762,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCoup
  *  \ref cpp_mcfielddouble_MaxFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MaxFields "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MaxFields : input field is NULL !");
@@ -2790,7 +2790,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingField
  *  \ref cpp_mcfielddouble_MaxFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MaxFields "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MinFields : input field is NULL !");
@@ -2812,7 +2812,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingField
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If a data array is not allocated.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::negate() const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::negate() const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform negate !");
@@ -2836,7 +2836,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::negate() const throw(INTERP_KERN
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::AddFields : input field is NULL !");
@@ -2880,7 +2880,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCoupli
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::SubstractFields : input field is NULL !");
@@ -2931,7 +2931,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCoupli
  *  \throw If the fields are not compatible for production (areCompatibleForMul()),
  *         i.e. they differ not only in values and possibly number of components.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MultiplyFields : input field is NULL !");
@@ -2991,7 +2991,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCoupli
  *  \throw If the fields are not compatible for division (areCompatibleForDiv()),
  *         i.e. they differ not only in values and possibly in number of components.
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::DivideFields : input field is NULL !");
@@ -3034,7 +3034,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCoupli
  * 
  * \sa MEDCouplingFieldDouble::operator^
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::PowFields : input field is NULL !");
@@ -3081,7 +3081,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCoupli
  *  \ref cpp_mcfielddouble_WriteVTK "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_WriteVTK "Here is a Python example".
  */
-void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary)
 {
   if(fs.empty())
     return;
@@ -3120,7 +3120,7 @@ void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<co
   m->writeVTKAdvanced(fileName,coss.str(),noss.str(),byteArr);
 }
 
-void MEDCouplingFieldDouble::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingFieldDouble C++ instance at " << this << ". Name : \"" << _name << "\"." << std::endl;
   const char *nat=0;

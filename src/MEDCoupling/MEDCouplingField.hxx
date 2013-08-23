@@ -44,13 +44,13 @@ namespace ParaMEDMEM
   class MEDCouplingField : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
-    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
-    MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingField *other);
     MEDCOUPLING_EXPORT void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     MEDCOUPLING_EXPORT const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
     MEDCOUPLING_EXPORT void setName(const char *name) { _name=name; }
@@ -59,36 +59,36 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
     MEDCOUPLING_EXPORT TypeOfField getTypeOfField() const;
     MEDCOUPLING_EXPORT NatureOfField getNature() const;
-    MEDCOUPLING_EXPORT virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void setNature(NatureOfField nat);
+    MEDCOUPLING_EXPORT DataArrayDouble *getLocalizationOfDiscr() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(int begin, int end, int step, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const;
     MEDCOUPLING_EXPORT DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
     MEDCOUPLING_EXPORT const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
     MEDCOUPLING_EXPORT void setDiscretization(MEDCouplingFieldDiscretization *newDisc);
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpected() const;
+    MEDCOUPLING_EXPORT int getNumberOfMeshPlacesExpected() const;
     // Gauss point specific methods
     MEDCOUPLING_EXPORT void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                        const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setGaussLocalizationOnCells(const int *begin, const int *end, const std::vector<double>& refCoo,
                                                         const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void clearGaussLocalizations();
-    MEDCOUPLING_EXPORT MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingGaussLocalization& getGaussLocalization(int locId);
+    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT int getNbOfGaussLocalization() const;
+    MEDCOUPLING_EXPORT int getGaussLocalizationIdOfOneCell(int cellId) const;
+    MEDCOUPLING_EXPORT void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const;
+    MEDCOUPLING_EXPORT const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     // for MED file RW
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;
   protected:
     MEDCOUPLING_EXPORT MEDCouplingField(TypeOfField type);
     MEDCOUPLING_EXPORT MEDCouplingField(const MEDCouplingField& other, bool deepCopy=true);

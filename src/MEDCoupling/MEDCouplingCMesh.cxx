@@ -127,7 +127,7 @@ std::vector<const BigMemoryObject *> MEDCouplingCMesh::getDirectChildren() const
  * This method copyies all tiny strings from other (name and components name).
  * @throw if other and this have not same mesh type.
  */
-void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 { 
   const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
@@ -141,7 +141,7 @@ void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(I
     _z_array->copyStringInfoFrom(*otherC->_z_array);
 }
 
-bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::isEqualIfNotWhy : input other pointer is null !");
@@ -212,7 +212,7 @@ void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith : other is NOT a cartesian mesh ! Impossible to check equivalence !");
 }
 
-void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::checkCoherency() const
 {
   const char msg0[]="Invalid ";
   const char msg1[]=" array ! Must contain more than 1 element.";
@@ -259,7 +259,7 @@ void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
     }
 }
 
-void MEDCouplingCMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
   if(_x_array)
@@ -270,7 +270,7 @@ void MEDCouplingCMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Ex
     _z_array->checkMonotonic(true, eps);
 }
 
-void MEDCouplingCMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::checkCoherency2(double eps) const
 {
   checkCoherency1(eps);
 }
@@ -330,14 +330,14 @@ void MEDCouplingCMesh::getNodeGridStructure(int *res) const
     res[i]=getCoordsAt(i)->getNbOfElems();
 }
 
-std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const
 {
   std::vector<int> ret(getMeshDimension());
   getNodeGridStructure(&ret[0]);
   return ret;
 }
 
-MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception)
+MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
   checkCoherency();
   int dim(getMeshDimension());
@@ -372,7 +372,7 @@ int MEDCouplingCMesh::getMeshDimension() const
   return getSpaceDimension();
 }
 
-void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
   int tmp[3];
   int spaceDim=getSpaceDimension();
@@ -429,7 +429,7 @@ std::string MEDCouplingCMesh::advancedRepr() const
  *  \ref cpp_mccmesh_getCoordsAt "Here is a C++ example".<br>
  *  \ref  py_mccmesh_getCoordsAt "Here is a Python example".
  */
-const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
+const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const
 {
   switch(i)
     {
@@ -455,7 +455,7 @@ const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_K
  *  \ref cpp_mccmesh_getCoordsAt "Here is a C++ example".<br>
  *  \ref  py_mccmesh_getCoordsAt "Here is a Python example".
  */
-DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i)
 {
   switch(i)
     {
@@ -482,7 +482,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) throw(INTERP_KERNEL::Excep
  *  \ref medcouplingcppexamplesCmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref  medcouplingpyexamplesCmeshStdBuild1 "Here is a Python example".
  */
-void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr)
 {
   if(arr)
     arr->checkNbOfComps(1,"MEDCouplingCMesh::setCoordsAt");
@@ -767,12 +767,12 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   return ret;
 }
 
-DataArrayDouble *MEDCouplingCMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingCMesh::computeIsoBarycenterOfNodesPerCell() const
 {
   return MEDCouplingCMesh::getBarycenterAndOwner();
 }
 
-void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CMesh !");
 }
@@ -856,7 +856,7 @@ void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, con
   setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
 }
 
-void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   std::ostringstream extent;
   DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
@@ -890,7 +890,7 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   ofs << "  </" << getVTKDataSetType() << ">\n";
 }
 
-void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingCMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
@@ -939,7 +939,7 @@ void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const throw(INTER
     
 }
 
-std::string MEDCouplingCMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+std::string MEDCouplingCMesh::getVTKDataSetType() const
 {
   return std::string("RectilinearGrid");
 }

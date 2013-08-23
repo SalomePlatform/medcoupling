@@ -27,7 +27,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble& f)
 {
   return new MEDCouplingFieldTemplate(f);
 }
@@ -40,7 +40,7 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(TypeOfField type)
   return new MEDCouplingFieldTemplate(type);
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f) throw(INTERP_KERNEL::Exception):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f):MEDCouplingField(f,false) 
 {
   forceTimeOfThis(f);
   checkCoherency();
@@ -50,7 +50,7 @@ MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(TypeOfField type):MEDCoupling
 {
 }
 
-void MEDCouplingFieldTemplate::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldTemplate::checkCoherency() const
 {
   if(_mesh==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldTemplate::checkCoherency : Empty mesh !");
@@ -130,7 +130,7 @@ void MEDCouplingFieldTemplate::serialize(DataArrayInt *&dataInt) const
   _type->getSerializationIntArray(dataInt);
 }
 
-void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingFieldTemplate C++ instance at " << this << ". Name : \"" << _name << "\"." << std::endl;
   const char *nat=0;

@@ -39,25 +39,25 @@ namespace ParaMEDMEM
   class MEDCouplingMultiFields : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *>& fs);
     MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New();
     MEDCOUPLING_EXPORT MEDCouplingMultiFields *deepCpy() const;
     MEDCOUPLING_EXPORT std::string getName() const;
     MEDCOUPLING_EXPORT std::string getDescription() const;
     MEDCOUPLING_EXPORT std::string getTimeUnit() const;
-    MEDCOUPLING_EXPORT double getTimeResolution() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getTimeResolution() const;
     MEDCOUPLING_EXPORT virtual std::string simpleRepr() const;
     MEDCOUPLING_EXPORT virtual std::string advancedRepr() const;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble *getFieldWithId(int id) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble *getFieldWithId(int id) const;
     MEDCOUPLING_EXPORT std::vector<const MEDCouplingFieldDouble *> getFields() const;
     MEDCOUPLING_EXPORT int getNumberOfFields() const;
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble *getFieldAtPos(int id) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getMeshes() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getArrays() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble *getFieldAtPos(int id) const;
+    MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getMeshes() const;
+    MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const;
+    MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getArrays() const;
+    MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
@@ -65,9 +65,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD,
                                                   const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,
                                                   const std::vector<DataArrayDouble *>& das);
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void checkCoherency() const;
   protected:
-    MEDCOUPLING_EXPORT MEDCouplingMultiFields(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingMultiFields(const std::vector<MEDCouplingFieldDouble *>& fs);
     MEDCOUPLING_EXPORT MEDCouplingMultiFields(const MEDCouplingMultiFields& other);
     MEDCOUPLING_EXPORT MEDCouplingMultiFields();
   protected:

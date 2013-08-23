@@ -32,24 +32,24 @@ namespace ParaMEDMEM
   class MEDCouplingFieldOverTime : public MEDCouplingMultiFields
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingFieldOverTime *New(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT double getTimeTolerance() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldOverTime *New(const std::vector<MEDCouplingFieldDouble *>& fs);
+    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT double getTimeTolerance() const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     //void getIdsToFetch(double time, int& fieldId, int& arrId, int& meshId) const;
     //void setFieldOnId(int fieldId, MEDCouplingFieldDouble *f);
     //void dispatchPointers();
-    MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getMeshes() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getArrays() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getMeshes() const;
+    MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const;
+    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getArrays() const;
+    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const;
     MEDCOUPLING_EXPORT MEDCouplingDefinitionTime getDefinitionTimeZone() const;
   protected:
     MEDCOUPLING_EXPORT MEDCouplingFieldOverTime();
   private:
-    MEDCouplingFieldOverTime(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldOverTime(const std::vector<MEDCouplingFieldDouble *>& fs);
   };
 }
 

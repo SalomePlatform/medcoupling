@@ -34,25 +34,25 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
-    MEDCOUPLING_EXPORT DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
+    MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT static void GetPosFromId(int nodeId, int meshDim, const int *split, int *res);
-    MEDCOUPLING_EXPORT static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     //tools
-    MEDCOUPLING_EXPORT std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT std::vector<int> getDistributionOfTypes() const;
+    MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *build1SGTUnstructured() const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
-    MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     //some useful methods
     MEDCOUPLING_EXPORT int getCellIdFromPos(int i, int j, int k) const;
@@ -60,16 +60,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void getNodeGridStructure(int *res) const = 0;
     MEDCOUPLING_EXPORT virtual void getSplitCellValues(int *res) const = 0;
     MEDCOUPLING_EXPORT virtual void getSplitNodeValues(int *res) const = 0;
-    MEDCOUPLING_EXPORT virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual std::vector<int> getNodeGridStructure() const = 0;
+    MEDCOUPLING_EXPORT std::vector<int> getCellGridStructure() const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const = 0;
+    MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
   private:
-    static DataArrayInt *Build1GTNodalConnectivity1D(const int *nodeStBg) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Build1GTNodalConnectivity2D(const int *nodeStBg) throw(INTERP_KERNEL::Exception);
-    static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *Build1GTNodalConnectivity1D(const int *nodeStBg);
+    static DataArrayInt *Build1GTNodalConnectivity2D(const int *nodeStBg);
+    static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh();
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy);

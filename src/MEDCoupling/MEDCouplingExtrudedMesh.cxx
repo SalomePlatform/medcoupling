@@ -45,7 +45,7 @@ using namespace ParaMEDMEM;
  * because the mesh is aggregated and potentially modified by rotate or translate method.
  * @param cell2DId Id of cell in mesh2D mesh where the computation of 1D mesh will be done.
  */
-MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId)
 {
   return new MEDCouplingExtrudedMesh(mesh3D,mesh2D,cell2DId);
 }
@@ -85,7 +85,7 @@ std::vector<const BigMemoryObject *> MEDCouplingExtrudedMesh::getDirectChildren(
  * This method copyies all tiny strings from other (name and components name).
  * @throw if other and this have not same mesh type.
  */
-void MEDCouplingExtrudedMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
   const MEDCouplingExtrudedMesh *otherC=dynamic_cast<const MEDCouplingExtrudedMesh *>(other);
   if(!otherC)
@@ -95,7 +95,7 @@ void MEDCouplingExtrudedMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) 
   _mesh1D->copyTinyStringsFrom(otherC->_mesh1D);
 }
 
-MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId)
 try:_mesh2D(const_cast<MEDCouplingUMesh *>(mesh2D)),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(cell2DId)
 {
   if(_mesh2D!=0)
@@ -170,7 +170,7 @@ MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::clone(bool recDeepCpy) const
   return new MEDCouplingExtrudedMesh(*this,recDeepCpy);
 }
 
-bool MEDCouplingExtrudedMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingExtrudedMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::isEqualIfNotWhy : input other pointer is null !");
@@ -257,7 +257,7 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingExtrudedMesh::getAllGeoTy
   return ret;
 }
 
-DataArrayInt *MEDCouplingExtrudedMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingExtrudedMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   INTERP_KERNEL::NormalizedCellType revExtTyp=cm.getReverseExtrudedType();
@@ -280,7 +280,7 @@ DataArrayInt *MEDCouplingExtrudedMesh::giveCellsWithType(INTERP_KERNEL::Normaliz
   return ret2.retn();
 }
 
-DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfNodesPerCell() const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2D=_mesh2D->computeNbOfNodesPerCell();
   int nbOfLevs=_mesh1D->getNumberOfCells();
@@ -293,7 +293,7 @@ DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfNodesPerCell() const throw(INT
   return ret3D->renumberR(_mesh3D_ids->begin());
 }
 
-DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfFacesPerCell() const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2D=_mesh2D->computeNbOfNodesPerCell();
   int nbOfLevs=_mesh1D->getNumberOfCells();
@@ -306,7 +306,7 @@ DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfFacesPerCell() const throw(INT
   return ret3D->renumberR(_mesh3D_ids->begin());
 }
 
-DataArrayInt *MEDCouplingExtrudedMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingExtrudedMesh::computeEffectiveNbOfNodesPerCell() const
 {
   return computeNbOfNodesPerCell();
 }
@@ -339,7 +339,7 @@ void MEDCouplingExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int>& con
   conn.insert(conn.end(),tmp2.begin(),tmp2.end());
 }
 
-void MEDCouplingExtrudedMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
   int nbOfNodes2D=_mesh2D->getNumberOfNodes();
   int locId=nodeId%nbOfNodes2D;
@@ -394,12 +394,12 @@ void MEDCouplingExtrudedMesh::checkCoherency() const throw (INTERP_KERNEL::Excep
 {
 }
 
-void MEDCouplingExtrudedMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
 }
 
-void MEDCouplingExtrudedMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::checkCoherency2(double eps) const
 {
   checkCoherency1(eps);
 }
@@ -438,7 +438,7 @@ void MEDCouplingExtrudedMesh::updateTime() const
     }
 }
 
-void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, bool check)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cells unavailable for ExtrudedMesh");
 }
@@ -452,7 +452,7 @@ MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
   return ret;
 }
 
-MEDCouplingUMesh *MEDCouplingExtrudedMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCouplingExtrudedMesh::buildUnstructured() const
 {
   return build3DUnstructuredMesh();
 }
@@ -512,7 +512,7 @@ MEDCouplingExtrudedMesh::~MEDCouplingExtrudedMesh()
     _mesh3D_ids->decrRef();
 }
 
-void MEDCouplingExtrudedMesh::computeExtrusion(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::computeExtrusion(const MEDCouplingUMesh *mesh3D)
 {
   const char errMsg1[]="2D mesh is empty unable to compute extrusion !";
   const char errMsg2[]="Coords between 2D and 3D meshes are not the same ! Try MEDCouplingPointSet::tryToShareSameCoords method";
@@ -695,17 +695,17 @@ void MEDCouplingExtrudedMesh::scale(const double *point, double factor)
   _mesh1D->scale(point,factor);
 }
 
-std::vector<int> MEDCouplingExtrudedMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCouplingExtrudedMesh::getDistributionOfTypes() const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-DataArrayInt *MEDCouplingExtrudedMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingExtrudedMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-void MEDCouplingExtrudedMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
@@ -722,7 +722,7 @@ MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPartAndReduceNodes(const int *sta
   return 0;
 }
 
-DataArrayInt *MEDCouplingExtrudedMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingExtrudedMesh::simplexize(int policy)
 {
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::simplexize : unavailable for such a type of mesh : Extruded !");
 }
@@ -761,12 +761,12 @@ DataArrayDouble *MEDCouplingExtrudedMesh::getBarycenterAndOwner() const
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::getBarycenterAndOwner : not yet implemented !");
 }
 
-DataArrayDouble *MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell() const
 {
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell: not yet implemented !");
 }
 
-void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);
   int nbOf1DLev=mesh3D->getNumberOfCells()/_mesh2D->getNumberOfCells();
@@ -937,18 +937,18 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInf
   std::copy(a1Ptr,a1Ptr+szIds,_mesh3D_ids->getPointer());
 }
 
-void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
   m->writeVTKLL(ofs,cellData,pointData,byteData);
 }
 
-void MEDCouplingExtrudedMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingExtrudedMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
 }
 
-std::string MEDCouplingExtrudedMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+std::string MEDCouplingExtrudedMesh::getVTKDataSetType() const
 {
   return _mesh2D->getVTKDataSetType();
 }

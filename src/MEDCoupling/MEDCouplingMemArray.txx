@@ -111,7 +111,7 @@ namespace ParaMEDMEM
   }
   
   template<class T>
-  void MemArray<T>::pushBack(T elem) throw(INTERP_KERNEL::Exception)
+  void MemArray<T>::pushBack(T elem)
   {
     if(_nb_of_elem>=_nb_of_elem_alloc)
       reserve(_nb_of_elem_alloc>0?2*_nb_of_elem_alloc:1);
@@ -120,7 +120,7 @@ namespace ParaMEDMEM
   }
   
   template<class T>
-  T MemArray<T>::popBack() throw(INTERP_KERNEL::Exception)
+  T MemArray<T>::popBack()
   {
     if(_nb_of_elem>0)
       {
@@ -334,7 +334,7 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  void MemArray<T>::alloc(std::size_t nbOfElements) throw(INTERP_KERNEL::Exception)
+  void MemArray<T>::alloc(std::size_t nbOfElements)
   {
     destroy();
     if(nbOfElements<0)
@@ -356,7 +356,7 @@ namespace ParaMEDMEM
    * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
    */
   template<class T>
-  void MemArray<T>::reserve(std::size_t newNbOfElements) throw(INTERP_KERNEL::Exception)
+  void MemArray<T>::reserve(std::size_t newNbOfElements)
   {
     if(newNbOfElements<0)
       throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
@@ -382,7 +382,7 @@ namespace ParaMEDMEM
    * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
    */
   template<class T>
-  void MemArray<T>::reAlloc(std::size_t newNbOfElements) throw(INTERP_KERNEL::Exception)
+  void MemArray<T>::reAlloc(std::size_t newNbOfElements)
   {
     if(newNbOfElements<0)
       throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
@@ -413,7 +413,7 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  typename MemArray<T>::Deallocator MemArray<T>::BuildFromType(DeallocType type) throw(INTERP_KERNEL::Exception)
+  typename MemArray<T>::Deallocator MemArray<T>::BuildFromType(DeallocType type)
   {
     switch(type)
       {

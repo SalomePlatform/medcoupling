@@ -49,7 +49,7 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
   releaseData(false);
 }
 
-int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method) throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method)
 {
   if(!srcMesh || !targetMesh)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepare : presence of NULL input pointer !");
@@ -62,7 +62,7 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
   return prepareEx(src,target);
 }
 
-int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target) throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target)
 {
   if(!src || !target)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareEx : presence of NULL input pointer !");
@@ -77,7 +77,7 @@ int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const ME
     return prepareNotInterpKernelOnly();
 }
 
-int MEDCouplingRemapper::prepareInterpKernelOnly() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareInterpKernelOnly()
 {
   int meshInterpType=((int)_src_ft->getMesh()->getType()*16)+(int)_target_ft->getMesh()->getType();
   switch(meshInterpType)
@@ -109,7 +109,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnly() throw(INTERP_KERNEL::Exceptio
     }
 }
 
-int MEDCouplingRemapper::prepareNotInterpKernelOnly() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareNotInterpKernelOnly()
 {
   std::string srcm,trgm,method;
   method=checkAndGiveInterpolationMethodStr(srcm,trgm);
@@ -132,7 +132,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly() throw(INTERP_KERNEL::Excep
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
  * \param [out] targetField the destination field with the allocated array in which all tuples will be overwritten.
  */
-void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue)
 {
   transferUnderground(srcField,targetField,true,dftValue);
 }
@@ -146,12 +146,12 @@ void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCo
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
  * \param [in,out] targetField the destination field with the allocated array in which only tuples whose entities are fetched by interpolation will be overwritten only.
  */
-void MEDCouplingRemapper::partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField) throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField)
 {
   transferUnderground(srcField,targetField,false,std::numeric_limits<double>::max());
 }
 
-void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue)
 {
   checkPrepare();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
@@ -180,7 +180,7 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   computeReverseProduct(inputPointer,trgNbOfCompo,dftValue,resPointer);
 }
 
-MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFieldDouble *srcField, double dftValue)
 {
   checkPrepare();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
@@ -192,7 +192,7 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFiel
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue)
 {
   checkPrepare();
   if(_target_ft->getDiscretization()->getStringRepr()!=targetField->getDiscretization()->getStringRepr())
@@ -278,7 +278,7 @@ int MEDCouplingRemapper::getInterpolationMatrixPolicy() const
  * 
  * \sa MEDCouplingRemapper::getInterpolationMatrixPolicy
  */
-void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol) throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol)
 {
   switch(newInterpMatPol)
     {
@@ -299,7 +299,7 @@ void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol) thro
     }
 }
 
-int MEDCouplingRemapper::prepareInterpKernelOnlyUU() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
 {
   const MEDCouplingPointSet *src_mesh=static_cast<const MEDCouplingPointSet *>(_src_ft->getMesh());
   const MEDCouplingPointSet *target_mesh=static_cast<const MEDCouplingPointSet *>(_target_ft->getMesh());
@@ -530,7 +530,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU() throw(INTERP_KERNEL::Except
   return 1;
 }
 
-int MEDCouplingRemapper::prepareInterpKernelOnlyEE() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
 {
   std::string srcMeth,trgMeth;
   std::string methC=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
@@ -564,7 +564,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE() throw(INTERP_KERNEL::Except
   return 1;
 }
 
-int MEDCouplingRemapper::prepareInterpKernelOnlyUC() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareInterpKernelOnlyUC()
 {
   std::string srcMeth,trgMeth;
   std::string methodCpp=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
@@ -618,7 +618,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUC() throw(INTERP_KERNEL::Except
   return 1;
 }
 
-int MEDCouplingRemapper::prepareInterpKernelOnlyCU() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareInterpKernelOnlyCU()
 {
   std::string srcMeth,trgMeth;
   std::string methodCpp=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
@@ -670,7 +670,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCU() throw(INTERP_KERNEL::Except
   return 1;
 }
 
-int MEDCouplingRemapper::prepareInterpKernelOnlyCC() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareInterpKernelOnlyCC()
 {
   std::string srcMeth,trgMeth;
   std::string methodCpp=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
@@ -721,7 +721,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCC() throw(INTERP_KERNEL::Except
   return 1;
 }
 
-int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss() throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
 {
   if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : The intersection type is not supported ! Only PointLocator is supported for Gauss->Gauss interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
@@ -784,7 +784,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss() throw(INTERP_KER
  * This method checks that the input interpolation \a method is managed by not INTERP_KERNEL only methods.
  * If no an INTERP_KERNEL::Exception will be thrown. If yes, a magic number will be returned to switch in the MEDCouplingRemapper::prepareNotInterpKernelOnly method.
  */
-int MEDCouplingRemapper::CheckInterpolationMethodManageableByNotOnlyInterpKernel(const std::string& method) throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::CheckInterpolationMethodManageableByNotOnlyInterpKernel(const std::string& method)
 {
   if(method=="GAUSSGAUSS")
     return 0;
@@ -799,7 +799,7 @@ int MEDCouplingRemapper::CheckInterpolationMethodManageableByNotOnlyInterpKernel
  * to IK_ONLY_PREFERED = 0 ) , which method will be applied. If \c true is returned the INTERP_KERNEL only method should be applied to \c false the \b not
  * only INTERP_KERNEL method should be applied.
  */
-bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const
 {
   std::string srcm,trgm,method;
   method=checkAndGiveInterpolationMethodStr(srcm,trgm);
@@ -843,7 +843,7 @@ void MEDCouplingRemapper::updateTime() const
 {
 }
 
-void MEDCouplingRemapper::checkPrepare() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::checkPrepare() const
 {
   const MEDCouplingFieldTemplate *s(_src_ft),*t(_target_ft);
   if(!s || !t)
@@ -860,7 +860,7 @@ void MEDCouplingRemapper::checkPrepare() const throw(INTERP_KERNEL::Exception)
  * \param [out] trgMeth the string code of the discretization of target field template
  * \return the standardized string code (compatible with INTERP_KERNEL) for matrix of numerators (in \a _matrix)
  */
-std::string MEDCouplingRemapper::checkAndGiveInterpolationMethodStr(std::string& srcMeth, std::string& trgMeth) const throw(INTERP_KERNEL::Exception)
+std::string MEDCouplingRemapper::checkAndGiveInterpolationMethodStr(std::string& srcMeth, std::string& trgMeth) const
 {
   const MEDCouplingFieldTemplate *s(_src_ft),*t(_target_ft);
   if(!s || !t)
@@ -885,7 +885,7 @@ void MEDCouplingRemapper::releaseData(bool matrixSuppression)
     }
 }
 
-void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue) throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue)
 {
   checkPrepare();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
@@ -926,7 +926,7 @@ void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldD
     return computeDenoFromScratch(nat,srcField,trgField);
 }
 
-void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField) throw(INTERP_KERNEL::Exception)
+void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField)
 {
   _nature_of_deno=nat;
   _time_deno_update=getTimeOfThis();
@@ -1159,7 +1159,7 @@ const std::vector<std::map<int,double> >& MEDCouplingRemapper::getCrudeMatrix() 
  * \return a positive value that tells the number of coefficients put to 0. The 0 returned value means that the matrix has remained unchanged.
  * \sa MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix
  */
-int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs)
 {
   int ret=0;
   std::vector<std::map<int,double> > matrixNew(_matrix.size());
@@ -1194,7 +1194,7 @@ int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) th
  *         that all coefficients are null.
  * \sa MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs
  */
-int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception)
+int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix(double scaleFactor)
 {
   double maxVal=getMaxValueInCrudeMatrix();
   if(maxVal==0.)
@@ -1208,7 +1208,7 @@ int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) thr
  * This method returns the maximum of the absolute values of coefficients into the sparse crude matrix.
  * The returned value is positive.
  */
-double MEDCouplingRemapper::getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception)
+double MEDCouplingRemapper::getMaxValueInCrudeMatrix() const
 {
   double ret=0.;
   for(std::vector<std::map<int,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++)

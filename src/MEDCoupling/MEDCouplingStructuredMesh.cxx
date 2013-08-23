@@ -45,12 +45,12 @@ std::size_t MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren() const
   return MEDCouplingMesh::getHeapMemorySizeWithoutChildren();
 }
 
-void MEDCouplingStructuredMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingStructuredMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
   MEDCouplingMesh::copyTinyStringsFrom(other);
 }
 
-bool MEDCouplingStructuredMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingStructuredMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   return MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason);
 }
@@ -60,7 +60,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(int c
   return GetGeoTypeGivenMeshDimension(getMeshDimension());
 }
 
-INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception)
+INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(int meshDim)
 {
   switch(meshDim)
     {
@@ -92,7 +92,7 @@ int MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::Normalize
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   if(getTypeOfCell(0)==type)
@@ -105,7 +105,7 @@ DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::Normal
   return ret.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const
 {
   int nbCells=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
@@ -115,7 +115,7 @@ DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const throw(I
   return ret.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const
 {
   int nbCells=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
@@ -132,7 +132,7 @@ DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const throw(I
  *
  * \return DataArrayInt * - new object to be deallocated by the caller.
  */
-DataArrayInt *MEDCouplingStructuredMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::computeEffectiveNbOfNodesPerCell() const
 {
   return computeNbOfNodesPerCell();
 }
@@ -168,7 +168,7 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& c
 /*!
  * See MEDCouplingUMesh::getDistributionOfTypes for more information
  */
-std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const
 {
   //only one type of cell
   std::vector<int> ret(3);
@@ -184,7 +184,7 @@ std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const throw
  * 
  * See MEDCouplingUMesh::checkTypeConsistencyAndContig for more information
  */
-DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   int nbOfCells=getNumberOfCells();
   if(code.size()!=3)
@@ -242,7 +242,7 @@ DataArrayInt *MEDCouplingStructuredMesh::checkTypeConsistencyAndContig(const std
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
 
  */
-void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const
 {
   if(!profile || !profile->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL or not allocated !");
@@ -274,7 +274,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
  * delete this array using decrRef() as it is no more needed. 
  *  \throw If \a this->getMeshDimension() is not among [1,2,3].
  */
-MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
 {
   int meshDim=getMeshDimension(); 
   if(meshDim<0 || meshDim>3)
@@ -294,7 +294,7 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const t
  * delete this array using decrRef() as it is no more needed. 
  *  \throw If \a this->getMeshDimension() is not among [1,2,3].
  */
-MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret0(build1SGTUnstructured());
   return ret0->buildUnstructured();
@@ -345,7 +345,7 @@ MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *s
     }
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::simplexize(int policy)
 {
   throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::simplexize : not available for Cartesian mesh !");
 }
@@ -378,7 +378,7 @@ MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
 /*!
  * \return DataArrayInt * - newly allocated instance of nodal connectivity compatible for MEDCoupling1SGTMesh instance
  */
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd)
 {
   std::size_t dim=std::distance(nodeStBg,nodeStEnd);
   switch(dim)
@@ -394,7 +394,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
     }
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
 {
   int nbOfCells(*nodeStBg-1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
@@ -408,7 +408,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *
   return conn.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *nodeStBg) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *nodeStBg)
 {
   int n1=nodeStBg[0]-1;
   int n2=nodeStBg[1]-1;
@@ -427,7 +427,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *
   return conn.retn();
 }
 
-DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *nodeStBg) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *nodeStBg)
 {
   int n1=nodeStBg[0]-1;
   int n2=nodeStBg[1]-1;
@@ -499,7 +499,7 @@ void MEDCouplingStructuredMesh::GetPosFromId(int nodeId, int meshDim, const int 
     }
 }
 
-std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const
 {
   std::vector<int> ret(getNodeGridStructure());
   std::transform(ret.begin(),ret.end(),ret.begin(),std::bind2nd(std::plus<int>(),-1));
@@ -512,7 +512,7 @@ std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const throw(I
  *
  * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom
  */
-bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat)
 {
   int dim((int)st.size());
   partCompactFormat.resize(dim);
@@ -604,7 +604,7 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
  * \return DataArrayInt * - a new object.
  * \sa MEDCouplingStructuredMesh::IsPartStructured
  */
-DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat)
 {
   if(st.size()!=partCompactFormat.size())
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : input arrays must have the same size !");

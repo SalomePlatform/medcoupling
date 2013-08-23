@@ -56,7 +56,7 @@ bool MEDCouplingMesh::isStructured() const
   return getType()==CARTESIAN;
 }
 
-bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::isEqualIfNotWhy : other instance is NULL !");
@@ -106,7 +106,7 @@ bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec,
  *  \param [in] prec - precision value used to compare node coordinates.
  *  \return bool - \c true if the two meshes are equal, \c false else.
  */
-bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
   std::string tmp;
   return isEqualIfNotWhy(other,prec,tmp);
@@ -224,7 +224,7 @@ DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partB
 /*!
  * This method checks fastly that \a this and \a other are equal. All common checks are done here.
  */
-void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::checkFastEquivalWith : input mesh is null !");
@@ -259,7 +259,7 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
  *
  * \sa MEDCouplingMesh::buildPart
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const
 {
   if(beginCellIds==0 && endCellIds==getNumberOfCells() && stepCellIds==1)
     {
@@ -279,7 +279,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellId
  *
  * \sa MEDCouplingMesh::buildPartAndReduceNodes
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
   return buildPartAndReduceNodes(cellIds->begin(),cellIds->end(),arr);
@@ -314,7 +314,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * This method copyies all tiny strings from other (name and components name).
  * @throw if other and this have not same mesh type.
  */
-void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::copyTinyStringsFrom : input mesh is null !");
@@ -327,7 +327,7 @@ void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(IN
  * This method copies all attributes that are \b NOT arrays in this.
  * All tiny attributes not usefully for state of \a this are ignored.
  */
-void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
 {
   copyTinyStringsFrom(other);
   _time=other->_time;
@@ -497,7 +497,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nb
  *          is no more needed.
  *  \throw If the meshes are of different mesh type.
  */
-MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
 {
   if(!mesh1)
     throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : first parameter is an empty mesh !");
@@ -524,7 +524,7 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, cons
  *  \throw If \a meshes[ *i* ]->getMeshDimension() < 0.
  *  \throw If the \a meshes are of different dimension (getMeshDimension()).
  */
-MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes)
 {
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms1(meshes.size());
   std::vector< const MEDCouplingUMesh * > ms2(meshes.size());
@@ -553,7 +553,7 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh 
  * 
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   return cm.getCorrespondingPolyType();
@@ -566,7 +566,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTE
  * \throw if type is dynamic as \c INTERP_KERNEL::NORM_POLYHED , \c INTERP_KERNEL::NORM_POLYGON , \c INTERP_KERNEL::NORM_QPOLYG
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-int MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+int MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(cm.isDynamic())
@@ -580,13 +580,13 @@ int MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCe
  * 
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-bool MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   return !cm.isDynamic();
 }
 
-bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   return !cm.isQuadratic();
@@ -598,7 +598,7 @@ bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType ty
  * 
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   return (int) cm.getDimension();
@@ -610,7 +610,7 @@ int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellTy
  * 
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   return cm.getRepr();
@@ -682,7 +682,7 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
  *  \param [in] fileName - the name of the file to write in.
  *  \throw If \a fileName is not a writable file.
  */
-void MEDCouplingMesh::writeVTK(const char *fileName, bool isBinary) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::writeVTK(const char *fileName, bool isBinary) const
 {
   std::string cda,pda;
   MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
@@ -691,7 +691,7 @@ void MEDCouplingMesh::writeVTK(const char *fileName, bool isBinary) const throw(
   writeVTKAdvanced(fileName,cda,pda,byteArr);
 }
 
-void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const
 {
   std::ofstream ofs(fileName);
   ofs << "<VTKFile type=\""  << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"" << MEDCouplingByteOrderStr() << "\">\n";

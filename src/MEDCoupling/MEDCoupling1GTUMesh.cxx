@@ -39,7 +39,7 @@ MEDCoupling1GTUMesh::MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool 
 {
 }
 
-MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type)
 {
   if(type==INTERP_KERNEL::NORM_ERROR)
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::New : NORM_ERROR is not a valid type to be used as base geometric type for a mesh !");
@@ -50,7 +50,7 @@ MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const char *name, INTERP_KERNEL::N
     return MEDCoupling1DGTUMesh::New(name,type);
 }
 
-MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const MEDCouplingUMesh *m)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::New : input mesh is null !");
@@ -64,12 +64,12 @@ MEDCoupling1GTUMesh *MEDCoupling1GTUMesh::New(const MEDCouplingUMesh *m) throw(I
     return MEDCoupling1DGTUMesh::New(m);
 }
 
-const INTERP_KERNEL::CellModel& MEDCoupling1GTUMesh::getCellModel() const throw(INTERP_KERNEL::Exception)
+const INTERP_KERNEL::CellModel& MEDCoupling1GTUMesh::getCellModel() const
 {
   return *_cm;
 }
 
-INTERP_KERNEL::NormalizedCellType MEDCoupling1GTUMesh::getCellModelEnum() const throw(INTERP_KERNEL::Exception)
+INTERP_KERNEL::NormalizedCellType MEDCoupling1GTUMesh::getCellModelEnum() const
 {
   return _cm->getEnum();
 }
@@ -88,7 +88,7 @@ int MEDCoupling1GTUMesh::getMeshDimension() const
  * \param [in] type the geometric type
  * \return cell ids in this having geometric type \a type.
  */
-DataArrayInt *MEDCoupling1GTUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1GTUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   if(type==getCellModelEnum())
@@ -141,7 +141,7 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCoupling1GTUMesh::getAllGeoTypes(
  * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
  * This parameter is kept only for compatibility with other methode listed above.
  */
-std::vector<int> MEDCoupling1GTUMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCoupling1GTUMesh::getDistributionOfTypes() const
 {
   std::vector<int> ret(3);
   ret[0]=(int)getCellModelEnum(); ret[1]=getNumberOfCells(); ret[2]=-1;
@@ -172,7 +172,7 @@ std::vector<int> MEDCoupling1GTUMesh::getDistributionOfTypes() const throw(INTER
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
 
  */
-void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const
 {
   if(!profile)
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::splitProfilePerType : input profile is NULL !");
@@ -203,7 +203,7 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::
  * 
  * \sa MEDCouplingUMesh::checkTypeConsistencyAndContig
  */
-DataArrayInt *MEDCoupling1GTUMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1GTUMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   int nbOfCells=getNumberOfCells();
   if(code.size()!=3)
@@ -237,13 +237,13 @@ DataArrayInt *MEDCoupling1GTUMesh::checkTypeConsistencyAndContig(const std::vect
   return const_cast<DataArrayInt *>(pfl);
 }
 
-void MEDCoupling1GTUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1GTUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
   m->writeVTKLL(ofs,cellData,pointData,byteData);
 }
 
-std::string MEDCoupling1GTUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+std::string MEDCoupling1GTUMesh::getVTKDataSetType() const
 {
   return std::string("UnstructuredGrid");
 }
@@ -253,7 +253,7 @@ std::size_t MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren() const
   return MEDCouplingPointSet::getHeapMemorySizeWithoutChildren();
 }
 
-bool MEDCoupling1GTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCoupling1GTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!MEDCouplingPointSet::isEqualIfNotWhy(other,prec,reason))
     return false;
@@ -287,7 +287,7 @@ bool MEDCoupling1GTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *ot
   return true;
 }
 
-void MEDCoupling1GTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1GTUMesh::checkCoherency() const
 {
   MEDCouplingPointSet::checkCoherency();
 }
@@ -362,13 +362,13 @@ MEDCouplingPointSet *MEDCoupling1GTUMesh::buildBoundaryMesh(bool keepCoords) con
   return m->buildBoundaryMesh(keepCoords);
 }
 
-void MEDCoupling1GTUMesh::findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1GTUMesh::findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
   m->findCommonCells(compType,startCellId,commonCellsArr,commonCellsIArr);
 }
 
-int MEDCoupling1GTUMesh::getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception)
+int MEDCoupling1GTUMesh::getNodalConnectivityLength() const
 {
   const DataArrayInt *c1(getNodalConnectivity());
   if(!c1)
@@ -393,7 +393,7 @@ int MEDCoupling1GTUMesh::getNodalConnectivityLength() const throw(INTERP_KERNEL:
  * \throw If not all the parts have their connectivity set properly.
  * \throw If \a parts is empty.
  */
-MEDCouplingUMesh *MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(const std::vector< const MEDCoupling1GTUMesh *>& parts) throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(const std::vector< const MEDCoupling1GTUMesh *>& parts)
 {
   if(parts.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : input parts vector is empty !");
@@ -478,7 +478,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New()
   return new MEDCoupling1SGTUMesh;
 }
 
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type)
 {
   if(type==INTERP_KERNEL::NORM_ERROR)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::New : NORM_ERROR is not a valid type to be used as base geometric type for a mesh !");
@@ -491,7 +491,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const char *name, INTERP_KERNEL:
   return new MEDCoupling1SGTUMesh(name,cm);
 }
 
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::New : input mesh is null !");
@@ -540,7 +540,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
  * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1SGTUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception)
+MEDCouplingPointSet *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const
 {
   checkCoherency();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(clone(false));
@@ -549,7 +549,7 @@ MEDCouplingPointSet *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const throw
   return ret.retn();
 }
 
-void MEDCoupling1SGTUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other)
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::shallowCopyConnectivityFrom : input pointer is null !");
@@ -586,7 +586,7 @@ MEDCouplingMesh *MEDCoupling1SGTUMesh::deepCpy() const
   return clone(true);
 }
 
-bool MEDCoupling1SGTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCoupling1SGTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::isEqualIfNotWhy : input other pointer is null !");
@@ -634,7 +634,7 @@ bool MEDCoupling1SGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *o
   return true;
 }
 
-void MEDCoupling1SGTUMesh::checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkCoherencyOfConnectivity() const
 {
   const DataArrayInt *c1(_conn);
   if(c1)
@@ -649,13 +649,13 @@ void MEDCoupling1SGTUMesh::checkCoherencyOfConnectivity() const throw(INTERP_KER
     throw INTERP_KERNEL::Exception("Nodal connectivity array not defined !");
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkCoherency() const
 {
   MEDCouplingPointSet::checkCoherency();
   checkCoherencyOfConnectivity();
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
   const DataArrayInt *c1(_conn);
@@ -680,7 +680,7 @@ void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL
       }
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkCoherency2(double eps) const
 {
   checkCoherency1(eps);
 }
@@ -697,18 +697,18 @@ int MEDCoupling1SGTUMesh::getNumberOfCells() const
   return nbOfTuples/nbOfNodesPerCell;
 }
 
-int MEDCoupling1SGTUMesh::getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception)
+int MEDCoupling1SGTUMesh::getNumberOfNodesInCell(int cellId) const
 {
   return getNumberOfNodesPerCell();
 }
 
-int MEDCoupling1SGTUMesh::getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+int MEDCoupling1SGTUMesh::getNumberOfNodesPerCell() const
 {
   checkNonDynamicGeoType();
   return (int)_cm->getNumberOfNodes();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfNodesPerCell() const
 {
   checkNonDynamicGeoType();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
@@ -717,7 +717,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfNodesPerCell() const throw(INTERP
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfFacesPerCell() const
 {
   checkNonDynamicGeoType();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
@@ -726,7 +726,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfFacesPerCell() const throw(INTERP
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::computeEffectiveNbOfNodesPerCell() const
 {
   checkNonDynamicGeoType();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
@@ -756,7 +756,7 @@ void MEDCoupling1SGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) 
     }
 }
 
-void MEDCoupling1SGTUMesh::checkNonDynamicGeoType() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkNonDynamicGeoType() const
 {
   if(_cm->isDynamic())
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkNonDynamicGeoType : internal error ! the internal geo type is dynamic ! should be static !");
@@ -845,7 +845,7 @@ std::string MEDCoupling1SGTUMesh::advancedRepr() const
   return ret.str();
 }
 
-DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
@@ -873,7 +873,7 @@ DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
   return ret.retn();
 }
 
-void MEDCoupling1SGTUMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
@@ -945,7 +945,7 @@ MEDCouplingMesh *MEDCoupling1SGTUMesh::mergeMyselfWith(const MEDCouplingMesh *ot
   return Merge1SGTUMeshes(this,otherC);
 }
 
-MEDCouplingUMesh *MEDCoupling1SGTUMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCoupling1SGTUMesh::buildUnstructured() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName().c_str(),getMeshDimension());
   ret->setCoords(getCoords());
@@ -965,7 +965,7 @@ MEDCouplingUMesh *MEDCoupling1SGTUMesh::buildUnstructured() const throw(INTERP_K
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::simplexize(int policy)
 {
   switch(policy)
     {
@@ -1006,7 +1006,7 @@ struct MEDCouplingAccVisit
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
  */
-DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 {
   nbrOfNodesInUse=-1;
   int nbOfNodes=getNumberOfNodes();
@@ -1048,14 +1048,14 @@ void MEDCoupling1SGTUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
   updateTime();
 }
 
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2)
 {
   std::vector<const MEDCoupling1SGTUMesh *> tmp(2);
   tmp[0]=const_cast<MEDCoupling1SGTUMesh *>(mesh1); tmp[1]=const_cast<MEDCoupling1SGTUMesh *>(mesh2);
   return Merge1SGTUMeshes(tmp);
 }
 
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(std::vector<const MEDCoupling1SGTUMesh *>& a)
 {
   std::size_t sz=a.size();
   if(sz==0)
@@ -1094,7 +1094,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(std::vector<const M
  * \throw If presence of a null instance in the input vector \a a.
  * \throw If a is empty
  */
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::vector<const MEDCoupling1SGTUMesh *>& a)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : input array must be NON EMPTY !");
@@ -1128,7 +1128,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
 /*!
  * Assume that all instances in \a a are non null. If null it leads to a crash. That's why this method is assigned to be low level (LL)
  */
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const MEDCoupling1SGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const MEDCoupling1SGTUMesh *>& a)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshes : input array must be NON EMPTY !");
@@ -1215,7 +1215,7 @@ MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords2(int star
   return ret.retn();
 }
 
-void MEDCoupling1SGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
   int sz((int)nodeIdsInUse.size());
   int nbCells(getNumberOfCells());
@@ -1234,7 +1234,7 @@ void MEDCoupling1SGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) co
       }
 }
 
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception)
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDim) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName().c_str(),*_cm));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1;
@@ -1256,7 +1256,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDi
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol0() throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol0()
 {
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_QUAD4)
@@ -1277,7 +1277,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol0() throw(INTERP_KERNEL::Except
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol1() throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol1()
 {
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_QUAD4)
@@ -1298,7 +1298,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol1() throw(INTERP_KERNEL::Except
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace5() throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace5()
 {
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA8)
@@ -1319,7 +1319,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace5() throw(INTERP_KERNEL:
   return ret.retn();
 }
 
-DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace6() throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace6()
 {
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA8)
@@ -1340,7 +1340,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace6() throw(INTERP_KERNEL:
   return ret.retn();
 }
 
-void MEDCoupling1SGTUMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCoupling1SGTUMesh C++ instance at " << this << ". Type=" << _cm->getRepr() << ". Name : \"" << getName() << "\".";
   stream << " Mesh dimension : " << getMeshDimension() << ".";
@@ -1359,7 +1359,7 @@ void MEDCoupling1SGTUMesh::reprQuickOverview(std::ostream& stream) const throw(I
     }
 }
 
-void MEDCoupling1SGTUMesh::checkFullyDefined() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkFullyDefined() const
 {
   if(!((const DataArrayInt *)_conn) || !((const DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::checkFullyDefined : part of this is not fully defined.");
@@ -1471,7 +1471,7 @@ void MEDCoupling1SGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  *  \param [in] prec - the precision used to compare nodes of the two meshes.
  *  \throw If the two meshes do not match.
  */
-void MEDCoupling1SGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
 {
   MEDCouplingPointSet::checkFastEquivalWith(other,prec);
   const MEDCoupling1SGTUMesh *otherC=dynamic_cast<const MEDCoupling1SGTUMesh *>(other);
@@ -1503,7 +1503,7 @@ MEDCouplingPointSet *MEDCoupling1SGTUMesh::mergeMyselfWithOnSameCoords(const MED
   return Merge1SGTUMeshesOnSameCoords(ms);
 }
 
-void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
 {
   checkFullyDefined();
   int nbOfNodes=getNumberOfNodes();
@@ -1547,7 +1547,7 @@ void MEDCoupling1SGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
 /*!
  * Use \a nodalConn array as nodal connectivity of \a this. The input \a nodalConn pointer can be null.
  */
-void MEDCoupling1SGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn)
 {
   if(nodalConn)
     nodalConn->incrRef();
@@ -1558,7 +1558,7 @@ void MEDCoupling1SGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn) throw(I
 /*!
  * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not reponsible to deallocate it.
  */
-DataArrayInt *MEDCoupling1SGTUMesh::getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1SGTUMesh::getNodalConnectivity() const
 {
   const DataArrayInt *ret(_conn);
   return const_cast<DataArrayInt *>(ret);
@@ -1571,7 +1571,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::getNodalConnectivity() const throw(INTERP_KE
  *
  *  \param [in] nbOfCells - estimation of the number of cell \a this mesh will contain.
  */
-void MEDCoupling1SGTUMesh::allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::allocateCells(int nbOfCells)
 {
   if(nbOfCells<0)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::allocateCells : the input number of cells should be >= 0 !");
@@ -1589,7 +1589,7 @@ void MEDCoupling1SGTUMesh::allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exc
  *        attached to \a this.
  * \thow If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
  */
-void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd)
 {
   int sz=(int)std::distance(nodalConnOfCellBg,nodalConnOfCellEnd);
   int ref=getNumberOfNodesPerCell();
@@ -1617,7 +1617,7 @@ void MEDCoupling1SGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const in
  * \throw If \a this is not correctly allocated (coordinates and connectivities have to be correctly set !).
  * \throw If at least one node in \a this is orphan (without any simplex cell lying on it !)
  */
-MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const throw(INTERP_KERNEL::Exception)
+MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const
 {
   const INTERP_KERNEL::CellModel& cm(getCellModel());
   if(!cm.isSimplex())
@@ -1633,7 +1633,7 @@ MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const throw(INTERP_
     }
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const
 {
   static const int DUAL_TETRA_0[36]={
     4,1,0, 6,0,3, 7,3,1,
@@ -1718,7 +1718,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const throw(INTE
   return ret.retn();
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
 {
   static const int DUAL_TRI_0[6]={0,2, 1,0, 2,1};
   static const int DUAL_TRI_1[6]={-3,+5, +3,-4, +4,-5};
@@ -1838,7 +1838,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New()
   return new MEDCoupling1DGTUMesh;
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const char *name, INTERP_KERNEL::NormalizedCellType type)
 {
   if(type==INTERP_KERNEL::NORM_ERROR)
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::New : NORM_ERROR is not a valid type to be used as base geometric type for a mesh !");
@@ -1884,7 +1884,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
  * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1DGTUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception)
+MEDCouplingPointSet *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const
 {
   checkCoherency();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(clone(false));
@@ -1926,7 +1926,7 @@ MEDCouplingMesh *MEDCoupling1DGTUMesh::deepCpy() const
   return clone(true);
 }
 
-bool MEDCoupling1DGTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
+bool MEDCoupling1DGTUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::isEqualIfNotWhy : input other pointer is null !");
@@ -2005,7 +2005,7 @@ bool MEDCoupling1DGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *o
  *  \param [in] prec - the precision used to compare nodes of the two meshes.
  *  \throw If the two meshes do not match.
  */
-void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
 {
   MEDCouplingPointSet::checkFastEquivalWith(other,prec);
   const MEDCoupling1DGTUMesh *otherC=dynamic_cast<const MEDCoupling1DGTUMesh *>(other);
@@ -2037,7 +2037,7 @@ void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, do
     }
 }
 
-void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const
 {
   const DataArrayInt *c1(_conn);
   if(c1)
@@ -2094,13 +2094,13 @@ void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const throw(INTERP_KER
  * In addition you are sure that the length of nodal connectivity index array is bigger than or equal to one.
  * In addition you are also sure that length of nodal connectivity is coherent with the content of the last value in the index array.
  */
-void MEDCoupling1DGTUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkCoherency() const
 {
   MEDCouplingPointSet::checkCoherency();
   checkCoherencyOfConnectivity();
 }
 
-void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const
 {
   checkCoherency();
   const DataArrayInt *c1(_conn),*c2(_conn_indx);
@@ -2121,7 +2121,7 @@ void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL
     }
 }
 
-void MEDCoupling1DGTUMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkCoherency2(double eps) const
 {
   checkCoherency1(eps);
 }
@@ -2140,7 +2140,7 @@ int MEDCoupling1DGTUMesh::getNumberOfCells() const
  * 
  * \return a newly allocated array
  */
-DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const
 {
   checkCoherency();
   _conn_indx->checkMonotonic(true);
@@ -2163,7 +2163,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const throw(INTERP
  * 
  * \return a newly allocated array
  */
-DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const
 {
   checkCoherency();
   _conn_indx->checkMonotonic(true);
@@ -2193,7 +2193,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const throw(INTERP
  * \return DataArrayInt * - new object to be deallocated by the caller.
  * \sa MEDCoupling1DGTUMesh::computeNbOfNodesPerCell
  */
-DataArrayInt *MEDCoupling1DGTUMesh::computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::computeEffectiveNbOfNodesPerCell() const
 {
   checkCoherency();
   _conn_indx->checkMonotonic(true);
@@ -2240,7 +2240,7 @@ void MEDCoupling1DGTUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) 
     }
 }
 
-int MEDCoupling1DGTUMesh::getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception)
+int MEDCoupling1DGTUMesh::getNumberOfNodesInCell(int cellId) const
 {
   int nbOfCells(getNumberOfCells());//performs checks
   if(cellId>=0 && cellId<nbOfCells)
@@ -2325,7 +2325,7 @@ std::string MEDCoupling1DGTUMesh::advancedRepr() const
   return ret.str();
 }
 
-DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
@@ -2402,7 +2402,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
   return ret.retn();
 }
 
-void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
@@ -2450,7 +2450,7 @@ MEDCouplingMesh *MEDCoupling1DGTUMesh::mergeMyselfWith(const MEDCouplingMesh *ot
   return Merge1DGTUMeshes(this,otherC);
 }
 
-MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName().c_str(),getMeshDimension());
   ret->setCoords(getCoords());
@@ -2483,7 +2483,7 @@ MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const throw(INTERP_K
 /*!
  * Do nothing for the moment, because there is no policy that allows to split polygons, polyhedrons ... into simplexes
  */
-DataArrayInt *MEDCoupling1DGTUMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::simplexize(int policy)
 {
   int nbOfCells=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
@@ -2492,7 +2492,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::simplexize(int policy) throw(INTERP_KERNEL::
   return ret.retn();
 }
 
-void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCoupling1DGTUMesh C++ instance at " << this << ". Type=" << _cm->getRepr() << ". Name : \"" << getName() << "\".";
   stream << " Mesh dimension : " << getMeshDimension() << ".";
@@ -2512,7 +2512,7 @@ void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const throw(I
     stream << std::endl << "Number of cells : " << getNumberOfCells() << ".";
 }
 
-void MEDCoupling1DGTUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::shallowCopyConnectivityFrom(const MEDCouplingPointSet *other)
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::shallowCopyConnectivityFrom : input pointer is null !");
@@ -2559,7 +2559,7 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords2(int star
   return ret.retn();
 }
 
-void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
   int sz((int)nodeIdsInUse.size());
   int nbCells(getNumberOfCells());
@@ -2578,7 +2578,7 @@ void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) co
         }
 }
 
-void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
 {
   checkFullyDefined();
   int nbOfNodes=getNumberOfNodes();
@@ -2632,7 +2632,7 @@ void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, D
     }
 }
 
-void MEDCoupling1DGTUMesh::checkFullyDefined() const throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::checkFullyDefined() const
 {
   if(!((const DataArrayInt *)_conn) || !((const DataArrayInt *)_conn_indx) || !((const DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkFullyDefined : part of this is not fully defined.");
@@ -2767,7 +2767,7 @@ void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
  */
-DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 {
   nbrOfNodesInUse=-1;
   int nbOfNodes=getNumberOfNodes();
@@ -2881,7 +2881,7 @@ void MEDCoupling1DGTUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const 
   cellIdsKeptArr=cellIdsKept.retn();
 }
 
-void MEDCoupling1DGTUMesh::allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::allocateCells(int nbOfCells)
 {
   if(nbOfCells<0)
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::allocateCells : the input number of cells should be >= 0 !");
@@ -2901,7 +2901,7 @@ void MEDCoupling1DGTUMesh::allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exc
  *        attached to \a this.
  * \thow If the nodal connectivity array in \a this is null (call MEDCoupling1SGTUMesh::allocateCells before).
  */
-void MEDCoupling1DGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd)
 {
   int sz=(int)std::distance(nodalConnOfCellBg,nodalConnOfCellEnd);
   DataArrayInt *c(_conn),*c2(_conn_indx);
@@ -2923,7 +2923,7 @@ void MEDCoupling1DGTUMesh::insertNextCell(const int *nodalConnOfCellBg, const in
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::insertNextCell : nodal connectivity array is null ! Call MEDCoupling1DGTUMesh::allocateCells before !");
 }
 
-void MEDCoupling1DGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn, DataArrayInt *nodalConnIndex) throw(INTERP_KERNEL::Exception)
+void MEDCoupling1DGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn, DataArrayInt *nodalConnIndex)
 {
   if(nodalConn)
     nodalConn->incrRef();
@@ -2937,7 +2937,7 @@ void MEDCoupling1DGTUMesh::setNodalConnectivity(DataArrayInt *nodalConn, DataArr
 /*!
  * \return DataArrayInt * - the internal reference to the nodal connectivity. The caller is not reponsible to deallocate it.
  */
-DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivity() const
 {
   const DataArrayInt *ret(_conn);
   return const_cast<DataArrayInt *>(ret);
@@ -2946,7 +2946,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivity() const throw(INTERP_KE
 /*!
  * \return DataArrayInt * - the internal reference to the nodal connectivity index. The caller is not reponsible to deallocate it.
  */
-DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const
 {
   const DataArrayInt *ret(_conn_indx);
   return const_cast<DataArrayInt *>(ret);
@@ -2965,7 +2965,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const throw(INTE
  * 
  * \sa MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity, MEDCoupling1DGTUMesh::isPacked
  */
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool& isShallowCpyOfNodalConnn) const throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool& isShallowCpyOfNodalConnn) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName().c_str(),*_cm));
   DataArrayInt *nc=0,*nci=0;
@@ -2997,7 +2997,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool
  *
  * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkCoherency test
  */
-bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndx) const throw(INTERP_KERNEL::Exception)
+bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndx) const
 {
   if(isPacked())//performs the checkCoherency
     {
@@ -3022,20 +3022,20 @@ bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalC
  *
  * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkCoherency test
  */
-bool MEDCoupling1DGTUMesh::isPacked() const throw(INTERP_KERNEL::Exception)
+bool MEDCoupling1DGTUMesh::isPacked() const
 {
   checkCoherency();
   return _conn_indx->front()==0 && _conn_indx->back()==_conn->getNumberOfTuples();
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(const MEDCoupling1DGTUMesh *mesh1, const MEDCoupling1DGTUMesh *mesh2) throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(const MEDCoupling1DGTUMesh *mesh1, const MEDCoupling1DGTUMesh *mesh2)
 {
   std::vector<const MEDCoupling1DGTUMesh *> tmp(2);
   tmp[0]=const_cast<MEDCoupling1DGTUMesh *>(mesh1); tmp[1]=const_cast<MEDCoupling1DGTUMesh *>(mesh2);
   return Merge1DGTUMeshes(tmp);
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(std::vector<const MEDCoupling1DGTUMesh *>& a)
 {
   std::size_t sz=a.size();
   if(sz==0)
@@ -3074,7 +3074,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(std::vector<const M
  * \throw If presence of a null instance in the input vector \a a.
  * \throw If a is empty
  */
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::vector<const MEDCoupling1DGTUMesh *>& a)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : input array must be NON EMPTY !");
@@ -3112,7 +3112,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::ve
 /*!
  * Assume that all instances in \a a are non null. If null it leads to a crash. That's why this method is assigned to be low level (LL)
  */
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshes : input array must be NON EMPTY !");
@@ -3148,7 +3148,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const
   return ret.retn();
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDim) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName().c_str(),*_cm));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1,tmp2;
@@ -3226,7 +3226,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::getBoundingBoxForBBTree() const
   return ret.retn();
 }
 
-std::vector<int> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::vector< std::vector<int> >& parts) throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::vector< std::vector<int> >& parts)
 {
   std::vector<int> ret;
   if(parts.empty())
@@ -3262,7 +3262,7 @@ std::vector<int> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::vector<
  * \throw If presence of null pointer in \a nodalConns.
  * \throw If presence of not allocated or array with not exactly one component in \a nodalConns.
  */
-DataArrayInt *MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(const std::vector<const DataArrayInt *>& nodalConns, const std::vector<int>& offsetInNodeIdsPerElt) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(const std::vector<const DataArrayInt *>& nodalConns, const std::vector<int>& offsetInNodeIdsPerElt)
 {
   std::size_t sz1(nodalConns.size()),sz2(offsetInNodeIdsPerElt.size());
   if(sz1!=sz2)
@@ -3299,7 +3299,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(const std:
   return ret.retn();
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const MEDCouplingUMesh *m)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::New : input mesh is null !");

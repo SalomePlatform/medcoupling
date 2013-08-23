@@ -66,46 +66,46 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCpy() const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMeshType getType() const = 0;
     MEDCOUPLING_EXPORT bool isStructured() const;
-    MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingMesh *other);
+    MEDCOUPLING_EXPORT virtual void copyTinyInfoFrom(const MEDCouplingMesh *other);
     // comparison methods
-    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
+    MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const = 0;
     MEDCOUPLING_EXPORT virtual void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                          DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception) = 0;
     MEDCOUPLING_EXPORT virtual void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                                     DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
                                                 DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     //
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkCoherency1(double eps=1e-12) const = 0;
+    MEDCOUPLING_EXPORT virtual void checkCoherency2(double eps=1e-12) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfCells() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDCOUPLING_EXPORT virtual int getSpaceDimension() const = 0;
     MEDCOUPLING_EXPORT virtual int getMeshDimension() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *computeEffectiveNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfFacesPerCell() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfNodesPerCell() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *computeEffectiveNbOfNodesPerCell() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfFacesPerCell() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     MEDCOUPLING_EXPORT virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
     MEDCOUPLING_EXPORT virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
     MEDCOUPLING_EXPORT virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
-    MEDCOUPLING_EXPORT virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
     MEDCOUPLING_EXPORT virtual std::string simpleRepr() const = 0;
     MEDCOUPLING_EXPORT virtual std::string advancedRepr() const = 0;
     // tools
-    MEDCOUPLING_EXPORT virtual std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual std::vector<int> getDistributionOfTypes() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const = 0;
+    MEDCOUPLING_EXPORT virtual void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const = 0;
     MEDCOUPLING_EXPORT virtual void getBoundingBox(double *bbox) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
@@ -120,39 +120,39 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void rotate(const double *center, const double *vector, double angle) = 0;
     MEDCOUPLING_EXPORT virtual void translate(const double *vector) = 0;
     MEDCOUPLING_EXPORT virtual void scale(const double *point, double factor) = 0;
-    MEDCOUPLING_EXPORT virtual void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void renumberCells(const int *old2NewBg, bool check=true) = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPart(const int *start, const int *end) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const = 0;
-    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingUMesh *buildUnstructured() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *simplexize(int policy) = 0;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
-    MEDCOUPLING_EXPORT static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static MEDCouplingMesh *MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static bool IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static bool IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static INTERP_KERNEL::NormalizedCellType GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static int GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static int GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static const char *GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
+    MEDCOUPLING_EXPORT static MEDCouplingMesh *MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes);
+    MEDCOUPLING_EXPORT static bool IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static bool IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static INTERP_KERNEL::NormalizedCellType GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static int GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static int GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static const char *GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type);
     //serialisation-unserialization
     MEDCOUPLING_EXPORT virtual void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const = 0;
     MEDCOUPLING_EXPORT virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const = 0;
     MEDCOUPLING_EXPORT virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
     MEDCOUPLING_EXPORT virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                                     const std::vector<std::string>& littleStrings) = 0;
-    MEDCOUPLING_EXPORT void writeVTK(const char *fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void writeVTK(const char *fileName, bool isBinary=true) const;
     /// @cond INTERNAL
-    MEDCOUPLING_EXPORT void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const;
     /// @endcond
-    MEDCOUPLING_EXPORT virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const throw(INTERP_KERNEL::Exception) = 0;
-    MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const = 0;
+    MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;
   protected:
     MEDCOUPLING_EXPORT MEDCouplingMesh();
     MEDCOUPLING_EXPORT MEDCouplingMesh(const MEDCouplingMesh& other);
-    MEDCOUPLING_EXPORT virtual std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDCOUPLING_EXPORT virtual std::string getVTKDataSetType() const = 0;
     MEDCOUPLING_EXPORT virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;

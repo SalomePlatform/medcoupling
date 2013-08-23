@@ -27,7 +27,7 @@ using namespace ParaMEDMEM;
 
 const double MEDCouplingDefinitionTime::EPS_DFT=1e-15;
 
-MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCouplingFieldDouble *f, int meshId, const std::vector<int>& arrId, int fieldId) throw(INTERP_KERNEL::Exception)
+MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCouplingFieldDouble *f, int meshId, const std::vector<int>& arrId, int fieldId)
 {
   static const char msg[]="TimeSlice::New : mismatch of arrays number of a fieldDouble and its policy !!! Internal error !!!";
   if(!f)
@@ -59,7 +59,7 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCou
     }
 }
 
-MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(TypeOfTimeDiscretization type, const std::vector<int>& tiI, const std::vector<double>& tiD) throw(INTERP_KERNEL::Exception)
+MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(TypeOfTimeDiscretization type, const std::vector<int>& tiI, const std::vector<double>& tiD)
 {
   switch(type)
     {
@@ -100,7 +100,7 @@ void MEDCouplingDefinitionTimeSlice::appendRepr(std::ostream& stream) const
   stream << " *** MeshId : " << _mesh_id << " ArrayId : " << _array_id;
 }
 
-MEDCouplingDefinitionTimeSlice::MEDCouplingDefinitionTimeSlice(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId) throw(INTERP_KERNEL::Exception):_mesh_id(meshId),_array_id(arrId),_field_id(fieldId)
+MEDCouplingDefinitionTimeSlice::MEDCouplingDefinitionTimeSlice(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId):_mesh_id(meshId),_array_id(arrId),_field_id(fieldId)
 {
   int tmp1,tmp2;
   double t1=f->getStartTime(tmp1,tmp2);
@@ -200,7 +200,7 @@ void MEDCouplingDefinitionTimeSliceInst::getHotSpotsTime(std::vector<double>& re
   ret[0]=_instant;
 }
 
-void MEDCouplingDefinitionTimeSliceInst::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingDefinitionTimeSliceInst::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   meshId=_mesh_id;
   arrId=_array_id;
@@ -229,7 +229,7 @@ double MEDCouplingDefinitionTimeSliceInst::getEndTime() const
   return _instant;
 }
 
-MEDCouplingDefinitionTimeSliceInst::MEDCouplingDefinitionTimeSliceInst(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId) throw(INTERP_KERNEL::Exception):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId)
+MEDCouplingDefinitionTimeSliceInst::MEDCouplingDefinitionTimeSliceInst(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId)
 {
   int tmp1,tmp2;
   double t1=f->getStartTime(tmp1,tmp2);
@@ -270,7 +270,7 @@ void MEDCouplingDefinitionTimeSliceCstOnTI::getHotSpotsTime(std::vector<double>&
   ret[0]=(_start+_end)/2.;
 }
 
-void MEDCouplingDefinitionTimeSliceCstOnTI::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingDefinitionTimeSliceCstOnTI::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   meshId=_mesh_id;
   arrId=_array_id;
@@ -318,7 +318,7 @@ TypeOfTimeDiscretization MEDCouplingDefinitionTimeSliceCstOnTI::getTimeType() co
   return CONST_ON_TIME_INTERVAL;
 }
 
-MEDCouplingDefinitionTimeSliceCstOnTI::MEDCouplingDefinitionTimeSliceCstOnTI(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId) throw(INTERP_KERNEL::Exception):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId)
+MEDCouplingDefinitionTimeSliceCstOnTI::MEDCouplingDefinitionTimeSliceCstOnTI(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId)
 {
   int tmp1,tmp2;
   double t1=f->getStartTime(tmp1,tmp2);
@@ -360,7 +360,7 @@ void MEDCouplingDefinitionTimeSliceLT::getHotSpotsTime(std::vector<double>& ret)
   ret[1]=_end;
 }
 
-void MEDCouplingDefinitionTimeSliceLT::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingDefinitionTimeSliceLT::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   if(fabs(tm-_start)<eps)
     {
@@ -427,7 +427,7 @@ TypeOfTimeDiscretization MEDCouplingDefinitionTimeSliceLT::getTimeType() const
   return LINEAR_TIME;
 }
 
-MEDCouplingDefinitionTimeSliceLT::MEDCouplingDefinitionTimeSliceLT(const MEDCouplingFieldDouble *f, int meshId, int arrId, int arr2Id, int fieldId) throw(INTERP_KERNEL::Exception):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId),_array_id_end(arr2Id)
+MEDCouplingDefinitionTimeSliceLT::MEDCouplingDefinitionTimeSliceLT(const MEDCouplingFieldDouble *f, int meshId, int arrId, int arr2Id, int fieldId):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId),_array_id_end(arr2Id)
 {
   int tmp1,tmp2;
   double t1=f->getStartTime(tmp1,tmp2);
@@ -440,7 +440,7 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime():_eps(EPS_DFT)
 {
 }
 
-MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MEDCouplingFieldDouble *>& fs, const std::vector<int>& meshRefs, const std::vector<std::vector<int> >& arrRefs) throw(INTERP_KERNEL::Exception)
+MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MEDCouplingFieldDouble *>& fs, const std::vector<int>& meshRefs, const std::vector<std::vector<int> >& arrRefs)
 {
   std::size_t sz=fs.size();
   if(sz!=arrRefs.size())
@@ -498,7 +498,7 @@ bool MEDCouplingDefinitionTime::isEqual(const MEDCouplingDefinitionTime& other) 
   return true;
 }
 
-void MEDCouplingDefinitionTime::getIdsOnTimeRight(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingDefinitionTime::getIdsOnTimeRight(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   std::vector<int> meshIds;
   std::vector<int> arrIds;
@@ -511,7 +511,7 @@ void MEDCouplingDefinitionTime::getIdsOnTimeRight(double tm, int& meshId, int& a
   fieldId=fieldIds.back();
 }
 
-void MEDCouplingDefinitionTime::getIdsOnTimeLeft(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingDefinitionTime::getIdsOnTimeLeft(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   std::vector<int> meshIds;
   std::vector<int> arrIds;
@@ -524,7 +524,7 @@ void MEDCouplingDefinitionTime::getIdsOnTimeLeft(double tm, int& meshId, int& ar
   fieldId=fieldIds.front();
 }
 
-void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshIds, std::vector<int>& arrIds, std::vector<int>& arrIdsInField, std::vector<int>& fieldIds) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshIds, std::vector<int>& arrIds, std::vector<int>& arrIdsInField, std::vector<int>& fieldIds) const
 {
   std::vector<int> ids;
   int id=0;
