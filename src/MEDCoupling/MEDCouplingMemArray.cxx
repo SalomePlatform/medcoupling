@@ -9063,7 +9063,7 @@ void DataArrayInt::applyPow(int val) throw(INTERP_KERNEL::Exception)
   std::size_t nbOfElems=getNbOfElems();
   if(val==0)
     {
-      std::fill(ptr,ptr+nbOfElems,1.);
+      std::fill(ptr,ptr+nbOfElems,1);
       return ;
     }
   for(std::size_t i=0;i<nbOfElems;i++,ptr++)
