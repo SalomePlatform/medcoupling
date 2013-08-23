@@ -38,8 +38,7 @@ using namespace INTERP_KERNEL;
  * It retrieves the same cell with a potentially different type (in return) whose connectivity is defined by (retConn,retLgth)
  * \b WARNING for optimization reason the arrays 'retConn' and 'conn' can overlapped !
  */
-INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
-                                                                        int *retConn, int& retLgth) throw(INTERP_KERNEL::Exception)
+INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth, int *retConn, int& retLgth)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   std::set<int> c(conn,conn+lgth);

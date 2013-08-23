@@ -30,8 +30,7 @@ namespace INTERP_KERNEL
   class INTERPKERNEL_EXPORT CellSimplify
   {
   public:
-    static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
-                                                                     int *retConn, int& retLgth) throw(INTERP_KERNEL::Exception);
+    static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth, int *retConn, int& retLgth);
     static int *getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
                                    int& retNbOfFaces, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(bool isQuad, const int *conn, int lgth, int *retConn, int& retLgth);

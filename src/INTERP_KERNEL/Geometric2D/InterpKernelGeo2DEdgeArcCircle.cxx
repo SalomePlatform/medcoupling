@@ -452,7 +452,7 @@ void EdgeArcCircle::unApplySimilarity(double xBary, double yBary, double dimChar
 void EdgeArcCircle::tesselate(const int *conn, int offset, double eps, std::vector<int>& newConn, std::vector<double>& addCoo) const
 {
   newConn.push_back(INTERP_KERNEL::NORM_POLYL);
-  int nbOfSubDiv=fabs(_angle)/eps;
+  int nbOfSubDiv=(int)(fabs(_angle)/eps);
   if(nbOfSubDiv<=2)
     {
       newConn.push_back(conn[0]); newConn.push_back(conn[2]); newConn.push_back(conn[1]);

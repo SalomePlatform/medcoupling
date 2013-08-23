@@ -56,24 +56,6 @@ namespace INTERP_KERNEL
   }
 
   template<class TrueMainInterpolator>
-  void Interpolation<TrueMainInterpolator>::CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth)
-  {
-    const int NB_OF_METH_MANAGED=4;
-    const char *METH_MANAGED[NB_OF_METH_MANAGED]={"P0P0","P0P1","P1P0","P1P1"};
-    std::string methodC(method);
-    bool found=false;
-    for(int i=0;i<NB_OF_METH_MANAGED && !found;i++)
-      found=(methodC==METH_MANAGED[i]);
-    if(!found)
-      {
-        std::string msg("The interpolation method : \'"); msg+=method; msg+="\' not managed by INTERP_KERNEL interpolators ! Supported are \"P0P0\", \"P0P1\", \"P1P0\" and \"P1P1\".";
-        throw INTERP_KERNEL::Exception(msg.c_str());
-      }
-    srcMeth=methodC.substr(0,2);
-    trgMeth=methodC.substr(2);
-  }
-
-  template<class TrueMainInterpolator>
   template<class MyMeshType>
   double Interpolation<TrueMainInterpolator>::CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel)
   {
