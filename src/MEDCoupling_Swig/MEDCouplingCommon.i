@@ -1127,8 +1127,9 @@ namespace ParaMEDMEM
     static std::string GetAllPossibilitiesStr();
   };
 }
-//
-%include "MEDCouplingTimeDiscretization.hxx"
+
+// the MEDCouplingTimeDiscretization classes are not swigged : in case the file can help
+// include "MEDCouplingTimeDiscretization.i"
 
 namespace ParaMEDMEM
 {
