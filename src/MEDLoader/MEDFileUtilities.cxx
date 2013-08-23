@@ -23,7 +23,7 @@
 
 #include <sstream>
 
-med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode) throw(INTERP_KERNEL::Exception)
+med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
 {
   switch(medloaderwritemode)
     {
@@ -38,7 +38,7 @@ med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode) throw
     }
 }
 
-const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception)
+const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
 {
   static const char medFloat64[]="MED_FLOAT64";
   static const char medInt32[]="MED_INT32";
@@ -56,7 +56,7 @@ const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft) throw(I
     }
 }
 
-void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception)
+void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg)
 {
   if(code<0)
     {
@@ -66,7 +66,7 @@ void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg) thro
     }
 }
 
-void MEDFileUtilities::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception)
+void MEDFileUtilities::CheckFileForRead(const char *fileName)
 {
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   std::ostringstream oss;
@@ -129,24 +129,24 @@ void ParaMEDMEM::MEDFileWritable::copyOptionsFrom(const MEDFileWritable& other) 
   _zipconn_pol=other._zipconn_pol;
 }
 
-int ParaMEDMEM::MEDFileWritable::getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception)
+int ParaMEDMEM::MEDFileWritable::getTooLongStrPolicy() const
 {
   return _too_long_str;
 }
 
-void ParaMEDMEM::MEDFileWritable::setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception)
+void ParaMEDMEM::MEDFileWritable::setTooLongStrPolicy(int newVal)
 {
   if(newVal!=2 && newVal!=1 && newVal!=0)
     throw INTERP_KERNEL::Exception("MEDFileWritable::setTooLongStrPolicy : invalid policy should be in 0,1 or 2 !");
   _too_long_str=newVal;
 }
 
-int ParaMEDMEM::MEDFileWritable::getZipConnPolicy() throw(INTERP_KERNEL::Exception)
+int ParaMEDMEM::MEDFileWritable::getZipConnPolicy()
 {
   return _zipconn_pol;
 }
 
-void ParaMEDMEM::MEDFileWritable::setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception)
+void ParaMEDMEM::MEDFileWritable::setZipConnPolicy(int newVal)
 {
   _zipconn_pol=newVal;
 }

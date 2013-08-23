@@ -31,14 +31,14 @@ class MEDLOADER_EXPORT MEDLoaderBase
 public:
   static int getStatusOfFile(const char *fileName);
   static char *buildEmptyString(int lgth);
-  static void getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName) throw(INTERP_KERNEL::Exception);
-  static std::string getPathSep() throw(INTERP_KERNEL::Exception);
-  static std::string joinPath(const std::string& dirName, const std::string& baseName) throw(INTERP_KERNEL::Exception);
+  static void getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName);
+  static std::string getPathSep();
+  static std::string joinPath(const std::string& dirName, const std::string& baseName);
   static std::string buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth);
   static void splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit);
   static void strip(std::string& s);
-  static void safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception);
-  static void safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception);
+  static void safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour);
+  static void safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour);
   static std::string buildStringFromFortran(const char *expr, int lgth);
   static void zipEqualConsChar(std::string& s, int minConsSmChar);
   static std::string zipString(const char *src, int sizeToRespect);

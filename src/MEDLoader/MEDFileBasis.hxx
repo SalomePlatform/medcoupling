@@ -33,7 +33,7 @@ namespace ParaMEDMEM
   public:
     MEDFileString(int maxLgth);
     ~MEDFileString();
-    void set(const char *s) throw(INTERP_KERNEL::Exception);
+    void set(const char *s);
     char *getPointer() { return _content; }
     const char *getReprForWrite() const { return _content; }
     std::string getRepr() const;

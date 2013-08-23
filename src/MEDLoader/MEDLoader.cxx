@@ -285,7 +285,7 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
 /*!
  * This method sets the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
  */
-void MEDLoader::SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception)
+void MEDLoader::SetEpsilonForNodeComp(double val)
 {
   _EPS_FOR_NODE_COMP=val;
 }
@@ -293,7 +293,7 @@ void MEDLoader::SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception
 /*!
  * This method sets the policy comparison when trying to fit the already written mesh on a field. The semantic of the policy is specified in MEDCouplingUMesh::zipConnectivityTraducer.
  */
-void MEDLoader::SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception)
+void MEDLoader::SetCompPolicyForCell(int val)
 {
   _COMP_FOR_CELL=val;
 }
@@ -302,7 +302,7 @@ void MEDLoader::SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception)
  * This method set the behaviour of MEDLoader when a too long string is seen in datastructure before copy it in MED file.
  * By default (0) an exception is thrown. If equal to 1 a warning is emitted in std_err but no exception is thrown.
  */
-void MEDLoader::SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception)
+void MEDLoader::SetTooLongStrPolicy(int val)
 {
   _TOO_LONG_STR=val;
 }
@@ -315,7 +315,7 @@ void MEDLoader::SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception)
  * - the space dimension
  * - the number of nodes
  */
-std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDLoader::GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes) throw(INTERP_KERNEL::Exception)
+std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDLoader::GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -373,12 +373,12 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   return ret;
 }
 
-void MEDLoader::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception)
+void MEDLoader::CheckFileForRead(const char *fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
 }
 
-std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -386,7 +386,7 @@ std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INT
   return ret;
 }
 
-std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesOfField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesOfField(const char *fileName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -422,7 +422,7 @@ std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesO
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
@@ -451,7 +451,7 @@ std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, co
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -475,7 +475,7 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, c
 }
 
 
-std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *fileName, const char *meshName, const char *grpName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *fileName, const char *meshName, const char *grpName)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -503,7 +503,7 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *file
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileName, const char *meshName, const char *famName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileName, const char *meshName, const char *famName)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -540,7 +540,7 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileN
 }
 
   
-std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -566,7 +566,7 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, con
     }
   return ret;
 }
-std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const char *fileName, const char *meshName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   std::vector<ParaMEDMEM::TypeOfField> ret;
@@ -636,7 +636,7 @@ std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const char *file
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetAllFieldNames(const char *fileName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetAllFieldNames(const char *fileName)
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
@@ -659,7 +659,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNames(const char *fileName) throw
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
@@ -690,7 +690,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const char *fileName,
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   switch(type)
@@ -704,7 +704,7 @@ std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField 
     } 
 }
 
-std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
@@ -754,7 +754,7 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   std::vector<std::string> ret;
@@ -795,7 +795,7 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
   return ret;
 }
 
-std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIterations(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIterations(const char *fileName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   std::vector< std::pair< std::pair<int,int>, double > > ret;
@@ -838,7 +838,7 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -886,7 +886,7 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const ch
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   switch(type)
@@ -900,7 +900,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::Type
     }
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *fileName, const char *meshName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
@@ -972,7 +972,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *fileName, const char *meshName, const char *fieldName)
 {
   CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
@@ -1037,7 +1037,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
   return ret;
 }
 
-MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1051,7 +1051,7 @@ MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char 
  return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName);
@@ -1065,14 +1065,14 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName,
  return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
-int MEDLoader::ReadUMeshDimFromFile(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+int MEDLoader::ReadUMeshDimFromFile(const char *fileName, const char *meshName)
 {
   CheckFileForRead(fileName);
   std::vector<int> poss;
   return MEDLoaderNS::readUMeshDimFromFile(fileName,meshName,poss);
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1086,7 +1086,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileN
     return mmuPtr->getFamilies(meshDimRelToMax,fams,true);
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1100,7 +1100,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileNam
     return mmuPtr->getGroups(meshDimRelToMax,grps,true);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
 {
   CheckFileForRead(fileName);
   switch(type)
@@ -1179,7 +1179,7 @@ std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOn
   return ReadFieldsOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1196,7 +1196,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const char *fileNam
   return ret.retn();
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1238,7 +1238,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const char *fileNam
   return ret.retn();
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1255,7 +1255,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const char *fileNa
   return ret.retn();
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1272,7 +1272,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const char *file
   return ret.retn();
 }
 
-void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteUMesh : input mesh is null !");
@@ -1283,12 +1283,12 @@ void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUM
   m->write(fileName,mod);
 }
 
-void MEDLoader::WriteUMeshDep(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteUMeshDep(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   MEDLoader::WriteUMesh(fileName,mesh,writeFromScratch);
 }
 
-void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshNameC, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshNameC, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   std::string meshName(meshNameC);
   if(meshName.empty())
@@ -1306,12 +1306,12 @@ void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshName
   m->write(fileName,mod);
 }
 
-void MEDLoader::WriteUMeshesPartitionDep(const char *fileName, const char *meshNameC, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteUMeshesPartitionDep(const char *fileName, const char *meshNameC, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   WriteUMeshesPartition(fileName,meshNameC,meshes,writeFromScratch);
 }
 
-void MEDLoader::WriteUMeshes(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteUMeshes(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   int mod=writeFromScratch?2:0;
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m=MEDFileUMesh::New();
@@ -1343,7 +1343,7 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const char *fil
   ff->write(fileName,0);
 }
 
-void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   if(!f)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteField : input field is NULL !");
@@ -1427,12 +1427,12 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
     }
 }
 
-void MEDLoader::WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   WriteField(fileName,f,writeFromScratch);
 }
 
-void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
   if(!f)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteFieldUsingAlreadyWrittenMesh : input field is null !");

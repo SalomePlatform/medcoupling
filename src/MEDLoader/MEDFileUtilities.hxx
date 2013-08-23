@@ -28,10 +28,10 @@
 
 namespace MEDFileUtilities
 {
-  med_access_mode TraduceWriteMode(int medloaderwritemode) throw(INTERP_KERNEL::Exception);
-  const char *GetReadableMEDFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception);
-  void CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception);
-  void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
+  med_access_mode TraduceWriteMode(int medloaderwritemode);
+  const char *GetReadableMEDFieldType(med_field_type ft);
+  void CheckMEDCode(int code, med_idt fid, const char *msg);
+  void CheckFileForRead(const char *fileName);
 
   class AutoFid
   {
@@ -51,10 +51,10 @@ namespace ParaMEDMEM
   public:
     MEDFileWritable();
     void copyOptionsFrom(const MEDFileWritable& other) const;
-    int getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception);
-    void setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception);
-    int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
-    void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+    int getTooLongStrPolicy() const;
+    void setTooLongStrPolicy(int newVal);
+    int getZipConnPolicy();
+    void setZipConnPolicy(int newVal);
   protected://policies on write
     mutable int _too_long_str;
     mutable int _zipconn_pol;

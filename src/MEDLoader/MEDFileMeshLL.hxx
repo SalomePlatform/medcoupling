@@ -51,9 +51,9 @@ namespace ParaMEDMEM
     int getIteration() const { return _iteration; }
     int getOrder() const { return _order; }
     double getTime() { return _time; }
-    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim) throw(INTERP_KERNEL::Exception);
-    static int GetMeshIdFromName(med_idt fid, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1) throw(INTERP_KERNEL::Exception);
-    static double CheckMeshTimeStep(med_idt fid, const char *mname, int nstep, int dt, int it) throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim);
+    static int GetMeshIdFromName(med_idt fid, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1);
+    static double CheckMeshTimeStep(med_idt fid, const char *mname, int nstep, int dt, int it);
     static void ReadFamiliesAndGrps(med_idt fid, const char *mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
     static void WriteFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
   protected:
@@ -72,7 +72,7 @@ namespace ParaMEDMEM
     MEDFileUMeshL2();
     void loadAll(med_idt fid, int mId, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadConnectivity(med_idt fid, int mdim, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs);
-    void loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    void loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const char *mName, int dt, int it);
     int getNumberOfLevels() const { return _per_type_mesh.size(); }
     bool emptyLev(int levId) const { return _per_type_mesh[levId].empty(); }
     const std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >& getLev(int levId) const { return _per_type_mesh[levId]; }
@@ -102,10 +102,10 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileCMeshL2();
-    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it);
     MEDCouplingCMesh *getMesh() { return _cmesh; }
   private:
-    static med_data_type GetDataTypeCorrespondingToSpaceId(int id) throw(INTERP_KERNEL::Exception);
+    static med_data_type GetDataTypeCorrespondingToSpaceId(int id);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
   };
@@ -114,7 +114,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileCLMeshL2();
-    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it);
     MEDCouplingCurveLinearMesh *getMesh() { return _clmesh; }
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> _clmesh;
@@ -145,8 +145,8 @@ namespace ParaMEDMEM
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
-    std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const throw(INTERP_KERNEL::Exception);
-    MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
+    std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const;
+    MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
@@ -156,9 +156,9 @@ namespace ParaMEDMEM
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     bool empty() const;
     int getMeshDimension() const;
-    std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception);
-    int getSize() const throw(INTERP_KERNEL::Exception);
-    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+    std::vector<int> getDistributionOfTypes() const;
+    int getSize() const;
+    void setCoords(DataArrayDouble *coords);
   private:
     void forceComputationOfPartsFromUMesh() const;
     std::size_t getTimeOfParts() const;
@@ -181,23 +181,23 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDFileUMeshSplitL1 *deepCpy(DataArrayDouble *coords) const;
-    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+    void setCoords(DataArrayDouble *coords);
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
-    void assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
+    void assignMesh(MEDCouplingUMesh *m, bool newOrOld);
     bool empty() const;
     bool presenceOfOneFams(const std::vector<int>& ids) const;
     int getMeshDimension() const;
     void simpleRepr(std::ostream& oss) const;
-    int getSize() const throw(INTERP_KERNEL::Exception);
+    int getSize() const;
     MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
-    std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const throw(INTERP_KERNEL::Exception) { return _m_by_types.getPartsWithoutComputation(); }
-    MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception) { return _m_by_types.getPartWithoutComputation(gt); }
-    std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception) { return _m_by_types.getDistributionOfTypes(); }
-    DataArrayInt *getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception);
+    std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.getPartsWithoutComputation(); }
+    MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.getPartWithoutComputation(gt); }
+    std::vector<int> getDistributionOfTypes() const { return _m_by_types.getDistributionOfTypes(); }
+    DataArrayInt *getOrCreateAndGetFamilyField();
     const DataArrayInt *getFamilyField() const;
     const DataArrayInt *getNumberField() const;
     const DataArrayAsciiChar *getNameField() const;
@@ -210,9 +210,9 @@ namespace ParaMEDMEM
     void setFamilyArr(DataArrayInt *famArr);
     void setRenumArr(DataArrayInt *renumArr);
     void setNameArr(DataArrayAsciiChar *nameArr);
-    void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
+    void changeFamilyIdArr(int oldId, int newId);
     //
-    void renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception);
+    void renumberNodesInConn(const int *newNodeNumbersO2N);
     //
     static void ClearNonDiscrAttributes(const MEDCouplingMesh *tmp);
     static std::vector<int> GetNewFamiliesNumber(int nb, const std::map<std::string,int>& families);

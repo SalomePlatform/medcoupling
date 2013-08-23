@@ -60,7 +60,7 @@ MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
     _geo_types_distrib[-(*lev)]=mesh->getDistributionOfTypes(*lev);
 }
 
-int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception)
+int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
 {
   int j=0;
   for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++,j--)
@@ -76,7 +76,7 @@ int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) co
   throw INTERP_KERNEL::Exception("MEDFileMeshStruct::getLevelOfGeoType : The specified geometric type is not present in the mesh structure !");
 }
 
-int MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception)
+int MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
 {
   for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
     {
@@ -96,7 +96,7 @@ int MEDFileMeshStruct::getNumberOfLevs() const
   return (int)_geo_types_distrib.size();
 }
 
-int MEDFileMeshStruct::getNumberOfGeoTypesInLev(int relativeLev) const throw(INTERP_KERNEL::Exception)
+int MEDFileMeshStruct::getNumberOfGeoTypesInLev(int relativeLev) const
 {
   int pos(-relativeLev);
   if(pos<0 || pos>=_geo_types_distrib.size())
@@ -119,7 +119,7 @@ std::vector<const BigMemoryObject *> MEDMeshMultiLev::getDirectChildren() const
   return std::vector<const BigMemoryObject *>();
 }
 
-MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<int>& levs)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New : null input pointer !");
@@ -135,7 +135,7 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<in
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New : unrecognized type of mesh ! Must be in [MEDFileUMesh,MEDFileCMesh,MEDFileCurveLinearMesh] !");
 }
 
-MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New 2 : null input pointer !");
@@ -151,7 +151,7 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<IN
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::New 2 : unrecognized type of mesh ! Must be in [MEDFileUMesh,MEDFileCMesh,MEDFileCurveLinearMesh] !");
 }
 
-MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode) throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode)
 {
   std::vector<int> levs(1,0);
   MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,levs));
@@ -166,7 +166,7 @@ void MEDMeshMultiLev::setNodeReduction(const DataArrayInt *nr)
   _node_reduction=const_cast<DataArrayInt*>(nr);
 }
 
-bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const
 {
   if(fst.getType()==ON_NODES)
     {
@@ -197,7 +197,7 @@ bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst
     }
 }
 
-DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception)
+DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArray> ret(const_cast<DataArray *>(vals)); ret->incrRef();
   if(isFastlyTheSameStruct(fst,globs))
@@ -221,7 +221,7 @@ std::string MEDMeshMultiLev::getPflNameOfId(int id) const
  * Returns the number of cells having geometric type \a t.
  * The profiles are **NOT** taken into account here.
  */
-int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const throw(INTERP_KERNEL::Exception)
+int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const
 {
   std::size_t sz(_nb_entities.size());
   for(std::size_t i=0;i<sz;i++)
@@ -230,12 +230,12 @@ int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : not existing geometric type in this !");
 }
 
-int MEDMeshMultiLev::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
+int MEDMeshMultiLev::getNumberOfNodes() const
 {
   return _nb_nodes;
 }
 
-DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception)
+DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const
 {
   if(fst.getType()==ON_NODES)
     {
@@ -406,7 +406,7 @@ MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):_pfls(other._pfls
 
 //=
 
-MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
+MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<int>& levs)
 {
   return new MEDUMeshMultiLev(m,levs);
 }
@@ -437,7 +437,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
     }
 }
 
-MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception)
+MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
 {
   return new MEDUMeshMultiLev(m,gts,pfls,nbEntities);
 }
@@ -455,7 +455,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
     }
 }
 
-void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception)
+void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
 {
    if(!pflNodes || !pflNodes->isAllocated())
      return ;
@@ -486,7 +486,7 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INT
    _node_reduction=_node_reduction->buildUnique();
 }
 
-MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const
 {
   return new MEDUMeshMultiLev(*this);
 }
@@ -504,7 +504,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
   _pfls.resize(1); _pfls[0]=0;
 }
 
-void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const throw(INTERP_KERNEL::Exception)
+void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const
 {
   if(_parts.empty())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : empty array !");
@@ -645,7 +645,7 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
     { faceLocations=e.retn(); faces=f.retn(); }
 }
 
-void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const throw(INTERP_KERNEL::Exception)
+void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
 {
   const DataArrayInt *nr(_node_reduction);
   if(!nr)
@@ -730,7 +730,7 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(int nbOfNodes, const std::v
 {
 }
 
-void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes) throw(INTERP_KERNEL::Exception)
+void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
 {
   if(!pflNodes || !pflNodes->isAllocated())
     return ;
@@ -761,12 +761,12 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMult
 
 //=
 
-MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
+MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<int>& levs)
 {
   return new MEDCMeshMultiLev(m,levs);
 }
 
-MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception)
+MEDCMeshMultiLev *MEDCMeshMultiLev::New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
 {
   return new MEDCMeshMultiLev(m,gts,pfls,nbEntities);
 }
@@ -812,7 +812,7 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDCMeshMultiLev& other):MEDStructuredM
 {
 }
 
-std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const
 {
   std::vector<int> ret(_coords.size());
   for(std::size_t i=0;i<_coords.size();i++)
@@ -820,7 +820,7 @@ std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const throw(INTERP_KER
   return ret;
 }
 
-MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
 {
   const DataArrayInt *pfl(_pfls[0]),*nr(_node_reduction);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
@@ -865,7 +865,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exceptio
     }
 }
 
-std::vector< DataArrayDouble * > MEDCMeshMultiLev::buildVTUArrays() const throw(INTERP_KERNEL::Exception)
+std::vector< DataArrayDouble * > MEDCMeshMultiLev::buildVTUArrays() const
 {
   std::size_t sz(_coords.size());
   std::vector< DataArrayDouble * > ret(sz);
@@ -879,12 +879,12 @@ std::vector< DataArrayDouble * > MEDCMeshMultiLev::buildVTUArrays() const throw(
 
 //=
 
-MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception)
+MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs)
 {
   return new MEDCurveLinearMeshMultiLev(m,levs);
 }
 
-MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities) throw(INTERP_KERNEL::Exception)
+MEDCurveLinearMeshMultiLev *MEDCurveLinearMeshMultiLev::New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities)
 {
   return new MEDCurveLinearMeshMultiLev(m,gts,pfls,nbEntities);
 }
@@ -924,12 +924,12 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshM
 {
 }
 
-std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const
 {
   return _structure;
 }
 
-MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
 {
   const DataArrayInt *pfl(_pfls[0]),*nr(_node_reduction);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
@@ -979,7 +979,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const throw(INTERP_KERNEL
     }
 }
 
-void MEDCurveLinearMeshMultiLev::buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const throw(INTERP_KERNEL::Exception)
+void MEDCurveLinearMeshMultiLev::buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const
 {
   nodeStrct=_structure;
   const DataArrayDouble *coo(_coords);
@@ -999,20 +999,20 @@ MEDFileField1TSStructItem2::MEDFileField1TSStructItem2(INTERP_KERNEL::Normalized
   _pfl->setName(c.c_str());
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   checkInRange(nbOfEnt,1,globs);
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   checkInRange(nbOfEnt,(int)cm.getNumberOfNodes(),globs);
 }
 
-void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
   if(!globs)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkWithMeshStructForGaussPT : no globals specified !");
@@ -1061,7 +1061,7 @@ const DataArrayInt *MEDFileField1TSStructItem2::getPfl(const MEDFileFieldGlobsRe
  * \param [in] nbOfEntity - number of entity that can be either cells or nodes. Not other possiblity.
  * \param [in] nip - number of integration points. 1 for ON_CELLS and NO_NODES
  */
-void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs)
 {
   _nb_of_entity=nbOfEntity;
   if(_pfl->getName().empty())
@@ -1100,7 +1100,7 @@ bool MEDFileField1TSStructItem2::operator==(const MEDFileField1TSStructItem2& ot
   return _geo_type==other._geo_type && _start_end==other._start_end && _pfl->getName()==other._pfl->getName();
 }
 
-bool MEDFileField1TSStructItem2::isCellSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem2::isCellSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const
 {
   if(_geo_type!=other._geo_type)
     return false;
@@ -1114,7 +1114,7 @@ bool MEDFileField1TSStructItem2::isCellSupportEqual(const MEDFileField1TSStructI
   return pfl1->isEqualWithoutConsideringStr(*pfl2);
 }
 
-bool MEDFileField1TSStructItem2::isNodeSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem2::isNodeSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const
 {
   return isCellSupportEqual(other,globs);
 }
@@ -1122,7 +1122,7 @@ bool MEDFileField1TSStructItem2::isNodeSupportEqual(const MEDFileField1TSStructI
 /*!
  * \a objs must be non empty. \a objs should contain items having same geometric type.
  */
-MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const std::vector<const MEDFileField1TSStructItem2 *>& objs, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const std::vector<const MEDFileField1TSStructItem2 *>& objs, const MEDFileFieldGlobsReal *globs)
 {
   if(objs.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : empty input !");
@@ -1190,7 +1190,7 @@ MEDFileField1TSStructItem::MEDFileField1TSStructItem(TypeOfField a, const std::v
 {
 }
 
-void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
   switch(_type)
     {
@@ -1237,7 +1237,7 @@ bool MEDFileField1TSStructItem::operator==(const MEDFileField1TSStructItem& othe
   return true;
 }
 
-bool MEDFileField1TSStructItem::isCellSupportEqual(const MEDFileField1TSStructItem& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::isCellSupportEqual(const MEDFileField1TSStructItem& other, const MEDFileFieldGlobsReal *globs) const
 {
   if(_type!=other._type)
     return false;
@@ -1249,7 +1249,7 @@ bool MEDFileField1TSStructItem::isCellSupportEqual(const MEDFileField1TSStructIt
   return true;
 }
 
-bool MEDFileField1TSStructItem::isNodeSupportEqual(const MEDFileField1TSStructItem& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::isNodeSupportEqual(const MEDFileField1TSStructItem& other, const MEDFileFieldGlobsReal *globs) const
 {
   if(_type!=other._type)
     return false;
@@ -1278,7 +1278,7 @@ private:
   INTERP_KERNEL::NormalizedCellType _geo_type;
 };
 
-MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(const MEDFileFieldGlobsReal *globs) const
 {
   if(!isEntityCell())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::simplifyMeOnCellEntity : must be on ON_CELLS, ON_GAUSS_NE or ON_GAUSS_PT !");
@@ -1316,7 +1316,7 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::simplifyMeOnCellEntity(cons
 /*!
  * \a this is expected to be ON_CELLS and simplified.
  */
-bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobsReal *globs) const
 {
   if(other._type!=ON_NODES)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isCompatibleWithNodesDiscr : other must be on nodes !");
@@ -1349,7 +1349,7 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
     }
 }
 
-bool MEDFileField1TSStructItem::isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const
 {
   if(_type!=ON_CELLS)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnOneLev : works only for ON_CELLS discretization !");
@@ -1400,7 +1400,7 @@ std::vector<const BigMemoryObject *> MEDFileField1TSStructItem::getDirectChildre
   return ret;
 }
 
-MEDMeshMultiLev *MEDFileField1TSStructItem::buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDFileField1TSStructItem::buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const
 {
   std::size_t sz(_items.size());
   std::vector<INTERP_KERNEL::NormalizedCellType> a0(sz);
@@ -1454,7 +1454,7 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFile
 
 //=
 
-MEDFileField1TSStruct *MEDFileField1TSStruct::New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst) throw(INTERP_KERNEL::Exception)
+MEDFileField1TSStruct *MEDFileField1TSStruct::New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst)
 {
   return new MEDFileField1TSStruct(ref,mst);
 }
@@ -1464,14 +1464,14 @@ MEDFileField1TSStruct::MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, 
   _already_checked.push_back(MEDFileField1TSStructItem::BuildItemFrom(ref,mst));
 }
 
-void MEDFileField1TSStruct::checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSStruct::checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::checkWithMeshStruct : not correctly initialized !");
   _already_checked.back().checkWithMeshStruct(mst,globs);
 }
 
-bool MEDFileField1TSStruct::isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const
 {
   MEDFileField1TSStructItem b(MEDFileField1TSStructItem::BuildItemFrom(other,mst));
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++)
@@ -1485,7 +1485,7 @@ bool MEDFileField1TSStruct::isEqualConsideringThePast(const MEDFileAnyTypeField1
 /*!
  * Not const because \a other structure will be added to the \c _already_checked attribute in case of success.
  */
-bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt)
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isSupportSameAs : no ref !");
@@ -1515,7 +1515,7 @@ bool MEDFileField1TSStruct::isSupportSameAs(const MEDFileAnyTypeField1TS *other,
 /*!
  * \param [in] other - a field with only one spatial discretization : ON_NODES.
  */
-bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt) throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt)
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::isCompatibleWithNodesDiscr : no ref !");
@@ -1558,7 +1558,7 @@ std::vector<const BigMemoryObject *> MEDFileField1TSStruct::getDirectChildren() 
   return ret;
 }
 
-MEDMeshMultiLev *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const
 {
   if(_already_checked.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct::buildFromScratchDataSetSupport : No outline structure in this !");
@@ -1582,7 +1582,7 @@ MEDMeshMultiLev *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MED
     }
 }
 
-bool MEDFileField1TSStruct::isDataSetSupportFastlyEqualTo(const MEDFileField1TSStruct& other, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::isDataSetSupportFastlyEqualTo(const MEDFileField1TSStruct& other, const MEDFileFieldGlobsReal *globs) const
 {
   int b0,b1;
   bool a0(presenceOfCellDiscr(b0)),a1(presenceOfPartialNodeDiscr(b1));
@@ -1603,7 +1603,7 @@ bool MEDFileField1TSStruct::isDataSetSupportFastlyEqualTo(const MEDFileField1TSS
  * Returns true if presence in \a this of discretization ON_CELLS, ON_GAUSS_PT, ON_GAUSS_NE.
  * If true is returned the pos of the easiest is returned. The easiest is the first element in \a this having the less splitted subparts.
  */
-bool MEDFileField1TSStruct::presenceOfCellDiscr(int& pos) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::presenceOfCellDiscr(int& pos) const
 {
   std::size_t refSz(std::numeric_limits<std::size_t>::max());
   bool ret(false);
@@ -1627,7 +1627,7 @@ bool MEDFileField1TSStruct::presenceOfCellDiscr(int& pos) const throw(INTERP_KER
  * Returns true if presence in \a this of discretization ON_NODES.
  * If true is returned the pos of the first element containing the single subpart.
  */
-bool MEDFileField1TSStruct::presenceOfPartialNodeDiscr(int& pos) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStruct::presenceOfPartialNodeDiscr(int& pos) const
 {
   int i(0);
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++,i++)
@@ -1649,7 +1649,7 @@ bool MEDFileField1TSStruct::presenceOfPartialNodeDiscr(int& pos) const throw(INT
 
 //=
 
-MEDFileFastCellSupportComparator *MEDFileFastCellSupportComparator::New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception)
+MEDFileFastCellSupportComparator *MEDFileFastCellSupportComparator::New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref)
 {
   return new MEDFileFastCellSupportComparator(m,ref);
 }
@@ -1690,7 +1690,7 @@ std::vector<const BigMemoryObject *> MEDFileFastCellSupportComparator::getDirect
   return ret;
 }
 
-bool MEDFileFastCellSupportComparator::isEqual(const MEDFileAnyTypeFieldMultiTS *other) throw(INTERP_KERNEL::Exception)
+bool MEDFileFastCellSupportComparator::isEqual(const MEDFileAnyTypeFieldMultiTS *other)
 {
   int nbPts=other->getNumberOfTS();
   if(nbPts!=(int)_f1ts_cmps.size())
@@ -1708,7 +1708,7 @@ bool MEDFileFastCellSupportComparator::isEqual(const MEDFileAnyTypeFieldMultiTS 
   return true;
 }
 
-bool MEDFileFastCellSupportComparator::isCompatibleWithNodesDiscr(const MEDFileAnyTypeFieldMultiTS *other) throw(INTERP_KERNEL::Exception)
+bool MEDFileFastCellSupportComparator::isCompatibleWithNodesDiscr(const MEDFileAnyTypeFieldMultiTS *other)
 {
   int nbPts=other->getNumberOfTS();
   if(nbPts!=(int)_f1ts_cmps.size())
@@ -1725,7 +1725,7 @@ bool MEDFileFastCellSupportComparator::isCompatibleWithNodesDiscr(const MEDFileA
   return true;
 }
 
-MEDMeshMultiLev *MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+MEDMeshMultiLev *MEDFileFastCellSupportComparator::buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const
 {
   if(timeStepId<0 || timeStepId>=(int)_f1ts_cmps.size())
     {
@@ -1741,7 +1741,7 @@ MEDMeshMultiLev *MEDFileFastCellSupportComparator::buildFromScratchDataSetSuppor
   return obj->buildFromScratchDataSetSupport(_mesh_comp,globs);
 }
 
-bool MEDFileFastCellSupportComparator::isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception)
+bool MEDFileFastCellSupportComparator::isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const
 {
   if(timeStepId<=0 || timeStepId>=(int)_f1ts_cmps.size())
     {

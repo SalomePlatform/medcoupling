@@ -53,7 +53,7 @@ char *MEDLoaderBase::buildEmptyString(int lgth)
   return ret;
 }
 
-void MEDLoaderBase::getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName) throw(INTERP_KERNEL::Exception)
+void MEDLoaderBase::getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName)
 {
   std::size_t pos=fullName.find_last_of(getPathSep());
   if(pos!=std::string::npos)
@@ -68,7 +68,7 @@ void MEDLoaderBase::getDirAndBaseName(const std::string& fullName, std::string& 
     }
 }
 
-std::string MEDLoaderBase::joinPath(const std::string& dirName, const std::string& baseName) throw(INTERP_KERNEL::Exception)
+std::string MEDLoaderBase::joinPath(const std::string& dirName, const std::string& baseName)
 {
   if(!dirName.empty())
     return dirName+getPathSep()+baseName;
@@ -76,7 +76,7 @@ std::string MEDLoaderBase::joinPath(const std::string& dirName, const std::strin
     return baseName;
 }
 
-std::string MEDLoaderBase::getPathSep() throw(INTERP_KERNEL::Exception)
+std::string MEDLoaderBase::getPathSep()
 {
 #ifndef WIN32
   return std::string("/");
@@ -134,7 +134,7 @@ void MEDLoaderBase::strip(std::string& s)
  * If 'behaviour' equals 0 an exception is thrown. If 'behaviour' equals 1 an attempt of zipping of string will be done
  * ( see zipString to have more details).
  */
-void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception)
+void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour)
 {
   if((int)strlen(src)>maxLgth)
     {
@@ -159,7 +159,7 @@ void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int beh
  * This method is equivalent to MEDLoaderBase::safeStrCpy except that here no '\0' car is put.
  * This method should be used for multi string in one string.
  */
-void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception)
+void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour)
 {
   if((int)strlen(src)>maxLgth)
     {

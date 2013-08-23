@@ -46,8 +46,8 @@ namespace ParaMEDMEM
 class SauvReader : public ParaMEDMEM::RefCountObject
 {
  public:
-  MEDLOADER_EXPORT static SauvReader* New(const char *fileName) throw(INTERP_KERNEL::Exception);
-  MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
+  MEDLOADER_EXPORT static SauvReader* New(const char *fileName);
+  MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS();
   MEDLOADER_EXPORT ~SauvReader();
 
  private:

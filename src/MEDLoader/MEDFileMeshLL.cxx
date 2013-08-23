@@ -50,7 +50,7 @@ std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildren() const
   return std::vector<const BigMemoryObject *>();
 }
 
-int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1) throw(INTERP_KERNEL::Exception)
+int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1)
 {
   med_mesh_type type_maillage;
   char maillage_description[MED_COMMENT_SIZE+1];
@@ -118,7 +118,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM:
   return ret;
 }
 
-double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const char *mName, int nstep, int dt, int it) throw(INTERP_KERNEL::Exception)
+double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const char *mName, int nstep, int dt, int it)
 {
   bool found=false;
   med_int numdt,numit;
@@ -141,7 +141,7 @@ double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const char *mName, int nste
   return dtt;
 }
 
-std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim)
 {
   med_mesh_type type_maillage;
   med_int spaceDim;
@@ -272,7 +272,7 @@ void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const char *mName, 
   sortTypes();
 }
 
-void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const char *mName, int dt, int it)
 {
   int spaceDim=infosOnComp.size();
   med_bool changement,transformation;
@@ -392,7 +392,7 @@ MEDFileCMeshL2::MEDFileCMeshL2()
 {
 }
 
-void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it)
 {
   _name.set(mName);
   int nstep;
@@ -423,7 +423,7 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
     }
 }
 
-med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id) throw(INTERP_KERNEL::Exception)
+med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id)
 {
   switch(id)
     {
@@ -442,7 +442,7 @@ MEDFileCLMeshL2::MEDFileCLMeshL2()
 {
 }
 
-void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it)
 {
   _name.set(mName);
   int nstep;
@@ -663,12 +663,12 @@ void MEDFileUMeshSplitL1::ClearNonDiscrAttributes(const MEDCouplingMesh *tmp)
   (const_cast<MEDCouplingMesh *>(tmp))->setTimeUnit("");
 }
 
-void MEDFileUMeshSplitL1::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
+void MEDFileUMeshSplitL1::setCoords(DataArrayDouble *coords)
 {
   _m_by_types.setCoords(coords);
 }
 
-void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
+void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
 {
   if(newOrOld)
     {
@@ -725,7 +725,7 @@ void MEDFileUMeshSplitL1::simpleRepr(std::ostream& oss) const
     }
 }
 
-int MEDFileUMeshSplitL1::getSize() const throw(INTERP_KERNEL::Exception)
+int MEDFileUMeshSplitL1::getSize() const
 {
   return _m_by_types.getSize();
 }
@@ -757,7 +757,7 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
   return tmp.retn();
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField()
 {
   if((DataArrayInt *)_fam)
     return _fam;
@@ -833,7 +833,7 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
     }
 }
 
-void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception)
+void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
   MEDCouplingUMesh *m(_m_by_types.getUmesh());
   if(!m)
@@ -841,7 +841,7 @@ void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N) thro
   m->renumberNodesInConn(newNodeNumbersO2N);
 }
 
-void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)
+void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId)
 {
   DataArrayInt *arr=_fam;
   if(arr)
@@ -991,7 +991,7 @@ MEDCouplingUMesh *MEDFileUMeshAggregateCompute::getUmesh() const
   return _m;
 }
 
-std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getPartsWithoutComputation() const throw(INTERP_KERNEL::Exception)
+std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getPartsWithoutComputation() const
 {
   if(_mp_time<_m_time)
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartsWithoutComputation : the parts require a computation !");
@@ -1013,7 +1013,7 @@ std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() cons
   return getPartsWithoutComputation();
 }
 
-MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception)
+MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
 {
   std::vector<MEDCoupling1GTUMesh *> v(getPartsWithoutComputation());
   std::size_t sz(v.size());
@@ -1195,7 +1195,7 @@ int MEDFileUMeshAggregateCompute::getMeshDimension() const
     }
 }
 
-std::vector<int> MEDFileUMeshAggregateCompute::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+std::vector<int> MEDFileUMeshAggregateCompute::getDistributionOfTypes() const
 {
   if(_mp_time<_m_time)
     {
@@ -1219,7 +1219,7 @@ std::vector<int> MEDFileUMeshAggregateCompute::getDistributionOfTypes() const th
     }
 }
 
-int MEDFileUMeshAggregateCompute::getSize() const throw(INTERP_KERNEL::Exception)
+int MEDFileUMeshAggregateCompute::getSize() const
 {
   if(_mp_time<_m_time)
     {
@@ -1242,7 +1242,7 @@ int MEDFileUMeshAggregateCompute::getSize() const throw(INTERP_KERNEL::Exception
     }
 }
 
-void MEDFileUMeshAggregateCompute::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
+void MEDFileUMeshAggregateCompute::setCoords(DataArrayDouble *coords)
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
     {

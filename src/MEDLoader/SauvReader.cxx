@@ -44,7 +44,7 @@ using namespace std;
  */
 //================================================================================
 
-SauvReader* SauvReader::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+SauvReader* SauvReader::New(const char *fileName)
 {
   if ( !fileName || strlen(fileName) < 1 ) THROW_IK_EXCEPTION("Invalid file name");
 
@@ -112,7 +112,7 @@ std::string SauvReader::lineNb() const
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS() throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS()
 {
   SauvUtilities::IntermediateMED iMed; // intermadiate DS
   _iMed = &iMed;

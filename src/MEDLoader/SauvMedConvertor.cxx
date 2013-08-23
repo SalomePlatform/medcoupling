@@ -1083,7 +1083,7 @@ std::string XDRReader::getName() const
  */
 //================================================================================
 
-void IntermediateMED::checkDataAvailability() const throw(INTERP_KERNEL::Exception)
+void IntermediateMED::checkDataAvailability() const
 {
   if ( _spaceDim == 0 )
     THROW_IK_EXCEPTION("Wrong file format"); // it is the first record in the sauve file

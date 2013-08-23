@@ -34,7 +34,7 @@ MEDFileString::~MEDFileString()
   delete [] _content;
 }
 
-void MEDFileString::set(const char *s) throw(INTERP_KERNEL::Exception)
+void MEDFileString::set(const char *s)
 {
   if((int)strlen(s)>_max_lgth)
     throw INTERP_KERNEL::Exception("Name is too long to be stored in MEDfile !");

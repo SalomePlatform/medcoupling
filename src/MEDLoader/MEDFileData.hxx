@@ -34,30 +34,30 @@ namespace ParaMEDMEM
   class MEDFileData : public RefCountObject, public MEDFileWritable
   {
   public:
-    MEDLOADER_EXPORT static MEDFileData *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileData *New(const char *fileName);
     MEDLOADER_EXPORT static MEDFileData *New();
-    MEDLOADER_EXPORT MEDFileData *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileData *deepCpy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDLOADER_EXPORT MEDFileFields *getFields() const;
     MEDLOADER_EXPORT MEDFileMeshes *getMeshes() const;
     MEDLOADER_EXPORT MEDFileParameters *getParams() const;
-    MEDLOADER_EXPORT void setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT void setParams(MEDFileParameters *params) throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT int getNumberOfParams() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFields(MEDFileFields *fields);
+    MEDLOADER_EXPORT void setMeshes(MEDFileMeshes *meshes);
+    MEDLOADER_EXPORT void setParams(MEDFileParameters *params);
+    MEDLOADER_EXPORT int getNumberOfFields() const;
+    MEDLOADER_EXPORT int getNumberOfMeshes() const;
+    MEDLOADER_EXPORT int getNumberOfParams() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     //
-    MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT bool changeMeshName(const char *oldMeshName, const char *newMeshName) throw(INTERP_KERNEL::Exception);
-    MEDLOADER_EXPORT bool unPolyzeMeshes() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
+    MEDLOADER_EXPORT bool changeMeshName(const char *oldMeshName, const char *newMeshName);
+    MEDLOADER_EXPORT bool unPolyzeMeshes();
     //
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const;
   private:
     MEDFileData();
-    MEDFileData(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDFileData(const char *fileName);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fields;
     MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _meshes;

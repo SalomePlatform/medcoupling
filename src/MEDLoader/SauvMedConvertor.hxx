@@ -273,7 +273,7 @@ namespace SauvUtilities
                 ParaMEDMEM::MEDFileFields*   medFields,
                 ParaMEDMEM::MEDFileUMesh*    mesh,
                 const int                    iSub=0);
-    void checkDataAvailability() const throw(INTERP_KERNEL::Exception);
+    void checkDataAvailability() const;
     void setGroupLongNames();
     void setFieldLongNames(std::set< std::string >& usedNames);
     void makeFieldNewName(std::set< std::string >&    usedNames,

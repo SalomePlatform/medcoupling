@@ -22,7 +22,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDFileData *MEDFileData::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+MEDFileData *MEDFileData::New(const char *fileName)
 {
   return new MEDFileData(fileName);
 }
@@ -32,7 +32,7 @@ MEDFileData *MEDFileData::New()
   return new MEDFileData;
 }
 
-MEDFileData *MEDFileData::deepCpy() const throw(INTERP_KERNEL::Exception)
+MEDFileData *MEDFileData::deepCpy() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileFields> fields;
   if((const MEDFileFields *)_fields)
@@ -81,28 +81,28 @@ MEDFileParameters *MEDFileData::getParams() const
   return const_cast<MEDFileParameters *>(static_cast<const MEDFileParameters *>(_params));
 }
 
-void MEDFileData::setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception)
+void MEDFileData::setFields(MEDFileFields *fields)
 {
   if(fields)
     fields->incrRef();
   _fields=fields;
 }
 
-void MEDFileData::setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception)
+void MEDFileData::setMeshes(MEDFileMeshes *meshes)
 {
   if(meshes)
     meshes->incrRef();
   _meshes=meshes;
 }
 
-void MEDFileData::setParams(MEDFileParameters *params) throw(INTERP_KERNEL::Exception)
+void MEDFileData::setParams(MEDFileParameters *params)
 {
   if(params)
     params->incrRef();
   _params=params;
 }
 
-int MEDFileData::getNumberOfFields() const throw(INTERP_KERNEL::Exception)
+int MEDFileData::getNumberOfFields() const
 {
   const MEDFileFields *f=_fields;
   if(!f)
@@ -110,7 +110,7 @@ int MEDFileData::getNumberOfFields() const throw(INTERP_KERNEL::Exception)
   return f->getNumberOfFields();
 }
 
-int MEDFileData::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)
+int MEDFileData::getNumberOfMeshes() const
 {
   const MEDFileMeshes *m=_meshes;
   if(!m)
@@ -118,7 +118,7 @@ int MEDFileData::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)
   return m->getNumberOfMeshes();
 }
 
-int MEDFileData::getNumberOfParams() const throw(INTERP_KERNEL::Exception)
+int MEDFileData::getNumberOfParams() const
 {
   const MEDFileParameters *p=_params;
   if(!p)
@@ -157,7 +157,7 @@ std::string MEDFileData::simpleRepr() const
   return oss.str();
 }
 
-bool MEDFileData::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+bool MEDFileData::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
 {
   bool ret=false;
   MEDFileFields *fields=_fields;
@@ -169,7 +169,7 @@ bool MEDFileData::changeMeshNames(const std::vector< std::pair<std::string,std::
   return ret;
 }
 
-bool MEDFileData::changeMeshName(const char *oldMeshName, const char *newMeshName) throw(INTERP_KERNEL::Exception)
+bool MEDFileData::changeMeshName(const char *oldMeshName, const char *newMeshName)
 {
   std::string oldName(oldMeshName);
   std::vector< std::pair<std::string,std::string> > v(1);
@@ -184,7 +184,7 @@ bool MEDFileData::changeMeshName(const char *oldMeshName, const char *newMeshNam
  * \return If true is returned it means that some meshes in \a this has been modified and eventually fields have been renumbered.
  *         \n If false \a this remains unchanged.
  */
-bool MEDFileData::unPolyzeMeshes() throw(INTERP_KERNEL::Exception)
+bool MEDFileData::unPolyzeMeshes()
 {
   MEDFileMeshes *ms=_meshes;
   if(!ms)
@@ -223,7 +223,7 @@ MEDFileData::MEDFileData()
 {
 }
 
-MEDFileData::MEDFileData(const char *fileName) throw(INTERP_KERNEL::Exception)
+MEDFileData::MEDFileData(const char *fileName)
 try
   {
     _fields=MEDFileFields::New(fileName);
@@ -235,7 +235,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-void MEDFileData::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileData::write(const char *fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
