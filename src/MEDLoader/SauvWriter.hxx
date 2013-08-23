@@ -43,12 +43,12 @@ namespace ParaMEDMEM
   /*!
    * \brief Class to write a MEDFileData into a SAUVE format file
    */
-  class MEDLOADER_EXPORT SauvWriter : public ParaMEDMEM::RefCountObject
+  class SauvWriter : public ParaMEDMEM::RefCountObject
   {
   public:
-    static SauvWriter * New();
-    void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0);
-    void write(const char* fileName);
+    MEDLOADER_EXPORT static SauvWriter * New();
+    MEDLOADER_EXPORT void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0);
+    MEDLOADER_EXPORT void write(const char* fileName);
 
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;

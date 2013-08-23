@@ -28,23 +28,23 @@
 
 namespace ParaMEDMEM
 {
-  class MEDLOADER_EXPORT MEDFileParameter1TS : public RefCountObject
+  class MEDFileParameter1TS : public RefCountObject
   {
   public:
-    virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
-    virtual void simpleRepr2(int bkOffset, std::ostream& oss) const = 0;
-    virtual void readValue(med_idt fid, const std::string& name) throw(INTERP_KERNEL::Exception) = 0;
-    virtual void writeLL(med_idt fid, const std::string& name, const MEDFileWritable& mw) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT virtual void simpleRepr2(int bkOffset, std::ostream& oss) const = 0;
+    MEDLOADER_EXPORT virtual void readValue(med_idt fid, const std::string& name) throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual void writeLL(med_idt fid, const std::string& name, const MEDFileWritable& mw) const throw(INTERP_KERNEL::Exception) = 0;
   public:
-    void setIteration(int it) { _iteration=it; }
-    int getIteration() const { return _iteration; }
-    void setOrder(int order) { _order=order; }
-    int getOrder() const { return _order; }
-    void setTimeValue(double time) { _time=time; }
-    void setTime(int dt, int it, double time) { _time=time; _iteration=dt; _order=it; }
-    double getTime(int& dt, int& it) { dt=_iteration; it=_order; return _time; }
-    double getTimeValue() const { return _time; }
+    MEDLOADER_EXPORT void setIteration(int it) { _iteration=it; }
+    MEDLOADER_EXPORT int getIteration() const { return _iteration; }
+    MEDLOADER_EXPORT void setOrder(int order) { _order=order; }
+    MEDLOADER_EXPORT int getOrder() const { return _order; }
+    MEDLOADER_EXPORT void setTimeValue(double time) { _time=time; }
+    MEDLOADER_EXPORT void setTime(int dt, int it, double time) { _time=time; _iteration=dt; _order=it; }
+    MEDLOADER_EXPORT double getTime(int& dt, int& it) { dt=_iteration; it=_order; return _time; }
+    MEDLOADER_EXPORT double getTimeValue() const { return _time; }
   protected:
     MEDFileParameter1TS(int iteration, int order, double time);
     MEDFileParameter1TS();
@@ -54,18 +54,18 @@ namespace ParaMEDMEM
     double _time;    
   };
   
-  class MEDLOADER_EXPORT MEDFileParameterDouble1TSWTI : public MEDFileParameter1TS
+  class MEDFileParameterDouble1TSWTI : public MEDFileParameter1TS
   {
   public:
-    static MEDFileParameterDouble1TSWTI *New(int iteration, int order, double time);
-    MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
-    void setValue(double val) throw(INTERP_KERNEL::Exception) { _arr=val; }
-    double getValue() const throw(INTERP_KERNEL::Exception) { return _arr; }
-    bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    void readValue(med_idt fid, const std::string& name) throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TSWTI *New(int iteration, int order, double time);
+    MEDLOADER_EXPORT MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setValue(double val) throw(INTERP_KERNEL::Exception) { _arr=val; }
+    MEDLOADER_EXPORT double getValue() const throw(INTERP_KERNEL::Exception) { return _arr; }
+    MEDLOADER_EXPORT bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT void readValue(med_idt fid, const std::string& name) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string simpleRepr() const;
   protected:
     MEDFileParameterDouble1TSWTI();
     MEDFileParameterDouble1TSWTI(int iteration, int order, double time);
@@ -77,15 +77,15 @@ namespace ParaMEDMEM
     double _arr;
   };
 
-  class MEDLOADER_EXPORT MEDFileParameterTinyInfo : public MEDFileWritable
+  class MEDFileParameterTinyInfo : public MEDFileWritable
   {
   public:
-    void setDescription(const char *name) { _desc_name=name; }
-    std::string getDescription() const { return _desc_name; }
-    void setTimeUnit(const char *unit) { _dt_unit=unit; }
-    std::string getTimeUnit() const { return _dt_unit; }
-    std::size_t getHeapMemSizeOfStrings() const;
-    bool isEqualStrings(const MEDFileParameterTinyInfo& other, std::string& what) const;
+    MEDLOADER_EXPORT void setDescription(const char *name) { _desc_name=name; }
+    MEDLOADER_EXPORT std::string getDescription() const { return _desc_name; }
+    MEDLOADER_EXPORT void setTimeUnit(const char *unit) { _dt_unit=unit; }
+    MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
+    MEDLOADER_EXPORT std::size_t getHeapMemSizeOfStrings() const;
+    MEDLOADER_EXPORT bool isEqualStrings(const MEDFileParameterTinyInfo& other, std::string& what) const;
   protected:
     void writeLLHeader(med_idt fid, med_parameter_type typ) const throw(INTERP_KERNEL::Exception);
     void mainRepr(int bkOffset, std::ostream& oss) const;
@@ -95,21 +95,21 @@ namespace ParaMEDMEM
     std::string _desc_name;
   };
 
-  class MEDLOADER_EXPORT MEDFileParameterDouble1TS : public MEDFileParameterDouble1TSWTI, public MEDFileParameterTinyInfo
+  class MEDFileParameterDouble1TS : public MEDFileParameterDouble1TSWTI, public MEDFileParameterTinyInfo
   {
   public:
-    static MEDFileParameterDouble1TS *New();
-    static MEDFileParameterDouble1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName, int dt, int it) throw(INTERP_KERNEL::Exception);
-    virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
-    virtual std::string simpleRepr() const;
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    void setName(const char *name) throw(INTERP_KERNEL::Exception) { _name=name; }
-    std::string getName() const throw(INTERP_KERNEL::Exception) { return _name; }
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New();
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT virtual std::string simpleRepr() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT void setName(const char *name) throw(INTERP_KERNEL::Exception) { _name=name; }
+    MEDLOADER_EXPORT std::string getName() const throw(INTERP_KERNEL::Exception) { return _name; }
+    MEDLOADER_EXPORT void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   private:
     MEDFileParameterDouble1TS();
     MEDFileParameterDouble1TS(const char *fileName) throw(INTERP_KERNEL::Exception);
@@ -117,30 +117,30 @@ namespace ParaMEDMEM
     MEDFileParameterDouble1TS(const char *fileName, const char *paramName, int dt, int it) throw(INTERP_KERNEL::Exception);
   };
 
-  class MEDLOADER_EXPORT MEDFileParameterMultiTS : public RefCountObject, public MEDFileParameterTinyInfo
+  class MEDFileParameterMultiTS : public RefCountObject, public MEDFileParameterTinyInfo
   {
   public:
-    static MEDFileParameterMultiTS *New();
-    static MEDFileParameterMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileParameterMultiTS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
-    std::string getName() const { return _name; }
-    void setName(const char *name) { _name=name; }
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    void writeLL(med_idt fid, const MEDFileWritable& mw) const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
-    void appendValue(int dt, int it, double time, double val) throw(INTERP_KERNEL::Exception);
-    double getDoubleValue(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
-    int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
-    MEDFileParameter1TS *getTimeStepAtPos(int posId) const throw(INTERP_KERNEL::Exception);
-    void eraseTimeStepIds(const int *startIds, const int *endIds) throw(INTERP_KERNEL::Exception);
-    std::vector< std::pair<int,int> > getIterations() const throw(INTERP_KERNEL::Exception);
-    std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
-    void simpleRepr2(int bkOffset, std::ostream& oss) const;
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New();
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string getName() const { return _name; }
+    MEDLOADER_EXPORT void setName(const char *name) { _name=name; }
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& mw) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string simpleRepr() const;
+    MEDLOADER_EXPORT void appendValue(int dt, int it, double time, double val) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT double getDoubleValue(int iteration, int order) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileParameter1TS *getTimeStepAtPos(int posId) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void eraseTimeStepIds(const int *startIds, const int *endIds) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector< std::pair<int,int> > getIterations() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void simpleRepr2(int bkOffset, std::ostream& oss) const;
   protected:
     MEDFileParameterMultiTS();
     MEDFileParameterMultiTS(const MEDFileParameterMultiTS& other, bool deepCopy);
@@ -151,28 +151,28 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS> > _param_per_ts;
   };
 
-  class MEDLOADER_EXPORT MEDFileParameters : public RefCountObject, public MEDFileWritable
+  class MEDFileParameters : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileParameters *New();
-    static MEDFileParameters *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDFileParameters *deepCpy() const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
-    void simpleReprWithoutHeader(std::ostream& oss) const;
-    void resize(int newSize) throw(INTERP_KERNEL::Exception);
-    void pushParam(MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
-    void setParamAtPos(int i, MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
-    MEDFileParameterMultiTS *getParamAtPos(int i) const throw(INTERP_KERNEL::Exception);
-    MEDFileParameterMultiTS *getParamWithName(const char *paramName) const throw(INTERP_KERNEL::Exception);
-    void destroyParamAtPos(int i) throw(INTERP_KERNEL::Exception);
-    int getPosFromParamName(const char *paramName) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfParams() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileParameters *New();
+    MEDLOADER_EXPORT static MEDFileParameters *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT MEDFileParameters *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string simpleRepr() const;
+    MEDLOADER_EXPORT void simpleReprWithoutHeader(std::ostream& oss) const;
+    MEDLOADER_EXPORT void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void pushParam(MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setParamAtPos(int i, MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileParameterMultiTS *getParamAtPos(int i) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileParameterMultiTS *getParamWithName(const char *paramName) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void destroyParamAtPos(int i) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getPosFromParamName(const char *paramName) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getNumberOfParams() const throw(INTERP_KERNEL::Exception);
   protected:
     void simpleRepr2(int bkOffset, std::ostream& oss) const;
     MEDFileParameters(const char *fileName) throw(INTERP_KERNEL::Exception);

@@ -43,12 +43,12 @@ namespace ParaMEDMEM
 {
   class MEDFileData;
 
-class MEDLOADER_EXPORT SauvReader : public ParaMEDMEM::RefCountObject
+class SauvReader : public ParaMEDMEM::RefCountObject
 {
  public:
-  static SauvReader* New(const char *fileName) throw(INTERP_KERNEL::Exception);
-  ParaMEDMEM::MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
-  ~SauvReader();
+  MEDLOADER_EXPORT static SauvReader* New(const char *fileName) throw(INTERP_KERNEL::Exception);
+  MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
+  MEDLOADER_EXPORT ~SauvReader();
 
  private:
   std::size_t getHeapMemorySizeWithoutChildren() const;

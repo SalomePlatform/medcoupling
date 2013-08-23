@@ -34,124 +34,124 @@ namespace ParaMEDMEM
   class MEDFileFieldGlobsReal;
   class MEDFileField1TSStructItem;
   
-  class MEDLOADER_EXPORT MEDFileMesh : public RefCountObject, public MEDFileWritable
+  class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
-    virtual void clearNonDiscrAttributes() const;
-    void setName(const char *name) { _name=name; }
-    bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
-    std::string getName() const { return _name; }
-    const char *getUnivName() const { return _univ_name.c_str(); }
-    bool getUnivNameWrStatus() const { return _univ_wr_status; }
-    void setUnivNameWrStatus(bool newStatus) { _univ_wr_status=newStatus; }
-    void setDescription(const char *name) { _desc_name=name; }
-    std::string getDescription() const { return _desc_name; }
-    void setOrder(int order) { _order=order; }
-    int getOrder() const { return _order; }
-    void setIteration(int it) { _iteration=it; }
-    int getIteration() const { return _iteration; }
-    void setTimeValue(double time) { _time=time; }
-    void setTime(int dt, int it, double time) { _time=time; _iteration=dt; _order=it; }
-    double getTime(int& dt, int& it) { dt=_iteration; it=_order; return _time; }
-    double getTimeValue() const { return _time; }
-    void setTimeUnit(const char *unit) { _dt_unit=unit; }
-    const char *getTimeUnit() const { return _dt_unit.c_str(); }
-    virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual std::vector<int> getNonEmptyLevels() const = 0;
-    virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
-    virtual std::vector<int> getFamArrNonEmptyLevelsExt() const = 0;
-    virtual std::vector<int> getNumArrNonEmptyLevelsExt() const = 0;
-    virtual std::vector<int> getNameArrNonEmptyLevelsExt() const = 0;
-    virtual void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    virtual void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
-    virtual int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
-    virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT static MEDFileMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT virtual void clearNonDiscrAttributes() const;
+    MEDLOADER_EXPORT void setName(const char *name) { _name=name; }
+    MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string getName() const { return _name; }
+    MEDLOADER_EXPORT const char *getUnivName() const { return _univ_name.c_str(); }
+    MEDLOADER_EXPORT bool getUnivNameWrStatus() const { return _univ_wr_status; }
+    MEDLOADER_EXPORT void setUnivNameWrStatus(bool newStatus) { _univ_wr_status=newStatus; }
+    MEDLOADER_EXPORT void setDescription(const char *name) { _desc_name=name; }
+    MEDLOADER_EXPORT std::string getDescription() const { return _desc_name; }
+    MEDLOADER_EXPORT void setOrder(int order) { _order=order; }
+    MEDLOADER_EXPORT int getOrder() const { return _order; }
+    MEDLOADER_EXPORT void setIteration(int it) { _iteration=it; }
+    MEDLOADER_EXPORT int getIteration() const { return _iteration; }
+    MEDLOADER_EXPORT void setTimeValue(double time) { _time=time; }
+    MEDLOADER_EXPORT void setTime(int dt, int it, double time) { _time=time; _iteration=dt; _order=it; }
+    MEDLOADER_EXPORT double getTime(int& dt, int& it) { dt=_iteration; it=_order; return _time; }
+    MEDLOADER_EXPORT double getTimeValue() const { return _time; }
+    MEDLOADER_EXPORT void setTimeUnit(const char *unit) { _dt_unit=unit; }
+    MEDLOADER_EXPORT const char *getTimeUnit() const { return _dt_unit.c_str(); }
+    MEDLOADER_EXPORT virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual std::vector<int> getNonEmptyLevels() const = 0;
+    MEDLOADER_EXPORT virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
+    MEDLOADER_EXPORT virtual std::vector<int> getFamArrNonEmptyLevelsExt() const = 0;
+    MEDLOADER_EXPORT virtual std::vector<int> getNumArrNonEmptyLevelsExt() const = 0;
+    MEDLOADER_EXPORT virtual std::vector<int> getNameArrNonEmptyLevelsExt() const = 0;
+    MEDLOADER_EXPORT virtual void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception) = 0;
     //
-    bool areFamsEqual(const MEDFileMesh *other, std::string& what) const;
-    bool areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
-    bool existsGroup(const char *groupName) const;
-    bool existsFamily(int famId) const;
-    bool existsFamily(const char *familyName) const;
-    void setFamilyId(const char *familyName, int id);
-    void setFamilyIdUnique(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
-    virtual void addFamily(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
-    virtual void createGroupOnAll(int meshDimRelToMaxExt, const char *groupName) throw(INTERP_KERNEL::Exception);
-    virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
-    void addFamilyOnGrp(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception);
-    std::string findOrCreateAndGiveFamilyWithId(int id, bool& created) throw(INTERP_KERNEL::Exception);
-    void setFamilyInfo(const std::map<std::string,int>& info);
-    void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
-    void copyFamGrpMapsFrom(const MEDFileMesh& other);
-    const std::map<std::string,int>& getFamilyInfo() const { return _families; }
-    const std::map<std::string, std::vector<std::string> >& getGroupInfo() const { return _groups; }
-    std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getFamiliesOnGroups(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
-    void setFamiliesOnGroup(const char *name, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);
-    void setFamiliesIdsOnGroup(const char *name, const std::vector<int>& famIds) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception);
-    void setGroupsOnFamily(const char *famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsNames() const;
-    std::vector<std::string> getFamiliesNames() const;
-    void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> removeEmptyGroups() throw(INTERP_KERNEL::Exception);
-    void removeGroup(const char *name) throw(INTERP_KERNEL::Exception);
-    void removeFamily(const char *name) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> removeOrphanGroups() throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> removeOrphanFamilies() throw(INTERP_KERNEL::Exception);
-    void changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
-    void changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
-    void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);
-    void changeAllGroupsContainingFamily(const char *familyNameToChange, const std::vector<std::string>& newFamiliesNames) throw(INTERP_KERNEL::Exception);
-    int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
-    int getMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getMinFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getTheMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getTheMaxFamilyId() const throw(INTERP_KERNEL::Exception);
-    int getTheMinFamilyId() const throw(INTERP_KERNEL::Exception);
-    virtual int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
-    DataArrayInt *getAllFamiliesIdsReferenced() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *computeAllFamilyIdsInUse() const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
-    std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
-    bool ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception);
-    void normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception);
-    void normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception);
-    virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual std::string simpleRepr() const;
-    virtual std::string advancedRepr() const = 0;
+    MEDLOADER_EXPORT bool areFamsEqual(const MEDFileMesh *other, std::string& what) const;
+    MEDLOADER_EXPORT bool areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
+    MEDLOADER_EXPORT bool existsGroup(const char *groupName) const;
+    MEDLOADER_EXPORT bool existsFamily(int famId) const;
+    MEDLOADER_EXPORT bool existsFamily(const char *familyName) const;
+    MEDLOADER_EXPORT void setFamilyId(const char *familyName, int id);
+    MEDLOADER_EXPORT void setFamilyIdUnique(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual void addFamily(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual void createGroupOnAll(int meshDimRelToMaxExt, const char *groupName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void addFamilyOnGrp(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string findOrCreateAndGiveFamilyWithId(int id, bool& created) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFamilyInfo(const std::map<std::string,int>& info);
+    MEDLOADER_EXPORT void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
+    MEDLOADER_EXPORT void copyFamGrpMapsFrom(const MEDFileMesh& other);
+    MEDLOADER_EXPORT const std::map<std::string,int>& getFamilyInfo() const { return _families; }
+    MEDLOADER_EXPORT const std::map<std::string, std::vector<std::string> >& getGroupInfo() const { return _groups; }
+    MEDLOADER_EXPORT std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> getFamiliesOnGroups(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFamiliesOnGroup(const char *name, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFamiliesIdsOnGroup(const char *name, const std::vector<int>& famIds) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setGroupsOnFamily(const char *famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> getGroupsNames() const;
+    MEDLOADER_EXPORT std::vector<std::string> getFamiliesNames() const;
+    MEDLOADER_EXPORT void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> removeEmptyGroups() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void removeGroup(const char *name) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void removeFamily(const char *name) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> removeOrphanGroups() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> removeOrphanFamilies() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void changeAllGroupsContainingFamily(const char *familyNameToChange, const std::vector<std::string>& newFamiliesNames) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMinFamilyId() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getTheMaxAbsFamilyId() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getTheMaxFamilyId() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getTheMinFamilyId() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT DataArrayInt *getAllFamiliesIdsReferenced() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT DataArrayInt *computeAllFamilyIdsInUse() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual std::string simpleRepr() const;
+    MEDLOADER_EXPORT virtual std::string advancedRepr() const = 0;
     //
-    virtual void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=false) throw(INTERP_KERNEL::Exception);
-    virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception) = 0;
-    virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception) = 0;
-    virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception) = 0;
-    virtual const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getFamilyArr(int meshDimRelToMaxExt, const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeGroupArr(const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeFamilyArr(const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=false) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual DataArrayInt *getFamilyArr(int meshDimRelToMaxExt, const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual DataArrayInt *getNodeGroupArr(const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual DataArrayInt *getNodeFamilyArr(const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     // tools
-    virtual bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception) = 0;
+    MEDLOADER_EXPORT virtual bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDFileMesh();
     //! protected because no way in MED file API to specify this name
@@ -182,87 +182,87 @@ namespace ParaMEDMEM
     std::map<std::string, std::vector<std::string> > _groups;
     std::map<std::string,int> _families;
   public:
-    static const char DFT_FAM_NAME[];
+    MEDLOADER_EXPORT static const char DFT_FAM_NAME[];
   };
 
-  class MEDLOADER_EXPORT MEDFileUMesh : public MEDFileMesh
+  class MEDFileUMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;
   public:
-    static MEDFileUMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileUMesh *New();
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
-    void clearNonDiscrAttributes() const;
-    ~MEDFileUMesh();
+    MEDLOADER_EXPORT static MEDFileUMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileUMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileUMesh *New();
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
+    MEDLOADER_EXPORT ~MEDFileUMesh();
     //
-    int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    int getMeshDimension() const throw(INTERP_KERNEL::Exception);
-    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
-    std::string advancedRepr() const;
-    int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
-    void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getNonEmptyLevels() const;
-    std::vector<int> getNonEmptyLevelsExt() const;
-    std::vector<int> getFamArrNonEmptyLevelsExt() const;
-    std::vector<int> getNumArrNonEmptyLevelsExt() const;
-    std::vector<int> getNameArrNonEmptyLevelsExt() const;
-    std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamNonEmptyLevelsExt(const char *fam) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getCoords() const;
-    MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMaxExt, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
-    std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
-    MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string simpleRepr() const;
+    MEDLOADER_EXPORT std::string advancedRepr() const;
+    MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
+    MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getNumArrNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getNameArrNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getFamNonEmptyLevelsExt(const char *fam) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT DataArrayDouble *getCoords() const;
+    MEDLOADER_EXPORT MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMaxExt, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     //
-    void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
-    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
-    void eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
-    void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
-    void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
-    void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
-    void addNodeGroup(const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
-    void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
-    void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
-    void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
-    void setMeshes(const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
-    void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
-    void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
-    void optimizeFamilies() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void addNodeGroup(const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setMeshes(const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     // tools
-    void duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified) throw(INTERP_KERNEL::Exception);
-    bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
   private:
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh();
@@ -286,36 +286,36 @@ namespace ParaMEDMEM
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_coords;
   };
 
-  class MEDLOADER_EXPORT MEDFileStructuredMesh : public MEDFileMesh
+  class MEDFileStructuredMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;
   public:
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
-    void clearNonDiscrAttributes() const;
-    DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
-    void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
-    void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getNonEmptyLevels() const;
-    std::vector<int> getNonEmptyLevelsExt() const;
-    std::vector<int> getFamArrNonEmptyLevelsExt() const;
-    std::vector<int> getNumArrNonEmptyLevelsExt() const;
-    std::vector<int> getNameArrNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMaxFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getMinFamilyIdInArrays() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
+    MEDLOADER_EXPORT DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
+    MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getNumArrNonEmptyLevelsExt() const;
+    MEDLOADER_EXPORT std::vector<int> getNameArrNonEmptyLevelsExt() const;
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
-    void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const throw(INTERP_KERNEL::Exception);
     // tools
-    bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
   protected:
     void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     void deepCpyAttributes() throw(INTERP_KERNEL::Exception);
@@ -334,25 +334,25 @@ namespace ParaMEDMEM
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_cells;
   };
 
-  class MEDLOADER_EXPORT MEDFileCMesh : public MEDFileStructuredMesh
+  class MEDFileCMesh : public MEDFileStructuredMesh
   {
     friend class MEDFileMesh;
   public:
-    static MEDFileCMesh *New();
-    static MEDFileCMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
-    int getMeshDimension() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
-    std::string advancedRepr() const;
-    void clearNonDiscrAttributes() const;
-    const MEDCouplingCMesh *getMesh() const;
-    void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileCMesh *New();
+    MEDLOADER_EXPORT static MEDFileCMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::string simpleRepr() const;
+    MEDLOADER_EXPORT std::string advancedRepr() const;
+    MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
+    MEDLOADER_EXPORT const MEDCouplingCMesh *getMesh() const;
+    MEDLOADER_EXPORT void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
   private:
     const MEDCouplingStructuredMesh *getStructuredMesh() const;
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
@@ -397,19 +397,19 @@ namespace ParaMEDMEM
   class MEDLOADER_EXPORT MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileMeshMultiTS *New();
-    static MEDFileMeshMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
-    MEDFileMeshMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    std::string getName() const throw(INTERP_KERNEL::Exception);
-    void setName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
-    bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception);
-    void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileMeshMultiTS *New();
+    MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMeshMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::string getName() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
   private:
     void loadFromFile(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
     MEDFileMeshMultiTS();
@@ -421,29 +421,29 @@ namespace ParaMEDMEM
 
   class MEDFileMeshesIterator;
 
-  class MEDLOADER_EXPORT MEDFileMeshes : public RefCountObject, public MEDFileWritable
+  class MEDFileMeshes : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileMeshes *New();
-    static MEDFileMeshes *New(const char *fileName) throw(INTERP_KERNEL::Exception);
-    MEDFileMeshes *deepCpy() const throw(INTERP_KERNEL::Exception);
-    std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
-    std::string simpleRepr() const;
-    void simpleReprWithoutHeader(std::ostream& oss) const;
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
-    MEDFileMeshesIterator *iterator() throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
-    MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
-    bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT static MEDFileMeshes *New();
+    MEDLOADER_EXPORT static MEDFileMeshes *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMeshes *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::string simpleRepr() const;
+    MEDLOADER_EXPORT void simpleReprWithoutHeader(std::ostream& oss) const;
+    MEDLOADER_EXPORT void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMeshesIterator *iterator() throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     //
-    void resize(int newSize) throw(INTERP_KERNEL::Exception);
-    void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
-    void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
-    void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    MEDLOADER_EXPORT void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
   private:
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void loadFromFile(const char *fileName) throw(INTERP_KERNEL::Exception);
@@ -453,12 +453,12 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> > _meshes;
   };
 
-  class MEDLOADER_EXPORT MEDFileMeshesIterator
+  class MEDFileMeshesIterator
   {
   public:
-    MEDFileMeshesIterator(MEDFileMeshes *ms);
-    ~MEDFileMeshesIterator();
-    MEDFileMesh *nextt();
+    MEDLOADER_EXPORT MEDFileMeshesIterator(MEDFileMeshes *ms);
+    MEDLOADER_EXPORT ~MEDFileMeshesIterator();
+    MEDLOADER_EXPORT MEDFileMesh *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _ms;
      int _iter_id;
