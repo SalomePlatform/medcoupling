@@ -23,9 +23,8 @@ IF(Boost_FOUND)
   ADD_DEFINITIONS("-DENABLE_BOOST")
 ENDIF(Boost_FOUND)
 
+# Include directories
 INCLUDE_DIRECTORIES(
-  ${Boost_INCLUDE_DIRS}
-  ${METIS_INCLUDE_DIRS}
   ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
@@ -55,6 +54,8 @@ SET(renumber_SOURCES
 SET(renumbercpp_LDFLAGS medloader)
 
 IF(Metis_FOUND)
+  INCLUDE_DIRECTORIES(${METIS_INCLUDE_DIRS})
+  
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_METISRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_METISRenumbering.hxx)
   SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${METIS_LIBS})
@@ -62,6 +63,8 @@ IF(Metis_FOUND)
 ENDIF(Metis_FOUND)
 
 IF(Boost_FOUND)
+  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+  
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_BOOSTRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_BOOSTRenumbering.hxx)
   SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${BOOST_LIBRARIES})
