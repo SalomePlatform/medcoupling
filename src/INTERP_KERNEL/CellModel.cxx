@@ -414,6 +414,7 @@ namespace INTERP_KERNEL
         {
           _nb_of_pts=0; _nb_of_sons=0; _dim=1; _dyn=true; _extruded_type=NORM_POLYGON; _is_simplex=false;
         }
+        break;
       case NORM_ERROR:
         {
           _nb_of_pts=std::numeric_limits<unsigned>::max(); _nb_of_sons=std::numeric_limits<unsigned>::max(); _dim=std::numeric_limits<unsigned>::max();

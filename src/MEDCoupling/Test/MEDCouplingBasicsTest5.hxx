@@ -37,6 +37,7 @@ namespace ParaMEDMEM
   {
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest5);
     CPPUNIT_TEST( testUMeshTessellate2D1 );
+    CPPUNIT_TEST( testUMeshTessellate2DCurve1 );
     CPPUNIT_TEST( testIntersect2DMeshesTmp4 );
     CPPUNIT_TEST( testGetCellIdsCrossingPlane1 );
     CPPUNIT_TEST( testBuildSlice3D1 );
@@ -77,6 +78,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
+    void testUMeshTessellate2DCurve1();
     void testIntersect2DMeshesTmp4();
     void testGetCellIdsCrossingPlane1();
     void testBuildSlice3D1();

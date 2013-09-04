@@ -84,6 +84,28 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2D1()
   m1->decrRef();
 }
 
+void MEDCouplingBasicsTest5::testUMeshTessellate2DCurve1()
+{
+  // A quarter of circle:
+  double mcoords[6] = {0.4,0.0,   0.0,-0.4,   0.283,-0.283};
+  int mconnec[3] = {0,1,2};
+
+  MEDCouplingUMesh *m1 = MEDCouplingUMesh::New();
+  m1->setMeshDimension(1);
+  m1->allocateCells(1);
+  m1->insertNextCell(INTERP_KERNEL::NORM_SEG3, 3, mconnec);
+
+  DataArrayDouble *myCoords = DataArrayDouble::New();
+  myCoords->alloc(3,2);
+  std::copy(mcoords,mcoords+6,myCoords->getPointer());
+  m1->setCoords(myCoords);
+  myCoords->decrRef();
+
+  MEDCouplingUMesh *m2 = static_cast<MEDCouplingUMesh *>(m1->deepCpy());
+  m2->tessellate2DCurve(0.1);
+  CPPUNIT_ASSERT_NO_THROW(m2->checkCoherency1(0.0)); // eps param not used
+}
+
 /*!
  * idem MEDCouplingBasicsTest4::testIntersect2DMeshesTmp3 except that m1 and m2 are permuted on call to MEDCouplingUMesh::Intersect2DMeshes
  */
