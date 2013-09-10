@@ -21,9 +21,8 @@ discrete level on every cell.
 It is therefore often desired that the process interpolation preserve the
 integral of \f$ \phi \f$ on any domain. At the discrete level, for any
 target cell \f$ T_i \f$, the following \b general \b interpolation \b
-formula \anchor InterpKerGenralEq has to
-be satisfied :
-
+formula has to be satisfied :
+\anchor InterpKerGenralEq
 \f[
 \int_{T_i} \phi_t = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi_s.
 \f]

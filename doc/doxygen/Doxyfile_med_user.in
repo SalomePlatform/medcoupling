@@ -35,7 +35,7 @@ BRIEF_MEMBER_DESC      = NO
 REPEAT_BRIEF           = YES
 ALWAYS_DETAILED_SEC    = NO
 FULL_PATH_NAMES        = NO
-STRIP_FROM_PATH        = 
+STRIP_FROM_PATH        =
 INTERNAL_DOCS          = NO
 STRIP_CODE_COMMENTS    = YES
 CASE_SENSE_NAMES       = YES
@@ -53,7 +53,7 @@ TAB_SIZE               = 8
 GENERATE_TODOLIST      = YES
 GENERATE_TESTLIST      = YES
 GENERATE_BUGLIST       = YES
-ALIASES                = 
+ALIASES                =
 ENABLED_SECTIONS       = user MEDCOUPLING_ug
 MAX_INITIALIZER_LINES  = 30
 OPTIMIZE_OUTPUT_FOR_C  = NO
@@ -70,17 +70,20 @@ WARN_LOGFILE           = log_user
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = @builddir@ \
-		         @srcdir@ \
-		         @srcdir@/fakesources \
+                         @srcdir@/doxfiles \
+                         @srcdir@/doxfiles/medcoupling \
+                         @srcdir@/doxfiles/medloader \
+                         @srcdir@/doxfiles/interpolation \
+                         @srcdir@/fakesources \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
-			 @srcdir@/../../src/INTERP_KERNEL/Bases \
+                         @srcdir@/../../src/INTERP_KERNEL/Bases \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDCoupling \
-			 @srcdir@/../../src/MEDLoader
+                         @srcdir@/../../src/MEDLoader
 
 FILE_PATTERNS          = InterpKernelDEC.* \
-			 OverlapDEC.* \
+                         OverlapDEC.* \
                          DEC.* \
                          DisjointDEC.* \
                          MPIProcessorGroup.* \
@@ -88,8 +91,8 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          ExplicitCoincidentDEC.* \
                          NonCoincidentDEC.* \
                          CommInterface.* \
-			 NormalizedGeometricTypes \
-			 NormalizedUnstructuredMesh.* \
+                         NormalizedGeometricTypes \
+                         NormalizedUnstructuredMesh.* \
                          Interpolation2D.* \
                          Interpolation3D.* \
                          Interpolation3DSurf.* \
@@ -97,7 +100,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          PlanarIntersector.* \
                          TargetIntersector.* \
                          Interpolation.* \
-			 InterpolationOptions.* \
+                         InterpolationOptions.* \
                          InterpKernelGeo2DAbstractEdge.* \
                          InterpKernelGeo2DEdge.* \
                          InterpKernelGeo2DEdgeArcCircle.* \
@@ -109,17 +112,17 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          ParaFIELD.* \
                          MEDCouplingMesh.* \
                          MEDCouplingUMesh.* \
-			 MEDCoupling1GTUMesh.* \
+                         MEDCoupling1GTUMesh.* \
                          MEDCouplingPointSet.* \
                          MEDCouplingCMesh.* \
-			 MEDCouplingStructuredMesh.* \
-			 MEDCouplingCurveLinearMesh.* \
+                         MEDCouplingStructuredMesh.* \
+                         MEDCouplingCurveLinearMesh.* \
                          MEDCouplingExtrudedMesh.* \
                          MEDCouplingFieldDouble.* \
                          MEDCouplingField.* \
-			 MEDCouplingNatureOfFieldEnum
-			 MEDCouplingNatureOfField.hxx \
-			 MEDCouplingFieldTemplate.* \
+                         MEDCouplingNatureOfFieldEnum \
+                         MEDCouplingNatureOfField.hxx \
+                         MEDCouplingFieldTemplate.* \
                          MEDCouplingFieldDiscretization.* \
                          MEDCouplingTimeDiscretization.* \
                          MEDCouplingTimeLabel.* \
@@ -128,19 +131,19 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          MEDCouplingRemapper.* \
                          MEDLoader.* \
                          MEDFileMesh.* \
-			 MEDFileField.* \
+                         MEDFileField.* \
                          *.dox
-RECURSIVE              = NO
+RECURSIVE              = YES
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM \
-		         @srcdir@/../../src/MEDCoupling/Test \
-			 @srcdir@/../../src/MEDCoupling_Swig \
-			 @srcdir@/../../src/MEDLoader/Swig
+                         @srcdir@/../../src/MEDCoupling/Test \
+                         @srcdir@/../../src/MEDCoupling_Swig \
+                         @srcdir@/../../src/MEDLoader/Swig
 EXAMPLE_PATTERNS       = *.cxx *.py
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = @srcdir@/figures
-INPUT_FILTER           = 
+INPUT_FILTER           =
 FILTER_SOURCE_FILES    = NO
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
@@ -154,7 +157,7 @@ REFERENCES_RELATION    = YES
 #---------------------------------------------------------------------------
 ALPHABETICAL_INDEX     = YES
 COLS_IN_ALPHA_INDEX    = 5
-IGNORE_PREFIX          = 
+IGNORE_PREFIX          =
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
@@ -185,8 +188,8 @@ GENERATE_LATEX         = YES
 LATEX_OUTPUT           = latex
 COMPACT_LATEX          = YES
 PAPER_TYPE             = a4wide
-EXTRA_PACKAGES         = 
-LATEX_HEADER           = 
+EXTRA_PACKAGES         =
+LATEX_HEADER           =
 PDF_HYPERLINKS         = NO
 USE_PDFLATEX           = NO
 LATEX_BATCHMODE        = NO
@@ -197,8 +200,8 @@ GENERATE_RTF           = NO
 RTF_OUTPUT             = rtf
 COMPACT_RTF            = NO
 RTF_HYPERLINKS         = NO
-RTF_STYLESHEET_FILE    = 
-RTF_EXTENSIONS_FILE    = 
+RTF_STYLESHEET_FILE    =
+RTF_EXTENSIONS_FILE    =
 #---------------------------------------------------------------------------
 # configuration options related to the man page output
 #---------------------------------------------------------------------------
@@ -211,26 +214,26 @@ MAN_LINKS              = NO
 #---------------------------------------------------------------------------
 GENERATE_XML           = NO
 #---------------------------------------------------------------------------
-# Configuration options related to the preprocessor   
+# Configuration options related to the preprocessor
 #---------------------------------------------------------------------------
 ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = 
-INCLUDE_FILE_PATTERNS  = 
-PREDEFINED             = 
+INCLUDE_PATH           =
+INCLUDE_FILE_PATTERNS  =
+PREDEFINED             =
 EXPAND_AS_DEFINED      = MEDCOUPLING_EXPORT MEDCOUPLINGREMAPPER_EXPORT MEDLOADER_EXPORT
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
-# Configuration::addtions related to external references   
+# Configuration::addtions related to external references
 #---------------------------------------------------------------------------
-TAGFILES               = 
-GENERATE_TAGFILE       = 
+TAGFILES               =
+GENERATE_TAGFILE       =
 ALLEXTERNALS           = NO
 PERL_PATH              = /usr/bin/perl
 #---------------------------------------------------------------------------
-# Configuration options related to the dot tool   
+# Configuration options related to the dot tool
 #---------------------------------------------------------------------------
 CLASS_DIAGRAMS         = YES
 HAVE_DOT               = YES
@@ -241,20 +244,20 @@ HIDE_UNDOC_RELATIONS   = YES
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES
 GRAPHICAL_HIERARCHY    = YES
-DOT_PATH               = 
+DOT_PATH               =
 DOT_FONTNAME           = Arial
-DOTFILE_DIRS           = 
+DOTFILE_DIRS           =
 MAX_DOT_GRAPH_WIDTH    = 1024
 MAX_DOT_GRAPH_HEIGHT   = 1024
 GENERATE_LEGEND        = YES
 DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
-# Configuration::addtions related to the search engine   
+# Configuration::addtions related to the search engine
 #---------------------------------------------------------------------------
 SEARCHENGINE           = NO
 CGI_NAME               = search.cgi
-CGI_URL                = 
-DOC_URL                = 
-DOC_ABSPATH            = 
+CGI_URL                =
+DOC_URL                =
+DOC_ABSPATH            =
 BIN_ABSPATH            = /usr/local/bin/
-EXT_DOC_PATHS          = 
+EXT_DOC_PATHS          =

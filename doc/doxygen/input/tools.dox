@@ -17,7 +17,7 @@ a series of other MED files forming a partition of the original MED
 files. It can either work with serial meshes (1 to n) or distributed
 meshes (p to n). For serial meshes, it accepts MED files from the 2.1
 version onwards. For distributed MED files, it accepts MED files from
-the 2.3 version onwards. 
+the 2.3 version onwards.
 
 There exists a parallel version of MEDPARTITIONER, which accepts
 distributed MED files only. In contrast to the ordinary MEDPARTITIONER
@@ -29,9 +29,9 @@ not fields.
 
 It can be used either as an executable, \a medpartitioner (or \a
 medpartitioner_para) or as a library. The partitioning is made thanks to
-one of the following library : 
+one of the following library :
 - METIS (http://glaros.dtc.umn.edu/gkhome/views/metis/index.html)
-- SCOTCH (http://www.labri.fr/perso/pelegrin/scotch/scotch_fr.html)
+- SCOTCH (http://www.labri.fr/perso/pelegrin/scotch/scotch_en.html)
 
 The arguments to the medpartitioner tool can be retrieved by calling :
 \code
@@ -80,7 +80,7 @@ The sauv2med tool enable conversion from a Cast3m \a sauv file into a
 MED file. It is a python script that encapsulates the read/write
 drivers provided by the MEDLoader library.
 
-Calling 
+Calling
 \code
 sauv2med myfile.sauv
 \endcode
@@ -89,9 +89,9 @@ generates a \a med file named \a myfile.sauv.med
 \section med2sauv med2sauv tool
 
 med2sauv operator is the operator that is inverse of sauv2med. Its
-behaviour is symmetrical. 
+behaviour is symmetrical.
 
-Calling 
+Calling
 \code
 med2sauv myfile.med
 \endcode

@@ -4,7 +4,7 @@
 \section InterpKerIntro Introduction
 
 The main purpose of this module is to propose a set of algorithms for
-mesh interpolation \b fully \b independent \b of \b the \b mesh \b datas tructure to
+mesh interpolation \b fully \b independent \b of \b the \b mesh \b data structure to
 support several type of format. This component is parametrized as
 much as possible using C++ templates.
 For the moment only interpolators for unstructured meshes are present in
@@ -13,9 +13,9 @@ the %interpolation kernel.
 \section InterpKerMainArchitecture Main architecture of interpolation kernel.
 
 In the %interpolation kernel, algorithms that computes the intersection \f$ T_i\cap S_j\f$ given the locations and geometries of source cell \f$ S_j \f$
-and target cell \f$ T_i \f$ are called \ref InterpKerIntersectors.
+and target cell \f$ T_i \f$ are called \subpage InterpKerIntersectors.
 
-As can be seen in \ref ConsInterp "the theory of interpolation", all the proposed interpolators aim at
+As can be seen in \subpage InterpKerRemapGlobal "the theory of interpolation", all the proposed interpolators aim at
 filling the interpolation matrix W (which is generally sparse). For each pair (i,j), \f$ W_{ij} \f$ is obtained
 by calling the desired intersector. The problem is that each call to this algorithm
 is CPU-expensive.

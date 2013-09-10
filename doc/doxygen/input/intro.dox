@@ -1,6 +1,8 @@
-/*!\mainpage SALOME MED user's guide
+/*!
 
-\section intro Introduction
+\mainpage Introduction
+
+\section intro Contents
 This document is the user guide of the %MED SALOME module. The MED
 module consists in:
 
@@ -55,43 +57,4 @@ The install procedure of the %MED SALOME module can handle a variety of configur
 to suit the needs of its user. Instructions for configuring and
 installing the module an be found in \ref paramedmem_install.
 
-*/
-
-/*!
-\page paramedmem_install Configuring and Installing MED from sources
-
-The libraries in SALOME MED can be configured in several manners so that it can run inside or outside the Salome platform.
-Also, partitioning and parallel functionalities are optional.
-
-The sources of the library are located in the \a MED_SRC directory.
-The first step consists in preparing the configuration of the library :
-\verbatim
-cd ${MED_SRC}
-./build_configure
-\endverbatim
-
-This will create SALOME MED libraries with link to the SALOME Kernel.
-Sometimes, if it is desirable to have a standalone version of the library to be used independently from SALOME, use :
-\verbatim
-cd ${MED_SRC}
-./build_configure --without-kernel
-\endverbatim
-
-The library can then be configured :
-\verbatim
-mkdir ../MED_BUILD
-cd ../MED_BUILD
-../MED_SRC/configure --prefix=`pwd`/../MED_INSTALL
-\endverbatim
-
-This will configure the library without splitting functionalities. ParaMEDMEM will be compiled if an MPI version has been found.
-
-The following options can be useful to configure SALOME MED :
-- \a --enable-splitter=yes will trigger the compilation of the MEDSPLITTER tool,
-- \a --with-metis=${METISDIR} will specify a location for the METIS library,
-- \a --with-scotch=${SCOTCHDIR} will specify a location for the SCOTCH library,
-- \a --with-med3=${MED3DIR} specifies a location for MED-file library,
-- \a --with-hdf5=${HDF5DIR} specifies a location for the HDF5 library (must be the same as that used for the MED-file library)
-- \a --with-lam=${LAMDIR} specifies an install path for a LAM MPI library,
-- \a --with-mpich=${MPICHDIR} specifies an install path for a MPICH-1 library.
 */

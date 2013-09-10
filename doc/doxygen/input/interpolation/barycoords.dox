@@ -2,12 +2,12 @@
 \page barycoords Barycentric coordinates algorithm
 
 Computation of barycentric coordinates is used to fill interpolation
-matrix in case of P1 an P1d types of interpolation. Computation of
+matrix in case of P1 and P1d types of interpolation. Computation of
 barycentric coordinates consists in finding weights of vertices
-bearing values within the cell. The cell is triangle in 2D space and
-tetrahedron in 3D space.
+bearing values within the cell. The cell is triangular in 2D space and
+tetrahedral in 3D space.
 
-Input of the algorithm includes
+Input of the algorithm include:
 - coordinates of cell vertices (p1...pn),
 - coordinates of a barycentre of cells intersection (b),
 <br>where n is number of vertices which is either 3 or 4.

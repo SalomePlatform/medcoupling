@@ -22,19 +22,56 @@ import sys
 import re
 import os
 
-def Cpp2Python(st):
-    st=st.replace("C++","Python")
-    st=st.replace("Cxx","Py")
-    st=st.replace("Cpp","Py")
-    st=st.replace("cxx","py")
-    st=st.replace("cpp","py")
-    return st
+# :TRICKY:
+# In input file, contents delimited by two lines containing BEGIN_CPP_ONLY and
+# END_CPP_ONLY strings respectively, will only appear in C++ documentation.
+# The same rule applies for Python-specific contents.
+
+def Cpp2Python(contents):
+    cpp_only = False
+    output = []
+    for st in contents:
+        if "BEGIN_CPP_ONLY" in st:
+            cpp_only = True
+        elif "END_CPP_ONLY" in st:
+            cpp_only = False
+        elif not cpp_only:
+            st=st.replace("C++","Python")
+            st=st.replace("Cxx","Py")
+            st=st.replace("Cpp","Py")
+            st=st.replace("cxx","py")
+            st=st.replace("cpp","py")
+            output.append(st)
+            pass
+        pass
+
+    return output
+#
+def discardPythonFrom(contents):
+    python_only = False
+    output = []
+    for st in contents:
+        if "BEGIN_PYTHON_ONLY" in st:
+            python_only = True
+        elif "END_PYTHON_ONLY" in st:
+            python_only = False
+        elif not python_only:
+            output.append(st)
+            pass
+        pass
+
+    return output
+    #
+#
+
 
 fCpp=file(sys.argv[1],"r")
 cppCont=fCpp.readlines() ; del fCpp
 pyCont=cppCont[:]
 pyCont=[elt.replace("medcouplingcppexamples","medcouplingpyexamples") for elt in pyCont]
-pyCont=[Cpp2Python(elt) for elt in pyCont]
+pyCont=Cpp2Python(pyCont)
+
+cppCont=discardPythonFrom(cppCont) # remove Python-only contents from Cpp
 
 outFileName=os.path.join(sys.argv[2],os.path.basename(sys.argv[1]))
 

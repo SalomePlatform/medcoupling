@@ -11,18 +11,18 @@ user constraints.
 
 \image html interpolationimage.png "General interpolation scheme" width=10cm
 
-The starting point for using the tools is the description of the two main different APIs. 
-- \ref RemapperClasses "Remapper class" and the underlying \ref interpkernel library for sequential codes using \ref medcoupling fields or other data structures. 
+The starting point for using the tools is the description of the two main different APIs.
+- \subpage RemapperClasses "remapper class" and the underlying \subpage interpkernel library for sequential codes using \ref medcoupling fields or other data structures.
 - \ref paramedmem for parallel MPI based codes using \c ParaMEDMEM distributed fields, and the algorithms of the \ref interpkernel library.
 
 The possibilities encompass:
 - 1D, 2D lines, 2D (\ref interpolation2D), 3D surfaces(\ref interpolation3Dsurf) and 3D(\ref interpolation3D) handling,
 - computation via node localization (\ref pointlocator) or via cell intersection (\ref ConsInterp),
 - treatment of extended polygons (where edges can be arcs or segments)
-for 2D intersection computations via \ref interpkernelGeo2D,
-- management of fields with P0,P1 or P2 representations. P0<->P0, P1<->P0, P1<->P1 and P2->P0 (non conservative) interpolators are available. 
+for 2D intersection computations via \subpage interpkernelGeo2D,
+- management of fields with P0,P1 or P2 representations. P0<->P0, P1<->P0, P1<->P1 and P2->P0 (non conservative) interpolators are available.
 
-In case of non \ref MeshOverlap "overlapping meshes", it is important to specify whether the field represents an extensive or intensive physical quantity through 
+In case of non \ref MeshOverlap "overlapping meshes", it is important to specify whether the field represents an extensive or intensive physical quantity through
 the \ref NatureOfField attribute of the \ref medcoupling field.
 
 */

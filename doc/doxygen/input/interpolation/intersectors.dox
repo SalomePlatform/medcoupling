@@ -1,5 +1,5 @@
 /*!
-\defgroup InterpKerGrpIntPlan Plannar Intersector
+\defgroup InterpKerGrpIntPlan Planar Intersector
 
 Here are listed all the methods to be called or to overload to all
 concrete intersector.
@@ -28,10 +28,9 @@ non-convex polygons) is supported by this algorithm. Due to its
 flexibility this algorithm is slower than the other.
 - \anchor pointlocator PointLocator: This is a \b non \b conservative interpolator. For P0P0, it
 locates the barycenter of target cell in the source cells. For P1P0, it
-locates barycenter of target cell and compute barycentric coordinates
+locates barycenter of target cell and compute \subpage barycoords "barycentric coordinates"
 in source cell (Works only with Triangle). For P0P1 locate target nodes
-in source cells. For P1P1 compute for each target node its barycentric
-coordinates in source cell.
+in source cells. For P1P1 compute for each target node its barycentric coordinates in source cell.
 
 The following options are available for the 2D intersection computations:
  * <TABLE BORDER=1 >
@@ -73,8 +72,7 @@ Note that choosing the Triangle Intersection_type necessarily set the DoRotate o
 
 Unlike \ref InterpKerPlanarIntGenP0P0 "PlanarIntersector phylosophy"
 this intersector is slightly different. Here for the moment
-there is one instance per pair of meshes \b and target element. See INTERP_KERNEL::TargetIntersector for
-more details.
+there is one instance per pair of meshes \b and target element. See INTERP_KERNEL::TargetIntersector for more details.
 
 \subsection InterpKer3DIntFeatureP0P0 P0->P0 intersectors features.
 
