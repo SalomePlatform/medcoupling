@@ -44,7 +44,8 @@ namespace INTERP_KERNEL
   class Bounds;
   
   /*!
-   * As nodes can be shared between edges it is dealed with ref counting.
+   * Representation of a 2D point, and potentially its location relative to a polygon.
+   * As nodes can be shared between edges it is handled with ref counting.
    */
   class INTERPKERNEL_EXPORT Node
   {

@@ -8226,7 +8226,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd5(m1Desc),dd6(m2Desc);
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,m2Desc,addCoo,subDiv2,intersectEdge2);
-  subDiv2.clear(); dd5=0; dd6=0;
+  subDiv2.clear(); //dd5=0; dd6=0;
   std::vector<int> cr,crI; //no DataArrayInt because interface with Geometric2D
   std::vector<int> cNb1,cNb2; //no DataArrayInt because interface with Geometric2D
   BuildIntersecting2DCellsFromEdges(eps,m1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
