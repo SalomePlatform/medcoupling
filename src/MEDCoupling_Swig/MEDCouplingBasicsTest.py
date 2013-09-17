@@ -13830,6 +13830,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(f4.getMesh(),None)
         pass
 
+    # test a simple node to cell convertion of a field
+    def testSwig2NodeToCellDiscretization1(self):
+        f=MEDCouplingFieldDouble(ON_NODES) ; f.setTime(1.1,2,3)
+        a1=DataArrayDouble(4) ; a1.iota()
+        a2=DataArrayDouble(3) ; a2.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(a1,a2)
+        f.setMesh(m)
+        arr=DataArrayDouble([21.,121.,20.,120.,19.,119.,18.,118.,17.,117.,16.,116.,15.,115.,14.,114.,13.,113.,12.,112.,11.,111.,10.,110.],12,2) ; arr.setInfoOnComponents(["aa [km]","bbb [kJ]"])
+        f.setArray(arr) ; f.setName("toto")
+        #
+        f2=f.nodeToCellDiscretization()
+        self.assertEqual(ON_CELLS,f2.getTypeOfField())
+        self.assertEqual("toto",f2.getName())
+        self.assertEqual([1.1,2,3],f2.getTime())
+        self.assertEqual(["aa [km]","bbb [kJ]"],f2.getArray().getInfoOnComponents())
+        self.assertEqual(6,f2.getArray().getNumberOfTuples())
+        self.assertEqual(f.getMesh().getHiddenCppPointer(),f2.getMesh().getHiddenCppPointer())
+        exp=DataArrayDouble([18.5,118.5,17.5,117.5,16.5,116.5,14.5,114.5,13.5,113.5,12.5,112.5],6,2) ; exp.setInfoOnComponents(["aa [km]","bbb [kJ]"])
+        self.assertTrue(f2.getArray().isEqual(exp,1e-13))
+        pass
+
     def setUp(self):
         pass
     pass

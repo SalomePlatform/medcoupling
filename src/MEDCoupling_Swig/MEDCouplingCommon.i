@@ -207,6 +207,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::nodeToCellDiscretization;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::DataArray::deepCpy;
@@ -3391,6 +3392,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *nodeToCellDiscretization() const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     double getIJK(int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);

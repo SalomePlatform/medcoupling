@@ -218,6 +218,62 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
 }
 
 /*!
+ * This method converts a field on nodes (\a this) to a cell field (returned field). The convertion is a \b non \b conservative remapping !
+ * This method is useful only for users that need a fast convertion from node to cell spatial discretization. The algorithm applied is simply to attach
+ * to each cell the average of values on nodes constituting this cell.
+ *
+ * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
+ *         caller is to delete this field using decrRef() as it is no more needed. The returned field will share the same mesh object object than those in \a this.
+ * \throw If \a this spatial discretization is empty or not ON_NODES.
+ * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
+ * 
+ * \warning This method is a \b non \b conservative method of remapping from node spatial discretization to cell spatial discretization.
+ * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P1P0" method.
+ */
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
+{
+  checkCoherency();
+  TypeOfField tf(getTypeOfField());
+  if(tf!=ON_NODES)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::nodeToCellDiscretization : this field is expected to be on ON_NODES !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(clone(false));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP0> nsp(new MEDCouplingFieldDiscretizationP0);
+  ret->setDiscretization(nsp);
+  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
+  int nbCells(m->getNumberOfCells()),nbNodes(m->getNumberOfNodes());
+  std::vector<DataArrayDouble *> arrs(getArrays());
+  std::size_t sz(arrs.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
+  for(std::size_t j=0;j<sz;j++)
+    {
+      int nbCompo(arrs[j]->getNumberOfComponents());
+      outArrsSafe[j]=DataArrayDouble::New(); outArrsSafe[j]->alloc(nbCells,nbCompo);
+      outArrsSafe[j]->copyStringInfoFrom(*arrs[j]);
+      outArrs[j]=outArrsSafe[j];
+      double *pt(outArrsSafe[j]->getPointer());
+      const double *srcPt(arrs[j]->begin());
+      for(int i=0;i<nbCells;i++,pt+=nbCompo)
+        {
+          std::vector<int> nodeIds;
+          m->getNodeIdsOfCell(i,nodeIds);
+          std::fill(pt,pt+nbCompo,0.);
+          std::size_t nbNodesInCell(nodeIds.size());
+          for(std::size_t k=0;k<nbNodesInCell;k++)
+            std::transform(srcPt+nodeIds[k]*nbCompo,srcPt+(nodeIds[k]+1)*nbCompo,pt,pt,std::plus<double>());
+          if(nbNodesInCell!=0)
+            std::transform(pt,pt+nbCompo,pt,std::bind2nd(std::multiplies<double>(),1./((double)nbNodesInCell)));
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingFieldDouble::nodeToCellDiscretization : Cell id #" << i << " has been detected to have no nodes !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  ret->setArrays(outArrs);
+  return ret.retn();
+}
+
+/*!
  * Copies tiny info (component names, name and description) from an \a other field to
  * \a this one.
  * \warning The underlying mesh is not renamed (for safety reason).

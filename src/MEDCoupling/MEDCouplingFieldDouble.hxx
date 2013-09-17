@@ -63,6 +63,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getTimeDiscretization() const;
     MEDCOUPLING_EXPORT void checkCoherency() const;
     MEDCOUPLING_EXPORT void setNature(NatureOfField nat);

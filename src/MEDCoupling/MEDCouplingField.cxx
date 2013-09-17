@@ -174,10 +174,13 @@ std::vector<const BigMemoryObject *> MEDCouplingField::getDirectChildren() const
 /*!
  * Returns a type of \ref MEDCouplingSpatialDisc "spatial discretization" of \a this
  * field in terms of enum ParaMEDMEM::TypeOfField. 
- *  \return ParaMEDMEM::TypeOfField - the type of \a this field.
+ * \return ParaMEDMEM::TypeOfField - the type of \a this field.
+ * \throw If the geometric type is empty.
  */
 TypeOfField MEDCouplingField::getTypeOfField() const
 {
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getTypeOfField : spatial discretization is null !");
   return _type->getEnum();
 }
 
