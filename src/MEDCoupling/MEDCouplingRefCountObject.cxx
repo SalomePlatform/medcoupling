@@ -22,7 +22,6 @@
 #include "MED_version.h"
 
 #include <sstream>
-#include <set>
 
 using namespace ParaMEDMEM;
 
@@ -78,6 +77,30 @@ std::size_t BigMemoryObject::getHeapMemorySize() const
   std::size_t ret(getHeapMemorySizeWithoutChildren());
   std::vector<const BigMemoryObject *> v(getDirectChildren());
   std::set<const BigMemoryObject *> s1,s2(v.begin(),v.end());
+  return ret+GetHeapMemoryOfSet(s1,s2);
+}
+
+std::size_t BigMemoryObject::GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs)
+{
+  std::size_t ret(0);
+  std::set<const BigMemoryObject *> s1,s2;
+  for(std::vector<const BigMemoryObject *>::const_iterator it0=objs.begin();it0!=objs.end();it0++)
+    {
+      if(*it0)
+        if(s1.find(*it0)==s1.end())
+          {
+            std::vector<const BigMemoryObject *> vTmp((*it0)->getDirectChildren());
+            s2.insert(vTmp.begin(),vTmp.end());
+            ret+=(*it0)->getHeapMemorySizeWithoutChildren();
+            s1.insert(*it0);
+          }
+    }
+  return ret+GetHeapMemoryOfSet(s1,s2);
+}
+
+std::size_t BigMemoryObject::GetHeapMemoryOfSet(std::set<const BigMemoryObject *>& s1, std::set<const BigMemoryObject *>& s2)
+{
+  std::size_t ret(0);
   while(!s2.empty())
     {
       std::set<const BigMemoryObject *> s3;

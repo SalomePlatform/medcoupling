@@ -23,6 +23,7 @@
 
 #include "MEDCoupling.hxx"
 
+#include <set>
 #include <vector>
 #include <string>
 #include <cstddef>
@@ -66,9 +67,12 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
     MEDCOUPLING_EXPORT std::string getHeapMemorySizeStr() const;
+    MEDCOUPLING_EXPORT static std::size_t GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs);
     MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
     MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildren() const = 0;
     MEDCOUPLING_EXPORT virtual ~BigMemoryObject();
+  private:
+    static std::size_t GetHeapMemoryOfSet(std::set<const BigMemoryObject *>& s1, std::set<const BigMemoryObject *>& s2);
   };
   
   class RefCountObjectOnly

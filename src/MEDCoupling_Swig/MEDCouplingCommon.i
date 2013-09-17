@@ -562,19 +562,26 @@ namespace ParaMEDMEM
   class BigMemoryObject
   {
   public:
-    std::size_t getHeapMemorySize() const;
-    std::string getHeapMemorySizeStr() const;
-    virtual std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::size_t getHeapMemorySize() const throw(INTERP_KERNEL::Exception);
+    std::string getHeapMemorySizeStr() const throw(INTERP_KERNEL::Exception);
+    virtual std::size_t getHeapMemorySizeWithoutChildren() const throw(INTERP_KERNEL::Exception);
     virtual ~BigMemoryObject();
     %extend
     {
-      virtual PyObject *getDirectChildren() const
+      virtual PyObject *getDirectChildren() const throw(INTERP_KERNEL::Exception)
       {
         std::vector<const BigMemoryObject *> c(self->getDirectChildren());
         PyObject *ret(PyList_New(c.size()));
         for(std::size_t i=0;i<c.size();i++)
           PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));
         return ret;
+      }
+
+      static std::size_t GetHeapMemorySizeOfObjs(PyObject *objs) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const BigMemoryObject *> cppObjs;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::BigMemoryObject *>(objs,SWIGTYPE_p_ParaMEDMEM__BigMemoryObject,"BigMemoryObject",cppObjs);
+        return BigMemoryObject::GetHeapMemorySizeOfObjs(cppObjs);
       }
     }
   };
