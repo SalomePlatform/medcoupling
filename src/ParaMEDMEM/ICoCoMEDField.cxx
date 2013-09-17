@@ -56,6 +56,15 @@ namespace ICoCo
     INTERP_KERNEL::NormalizedCellType elemtype;
     switch (triofield._mesh_dim)
       {
+      case 1:
+        switch (triofield._nodes_per_elem)
+          {
+          case 2:
+            elemtype=INTERP_KERNEL::NORM_SEG2;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("incompatible Trio field - wrong nb of nodes per elem");
+          }
       case 2:
         switch (triofield._nodes_per_elem)
           {
