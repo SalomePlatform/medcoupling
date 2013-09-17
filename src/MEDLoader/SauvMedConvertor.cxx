@@ -2102,7 +2102,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
       if ( uniteSubs )
         {
           int nbElems = fld->_group->size();
-          for ( int elemShift = 0; elemShift < nbElems; )
+          for ( int elemShift = 0; elemShift < nbElems && iSub < fld->_sub.size(); )
             elemShift += fld->setValues( valPtr, iSub++, elemShift );
           setTS( fld, values, medFields, mesh );
         }
@@ -2367,35 +2367,47 @@ int DoubleField::setValues( double * valPtr, const int iSub, const int elemShift
     iComp += _sub[iS].nbComponents();
   const vector< double > * compValues = &_comp_values[ iComp ];
 
-  const vector< unsigned >& relocTable = getSupport( iSub )->_relocTable;
-
   // Set values
+
+  const vector< unsigned >& relocTable = getSupport( iSub )->_relocTable;
 
   const int nbElems      = _sub[iSub]._support->size();
   const int nbGauss      = _sub[iSub].nbGauss();
   const int nbComponents = _sub[iSub].nbComponents();
   const int nbValsByElem = nbComponents * nbGauss;
+
   // check nb values
   int nbVals = 0;
   for ( iComp = 0; iComp < nbComponents; ++iComp )
     nbVals += compValues[iComp].size();
-  if ( nbVals != nbElems * nbValsByElem )
+  const bool isConstField = ( nbVals == nbComponents ); // one value per component (issue 22321)
+  if ( !isConstField && nbVals != nbElems * nbValsByElem )
     THROW_IK_EXCEPTION("SauvMedConvertor.cxx: support size mismatches field size");
+
   // compute nb values in previous subs
   int valsShift = 0;
   for ( int iS = iSub-1, shift = elemShift; shift > 0; --iS)
-  {
-    int nbE = _sub[iS]._support->size();
-    shift -= nbE;
-    valsShift += nbE * _sub[iS].nbComponents() * _sub[iS].nbGauss();
-  }
-  for ( int iE = 0; iE < nbElems; ++iE )
     {
-      int iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
-      for ( iComp = 0; iComp < nbComponents; ++iComp )
-        for ( int iG = 0; iG < nbGauss; ++iG )
-          valPtr[ iMed + iG * nbComponents + iComp ] = compValues[iComp][ iE * nbGauss + iG ];
+      int nbE = _sub[iS]._support->size();
+      shift -= nbE;
+      valsShift += nbE * _sub[iS].nbComponents() * _sub[iS].nbGauss();
     }
+
+  if ( isConstField )
+    for ( int iE = 0; iE < nbElems; ++iE )
+      {
+        int iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
+        for ( iComp = 0; iComp < nbComponents; ++iComp )
+          valPtr[ iMed + iComp ] = compValues[iComp][ 0 ];
+      }
+  else
+    for ( int iE = 0; iE < nbElems; ++iE )
+      {
+        int iMed = valsShift + nbValsByElem * ( relocTable.empty() ? iE : relocTable[iE+elemShift]-elemShift );
+        for ( iComp = 0; iComp < nbComponents; ++iComp )
+          for ( int iG = 0; iG < nbGauss; ++iG )
+            valPtr[ iMed + iG * nbComponents + iComp ] = compValues[iComp][ iE * nbGauss + iG ];
+      }
   return nbElems;
 }
 
