@@ -27,7 +27,7 @@
 using namespace ParaMEDMEM;
 
 const unsigned char MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE[MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE_LGTH]=
-  {1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,-1,4};
+  {1,3,21,5,9,7,22,34,23,28,255,255,255,255,10,14,13,255,12,255,24,255,16,27,255,26,255,29,255,255,25,42,255,4};
 
 const char MEDFileField1TSStructItem2::NEWLY_CREATED_PFL_NAME[]="???";
 
@@ -566,7 +566,7 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       if(gt<0 || gt>=PARAMEDMEM_2_VTKTYPE_LGTH)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : invalid geometric type !");
       unsigned char gtvtk(PARAMEDMEM_2_VTKTYPE[gt]);
-      if(gtvtk==-1)
+      if(gtvtk==255)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : no VTK type for the requested INTERP_KERNEL geometric type !");
       std::fill(bPtr,bPtr+curNbCells,gtvtk); bPtr+=curNbCells;
       const MEDCoupling1SGTUMesh *scur(dynamic_cast<const MEDCoupling1SGTUMesh *>(cur));

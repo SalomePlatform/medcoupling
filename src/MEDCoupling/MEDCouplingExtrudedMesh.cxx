@@ -274,7 +274,7 @@ DataArrayInt *MEDCouplingExtrudedMesh::giveCellsWithType(INTERP_KERNEL::Normaliz
   ret->alloc(nbOfLevs*nbOfTuples,1);
   int *pt=ret->getPointer();
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfTuples)
-    std::transform(tmp->begin(),tmp->end(),pt,std::bind2nd(std::plus<double>(),i*nbOfCells2D));
+    std::transform(tmp->begin(),tmp->end(),pt,std::bind2nd(std::plus<int>(),i*nbOfCells2D));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=ret->renumberR(_mesh3D_ids->begin());
   ret2->sort();
   return ret2.retn();
