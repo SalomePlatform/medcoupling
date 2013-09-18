@@ -8443,6 +8443,25 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected4,m12.getNodalConnectivityIndex().getValues());
         pass
 
+    def testUMeshTessellate2DCurve1(self):
+        # A quarter of circle:
+        mcoords = [0.4,0.0,   0.0,-0.4,   0.283,-0.283]
+        mconnec = [0,1,2]
+
+        m1 = MEDCouplingUMesh.New()
+        m1.setMeshDimension(1)
+        m1.allocateCells(1)
+        m1.insertNextCell(NORM_SEG3, mconnec)
+
+        myCoords = DataArrayDouble.New(mcoords, 3, 2)
+        myCoords.alloc(3,2)
+        m1.setCoords(myCoords)
+        
+        m2 = m1.deepCpy()
+        m2.tessellate2DCurve(0.1)
+        # If the following raises, the test will fail automatically:
+        m2.checkCoherency1(0.0) # eps param not used
+
     def testIntersect2DMeshesTmp4(self):
         m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214];
         m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23];

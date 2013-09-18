@@ -104,6 +104,8 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2DCurve1()
   MEDCouplingUMesh *m2 = static_cast<MEDCouplingUMesh *>(m1->deepCpy());
   m2->tessellate2DCurve(0.1);
   CPPUNIT_ASSERT_NO_THROW(m2->checkCoherency1(0.0)); // eps param not used
+  m1->decrRef();
+  m2->decrRef();
 }
 
 /*!
