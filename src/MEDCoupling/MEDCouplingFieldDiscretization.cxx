@@ -2010,7 +2010,7 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
   std::vector<MEDCouplingGaussLocalization> tmpLoc;
   for(int i=0;i<(int)_loc.size();i++)
     if(tmp[i]!=-2)
-      tmpLoc.push_back(_loc[tmp[i]]);
+      tmpLoc.push_back(_loc[i]);
   _loc=tmpLoc;
 }
 
