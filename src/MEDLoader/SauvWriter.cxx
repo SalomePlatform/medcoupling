@@ -578,7 +578,16 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
       vector<const DataArrayInt *> idsPerType( 1, profile );
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt>
         resIDs = uMesh->checkTypeConsistencyAndContig( code, idsPerType );
-      ids.assign( resIDs->begin(), resIDs->end() );
+      if (( const DataArrayInt *) resIDs )
+      {
+        ids.assign( resIDs->begin(), resIDs->end() );
+      }
+      else // mesh includes only one type
+      {
+        int nbE = code[1];
+        for ( ids.resize( nbE ); nbE; --nbE )
+          ids[ nbE-1 ] = nbE-1;
+      }
     }
 }
 
