@@ -260,6 +260,68 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertTrue(ids1.isEqual(ids2))
         pass
 
+    def testGaussPt(self):
+        """issue 22321: [CEA 933] Bug when reading a sauve file containing field on Gauss Pt.
+        The problem was that a field ON_GAUSS_PT was created but no Gauss Localization
+        was defined"""
+
+        # create a MEDFileData with a field ON_GAUSS_PT: 9 Gauss points, on 4 QUAD8 elements
+        f=MEDCouplingFieldDouble(ON_GAUSS_PT)
+        m=MEDCouplingUMesh("mesh",2) ; m.allocateCells()
+        m.insertNextCell(NORM_QUAD8,[0,2,4,6,1,3,5,7])
+        m.insertNextCell(NORM_QUAD8,[2,9,11,4,8,10,12,3])
+        m.insertNextCell(NORM_QUAD8,[6,4,14,16,5,13,15,17])
+        m.insertNextCell(NORM_QUAD8,[4,11,19,14,12,18,20,13])
+        m.setCoords(DataArrayDouble([(0,0),(0,0.25),(0,0.5),(0.25,0.5),(0.5,0.5),(0.5,0.25),(0.5,0),(0.25,0),(0,0.75),(0,1),(0.25,1),(0.5,1),(0.5,0.75),(0.75,0.5),(1,0.5),(1,0.25),(1,0),(0.75,0),(0.75,1),(1,1),(1,0.75)],21,2))
+        f.setMesh(m)
+        arr=DataArrayDouble(4*9*2) ; arr.iota() ; arr.rearrange(2) ; arr.setInfoOnComponents(["YOUN []","NU []"])
+        f.setArray(arr)
+        refCoo=[-1,-1,1,-1,1,1,-1,1,0,-1,1,0,0,1,-1,0]
+        gpCoo=[-0.7,-0.7,0.7,-0.7,0.7,0.7,-0.7,0.7,0,-0.7,0.7,0,0,0.7,-0.7,0,0,0]
+        wgt=[0.3,0.3,0.3,0.3,0.4,0.4,0.4,0.4,0.7]
+        f.setGaussLocalizationOnType(NORM_QUAD8,refCoo,gpCoo,wgt)
+        f.setName("SIGT")
+        f.checkCoherency()
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        mfm = MEDFileMeshes()
+        mfm.pushMesh( mm )
+        ff=MEDFileField1TS()
+        ff.setFieldNoProfileSBT(f)
+        mfmts = MEDFileFieldMultiTS()
+        mfmts.pushBackTimeStep(ff)
+        mff = MEDFileFields()
+        mff.pushField( mfmts )
+        mfd = MEDFileData.New()
+        mfd.setFields( mff )
+        mfd.setMeshes( mfm )
+
+        # convert the MED file to a SAUV file
+        sauvFile = "SauvLoaderTest::testGaussPt.sauv"
+        sw=SauvWriter.New();
+        sw.setMEDFileDS(mfd);
+        sw.write(sauvFile);
+
+        # convert the SAUV file back to MED
+        sr=SauvReader.New(sauvFile);
+        d2=sr.loadInMEDFileDS();
+
+        self.assertEqual( 1, d2.getNumberOfFields() )
+        self.assertEqual( 1, d2.getNumberOfMeshes() )
+        mfm2 = d2.getMeshes()[0]
+        mff2 = d2.getFields()[0]
+        m2 = mfm2.getMeshAtLevel(0)
+        f2 = mff2.getTimeStepAtPos(0).getFieldOnMeshAtLevel(f.getTypeOfField(),0,mfm2)
+        f2.setGaussLocalizationOnType(NORM_QUAD8,refCoo,gpCoo,wgt) # not stored in SAUV
+        #f2.setOrder( f.getTime()[2] ) # not stored in SAUV
+        self.assertTrue( m2.isEqual( m, 1e-12 ))
+        self.assertTrue( f2.isEqual( f, 1e-12, 1e-12 ))
+
+        os.remove( sauvFile )
+
+
+        pass
     pass
 
 unittest.main()
