@@ -8372,6 +8372,16 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
           INTERP_KERNEL::QuadraticPolygon *pol2=MEDCouplingUMeshBuildQPFromMesh(m2Desc,candidates2,map2);
           candidates1[0]=i;
           INTERP_KERNEL::QuadraticPolygon *pol1=MEDCouplingUMeshBuildQPFromMesh(m1Desc,candidates1,map1);
+          // this following part is to avoid that a some remove nodes (for example due to a merge between pol1 and pol2) can be replaced by a newlt created one
+          // This trick garanties that Node * are discriminant
+          std::set<INTERP_KERNEL::Node *> nodes;
+          pol1->getAllNodes(nodes); pol2->getAllNodes(nodes);
+          std::size_t szz(nodes.size());
+          std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node> > nodesSafe(szz);
+          std::set<INTERP_KERNEL::Node *>::const_iterator itt(nodes.begin());
+          for(std::size_t iii=0;iii<szz;iii++,itt++)
+            { (*itt)->incrRef(); nodesSafe[iii]=*itt; }
+          // end of protection
           pol1->splitAbs(*pol2,map1,map2,offset1,offset2,candidates2,intersectEdge1[i],i,colinear2,subDiv2,addCoo);
           delete pol2;
           delete pol1;

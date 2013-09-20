@@ -13869,6 +13869,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         exp=DataArrayDouble([18.5,118.5,17.5,117.5,16.5,116.5,14.5,114.5,13.5,113.5,12.5,112.5],6,2) ; exp.setInfoOnComponents(["aa [km]","bbb [kJ]"])
         self.assertTrue(f2.getArray().isEqual(exp,1e-13))
         pass
+    
+    def testSwig2NonRegressionBugIntersectMeshes1(self):
+        src=MEDCouplingUMesh("src",2)
+        src.setCoords(DataArrayDouble([-2.5,-3,-2.5,3,2.5,3],3,2))
+        src.allocateCells()
+        src.insertNextCell(NORM_TRI3,[0,1,2])
+        #
+        trg=MEDCouplingUMesh("trg",2)
+        trg.setCoords(DataArrayDouble([-2.5,-3.,0.,-3.,0.,-2.,-2.,0.,-2.25,0.,-2.5,0.,-2.5,-1.5,0.,-2.5,-1.25,-3.,-1.414213562373095,-1.414213562373095],10,2))
+        trg.allocateCells()
+        trg.insertNextCell(NORM_QPOLYG,[2,1,0,5,3,7,8,6,4,9])
+        #
+        a,b,c=MEDCouplingUMesh.Intersect2DMeshes(src,trg,1.0e-8)
+        a.mergeNodes(1e-8)
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([-2.5,-3.,-2.5,3.,2.5,3.,0.,-3.,0.,-2.,-2.,0.,-2.25,0.,-2.5,0.,-2.5,-1.5,0.,-2.5,-1.25,-3.,-1.414213562373095,-1.414213562373095,-1.2803687993289596,-1.5364425591947515,-1.8901843996644798,-2.2682212795973755,-1.81117884244736,-0.8483107924994473,-2.5,1.5,0.,3.,0.6098156003355202,0.7317787204026243],18,2),1e-12))
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([32,12,0,7,5,13,8,6,14,32,7,1,2,12,5,15,16,17,14,6])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,9,20])))
+        self.assertTrue(b.isEqual(DataArrayInt([0,0])))
+        self.assertTrue(c.isEqual(DataArrayInt([0,-1])))
+        pass
 
     def setUp(self):
         pass
