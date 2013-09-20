@@ -8454,7 +8454,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m1.insertNextCell(NORM_SEG3, mconnec)
 
         myCoords = DataArrayDouble.New(mcoords, 3, 2)
-        myCoords.alloc(3,2)
         m1.setCoords(myCoords)
         
         m2 = m1.deepCpy()
