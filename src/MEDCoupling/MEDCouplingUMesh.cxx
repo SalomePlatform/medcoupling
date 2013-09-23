@@ -5692,13 +5692,25 @@ void MEDCouplingUMesh::orientCorrectly2DCells(const double *vec, bool polyOnly)
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
       if(!polyOnly || (type==INTERP_KERNEL::NORM_POLYGON || type==INTERP_KERNEL::NORM_QPOLYG))
         {
-          bool isQuadratic=INTERP_KERNEL::CellModel::GetCellModel(type).isQuadratic();
+          bool isQuadratic(INTERP_KERNEL::CellModel::GetCellModel(type).isQuadratic());
           if(!IsPolygonWellOriented(isQuadratic,vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
             {
               isModified=true;
-              std::vector<int> tmp(connI[i+1]-connI[i]-2);
-              std::copy(conn+connI[i]+2,conn+connI[i+1],tmp.rbegin());
-              std::copy(tmp.begin(),tmp.end(),conn+connI[i]+2);
+              if(!isQuadratic)
+                {
+                  std::vector<int> tmp(connI[i+1]-connI[i]-2);
+                  std::copy(conn+connI[i]+2,conn+connI[i+1],tmp.rbegin());
+                  std::copy(tmp.begin(),tmp.end(),conn+connI[i]+2);
+                }
+              else
+                {
+                  int sz(((int)(connI[i+1]-connI[i]-1))/2);
+                  std::vector<int> tmp0(sz-1),tmp1(sz);
+                  std::copy(conn+connI[i]+2,conn+connI[i]+1+sz,tmp0.rbegin());
+                  std::copy(conn+connI[i]+1+sz,conn+connI[i+1],tmp1.rbegin());
+                  std::copy(tmp0.begin(),tmp0.end(),conn+connI[i]+2);
+                  std::copy(tmp1.begin(),tmp1.end(),conn+connI[i]+1+sz);
+                }
             }
         }
     }

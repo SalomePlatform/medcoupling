@@ -13889,6 +13889,24 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(c.isEqual(DataArrayInt([0,-1])))
         pass
 
+    def testSwig2MeshOrientCorrectly2DCells1(self):
+        m=MEDCouplingUMesh("mesh",2)
+        coo=DataArrayDouble([1.,0.,0.5,-0.1,0.,1.,0.,0.,0.07,0.5,0.59,0.5],6,2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_TRI6,[3,0,2,1,5,4])
+        m.insertNextCell(NORM_QPOLYG,[3,0,2,1,5,4])
+        self.assertTrue(DataArrayDouble([-0.58093333350930543,-0.58093333350930543]).isEqual(m.getMeasureField(False).getArray(),1e-12))
+        m.changeSpaceDimension(3)
+        m.orientCorrectly2DCells([0.,0.,-1.],False)
+        #
+        m.checkCoherency()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([6,3,2,0,4,5,1, 32,3,2,0,4,5,1])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7,14])))
+        m.changeSpaceDimension(2)
+        self.assertTrue(DataArrayDouble([0.58093333350930543,0.58093333350930543]).isEqual(m.getMeasureField(False).getArray(),1e-12))
+        pass
+
     def setUp(self):
         pass
     pass
