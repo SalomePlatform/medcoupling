@@ -320,7 +320,6 @@ namespace ParaMEDMEM
     void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
     void pushBackSilent(double val) throw(INTERP_KERNEL::Exception);
-    void pushBackValsSilent(const double *valsBg, const double *valsEnd) throw(INTERP_KERNEL::Exception);
     double popBackSilent() throw(INTERP_KERNEL::Exception);
     void pack() const throw(INTERP_KERNEL::Exception);
     void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
@@ -4549,7 +4548,6 @@ namespace ParaMEDMEM
     void cpyFrom(const DataArrayChar& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
     void pushBackSilent(char val) throw(INTERP_KERNEL::Exception);
-    void pushBackValsSilent(const char *valsBg, const char *valsEnd) throw(INTERP_KERNEL::Exception);
     char popBackSilent() throw(INTERP_KERNEL::Exception);
     void pack() const throw(INTERP_KERNEL::Exception);
     void allocIfNecessary(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
