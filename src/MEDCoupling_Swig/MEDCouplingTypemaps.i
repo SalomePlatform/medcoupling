@@ -429,13 +429,14 @@ PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) t
   PyObject *args(PyTuple_New(1)),*args0(PyTuple_New(3)),*kw(PyDict_New()),*kw1(PyTuple_New(2));
   PyTuple_SetItem(args0,0,a); PyTuple_SetItem(args0,1,b); PyTuple_SetItem(args0,2,c); PyTuple_SetItem(args,0,args0);
   PyTuple_SetItem(kw1,0,PyInt_FromLong(nbRows)); PyTuple_SetItem(kw1,1,PyInt_FromLong(nbCols));
-  PyDict_SetItem(kw,PyString_FromString("shape"),kw1);
+  PyObject *tmp1(PyString_FromString("shape"));
+  PyDict_SetItem(kw,tmp1,kw1); Py_DECREF(tmp1); Py_DECREF(kw1);
   PyObject* pdict=PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
-  PyRun_String("from scipy.sparse import csr_matrix", Py_single_input, pdict, pdict);
+  PyObject *tmp(PyRun_String("from scipy.sparse import csr_matrix", Py_single_input, pdict, pdict));
   PyObject *csrMatrixCls=PyDict_GetItemString(pdict,"csr_matrix");
   PyObject *ret(PyObject_Call(csrMatrixCls,args,kw));
-  Py_DECREF(pdict);
+  Py_DECREF(pdict); Py_XDECREF(tmp); Py_DECREF(args); Py_DECREF(kw);
   return ret;
 }
 
