@@ -72,6 +72,7 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT double getMaxValueInCrudeMatrix() const;
   public:
     MEDCOUPLINGREMAPPER_EXPORT const std::vector<std::map<int,double> >& getCrudeMatrix() const;
+    MEDCOUPLINGREMAPPER_EXPORT int getNumberOfColsOfMatrix() const;
     MEDCOUPLINGREMAPPER_EXPORT static void PrintMatrix(const std::vector<std::map<int,double> >& m);
   private:
     int prepareInterpKernelOnly();

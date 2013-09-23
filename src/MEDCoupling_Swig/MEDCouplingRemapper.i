@@ -73,6 +73,7 @@ namespace ParaMEDMEM
       int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception);
       int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception);
       double getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception);
+      int getNumberOfColsOfMatrix() const throw(INTERP_KERNEL::Exception);
       %extend
          {
            PyObject *getCrudeMatrix() const throw(INTERP_KERNEL::Exception)
@@ -90,6 +91,12 @@ namespace ParaMEDMEM
                }
              return ret;
            }
+#ifdef WITH_NUMPY
+           PyObject *getCrudeCSRMatrix() const throw(INTERP_KERNEL::Exception)
+           {
+             return ToCSRMatrix(self->getCrudeMatrix(),self->getNumberOfColsOfMatrix());
+           }
+#endif
          }
     };
 }

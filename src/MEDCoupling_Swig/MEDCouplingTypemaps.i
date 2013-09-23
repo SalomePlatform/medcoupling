@@ -399,6 +399,46 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
   return ret;
 }
 
+SWIGINTERN PyObject *ParaMEDMEM_DataArrayInt_toNumPyArray(ParaMEDMEM::DataArrayInt *self);
+SWIGINTERN PyObject *ParaMEDMEM_DataArrayDouble_toNumPyArray(ParaMEDMEM::DataArrayDouble *self);
+
+PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) throw(INTERP_KERNEL::Exception)
+{
+  int nbRows((int)m.size());
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayInt> indPtr(ParaMEDMEM::DataArrayInt::New()),indices(ParaMEDMEM::DataArrayInt::New());
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayDouble> data(ParaMEDMEM::DataArrayDouble::New());
+  indPtr->alloc(nbRows+1,1);
+  int *intPtr_ptr(indPtr->getPointer()); intPtr_ptr[0]=0; intPtr_ptr++;
+  int sz2(0);
+  for(std::vector<std::map<int,double> >::const_iterator it0=m.begin();it0!=m.end();it0++,intPtr_ptr++)
+    {
+      sz2+=(int)(*it0).size();
+      *intPtr_ptr=sz2;
+    }
+  indices->alloc(sz2,1); data->alloc(sz2,1);
+  int *indices_ptr(indices->getPointer());
+  double *data_ptr(data->getPointer());
+  for(std::vector<std::map<int,double> >::const_iterator it0=m.begin();it0!=m.end();it0++)
+    for(std::map<int,double>::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++,indices_ptr++,data_ptr++)
+      {
+        *indices_ptr=(*it1).first;
+        *data_ptr=(*it1).second;
+      }
+  PyObject *a(ParaMEDMEM_DataArrayDouble_toNumPyArray(data)),*b(ParaMEDMEM_DataArrayInt_toNumPyArray(indices)),*c(ParaMEDMEM_DataArrayInt_toNumPyArray(indPtr));
+  //
+  PyObject *args(PyTuple_New(1)),*args0(PyTuple_New(3)),*kw(PyDict_New()),*kw1(PyTuple_New(2));
+  PyTuple_SetItem(args0,0,a); PyTuple_SetItem(args0,1,b); PyTuple_SetItem(args0,2,c); PyTuple_SetItem(args,0,args0);
+  PyTuple_SetItem(kw1,0,PyInt_FromLong(nbRows)); PyTuple_SetItem(kw1,1,PyInt_FromLong(nbCols));
+  PyDict_SetItem(kw,PyString_FromString("shape"),kw1);
+  PyObject* pdict=PyDict_New();
+  PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
+  PyRun_String("from scipy.sparse import csr_matrix", Py_single_input, pdict, pdict);
+  PyObject *csrMatrixCls=PyDict_GetItemString(pdict,"csr_matrix");
+  PyObject *ret(PyObject_Call(csrMatrixCls,args,kw));
+  Py_DECREF(pdict);
+  return ret;
+}
+
 #endif
 
 static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw(INTERP_KERNEL::Exception)

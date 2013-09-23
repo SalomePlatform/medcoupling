@@ -1148,6 +1148,14 @@ const std::vector<std::map<int,double> >& MEDCouplingRemapper::getCrudeMatrix() 
 }
 
 /*!
+ * Returns the number of columns of matrix returned by MEDCouplingRemapper::getCrudeMatrix method.
+ */
+int MEDCouplingRemapper::getNumberOfColsOfMatrix() const
+{
+  return (int)_deno_reverse_multiply.size();
+}
+
+/*!
  * This method is supposed to be called , if needed, right after MEDCouplingRemapper::prepare or MEDCouplingRemapper::prepareEx.
  * If not the behaviour is unpredictable.
  * This method works on precomputed \a this->_matrix. All coefficients in the matrix is lower than \a maxValAbs this coefficient is
