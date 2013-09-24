@@ -53,14 +53,14 @@ SET(renumber_SOURCES
 
 SET(renumbercpp_LDFLAGS medloader)
 
-IF(Metis_FOUND)
+IF(METIS_FOUND)
   INCLUDE_DIRECTORIES(${METIS_INCLUDE_DIRS})
   
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_METISRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_METISRenumbering.hxx)
-  SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${METIS_LIBS})
+  SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${METIS_LIBRARIES})
   SET(renumber_DEFINITIONS "${renumber_DEFINITIONS} ${METIS_DEFINITIONS}")
-ENDIF(Metis_FOUND)
+ENDIF(METIS_FOUND)
 
 IF(Boost_FOUND)
   INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})

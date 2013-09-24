@@ -17,8 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef METISRENUMBERING_HXX_
-#define METISRENUMBERING_HXX_
+#ifndef __METISRENUMBERING_HXX__
+#define __METISRENUMBERING_HXX__
 
 #include "RENUMBERDefines.hxx"
 #include "RENUMBER_Renumbering.hxx"
@@ -26,7 +26,7 @@
 class RENUMBER_EXPORT METISRenumbering:public Renumbering
 {
 public:
-  virtual void renumber(const int* graph,const int* index_graph,int nb_cell,std::vector<int>& iperm,std::vector<int>& perm);
+  virtual void renumber(const int *graph, const int *index_graph, int nb_cell, ParaMEDMEM::DataArrayInt *&iperm, ParaMEDMEM::DataArrayInt *&perm);
 };
 
 #endif /*METISRENUMBERING_HXX_*/

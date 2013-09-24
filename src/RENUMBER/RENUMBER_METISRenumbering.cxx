@@ -28,13 +28,18 @@ extern "C"
 #include "metis.h"
 }
 
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+
 #include "RENUMBER_METISRenumbering.hxx"
 
-void METISRenumbering::renumber(const int* graph,const int* index_graph,int nb_cell,std::vector<int>& iperm,std::vector<int>& perm)
+void METISRenumbering::renumber(const int *graph, const int *index_graph, int nbCell, ParaMEDMEM::DataArrayInt *&iperm, ParaMEDMEM::DataArrayInt *&perm)
 {
-  iperm.resize(nb_cell,0);
-  perm.resize(nb_cell,0);
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayInt> out0(ParaMEDMEM::DataArrayInt::New()),out1(ParaMEDMEM::DataArrayInt::New());
+  out0->alloc(nbCell,1); out1->alloc(nbCell,1);
+  out0->fillWithZero(); out1->fillWithZero();
   int num_flag=1;
   int options=0;
-  METIS_NodeND(&nb_cell,(int*)index_graph,(int*)graph,&num_flag,&options,&iperm[0],&perm[0]);
+  METIS_NodeND(&nbCell,(int*)index_graph,(int*)graph,&num_flag,&options,out0->getPointer(),out1->getPointer());
+  iperm=out0.retn(); perm=out1.retn();
 }

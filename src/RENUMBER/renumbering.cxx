@@ -73,26 +73,27 @@ int main(int argc, char** argv)
   cout << "Building the graph : " << flush;
   DataArrayInt *neighb=0,*neighbI=0;
   workMesh->computeNeighborsOfCells(neighb,neighbI);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighbSafe(neighb),neighbISafe(neighbI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighbSafe(neighb),neighbISafe(neighbI),ipermSafe,permSafe;
   const int *graph=neighbSafe->begin();
   const int *graph_index=neighbISafe->begin();
   // Compute permutation iperm->new2old perm->old2new
-  vector<int> iperm,perm;
+  DataArrayInt *iperm(0),*perm(0);
   Renumbering *renumb=RenumberingFactory(type_renum);
   renumb->renumber(graph,graph_index,workMesh->getNumberOfCells(),iperm,perm);
+  ipermSafe=iperm; permSafe=perm;
   delete renumb;
-  iperm.clear();//erase new2old, we are using only old 2 new
+  ipermSafe=0;//erase new2old, we are using only old 2 new
   t_compute_graph=clock();
   cout << " : " << (t_compute_graph-t_read_st)/(double) CLOCKS_PER_SEC << "s" << endl;
   cout.flush();
   // Connectivity
   cout << "Reordering connectivity & families and writing : " << flush;
-  workMesh->renumberCells(&perm[0],false);
+  workMesh->renumberCells(perm->begin(),false);
   mc->setMeshAtLevel(0,workMesh);
   const DataArrayInt *famField=mc->getFamilyFieldAtLevel(0);
   if(famField)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famField2=famField->renumber(&perm[0]);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famField2=famField->renumber(perm->begin());
       mc->setFamilyFieldArr(0,famField2);
     }
   mc->write(filename_out.c_str(),2);
@@ -114,7 +115,7 @@ int main(int argc, char** argv)
                   MEDFileField1TS *f1ts=dynamic_cast<MEDFileField1TS*>(fmts->getTimeStepAtPos(j));
 		  if(!f1ts) continue;
                   DataArrayDouble *arr=f1ts->getUndergroundDataArray();
-                  arr->renumberInPlace(&perm[0]);
+                  arr->renumberInPlace(perm->begin());
                 }
             }
         }
