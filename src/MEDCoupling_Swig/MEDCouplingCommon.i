@@ -16,10 +16,9 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 %module MEDCoupling
-
-#define MEDCOUPLING_EXPORT
 
 %include std_vector.i
 %include std_string.i
@@ -126,30 +125,6 @@ using namespace INTERP_KERNEL;
 }
 //$$$$$$$$$$$$$$$$$$
 
-////////////////////
-%typemap(out) ParaMEDMEM::DataArray*
-{
-  $result=convertDataArray($1,$owner);
-}
-
-%typemap(out) DataArray*
-{
-  $result=convertDataArray($1,$owner);
-}
-//$$$$$$$$$$$$$$$$$$
-
-////////////////////
-%typemap(out) ParaMEDMEM::DataArrayChar*
-{
-  $result=convertDataArrayChar($1,$owner);
-}
-
-%typemap(out) DataArrayChar*
-{
-  $result=convertDataArrayChar($1,$owner);
-}
-//$$$$$$$$$$$$$$$$$$
-
 #ifdef WITH_NUMPY
 %init %{ import_array(); %}
 #endif
@@ -210,147 +185,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::nodeToCellDiscretization;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
-%newobject ParaMEDMEM::DataArray::deepCpy;
-%newobject ParaMEDMEM::DataArray::selectByTupleRanges;
-%newobject ParaMEDMEM::DataArray::selectByTupleId;
-%newobject ParaMEDMEM::DataArray::selectByTupleIdSafe;
-%newobject ParaMEDMEM::DataArray::selectByTupleId2;
-%newobject ParaMEDMEM::DataArray::Aggregate;
-%newobject ParaMEDMEM::DataArrayInt::New;
-%newobject ParaMEDMEM::DataArrayInt::__iter__;
-%newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
-%newobject ParaMEDMEM::DataArrayInt::performCpy;
-%newobject ParaMEDMEM::DataArrayInt::substr;
-%newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
-%newobject ParaMEDMEM::DataArrayInt::accumulatePerChunck;
-%newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
-%newobject ParaMEDMEM::DataArrayInt::transformWithIndArrR;
-%newobject ParaMEDMEM::DataArrayInt::renumber;
-%newobject ParaMEDMEM::DataArrayInt::renumberR;
-%newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
-%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2O;
-%newobject ParaMEDMEM::DataArrayInt::invertArrayN2O2O2N;
-%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2OBis;
-%newobject ParaMEDMEM::DataArrayInt::getIdsEqual;
-%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
-%newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
-%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
-%newobject ParaMEDMEM::DataArrayInt::negate;
-%newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
-%newobject ParaMEDMEM::DataArrayInt::Aggregate;
-%newobject ParaMEDMEM::DataArrayInt::AggregateIndexes;
-%newobject ParaMEDMEM::DataArrayInt::Meld;
-%newobject ParaMEDMEM::DataArrayInt::Add;
-%newobject ParaMEDMEM::DataArrayInt::Substract;
-%newobject ParaMEDMEM::DataArrayInt::Multiply;
-%newobject ParaMEDMEM::DataArrayInt::Divide;
-%newobject ParaMEDMEM::DataArrayInt::Pow;
-%newobject ParaMEDMEM::DataArrayInt::BuildUnion;
-%newobject ParaMEDMEM::DataArrayInt::BuildIntersection;
-%newobject ParaMEDMEM::DataArrayInt::Range;
-%newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
-%newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
-%newobject ParaMEDMEM::DataArrayInt::buildComplement;
-%newobject ParaMEDMEM::DataArrayInt::buildUnion;
-%newobject ParaMEDMEM::DataArrayInt::buildSubstraction;
-%newobject ParaMEDMEM::DataArrayInt::buildSubstractionOptimized;
-%newobject ParaMEDMEM::DataArrayInt::buildIntersection;
-%newobject ParaMEDMEM::DataArrayInt::buildUnique;
-%newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
-%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
-%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
-%newobject ParaMEDMEM::DataArrayInt::findRangeIdForEachTuple;
-%newobject ParaMEDMEM::DataArrayInt::findIdInRangeForEachTuple;
-%newobject ParaMEDMEM::DataArrayInt::duplicateEachTupleNTimes;
-%newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
-%newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
-%newobject ParaMEDMEM::DataArrayInt::getDifferentValues;
-%newobject ParaMEDMEM::DataArrayInt::FindPermutationFromFirstToSecond;
-%newobject ParaMEDMEM::DataArrayInt::__neg__;
-%newobject ParaMEDMEM::DataArrayInt::__add__;
-%newobject ParaMEDMEM::DataArrayInt::__radd__;
-%newobject ParaMEDMEM::DataArrayInt::__sub__;
-%newobject ParaMEDMEM::DataArrayInt::__rsub__;
-%newobject ParaMEDMEM::DataArrayInt::__mul__;
-%newobject ParaMEDMEM::DataArrayInt::__rmul__;
-%newobject ParaMEDMEM::DataArrayInt::__div__;
-%newobject ParaMEDMEM::DataArrayInt::__rdiv__;
-%newobject ParaMEDMEM::DataArrayInt::__mod__;
-%newobject ParaMEDMEM::DataArrayInt::__rmod__;
-%newobject ParaMEDMEM::DataArrayInt::__pow__;
-%newobject ParaMEDMEM::DataArrayInt::__rpow__;
-%newobject ParaMEDMEM::DataArrayIntTuple::buildDAInt;
-%newobject ParaMEDMEM::DataArrayChar::convertToIntArr;
-%newobject ParaMEDMEM::DataArrayChar::renumber;
-%newobject ParaMEDMEM::DataArrayChar::renumberR;
-%newobject ParaMEDMEM::DataArrayChar::renumberAndReduce;
-%newobject ParaMEDMEM::DataArrayChar::changeNbOfComponents;
-%newobject ParaMEDMEM::DataArrayChar::getIdsEqual;
-%newobject ParaMEDMEM::DataArrayChar::getIdsNotEqual;
-%newobject ParaMEDMEM::DataArrayChar::Aggregate;
-%newobject ParaMEDMEM::DataArrayChar::Meld;
-%newobject ParaMEDMEM::DataArrayByte::New;
-%newobject ParaMEDMEM::DataArrayByte::__iter__;
-%newobject ParaMEDMEM::DataArrayByte::performCpy;
-%newobject ParaMEDMEM::DataArrayByteTuple::buildDAByte;
-%newobject ParaMEDMEM::DataArrayChar::substr;
-%newobject ParaMEDMEM::DataArrayAsciiChar::New;
-%newobject ParaMEDMEM::DataArrayAsciiChar::__iter__;
-%newobject ParaMEDMEM::DataArrayAsciiChar::performCpy;
-%newobject ParaMEDMEM::DataArrayAsciiCharTuple::buildDAAsciiChar;
-%newobject ParaMEDMEM::DataArrayDouble::New;
-%newobject ParaMEDMEM::DataArrayDouble::__iter__;
-%newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
-%newobject ParaMEDMEM::DataArrayDouble::performCpy;
-%newobject ParaMEDMEM::DataArrayDouble::Aggregate;
-%newobject ParaMEDMEM::DataArrayDouble::Meld;
-%newobject ParaMEDMEM::DataArrayDouble::Dot;
-%newobject ParaMEDMEM::DataArrayDouble::CrossProduct;
-%newobject ParaMEDMEM::DataArrayDouble::Add;
-%newobject ParaMEDMEM::DataArrayDouble::Substract;
-%newobject ParaMEDMEM::DataArrayDouble::Multiply;
-%newobject ParaMEDMEM::DataArrayDouble::Divide;
-%newobject ParaMEDMEM::DataArrayDouble::Pow;
-%newobject ParaMEDMEM::DataArrayDouble::substr;
-%newobject ParaMEDMEM::DataArrayDouble::changeNbOfComponents;
-%newobject ParaMEDMEM::DataArrayDouble::accumulatePerChunck;
-%newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
-%newobject ParaMEDMEM::DataArrayDouble::negate;
-%newobject ParaMEDMEM::DataArrayDouble::applyFunc;
-%newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
-%newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
-%newobject ParaMEDMEM::DataArrayDouble::doublyContractedProduct;
-%newobject ParaMEDMEM::DataArrayDouble::determinant;
-%newobject ParaMEDMEM::DataArrayDouble::eigenValues;
-%newobject ParaMEDMEM::DataArrayDouble::eigenVectors;
-%newobject ParaMEDMEM::DataArrayDouble::inverse;
-%newobject ParaMEDMEM::DataArrayDouble::trace;
-%newobject ParaMEDMEM::DataArrayDouble::deviator;
-%newobject ParaMEDMEM::DataArrayDouble::magnitude;
-%newobject ParaMEDMEM::DataArrayDouble::maxPerTuple;
-%newobject ParaMEDMEM::DataArrayDouble::computeBBoxPerTuple;
-%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
-%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrixWith;
-%newobject ParaMEDMEM::DataArrayDouble::renumber;
-%newobject ParaMEDMEM::DataArrayDouble::renumberR;
-%newobject ParaMEDMEM::DataArrayDouble::renumberAndReduce;
-%newobject ParaMEDMEM::DataArrayDouble::fromNoInterlace;
-%newobject ParaMEDMEM::DataArrayDouble::toNoInterlace;
-%newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
-%newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
-%newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
-%newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
-%newobject ParaMEDMEM::DataArrayDouble::findClosestTupleId;
-%newobject ParaMEDMEM::DataArrayDouble::computeNbOfInteractionsWith;
-%newobject ParaMEDMEM::DataArrayDouble::duplicateEachTupleNTimes;
-%newobject ParaMEDMEM::DataArrayDouble::__neg__;
-%newobject ParaMEDMEM::DataArrayDouble::__radd__;
-%newobject ParaMEDMEM::DataArrayDouble::__rsub__;
-%newobject ParaMEDMEM::DataArrayDouble::__rmul__;
-%newobject ParaMEDMEM::DataArrayDouble::__rdiv__;
-%newobject ParaMEDMEM::DataArrayDouble::__pow__;
-%newobject ParaMEDMEM::DataArrayDouble::__rpow__;
-%newobject ParaMEDMEM::DataArrayDoubleTuple::buildDADouble;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkDeepEquivalOnSameNodesWith;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
@@ -461,8 +295,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldOverTime::New;
 
-%feature("unref") DataArray "$this->decrRef();"
-%feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
 %feature("unref") MEDCouplingUMesh "$this->decrRef();"
@@ -471,10 +303,6 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCoupling1DGTUMesh "$this->decrRef();"
 %feature("unref") MEDCouplingExtrudedMesh "$this->decrRef();"
 %feature("unref") MEDCouplingCMesh "$this->decrRef();"
-%feature("unref") DataArrayInt "$this->decrRef();"
-%feature("unref") DataArrayChar "$this->decrRef();"
-%feature("unref") DataArrayAsciiChar "$this->decrRef();"
-%feature("unref") DataArrayByte "$this->decrRef();"
 %feature("unref") MEDCouplingField "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationP0 "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationP1 "$this->decrRef();"
@@ -487,7 +315,6 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 
 %rename(assign) *::operator=;
-%ignore ParaMEDMEM::RefCountObject::decrRef;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationDblInfo;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
@@ -497,45 +324,11 @@ using namespace INTERP_KERNEL;
 
 %rename (InterpKernelException) INTERP_KERNEL::Exception;
 
-namespace INTERP_KERNEL
-{
-  class Exception
-  {
-  public:
-    Exception(const char* what);
-    ~Exception() throw ();
-    const char *what() const throw ();
-    %extend
-    {
-      std::string __str__() const
-        {
-          return std::string(self->what());
-        }
-    }
-  };
-}
+%include "MEDCouplingRefCountObject.i"
+%include "MEDCouplingMemArray.i"
 
 namespace ParaMEDMEM
 {
-  class TimeLabel
-  {
-  public:
-    void declareAsNew() const;
-    virtual void updateTime() const;
-    unsigned int getTimeOfThis() const;
-  protected:
-    ~TimeLabel();
-  };
-}
-
-namespace ParaMEDMEM
-{
-  typedef enum
-    {
-      C_DEALLOC = 2,
-      CPP_DEALLOC = 3
-    } DeallocType;
-
   typedef enum
     {
       ON_CELLS = 0,
@@ -553,93 +346,6 @@ namespace ParaMEDMEM
       CONST_ON_TIME_INTERVAL = 7
     } TypeOfTimeDiscretization;
 
-  const char *MEDCouplingVersionStr();
-  int MEDCouplingVersion();
-  int MEDCouplingSizeOfVoidStar();
-  bool MEDCouplingByteOrder();
-  const char *MEDCouplingByteOrderStr();
-
-  class BigMemoryObject
-  {
-  public:
-    std::size_t getHeapMemorySize() const throw(INTERP_KERNEL::Exception);
-    std::string getHeapMemorySizeStr() const throw(INTERP_KERNEL::Exception);
-    virtual std::size_t getHeapMemorySizeWithoutChildren() const throw(INTERP_KERNEL::Exception);
-    virtual ~BigMemoryObject();
-    %extend
-    {
-      virtual PyObject *getDirectChildren() const throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<const BigMemoryObject *> c(self->getDirectChildren());
-        PyObject *ret(PyList_New(c.size()));
-        for(std::size_t i=0;i<c.size();i++)
-          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));
-        return ret;
-      }
-
-      static std::size_t GetHeapMemorySizeOfObjs(PyObject *objs) throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<const BigMemoryObject *> cppObjs;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::BigMemoryObject *>(objs,SWIGTYPE_p_ParaMEDMEM__BigMemoryObject,"BigMemoryObject",cppObjs);
-        return BigMemoryObject::GetHeapMemorySizeOfObjs(cppObjs);
-      }
-    }
-  };
-  
-  class RefCountObjectOnly
-  {
-  public:
-    bool decrRef() const;
-    void incrRef() const;
-    int getRCValue() const;
-    RefCountObjectOnly& operator=(const RefCountObjectOnly& other);
-  protected:
-    ~RefCountObjectOnly();
-  };
-
-  class RefCountObject : public RefCountObjectOnly, public BigMemoryObject
-  {
-  protected:
-    ~RefCountObject();
-  };
-}
-
-%inline
-{
-  PyObject *MEDCouplingVersionMajMinRel()
-  {
-    int tmp0=0,tmp1=0,tmp2=0;
-    MEDCouplingVersionMajMinRel(tmp0,tmp1,tmp2);
-    PyObject *res = PyList_New(3);
-    PyList_SetItem(res,0,SWIG_From_int(tmp0));
-    PyList_SetItem(res,1,SWIG_From_int(tmp1));
-    PyList_SetItem(res,2,SWIG_From_int(tmp2));
-    return res;
-  }
-
-  bool MEDCouplingHasNumPyBindings()
-  {
-#ifdef WITH_NUMPY
-    return true;
-#else
-    return false;
-#endif
-  }
-
-  std::string MEDCouplingCompletionScript() throw(INTERP_KERNEL::Exception)
-  {
-    static const char script[]="import rlcompleter,readline\nreadline.parse_and_bind('tab:complete')";
-    std::ostringstream oss; oss << "MEDCouplingCompletionScript : error when trying to activate completion ! readline not present ?\nScript is :\n" << script;
-    if(PyRun_SimpleString(script)!=0)
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    return std::string(script);
-  }
-}
-
-%include "MEDCouplingMemArray.i"
-
-namespace ParaMEDMEM
-{
   typedef enum
     {
       UNSTRUCTURED = 5,

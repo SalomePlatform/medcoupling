@@ -18,6 +18,179 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
+////////////////////
+%typemap(out) ParaMEDMEM::DataArray*
+{
+  $result=convertDataArray($1,$owner);
+}
+
+%typemap(out) DataArray*
+{
+  $result=convertDataArray($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
+%typemap(out) ParaMEDMEM::DataArrayChar*
+{
+  $result=convertDataArrayChar($1,$owner);
+}
+
+%typemap(out) DataArrayChar*
+{
+  $result=convertDataArrayChar($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+%newobject ParaMEDMEM::DataArray::deepCpy;
+%newobject ParaMEDMEM::DataArray::selectByTupleRanges;
+%newobject ParaMEDMEM::DataArray::selectByTupleId;
+%newobject ParaMEDMEM::DataArray::selectByTupleIdSafe;
+%newobject ParaMEDMEM::DataArray::selectByTupleId2;
+%newobject ParaMEDMEM::DataArray::Aggregate;
+%newobject ParaMEDMEM::DataArrayInt::New;
+%newobject ParaMEDMEM::DataArrayInt::__iter__;
+%newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
+%newobject ParaMEDMEM::DataArrayInt::performCpy;
+%newobject ParaMEDMEM::DataArrayInt::substr;
+%newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
+%newobject ParaMEDMEM::DataArrayInt::accumulatePerChunck;
+%newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
+%newobject ParaMEDMEM::DataArrayInt::transformWithIndArrR;
+%newobject ParaMEDMEM::DataArrayInt::renumber;
+%newobject ParaMEDMEM::DataArrayInt::renumberR;
+%newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
+%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2O;
+%newobject ParaMEDMEM::DataArrayInt::invertArrayN2O2O2N;
+%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2OBis;
+%newobject ParaMEDMEM::DataArrayInt::getIdsEqual;
+%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
+%newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
+%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
+%newobject ParaMEDMEM::DataArrayInt::negate;
+%newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
+%newobject ParaMEDMEM::DataArrayInt::Aggregate;
+%newobject ParaMEDMEM::DataArrayInt::AggregateIndexes;
+%newobject ParaMEDMEM::DataArrayInt::Meld;
+%newobject ParaMEDMEM::DataArrayInt::Add;
+%newobject ParaMEDMEM::DataArrayInt::Substract;
+%newobject ParaMEDMEM::DataArrayInt::Multiply;
+%newobject ParaMEDMEM::DataArrayInt::Divide;
+%newobject ParaMEDMEM::DataArrayInt::Pow;
+%newobject ParaMEDMEM::DataArrayInt::BuildUnion;
+%newobject ParaMEDMEM::DataArrayInt::BuildIntersection;
+%newobject ParaMEDMEM::DataArrayInt::Range;
+%newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
+%newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
+%newobject ParaMEDMEM::DataArrayInt::buildComplement;
+%newobject ParaMEDMEM::DataArrayInt::buildUnion;
+%newobject ParaMEDMEM::DataArrayInt::buildSubstraction;
+%newobject ParaMEDMEM::DataArrayInt::buildSubstractionOptimized;
+%newobject ParaMEDMEM::DataArrayInt::buildIntersection;
+%newobject ParaMEDMEM::DataArrayInt::buildUnique;
+%newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
+%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
+%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
+%newobject ParaMEDMEM::DataArrayInt::findRangeIdForEachTuple;
+%newobject ParaMEDMEM::DataArrayInt::findIdInRangeForEachTuple;
+%newobject ParaMEDMEM::DataArrayInt::duplicateEachTupleNTimes;
+%newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
+%newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
+%newobject ParaMEDMEM::DataArrayInt::getDifferentValues;
+%newobject ParaMEDMEM::DataArrayInt::FindPermutationFromFirstToSecond;
+%newobject ParaMEDMEM::DataArrayInt::__neg__;
+%newobject ParaMEDMEM::DataArrayInt::__add__;
+%newobject ParaMEDMEM::DataArrayInt::__radd__;
+%newobject ParaMEDMEM::DataArrayInt::__sub__;
+%newobject ParaMEDMEM::DataArrayInt::__rsub__;
+%newobject ParaMEDMEM::DataArrayInt::__mul__;
+%newobject ParaMEDMEM::DataArrayInt::__rmul__;
+%newobject ParaMEDMEM::DataArrayInt::__div__;
+%newobject ParaMEDMEM::DataArrayInt::__rdiv__;
+%newobject ParaMEDMEM::DataArrayInt::__mod__;
+%newobject ParaMEDMEM::DataArrayInt::__rmod__;
+%newobject ParaMEDMEM::DataArrayInt::__pow__;
+%newobject ParaMEDMEM::DataArrayInt::__rpow__;
+%newobject ParaMEDMEM::DataArrayIntTuple::buildDAInt;
+%newobject ParaMEDMEM::DataArrayChar::convertToIntArr;
+%newobject ParaMEDMEM::DataArrayChar::renumber;
+%newobject ParaMEDMEM::DataArrayChar::renumberR;
+%newobject ParaMEDMEM::DataArrayChar::renumberAndReduce;
+%newobject ParaMEDMEM::DataArrayChar::changeNbOfComponents;
+%newobject ParaMEDMEM::DataArrayChar::getIdsEqual;
+%newobject ParaMEDMEM::DataArrayChar::getIdsNotEqual;
+%newobject ParaMEDMEM::DataArrayChar::Aggregate;
+%newobject ParaMEDMEM::DataArrayChar::Meld;
+%newobject ParaMEDMEM::DataArrayByte::New;
+%newobject ParaMEDMEM::DataArrayByte::__iter__;
+%newobject ParaMEDMEM::DataArrayByte::performCpy;
+%newobject ParaMEDMEM::DataArrayByteTuple::buildDAByte;
+%newobject ParaMEDMEM::DataArrayChar::substr;
+%newobject ParaMEDMEM::DataArrayAsciiChar::New;
+%newobject ParaMEDMEM::DataArrayAsciiChar::__iter__;
+%newobject ParaMEDMEM::DataArrayAsciiChar::performCpy;
+%newobject ParaMEDMEM::DataArrayAsciiCharTuple::buildDAAsciiChar;
+%newobject ParaMEDMEM::DataArrayDouble::New;
+%newobject ParaMEDMEM::DataArrayDouble::__iter__;
+%newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
+%newobject ParaMEDMEM::DataArrayDouble::performCpy;
+%newobject ParaMEDMEM::DataArrayDouble::Aggregate;
+%newobject ParaMEDMEM::DataArrayDouble::Meld;
+%newobject ParaMEDMEM::DataArrayDouble::Dot;
+%newobject ParaMEDMEM::DataArrayDouble::CrossProduct;
+%newobject ParaMEDMEM::DataArrayDouble::Add;
+%newobject ParaMEDMEM::DataArrayDouble::Substract;
+%newobject ParaMEDMEM::DataArrayDouble::Multiply;
+%newobject ParaMEDMEM::DataArrayDouble::Divide;
+%newobject ParaMEDMEM::DataArrayDouble::Pow;
+%newobject ParaMEDMEM::DataArrayDouble::substr;
+%newobject ParaMEDMEM::DataArrayDouble::changeNbOfComponents;
+%newobject ParaMEDMEM::DataArrayDouble::accumulatePerChunck;
+%newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
+%newobject ParaMEDMEM::DataArrayDouble::negate;
+%newobject ParaMEDMEM::DataArrayDouble::applyFunc;
+%newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
+%newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
+%newobject ParaMEDMEM::DataArrayDouble::doublyContractedProduct;
+%newobject ParaMEDMEM::DataArrayDouble::determinant;
+%newobject ParaMEDMEM::DataArrayDouble::eigenValues;
+%newobject ParaMEDMEM::DataArrayDouble::eigenVectors;
+%newobject ParaMEDMEM::DataArrayDouble::inverse;
+%newobject ParaMEDMEM::DataArrayDouble::trace;
+%newobject ParaMEDMEM::DataArrayDouble::deviator;
+%newobject ParaMEDMEM::DataArrayDouble::magnitude;
+%newobject ParaMEDMEM::DataArrayDouble::maxPerTuple;
+%newobject ParaMEDMEM::DataArrayDouble::computeBBoxPerTuple;
+%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
+%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrixWith;
+%newobject ParaMEDMEM::DataArrayDouble::renumber;
+%newobject ParaMEDMEM::DataArrayDouble::renumberR;
+%newobject ParaMEDMEM::DataArrayDouble::renumberAndReduce;
+%newobject ParaMEDMEM::DataArrayDouble::fromNoInterlace;
+%newobject ParaMEDMEM::DataArrayDouble::toNoInterlace;
+%newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
+%newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
+%newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
+%newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
+%newobject ParaMEDMEM::DataArrayDouble::findClosestTupleId;
+%newobject ParaMEDMEM::DataArrayDouble::computeNbOfInteractionsWith;
+%newobject ParaMEDMEM::DataArrayDouble::duplicateEachTupleNTimes;
+%newobject ParaMEDMEM::DataArrayDouble::__neg__;
+%newobject ParaMEDMEM::DataArrayDouble::__radd__;
+%newobject ParaMEDMEM::DataArrayDouble::__rsub__;
+%newobject ParaMEDMEM::DataArrayDouble::__rmul__;
+%newobject ParaMEDMEM::DataArrayDouble::__rdiv__;
+%newobject ParaMEDMEM::DataArrayDouble::__pow__;
+%newobject ParaMEDMEM::DataArrayDouble::__rpow__;
+%newobject ParaMEDMEM::DataArrayDoubleTuple::buildDADouble;
+
+%feature("unref") DataArray "$this->decrRef();"
+%feature("unref") DataArrayDouble "$this->decrRef();"
+%feature("unref") DataArrayInt "$this->decrRef();"
+%feature("unref") DataArrayChar "$this->decrRef();"
+%feature("unref") DataArrayAsciiChar "$this->decrRef();"
+%feature("unref") DataArrayByte "$this->decrRef();"
+
 namespace ParaMEDMEM
 {
   class DataArray : public RefCountObject, public TimeLabel
