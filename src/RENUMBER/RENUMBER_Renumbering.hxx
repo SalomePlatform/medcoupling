@@ -31,6 +31,7 @@ class RENUMBER_EXPORT Renumbering
 {
 public:
   virtual void renumber(const int *graph, const int *index_graph, int nbCell, ParaMEDMEM::DataArrayInt *&iperm, ParaMEDMEM::DataArrayInt *&perm) = 0;
+  virtual ~Renumbering() { }
 }; 
 
 #endif /*RENUMBERING_HXX_*/

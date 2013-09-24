@@ -1532,6 +1532,7 @@ namespace ParaMEDMEM
         std::vector<double> bb;
         int sw;
         //
+#ifndef WITHOUT_AUTOFIELD
         void *argp;
         if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
           {
@@ -1546,6 +1547,7 @@ namespace ParaMEDMEM
             else
               throw INTERP_KERNEL::Exception(msg);
           }
+#endif
         //
         convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
         switch(sw)
@@ -1658,6 +1660,7 @@ namespace ParaMEDMEM
         std::vector<double> bb;
         int sw;
         //
+#ifndef WITHOUT_AUTOFIELD
         void *argp;
         if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
           {
@@ -1672,6 +1675,7 @@ namespace ParaMEDMEM
             else
               throw INTERP_KERNEL::Exception(msg);
           }
+#endif
         //
         convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
         switch(sw)
@@ -1784,6 +1788,7 @@ namespace ParaMEDMEM
         std::vector<double> bb;
         int sw;
         //
+#ifndef WITHOUT_AUTOFIELD
         void *argp;
         if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
           {
@@ -1798,6 +1803,7 @@ namespace ParaMEDMEM
             else
               throw INTERP_KERNEL::Exception(msg);
           }
+#endif
         //
         convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
         switch(sw)
@@ -1910,6 +1916,7 @@ namespace ParaMEDMEM
         std::vector<double> bb;
         int sw;
         //
+#ifndef WITHOUT_AUTOFIELD
         void *argp;
         if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
           {
@@ -1924,6 +1931,7 @@ namespace ParaMEDMEM
             else
               throw INTERP_KERNEL::Exception(msg);
           }
+#endif
         //
         convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
         switch(sw)
