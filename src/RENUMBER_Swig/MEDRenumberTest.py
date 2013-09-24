@@ -2,6 +2,8 @@ from MEDRenumber import *
 import unittest
 
 class MEDRenumberTest(unittest.TestCase):
+
+    @unittest.skipUnless("BOOST" in RenumberAvailableMethods(),"requires BOOST prerequisite !")
     def test1(self):
         from MEDCoupling import MEDCouplingCMesh
         ren=RenumberingFactory("BOOST")

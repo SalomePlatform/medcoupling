@@ -83,6 +83,21 @@ namespace MED_RENUMBER
   Renumbering *RenumberingFactory(const std::string& s) throw(INTERP_KERNEL::Exception);
 }
 
+%inline
+{
+  std::vector<std::string> RenumberAvailableMethods()throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<std::string> ret;
+#ifdef HAS_BOOST
+    ret.push_back(std::string("BOOST"));
+#endif
+#ifdef HAS_METIS
+    ret.push_back(std::string("METIS"));
+#endif
+    return ret;
+  }
+}
+
 %pythoncode %{
 import os
 __filename=os.environ.get('PYTHONSTARTUP')
