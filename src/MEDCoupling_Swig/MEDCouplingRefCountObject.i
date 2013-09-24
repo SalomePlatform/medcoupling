@@ -96,7 +96,6 @@ namespace ParaMEDMEM
     bool decrRef() const;
     void incrRef() const;
     int getRCValue() const;
-    RefCountObjectOnly& operator=(const RefCountObjectOnly& other);
   protected:
     ~RefCountObjectOnly();
   };
