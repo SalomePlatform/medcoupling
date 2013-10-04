@@ -316,7 +316,7 @@ SET(SPHINX_ROOT_DIR "${SPHINX_ROOT_DIR}")
 #       Get the relative path of the include directory so 
 #       we can register it in the generated configuration files:
 SET(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDE_DIR}")
-CONFIGURE_PACKAGE_CONFIG_FILE(adm_local/cmake_files/${PROJECT_NAME}Config.cmake.in 
+CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in 
     ${PROJECT_BINARY_DIR}/to_install/${PROJECT_NAME}Config.cmake
     INSTALL_DESTINATION "${SALOME_INSTALL_CMAKE}_LOCAL"
     PATH_VARS CONF_INCLUDE_DIRS SALOME_INSTALL_CMAKE_LOCAL CMAKE_INSTALL_PREFIX 
