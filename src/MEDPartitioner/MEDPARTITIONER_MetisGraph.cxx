@@ -75,7 +75,7 @@ void METISGraph::partGraph(int ndomain,
     #define PMV3_OPTION_PSR 3
     seems no changes int options[4]={1,0,33,0}; //test for a random seed of 33
   */
-  int options[4]={0,0,0,0};
+  int options[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #if !defined(MED_ENABLE_METIS)
   throw INTERP_KERNEL::Exception("METISGraph::partGraph : METIS is not available. Check your products, please.");
 #else

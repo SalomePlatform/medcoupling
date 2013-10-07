@@ -27,20 +27,35 @@
 #include "MEDPARTITIONER_metis.h"
 
 #if defined(MED_ENABLE_METIS) & !defined(MED_ENABLE_PARMETIS)
-  #include "defs.h"
+  #ifndef MED_ENABLE_METIS_V5
+    #include "defs.h"
+  #endif // MED_ENABLE_METIS_V5
   #include "metis.h"
+  #ifdef MED_ENABLE_METIS_V5
+    #define idxtype idx_t
+  #endif // MED_ENABLE_METIS_V5
 #else
   typedef int idxtype;
-#endif
+#endif // defined(MED_ENABLE_METIS) & !defined(MED_ENABLE_PARMETIS)
 
 void MEDPARTITIONER_METIS_PartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
                                              idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
                                              int *options, int *edgecut, idxtype *part)
 {
 #if defined(MED_ENABLE_METIS)
+  #ifndef MED_ENABLE_METIS_V5
   METIS_PartGraphRecursive(nvtxs, xadj, adjncy, vwgt, 
-                           adjwgt, wgtflag, numflag, nparts, 
+    adjwgt, wgtflag, numflag, nparts, 
                            options, edgecut, part);
+  #else
+  int ncon=1;
+  options[METIS_OPTION_NCUTS]=1;
+  options[METIS_OPTION_NITER]=1;
+  options[METIS_OPTION_UFACTOR]=1;
+  METIS_PartGraphRecursive(nvtxs, &ncon, xadj, adjncy, vwgt, 0 /* vsize*/, 
+                           adjwgt, nparts,/* tpwgts*/ 0,/* ubvec */ 0,
+                           options, edgecut, part);
+  #endif
 #endif
 }
 
@@ -49,8 +64,18 @@ void MEDPARTITIONER_METIS_PartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjn
                                         int *options, int *edgecut, idxtype *part)
 {
 #if defined(MED_ENABLE_METIS)
+  #ifndef MED_ENABLE_METIS_V5
   METIS_PartGraphKway(nvtxs, xadj, adjncy, vwgt, 
-                      adjwgt, wgtflag, numflag, nparts, 
+    adjwgt, wgtflag, numflag, nparts, 
+    options, edgecut, part);
+  #else
+  int ncon=1;
+  options[METIS_OPTION_NCUTS]=1;
+  options[METIS_OPTION_NITER]=1;
+  options[METIS_OPTION_UFACTOR]=1;
+  METIS_PartGraphKway(nvtxs, &ncon, xadj, adjncy, vwgt, 0 /* vsize*/, 
+                      adjwgt, nparts, 0 , 0 /* ubvec */,
                       options, edgecut, part);
+  #endif
 #endif
 }
