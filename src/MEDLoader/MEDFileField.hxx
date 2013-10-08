@@ -23,6 +23,7 @@
 
 #include "MEDLoaderDefines.hxx"
 
+#include "MEDFileFieldOverView.hxx"
 #include "MEDFileUtilities.hxx"
 
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
