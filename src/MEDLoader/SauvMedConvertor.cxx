@@ -954,7 +954,7 @@ namespace // define default GAUSS points
     case NORM_SEG2:
     case NORM_SEG3:
       if (geom == NORM_SEG2) setRefCoords( TSeg2a() );
-      else               setRefCoords( TSeg3a() );
+      else                   setRefCoords( TSeg3a() );
       switch ( nbGauss ) {
       case 1: {
         add( 0.0, 2.0 ); break;
@@ -1103,7 +1103,7 @@ namespace // define default GAUSS points
     case NORM_QUAD8:
       if ( variant == 1 ) {
         if (geom == NORM_QUAD4) setRefCoords( TQuad4b() );
-        else                setRefCoords( TQuad8b() );
+        else                    setRefCoords( TQuad8b() );
         switch ( nbGauss ) {
         case 1: { // FPG1
           add(  0,  0,  4 ); break;
@@ -1114,6 +1114,14 @@ namespace // define default GAUSS points
           add(  a, -a,  1 );
           add(  a,  a,  1 );
           add( -a,  a,  1 ); break;
+        }
+        case 5: { // out from the 3 specs
+          const double a = 2/sqrt(3.);
+          add( -a, -a,  0.5 );
+          add(  a, -a,  0.5 );
+          add(  a,  a,  0.5 );
+          add( -a,  a,  0.5 );
+          add(  0,  0,  2.0 ); break;
         }
         case 9: { // FPG9
           const double a = 0.774596669241483;
@@ -1134,7 +1142,7 @@ namespace // define default GAUSS points
       }
       else if ( variant == 2 ) {
         if (geom == NORM_QUAD4) setRefCoords( TQuad4a() );
-        else                setRefCoords( TQuad8a() );
+        else                    setRefCoords( TQuad8a() );
         switch ( nbGauss ) {
         case 4: {
           const double a = 1/sqrt(3.);
@@ -1162,7 +1170,7 @@ namespace // define default GAUSS points
       }
       else if ( variant == 3 ) {
         if (geom == NORM_QUAD4) setRefCoords( TQuad4b() );
-        else                   setRefCoords( TQuad8b() );
+        else                    setRefCoords( TQuad8b() );
         switch ( nbGauss ) {
         case 4: {
           const double a = 3/sqrt(3.);
