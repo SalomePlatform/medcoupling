@@ -67,6 +67,7 @@
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
+%newobject ParaMEDMEM::DataArrayInt::sumPerTuple;
 %newobject ParaMEDMEM::DataArrayInt::negate;
 %newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
@@ -160,6 +161,7 @@
 %newobject ParaMEDMEM::DataArrayDouble::deviator;
 %newobject ParaMEDMEM::DataArrayDouble::magnitude;
 %newobject ParaMEDMEM::DataArrayDouble::maxPerTuple;
+%newobject ParaMEDMEM::DataArrayDouble::sumPerTuple;
 %newobject ParaMEDMEM::DataArrayDouble::computeBBoxPerTuple;
 %newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
 %newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrixWith;
@@ -553,6 +555,7 @@ namespace ParaMEDMEM
     DataArrayDouble *deviator() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *magnitude() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *sumPerTuple() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *buildEuclidianDistanceDenseMatrix() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
@@ -2488,6 +2491,7 @@ namespace ParaMEDMEM
     bool isEqualWithoutConsideringStr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermutationArr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *sumPerTuple() const throw(INTERP_KERNEL::Exception);
     void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
     void reverse() throw(INTERP_KERNEL::Exception);
     void checkMonotonic(bool increasing) const throw(INTERP_KERNEL::Exception);

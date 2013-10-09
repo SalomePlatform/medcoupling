@@ -324,6 +324,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *trace() const;
     MEDCOUPLING_EXPORT DataArrayDouble *deviator() const;
     MEDCOUPLING_EXPORT DataArrayDouble *magnitude() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *sumPerTuple() const;
     MEDCOUPLING_EXPORT DataArrayDouble *maxPerTuple() const;
     MEDCOUPLING_EXPORT DataArrayDouble *maxPerTupleWithCompoId(DataArrayInt* &compoIdOfMaxPerTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
@@ -448,6 +449,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isFittingWith(const std::vector<bool>& v) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildPermutationArr(const DataArrayInt& other) const;
+    MEDCOUPLING_EXPORT DataArrayInt *sumPerTuple() const;
     MEDCOUPLING_EXPORT void sort(bool asc=true);
     MEDCOUPLING_EXPORT void reverse();
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing) const;

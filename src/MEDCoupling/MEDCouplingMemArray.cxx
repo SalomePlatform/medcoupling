@@ -3819,6 +3819,28 @@ DataArrayDouble *DataArrayDouble::magnitude() const
 }
 
 /*!
+ * Computes for each tuple the sum of number of components values in the tuple and return it.
+ * 
+ * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+ *          same number of tuples as \a this array and one component.
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If \a this is not allocated.
+ */
+DataArrayDouble *DataArrayDouble::sumPerTuple() const
+{
+  checkAllocated();
+  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  ret->alloc(nbOfTuple,1);
+  const double *src(getConstPointer());
+  double *dest(ret->getPointer());
+  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
+    *dest=std::accumulate(src,src+nbOfComp,0.);
+  return ret.retn();
+}
+
+/*!
  * Computes the maximal value within every tuple of \a this array.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array and one component.
@@ -6454,6 +6476,28 @@ void DataArrayInt::sort(bool asc)
     throw INTERP_KERNEL::Exception("DataArrayInt::sort : only supported with 'this' array with ONE component !");
   _mem.sort(asc);
   declareAsNew();
+}
+
+/*!
+ * Computes for each tuple the sum of number of components values in the tuple and return it.
+ * 
+ * \return DataArrayInt * - the new instance of DataArrayInt containing the
+ *          same number of tuples as \a this array and one component.
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If \a this is not allocated.
+ */
+DataArrayInt *DataArrayInt::sumPerTuple() const
+{
+  checkAllocated();
+  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  ret->alloc(nbOfTuple,1);
+  const int *src(getConstPointer());
+  int *dest(ret->getPointer());
+  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
+    *dest=std::accumulate(src,src+nbOfComp,0);
+  return ret.retn();
 }
 
 /*!
