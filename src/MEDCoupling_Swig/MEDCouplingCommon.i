@@ -250,6 +250,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getWarpField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getSkewField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getPartBarycenterAndOwner;
+%newobject ParaMEDMEM::MEDCouplingUMesh::computePlaneEquationOf3DFaces;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getPartMeasureField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOrthogonalField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::keepCellIdsByType;
@@ -1520,6 +1521,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getAspectRatioField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWarpField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getSkewField() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *computePlaneEquationOf3DFaces() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convexEnvelop2D() throw(INTERP_KERNEL::Exception);
     std::string cppRepr() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception);

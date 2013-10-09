@@ -30,6 +30,7 @@
 #include "BBTreeDst.txx"
 #include "SplitterTetra.hxx"
 #include "DirectedBoundingBox.hxx"
+#include "InterpKernelMatrixTools.hxx"
 #include "InterpKernelMeshQuality.hxx"
 #include "InterpKernelCellSimplify.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
@@ -7186,6 +7187,56 @@ DataArrayDouble *MEDCouplingUMesh::getPartBarycenterAndOwner(const int *begin, c
     }
   delete [] tmp;
   return ret;
+}
+
+/*!
+ * Returns a DataArrayDouble instance giving for each cell in \a this the equation of plane given by "a*X+b*Y+c*Z+d=0".
+ * So the returned instance will have 4 components and \c this->getNumberOfCells() tuples.
+ * So this method expects that \a this has a spaceDimension equal to 3 and meshDimension equal to 2.
+ * The computation of the plane equation is done using each time the 3 first nodes of 2D cells.
+ * This method is useful to detect 2D cells in 3D space that are not coplanar.
+ * 
+ * \return DataArrayDouble * - a new instance of DataArrayDouble having 4 components and a number of tuples equal to number of cells in \a this.
+ * \throw If spaceDim!=3 or meshDim!=2.
+ * \throw If connectivity of \a this is invalid.
+ * \throw If connectivity of a cell in \a this points to an invalid node.
+ */
+DataArrayDouble *MEDCouplingUMesh::computePlaneEquationOf3DFaces() const
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  int nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  if(getSpaceDimension()!=3 || getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computePlaneEquationOf3DFaces : This method must be applied on a mesh having meshDimension equal 2 and a spaceDimension equal to 3 !");
+  ret->alloc(nbOfCells,4);
+  double *retPtr(ret->getPointer());
+  const int *nodal(_nodal_connec->begin()),*nodalI(_nodal_connec_index->begin());
+  const double *coor(_coords->begin());
+  for(int i=0;i<nbOfCells;i++,nodalI++,retPtr+=4)
+    {
+      double matrix[16]={0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,0},matrix2[16];
+      if(nodalI[1]-nodalI[0]>=3)
+        {
+          for(int j=0;j<3;j++)
+            {
+              int nodeId(nodal[nodalI[0]+1+j]);
+              if(nodeId>=0 && nodeId<nbOfNodes)
+                std::copy(coor+nodeId*3,coor+(nodeId+1)*3,matrix+4*j);
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCouplingUMesh::computePlaneEquationOf3DFaces : invalid 2D cell #" << i << " ! This cell points to an invalid nodeId : " << nodeId << " !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::computePlaneEquationOf3DFaces : invalid 2D cell #" << i << " ! Must be constitued by more than 3 nodes !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      INTERP_KERNEL::inverseMatrix(matrix,4,matrix2);
+      retPtr[0]=matrix2[3]; retPtr[1]=matrix2[7]; retPtr[2]=matrix2[11]; retPtr[3]=matrix2[15];
+    }
+  return ret.retn();
 }
 
 /*!
