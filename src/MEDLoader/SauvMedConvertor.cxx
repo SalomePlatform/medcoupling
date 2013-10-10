@@ -1116,7 +1116,7 @@ namespace // define default GAUSS points
           add( -a,  a,  1 ); break;
         }
         case 5: { // out from the 3 specs
-          const double a = 2/sqrt(3.);
+          const double a = 0.774596669241483;
           add( -a, -a,  0.5 );
           add(  a, -a,  0.5 );
           add(  a,  a,  0.5 );
@@ -3351,14 +3351,14 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   if ( timeStamp->getTypeOfField() == ParaMEDMEM::ON_GAUSS_PT )
     {
       TGaussDef gaussDef( support->_cellType, fld->_sub[iSub].nbGauss() );
-      if ( onAll )
+      if ( !onAll )
+        {
+          MEDCouplingAutoRefCountObjectPtr
+            <MEDCouplingMesh> submesh = dimMesh->buildPart(support->_medGroup->begin(),
+                                                           support->_medGroup->end());
+          timeStamp->setMesh( submesh);
+        }
         timeStamp->setGaussLocalizationOnType( support->_cellType,
-                                               gaussDef.myRefCoords,
-                                               gaussDef.myCoords,
-                                               gaussDef.myWeights );
-      else
-        timeStamp->setGaussLocalizationOnCells( support->_medGroup->begin(),
-                                                support->_medGroup->end(),
                                                gaussDef.myRefCoords,
                                                gaussDef.myCoords,
                                                gaussDef.myWeights );
@@ -3378,6 +3378,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
     timeStamp->setOrder( nbTS );
 
   // add the time-stamp
+  timeStamp->checkCoherency();
   if ( onAll )
     fld->_curMedField->appendFieldNoProfileSBT( timeStamp );
   else
