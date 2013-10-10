@@ -4469,6 +4469,8 @@ DataArrayDoubleIterator *DataArrayDouble::iterator()
  *          needed.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *
+ *  \sa DataArrayDouble::getIdsNotInRange
+ *
  *  \ref cpp_mcdataarraydouble_getidsinrange "Here is a C++ example".<br>
  *  \ref py_mcdataarraydouble_getidsinrange "Here is a Python example".
  */
@@ -4477,11 +4479,37 @@ DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getIdsInRange : this must have exactly one component !");
-  const double *cptr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(0,1);
-  int nbOfTuples=getNumberOfTuples();
+  const double *cptr(begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr>=vmin && *cptr<=vmax)
+      ret->pushBackSilent(i);
+  return ret.retn();
+}
+
+/*!
+ * Returns a new DataArrayInt contating indices of tuples of \a this one-dimensional
+ * array whose values are not within a given range. Textual data is not copied.
+ *  \param [in] vmin - a lowest not acceptable value (excluded).
+ *  \param [in] vmax - a greatest not acceptable value (excluded).
+ *  \return DataArrayInt * - the new instance of DataArrayInt.
+ *          The caller is to delete this result array using decrRef() as it is no more
+ *          needed.
+ *  \throw If \a this->getNumberOfComponents() != 1.
+ *
+ *  \sa DataArrayDouble::getIdsInRange
+ */
+DataArrayInt *DataArrayDouble::getIdsNotInRange(double vmin, double vmax) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getIdsNotInRange : this must have exactly one component !");
+  const double *cptr(begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  int nbOfTuples(getNumberOfTuples());
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(*cptr<vmin || *cptr>vmax)
       ret->pushBackSilent(i);
   return ret.retn();
 }
@@ -9016,17 +9044,44 @@ void DataArrayInt::applyModulus(int val)
  * \param [in] vmin begin of range. This value is included in range (included).
  * \param [in] vmax end of range. This value is \b not included in range (excluded).
  * \return a newly allocated data array that the caller should deal with.
+ *
+ * \sa DataArrayInt::getIdsNotInRange
  */
 DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::getIdsInRange : this must have exactly one component !");
-  const int *cptr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(0,1);
-  int nbOfTuples=getNumberOfTuples();
+  const int *cptr(begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr>=vmin && *cptr<vmax)
+      ret->pushBackSilent(i);
+  return ret.retn();
+}
+
+/*!
+ * This method works only on data array with one component.
+ * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
+ * this[*id] \b not in [\b vmin,\b vmax)
+ * 
+ * \param [in] vmin begin of range. This value is \b not included in range (excluded).
+ * \param [in] vmax end of range. This value is included in range (included).
+ * \return a newly allocated data array that the caller should deal with.
+ * 
+ * \sa DataArrayInt::getIdsInRange
+ */
+DataArrayInt *DataArrayInt::getIdsNotInRange(int vmin, int vmax) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotInRange : this must have exactly one component !");
+  const int *cptr(getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  int nbOfTuples(getNumberOfTuples());
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(*cptr<vmin || *cptr>=vmax)
       ret->pushBackSilent(i);
   return ret.retn();
 }
@@ -9037,8 +9092,7 @@ DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const
  * 
  * \param [in] vmin begin of range. This value is included in range (included).
  * \param [in] vmax end of range. This value is \b not included in range (excluded).
- * \return if all ids in \a this are so that (*this)[i]==i for all i in [ 0, \c this->getNumberOfTuples() ).
- */
+ * \return if all ids in \a this are so that (*this)[i]==i for all i in [ 0, \c this->getNumberOfTuples() ). */
 bool DataArrayInt::checkAllIdsInRange(int vmin, int vmax) const
 {
   checkAllocated();

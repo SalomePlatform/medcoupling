@@ -345,6 +345,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyFuncFast32(const char *func);
     MEDCOUPLING_EXPORT void applyFuncFast64(const char *func);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const std::vector<const DataArrayDouble *>& arr);
     MEDCOUPLING_EXPORT static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2);
@@ -558,6 +559,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyPow(int val);
     MEDCOUPLING_EXPORT void applyRPow(int val);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(int vmin, int vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotInRange(int vmin, int vmax) const;
     MEDCOUPLING_EXPORT bool checkAllIdsInRange(int vmin, int vmax) const;
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr);

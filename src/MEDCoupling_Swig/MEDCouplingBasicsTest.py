@@ -13907,6 +13907,44 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(DataArrayDouble([0.58093333350930543,0.58093333350930543]).isEqual(m.getMeasureField(False).getArray(),1e-12))
         pass
 
+    def testSwig2Hexa8HavingFacesWarped1(self):
+        """ This test is bases on a "error" of interpolation detected. After investigation cell #3 of src is warped that leads to the fact that when trg is 
+        intersected with src the sum of intersection volume is greater than the volume of the trg cell.
+        A test that can be done is to split the cell #3 of src into tetrohedrons and by summing all the volumes it does not fit the volume computed of cell#3 unsplitted (expect for
+        GENERAL_24).
+        """
+        srcCoo=DataArrayDouble([0.15694071546650565,0.09383333333333337,6.920842121738133,0.15774332475430292,0.185486666666667,6.920682472824616,0.1585459340420992,0.27713999999999994,6.9205228239111,0.07427195882345167,0.05782666666666668,6.937285959830335,0.06343673343819695,0.11347333333333297,6.939441220162809,0.05260150805294228,0.16911999999999996,6.941596480495282,0.014076262238703396,0.04800666666666667,6.949259628344076,0.014076262238703396,0.07092000000000007,6.949259628344076,0.15407499632681992,0.09383333333333338,6.897607484780063,0.15489234394181514,0.18548666666666702,6.897567331066572,0.15570969155680933,0.27714,6.897527177353081,0.06988819198237989,0.05782666666666669,6.901743317269663,0.05885399917995321,0.11347333333333298,6.9022853924017955,0.047819806377526586,0.16912,6.902827467533927,0.0085871208577874,0.048006666666666684,6.9047548457815076,0.0085871208577874,0.07092000000000008,6.9047548457815076,0.153883333333333,0.09383333333333338,6.820902,0.154701666666667,0.18548666666666702,6.820902,0.15551999999999996,0.27714,6.820902,0.06959499999999999,0.05782666666666669,6.820902,0.058547499999999975,0.11347333333333298,6.820902,0.04749999999999999,0.16912,6.820902],22,3)
+        src=MEDCouplingUMesh("TBmesh3D",3) ; src.setCoords(srcCoo)
+        src.allocateCells()
+        src.insertNextCell(NORM_HEXA8,[0,1,4,3,8,9,12,11])
+        src.insertNextCell(NORM_HEXA8,[1,2,5,4,9,10,13,12])
+        src.insertNextCell(NORM_HEXA8,[4,5,7,6,12,13,15,14])
+        src.insertNextCell(NORM_HEXA8,[8,9,12,11,16,17,20,19])
+        src.insertNextCell(NORM_HEXA8,[9,10,13,12,17,18,21,20])
+        src.checkCoherency2()
+        # trg is useless here but I keep it in case of MEDCouplingRemapper were expected to do something about warped NORM_HEXA8
+        trgCoo=DataArrayDouble([0.0960891897852753,0.105088620541845,6.8598,0.0599574480546212,0.118434267436059,6.8598,0.113514510609589,0.14874473653263,6.8598,0.0831322609794463,0.167319109733883,6.8598,0.0960891897852753,0.105088620541845,6.92146666666667,0.0599574480546212,0.118434267436059,6.92146666666667,0.113514510609589,0.14874473653263,6.92146666666667,0.0831322609794463,0.167319109733883,6.92146666666667],8,3)
+        trg=MEDCouplingUMesh("MESH",3) ; trg.setCoords(trgCoo)
+        trg.allocateCells()
+        trg.insertNextCell(NORM_HEXA8,[0,1,3,2,4,5,7,6])
+        #
+        srcFace=src.buildDescendingConnectivity()[0]
+        conn=MEDCoupling1SGTUMesh(srcFace).getNodalConnectivity() ; conn.rearrange(4)
+        eqFaces=srcFace.computePlaneEquationOf3DFaces()
+        nodeIdInCell=3
+        e=(srcFace.getCoords()[conn[:,nodeIdInCell]]*eqFaces[:,:-1]).sumPerTuple()+eqFaces[:,3]# e represent the error between the expected 'a*X+b*Y+c*Z+d' in eqFaces and 0. Closer e to 0. is closer the 4th point is to the plane built with the 3 first points
+        lambd=-e/(eqFaces[:,:3]**2).sumPerTuple()
+        pts=lambd*eqFaces[:,:-1]+srcFace.getCoords()[conn[:,nodeIdInCell]]#pts represent the projection of the last points of each NORM_QUAD4 to the plane defined by the 3 first points of the NORM_QUAD4 cell
+        shouldBeZero=(pts*eqFaces[:,:-1]).sumPerTuple()+eqFaces[:,3]# this line is useless only to be sure that pts are on the plane.
+        check=(pts-srcFace.getCoords()[conn[:,nodeIdInCell]]).magnitude() # check contains the distance of the last point to its plane
+        idsToTest=check.getIdsNotInRange(0.,1e-10)
+        self.assertTrue(idsToTest.isEqual(DataArrayInt([17,18,19,20,22,23,24])))
+        idsToTest2=idsToTest.getIdsNotInRange(18,22)
+        self.assertTrue(idsToTest2.isEqual(DataArrayInt([0,4,5,6])))
+        idsToTest2.rearrange(2)
+        self.assertTrue(idsToTest2.sumPerTuple().isEqual(DataArrayInt([4,11])))
+        pass
+
     def setUp(self):
         pass
     pass

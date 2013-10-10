@@ -70,6 +70,7 @@
 %newobject ParaMEDMEM::DataArrayInt::sumPerTuple;
 %newobject ParaMEDMEM::DataArrayInt::negate;
 %newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
+%newobject ParaMEDMEM::DataArrayInt::getIdsNotInRange;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::AggregateIndexes;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
@@ -148,6 +149,7 @@
 %newobject ParaMEDMEM::DataArrayDouble::changeNbOfComponents;
 %newobject ParaMEDMEM::DataArrayDouble::accumulatePerChunck;
 %newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
+%newobject ParaMEDMEM::DataArrayDouble::getIdsNotInRange;
 %newobject ParaMEDMEM::DataArrayDouble::negate;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
@@ -574,6 +576,7 @@ namespace ParaMEDMEM
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getIdsNotInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
@@ -2560,6 +2563,7 @@ namespace ParaMEDMEM
     void applyPow(int val) throw(INTERP_KERNEL::Exception);
     void applyRPow(int val) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getIdsNotInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
