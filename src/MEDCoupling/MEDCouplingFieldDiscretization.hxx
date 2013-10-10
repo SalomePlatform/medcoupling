@@ -60,7 +60,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;
     MEDCOUPLING_EXPORT virtual std::string getStringRepr() const = 0;
     MEDCOUPLING_EXPORT virtual const char *getRepr() const = 0;
-    MEDCOUPLING_EXPORT virtual int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const = 0;
+    MEDCOUPLING_EXPORT virtual int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
@@ -122,7 +122,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT const char *getRepr() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
     MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -153,7 +153,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
     MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
@@ -235,7 +235,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT const char *getRepr() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
     MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -303,7 +303,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT const char *getRepr() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
-    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
+    MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
     MEDCOUPLING_EXPORT int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     MEDCOUPLING_EXPORT DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;

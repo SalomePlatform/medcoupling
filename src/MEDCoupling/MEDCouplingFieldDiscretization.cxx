@@ -484,9 +484,12 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
 }
 
 /*!
- * mesh is not used here. It is not a bug !
+ * This method returns the number of tuples regarding exclusively the input code \b without \b using \b a \b mesh \b in \b input.
+ * The input code coherency is also checked regarding spatial discretization of \a this.
+ * If an incoherency is detected, an exception will be thrown. If the input code is coherent, the number of tuples expected is returned.
+ * The number of tuples expected is equal to those to have a valid field lying on \a this and having a mesh fitting perfectly the input code (geometric type distribution).
  */
-int MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
+int MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
@@ -725,9 +728,12 @@ int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMe
 }
 
 /*!
- * mesh is not used here. It is not a bug !
+ * This method returns the number of tuples regarding exclusively the input code \b without \b using \b a \b mesh \b in \b input.
+ * The input code coherency is also checked regarding spatial discretization of \a this.
+ * If an incoherency is detected, an exception will be thrown. If the input code is coherent, the number of tuples expected is returned.
+ * The number of tuples expected is equal to those to have a valid field lying on \a this and having a mesh fitting perfectly the input code (geometric type distribution).
  */
-int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
@@ -1332,9 +1338,12 @@ const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
 }
 
 /*!
- * mesh is not used here. It is not a bug !
+ * This method returns the number of tuples regarding exclusively the input code \b without \b using \b a \b mesh \b in \b input.
+ * The input code coherency is also checked regarding spatial discretization of \a this.
+ * If an incoherency is detected, an exception will be thrown. If the input code is coherent, the number of tuples expected is returned.
+ * The number of tuples expected is equal to those to have a valid field lying on \a this and having a mesh fitting perfectly the input code (geometric type distribution).
  */
-int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(!_discr_per_cell || !_discr_per_cell->isAllocated() || _discr_per_cell->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode");
@@ -1368,6 +1377,7 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode(
   if(ret!=_discr_per_cell->getNumberOfTuples())
     {
       std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getNumberOfTuplesExpectedRegardingCode : input code points to " << ret << " cells whereas discretization percell array lgth is " <<  _discr_per_cell->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return getNumberOfTuples(0);//0 is not an error ! It is to be sure that input mesh is not used
 }
@@ -2057,15 +2067,27 @@ bool MEDCouplingFieldDiscretizationGaussNE::isEqualIfNotWhy(const MEDCouplingFie
   return ret;
 }
 
-int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
+/*!
+ * This method returns the number of tuples regarding exclusively the input code \b without \b using \b a \b mesh \b in \b input.
+ * The input code coherency is also checked regarding spatial discretization of \a this.
+ * If an incoherency is detected, an exception will be thrown. If the input code is coherent, the number of tuples expected is returned.
+ * The number of tuples expected is equal to those to have a valid field lying on \a this and having a mesh fitting perfectly the input code (geometric type distribution).
+ */
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const
 {
   if(code.size()%3!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : invalid input code !");
   int nbOfSplit=(int)idsPerType.size();
   int nbOfTypes=(int)code.size()/3;
-  int ret=0;
+  int ret(0);
   for(int i=0;i<nbOfTypes;i++)
     {
+      const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)code[3*i]));
+      if(cm.isDynamic())
+        {
+          std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : At pos #" << i << " the geometric type " << cm.getRepr() << " is dynamic ! There are not managed by GAUSS_NE field discretization !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
       int nbOfEltInChunk=code[3*i+1];
       if(nbOfEltInChunk<0)
         throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : invalid input code ! presence of negative value in a type !");
@@ -2084,15 +2106,9 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCod
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
-      ret+=nbOfEltInChunk;
+      ret+=nbOfEltInChunk*(int)cm.getNumberOfNodes();
     }
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : NULL input mesh !");
-  if(ret!=mesh->getNumberOfCells())
-    {
-      std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuplesExpectedRegardingCode : input code points to " << ret << " number of cells should be " <<  mesh->getNumberOfCells() << " !";
-    }
-  return getNumberOfTuples(mesh);
+  return ret;
 }
 
 int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const

@@ -617,5 +617,5 @@ int MEDCouplingField::getNumberOfTuplesExpectedRegardingCode(const std::vector<i
   const MEDCouplingFieldDiscretization *t(_type);
   if(!t)
     throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfTuplesExpectedRegardingCode : no spatial discretization set !");
-  return t->getNumberOfTuplesExpectedRegardingCode(_mesh,code,idsPerType);
+  return t->getNumberOfTuplesExpectedRegardingCode(code,idsPerType);
 }

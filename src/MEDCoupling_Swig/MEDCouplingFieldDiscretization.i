@@ -89,13 +89,13 @@ namespace ParaMEDMEM
         return res;
       }
 
-      virtual int getNumberOfTuplesExpectedRegardingCode(const MEDCouplingMesh *mesh, PyObject *code, PyObject *idsPerType) const throw(INTERP_KERNEL::Exception)
+      virtual int getNumberOfTuplesExpectedRegardingCode(PyObject *code, PyObject *idsPerType) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> inp0;
         convertPyToNewIntArr4(code,1,3,inp0);
         std::vector<const DataArrayInt *> inp1;
         convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(idsPerType,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",inp1);
-        return self->getNumberOfTuplesExpectedRegardingCode(mesh,inp0,inp1);
+        return self->getNumberOfTuplesExpectedRegardingCode(inp0,inp1);
       }
 
       virtual PyObject *computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, PyObject *tupleIds) const throw(INTERP_KERNEL::Exception)

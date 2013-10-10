@@ -4325,11 +4325,6 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDou
       std::vector<const DataArrayInt *> idsPerType3(idsPerType.size()); std::copy(idsPerType.begin(),idsPerType.end(),idsPerType3.begin());
       // start of check
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2=field->clone(false);
-      if(type==ON_GAUSS_NE)
-        {
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mPart=m->buildPart(profile->begin(),profile->end());
-          field2->setMesh(mPart);
-        }
       int nbOfTuplesExp=field2->getNumberOfTuplesExpectedRegardingCode(code,idsPerType3);
       if(nbOfTuplesExp!=arrOfVals->getNumberOfTuples())
         {
