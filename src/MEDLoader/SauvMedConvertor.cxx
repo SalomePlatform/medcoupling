@@ -3276,17 +3276,21 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
                                  const TID                   castemID,
                                  set< string >&              usedFieldNames)
 {
-  if ( !fld || !fld->isMedCompatible() ) return;
+  bool sameNbGauss = true;
+  if ( !fld || !fld->isMedCompatible( sameNbGauss )) return;
+
+  if ( !sameNbGauss )
+    fld->splitSubWithDiffNbGauss();
 
   // if ( !fld->hasCommonSupport() ):
   //     each sub makes MEDFileFieldMultiTS
   // else:
   //     unite several subs into a MEDCouplingFieldDouble
 
-  const bool uniteSubs = fld->hasCommonSupport();
+  const bool uniteSubs = fld->hasCommonSupport() && sameNbGauss;
   if ( !uniteSubs )
-    cout << "Castem field #" << castemID << " " << fld->_name
-         << " is incompatible with MED format, so we split it into several fields" << endl;
+    cout << "Castem field #" << castemID << " <" << fld->_name
+         << "> is incompatible with MED format, so we split it into several fields" << endl;
 
   for ( size_t iSub = 0; iSub < fld->_sub.size(); )
     {
@@ -3327,7 +3331,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
                              ParaMEDMEM::MEDFileUMesh*    mesh,
                              const int                    iSub)
 {
-  // analyze a field support
+  // treat a field support
   const Group* support = fld->getSupport( iSub );
   int dimRel;
   const bool onAll = isOnAll( support, dimRel );
@@ -3337,33 +3341,39 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
       support->_medGroup->setName( support->_name.c_str() );
     }
 
-  // make a time-stamp
+  // make and fill a time-stamp
+
   MEDCouplingFieldDouble * timeStamp = MEDCouplingFieldDouble::New( fld->getMedType( iSub ),
                                                                     fld->getMedTimeDisc() );
   timeStamp->setName( fld->_name.c_str() );
   timeStamp->setDescription( fld->_description.c_str() );
+  // set the mesh
   MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
-  timeStamp->setMesh( dimMesh );
+  if ( onAll )
+    {
+      timeStamp->setMesh( dimMesh );
+    }
+  else
+    {
+      MEDCouplingAutoRefCountObjectPtr
+        <MEDCouplingMesh> subMesh = dimMesh->buildPart(support->_medGroup->begin(),
+                                                       support->_medGroup->end());
+      timeStamp->setMesh( subMesh);
+    }
+  // set values
   for ( size_t i = 0; i < (size_t)fld->_sub[iSub].nbComponents(); ++i )
     values->setInfoOnComponent( i, fld->_sub[iSub]._comp_names[ i ].c_str() );
   timeStamp->setArray( values );
   values->decrRef();
+  // set gauss points
   if ( timeStamp->getTypeOfField() == ParaMEDMEM::ON_GAUSS_PT )
     {
       TGaussDef gaussDef( support->_cellType, fld->_sub[iSub].nbGauss() );
-      if ( !onAll )
-        {
-          MEDCouplingAutoRefCountObjectPtr
-            <MEDCouplingMesh> submesh = dimMesh->buildPart(support->_medGroup->begin(),
-                                                           support->_medGroup->end());
-          timeStamp->setMesh( submesh);
-        }
-        timeStamp->setGaussLocalizationOnType( support->_cellType,
-                                               gaussDef.myRefCoords,
-                                               gaussDef.myCoords,
-                                               gaussDef.myWeights );
+      timeStamp->setGaussLocalizationOnType( support->_cellType,
+                                             gaussDef.myRefCoords,
+                                             gaussDef.myCoords,
+                                             gaussDef.myWeights );
     }
-
   // get a field to add the time-stamp
   bool isNewMedField = false;
   if ( !fld->_curMedField || fld->_name != fld->_curMedField->getName() )
@@ -3424,6 +3434,35 @@ void IntermediateMED::makeFieldNewName(std::set< std::string >&    usedNames,
 
 //================================================================================
 /*!
+ * \brief Split sub-components with different nb of gauss points into several sub-components
+ *  \param [in,out] fld - a field to split if necessary
+ */
+//================================================================================
+
+void DoubleField::splitSubWithDiffNbGauss()
+{
+  for ( size_t iSub = 0; iSub < _sub.size(); ++iSub )
+    {
+      if ( _sub[iSub].isSameNbGauss() ) continue;
+
+      _sub.insert( _sub.begin() + iSub + 1, 1, _Sub_data() );
+      _Sub_data & subToSplit = _sub[iSub];
+      _Sub_data & subNew     = _sub[iSub+1];
+      size_t iDiff = 1;
+      while ( subToSplit._nb_gauss[ 0 ] == subToSplit._nb_gauss[ iDiff ] )
+        ++iDiff;
+      subNew._support = subToSplit._support;
+      subNew._comp_names.assign( subToSplit._comp_names.begin() + iDiff,
+                                 subToSplit._comp_names.end() );
+      subNew._nb_gauss.assign  ( subToSplit._nb_gauss.begin() + iDiff,
+                                 subToSplit._nb_gauss.end() );
+      subToSplit._comp_names.resize( iDiff );
+      subToSplit._nb_gauss.resize  ( iDiff );
+    }
+}
+
+//================================================================================
+/*!
  * \brief Return a vector ready to fill in
  */
 //================================================================================
@@ -3477,22 +3516,21 @@ bool DoubleField::isMultiTimeStamps() const
  */
 //================================================================================
 
-bool DoubleField::isMedCompatible() const
+bool DoubleField::isMedCompatible(bool& sameNbGauss) const
 {
   for ( size_t iSub = 0; iSub < _sub.size(); ++iSub )
     {
       if ( !getSupport(iSub) || !getSupport(iSub)->_medGroup )
         THROW_IK_EXCEPTION("SauvReader INTERNAL ERROR: NULL field support");
 
-      if ( !_sub[iSub].isValidNbGauss() )
+      sameNbGauss = true;
+      if ( !_sub[iSub].isSameNbGauss() )
         {
-          cout << "Skip field <" << _name << "> : different nb of gauss points in components" <<endl;
-          return false;
+          cout << "Field <" << _name << "> : different nb of gauss points in components" <<endl;
+          sameNbGauss = false;
+          //return false;
         }
     }
-  // check if there are no gauss or nbGauss() == nbCellNodes,
-  // else we lack info on gauss point localization
-  // TODO?
   return true;
 }
 

@@ -126,11 +126,11 @@ namespace SauvUtilities
 
       void setData( int nb_comp, Group* supp )
       { _support = supp; _comp_names.resize(nb_comp); _nb_gauss.resize(nb_comp,1); }
-      int nbComponents() const { return _comp_names.size(); }
+      int  nbComponents() const { return _comp_names.size(); }
       std::string & compName( int i_comp ) { return _comp_names[ i_comp ]; }
-      bool isValidNbGauss() const { return *std::max_element( _nb_gauss.begin(), _nb_gauss.end() ) ==
+      bool isSameNbGauss() const { return *std::max_element( _nb_gauss.begin(), _nb_gauss.end() ) ==
           *std::min_element( _nb_gauss.begin(), _nb_gauss.end() ); }
-      int nbGauss() const { return _nb_gauss[0] ? _nb_gauss[0] : 1; }
+      int  nbGauss() const { return _nb_gauss[0] ? _nb_gauss[0] : 1; }
       bool hasGauss() const { return nbGauss() > 1; }
     };
     // ----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ namespace SauvUtilities
     bool hasSameComponentsBySupport() const;
 
     bool isMultiTimeStamps() const;
-    bool isMedCompatible() const;
+    bool isMedCompatible(bool& sameNbGauss) const;
     ParaMEDMEM::TypeOfField getMedType( const int iSub=0 ) const;
     ParaMEDMEM::TypeOfTimeDiscretization getMedTimeDisc() const;
     int getNbTuples( const int iSub=0 ) const;
@@ -163,6 +163,7 @@ namespace SauvUtilities
     int getNbGauss( const int iSub=0 ) const;
     const Group* getSupport( const int iSub=0 ) const;
     int setValues( double * valPtr, const int iSub, const int elemShift=0 ) const;
+    void splitSubWithDiffNbGauss();
 
     //virtual void dump(std::ostream&) const;
     //virtual ~DoubleField() {}
