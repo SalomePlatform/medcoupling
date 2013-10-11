@@ -3348,13 +3348,26 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   timeStamp->setName( fld->_name.c_str() );
   timeStamp->setDescription( fld->_description.c_str() );
   // set the mesh
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
   if ( onAll )
     {
+      MEDCouplingAutoRefCountObjectPtr
+        < MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
       timeStamp->setMesh( dimMesh );
+    }
+  else if ( timeStamp->getTypeOfField() == ParaMEDMEM::ON_NODES )
+    {
+      DataArrayDouble * coo = mesh->getCoords();
+      MEDCouplingAutoRefCountObjectPtr
+        <DataArrayDouble> subCoo = coo->selectByTupleId(support->_medGroup->begin(),
+                                                        support->_medGroup->end()); 
+      MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > nodeSubMesh =
+        MEDCouplingUMesh::Build0DMeshFromCoords( subCoo );
+      timeStamp->setMesh( nodeSubMesh );
     }
   else
     {
+      MEDCouplingAutoRefCountObjectPtr
+        < MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
       MEDCouplingAutoRefCountObjectPtr
         <MEDCouplingMesh> subMesh = dimMesh->buildPart(support->_medGroup->begin(),
                                                        support->_medGroup->end());
