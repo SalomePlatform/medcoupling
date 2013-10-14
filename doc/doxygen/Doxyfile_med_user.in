@@ -69,11 +69,22 @@ WARN_LOGFILE           = log_user
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @builddir@ \
-                         @srcdir@/doxfiles \
+
+INPUT                  = @srcdir@/doxfiles/intro.dox \
+                         @srcdir@/doxfiles/glossary.dox \
+                         @srcdir@/doxfiles/library.dox \
+                         @srcdir@/doxfiles/medcoupling.dox \
+                         @srcdir@/doxfiles/medloader.dox \
+                         @srcdir@/doxfiles/interptools.dox \
+                         @srcdir@/doxfiles/functionalities.dox \
+                         @builddir@/medcouplingexamplesPY.dox \
+                         @srcdir@/doxfiles/gui.dox \
+                         @srcdir@/doxfiles/tools.dox \
+                         @builddir@/medcouplingexamplesCPP.dox \
                          @srcdir@/doxfiles/medcoupling \
                          @srcdir@/doxfiles/medloader \
                          @srcdir@/doxfiles/interpolation \
+                         @srcdir@/doxfiles/install.dox \
                          @srcdir@/fakesources \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
@@ -166,7 +177,6 @@ HTML_OUTPUT            = html
 HTML_HEADER            = @builddir@/static/header.html
 HTML_FOOTER            = @srcdir@/static/footer.html
 HTML_EXTRA_STYLESHEET  = @srcdir@/static/salome_extra.css
-HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
 GENERATE_CHI           = YES
 BINARY_TOC             = NO
@@ -247,17 +257,9 @@ GRAPHICAL_HIERARCHY    = YES
 DOT_PATH               =
 DOT_FONTNAME           = Arial
 DOTFILE_DIRS           =
-MAX_DOT_GRAPH_WIDTH    = 1024
-MAX_DOT_GRAPH_HEIGHT   = 1024
 GENERATE_LEGEND        = YES
 DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
 # Configuration::addtions related to the search engine
 #---------------------------------------------------------------------------
 SEARCHENGINE           = NO
-CGI_NAME               = search.cgi
-CGI_URL                =
-DOC_URL                =
-DOC_ABSPATH            =
-BIN_ABSPATH            = /usr/local/bin/
-EXT_DOC_PATHS          =

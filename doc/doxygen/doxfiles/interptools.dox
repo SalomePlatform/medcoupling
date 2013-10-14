@@ -1,5 +1,5 @@
 /*!
-\page interptools Interpolation tools
+\page interptools Interpolation algorithms
 
 \section Presentation
 The InterpKernel algorithms are part of the MED tool suite. They

@@ -58,7 +58,7 @@ FOREACH(EXAMPLE_FILE ${EXAMPLE_FILES})
   concat(${EXAMPLE_FILE} medcouplingexamples.in)
 ENDFOREACH()
 # Copy the temporary file to the final location
-CONFIGURE_FILE(medcouplingexamples.in ${CMAKE_CURRENT_BINARY_DIR}/medcouplingexamples.dox)
+#CONFIGURE_FILE(medcouplingexamples.in ${CMAKE_CURRENT_BINARY_DIR}/medcouplingexamples.dox)
 # Note: The reason for writing to a temporary is so the real target file only
 # gets updated if its content has changed.
 

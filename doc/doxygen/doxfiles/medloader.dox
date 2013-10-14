@@ -17,38 +17,14 @@ of \ref medloader "MEDLoader" is much more rich than simply read and write.
 \ref MEDCouplingMeshesPage "MEDCoupling mesh" is \b not as rich as a MED file mesh, and a \ref MEDCouplingFieldsPage "MEDCoupling field" is \b not as rich as a MED file field.
 But it is possible to emulate with a very good fidelity a MED file mesh and a MED file field with a collection of MEDCoupling instances for each.
 
-\section MEDLoader2Approaches Two approaches are available in MEDLoader : Advanced API, Basic API
+\section MEDLoader2Approaches Two approaches
 
 \ref medloader "MEDLoader" module offers two different approaches to perform Read/Write from/to MED file.
 
-- \ref MEDLoaderAdvApproach "advanced API approach"
 - \ref MEDLoaderBasicApproach "basic API approach"
+- \ref MEDLoaderAdvApproach "advanced API approach"
 
 Whatever the approach(es) you choose, it is advisable to know main concepts of MED files \ref MEDLoaderMainC "that are quickly reminded here."
-
-\subsection MEDLoaderAdvApproach Advanced API approach
-
-\subpage MEDLoaderAdvancedAPIPage "A specific page dedicated to the advanced API is available here".
-
-This approach is the most close to MED file. By using this advanced API approach the user will manipulate classes that represent MED file concepts.
-
-It implies that the user should be informed about the \ref MEDLoaderMainC "MED file concepts", that do not exist in \ref medcoupling "MEDCoupling". For example :
-
-- group/family in meshes
-- profiles in fields
-
-This is typically the case for a user that wants to precisely set/get mesh/group/family groups set on different level.
-
-*This is why a set of classes corresponding to memory representation of MED file concepts is proposed by advanced API approach.*
-
-*So All information contained in file is represented by advanced API class instances.*
-
-The level of coherency check is variable across methods, to let to the user the maximal capacity of modification of its MED file data in memory.
-
-This API is particularly recommended :
-
-1. For users that want to repair a MED file (invalid family ids, invalid mesh dimension, mismatch of family ids, numbering cells/nodes array modification)
-2. For users that want to operate directly on complex MED file objects (split of MED files for example, duplication of nodes).
 
 \subsection MEDLoaderBasicApproach Basic API approach
 
@@ -67,6 +43,30 @@ As MED file concepts are more complex than MEDCoupling concepts, this approach i
 - Manipulation of multi level MED file mesh is not easy with basic approach
 
 - Manipulation of partial fields is not easy with basic approach
+
+\subsection MEDLoaderAdvApproach Advanced API approach
+
+\subpage MEDLoaderAdvancedAPIPage "A specific page dedicated to the advanced API is available here".
+
+This approach is the closest to MED file. By using this advanced API approach the user will manipulate classes that represent MED file concepts.
+
+It implies that the user should be informed about the \ref MEDLoaderMainC "MED file concepts", that do not exist in \ref medcoupling "MEDCoupling". For example :
+
+- group/family in meshes
+- profiles in fields
+
+This is typically the case for a user that wants to precisely set/get mesh/group/family groups set on different level.
+
+*This is why a set of classes corresponding to memory representation of MED file concepts is proposed by advanced API approach.*
+
+*So All information contained in file is represented by advanced API class instances.*
+
+The level of coherency check is variable across methods, to let to the user the maximal capacity of modification of its MED file data in memory.
+
+This API is particularly recommended :
+
+1. For users that want to repair a MED file (invalid family ids, invalid mesh dimension, mismatch of family ids, numbering cells/nodes array modification)
+2. For users that want to operate directly on complex MED file objects (split of MED files for example, duplication of nodes).
 
 
 \subsection MEDLoaderCohabitationApproach Cohabitation of the two approaches

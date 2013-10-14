@@ -64,6 +64,7 @@ def discardPythonFrom(contents):
     #
 #
 
+# Usage: BuildPyExamplesFromCPP.py <examples.in> <output directory>
 
 fCpp=file(sys.argv[1],"r")
 cppCont=fCpp.readlines() ; del fCpp
@@ -73,7 +74,11 @@ pyCont=Cpp2Python(pyCont)
 
 cppCont=discardPythonFrom(cppCont) # remove Python-only contents from Cpp
 
+# Save CPP and PY examples in two separate dox files
 outFileName=os.path.join(sys.argv[2],os.path.basename(sys.argv[1]))
 
-f=file(os.path.splitext(outFileName)[0]+".dox","w")
-f.writelines(cppCont+pyCont) ; del f
+f=file(os.path.splitext(outFileName)[0]+"CPP.dox","w")
+f.writelines(cppCont) ; del f
+
+f=file(os.path.splitext(outFileName)[0]+"PY.dox","w")
+f.writelines(pyCont) ; del f
