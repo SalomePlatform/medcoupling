@@ -156,9 +156,9 @@ class SauvLoaderTest(unittest.TestCase):
             io1 = fieldOnFaces.getIterations()
             fof = fieldOnFaces.getFieldOnMeshAtLevel(f1.getTypeOfField(),io1[i][0],io1[i][1],um1)
             self.assertTrue( d.isEqual( fof.getArray(), 1e-12 ))
-
-            os.remove( sauvFile )
             pass
+        del sr
+        os.remove( sauvFile )
         pass
 
     def testSauv2MedWONodeFamilyNum(self):
@@ -234,6 +234,7 @@ class SauvLoaderTest(unittest.TestCase):
         mesh = mfMesh.getMeshAtLevel(0)
         self.assertTrue(mesh.getNodalConnectivity().isEqual(m.getNodalConnectivity()))
         #
+        del sr
         os.remove(sauvFile)
         pass
 
@@ -298,7 +299,7 @@ class SauvLoaderTest(unittest.TestCase):
         mfd.setMeshes( mfm )
 
         # convert the MED file to a SAUV file
-        sauvFile = "SauvLoaderTest::testGaussPt.sauv"
+        sauvFile = "SauvLoaderTest_testGaussPt.sauv"
         sw=SauvWriter.New();
         sw.setMEDFileDS(mfd);
         sw.write(sauvFile);
@@ -317,7 +318,7 @@ class SauvLoaderTest(unittest.TestCase):
         #f2.setOrder( f.getTime()[2] ) # not stored in SAUV
         self.assertTrue( m2.isEqual( m, 1e-12 ))
         self.assertTrue( f2.isEqual( f, 1e-12, 1e-12 ))
-
+        del sr
         os.remove( sauvFile )
 
 

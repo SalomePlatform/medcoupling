@@ -12991,8 +12991,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         cm.setCoords(arr0,arr1,arr1) ; um=cm.buildUnstructured()
         #
         m=MEDCoupling1SGTUMesh("m",NORM_QUAD4)
+        mem_m=m.getHeapMemorySize()
         m.allocateCells(5)
-        self.assertIn(m.getHeapMemorySize(),xrange(80,90))
+        self.assertIn(m.getHeapMemorySize()-mem_m,xrange(5*4*4,5*4*4+32))
         self.assertEqual(m.getNodalConnectivity().getNbOfElemAllocated(),20)
         m.setCoords(um.getCoords())
         m.insertNextCell([1,0,6,7])
