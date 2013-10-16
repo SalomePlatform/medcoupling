@@ -3290,7 +3290,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
   const bool uniteSubs = fld->hasCommonSupport() && sameNbGauss;
   if ( !uniteSubs )
     cout << "Castem field #" << castemID << " <" << fld->_name
-         << "> is incompatible with MED format, so we split it into several fields" << endl;
+         << "> is incompatible with MED format, so we split it into several fields:" << endl;
 
   for ( size_t iSub = 0; iSub < fld->_sub.size(); )
     {
@@ -3315,6 +3315,11 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
         {
           fld->setValues( valPtr, iSub );
           setTS( fld, values, medFields, mesh, iSub++ );
+
+          cout << fld->_name << " with compoments";
+          for ( size_t i = 0; i < (size_t)fld->_sub[iSub-1].nbComponents(); ++i )
+            cout << " " << fld->_sub[iSub-1]._comp_names[ i ];
+          cout << endl;
         }
     }
 }
