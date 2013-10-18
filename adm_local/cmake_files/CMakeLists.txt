@@ -19,6 +19,7 @@
 
 SET(admlocal_cmake_DATA
   FindXDR.cmake
+  FindSalomeXDR.cmake
   FindMetis.cmake
   FindSalomeMetis.cmake
   FindParMetis.cmake

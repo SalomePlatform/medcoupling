@@ -41,10 +41,7 @@
 
 #ifdef WIN32
 #include <io.h>
-#endif
-
-#ifndef WIN32
-#define HAS_XDR
+#else
 #include <unistd.h>
 #endif
 
