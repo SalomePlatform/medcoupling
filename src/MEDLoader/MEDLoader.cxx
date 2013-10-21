@@ -282,6 +282,15 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
 
 /// @endcond
 
+bool MEDLoader::HasXDR()
+{
+#ifdef HAS_XDR
+  return true;
+#else
+  return false;
+#endif HAS_XDR
+}
+
 /*!
  * This method sets the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
  */

@@ -42,6 +42,7 @@ class MEDLOADER_EXPORT MEDLoader
   static void SetEpsilonForNodeComp(double val);
   static void SetCompPolicyForCell(int val);
   static void SetTooLongStrPolicy(int val);
+  static bool HasXDR();
   static void CheckFileForRead(const char *fileName);
   static std::vector<std::string> GetMeshNames(const char *fileName);
   static std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes);

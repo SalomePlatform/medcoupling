@@ -218,6 +218,7 @@ using namespace ParaMEDMEM;
 class MEDLoader
 {
 public:
+  static bool HasXDR();
   static void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   static void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
   static void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
