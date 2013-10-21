@@ -51,7 +51,6 @@
 
 using namespace SauvUtilities;
 using namespace ParaMEDMEM;
-using namespace std;
 
 namespace
 {
@@ -100,8 +99,8 @@ namespace
     if ( const int * conn = getGibi2MedQuadraticInterlace( type ))
       {
         Cell* ma = const_cast<Cell*>(&aCell);
-        vector< Node* > new_nodes( ma->_nodes.size() );
-        for ( size_t i = 0; i < new_nodes.size(); ++i )
+        std::vector< Node* > new_nodes( ma->_nodes.size() );
+        for (std:: size_t i = 0; i < new_nodes.size(); ++i )
           new_nodes[ i ] = ma->_nodes[ conn[ i ]];
         ma->_nodes.swap( new_nodes );
       }
@@ -114,7 +113,7 @@ namespace
   //================================================================================
 
   void getReverseVector (const INTERP_KERNEL::NormalizedCellType type,
-                         vector<pair<int,int> > &                swapVec )
+                         std::vector<std::pair<int,int> > &                swapVec )
   {
     swapVec.clear();
 
@@ -122,66 +121,66 @@ namespace
       {
       case NORM_TETRA4:
         swapVec.resize(1);
-        swapVec[0] = make_pair( 1, 2 );
+        swapVec[0] = std::make_pair( 1, 2 );
         break;
       case NORM_PYRA5:
         swapVec.resize(1);
-        swapVec[0] = make_pair( 1, 3 );
+        swapVec[0] = std::make_pair( 1, 3 );
         break;
       case NORM_PENTA6:
         swapVec.resize(2);
-        swapVec[0] = make_pair( 1, 2 );
-        swapVec[1] = make_pair( 4, 5 );
+        swapVec[0] = std::make_pair( 1, 2 );
+        swapVec[1] = std::make_pair( 4, 5 );
         break;
       case NORM_HEXA8:
         swapVec.resize(2);
-        swapVec[0] = make_pair( 1, 3 );
-        swapVec[1] = make_pair( 5, 7 );
+        swapVec[0] = std::make_pair( 1, 3 );
+        swapVec[1] = std::make_pair( 5, 7 );
         break;
       case NORM_TETRA10:
         swapVec.resize(3);
-        swapVec[0] = make_pair( 1, 2 );
-        swapVec[1] = make_pair( 4, 6 );
-        swapVec[2] = make_pair( 8, 9 );
+        swapVec[0] = std::make_pair( 1, 2 );
+        swapVec[1] = std::make_pair( 4, 6 );
+        swapVec[2] = std::make_pair( 8, 9 );
         break;
       case NORM_PYRA13:
         swapVec.resize(4);
-        swapVec[0] = make_pair( 1, 3 );
-        swapVec[1] = make_pair( 5, 8 );
-        swapVec[2] = make_pair( 6, 7 );
-        swapVec[3] = make_pair( 10, 12 );
+        swapVec[0] = std::make_pair( 1, 3 );
+        swapVec[1] = std::make_pair( 5, 8 );
+        swapVec[2] = std::make_pair( 6, 7 );
+        swapVec[3] = std::make_pair( 10, 12 );
         break;
       case NORM_PENTA15:
         swapVec.resize(4);
-        swapVec[0] = make_pair( 1, 2 );
-        swapVec[1] = make_pair( 4, 5 );
-        swapVec[2] = make_pair( 6, 8 );
-        swapVec[3] = make_pair( 9, 11 );
+        swapVec[0] = std::make_pair( 1, 2 );
+        swapVec[1] = std::make_pair( 4, 5 );
+        swapVec[2] = std::make_pair( 6, 8 );
+        swapVec[3] = std::make_pair( 9, 11 );
         break;
       case NORM_HEXA20:
         swapVec.resize(7);
-        swapVec[0] = make_pair( 1, 3 );
-        swapVec[1] = make_pair( 5, 7 );
-        swapVec[2] = make_pair( 8, 11 );
-        swapVec[3] = make_pair( 9, 10 );
-        swapVec[4] = make_pair( 12, 15 );
-        swapVec[5] = make_pair( 13, 14 );
-        swapVec[6] = make_pair( 17, 19 );
+        swapVec[0] = std::make_pair( 1, 3 );
+        swapVec[1] = std::make_pair( 5, 7 );
+        swapVec[2] = std::make_pair( 8, 11 );
+        swapVec[3] = std::make_pair( 9, 10 );
+        swapVec[4] = std::make_pair( 12, 15 );
+        swapVec[5] = std::make_pair( 13, 14 );
+        swapVec[6] = std::make_pair( 17, 19 );
         break;
         //   case NORM_SEG3: no need to reverse edges
         //     swapVec.resize(1);
-        //     swapVec[0] = make_pair( 1, 2 );
+        //     swapVec[0] = std::make_pair( 1, 2 );
         //     break;
       case NORM_TRI6:
         swapVec.resize(2);
-        swapVec[0] = make_pair( 1, 2 );
-        swapVec[1] = make_pair( 3, 5 );
+        swapVec[0] = std::make_pair( 1, 2 );
+        swapVec[1] = std::make_pair( 3, 5 );
         break;
       case NORM_QUAD8:
         swapVec.resize(3);
-        swapVec[0] = make_pair( 1, 3 );
-        swapVec[1] = make_pair( 4, 7 );
-        swapVec[2] = make_pair( 5, 6 );
+        swapVec[0] = std::make_pair( 1, 3 );
+        swapVec[1] = std::make_pair( 4, 7 );
+        swapVec[2] = std::make_pair( 5, 6 );
         break;
       default:;
       }
@@ -193,7 +192,7 @@ namespace
    */
   //================================================================================
 
-  inline void reverse(const Cell & aCell, const vector<pair<int,int> > & swapVec )
+  inline void reverse(const Cell & aCell, const std::vector<std::pair<int,int> > & swapVec )
   {
     Cell* ma = const_cast<Cell*>(&aCell);
     for ( unsigned i = 0; i < swapVec.size(); ++i )
@@ -215,7 +214,7 @@ namespace
       return i1->_number < i2->_number;
     }
   };
-  typedef map< const Cell*, unsigned, TCellByIDCompare > TCellToOrderMap;
+  typedef std::map< const Cell*, unsigned, TCellByIDCompare > TCellToOrderMap;
 
   //================================================================================
   /*!
@@ -1464,7 +1463,7 @@ unsigned SauvUtilities::getDimension( INTERP_KERNEL::NormalizedCellType type )
 
 const int * SauvUtilities::getGibi2MedQuadraticInterlace( INTERP_KERNEL::NormalizedCellType type )
 {
-  static vector<const int*> conn;
+  static std::vector<const int*> conn;
   static const int hexa20 [] = {0,6,4,2, 12,18,16,14, 7,5,3,1, 19,17,15,13, 8,11,10,9};
   static const int penta15[] = {0,2,4, 9,11,13, 1,3,5, 10,12,14, 6,8,7};
   static const int pyra13 [] = {0,2,4,6, 12, 1,3,5,7, 8,9,10,11};
@@ -1512,9 +1511,9 @@ SauvUtilities::Link Cell::link(int i) const
 {
   int i2 = ( i + 1 ) % _nodes.size();
   if ( _reverse )
-    return make_pair( _nodes[i2]->_number, _nodes[i]->_number );
+    return std::make_pair( _nodes[i2]->_number, _nodes[i]->_number );
   else
-    return make_pair( _nodes[i]->_number, _nodes[i2]->_number );
+    return std::make_pair( _nodes[i]->_number, _nodes[i2]->_number );
 }
 
 //================================================================================
@@ -1988,12 +1987,12 @@ double ASCIIReader::getDouble() const
  */
 //================================================================================
 
-string ASCIIReader::getName() const
+std::string ASCIIReader::getName() const
 {
   int len = _width;
   while (( _curPos[len-1] == ' ' || _curPos[len-1] == 0) && len > 0 )
     len--;
-  return string( _curPos, len );
+  return std::string( _curPos, len );
 }
 
 //================================================================================
@@ -2094,8 +2093,8 @@ void XDRReader::init( int nbToRead, int width/*=0*/ )
 {
   if(_iRead < _nbToRead)
     {
-      cout << "_iRead, _nbToRead : " << _iRead << " " << _nbToRead << endl;
-      cout << "Unfinished iteration before new one !" << endl;
+      std::cout << "_iRead, _nbToRead : " << _iRead << " " << _nbToRead << std::endl;
+      std::cout << "Unfinished iteration before new one !" << std::endl;
       THROW_IK_EXCEPTION("SauvUtilities::XDRReader::init(): Unfinished iteration before new one !");
     }
   _iRead    = 0;
@@ -2272,7 +2271,7 @@ std::string XDRReader::getName() const
   char* s = _xdr_cvals + _iRead*_width;
   while (( s[len-1] == ' ' || s[len-1] == 0) && len > 0 )
     len--;
-  return string( s, len );
+  return std::string( s, len );
 }
 
 //================================================================================
@@ -2375,9 +2374,9 @@ void IntermediateMED::setGroupLongNames()
   // IMP 0020434: mapping GIBI names to MED names
   // set med names to objects (mesh, fields, support, group or other)
 
-  set<int> treatedGroups;
+  std::set<int> treatedGroups;
 
-  list<nameGIBItoMED>::iterator itGIBItoMED = _listGIBItoMED_mail.begin();
+  std::list<nameGIBItoMED>::iterator itGIBItoMED = _listGIBItoMED_mail.begin();
   for (; itGIBItoMED != _listGIBItoMED_mail.end(); itGIBItoMED++)
     {
       if ( (int)_groups.size() < itGIBItoMED->gibi_id ) continue;
@@ -2410,9 +2409,9 @@ void IntermediateMED::setGroupLongNames()
  */
 //================================================================================
 
-void IntermediateMED::setFieldLongNames(set< string >& usedNames)
+void IntermediateMED::setFieldLongNames(std::set< std::string >& usedNames)
 {
-  list<nameGIBItoMED>::iterator itGIBItoMED = _listGIBItoMED_cham.begin();
+  std::list<nameGIBItoMED>::iterator itGIBItoMED = _listGIBItoMED_cham.begin();
   for (; itGIBItoMED != _listGIBItoMED_cham.end(); itGIBItoMED++)
     {
       if (itGIBItoMED->gibi_pile == PILE_FIELD)
@@ -2427,25 +2426,25 @@ void IntermediateMED::setFieldLongNames(set< string >& usedNames)
 
   for (itGIBItoMED =_listGIBItoMED_comp.begin(); itGIBItoMED != _listGIBItoMED_comp.end(); itGIBItoMED++)
     {
-      string medName  = _mapStrings[itGIBItoMED->med_id];
-      string gibiName = _mapStrings[itGIBItoMED->gibi_id];
+      std::string medName  = _mapStrings[itGIBItoMED->med_id];
+      std::string gibiName = _mapStrings[itGIBItoMED->gibi_id];
 
       bool name_found = false;
       for ( int isNodal = 0; isNodal < 2 && !name_found; ++isNodal )
         {
-          vector<DoubleField* > & fields = isNodal ? _nodeFields : _cellFields;
+          std::vector<DoubleField* > & fields = isNodal ? _nodeFields : _cellFields;
           for ( size_t ifi = 0; ifi < fields.size() && !name_found; ifi++)
             {
               if (medName.find( fields[ifi]->_name + "." ) == 0 )
                 {
-                  vector<DoubleField::_Sub_data>& aSubDs = fields[ifi]->_sub;
+                  std::vector<DoubleField::_Sub_data>& aSubDs = fields[ifi]->_sub;
                   int nbSub = aSubDs.size();
                   for (int isu = 0; isu < nbSub; isu++)
                     for (int ico = 0; ico < aSubDs[isu].nbComponents(); ico++)
                       {
                         if (aSubDs[isu].compName(ico) == gibiName)
                           {
-                            string medNameCompo = medName.substr( fields[ifi]->_name.size() + 1 );
+                            std::string medNameCompo = medName.substr( fields[ifi]->_name.size() + 1 );
                             fields[ifi]->_sub[isu].compName(ico) = medNameCompo;
                           }
                       }
@@ -2483,7 +2482,7 @@ void IntermediateMED::decreaseHierarchicalDepthOfSubgroups()
       }
     }
     // remove empty sub-_groups
-    vector< Group* > newSubGroups;
+    std::vector< Group* > newSubGroups;
     newSubGroups.reserve( grp._groups.size() );
     for (size_t j = 0; j < grp._groups.size(); ++j )
       if ( !grp._groups[j]->empty() )
@@ -2565,7 +2564,7 @@ void IntermediateMED::detectMixDimGroups()
         grp._cells.clear();
         grp._groups.clear();
         if ( !grp._name.empty() )
-          cout << "Erase a group with elements of different dim |" << grp._name << "|"<< endl;
+          std::cout << "Erase a group with elements of different dim |" << grp._name << "|"<< std::endl;
         break;
       }
     }
@@ -2580,13 +2579,13 @@ void IntermediateMED::detectMixDimGroups()
 
 void IntermediateMED::orientElements2D()
 {
-  set<Cell>::const_iterator elemIt, elemEnd;
-  vector< pair<int,int> > swapVec;
+  std::set<Cell>::const_iterator elemIt, elemEnd;
+  std::vector< std::pair<int,int> > swapVec;
 
   // ------------------------------------
   // fix connectivity of quadratic edges
   // ------------------------------------
-  set<Cell>& quadEdges = _cellsByType[ INTERP_KERNEL::NORM_SEG3 ];
+  std::set<Cell>& quadEdges = _cellsByType[ INTERP_KERNEL::NORM_SEG3 ];
   if ( !quadEdges.empty() )
     {
       elemIt = quadEdges.begin(), elemEnd = quadEdges.end();
@@ -2595,7 +2594,7 @@ void IntermediateMED::orientElements2D()
     }
 
   CellsByDimIterator faceIt( *this, 2 );
-  while ( const set<Cell > * faces = faceIt.nextType() )
+  while ( const std::set<Cell > * faces = faceIt.nextType() )
     {
       TCellType cellType = faceIt.type();
       bool isQuadratic = getGibi2MedQuadraticInterlace( cellType );
@@ -2666,13 +2665,13 @@ void IntermediateMED::orientElements3D()
   // fix connectivity
   // -----------------
 
-  set<Cell>::const_iterator elemIt, elemEnd;
-  vector< pair<int,int> > swapVec;
+  std::set<Cell>::const_iterator elemIt, elemEnd;
+  std::vector< std::pair<int,int> > swapVec;
 
   for ( int dim = 1; dim <= 3; ++dim )
   {
     CellsByDimIterator cellsIt( *this, dim );
-    while ( const set<Cell > * elems = cellsIt.nextType() )
+    while ( const std::set<Cell > * elems = cellsIt.nextType() )
     {
       TCellType cellType = cellsIt.type();
       bool isQuadratic = getGibi2MedQuadraticInterlace( cellType );
@@ -2704,10 +2703,10 @@ void IntermediateMED::orientElements3D()
 void IntermediateMED::orientFaces3D()
 {
   // fill map of links and their faces
-  set<const Cell*> faces;
-  map<const Cell*, Group*> fgm;
-  map<Link, list<const Cell*> > linkFacesMap;
-  map<Link, list<const Cell*> >::iterator lfIt, lfIt2;
+  std::set<const Cell*> faces;
+  std::map<const Cell*, Group*> fgm;
+  std::map<Link, std::list<const Cell*> > linkFacesMap;
+  std::map<Link, std::list<const Cell*> >::iterator lfIt, lfIt2;
 
   for (size_t i=0; i!=_groups.size(); ++i)
     {
@@ -2718,21 +2717,21 @@ void IntermediateMED::orientFaces3D()
             {
               for ( size_t k = 0; k < grp._cells[j]->_nodes.size(); ++k )
                 linkFacesMap[ grp._cells[j]->link( k ) ].push_back( grp._cells[j] );
-              fgm.insert( make_pair( grp._cells[j], &grp ));
+              fgm.insert( std::make_pair( grp._cells[j], &grp ));
             }
     }
   // dump linkFacesMap
   //     for ( lfIt = linkFacesMap.begin(); lfIt!=linkFacesMap.end(); lfIt++) {
-  //       cout<< "LINK: " << lfIt->first.first << "-" << lfIt->first.second << endl;
-  //       list<const Cell*> & fList = lfIt->second;
-  //       list<const Cell*>::iterator fIt = fList.begin();
+  //       cout<< "LINK: " << lfIt->first.first << "-" << lfIt->first.second << std::endl;
+  //       std::list<const Cell*> & fList = lfIt->second;
+  //       std::list<const Cell*>::iterator fIt = fList.begin();
   //       for ( ; fIt != fList.end(); fIt++ )
-  //         cout << "\t" << **fIt << fgm[*fIt]->nom << endl;
+  //         cout << "\t" << **fIt << fgm[*fIt]->nom << std::endl;
   //     }
 
   // Each oriented link must appear in one face only, else a face is reversed.
 
-  queue<const Cell*> faceQueue; /* the queue contains well oriented faces
+  std::queue<const Cell*> faceQueue; /* the queue contains well oriented faces
                                      whose neighbors orientation is to be checked */
   bool manifold = true;
   while ( !linkFacesMap.empty() )
@@ -2754,11 +2753,11 @@ void IntermediateMED::orientFaces3D()
               // find the neighbor faces
               lfIt = linkFacesMap.find( link );
               int nbFaceByLink = 0;
-              list< const Cell* > ml;
+              std::list< const Cell* > ml;
               if ( lfIt != linkFacesMap.end() )
                 {
-                  list<const Cell*> & fList = lfIt->second;
-                  list<const Cell*>::iterator fIt = fList.begin();
+                  std::list<const Cell*> & fList = lfIt->second;
+                  std::list<const Cell*>::iterator fIt = fList.begin();
                   assert( fIt != fList.end() );
                   for ( ; fIt != fList.end(); fIt++, nbFaceByLink++ )
                     {
@@ -2774,8 +2773,8 @@ void IntermediateMED::orientFaces3D()
                               lfIt2 = linkFacesMap.find( badlink );
                               if ( lfIt2 != linkFacesMap.end() )
                                 {
-                                  list<const Cell*> & ff = lfIt2->second;
-                                  list<const Cell*>::iterator lfIt3 = find( ff.begin(), ff.end(), badFace );
+                                  std::list<const Cell*> & ff = lfIt2->second;
+                                  std::list<const Cell*>::iterator lfIt3 = find( ff.begin(), ff.end(), badFace );
                                   // check if badFace has been found,
                                   // else we can't erase it
                                   // case of degenerated face in edge
@@ -2799,8 +2798,8 @@ void IntermediateMED::orientFaces3D()
               lfIt = linkFacesMap.find( revLink );
               if ( lfIt != linkFacesMap.end() )
                 {
-                  list<const Cell*> & fList = lfIt->second;
-                  list<const Cell*>::iterator fIt = fList.begin();
+                  std::list<const Cell*> & fList = lfIt->second;
+                  std::list<const Cell*>::iterator fIt = fList.begin();
                   for ( ; fIt != fList.end(); fIt++, nbFaceByLink++ )
                     {
                       ml.push_back( *fIt );
@@ -2813,10 +2812,10 @@ void IntermediateMED::orientFaces3D()
                 {
                   if ( manifold )
                     {
-                      list<const Cell*>::iterator ii = ml.begin();
-                      cout << nbFaceByLink << " faces by 1 link:" << endl;
+                      std::list<const Cell*>::iterator ii = ml.begin();
+                      std::cout << nbFaceByLink << " faces by 1 link:" << std::endl;
                       for( ; ii!= ml.end(); ii++ )
-                        cout << "in sub-mesh <" << fgm[ *ii ]->_name << "> " << **ii << endl;
+                        std::cout << "in sub-mesh <" << fgm[ *ii ]->_name << "> " << **ii << std::endl;
                     }
                   manifold = false;
                 }
@@ -2825,7 +2824,7 @@ void IntermediateMED::orientFaces3D()
     } // while ( !linkFacesMap.empty() )
 
   if ( !manifold )
-    cout << " -> Non manifold mesh, faces orientation may be incorrect" << endl;
+    std::cout << " -> Non manifold mesh, faces orientation may be incorrect" << std::endl;
 }
 
 //================================================================================
@@ -2837,11 +2836,11 @@ void IntermediateMED::orientFaces3D()
 
 void IntermediateMED::orientVolumes()
 {
-  set<Cell>::const_iterator elemIt, elemEnd;
-  vector< pair<int,int> > swapVec;
+  std::set<Cell>::const_iterator elemIt, elemEnd;
+  std::vector< std::pair<int,int> > swapVec;
 
   CellsByDimIterator cellsIt( *this, 3 );
-  while ( const set<Cell > * elems = cellsIt.nextType() )
+  while ( const std::set<Cell > * elems = cellsIt.nextType() )
     {
       TCellType cellType = cellsIt.type();
       elemIt = elems->begin(), elemEnd = elems->end();
@@ -2890,7 +2889,7 @@ void IntermediateMED::orientVolumes()
               vec03[0] = n3[0] - n[0][0];
               vec03[1] = n3[1] - n[0][1];
               vec03[2] = n3[2] - n[0][2];
-              if ( fabs( normal[0]+normal[1]+normal[2] ) <= numeric_limits<double>::max() ) // vec01 || vec02
+              if ( fabs( normal[0]+normal[1]+normal[2] ) <= std::numeric_limits<double>::max() ) // vec01 || vec02
                 {
                   normal[0] = vec01[1] * vec03[2] - vec01[2] * vec03[1]; // vec01 ^ vec03
                   normal[1] = vec01[2] * vec03[0] - vec01[0] * vec03[2];
@@ -2952,11 +2951,11 @@ int NodeContainer::numberNodes()
 
 void IntermediateMED::numberElements()
 {
-  set<Cell>::const_iterator elemIt, elemEnd;
+  std::set<Cell>::const_iterator elemIt, elemEnd;
 
   // numbering _cells of type NORM_POINT1 by node number
   {
-    const set<Cell>& points = _cellsByType[ INTERP_KERNEL::NORM_POINT1 ];
+    const std::set<Cell>& points = _cellsByType[ INTERP_KERNEL::NORM_POINT1 ];
     elemIt = points.begin(), elemEnd = points.end();
     for ( ; elemIt != elemEnd; ++elemIt )
       elemIt->_number = elemIt->_nodes[0]->_number;
@@ -2969,7 +2968,7 @@ void IntermediateMED::numberElements()
       bool ok = true, renumEntity = false;
       CellsByDimIterator cellsIt( *this, dim );
       int prevNbElems = 0;
-      while ( const set<Cell> * typeCells = cellsIt.nextType() )
+      while ( const std::set<Cell> * typeCells = cellsIt.nextType() )
         {
           TID minNumber = std::numeric_limits<TID>::max(), maxNumber = 0;
           for ( elemIt = typeCells->begin(), elemEnd = typeCells->end(); elemIt!=elemEnd; ++elemIt)
@@ -2993,7 +2992,7 @@ void IntermediateMED::numberElements()
         {
           cellsIt.init( dim );
           prevNbElems = cellsIt.nextType()->size(); // no need to renumber the first type
-          while ( const set<Cell> * typeCells = cellsIt.nextType() )
+          while ( const std::set<Cell> * typeCells = cellsIt.nextType() )
             {
               for ( elemIt = typeCells->begin(), elemEnd = typeCells->end(); elemIt!=elemEnd; ++elemIt)
                 elemIt->_number += prevNbElems;
@@ -3004,7 +3003,7 @@ void IntermediateMED::numberElements()
         {
           int cellID=1;
           cellsIt.init( dim );
-          while ( const set<Cell> * typeCells = cellsIt.nextType() )
+          while ( const std::set<Cell> * typeCells = cellsIt.nextType() )
             for ( elemIt = typeCells->begin(), elemEnd = typeCells->end(); elemIt!=elemEnd; ++elemIt)
               elemIt->_number = cellID++;
         }
@@ -3050,7 +3049,7 @@ void IntermediateMED::setConnectivity( ParaMEDMEM::MEDFileUMesh*    mesh,
 
   mesh->setCoords( coords );
 
-  set<Cell>::const_iterator elemIt, elemEnd;
+  std::set<Cell>::const_iterator elemIt, elemEnd;
   for ( int dim = 3; dim > 0; --dim )
   {
     CellsByDimIterator dimCells( *this, dim );
@@ -3074,7 +3073,7 @@ void IntermediateMED::setConnectivity( ParaMEDMEM::MEDFileUMesh*    mesh,
       {
         // fill connectivity array to take into account order of elements in the sauv file
         const int nbCellNodes = cells->begin()->_nodes.size();
-        vector< TID > connectivity( cells->size() * nbCellNodes );
+        std::vector< TID > connectivity( cells->size() * nbCellNodes );
         int * nodalConnOfCell;
         for ( elemIt = cells->begin(), elemEnd = cells->end(); elemIt != elemEnd; ++elemIt )
           {
@@ -3117,8 +3116,8 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
     {
       const int meshDimRelToMaxExt = ( dim == 0 ? 1 : dim - meshDim );
 
-      vector<const DataArrayInt *> medGroups;
-      vector<MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > refGroups;
+      std::vector<const DataArrayInt *> medGroups;
+      std::vector<MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > refGroups;
       for ( size_t i = 0; i < _groups.size(); ++i )
         {
           Group& grp = _groups[i];
@@ -3133,7 +3132,7 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
           // sort cells by ID and remember their initial order in the group
           TCellToOrderMap cell2order;
           unsigned orderInGroup = 0;
-          vector< Group* > groupVec;
+          std::vector< Group* > groupVec;
           if ( grp._groups.empty() ) groupVec.push_back( & grp );
           else                       groupVec = grp._groups;
           for ( size_t iG = 0; iG < groupVec.size(); ++iG )
@@ -3142,17 +3141,17 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
               if ( (int)getDim( aG ) != dim )
                 continue;
               for ( size_t iC = 0; iC < aG->_cells.size(); ++iC )
-                cell2order.insert( cell2order.end(), make_pair( aG->_cells[iC], orderInGroup++ ));
+                cell2order.insert( cell2order.end(), std::make_pair( aG->_cells[iC], orderInGroup++ ));
             }
           if ( cell2order.empty() )
             continue;
           bool isSelfIntersect = ( orderInGroup != cell2order.size() );
           if ( isSelfIntersect ) // self intersecting group
             {
-              ostringstream msg;
+              std::ostringstream msg;
               msg << "Self intersecting sub-mesh: id = " << i+1
-                  << ", name = |" << grp._name << "|" << endl
-                  << " nb unique elements = " << cell2order.size() << endl
+                  << ", name = |" << grp._name << "|" << std::endl
+                  << " nb unique elements = " << cell2order.size() << std::endl
                   << " total nb elements  = " << orderInGroup;
               if ( grp._isProfile )
                 {
@@ -3160,7 +3159,7 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
                 }
               else
                 {
-                  cout << msg.str() << endl;
+                  std::cout << msg.str() << std::endl;
                 }
             }
           // create a med group
@@ -3215,7 +3214,7 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
 
   int nbElems = 0;
   CellsByDimIterator dimCells( *this, dim );
-  while ( const set<Cell > * cells = dimCells.nextType() )
+  while ( const std::set<Cell > * cells = dimCells.nextType() )
     nbElems += cells->size();
 
   const bool onAll = ( nbElems == grp->size() );
@@ -3247,7 +3246,7 @@ ParaMEDMEM::MEDFileFields * IntermediateMED::makeMEDFileFields(ParaMEDMEM::MEDFi
   if ( _nodeFields.empty() && _cellFields.empty() ) return 0;
 
   // set long names
-  set< string > usedFieldNames;
+  std::set< std::string > usedFieldNames;
   setFieldLongNames(usedFieldNames);
 
   MEDFileFields* fields = MEDFileFields::New();
@@ -3271,7 +3270,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
                                  ParaMEDMEM::MEDFileFields*  medFields,
                                  ParaMEDMEM::MEDFileUMesh*   mesh,
                                  const TID                   castemID,
-                                 set< string >&              usedFieldNames)
+                                 std::set< std::string >&              usedFieldNames)
 {
   bool sameNbGauss = true;
   if ( !fld || !fld->isMedCompatible( sameNbGauss )) return;
@@ -3286,8 +3285,8 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
 
   const bool uniteSubs = fld->hasCommonSupport() && sameNbGauss;
   if ( !uniteSubs )
-    cout << "Castem field #" << castemID << " <" << fld->_name
-         << "> is incompatible with MED format, so we split it into several fields:" << endl;
+    std::cout << "Castem field #" << castemID << " <" << fld->_name
+              << "> is incompatible with MED format, so we split it into several fields:" << std::endl;
 
   for ( size_t iSub = 0; iSub < fld->_sub.size(); )
     {
@@ -3313,10 +3312,10 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
           fld->setValues( valPtr, iSub );
           setTS( fld, values, medFields, mesh, iSub++ );
 
-          cout << fld->_name << " with compoments";
+          std::cout << fld->_name << " with compoments";
           for ( size_t i = 0; i < (size_t)fld->_sub[iSub-1].nbComponents(); ++i )
-            cout << " " << fld->_sub[iSub-1]._comp_names[ i ];
-          cout << endl;
+            std::cout << " " << fld->_sub[iSub-1]._comp_names[ i ];
+          std::cout << std::endl;
         }
     }
 }
@@ -3425,15 +3424,15 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
 void IntermediateMED::makeFieldNewName(std::set< std::string >&    usedNames,
                                        SauvUtilities::DoubleField* fld )
 {
-  string base = fld->_name;
+  std::string base = fld->_name;
   if ( base.empty() )
     {
       base = "F_";
     }
   else
     {
-      string::size_type pos = base.rfind('_');
-      if ( pos != string::npos )
+      std::string::size_type pos = base.rfind('_');
+      if ( pos != std::string::npos )
         base = base.substr( 0, pos+1 );
       else
         base += '_';
@@ -3541,7 +3540,7 @@ bool DoubleField::isMedCompatible(bool& sameNbGauss) const
       sameNbGauss = true;
       if ( !_sub[iSub].isSameNbGauss() )
         {
-          cout << "Field <" << _name << "> : different nb of gauss points in components" <<endl;
+          std::cout << "Field <" << _name << "> : different nb of gauss points in components" << std::endl;
           sameNbGauss = false;
           //return false;
         }
@@ -3557,7 +3556,7 @@ bool DoubleField::isMedCompatible(bool& sameNbGauss) const
 
 bool DoubleField::hasSameComponentsBySupport() const
 {
-  vector< _Sub_data >::const_iterator sub_data = _sub.begin();
+  std::vector< _Sub_data >::const_iterator sub_data = _sub.begin();
   const _Sub_data& first_sub_data = *sub_data;
   for ( ++sub_data ; sub_data != _sub.end(); ++sub_data )
   {
@@ -3637,11 +3636,11 @@ int DoubleField::setValues( double * valPtr, const int iSub, const int elemShift
   int iComp = 0;
   for ( int iS = 0; iS < iSub; ++iS )
     iComp += _sub[iS].nbComponents();
-  const vector< double > * compValues = &_comp_values[ iComp ];
+  const std::vector< double > * compValues = &_comp_values[ iComp ];
 
   // Set values
 
-  const vector< unsigned >& relocTable = getSupport( iSub )->_relocTable;
+  const std::vector< unsigned >& relocTable = getSupport( iSub )->_relocTable;
 
   const int nbElems      = _sub[iSub]._support->size();
   const int nbGauss      = _sub[iSub].nbGauss();
