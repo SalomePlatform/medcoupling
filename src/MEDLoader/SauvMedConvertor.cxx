@@ -3517,9 +3517,9 @@ bool DoubleField::isMultiTimeStamps() const
   if ( _sub.size() < 2 )
     return false;
   bool sameSupports = true;
-  Group* grp1 = _sub[0]._support;
+  Group* grpp1 = _sub[0]._support;// grpp NOT grp because XDR under Windows defines grp...
   for ( size_t i = 1; i < _sub.size() && sameSupports; ++i )
-    sameSupports = ( grp1 == _sub[i]._support );
+    sameSupports = ( grpp1 == _sub[i]._support );
 
   return sameSupports;
 }
