@@ -40,7 +40,7 @@ SET(VERSION_DEV "0")
 
 #
 # Kernel detection comes before user options to be
-# able to take previous values of SALOME_USE_MPI, SALOME_BUILD_DOC, etc ...
+# able to take previous values of global options ...
 #
 SET(_default_MPI OFF)
 IF(NOT SALOME_MED_STANDALONE)
@@ -58,9 +58,6 @@ IF(NOT SALOME_MED_STANDALONE)
   LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
   FIND_PACKAGE(SalomePThread REQUIRED) # for MEDCouplingCorba/Test for EDF
   FIND_PACKAGE(SalomeOmniORB REQUIRED)
-  # SALOME_LOG_OPTIONAL_PACKAGE(SalomeKERNEL (NOT SALOME_MED_STANDALONE))
-  # TODO  
-  # It's necessary to add a next posibility: send a negative argument in SALOME_LOG_OPTIONAL_PACKAGE
 ELSE(NOT SALOME_MED_STANDALONE)
   LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local_without_kernel/cmake_files")
   INCLUDE(SalomeMacros)
@@ -145,7 +142,7 @@ IF(SALOME_BUILD_GUI)
     SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR} CACHE PATH "Path to the Salome GUI")
     IF(EXISTS ${GUI_ROOT_DIR})
       LIST(APPEND CMAKE_MODULE_PATH "${GUI_ROOT_DIR}/adm_local/cmake_files")
-      FIND_PACKAGE(SalomeGUI)
+      FIND_PACKAGE(SalomeGUI REQUIRED)
       ADD_DEFINITIONS(${GUI_DEFINITIONS})
       INCLUDE_DIRECTORIES(${GUI_INCLUDE_DIRS})
     ELSE(EXISTS ${GUI_ROOT_DIR})
@@ -153,7 +150,6 @@ IF(SALOME_BUILD_GUI)
     ENDIF(EXISTS ${GUI_ROOT_DIR})
     FIND_PACKAGE(SalomeQt4 REQUIRED COMPONENTS QtCore QtGui)
     FIND_PACKAGE(SalomeCAS REQUIRED) # maybe one day it will disappear ...
-    SALOME_LOG_OPTIONAL_PACKAGE(SalomeGUI SALOME_BUILD_GUI)
   ENDIF(NOT SALOME_MED_STANDALONE)
 ENDIF(SALOME_BUILD_GUI)
 
