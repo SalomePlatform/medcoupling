@@ -17,16 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(indoxfiles Doxyfile_med_user.in static/header.html.in)
-SET(builddir ${CMAKE_CURRENT_BINARY_DIR})
-SET(srcdir   ${CMAKE_CURRENT_SOURCE_DIR})
-FOREACH(indoxfile ${indoxfiles})
-  STRING(REGEX REPLACE ".in" "" baseindoxfile ${indoxfile})
-  SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${indoxfile})
-  SET(output ${CMAKE_CURRENT_BINARY_DIR}/${baseindoxfile})
-  CONFIGURE_FILE(${input} ${output})
-  MESSAGE(STATUS "Creation of ${output}")
-ENDFOREACH(indoxfile ${indoxfiles})
+SALOME_CONFIGURE_FILE(Doxyfile_med_user.in Doxyfile_med_user)
+SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
+
 FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/medcouplingexamples.in" input)
 FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BuildPyExamplesFromCPP.py" pythondocexamplesgenerator)
 FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" output)
@@ -67,7 +60,12 @@ ENDFOREACH()
 ADD_CUSTOM_TARGET(usr_docs ALL
   COMMAND ${PYTHON_EXECUTABLE} ${pythondocexamplesgenerator} ${input} ${output}
   COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_user
-  COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/MED''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/MED'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/MED''')"
   VERBATIM
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
+  
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html/ DESTINATION ${SALOME_INSTALL_DOC}/gui/MED)
+INSTALL(FILES images/head.png DESTINATION ${SALOME_INSTALL_DOC}/gui/MED) 
+
+SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES doc_ref_user)
