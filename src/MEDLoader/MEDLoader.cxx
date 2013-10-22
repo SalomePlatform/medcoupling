@@ -288,7 +288,7 @@ bool MEDLoader::HasXDR()
   return true;
 #else
   return false;
-#endif HAS_XDR
+#endif
 }
 
 /*!
