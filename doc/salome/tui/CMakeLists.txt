@@ -17,15 +17,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(indoxfiles doxyfile.in static/header.html.in)
-FOREACH(indoxfile ${indoxfiles})
-  STRING(REGEX REPLACE ".in" "" baseindoxfile ${indoxfile})
-  SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${indoxfile})
-  SET(output ${CMAKE_CURRENT_BINARY_DIR}/${baseindoxfile})
-  CONFIGURE_FILE(${input} ${output})
-  MESSAGE(STATUS "Creation of ${output}")
-ENDFOREACH(indoxfile ${indoxfiles})
+SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
+SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
-ADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE}
-  COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/MED''', True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}/MED''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/MED'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''', r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/tui/MED''')"
-  VERBATIM WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+ADD_CUSTOM_TARGET(dev_docs ${DOXYGEN_EXECUTABLE})
+
+INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/MED)")
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/MED DESTINATION ${SALOME_INSTALL_DOC}/tui)
+INSTALL(FILES images/head.png DESTINATION ${SALOME_INSTALL_DOC}/tui/MED) 
+
+SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES MED)
