@@ -40,6 +40,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=4
         self.assertEqual(getrefcount(a),2)
         a=a.cumsum(dtype=int32)
+        a=array(a,dtype=int64) ; a=array(a,dtype=int32)
         self.assertEqual(getrefcount(a),2)
         d=DataArrayInt(a)
         d[:]=2
