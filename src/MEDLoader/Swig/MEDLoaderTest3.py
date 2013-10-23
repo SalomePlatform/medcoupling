@@ -1989,20 +1989,20 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertIn(mm.getHeapMemorySize(),xrange(3889-100,3889+100+10*strMulFac))
         ff=MEDFileField1TS()
         ff.setFieldNoProfileSBT(f)
-        self.assertIn(ff.getHeapMemorySize(),xrange(711-40,711+20+4*strMulFac))
+        self.assertIn(ff.getHeapMemorySize(),xrange(711-40,711+21+(4+1)*strMulFac))
         #
         fff=MEDFileFieldMultiTS()
         fff.appendFieldNoProfileSBT(f)
-        self.assertIn(fff.getHeapMemorySize(),xrange(743-50,743+30+6*strMulFac))
+        self.assertIn(fff.getHeapMemorySize(),xrange(743-50,743+30+(6+2)*strMulFac))
         f.setTime(1.,0,-1)
         fff.appendFieldNoProfileSBT(f)
-        self.assertIn(fff.getHeapMemorySize(),xrange(1462-90,1462+50+10*strMulFac))
-        self.assertIn(fff[0,-1].getHeapMemorySize(),xrange(711-40,711+20+4*strMulFac))
+        self.assertIn(fff.getHeapMemorySize(),xrange(1462-90,1462+50+(10+1)*strMulFac))
+        self.assertIn(fff[0,-1].getHeapMemorySize(),xrange(711-40,711+20+(4+1)*strMulFac))
         f2=f[:50]
         f2.setTime(2.,1,-1)
         pfl=DataArrayInt.Range(0,50,1) ; pfl.setName("pfl")
         fff.appendFieldProfile(f2,mm,0,pfl)
-        self.assertIn(fff.getHeapMemorySize(),xrange(2178-130,2178+100+10*strMulFac))
+        self.assertIn(fff.getHeapMemorySize(),xrange(2178-130,2178+100+(10+2)*strMulFac))
         self.assertIn(fff.getProfile("pfl_NORM_QUAD4").getHeapMemorySize(),xrange(215-10,215+10+2*strMulFac))
         self.assertIn(fff[1,-1].getHeapMemorySize(),xrange(700-50,700+30+4*strMulFac))
         pass
@@ -2919,7 +2919,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(not ff0.getUndergroundDataArray().isAllocated())
         self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),['X [km]','YY [mm]'])
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(100,200+2*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(100,210+2*strMulFac))
         ff0.loadArrays() ##
         arr=DataArrayDouble(140) ; arr.iota() ; arr.rearrange(2)
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
@@ -2928,7 +2928,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff0=MEDFileField1TS(fname,"FieldCellPfl",False)
         self.assertEqual(ff0.getUndergroundDataArray().getInfoOnComponents(),["XX [pm]","YYY [hm]"])
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(150,250+6*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(150,260+6*strMulFac))
         ff0.loadArrays() ##
         arr=DataArrayDouble(100) ; arr.iota() ; arr.rearrange(2)
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
@@ -2946,7 +2946,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(ff0.getUndergroundDataArray().getIJ(30,1),5.5)
         self.assertTrue(not ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(1000,1100+2*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(1000,1120+2*strMulFac))
         ff0.unloadArrays()
         hmd=ff0.getHeapMemorySize()-heap_memory_ref
         self.assertEqual(hmd,-800) # -50*8*2
@@ -2955,7 +2955,7 @@ class MEDLoaderTest(unittest.TestCase):
         #
         ff0=MEDFileField1TS(fname,"FieldCellPfl",-1,-1,False)
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(150,250+6*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(150,260+6*strMulFac))
         ff0.loadArrays() ##
         self.assertTrue(ff0.getUndergroundDataArray().isEqualWithoutConsideringStr(arr,1e-14))
         self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,50*8*2)
@@ -2972,14 +2972,14 @@ class MEDLoaderTest(unittest.TestCase):
         #
         ff0=MEDFileAnyTypeFieldMultiTS.New(fname,fieldName,False)
         heap_memory_ref=ff0.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(2000,3000+80*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(2000,3000+(80+26)*strMulFac))
         ff0.loadArrays()
         self.assertEqual(ff0.getHeapMemorySize()-heap_memory_ref,20*70*8*2)
         del ff0
         #
         ffs=MEDFileFields(fname,False)
         heap_memory_ref=ffs.getHeapMemorySize()
-        self.assertIn(heap_memory_ref,xrange(2400,3500+80*strMulFac))
+        self.assertIn(heap_memory_ref,xrange(2400,3500+(80+50)*strMulFac))
         ffs.loadArrays()
         self.assertEqual(ffs.getHeapMemorySize()-heap_memory_ref,20*70*8*2+70*8*2+50*8*2)
         pass
