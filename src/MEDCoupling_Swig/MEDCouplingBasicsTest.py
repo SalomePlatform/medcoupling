@@ -11810,7 +11810,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def testSwigRepr1(self):
         d=DataArrayDouble()
-        self.assertTrue(len(d.__repr__())<100)
+        self.assertTrue(len(d.__repr__())<120)
         d.alloc(1000,0) ; self.assertTrue(len(d.__repr__())<100)
         for i in xrange(100):
             d.alloc(i,1) ; d.iota(1.1234567890123456) ; d*=1e123
@@ -11825,7 +11825,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             d.alloc(362880,1) ; d.iota() ; d.rearrange(i) ; self.assertTrue(len(d.__repr__())<500)
             pass
         d.alloc(0,9)
-        self.assertTrue(len(d.__repr__())<100)
+        self.assertTrue(len(d.__repr__())<120)
         #
         d=DataArrayInt()
         self.assertTrue(len(d.__repr__())<100)
@@ -11852,7 +11852,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         d.alloc(2000,16) ; d[:]='1234567890ABCDEF'
         self.assertTrue(len(d.__repr__())<500)
         d.alloc(0,16) ; d[:]='1234567890ABCDEF'
-        self.assertTrue(len(d.__repr__())<100)
+        self.assertTrue(len(d.__repr__())<120)
         #
         d=DataArrayByte()
         self.assertTrue(len(d.__repr__())<100)
