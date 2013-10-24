@@ -56,13 +56,19 @@ IF(NOT SALOME_MED_STANDALONE)
     MESSAGE(FATAL_ERROR "We absolutely need a Salome KERNEL, please define KERNEL_ROOT_DIR or turn option SALOME_MED_STANDALONE to ON !")
   ENDIF(EXISTS ${KERNEL_ROOT_DIR})
   LIST(APPEND CMAKE_MODULE_PATH "${KERNEL_ROOT_DIR}/salome_adm/cmake_files")
-  FIND_PACKAGE(SalomePThread REQUIRED) # for MEDCouplingCorba/Test for EDF
-  FIND_PACKAGE(SalomeOmniORB REQUIRED)
 ELSE(NOT SALOME_MED_STANDALONE)
   LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local_without_kernel/cmake_files")
   INCLUDE(SalomeMacros)
 ENDIF(NOT SALOME_MED_STANDALONE)
 
+# Platform setup
+# ==============
+INCLUDE(SalomeSetupPlatform)
+
+IF(NOT SALOME_MED_STANDALONE)
+  FIND_PACKAGE(SalomePThread REQUIRED) # for MEDCouplingCorba/Test for EDF
+  FIND_PACKAGE(SalomeOmniORB REQUIRED)
+ENDIF(NOT SALOME_MED_STANDALONE)
 #
 # User options
 # ============
@@ -104,10 +110,6 @@ ELSE(NOT SALOME_MED_STANDALONE)
   LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/adm_local_without_kernel/cmake_files")
   INCLUDE(SalomeMacros)
 ENDIF(NOT SALOME_MED_STANDALONE)
-
-# Platform setup
-# ==============
-INCLUDE(SalomeSetupPlatform)
 
 IF(NOT SALOME_MED_MICROMED)
   FIND_PACKAGE(SalomeHDF5 REQUIRED)
