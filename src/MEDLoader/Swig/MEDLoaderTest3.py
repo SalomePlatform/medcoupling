@@ -3361,6 +3361,63 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m.getNumberFieldAtLevel(1).isEqual(DataArrayInt(range(10,26))))
         self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3])))
         pass
+
+    @unittest.skipUnless(False,"requires Vadim's green light")
+    def testWRQPolyg1(self):
+        fname="Pyfile72.med"
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.allocateCells()
+        m.insertNextCell([0,2,1,3])
+        m.setCoords(DataArrayDouble([0.,0.,1.,1.,1.,0.,0.,1.],4,2))
+        #
+        ms=[m.deepCpy() for i in xrange(4)]
+        for i,elt in enumerate(ms):
+            elt.translate([float(i)*1.5,0.])
+            pass
+        m0=MEDCoupling1SGTUMesh.Merge1SGTUMeshes(ms).buildUnstructured()
+        m0.convertAllToPoly()
+        #
+        ms=[m.deepCpy() for i in xrange(5)]
+        for i,elt in enumerate(ms):
+            elt.translate([float(i)*1.5,1.5])
+            pass
+        m1=MEDCoupling1SGTUMesh.Merge1SGTUMeshes(ms).buildUnstructured()
+        m1.convertAllToPoly()
+        m1.convertLinearCellsToQuadratic()
+        #
+        m=MEDCouplingUMesh.MergeUMeshes(m0,m1)
+        ##
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        grp0=DataArrayInt([0,2,3]) ; grp0.setName("grp0")
+        grp1=DataArrayInt([4,6,7]) ; grp1.setName("grp1")
+        grp2=DataArrayInt([0,1,2,4,5,6]) ; grp2.setName("grp2")
+        mm.setGroupsAtLevel(0,[grp0,grp1,grp2])
+        ##
+        mm.write(fname,2)
+        del mm
+        #
+        mm_read=MEDFileUMesh(fname)
+        self.assertTrue(mm_read.getGroupArr(0,"grp0").isEqual(grp0))
+        self.assertTrue(mm_read.getGroupArr(0,"grp1").isEqual(grp1))
+        self.assertTrue(mm_read.getGroupArr(0,"grp2").isEqual(grp2))
+        self.assertTrue(mm_read.getMeshAtLevel(0).isEqual(m,1e-12))
+        ##
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setName("MyFirstField")
+        f.setMesh(m)
+        arr0=DataArrayDouble(9) ; arr0.iota()
+        arr1=DataArrayDouble(9) ; arr1.iota(100)
+        arr=DataArrayDouble.Meld(arr0,arr1) ; arr.setInfoOnComponents(["mm [kg]","sds [m]"])
+        f.setArray(arr) ; f.checkCoherency()
+        f.setTime(5.6,1,2)
+        ff=MEDFileField1TS()
+        ff.setFieldNoProfileSBT(f)
+        ff.write(fname,0)
+        ##
+        ff_read=MEDFileField1TS(fname)
+        f_read=ff_read.getFieldOnMeshAtLevel(ON_CELLS,0,mm_read)
+        self.assertTrue(f_read.isEqual(f,1e-12,1e-12))
+        pass
+
     pass
 
 unittest.main()
