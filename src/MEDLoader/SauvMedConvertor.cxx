@@ -2045,7 +2045,11 @@ bool XDRReader::open()
 {
   bool xdr_ok = false;
 #ifdef HAS_XDR
+#ifdef WIN32
+  if ((_xdrs_file = ::fopen(_fileName.c_str(), "rb")))
+#else 
   if ((_xdrs_file = ::fopen(_fileName.c_str(), "r")))
+#endif
     {
       _xdrs = (XDR *)malloc(sizeof(XDR));
       xdrstdio_create((XDR*)_xdrs, _xdrs_file, XDR_DECODE);
