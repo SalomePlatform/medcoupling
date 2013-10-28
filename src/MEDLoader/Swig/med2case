@@ -26,7 +26,7 @@ from optparse import OptionParser
 import os
 
 parser = OptionParser()
-parser.set_usage("Convert a MED file to a Case file.\n   %prog [options] case_file")
+parser.set_usage("Convert a MED file to a Case file.\n   %prog [options] med_file")
 parser.add_option("-g", "--groups", action="store_true", dest="groups", default=False,
                   help="Are groups in meshes stored in MEDFile exported in output case as subparts (default False)")
 parser.add_option("-c", "--currentdir", action="store_true", dest="here", default=False,
@@ -53,11 +53,11 @@ try:
     cw.setMEDFileDS(mfd)
     listOfWrittenFileNames=cw.write(fOut)
 except InterpKernelException as e:
-    print "An error occured during the conversion!"
+    print "An error occurred during the conversion!"
     print "#######################################"
     raise e
 print "#########"
 for l in listOfWrittenFileNames:
-    print "File \"%s\" sucessfully written !"%(l)
+    print "File \"%s\" successfully written !"%(l)
     pass
 print "#########"
