@@ -510,7 +510,7 @@ void MEDFileUMeshPermCompute::updateTime() const
   _num_time=_st->_num->getTimeOfThis();
 }
 
-MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):_m_by_types(other._m_by_types),_fam(other._fam),_num(other._num),_names(other._names),_rev_num(other._rev_num),_m(this)
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):RefCountObject(other),_m_by_types(other._m_by_types),_fam(other._fam),_num(other._num),_names(other._names),_rev_num(other._rev_num),_m(this)
 {
 }
 

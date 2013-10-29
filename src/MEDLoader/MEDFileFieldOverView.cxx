@@ -400,7 +400,7 @@ MEDMeshMultiLev::MEDMeshMultiLev(int nbNodes, const std::vector<INTERP_KERNEL::N
     }
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction),_nb_nodes(other._nb_nodes)
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):RefCountObject(other),_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction),_nb_nodes(other._nb_nodes)
 {
 }
 
@@ -1380,7 +1380,7 @@ bool MEDFileField1TSStructItem::isFullyOnOneLev(const MEDFileMeshStruct *meshSt,
 
 const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::size_t i) const throw(INTERP_KERNEL::Exception)
 {
-  if(i<0 || i>=_items.size())
+  if(i>=_items.size())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::operator[] : input is not in valid range !");
   return _items[i];
 }
