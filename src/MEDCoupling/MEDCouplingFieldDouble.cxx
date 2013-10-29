@@ -240,7 +240,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP0> nsp(new MEDCouplingFieldDiscretizationP0);
   ret->setDiscretization(nsp);
   const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
-  int nbCells(m->getNumberOfCells()),nbNodes(m->getNumberOfNodes());
+  int nbCells(m->getNumberOfCells());
   std::vector<DataArrayDouble *> arrs(getArrays());
   std::size_t sz(arrs.size());
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);

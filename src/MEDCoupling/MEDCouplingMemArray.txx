@@ -358,8 +358,6 @@ namespace ParaMEDMEM
   template<class T>
   void MemArray<T>::reserve(std::size_t newNbOfElements)
   {
-    if(newNbOfElements<0)
-      throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
     if(_nb_of_elem_alloc==newNbOfElements)
       return ;
     T *pointer=(T*)malloc(newNbOfElements*sizeof(T));

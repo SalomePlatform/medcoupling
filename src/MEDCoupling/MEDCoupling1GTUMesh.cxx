@@ -1102,10 +1102,9 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
   if(!(*it))
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : null instance in the first element of input vector !");
   std::vector<const DataArrayInt *> ncs(a.size());
-  int nbOfCells=(*it)->getNumberOfCells();
+  (*it)->getNumberOfCells();//to check that all is OK
   const DataArrayDouble *coords=(*it)->getCoords();
   const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
-  int nbNodesPerCell=(*it)->getNumberOfNodesPerCell();
   ncs[0]=(*it)->getNodalConnectivity();
   it++;
   for(int i=1;it!=a.end();i++,it++)
@@ -1660,7 +1659,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const
   const int *d1(d1Arr->begin());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> faces(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
-  const int *d2(d2Arr->begin()),*rd2(rd2Arr->begin()),*rdi2(rdi2Arr->begin());
+  const int *d2(d2Arr->begin()),*rdi2(rdi2Arr->begin());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),facesBaryArr(faces->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
   const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+faces->getNumberOfCells()),offset1(offset0+edges->getNumberOfCells());
   edges=0; faces=0;
@@ -1732,7 +1731,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
   const int *revNod(revNodArr->begin()),*revNodI(revNodIArr->begin()),*nodal(_conn->begin());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> edges(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
-  const int *d2(d2Arr->begin()),*rd2(rd2Arr->begin()),*rdi2(rdi2Arr->begin());
+  const int *d2(d2Arr->begin()),*rdi2(rdi2Arr->begin());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
   const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+edges->getNumberOfCells());
   edges=0;
@@ -2434,7 +2433,6 @@ void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check)
   //
   for(int i=0;i<nbCells;i++,conni++)
     {
-      int sz=conni[1]-conni[0];
       int newp=o2nPtr[i];
       std::copy(conn+conni[0],conn+conni[1],newC+newCI[newp]);
     }
@@ -3083,7 +3081,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::ve
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : null instance in the first element of input vector !");
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > objs(a.size());
   std::vector<const DataArrayInt *> ncs(a.size()),ncis(a.size());
-  int nbOfCells=(*it)->getNumberOfCells();
+  (*it)->getNumberOfCells();//to check that all is OK
   const DataArrayDouble *coords=(*it)->getCoords();
   const INTERP_KERNEL::CellModel *cm=&((*it)->getCellModel());
   bool tmp;
