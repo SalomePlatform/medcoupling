@@ -363,7 +363,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
               jj=0;
               for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
                 {
-                  int nbi((*it2)->getNbOfIntegrationPts(globs));
+                  //int nbi((*it2)->getNbOfIntegrationPts(globs));
                   const DataArrayInt *otherPfl((*it2)->getPfl(globs));
                   const std::pair<int,int>& strtStop((*it2)->getStartStop());
                   MEDCouplingAutoRefCountObjectPtr<DataArray> ret2(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
@@ -537,8 +537,8 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       else
         {
           isPolyh=true;
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(cur->computeEffectiveNbOfNodesPerCell());
-          szD+=tmp->accumulate(0)+curNbCells;
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2(cur->computeEffectiveNbOfNodesPerCell());
+          szD+=tmp2->accumulate(0)+curNbCells;
           szF+=2*curNbCells+cur->getNodalConnectivity()->getNumberOfTuples();
         }
     }
@@ -1360,7 +1360,6 @@ bool MEDFileField1TSStructItem::isFullyOnOneLev(const MEDFileMeshStruct *meshSt,
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::isFullyOnOneLev : no levels in input mesh structure !");
   std::vector<int> levs(nbOfLevs);
   theFirstLevFull=1;
-  int nbOfGT=0;
   std::set<INTERP_KERNEL::NormalizedCellType> gts;
   for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++)
     {
