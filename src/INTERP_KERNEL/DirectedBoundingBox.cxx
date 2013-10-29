@@ -83,14 +83,18 @@ namespace
   bool JacobiEigenvectorsSearch( const int _dim, vector<double>& tensor, vector<double>& _axes)
   {
     if ( _dim == 3 )
-      __DMP( "Tensor : {"
-           << "{ "<<__TENSOR(0,0) << ", "<<__TENSOR(0,1) << ", "<<__TENSOR(0,2) << "} "
-           << "{ "<<__TENSOR(1,0) << ", "<<__TENSOR(1,1) << ", "<<__TENSOR(1,2) << "} "
-           << "{ "<<__TENSOR(2,0) << ", "<<__TENSOR(2,1) << ", "<<__TENSOR(2,2) << "}} ");
+      {
+        __DMP( "Tensor : {"
+               << "{ "<<__TENSOR(0,0) << ", "<<__TENSOR(0,1) << ", "<<__TENSOR(0,2) << "} "
+               << "{ "<<__TENSOR(1,0) << ", "<<__TENSOR(1,1) << ", "<<__TENSOR(1,2) << "} "
+               << "{ "<<__TENSOR(2,0) << ", "<<__TENSOR(2,1) << ", "<<__TENSOR(2,2) << "}} ");
+      }
     else
-      __DMP( "Tensor : {"
-           << "{ "<<__TENSOR(0,0) << ", "<<__TENSOR(0,1) << "} "
-           << "{ "<<__TENSOR(1,0) << ", "<<__TENSOR(1,1) << "}} ");
+      {
+        __DMP( "Tensor : {"
+          << "{ "<<__TENSOR(0,0) << ", "<<__TENSOR(0,1) << "} "
+          << "{ "<<__TENSOR(1,0) << ", "<<__TENSOR(1,1) << "}} ");
+      }
 
     const int maxRot = 5*_dim*_dim; // limit on number of rotations
     const double tol = 1e-9;
