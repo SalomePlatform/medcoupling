@@ -190,6 +190,8 @@ namespace INTERP_KERNEL
                                                                                                    InterpolationOptions::getPrecision(),
                                                                                                    InterpolationOptions::getOrientation());
             break;
+          default:
+            throw INTERP_KERNEL::Exception("For P0P0 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator !");
           }
       }
     else if(meth=="P0P1")
@@ -227,6 +229,8 @@ namespace INTERP_KERNEL
                                                                            InterpolationOptions::getPrecision(),
                                                                            InterpolationOptions::getOrientation());
             break;
+          default:
+            throw INTERP_KERNEL::Exception("For P0P1 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator !");
           }
       }
     else if(meth=="P1P0")
@@ -316,6 +320,8 @@ namespace INTERP_KERNEL
                                                                            InterpolationOptions::getPrecision(),
                                                                            InterpolationOptions::getOrientation());
             break;
+          default:
+            throw INTERP_KERNEL::Exception("For P1P1 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator !");
           }
       }
     else
