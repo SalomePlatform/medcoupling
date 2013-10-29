@@ -37,7 +37,7 @@ MEDCouplingMesh::MEDCouplingMesh():_time(0.),_iteration(-1),_order(-1)
 {
 }
 
-MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name),_description(other._description),
+MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):RefCountObject(other),_name(other._name),_description(other._description),
                                                                _time(other._time),_iteration(other._iteration),
                                                                _order(other._order),_time_unit(other._time_unit)
 {

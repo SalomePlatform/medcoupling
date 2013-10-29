@@ -51,7 +51,7 @@ namespace ParaMEDMEM
       {
         procs.insert(i) ;
       }
-    MPIProcessorGroup *mpilg = (MPIProcessorGroup *)&source_group;
+    MPIProcessorGroup *mpilg = static_cast<MPIProcessorGroup *>(const_cast<ProcessorGroup *>(&source_group));
     _MPI_union_group = new ParaMEDMEM::MPIProcessorGroup( union_group->getCommInterface(),procs,mpilg->getWorldComm());
     delete union_group ;
     _my_rank = _MPI_union_group->myRank() ;

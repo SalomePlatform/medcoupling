@@ -245,7 +245,7 @@ namespace ParaMEDMEM
       local_group=_target_group;
     else
       throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
-    ParaMESH *paramesh=new ParaMESH((MEDCouplingPointSet *)field->getMesh(),*local_group,field->getMesh()->getName());
+    ParaMESH *paramesh=new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),*local_group,field->getMesh()->getName());
     ParaFIELD *tmp=new ParaFIELD(field, paramesh, *local_group);
     tmp->setOwnSupport(true);
     attachLocalField(tmp,true);
@@ -275,11 +275,12 @@ namespace ParaMEDMEM
     const ICoCo::TrioField* triofield=dynamic_cast<const ICoCo::TrioField*> (field);
     if (triofield !=0)
       {
+        /* Strange part of code localgroup not used !
         ProcessorGroup* localgroup;
         if (_source_group->containsMyRank())
           localgroup=_source_group;
         else
-          localgroup=_target_group;
+        localgroup=_target_group;*/
         delete _icoco_field;
         
         _icoco_field=new ICoCo::MEDField(*const_cast<ICoCo::TrioField* >(triofield));

@@ -334,7 +334,7 @@ namespace ParaMEDMEM
     comInterface.send(v1Local->getPointer(),v1Local->getNbOfElems(),MPI_INT,procId,1142,*comm);
     comInterface.send(v2Local->getPointer(),v2Local->getNbOfElems(),MPI_DOUBLE,procId,1143,*comm);
     //finished for mesh, ids now
-    comInterface.send((int *)idsToSend->getConstPointer(),lgth[1],MPI_INT,procId,1144,*comm);
+    comInterface.send(const_cast<int *>(idsToSend->getConstPointer()),lgth[1],MPI_INT,procId,1144,*comm);
     //
     v1Local->decrRef();
     v2Local->decrRef();

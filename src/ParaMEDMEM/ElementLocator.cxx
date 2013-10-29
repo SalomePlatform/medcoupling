@@ -307,7 +307,7 @@ namespace ParaMEDMEM
     distant_mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     //
     distant_ids_recv=new int[tinyInfoDistant.back()];
-    comm_interface.sendRecv((void *)distant_ids_send->getConstPointer(),tinyInfoLocal.back(), MPI_INT,
+    comm_interface.sendRecv(const_cast<void *>(reinterpret_cast<const void *>(distant_ids_send->getConstPointer())),tinyInfoLocal.back(), MPI_INT,
                             iprocdistant_in_union, 1113,
                             distant_ids_recv,tinyInfoDistant.back(), MPI_INT,
                             iprocdistant_in_union,1113,
@@ -352,8 +352,8 @@ namespace ParaMEDMEM
         const vector<double>& valued=partialSumRelToDistantIds[procId];
         int lgth=eltIds.size();
         comm.send(&lgth,1,MPI_INT,*iter,1114,*_comm);
-        comm.send((void *)&eltIds[0],lgth,MPI_INT,*iter,1115,*_comm);
-        comm.send((void *)&valued[0],lgth,MPI_DOUBLE,*iter,1116,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&eltIds[0])),lgth,MPI_INT,*iter,1115,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&valued[0])),lgth,MPI_DOUBLE,*iter,1116,*_comm);
       }
   }
 
@@ -384,7 +384,7 @@ namespace ParaMEDMEM
         const vector<int>& eltIds=distantLocEltIds[procId];
         int lgth=eltIds.size();
         comm.send(&lgth,1,MPI_INT,*iter,1121,*_comm);
-        comm.send((void *)&eltIds[0],lgth,MPI_INT,*iter,1122,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&eltIds[0])),lgth,MPI_INT,*iter,1122,*_comm);
       }
   }
 
@@ -436,8 +436,8 @@ namespace ParaMEDMEM
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         comm.send(&lgth,1,MPI_INT,*iter,1124,*_comm);
-        comm.send((void*)&distantGlobIds[0],lgth,MPI_INT,*iter,1125,*_comm);
-        comm.send((void*)&sum[0],lgth,MPI_DOUBLE,*iter,1126,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_INT,*iter,1125,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&sum[0])),lgth,MPI_DOUBLE,*iter,1126,*_comm);
       }
   }
 
@@ -451,8 +451,8 @@ namespace ParaMEDMEM
     int lgth=distantGlobIds.size();
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
-        comm.send(&lgth,1,MPI_INT,*iter,1128,*_comm);
-        comm.send((void*)&distantGlobIds[0],lgth,MPI_INT,*iter,1129,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&lgth)),1,MPI_INT,*iter,1128,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_INT,*iter,1129,*_comm);
       }
   }
   
@@ -679,8 +679,8 @@ namespace ParaMEDMEM
       {
         const std::vector<int>& vals=_ids_per_working_proc3[procId];
         int size=vals.size();
-        comm.send((void *)&size,1,MPI_INT,*iter,1130,*_comm);
-        comm.send((void *)&vals[0],size,MPI_INT,*iter,1131,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&size)),1,MPI_INT,*iter,1130,*_comm);
+        comm.send(const_cast<void *>(reinterpret_cast<const void *>(&vals[0])),size,MPI_INT,*iter,1131,*_comm);
       }
   }
 

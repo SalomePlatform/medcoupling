@@ -133,8 +133,7 @@ namespace ParaMEDMEM
   template<class T>
   void MemArray<T>::pack() const
   {
-    if(_nb_of_elem>=0)
-      (const_cast<MemArray<T> * >(this))->reserve(_nb_of_elem);
+    (const_cast<MemArray<T> * >(this))->reserve(_nb_of_elem);
   }
 
   template<class T>
@@ -337,8 +336,6 @@ namespace ParaMEDMEM
   void MemArray<T>::alloc(std::size_t nbOfElements)
   {
     destroy();
-    if(nbOfElements<0)
-      throw INTERP_KERNEL::Exception("MemArray::alloc : request for negative length of data !");
     _nb_of_elem=nbOfElements;
     _nb_of_elem_alloc=nbOfElements;
     _pointer.setInternal((T*)malloc(_nb_of_elem_alloc*sizeof(T)));
@@ -382,8 +379,6 @@ namespace ParaMEDMEM
   template<class T>
   void MemArray<T>::reAlloc(std::size_t newNbOfElements)
   {
-    if(newNbOfElements<0)
-      throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
     if(_nb_of_elem==newNbOfElements)
       return ;
     T *pointer=(T*)malloc(newNbOfElements*sizeof(T));

@@ -323,7 +323,7 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const std::vector<MEDCouplingFiel
 /*!
  * Performs deepCpy.
  */
-MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& other)
+MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& other):RefCountObject(other)
 {
   std::size_t sz=other._fs.size();
   _fs.resize(sz);
