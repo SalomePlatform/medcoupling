@@ -2638,7 +2638,6 @@ int MEDFileUMesh::getNumberOfNodes() const
 void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const
 {
   std::size_t sz(st.getNumberOfItems());
-  int mdim(getMeshDimension());
   for(std::size_t i=0;i<sz;i++)
     {
       INTERP_KERNEL::NormalizedCellType curGt(st[i].getGeo());

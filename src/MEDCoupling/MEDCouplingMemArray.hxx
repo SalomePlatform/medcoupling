@@ -580,7 +580,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void computeOffsets2();
     MEDCOUPLING_EXPORT void searchRangesInListOfIds(const DataArrayInt *listOfIds, DataArrayInt *& rangeIdsFetched, DataArrayInt *& idsInInputListThatFetch) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildExplicitArrByRanges(const DataArrayInt *offsets) const;
-    MEDCOUPLING_EXPORT DataArrayInt *buildExplicitArrOfSliceOnScaledArr(int begin, int end, int step) const;
+    MEDCOUPLING_EXPORT DataArrayInt *buildExplicitArrOfSliceOnScaledArr(int begin, int stop, int step) const;
     MEDCOUPLING_EXPORT DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const;
     MEDCOUPLING_EXPORT DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const;

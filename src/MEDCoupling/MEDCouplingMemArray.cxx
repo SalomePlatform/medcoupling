@@ -1348,9 +1348,8 @@ DataArrayInt *DataArrayDouble::convertToIntArr() const
 {
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(getNumberOfTuples(),getNumberOfComponents());
-  std::size_t nbOfVals=getNbOfElems();
   int *dest=ret->getPointer();
-  // to make Visual C++ happy : instead of std::copy(src,src+nbOfVals,dest);
+  // to make Visual C++ happy : instead of std::size_t nbOfVals=getNbOfElems(); std::copy(src,src+nbOfVals,dest);
   for(const double *src=begin();src!=end();src++,dest++)
     *dest=(int)*src;
   ret->copyStringInfoFrom(*this);
@@ -6460,7 +6459,6 @@ bool DataArrayInt::isFittingWith(const std::vector<bool>& v) const
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::isFittingWith : number of components of this should be equal to one !");
-  int nbOfTuples(getNumberOfTuples());
   const int *w(begin()),*end2(end());
   int refVal=-std::numeric_limits<int>::max();
   int i=0;
@@ -9857,14 +9855,14 @@ from that of \a this and \a
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If \a this->getNumberOfTuples() == 0.
  *  \throw If \a this is not monotonically increasing.
- *  \throw If any element of ids in ( \a gb \a end \a step ) points outside the scale in \a this.
+ *  \throw If any element of ids in ( \a bg \a stop \a step ) points outside the scale in \a this.
  *
  *  \b Example: <br>
- *          - \a bg , \a end and \a step : (0,5,2)
+ *          - \a bg , \a stop and \a step : (0,5,2)
  *          - \a this: [0,3,6,10,14,20]
  *          - result array: [0,0,0, 2,2,2,2, 4,4,4,4,4,4] == <br>
  */
-DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int end, int step) const
+DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int stop, int step) const
 {
   if(!isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : not allocated array !");
@@ -9874,7 +9872,7 @@ DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int end, 
   if(nbOfTuples==0)
     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr : number of tuples must be != 0 !");
   const int *ids(begin());
-  int nbOfEltsInSlc(GetNumberOfItemGivenBESRelative(bg,end,step,"DataArrayInt::buildExplicitArrOfSliceOnScaledArr")),sz(0),pos(bg);
+  int nbOfEltsInSlc(GetNumberOfItemGivenBESRelative(bg,stop,step,"DataArrayInt::buildExplicitArrOfSliceOnScaledArr")),sz(0),pos(bg);
   for(int i=0;i<nbOfEltsInSlc;i++,pos+=step)
     {
       if(pos>=0 && pos<nbOfTuples-1)
