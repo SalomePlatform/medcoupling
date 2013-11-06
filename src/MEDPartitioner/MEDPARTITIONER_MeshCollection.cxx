@@ -599,6 +599,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
       if (myMeshes.size()>0)
         {
           meshesCastTo[inew]=ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes(myMeshes);
+          meshesCastTo[inew]->sortCellsInMEDFileFrmt()->decrRef();
         }
       else
         {
