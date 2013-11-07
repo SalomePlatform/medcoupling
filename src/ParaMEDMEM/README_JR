@@ -91,14 +91,14 @@ C MED_SRC/src/ParaMEDMEM/Test/Makefile.in :
 . Prise en compte de $(MED_WITH_KERNEL) avec :
   ifeq ($(MED_WITH_KERNEL),yes)
     LDFLAGSFORBIN += $(LDFLAGS) -lm $(MED3_LIBS) $(HDF5_LIBS) $(MPI_LIBS) \
-                   -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome -lmed_V2_1 -lparamed -lmedmem \
+                   -L$(CMAKE_BINARY_DIR)/lib@LIB_LOCATION_SUFFIX@/salome -lmed_V2_1 -lparamed -lmedmem \
                    ${KERNEL_LDFLAGS} -lSALOMELocalTrace -lSALOMEBasics \
                    $(CPPUNIT_LIBS) \
                    -lParaMEDMEMTest 
   endif
   ifeq ($(MED_WITH_KERNEL),no)
   LDFLAGSFORBIN += $(LDFLAGS) -lm $(MED3_LIBS) $(HDF5_LIBS) $(MPI_LIBS) \
-                   -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome -lmed_V2_1 -lparamed -linterpkernel -lmedmem \
+                   -L$(CMAKE_BINARY_DIR)/lib@LIB_LOCATION_SUFFIX@/salome -lmed_V2_1 -lparamed -linterpkernel -lmedmem \
                    ${KERNEL_LDFLAGS} ${FVM_LIBS} ${CPPUNIT_LIBS} -L/data/tmpawa/vb144235/bft_install/lib -lbft\
                   -lParaMEDMEMTest
   endif
