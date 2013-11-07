@@ -638,6 +638,8 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
     reorderNodesIfNecessary(a,d,0);
   else
     reorderNodesIfNecessary(a,d,f);
+  if(a->getNumberOfComponents()!=3)
+    a=a->changeNbOfComponents(3,0.);
   coords=a.retn(); types=b.retn(); cellLocations=c.retn(); cells=d.retn();
   if(!isPolyh)
     { faceLocations=0; faces=0; }
