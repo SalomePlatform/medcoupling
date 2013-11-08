@@ -78,12 +78,13 @@ namespace ParaMEDMEM
     _comm_interface( ProcessorGroup->getCommInterface() ) ,
     _intra_communicator( ProcessorGroup->getComm() )
   {
+    void *v ;
     int mpitagub ;
     int flag ;
-    //MPI_Attr_get does not run with _IntraCommunicator ???
-    //MPI_Attr_get(*_IntraCommunicator,MPI_TAG_UB,&mpitagub,&flag) ;
-    MPI_Attr_get(MPI_COMM_WORLD,MPI_TAG_UB,&mpitagub,&flag) ;
-    mpitagub=abs(mpitagub);
+    //MPI_Comm_get_attr does not run with _IntraCommunicator ???
+    //MPI_Comm_get_attr(*_IntraCommunicator,MPID_TAG_UB,&mpitagub,&flag) ;
+    MPI_Comm_get_attr(MPI_COMM_WORLD,MPI_TAG_UB,&v,&flag) ;
+    mpitagub=*(reinterpret_cast<int*>(v));
     if ( BaseTag != 0 )
       BaseTag = (BaseTag/MODULO_TAG)*MODULO_TAG ;
     if ( MaxTag == 0 )
