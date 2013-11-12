@@ -229,8 +229,23 @@ namespace INTERP_KERNEL
                                                                            InterpolationOptions::getPrecision(),
                                                                            InterpolationOptions::getOrientation());
             break;
+          case Barycentric:
+            intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1Bary>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                                      InterpolationOptions::getPrecision(),
+                                                                                                      InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                      InterpolationOptions::getMedianPlane(),
+                                                                                                      InterpolationOptions::getOrientation(),
+                                                                                                      InterpolationOptions::getPrintLevel());
+            break;
+          case BarycentricGeo2D:
+            intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1Bary>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                    InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                    InterpolationOptions::getMedianPlane(),
+                                                                                                    InterpolationOptions::getPrecision(),
+                                                                                                    InterpolationOptions::getOrientation());
+            break;
           default:
-            throw INTERP_KERNEL::Exception("For P0P1 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator !");
+            throw INTERP_KERNEL::Exception("For P0P1 planar interpolation possibities are : Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D !");
           }
       }
     else if(meth=="P1P0")
