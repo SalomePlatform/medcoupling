@@ -26,6 +26,7 @@
 #include "PlanarIntersectorP1P0.hxx"
 #include "PlanarIntersectorP1P1.hxx"
 #include "PlanarIntersectorP1P0Bary.hxx"
+#include "PlanarIntersectorP0P1Bary.hxx"
 
 namespace INTERP_KERNEL
 {

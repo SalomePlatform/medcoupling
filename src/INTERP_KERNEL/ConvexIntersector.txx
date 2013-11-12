@@ -26,6 +26,7 @@
 #include "PlanarIntersectorP1P0.txx"
 #include "PlanarIntersectorP1P1.txx"
 #include "PlanarIntersectorP1P0Bary.txx"
+#include "PlanarIntersectorP0P1Bary.txx"
 
 #include "PolygonAlgorithms.txx"
 
