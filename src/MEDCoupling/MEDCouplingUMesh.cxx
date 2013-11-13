@@ -5245,7 +5245,7 @@ void MEDCouplingUMesh::tessellate2DCurve(double eps)
  *          and \a this->getMeshDimension() != 3. 
  *  \throw If \a policy is not one of the four discussed above.
  *  \throw If the nodal connectivity of cells is not defined.
- * \sa MEDCouplingUMesh::tetrahedrize
+ * \sa MEDCouplingUMesh::tetrahedrize, MEDCoupling1SGTUMesh::sortHexa8EachOther
  */
 DataArrayInt *MEDCouplingUMesh::simplexize(int policy)
 {
@@ -9391,10 +9391,13 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
  *          an id of old cell producing it. The caller is to delete this array using
  *         decrRef() as it is no more needed.
  * \return MEDCoupling1SGTUMesh * - the mesh containing only INTERP_KERNEL::NORM_TETRA4 cells.
+ *
+ * \warning This method operates on each cells in this independantly ! So it can leads to non conform mesh in returned value ! If you expect to have a conform mesh in output
+ * the policy PLANAR_FACE_6 should be used on a mesh sorted with MEDCoupling1SGTUMesh::sortHexa8EachOther.
  * 
  * \throw If \a this is not a 3D mesh (spaceDim==3 and meshDim==3).
  * \throw If \a this is not fully constituted with linear 3D cells.
- * \sa MEDCouplingUMesh::simplexize
+ * \sa MEDCouplingUMesh::simplexize, MEDCoupling1SGTUMesh::sortHexa8EachOther
  */
 MEDCoupling1SGTUMesh *MEDCouplingUMesh::tetrahedrize(int policy, DataArrayInt *& n2oCells, int& nbOfAdditionalPoints) const
 {

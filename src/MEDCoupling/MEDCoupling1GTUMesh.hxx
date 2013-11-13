@@ -144,6 +144,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *Merge1SGTUMeshesOnSameCoords(std::vector<const MEDCoupling1SGTUMesh *>& a);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const;
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh *computeDualMesh() const;
+    MEDCOUPLING_EXPORT DataArrayInt *sortHexa8EachOther();
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *explodeEachHexa8To6Quad4() const;
   public://serialization
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
@@ -165,6 +167,8 @@ namespace ParaMEDMEM
     MEDCoupling1DGTUMesh *computeDualMesh2D() const;
   private:
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
+  public:
+    static const int HEXA8_FACE_PAIRS[6];
   };
 
   class MEDCoupling1DGTUMesh : public MEDCoupling1GTUMesh

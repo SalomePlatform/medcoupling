@@ -273,6 +273,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::New;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::computeDualMesh;
+%newobject ParaMEDMEM::MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4;
+%newobject ParaMEDMEM::MEDCoupling1SGTUMesh::sortHexa8EachOther;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::Merge1SGTUMeshes;
 %newobject ParaMEDMEM::MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCoupling1DGTUMesh::New;
@@ -2574,6 +2576,8 @@ namespace ParaMEDMEM
     static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(const MEDCoupling1SGTUMesh *mesh1, const MEDCoupling1SGTUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     MEDCoupling1GTUMesh *computeDualMesh() const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1SGTUMesh *explodeEachHexa8To6Quad4() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *sortHexa8EachOther() throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDCoupling1SGTUMesh(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)

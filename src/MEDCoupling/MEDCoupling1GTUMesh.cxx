@@ -26,6 +26,8 @@
 
 using namespace ParaMEDMEM;
 
+const int MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS[6]={0,1,2,4,3,5};
+
 MEDCoupling1GTUMesh::MEDCoupling1GTUMesh()
 {
 }
@@ -1630,6 +1632,155 @@ MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const
     default:
       throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh : meshdimension must be in [2,3] !");
     }
+}
+
+/*!
+ * This method explode each NORM_HEXA8 cells in \a this into 6 NORM_QUAD4 cells and put the result into the MEDCoupling1SGTUMesh returned instance.
+ * 
+ * \return MEDCoupling1SGTUMesh * - a newly allocated instances (to be managed by the caller) storing the result of the explosion.
+ * \throw If \a this is not a mesh containing only NORM_HEXA8 cells.
+ * \throw If \a this is not properly allocated.
+ */
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
+{
+  const INTERP_KERNEL::CellModel& cm(getCellModel());
+  if(cm.getEnum()!=INTERP_KERNEL::NORM_HEXA8)
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4 : this method can be applied only on HEXA8 mesh !");
+  int nbHexa8(getNumberOfCells());
+  const int *inConnPtr(getNodalConnectivity()->begin());
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName().c_str(),INTERP_KERNEL::NORM_QUAD4));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()); c->alloc(nbHexa8*6*4,1);
+  int *cPtr(c->getPointer());
+  for(int i=0;i<nbHexa8;i++,inConnPtr+=8)
+    {
+      for(int j=0;j<6;j++,cPtr+=4)
+        cm.fillSonCellNodalConnectivity(j,inConnPtr,cPtr);
+    }
+  ret->setCoords(getCoords());
+  ret->setNodalConnectivity(c);
+  return ret.retn();
+}
+
+/// @cond INTERNAL
+
+bool UpdateHexa8Cell(int validAxis, int neighId, const int *validConnQuad4NeighSide, int *allFacesNodalConn, int *myNeighbours)
+{
+  if(myNeighbours[validAxis]==neighId && allFacesNodalConn[4*validAxis+0]==validConnQuad4NeighSide[0])
+    return true;
+  int oldAxis((int)std::distance(myNeighbours,std::find(myNeighbours,myNeighbours+6,neighId)));
+  std::size_t pos(std::distance(MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS,std::find(MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS,MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS+6,oldAxis)));
+  std::size_t pos0(pos/2),pos1(pos%2);
+  int oldAxisOpp(MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS[2*pos0+(pos1+1)%2]);
+  int oldConn[8],myConn[8]={-1,-1,-1,-1,-1,-1,-1,-1},tmpConn[4],tmpConn2[8]={0,1,2,3,4,5,6,7},edgeConn[2],allFacesTmp[24],neighTmp[6];
+  oldConn[0]=allFacesNodalConn[0]; oldConn[1]=allFacesNodalConn[1]; oldConn[2]=allFacesNodalConn[2]; oldConn[3]=allFacesNodalConn[3];
+  oldConn[4]=allFacesNodalConn[4]; oldConn[5]=allFacesNodalConn[7]; oldConn[6]=allFacesNodalConn[6]; oldConn[7]=allFacesNodalConn[5];
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(INTERP_KERNEL::NORM_HEXA8));
+  cm.fillSonCellNodalConnectivity(validAxis,tmpConn2,tmpConn);
+  for(int i=0;i<4;i++)
+    myConn[tmpConn[i]]=validConnQuad4NeighSide[(4-i)%4];
+  for(int i=0;i<4;i++)
+    {
+      int nodeId(myConn[i]!=-1?myConn[i]:myConn[4+i]);//the node id for which the opposite one will be found
+      bool found(false);
+      INTERP_KERNEL::NormalizedCellType typeOfSon;
+      for(int j=0;j<12 && !found;j++)
+        {
+          cm.fillSonEdgesNodalConnectivity3D(j,oldConn,-1,edgeConn,typeOfSon);
+          if(edgeConn[0]==nodeId || edgeConn[1]==nodeId)
+            {
+              if(std::find(allFacesNodalConn+4*oldAxisOpp,allFacesNodalConn+4*oldAxisOpp+4,edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0])!=allFacesNodalConn+4*oldAxisOpp+4)
+                {
+                  if(myConn[i]==-1)
+                    myConn[myConn[i]]=edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0];
+                  else
+                    myConn[myConn[i]+4]=edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0];
+                  found=true;
+                }
+            }
+        }
+      if(!found)
+        throw INTERP_KERNEL::Exception("UpdateHexa8Cell : Internal Error !");
+    }
+  for(int i=0;i<6;i++)
+    {
+      cm.fillSonCellNodalConnectivity(i,myConn,allFacesTmp+4*i);
+      std::set<int> s(allFacesTmp+4*i,allFacesTmp+4*i+4);
+      bool found(false);
+      for(int j=0;j<6 && !found;j++)
+        {
+          std::set<int> s1(allFacesNodalConn+4*j,allFacesNodalConn+4*j+4);
+          if(s==s1)
+            {
+              neighTmp[i]=myNeighbours[j];
+              found=true;
+            }
+        }
+      if(!found)
+        throw INTERP_KERNEL::Exception("UpdateHexa8Cell : Internal Error #2 !");
+    }
+  std::copy(allFacesTmp,allFacesTmp+24,allFacesNodalConn);
+  std::copy(neighTmp,neighTmp+6,myNeighbours);
+  return false;
+}
+
+/// @endcond
+
+/*!
+ * This method expects the \a this contains NORM_HEXA8 cells only. This method will sort each cells in \a this so that their numbering was
+ * homogeneous. If it succeeds the result of MEDCouplingUMesh::tetrahedrize will return a conform mesh.
+ *
+ * \return DataArrayInt * - a newly allocated array (to be managed by the caller) containing renumbered cell ids.
+ *
+ * \throw If \a this is not a mesh containing only NORM_HEXA8 cells.
+ * \throw If \a this is not properly allocated.
+ * \sa MEDCouplingUMesh::tetrahedrize, MEDCouplingUMesh::simplexize.
+ */
+DataArrayInt *MEDCoupling1SGTUMesh::sortHexa8EachOther()
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> quads(explodeEachHexa8To6Quad4());//checks that only hexa8
+  int nbHexa8(getNumberOfCells()),*cQuads(quads->getNodalConnectivity()->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighOfQuads(DataArrayInt::New()); neighOfQuads->alloc(nbHexa8*6,1); neighOfQuads->fillWithValue(-1);
+  int *ptNeigh(neighOfQuads->getPointer());
+  {//neighOfQuads tells for each face of each Quad8 which cell (if!=-1) is connected to this face.
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> quadsTmp(quads->buildUnstructured());
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ccSafe,cciSafe;
+    DataArrayInt *cc(0),*cci(0);
+    quadsTmp->findCommonCells(3,0,cc,cci);
+    ccSafe=cc; cciSafe=cci;
+    const int *ccPtr(ccSafe->begin()),nbOfPair(cci->getNumberOfTuples()-1);
+    for(int i=0;i<nbOfPair;i++)
+      { ptNeigh[ccPtr[2*i+0]]=ccPtr[2*i+1]/6; ptNeigh[ccPtr[2*i+1]]=ccPtr[2*i+0]/6; }
+  }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  std::vector<bool> fetched(nbHexa8,false);
+  std::vector<bool>::iterator it(std::find(fetched.begin(),fetched.end(),true));
+  while(it!=fetched.end())//it will turns as time as number of connected zones
+    {
+      int cellId((int)std::distance(fetched.begin(),it));//it is the seed of the connected zone.
+      std::set<int> s; s.insert(cellId);//s contains already organized.
+      while(!s.empty())
+        {
+          std::set<int> sNext;
+          for(std::set<int>::const_iterator it0=s.begin();it0!=s.end();it0++)
+            {
+              fetched[*it0]=true;
+              int *myNeighb(ptNeigh+6*(*it0));
+              for(int i=0;i<6;i++)
+                {
+                  std::size_t pos(std::distance(HEXA8_FACE_PAIRS,std::find(HEXA8_FACE_PAIRS,HEXA8_FACE_PAIRS+6,i)));
+                  std::size_t pos0(pos/2),pos1(pos%2);
+                  if(myNeighb[i]!=-1)
+                    {
+                      if(!UpdateHexa8Cell(HEXA8_FACE_PAIRS[2*pos0+(pos1+1)%2],*it0,cQuads+6*4*(*it0)+4*i,cQuads+6*4*myNeighb[i],ptNeigh+6*myNeighb[i]))
+                        ret->pushBackSilent(myNeighb[i]);
+                      sNext.insert(myNeighb[i]);
+                    }
+                }
+            }
+          s=sNext;
+        }
+    }
+  return ret.retn();
 }
 
 MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const

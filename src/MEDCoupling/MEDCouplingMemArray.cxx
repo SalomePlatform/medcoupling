@@ -1959,7 +1959,7 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
  *               [ \a commIndex[1], \a commIndex[2] ). \a commIndex->getNumberOfTuples()-1
  *               gives the number of groups of coincident tuples.
  *  \throw If \a this is not allocated.
- *  \throw If the number of components is not in [1,2,3].
+ *  \throw If the number of components is not in [1,2,3,4].
  *
  *  \ref cpp_mcdataarraydouble_findcommontuples "Here is a C++ example".
  *
@@ -1970,14 +1970,17 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
-  if ((nbOfCompo<1) || (nbOfCompo>3)) //test before work
-    throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2 or 3.");
+  if ((nbOfCompo<1) || (nbOfCompo>4)) //test before work
+    throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2, 3 or 4.");
   
   int nbOfTuples=getNumberOfTuples();
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()),cI(DataArrayInt::New()); c->alloc(0,1); cI->pushBackSilent(0);
   switch(nbOfCompo)
     {
+    case 4:
+      findCommonTuplesAlg<4>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
+      break;
     case 3:
       findCommonTuplesAlg<3>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
       break;
@@ -1988,7 +1991,7 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
       findCommonTuplesAlg<1>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
       break;
     default:
-      throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : nb of components managed are 1,2 and 3 ! not implemented for other number of components !");
+      throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : nb of components managed are 1,2,3 and 4 ! not implemented for other number of components !");
     }
   comm=c.retn();
   commIndex=cI.retn();
@@ -2185,7 +2188,7 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
  *          is to delete using decrRef() as it is no more needed.
  *  \throw If \a this is not allocated.
- *  \throw If the number of components is not in [1,2,3].
+ *  \throw If the number of components is not in [1,2,3,4].
  *
  *  \ref py_mcdataarraydouble_getdifferentvalues "Here is a Python example".
  */
