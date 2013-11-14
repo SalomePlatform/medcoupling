@@ -1833,7 +1833,7 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   CPPUNIT_ASSERT_EQUAL((std::size_t)1,cI->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(0,cI->getIJ(0,0));
   
-  da->alloc(6,4);  //bad NumberOfComponents
+  da->alloc(6,5);  //bad NumberOfComponents
   CPPUNIT_ASSERT_THROW(da->findCommonTuples(1e-2,-1,c,cI),INTERP_KERNEL::Exception);
   
   c->decrRef();

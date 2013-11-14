@@ -8101,8 +8101,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1,cI.getNbOfElems());
         self.assertEqual([0],cI.getValues())
         
-        array12=[0.]*(6*4)
-        da.setValues(array12,6,4) #bad NumberOfComponents
+        array12=[0.]*(6*5)
+        da.setValues(array12,6,5) #bad NumberOfComponents
         self.assertRaises(InterpKernelException, da.findCommonTuples, 1e-2);
         pass
 
