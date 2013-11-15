@@ -1665,22 +1665,30 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
 
 bool UpdateHexa8Cell(int validAxis, int neighId, const int *validConnQuad4NeighSide, int *allFacesNodalConn, int *myNeighbours)
 {
-  if(myNeighbours[validAxis]==neighId && allFacesNodalConn[4*validAxis+0]==validConnQuad4NeighSide[0])
+  static const int TAB[48]={
+    0,1,2,3,4,5,6,7,//0
+    4,7,6,5,0,3,2,1,//1
+    0,3,7,4,1,2,6,5,//2
+    4,0,3,7,5,1,2,6,//3
+    5,1,0,4,6,2,3,7,//4
+    3,7,4,0,2,6,5,1 //5
+  };
+  static const int TAB2[6]={0,0,3,3,3,3};
+  if(myNeighbours[validAxis]==neighId && allFacesNodalConn[4*validAxis+0]==validConnQuad4NeighSide[TAB2[validAxis]])
     return true;
   int oldAxis((int)std::distance(myNeighbours,std::find(myNeighbours,myNeighbours+6,neighId)));
   std::size_t pos(std::distance(MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS,std::find(MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS,MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS+6,oldAxis)));
   std::size_t pos0(pos/2),pos1(pos%2);
   int oldAxisOpp(MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS[2*pos0+(pos1+1)%2]);
-  int oldConn[8],myConn[8]={-1,-1,-1,-1,-1,-1,-1,-1},tmpConn[4],tmpConn2[8]={0,1,2,3,4,5,6,7},edgeConn[2],allFacesTmp[24],neighTmp[6];
+  int oldConn[8],myConn2[8]={-1,-1,-1,-1,-1,-1,-1,-1},myConn[8],edgeConn[2],allFacesTmp[24],neighTmp[6];
   oldConn[0]=allFacesNodalConn[0]; oldConn[1]=allFacesNodalConn[1]; oldConn[2]=allFacesNodalConn[2]; oldConn[3]=allFacesNodalConn[3];
   oldConn[4]=allFacesNodalConn[4]; oldConn[5]=allFacesNodalConn[7]; oldConn[6]=allFacesNodalConn[6]; oldConn[7]=allFacesNodalConn[5];
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(INTERP_KERNEL::NORM_HEXA8));
-  cm.fillSonCellNodalConnectivity(validAxis,tmpConn2,tmpConn);
   for(int i=0;i<4;i++)
-    myConn[tmpConn[i]]=validConnQuad4NeighSide[(4-i)%4];
+    myConn2[i]=validConnQuad4NeighSide[(4-i+TAB2[validAxis])%4];
   for(int i=0;i<4;i++)
     {
-      int nodeId(myConn[i]!=-1?myConn[i]:myConn[4+i]);//the node id for which the opposite one will be found
+      int nodeId(myConn2[i]);//the node id for which the opposite one will be found
       bool found(false);
       INTERP_KERNEL::NormalizedCellType typeOfSon;
       for(int j=0;j<12 && !found;j++)
@@ -1690,10 +1698,7 @@ bool UpdateHexa8Cell(int validAxis, int neighId, const int *validConnQuad4NeighS
             {
               if(std::find(allFacesNodalConn+4*oldAxisOpp,allFacesNodalConn+4*oldAxisOpp+4,edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0])!=allFacesNodalConn+4*oldAxisOpp+4)
                 {
-                  if(myConn[i]==-1)
-                    myConn[myConn[i]]=edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0];
-                  else
-                    myConn[myConn[i]+4]=edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0];
+                  myConn2[i+4]=edgeConn[0]==nodeId?edgeConn[1]:edgeConn[0];
                   found=true;
                 }
             }
@@ -1701,6 +1706,9 @@ bool UpdateHexa8Cell(int validAxis, int neighId, const int *validConnQuad4NeighS
       if(!found)
         throw INTERP_KERNEL::Exception("UpdateHexa8Cell : Internal Error !");
     }
+  const int *myTab(TAB+8*validAxis);
+  for(int i=0;i<8;i++)
+    myConn[i]=myConn2[myTab[i]];
   for(int i=0;i<6;i++)
     {
       cm.fillSonCellNodalConnectivity(i,myConn,allFacesTmp+4*i);
@@ -1753,7 +1761,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::sortHexa8EachOther()
   }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   std::vector<bool> fetched(nbHexa8,false);
-  std::vector<bool>::iterator it(std::find(fetched.begin(),fetched.end(),true));
+  std::vector<bool>::iterator it(std::find(fetched.begin(),fetched.end(),false));
   while(it!=fetched.end())//it will turns as time as number of connected zones
     {
       int cellId((int)std::distance(fetched.begin(),it));//it is the seed of the connected zone.
@@ -1767,18 +1775,31 @@ DataArrayInt *MEDCoupling1SGTUMesh::sortHexa8EachOther()
               int *myNeighb(ptNeigh+6*(*it0));
               for(int i=0;i<6;i++)
                 {
-                  std::size_t pos(std::distance(HEXA8_FACE_PAIRS,std::find(HEXA8_FACE_PAIRS,HEXA8_FACE_PAIRS+6,i)));
-                  std::size_t pos0(pos/2),pos1(pos%2);
-                  if(myNeighb[i]!=-1)
+                  if(myNeighb[i]!=-1 && !fetched[myNeighb[i]])
                     {
+                      std::size_t pos(std::distance(HEXA8_FACE_PAIRS,std::find(HEXA8_FACE_PAIRS,HEXA8_FACE_PAIRS+6,i)));
+                      std::size_t pos0(pos/2),pos1(pos%2);
                       if(!UpdateHexa8Cell(HEXA8_FACE_PAIRS[2*pos0+(pos1+1)%2],*it0,cQuads+6*4*(*it0)+4*i,cQuads+6*4*myNeighb[i],ptNeigh+6*myNeighb[i]))
                         ret->pushBackSilent(myNeighb[i]);
+                      fetched[myNeighb[i]]=true;
                       sNext.insert(myNeighb[i]);
                     }
                 }
             }
           s=sNext;
         }
+      it=std::find(fetched.begin(),fetched.end(),false);
+    }
+  if(!ret->empty())
+    {
+      int *conn(getNodalConnectivity()->getPointer());
+      for(const int *pt=ret->begin();pt!=ret->end();pt++)
+        {
+          int cellId(*pt);
+          conn[8*cellId+0]=cQuads[24*cellId+0]; conn[8*cellId+1]=cQuads[24*cellId+1]; conn[8*cellId+2]=cQuads[24*cellId+2]; conn[8*cellId+3]=cQuads[24*cellId+3];
+          conn[8*cellId+4]=cQuads[24*cellId+4]; conn[8*cellId+5]=cQuads[24*cellId+7]; conn[8*cellId+6]=cQuads[24*cellId+6]; conn[8*cellId+7]=cQuads[24*cellId+5];
+        }
+      declareAsNew();
     }
   return ret.retn();
 }

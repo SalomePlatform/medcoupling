@@ -13946,6 +13946,38 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(idsToTest2.sumPerTuple().isEqual(DataArrayInt([4,11])))
         pass
 
+    def testSwig2SortHexa8EachOther1(self):
+        """
+        testing MEDCoupling1SGTUMesh.sortHexa8EachOther method
+        """
+        coords1=DataArrayDouble([(-0.5,0.5,-0.5),(0.5,-0.5,-0.5),(-0.5,-0.5,0.5),(-0.5,-0.5,-0.5),(0.5,-0.5,0.5),(-0.5,0.5,0.5),(0.5,0.5,0.5),(0.5,0.5,-0.5)])
+        m1=MEDCouplingUMesh("m1",3) ; m1.setCoords(coords1)
+        m1.allocateCells() ; m1.insertNextCell(NORM_HEXA8,[7,1,3,0,6,4,2,5])
+        m1.checkCoherency()
+        #
+        m2=m1.deepCpy() ; m2.setName("m2")
+        #
+        trs=[[0.,0.,-1.],[0.,0.,1.],[1.,0.,0.],[0.,-1.,0.],[-1.,0.,0.],[0.,1.,0.]]
+        for i,t in enumerate(trs):
+            for j in xrange(64):
+                j2=(j//16) ; j1=((j%16)//4) ; j0=(j%4)
+                m11=m1.deepCpy()
+                m11.rotate([0.,0.,0.],[0.,0.,1.],float(j0)*pi/2)
+                m11.rotate([0.,0.,0.],[0.,1.,0.],float(j1)*pi/2)
+                m11.rotate([0.,0.,0.],[1.,0.,0.],float(j2)*pi/2)
+                m11.translate(t)
+                #
+                m=MEDCouplingUMesh.MergeUMeshes(m2,m11)
+                m.mergeNodes(1e-12)
+                self.assertEqual(12,m.getNumberOfNodes())
+                m=MEDCoupling1SGTUMesh(m)
+                m.sortHexa8EachOther()
+                tmp0=m.buildUnstructured().tetrahedrize(PLANAR_FACE_6)[0].buildUnstructured()
+                self.assertEqual(20,tmp0.computeSkin().getNumberOfCells())
+                pass
+            pass
+        pass
+
     def setUp(self):
         pass
     pass
