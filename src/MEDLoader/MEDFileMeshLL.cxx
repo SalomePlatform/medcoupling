@@ -552,6 +552,13 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
     }
 }
 
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCoupling1GTUMesh *m):_m(this)
+{
+  std::vector< const MEDCoupling1GTUMesh * > v(1);
+  v[0]=m;
+  assignParts(v);
+}
+
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
 {
   assignMesh(m,true);
@@ -691,8 +698,19 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
       m->incrRef();
       _m_by_types.assignUMesh(m);
     }
+  assignCommonPart();
+}
+
+void MEDFileUMeshSplitL1::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
+{
+  _m_by_types.assignParts(mParts);
+  assignCommonPart();
+}
+
+void MEDFileUMeshSplitL1::assignCommonPart()
+{
   _fam=DataArrayInt::New();
-  _fam->alloc(m->getNumberOfCells(),1);
+  _fam->alloc(_m_by_types.getSize(),1);
   _fam->fillWithValue(0);
 }
 

@@ -36,7 +36,7 @@
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
-extern med_geometry_type typmai3[32];
+extern med_geometry_type typmai3[34];
 
 using namespace ParaMEDMEM;
 
@@ -66,7 +66,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const char *locName):_name(locName
   INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   MEDlocalizationInfoByName(fid,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
-  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+32,geotype)));
+  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
@@ -85,7 +85,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
   INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   MEDlocalizationInfo(fid,id+1,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
   _name=locName;
-  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+32,geotype)));
+  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
@@ -437,7 +437,7 @@ MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFiel
 {
 }
 
-MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc& other):_type(other._type),_father(0),_start(other._start),_end(other._end),_nval(other._nval),_profile(other._profile),_localization(other._localization),_loc_id(other._loc_id),_tmp_work1(other._tmp_work1)
+MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc& other):RefCountObject(other),_type(other._type),_father(0),_start(other._start),_end(other._end),_nval(other._nval),_profile(other._profile),_localization(other._localization),_loc_id(other._loc_id),_tmp_work1(other._tmp_work1)
 {
 }
 
@@ -4394,7 +4394,6 @@ int MEDFileAnyTypeField1TSWithoutSDA::copyTinyInfoFrom(const MEDCouplingFieldDou
   if(!arr->isAllocated())
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::copyTinyInfoFrom : array is not allocated !");
   _dt=field->getTime(_iteration,_order);
-  int nbOfComponents=arr->getNumberOfComponents();
   getOrCreateAndGetArray()->setInfoAndChangeNbOfCompo(arr->getInfoOnComponents());
   if(!getOrCreateAndGetArray()->isAllocated())
     {
@@ -5969,11 +5968,11 @@ MEDFileField1TS *MEDFileField1TS::New()
  * This method performs a copy with datatype modification ( float64->int32 ) of \a this. The globals information are copied
  * following the given input policy.
  *
- * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
  *                            By default (true) the globals are deeply copied.
  * \return MEDFileIntField1TS * - a new object that is the result of the conversion of \a this to int32 field.
  */
-MEDFileIntField1TS *MEDFileField1TS::convertToInt(bool deepCpyGlobs) const
+MEDFileIntField1TS *MEDFileField1TS::convertToInt(bool isDeepCpyGlobs) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TS> ret;
   const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
@@ -5987,7 +5986,7 @@ MEDFileIntField1TS *MEDFileField1TS::convertToInt(bool deepCpyGlobs) const
     }
   else
     ret=MEDFileIntField1TS::New();
-  if(deepCpyGlobs)
+  if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
     ret->shallowCpyGlobs(*this);
@@ -6408,11 +6407,11 @@ MEDFileAnyTypeField1TS *MEDFileIntField1TS::shallowCpy() const
  * This method performs a copy with datatype modification ( int32->float64 ) of \a this. The globals information are copied
  * following the given input policy.
  *
- * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
  *                            By default (true) the globals are deeply copied.
  * \return MEDFileField1TS * - a new object that is the result of the conversion of \a this to float64 field.
  */
-MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool deepCpyGlobs) const
+MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool isDeepCpyGlobs) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ret;
   const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
@@ -6426,7 +6425,7 @@ MEDFileField1TS *MEDFileIntField1TS::convertToDouble(bool deepCpyGlobs) const
     }
   else
     ret=MEDFileField1TS::New();
-  if(deepCpyGlobs)
+  if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
     ret->shallowCpyGlobs(*this);
@@ -8278,7 +8277,8 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeFieldMultiTS::getTimeStepGivenTime(double 
 /*!
  * This method groups not null items in \a vectFMTS per time step series. Two time series are considered equal if the list of their pair of integers iteration,order are equal.
  * The float64 value of time attached to the pair of integers are not considered here.
- * 
+ * WARNING the returned pointers are not incremented. The caller is \b not responsible to deallocate them ! This method only reorganizes entries in \a vectFMTS.
+ *
  * \param [in] vectFMTS - vector of not null fields defined on a same global data pointer.
  * \throw If there is a null pointer in \a vectFMTS.
  */
@@ -8324,6 +8324,7 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
  * \param [in] vectFMTS - list of multi times step part all defined each on a same spatial discretization along time and pointing to a mesh whose name is equal to \c mesh->getName().
  * \param [in] mesh - the mesh shared by all items in \a vectFMTS across time.
  * \param [out] fsc - A vector having same size than returned vector. It specifies the support comporator of the corresponding vector of MEDFileAnyTypeFieldMultiTS in returned vector of vector.
+ * \return - A vector of vector of objects that contains the same pointers (objects) than thoose in \a vectFMTS except that there are organized differently. So pointers included in returned vector of vector should \b not been dealt by the caller.
  *
  * \throw If an element in \a vectFMTS has not only one spatial discretization set.
  * \throw If an element in \a vectFMTS change of spatial discretization along time.
@@ -8343,14 +8344,17 @@ std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > MEDFileAnyTypeFieldMult
     return ret;
   std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it(vectFMTS.begin());
   MEDFileAnyTypeFieldMultiTS *frstElt(*it);
+  if(!frstElt)
+    throw INTERP_KERNEL::Exception(msg);
   std::size_t i=0;
   std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTSNotNodes;
   std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTSNodes;
   for(;it!=vectFMTS.end();it++,i++)
     {
+      if(!(*it))
+        throw INTERP_KERNEL::Exception(msg);
       TypeOfField tof0,tof1;
-      int ret=CheckSupportAcrossTime(frstElt,*it,mesh,tof0,tof1);
-      if(ret>0)
+      if(CheckSupportAcrossTime(frstElt,*it,mesh,tof0,tof1)>0)
         {
           if(tof1!=ON_NODES)
             vectFMTSNotNodes.push_back(*it);
@@ -8564,11 +8568,11 @@ void MEDFileFieldMultiTS::checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1t
  * This method performs a copy with datatype modification ( float64->int32 ) of \a this. The globals information are copied
  * following the given input policy.
  *
- * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
  *                            By default (true) the globals are deeply copied.
  * \return MEDFileIntFieldMultiTS * - a new object that is the result of the conversion of \a this to int32 field.
  */
-MEDFileIntFieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool deepCpyGlobs) const
+MEDFileIntFieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool isDeepCpyGlobs) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTS> ret;
   const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
@@ -8582,7 +8586,7 @@ MEDFileIntFieldMultiTS *MEDFileFieldMultiTS::convertToInt(bool deepCpyGlobs) con
     }
   else
     ret=MEDFileIntFieldMultiTS::New();
-  if(deepCpyGlobs)
+  if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
     ret->shallowCpyGlobs(*this);
@@ -8997,11 +9001,11 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const MEDFileIntFieldMultiTS
  * This method performs a copy with datatype modification ( int32->float64 ) of \a this. The globals information are copied
  * following the given input policy.
  *
- * \param [in] deepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
+ * \param [in] isDeepCpyGlobs - a boolean that indicates the behaviour concerning globals (profiles and localizations)
  *                            By default (true) the globals are deeply copied.
  * \return MEDFileFieldMultiTS * - a new object that is the result of the conversion of \a this to float64 field.
  */
-MEDFileFieldMultiTS *MEDFileIntFieldMultiTS::convertToDouble(bool deepCpyGlobs) const
+MEDFileFieldMultiTS *MEDFileIntFieldMultiTS::convertToDouble(bool isDeepCpyGlobs) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ret;
   const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
@@ -9015,7 +9019,7 @@ MEDFileFieldMultiTS *MEDFileIntFieldMultiTS::convertToDouble(bool deepCpyGlobs) 
     }
   else
     ret=MEDFileFieldMultiTS::New();
-  if(deepCpyGlobs)
+  if(isDeepCpyGlobs)
     ret->deepCpyGlobs(*this);
   else
     ret->shallowCpyGlobs(*this);

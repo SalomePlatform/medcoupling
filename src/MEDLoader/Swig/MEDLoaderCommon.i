@@ -72,6 +72,7 @@ using namespace ParaMEDMEM;
 %newobject MEDLoader::ReadUMeshFromFamilies;
 %newobject MEDLoader::ReadUMeshFromGroups;
 %newobject MEDLoader::ReadUMeshFromFile;
+%newobject MEDLoader::ReadMeshFromFile;
 %newobject MEDLoader::ReadField;
 %newobject MEDLoader::ReadFieldCell;
 %newobject MEDLoader::ReadFieldNode;
@@ -219,6 +220,7 @@ class MEDLoader
 {
 public:
   static bool HasXDR();
+  static std::string MEDFileVersionStr();
   static void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   static void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
   static void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
@@ -237,6 +239,17 @@ public:
   static double GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   %extend
      {
+       static PyObject *MEDFileVersion()
+       {
+         int major,minor,release;
+         MEDLoader::MEDFileVersion(major,minor,release);
+         PyObject *ret(PyTuple_New(3));
+         PyTuple_SetItem(ret,0,SWIG_From_int(major));
+         PyTuple_SetItem(ret,1,SWIG_From_int(minor));
+         PyTuple_SetItem(ret,2,SWIG_From_int(release));
+         return ret;
+       }
+
        static PyObject *GetFieldIterations(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
        {
          std::vector< std::pair<int,int> > res=MEDLoader::GetFieldIterations(type,fileName,meshName,fieldName);
@@ -384,6 +397,8 @@ public:
          return MEDLoader::ReadUMeshFromFamilies(fileName,meshName,meshDimRelToMax,fams);
        }
      }
+  static ParaMEDMEM::MEDCouplingMesh *ReadMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  static ParaMEDMEM::MEDCouplingMesh *ReadMeshFromFile(const char *fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   static int ReadUMeshDimFromFile(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
@@ -392,6 +407,7 @@ public:
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  static void WriteMesh(const char *fileName, const ParaMEDMEM::MEDCouplingMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteUMeshDep(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
@@ -714,6 +730,7 @@ namespace ParaMEDMEM
     void addNodeGroup(const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
+    void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
@@ -1318,7 +1335,7 @@ namespace ParaMEDMEM
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
-    ParaMEDMEM::MEDFileIntField1TS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    ParaMEDMEM::MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -1452,7 +1469,7 @@ namespace ParaMEDMEM
     static MEDFileIntField1TS *New(const char *fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    ParaMEDMEM::MEDFileField1TS *convertToDouble(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    ParaMEDMEM::MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
@@ -1945,7 +1962,7 @@ namespace ParaMEDMEM
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    ParaMEDMEM::MEDFileIntFieldMultiTS *convertToInt(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    ParaMEDMEM::MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileFieldMultiTS()
@@ -2076,7 +2093,7 @@ namespace ParaMEDMEM
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals) throw(INTERP_KERNEL::Exception);
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const DataArrayInt *arrOfVals, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
-    ParaMEDMEM::MEDFileFieldMultiTS *convertToDouble(bool deepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
+    ParaMEDMEM::MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDFileIntFieldMultiTS()

@@ -254,6 +254,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void addNodeGroup(const DataArrayInt *ids);
     MEDLOADER_EXPORT void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids);
     MEDLOADER_EXPORT void removeMeshAtLevel(int meshDimRelToMax);
+    MEDLOADER_EXPORT void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m);
     MEDLOADER_EXPORT void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false);
     MEDLOADER_EXPORT void setMeshes(const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false);
     MEDLOADER_EXPORT void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum=false);
@@ -277,6 +278,7 @@ namespace ParaMEDMEM
     void changeFamilyIdArr(int oldId, int newId);
     std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const;
     void addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr);
+    MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1>& checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;

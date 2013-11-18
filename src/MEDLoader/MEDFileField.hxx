@@ -706,7 +706,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileField1TS *New(const MEDFileField1TSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT static MEDFileField1TS *New();
-    MEDLOADER_EXPORT MEDFileIntField1TS *convertToInt(bool deepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileIntField1TS *convertToInt(bool isDeepCpyGlobs=true) const;
     //
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const;
@@ -748,7 +748,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileIntField1TS *New(const MEDFileIntField1TSWithoutSDA& other, bool shallowCopyOfContent);
-    MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool deepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileField1TS *convertToDouble(bool isDeepCpyGlobs=true) const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *shallowCpy() const;
     //
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const;
@@ -989,7 +989,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *shallowCpy() const;
     MEDLOADER_EXPORT void checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1ts) const;
-    MEDLOADER_EXPORT MEDFileIntFieldMultiTS *convertToInt(bool deepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileIntFieldMultiTS *convertToInt(bool isDeepCpyGlobs=true) const;
     //
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const;
@@ -1030,7 +1030,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *shallowCpy() const;
     MEDLOADER_EXPORT void checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1ts) const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const;
-    MEDLOADER_EXPORT MEDFileFieldMultiTS *convertToDouble(bool deepCpyGlobs=true) const;
+    MEDLOADER_EXPORT MEDFileFieldMultiTS *convertToDouble(bool isDeepCpyGlobs=true) const;
     //
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol=0) const;
     MEDLOADER_EXPORT MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, DataArrayInt* &arrOut, int renumPol=0) const;

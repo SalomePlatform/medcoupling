@@ -3362,7 +3362,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3])))
         pass
 
-    @unittest.skipUnless(False,"requires Vadim's green light")
+    #@unittest.skipUnless(False,"requires Vadim's green light")
     def testWRQPolyg1(self):
         fname="Pyfile72.med"
         m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.allocateCells()

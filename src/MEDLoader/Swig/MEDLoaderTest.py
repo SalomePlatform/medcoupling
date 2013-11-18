@@ -561,6 +561,103 @@ class MEDLoaderTest(unittest.TestCase):
         f2=MEDLoader.MEDLoader.ReadFieldCell(fileName,m.getName(),0,f.getName(),-1,-1)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
+
+    def testMultiMeshTypeWrite0(self):
+        fname="Pyfile73.med"
+        m=MEDLoader.MEDCoupling1SGTUMesh("mesh",MEDLoader.NORM_QUAD4) ; m.allocateCells()
+        m.insertNextCell([0,2,1,3])
+        m.setCoords(MEDLoader.DataArrayDouble([0.,0.,1.,1.,1.,0.,0.,1.],4,2))
+        #
+        ms=[m.deepCpy() for i in xrange(4)]
+        for i,elt in enumerate(ms):
+            elt.translate([float(i)*1.5,0.])
+            pass
+        #
+        m0=MEDLoader.MEDCoupling1SGTUMesh.Merge1SGTUMeshes(ms)
+        f=m0.getMeasureField(False) ; f.getArray().setInfoOnComponents(["ABC [defg]"])
+        MEDLoader.MEDLoader.WriteField(fname,f,True)
+        #
+        fRead=MEDLoader.MEDLoader.ReadFieldCell(fname,"merge",0,f.getName(),-1,-1)
+        fRead.setMesh(MEDLoader.MEDCoupling1SGTUMesh(fRead.getMesh()))
+        self.assertTrue(f.isEqual(fRead,1e-12,1e-12))
+        #
+        m0=m0.buildUnstructured() ; m0.convertAllToPoly()
+        m0=MEDLoader.MEDCoupling1DGTUMesh(m0)
+        f=m0.getMeasureField(False) ; f.getArray().setInfoOnComponents(["ABC [defg]"])
+        MEDLoader.MEDLoader.WriteField(fname,f,True)
+        #
+        fRead=MEDLoader.MEDLoader.ReadFieldCell(fname,"merge",0,f.getName(),-1,-1)
+        fRead.setMesh(MEDLoader.MEDCoupling1DGTUMesh(fRead.getMesh()))
+        self.assertTrue(f.isEqual(fRead,1e-12,1e-12))
+        #
+        m0=MEDLoader.MEDCouplingCMesh()
+        arr=MEDLoader.DataArrayDouble(4) ; arr.iota()
+        m0.setCoords(arr,arr)
+        m0.setName("mesh")
+        f=m0.getMeasureField(False) ; f.getArray().setInfoOnComponents(["ABC [defg]"])
+        MEDLoader.MEDLoader.WriteField(fname,f,True)
+        #
+        fRead=MEDLoader.MEDLoader.ReadFieldCell(fname,"mesh",0,f.getName(),-1,-1)
+        self.assertTrue(f.isEqual(fRead,1e-12,1e-12))
+        #
+        c=m0.buildUnstructured().getCoords()
+        m0=MEDLoader.MEDCouplingCurveLinearMesh("mesh")
+        m0.setNodeGridStructure([4,4])
+        m0.setCoords(c)
+        f=m0.getMeasureField(False) ; f.getArray().setInfoOnComponents(["ABC [defg]"])
+        MEDLoader.MEDLoader.WriteField(fname,f,True)
+        #
+        fRead=MEDLoader.MEDLoader.ReadFieldCell(fname,"mesh",0,f.getName(),-1,-1)
+        self.assertTrue(f.isEqual(fRead,1e-12,1e-12))
+        pass
+    
+    def testMultiMeshTypeWrite1(self):
+        fname="Pyfile74.med"
+        m=MEDLoader.MEDCoupling1SGTUMesh("mesh",MEDLoader.NORM_QUAD4) ; m.allocateCells()
+        m.insertNextCell([0,2,1,3])
+        m.setCoords(MEDLoader.DataArrayDouble([0.,0.,1.,1.,1.,0.,0.,1.],4,2))
+        #
+        ms=[m.deepCpy() for i in xrange(4)]
+        for i,elt in enumerate(ms):
+            elt.translate([float(i)*1.5,0.])
+            pass
+        m0=MEDLoader.MEDCoupling1SGTUMesh.Merge1SGTUMeshes(ms)
+        MEDLoader.MEDLoader.WriteMesh(fname,m0,True)
+        #
+        mRead=MEDLoader.MEDLoader.ReadMeshFromFile(fname,"merge",0)
+        self.assertTrue(isinstance(mRead,MEDLoader.MEDCouplingUMesh))
+        mRead=MEDLoader.MEDCoupling1SGTUMesh(mRead)
+        self.assertTrue(m0.isEqual(mRead,1e-12))
+        #
+        m0=m0.buildUnstructured() ; m0.convertAllToPoly()
+        m0=MEDLoader.MEDCoupling1DGTUMesh(m0)
+        MEDLoader.MEDLoader.WriteMesh(fname,m0,True)
+        #
+        mRead=MEDLoader.MEDLoader.ReadMeshFromFile(fname,"merge",0)
+        mRead=MEDLoader.MEDCoupling1DGTUMesh(mRead)
+        self.assertTrue(m0.isEqual(mRead,1e-12))
+        #
+        m0=MEDLoader.MEDCouplingCMesh()
+        arr=MEDLoader.DataArrayDouble(4) ; arr.iota()
+        m0.setCoords(arr,arr)
+        m0.setName("mesh")
+        MEDLoader.MEDLoader.WriteMesh(fname,m0,True)
+        #
+        mRead=MEDLoader.MEDLoader.ReadMeshFromFile(fname,0)
+        self.assertTrue(isinstance(mRead,MEDLoader.MEDCouplingCMesh))
+        self.assertTrue(m0.isEqual(mRead,1e-12))
+        #
+        c=m0.buildUnstructured().getCoords()
+        m0=MEDLoader.MEDCouplingCurveLinearMesh("mesh")
+        m0.setNodeGridStructure([4,4])
+        m0.setCoords(c)
+        MEDLoader.MEDLoader.WriteMesh(fname,m0,True)
+        #
+        mRead=MEDLoader.MEDLoader.ReadMeshFromFile(fname,0)
+        self.assertTrue(isinstance(mRead,MEDLoader.MEDCouplingCurveLinearMesh))
+        self.assertTrue(m0.isEqual(mRead,1e-12))
+        pass
+
     pass
 
 unittest.main()

@@ -3461,6 +3461,23 @@ void MEDFileUMesh::removeMeshAtLevel(int meshDimRelToMax)
 }
 
 /*!
+ * Sets a new MEDCoupling1GTUMesh at a given level in \a this mesh.
+ *  \param [in] meshDimRelToMax - a relative level to set the mesh at.
+ *  \param [in] m - the new mesh to set.
+ *  \throw If the name or the description of \a this mesh and \a m are not empty and are
+ *         different. 
+ *  \throw If the node coordinates array is set \a this in mesh and \a m refers to
+ *         another node coordinates array.
+ *  \throw If the mesh dimension of \a m does not correspond to \a meshDimRelToMax or
+ *         to the existing meshes of other levels of \a this mesh.
+ */
+void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> elt(new MEDFileUMeshSplitL1(m));
+  checkAndGiveEntryInSplitL1(meshDimRelToMax,m)=elt;
+}
+
+/*!
  * Sets a new MEDCouplingUMesh at a given level in \a this mesh.
  *  \param [in] meshDimRelToMax - a relative level to set the mesh at.
  *  \param [in] m - the new mesh to set.
@@ -3474,6 +3491,12 @@ void MEDFileUMesh::removeMeshAtLevel(int meshDimRelToMax)
  *         to the existing meshes of other levels of \a this mesh.
  */
 void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> elt(new MEDFileUMeshSplitL1(m,newOrOld));
+  checkAndGiveEntryInSplitL1(meshDimRelToMax,m)=elt;
+}
+
+MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1>& MEDFileUMesh::checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m)
 {
   dealWithTinyInfo(m);
   std::vector<int> levSet=getNonEmptyLevels();
@@ -3492,10 +3515,10 @@ void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool
       if(sz>=(int)_ms.size())
         _ms.resize(sz);
       checkMeshDimCoherency(m->getMeshDimension(),meshDimRelToMax);
-      _ms[sz-1]=new MEDFileUMeshSplitL1(m,newOrOld);
+      return _ms[sz-1];
     }
   else
-    _ms[-meshDimRelToMax]=new MEDFileUMeshSplitL1(m,newOrOld);
+    return _ms[-meshDimRelToMax];
 }
 
 /*!

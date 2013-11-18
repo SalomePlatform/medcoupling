@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-extern med_geometry_type typmai3[32];
+extern med_geometry_type typmai3[34];
 
 using namespace ParaMEDMEM;
 
@@ -96,7 +96,7 @@ MEDFileUMeshPerType::MEDFileUMeshPerType(med_idt fid, const char *mName, int dt,
       loadFromStaticType(fid,mName,dt,it,mdim,curNbOfElem,geoElt,type,entity,mrs);
       return;
     }
-  if(type==INTERP_KERNEL::NORM_POLYGON)
+  if(type==INTERP_KERNEL::NORM_POLYGON || type==INTERP_KERNEL::NORM_QPOLYG)
     {
       loadPolyg(fid,mName,dt,it,mdim,curNbOfElem,geoElt,entity,mrs);
       return;
@@ -164,16 +164,16 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
                                     med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  med_int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,entity,MED_POLYGON,MED_INDEX_NODE,MED_NODAL,&changement,&transformation)-1;
-  _m=MEDCoupling1DGTUMesh::New(mName,INTERP_KERNEL::NORM_POLYGON);
+  med_int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_INDEX_NODE,MED_NODAL,&changement,&transformation)-1;
+  _m=MEDCoupling1DGTUMesh::New(mName,geoElt==MED_POLYGON?INTERP_KERNEL::NORM_POLYGON:INTERP_KERNEL::NORM_QPOLYG);
   MEDCoupling1DGTUMesh *mc(dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh *)_m));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
   conn->alloc(arraySize,1); connI->alloc(curNbOfElem+1,1);
-  MEDmeshPolygonRd(fid,mName,dt,it,MED_CELL,MED_NODAL,connI->getPointer(),conn->getPointer());
+  MEDmeshPolygon2Rd(fid,mName,dt,it,MED_CELL,geoElt,MED_NODAL,connI->getPointer(),conn->getPointer());
   std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind2nd(std::plus<int>(),-1));
   std::transform(connI->begin(),connI->end(),connI->getPointer(),std::bind2nd(std::plus<int>(),-1));
   mc->setNodalConnectivity(conn,connI);
-  loadCommonPart(fid,mName,dt,it,mdim,curNbOfElem,MED_POLYGON,entity,mrs);
+  loadCommonPart(fid,mName,dt,it,mdim,curNbOfElem,geoElt,entity,mrs);
 }
 
 void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, int connFaceLgth, med_geometry_type geoElt,
@@ -236,12 +236,12 @@ void MEDFileUMeshPerType::Write(med_idt fid, const char *mname, int mdim, const 
       const MEDCoupling1DGTUMesh *m0(dynamic_cast<const MEDCoupling1DGTUMesh *>(m));
       if(!m0)
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #2 !");
-      if(ikt==INTERP_KERNEL::NORM_POLYGON)
+      if(ikt==INTERP_KERNEL::NORM_POLYGON || ikt==INTERP_KERNEL::NORM_QPOLYG)
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(m0->getNodalConnectivity()->deepCpy()),arrI(m0->getNodalConnectivityIndex()->deepCpy());
           std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::plus<int>(),1));
           std::transform(arrI->begin(),arrI->end(),arrI->getPointer(),std::bind2nd(std::plus<int>(),1));
-          MEDmeshPolygonWr(fid,mname,dt,it,timm,MED_CELL,MED_NODAL,nbOfCells+1,arrI->begin(),arr->begin());
+          MEDmeshPolygon2Wr(fid,mname,dt,it,timm,MED_CELL,ikt==INTERP_KERNEL::NORM_POLYGON?MED_POLYGON:MED_POLYGON2,MED_NODAL,nbOfCells+1,arrI->begin(),arr->begin());
         }
       else
         {

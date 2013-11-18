@@ -176,6 +176,7 @@ namespace ParaMEDMEM
   public:
     MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other);
     MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id);
+    MEDFileUMeshSplitL1(MEDCoupling1GTUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -186,6 +187,7 @@ namespace ParaMEDMEM
     void clearNonDiscrAttributes() const;
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     void assignMesh(MEDCouplingUMesh *m, bool newOrOld);
+    void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
     bool empty() const;
     bool presenceOfOneFams(const std::vector<int>& ids) const;
     int getMeshDimension() const;
@@ -221,6 +223,7 @@ namespace ParaMEDMEM
     static DataArrayInt *Renumber(const DataArrayInt *renum, const DataArrayInt *da);
     static MEDCouplingUMesh *Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds);
   private:
+    void assignCommonPart();
     MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
     DataArrayInt *renumIfNeededArr(const DataArrayInt *da) const;
     void computeRevNum() const;

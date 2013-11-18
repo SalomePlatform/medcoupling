@@ -64,6 +64,7 @@ med_geometry_type typmai[MED_N_CELL_FIXED_GEO] = { MED_POINT1,
                                                    MED_HEXA20,
                                                    MED_HEXA27,
                                                    MED_POLYGON,
+                                                   MED_POLYGON2,
                                                    MED_POLYHEDRON };
 
 med_geometry_type typmainoeud[1] = { MED_NONE };
@@ -89,6 +90,7 @@ INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO] = { INTERP_KERNE
                                                                     INTERP_KERNEL::NORM_HEXA20,
                                                                     INTERP_KERNEL::NORM_HEXA27,
                                                                     INTERP_KERNEL::NORM_POLYGON,
+                                                                    INTERP_KERNEL::NORM_QPOLYG,
                                                                     INTERP_KERNEL::NORM_POLYHED };
 
 med_geometry_type typmai3[34] = { MED_POINT1,//0
@@ -123,7 +125,7 @@ med_geometry_type typmai3[34] = { MED_POINT1,//0
                                   MED_NONE,//29
                                   MED_HEXA20,//30
                                   MED_POLYHEDRON,//31
-                                  MED_NONE,//32
+                                  MED_POLYGON2,//32
                                   MED_NONE//33
 };
 
@@ -289,6 +291,18 @@ bool MEDLoader::HasXDR()
 #else
   return false;
 #endif
+}
+
+std::string MEDLoader::MEDFileVersionStr()
+{
+  return std::string(MED_VERSION_STR);
+}
+
+void MEDLoader::MEDFileVersion(int& major, int& minor, int& release)
+{
+  major=MED_NUM_MAJEUR;
+  minor=MED_NUM_MINEUR;
+  release=MED_NUM_RELEASE;
 }
 
 /*!
@@ -1046,7 +1060,55 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
   return ret;
 }
 
-MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax)
+ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax)
+{
+  CheckFileForRead(fileName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
+  MEDFileMesh *mmPtr(mm);
+  MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
+  if(mmuPtr)
+    return mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
+  MEDFileCMesh *mmcPtr=dynamic_cast<MEDFileCMesh *>(mmPtr);
+  if(mmcPtr)
+    {
+      const MEDCouplingCMesh *ret(mmcPtr->getMesh()); ret->incrRef();
+      return const_cast<MEDCouplingCMesh *>(ret);
+    }
+  MEDFileCurveLinearMesh *mmc2Ptr=dynamic_cast<MEDFileCurveLinearMesh *>(mmPtr);
+  if(mmc2Ptr)
+    {
+      const MEDCouplingCurveLinearMesh *ret(mmc2Ptr->getMesh()); ret->incrRef();
+      return const_cast<MEDCouplingCurveLinearMesh *>(ret);
+    }
+  std::ostringstream oss; oss << "MEDLoader::ReadMeshFromFile : The mesh \"" << meshName << "\" in file \"" << fileName << "\" has not a recognized type !";
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const char *fileName, int meshDimRelToMax)
+{
+  CheckFileForRead(fileName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName);
+  MEDFileMesh *mmPtr(mm);
+  MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
+  if(mmuPtr)
+    return mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
+  MEDFileCMesh *mmcPtr=dynamic_cast<MEDFileCMesh *>(mmPtr);
+  if(mmcPtr)
+    {
+      const MEDCouplingCMesh *ret(mmcPtr->getMesh()); ret->incrRef();
+      return const_cast<MEDCouplingCMesh *>(ret);
+    }
+  MEDFileCurveLinearMesh *mmc2Ptr=dynamic_cast<MEDFileCurveLinearMesh *>(mmPtr);
+  if(mmc2Ptr)
+    {
+      const MEDCouplingCurveLinearMesh *ret(mmc2Ptr->getMesh()); ret->incrRef();
+      return const_cast<MEDCouplingCurveLinearMesh *>(ret);
+    }
+  std::ostringstream oss; oss << "MEDLoader::ReadMeshFromFile (2) : The first mesh \"" << mm->getName() << "\" in file \"" << fileName << "\" has not a recognized type !";
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1281,6 +1343,44 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const char *file
   return ret.retn();
 }
 
+void MEDLoader::WriteMesh(const char *fileName, const ParaMEDMEM::MEDCouplingMesh *mesh, bool writeFromScratch)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDLoader::WriteMesh : input mesh is null !");
+  const MEDCouplingUMesh *um(dynamic_cast<const MEDCouplingUMesh *>(mesh));
+  if(um)
+    {
+      WriteUMesh(fileName,um,writeFromScratch);
+      return ;
+    }
+  int mod=writeFromScratch?2:0;
+  const MEDCoupling1GTUMesh *um2(dynamic_cast<const MEDCoupling1GTUMesh *>(mesh));
+  if(um2)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu=MEDFileUMesh::New();
+      mmu->setMeshAtLevel(0,const_cast<MEDCoupling1GTUMesh *>(um2));
+      mmu->write(fileName,mod);
+      return ;
+    }
+  const MEDCouplingCMesh *um3(dynamic_cast<const MEDCouplingCMesh *>(mesh));
+  if(um3)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc=MEDFileCMesh::New();
+      mmc->setMesh(const_cast<MEDCouplingCMesh *>(um3));
+      mmc->write(fileName,mod);
+      return ;
+    }
+  const MEDCouplingCurveLinearMesh *um4(dynamic_cast<const MEDCouplingCurveLinearMesh *>(mesh));
+  if(um4)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc=MEDFileCurveLinearMesh::New();
+      mmc->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(um4));
+      mmc->write(fileName,mod);
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("MEDLoader::WriteMesh : only MEDCouplingUMesh, MEDCoupling1GTUMesh, MEDCouplingCMesh, MEDCouplingCurveLinear are dealed in this API for the moment !");
+}
+
 void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   if(!mesh)
@@ -1332,8 +1432,11 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const char *fil
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f2(f->deepCpy());
-  const MEDCouplingMesh *m=f2->getMesh();
-  const MEDCouplingUMesh *um=dynamic_cast<const MEDCouplingUMesh *>(m);
+  const MEDCouplingMesh *m(f2->getMesh());
+  const MEDCouplingUMesh *um(dynamic_cast<const MEDCouplingUMesh *>(m));
+  const MEDCoupling1GTUMesh *um2(dynamic_cast<const MEDCoupling1GTUMesh *>(m));
+  const MEDCouplingCMesh *um3(dynamic_cast<const MEDCouplingCMesh *>(m));
+  const MEDCouplingCurveLinearMesh *um4(dynamic_cast<const MEDCouplingCurveLinearMesh *>(m));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
   int mod=writeFromScratch?2:0;
   if(um)
@@ -1347,8 +1450,29 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const char *fil
       ff->setFieldNoProfileSBT(f2);
       mmu->write(fileName,mod);
     }
+  else if(um2)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu=MEDFileUMesh::New();
+      mmu->setMeshAtLevel(0,const_cast<MEDCoupling1GTUMesh *>(um2));
+      ff->setFieldNoProfileSBT(f2);
+      mmu->write(fileName,mod);
+    }
+  else if(um3)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc=MEDFileCMesh::New();
+      mmc->setMesh(const_cast<MEDCouplingCMesh *>(um3));
+      ff->setFieldNoProfileSBT(f2);
+      mmc->write(fileName,mod);
+    }
+  else if(um4)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc=MEDFileCurveLinearMesh::New();
+      mmc->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(um4));
+      ff->setFieldNoProfileSBT(f2);
+      mmc->write(fileName,mod);
+    }
   else
-    throw INTERP_KERNEL::Exception("MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile : only umeshes are dealed in this API for the moment !");
+    throw INTERP_KERNEL::Exception("MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile : only MEDCouplingUMesh, MEDCoupling1GTUMesh, MEDCouplingCMesh, MEDCouplingCurveLinear are dealed in this API for the moment !");
   ff->write(fileName,0);
 }
 

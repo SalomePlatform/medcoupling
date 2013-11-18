@@ -32,6 +32,7 @@
 namespace ParaMEDMEM
 {
   class DataArrayInt;
+  class MEDCouplingMesh;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
 }
@@ -43,6 +44,8 @@ class MEDLOADER_EXPORT MEDLoader
   static void SetCompPolicyForCell(int val);
   static void SetTooLongStrPolicy(int val);
   static bool HasXDR();
+  static std::string MEDFileVersionStr();
+  static void MEDFileVersion(int& major, int& minor, int& release);
   static void CheckFileForRead(const char *fileName);
   static std::vector<std::string> GetMeshNames(const char *fileName);
   static std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes);
@@ -65,6 +68,8 @@ class MEDLOADER_EXPORT MEDLoader
   static double GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps);
+  static ParaMEDMEM::MEDCouplingMesh *ReadMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0);
+  static ParaMEDMEM::MEDCouplingMesh *ReadMeshFromFile(const char *fileName, int meshDimRelToMax=0);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, int meshDimRelToMax=0);
   static int ReadUMeshDimFromFile(const char *fileName, const char *meshName);
@@ -83,6 +88,7 @@ class MEDLOADER_EXPORT MEDLoader
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static void WriteMesh(const char *fileName, const ParaMEDMEM::MEDCouplingMesh *mesh, bool writeFromScratch);
   static void WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
   static void WriteUMeshDep(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
   static void WriteUMeshesPartition(const char *fileName, const char *meshName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
