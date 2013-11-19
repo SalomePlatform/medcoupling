@@ -333,7 +333,7 @@ std::string SauvLoaderTest::getResourceFile( const std::string& filename )
   std::string resourceFile = "";
 
   if ( getenv("top_srcdir") ) {
-    // we are in 'make check' step
+    // we are in 'make test' step
     resourceFile = getenv("top_srcdir");
     resourceFile += "/resources/";
   }

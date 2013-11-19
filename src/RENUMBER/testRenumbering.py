@@ -192,7 +192,7 @@ class RenumberingTest(unittest.TestCase):
         srcdir   = os.getenv("srcdir")
         med_root = os.getenv("MED_ROOT_DIR")
         if srcdir:
-            # make check is being performed
+            # make test is being performed
             self.dir_renumber="./renumber"
             self.dir_mesh = os.path.join( srcdir, "../../resources")
         elif med_root:

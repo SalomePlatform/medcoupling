@@ -28,7 +28,7 @@ namespace INTERP_TEST
     std::string resourceFile = "";
     
     if ( getenv("top_srcdir") ) {
-      // we are in 'make check' step
+      // we are in 'make test' step
       resourceFile = getenv("top_srcdir");
       resourceFile += "/resources/";
     }
