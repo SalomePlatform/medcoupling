@@ -14,7 +14,7 @@
 .. _REF_EDF_VCA_H-I2C-2009-03595-FR: _static/documents/20091218_EDF_VCANO_H-I2C-2009-03595-FR.pdf
 
 .. You can refer to this reference using the keyword: |REF_CEA_VBE_MEDMEM|_
-.. |REF_CEA_VBE_MEDMEM| replace:: MEDMEM user's guide
+.. |REF_CEA_VBE_MEDMEM| replace:: Guide utilisateur de MED mémoire
 .. _REF_CEA_VBE_MEDMEM: _static/documents/20070105_CEA_VBERGEAUD_GuideutilisateurMEDMEMOIRE.pdf
 
 .. You can refer to this reference using the keyword: |REF_EDF_GBO_WORKNOTE|_

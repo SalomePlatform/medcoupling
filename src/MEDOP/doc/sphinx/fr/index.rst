@@ -1,16 +1,18 @@
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Documentation of MED module
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ Documentation du module MED
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The SALOME MED module provides MEDCoupling library (a C++ library dedicated of
-mesh and field manipulation consistent with MED model), as well as a Graphical
-User Interface to access some usual operations.
+Le module SALOME MED (pour Modèle d'Echange de Données) fournit la
+bibliothèque MEDCoupling (bibliothèque C++ dédiée à la manipulation de
+maillages et de champs conformes au modèle MED), ainsi qu'une
+interface graphique pour la réalisation des opérations de manipulation
+les plus usuelles.
 
-References
-==========
+Documentation de référence
+==========================
 
-**User documentation**
+**Documentation d'utilisation**
 
 .. toctree::
    :maxdepth: 1
@@ -18,7 +20,7 @@ References
    medop-userguide-gui.rst
    medop-userguide-api.rst
 
-**Technical documentation** (**in french**):
+**Documentation technique**
 
 .. toctree::
    :maxdepth: 1
@@ -26,15 +28,15 @@ References
    medop-specifications.rst
    medop-develguide.rst
 
-**Additional documentation**
+**Documentation annexe**
 
 .. toctree::
    :maxdepth: 1
 
    medop-references.rst
 
-Document archive (in french)
-============================
+Archives documentaires
+======================
 
 **Documentation du prototype 2010**
 

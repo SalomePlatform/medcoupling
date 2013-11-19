@@ -1,16 +1,16 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Appendix: Documentation references
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ANNEXE: Références documentaires
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 .. include:: medop-definitions.rst
 
-References:
+Documents de référence:
 
-* (**in french**) |REF_EDF_VCA_H-I2C-2009-03595-FR|_ - Valérie Cano - décembre 2009
+* |REF_EDF_VCA_H-I2C-2009-03595-FR|_ - Valérie Cano - décembre 2009
 * |REF_CEA_VBE_MEDMEM|_ - Vincent Bergeaud - janvier 2007
-* (**in french**) |LINK_EDF_MEDDOC|_ - documentation en ligne (EDF)
+* |LINK_EDF_MEDDOC|_ - documentation en ligne (EDF)
 
-Slides (**in french**):
+Présentations:
 
 * |REF_EDF_PRESMANIPCHP01|_ - Valérie Cano, Guillaume Boulant - janvier 2010
 * |REF_EDF_PRESMANIPCHP02|_ - Guillaume Boulant - octobre 2010
@@ -18,11 +18,11 @@ Slides (**in french**):
 * Présentation à la Journée des Utilisateurs de SALOME de 2011 (JUS2011):
 
   - |REF_EDF_JUS2011_PDF|_ - Anthony Geay (CEA), Guillaume Boulant - novembre 2011
-  - |REF_EDF_JUS2011_OGV1|_ (**video**)
-  - |REF_EDF_JUS2011_OGV3|_ (**video**)
-  - |REF_EDF_JUS2011_OGV4|_ (**video**)
+  - |REF_EDF_JUS2011_OGV1|_
+  - |REF_EDF_JUS2011_OGV3|_
+  - |REF_EDF_JUS2011_OGV4|_
 
-Working notes (**in french**):
+Notes de travail:
 
 * |REF_EDF_GBO_WORKNOTE|_ - Guillaume Boulant - novembre 2010
 * |REF_EDF_ELO_REM|_ - Eric Lorentz - novembre 2010
