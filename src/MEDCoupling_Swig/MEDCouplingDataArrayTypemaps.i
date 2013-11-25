@@ -435,7 +435,11 @@ PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) t
   PyObject* pdict=PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
   PyObject *tmp(PyRun_String("from scipy.sparse import csr_matrix", Py_single_input, pdict, pdict));
+  if(!tmp)
+    throw INTERP_KERNEL::Exception("Problem during loading csr_matrix in scipy.sparse ! Is Scipy module available in present ?");
   PyObject *csrMatrixCls=PyDict_GetItemString(pdict,"csr_matrix");
+  if(!csrMatrixCls)
+    throw INTERP_KERNEL::Exception("csr_matrix not found in scipy.sparse ! Is Scipy module available in present ?");
   PyObject *ret(PyObject_Call(csrMatrixCls,args,kw));
   Py_DECREF(pdict); Py_XDECREF(tmp); Py_DECREF(args); Py_DECREF(kw);
   return ret;
