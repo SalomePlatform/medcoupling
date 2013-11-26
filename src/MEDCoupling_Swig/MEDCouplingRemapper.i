@@ -91,7 +91,7 @@ namespace ParaMEDMEM
                }
              return ret;
            }
-#ifdef WITH_NUMPY
+#if defined(WITH_NUMPY) && defined(WITH_SCIPY)
            PyObject *getCrudeCSRMatrix() const throw(INTERP_KERNEL::Exception)
            {
              return ToCSRMatrix(self->getCrudeMatrix(),self->getNumberOfColsOfMatrix());
