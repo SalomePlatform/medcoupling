@@ -112,9 +112,9 @@ namespace ParaMEDMEM
     void selectPartOfNodes(const DataArrayInt *pflNodes);
     MEDMeshMultiLev *prepare() const;
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part);
-    MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const;
+    MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const;
   private:
-    void reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const;
+    bool reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const;
   private:
     MEDUMeshMultiLev(const MEDUMeshMultiLev& other);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);

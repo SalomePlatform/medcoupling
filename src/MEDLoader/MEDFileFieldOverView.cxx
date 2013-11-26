@@ -504,7 +504,11 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
   _pfls.resize(1); _pfls[0]=0;
 }
 
-void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const
+/*! 
+ * If returned value is false output pointer \a coords is not the internal pointer. If returned value is true output pointer \a coords is directly the internal pointer.
+ * If true is returned, the \a coords output parameter should be used with care (non const method call) to avoid to change the internal state of MEDFileUMesh instance.
+ */
+bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const
 {
   if(_parts.empty())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : empty array !");
@@ -634,24 +638,32 @@ void MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
             }
         }
     }
+  bool ret(true);
   if(!isPolyh)
-    reorderNodesIfNecessary(a,d,0);
+    ret=reorderNodesIfNecessary(a,d,0);
   else
-    reorderNodesIfNecessary(a,d,f);
+    ret=reorderNodesIfNecessary(a,d,f);
   if(a->getNumberOfComponents()!=3)
-    a=a->changeNbOfComponents(3,0.);
+    {
+      a=a->changeNbOfComponents(3,0.);
+      ret=false;
+    }
   coords=a.retn(); types=b.retn(); cellLocations=c.retn(); cells=d.retn();
   if(!isPolyh)
     { faceLocations=0; faces=0; }
   else
     { faceLocations=e.retn(); faces=f.retn(); }
+  return ret;
 }
 
-void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
+/*! 
+ * If returned value is false in/output pointer \a coords is modified. If returned value is true in/output pointer \a coords is not modifed.
+ */
+bool MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
 {
   const DataArrayInt *nr(_node_reduction);
   if(!nr)
-    return ;
+    return true;
   int sz(coords->getNumberOfTuples());
   std::vector<bool> b(sz,false);
   const int *work(nodalConnVTK->begin()),*endW(nodalConnVTK->end());
@@ -720,6 +732,7 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<
         }
     }
   coords=(coords->selectByTupleIdSafe(nr->begin(),nr->end()));
+  return false;
 }
 
 //=
