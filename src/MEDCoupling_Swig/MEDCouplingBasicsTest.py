@@ -13978,6 +13978,24 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
+    def testSwig2normMinComputeAbs1(self):
+        d=DataArrayDouble([4,-5,2,6.1,-7.33,1,-1,3e2,0.07,-0.009,-6,-1e30],4,3)
+        d.setInfoOnComponents(["XX [m]","YYY [km]","ABSJJ [MW]"])
+        d0=d.computeAbs()
+        dExp=d.deepCpy() ; dExp.abs()
+        self.assertTrue(dExp.isEqual(d0,1e-12))
+        e=d0-DataArrayDouble([4,5,2,6.1,7.33,1,1,3e2,0.07,0.009,6,1e30],4,3)
+        self.assertAlmostEqual(0.,e.normMin(),13)
+        self.assertAlmostEqual(0.009,d.normMin(),13)
+        #
+        di=DataArrayInt([3,-12,5,6,14,16,-23,100,23,-1,0,-6],4,3)
+        di.setInfoOnComponents(["XX [m]","YYY [km]","ABSJJ [MW]"])
+        d0i=di.computeAbs()
+        diExp=di.deepCpy() ; diExp.abs()
+        self.assertTrue(diExp.isEqual(d0i))
+        self.assertEqual([3,12,5,6,14,16,23,100,23,1,0,6],d0i.getValues())
+        pass
+
     def setUp(self):
         pass
     pass

@@ -309,6 +309,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getAverageValue() const;
     MEDCOUPLING_EXPORT double norm2() const;
     MEDCOUPLING_EXPORT double normMax() const;
+    MEDCOUPLING_EXPORT double normMin() const;
     MEDCOUPLING_EXPORT void accumulate(double *res) const;
     MEDCOUPLING_EXPORT double accumulate(int compId) const;
     MEDCOUPLING_EXPORT DataArrayDouble *accumulatePerChunck(const int *bgOfIndex, const int *endOfIndex) const;
@@ -331,6 +332,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const;
     MEDCOUPLING_EXPORT void sortPerTuple(bool asc);
     MEDCOUPLING_EXPORT void abs();
+    MEDCOUPLING_EXPORT DataArrayDouble *computeAbs() const;
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
     MEDCOUPLING_EXPORT void applyLin(double a, double b);
     MEDCOUPLING_EXPORT void applyInv(double numerator);
@@ -549,6 +551,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const;
     MEDCOUPLING_EXPORT int getMinValueInArray() const;
     MEDCOUPLING_EXPORT void abs();
+    MEDCOUPLING_EXPORT DataArrayInt *computeAbs() const;
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId);
     MEDCOUPLING_EXPORT void applyLin(int a, int b);
     MEDCOUPLING_EXPORT void applyInv(int numerator);

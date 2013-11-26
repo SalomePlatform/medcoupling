@@ -69,6 +69,7 @@
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
 %newobject ParaMEDMEM::DataArrayInt::sumPerTuple;
 %newobject ParaMEDMEM::DataArrayInt::negate;
+%newobject ParaMEDMEM::DataArrayInt::computeAbs;
 %newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotInRange;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
@@ -151,6 +152,7 @@
 %newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayDouble::getIdsNotInRange;
 %newobject ParaMEDMEM::DataArrayDouble::negate;
+%newobject ParaMEDMEM::DataArrayDouble::computeAbs;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
@@ -544,6 +546,7 @@ namespace ParaMEDMEM
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
     double norm2() const throw(INTERP_KERNEL::Exception);
     double normMax() const throw(INTERP_KERNEL::Exception);
+    double normMin() const throw(INTERP_KERNEL::Exception);
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromPolarToCart() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromCylToCart() const throw(INTERP_KERNEL::Exception);
@@ -562,6 +565,7 @@ namespace ParaMEDMEM
     DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     void abs() throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *computeAbs() const throw(INTERP_KERNEL::Exception);
     void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
     void applyLin(double a, double b) throw(INTERP_KERNEL::Exception);
     void applyInv(double numerator) throw(INTERP_KERNEL::Exception);
@@ -2553,6 +2557,7 @@ namespace ParaMEDMEM
     int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     int getMinValueInArray() const throw(INTERP_KERNEL::Exception);
     void abs() throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeAbs() const throw(INTERP_KERNEL::Exception);
     void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
     void applyLin(int a, int b) throw(INTERP_KERNEL::Exception);
     void applyInv(int numerator) throw(INTERP_KERNEL::Exception);

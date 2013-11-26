@@ -3296,20 +3296,45 @@ double DataArrayDouble::norm2() const
 
 /*!
  * Returns the maximum norm of the vector defined by \a this array.
+ * This method works even if the number of components is diferent from one.
+ * If the number of elements in \a this is 0, -1. is returned.
  *  \return double - the value of the maximum norm, i.e.
- *          the maximal absolute value among values of \a this array.
+ *          the maximal absolute value among values of \a this array (whatever its number of components).
  *  \throw If \a this is not allocated.
  */
 double DataArrayDouble::normMax() const
 {
   checkAllocated();
-  double ret=-1.;
-  std::size_t nbOfElems=getNbOfElems();
-  const double *pt=getConstPointer();
+  double ret(-1.);
+  std::size_t nbOfElems(getNbOfElems());
+  const double *pt(getConstPointer());
   for(std::size_t i=0;i<nbOfElems;i++,pt++)
     {
-      double val=std::abs(*pt);
+      double val(std::abs(*pt));
       if(val>ret)
+        ret=val;
+    }
+  return ret;
+}
+
+/*!
+ * Returns the minimum norm (absolute value) of the vector defined by \a this array.
+ * This method works even if the number of components is diferent from one.
+ * If the number of elements in \a this is 0, std::numeric_limits<double>::max() is returned.
+ *  \return double - the value of the minimum norm, i.e.
+ *          the minimal absolute value among values of \a this array (whatever its number of components).
+ *  \throw If \a this is not allocated.
+ */
+double DataArrayDouble::normMin() const
+{
+  checkAllocated();
+  double ret(std::numeric_limits<double>::max());
+  std::size_t nbOfElems(getNbOfElems());
+  const double *pt(getConstPointer());
+  for(std::size_t i=0;i<nbOfElems;i++,pt++)
+    {
+      double val(std::abs(*pt));
+      if(val<ret)
         ret=val;
     }
   return ret;
@@ -4010,15 +4035,42 @@ void DataArrayDouble::sortPerTuple(bool asc)
 
 /*!
  * Converts every value of \a this array to its absolute value.
- *  \throw If \a this is not allocated.
+ * \b WARNING this method is non const. If a new DataArrayDouble instance should be built containing the result of abs DataArrayDouble::computeAbs
+ * should be called instead.
+ *
+ * \throw If \a this is not allocated.
+ * \sa DataArrayDouble::computeAbs
  */
 void DataArrayDouble::abs()
 {
   checkAllocated();
-  double *ptr=getPointer();
-  std::size_t nbOfElems=getNbOfElems();
+  double *ptr(getPointer());
+  std::size_t nbOfElems(getNbOfElems());
   std::transform(ptr,ptr+nbOfElems,ptr,std::ptr_fun<double,double>(fabs));
   declareAsNew();
+}
+
+/*!
+ * This method builds a new instance of \a this object containing the result of std::abs applied of all elements in \a this.
+ * This method is a const method (that do not change any values in \a this) contrary to  DataArrayDouble::abs method.
+ *
+ * \return DataArrayDouble * - the new instance of DataArrayDouble containing the
+ *         same number of tuples and component as \a this array.
+ *         The caller is to delete this result array using decrRef() as it is no more
+ *         needed.
+ * \throw If \a this is not allocated.
+ * \sa DataArrayDouble::abs
+ */
+DataArrayDouble *DataArrayDouble::computeAbs() const
+{
+  checkAllocated();
+  DataArrayDouble *newArr(DataArrayDouble::New());
+  int nbOfTuples(getNumberOfTuples());
+  int nbOfComp(getNumberOfComponents());
+  newArr->alloc(nbOfTuples,nbOfComp);
+  std::transform(begin(),end(),newArr->getPointer(),std::ptr_fun<double,double>(fabs));
+  newArr->copyStringInfoFrom(*this);
+  return newArr;
 }
 
 /*!
@@ -8902,15 +8954,42 @@ int DataArrayInt::getMinValueInArray() const
 
 /*!
  * Converts every value of \a this array to its absolute value.
- *  \throw If \a this is not allocated.
+ * \b WARNING this method is non const. If a new DataArrayInt instance should be built containing the result of abs DataArrayInt::computeAbs
+ * should be called instead.
+ *
+ * \throw If \a this is not allocated.
+ * \sa DataArrayInt::computeAbs
  */
 void DataArrayInt::abs()
 {
   checkAllocated();
-  int *ptr=getPointer();
-  std::size_t nbOfElems=getNbOfElems();
+  int *ptr(getPointer());
+  std::size_t nbOfElems(getNbOfElems());
   std::transform(ptr,ptr+nbOfElems,ptr,std::ptr_fun<int,int>(std::abs));
   declareAsNew();
+}
+
+/*!
+ * This method builds a new instance of \a this object containing the result of std::abs applied of all elements in \a this.
+ * This method is a const method (that do not change any values in \a this) contrary to  DataArrayInt::abs method.
+ *
+ * \return DataArrayInt * - the new instance of DataArrayInt containing the
+ *         same number of tuples and component as \a this array.
+ *         The caller is to delete this result array using decrRef() as it is no more
+ *         needed.
+ * \throw If \a this is not allocated.
+ * \sa DataArrayInt::abs
+ */
+DataArrayInt *DataArrayInt::computeAbs() const
+{
+  checkAllocated();
+  DataArrayInt *newArr(DataArrayInt::New());
+  int nbOfTuples(getNumberOfTuples());
+  int nbOfComp(getNumberOfComponents());
+  newArr->alloc(nbOfTuples,nbOfComp);
+  std::transform(begin(),end(),newArr->getPointer(),std::ptr_fun<int,int>(std::abs));
+  newArr->copyStringInfoFrom(*this);
+  return newArr;
 }
 
 /*!
