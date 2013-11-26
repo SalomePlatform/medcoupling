@@ -129,6 +129,15 @@ namespace ParaMEDMEM
 #endif
   }
 
+  bool MEDCouplingHasSciPyBindings()
+  {
+#ifdef WITH_SCIPY
+    return true;
+#else
+    return false;
+#endif
+  }
+
   std::string MEDCouplingCompletionScript() throw(INTERP_KERNEL::Exception)
   {
     static const char script[]="import rlcompleter,readline\nreadline.parse_and_bind('tab:complete')";

@@ -587,7 +587,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.3521445110626687 ,m[6][170],12)
         pass
 
-    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
     def testGetCrudeCSRMatrix1(self):
         """ testing CSR matrix output using numpy/scipy.
         """
@@ -644,7 +644,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(m_1.getnnz(),7)
         pass
     
-    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
     def testP0P1Bary_1(self):
         a=MEDCouplingUMesh("a",2)
         a.allocateCells()
