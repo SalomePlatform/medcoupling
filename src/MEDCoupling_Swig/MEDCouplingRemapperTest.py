@@ -591,7 +591,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testGetCrudeCSRMatrix1(self):
         """ testing CSR matrix output using numpy/scipy.
         """
-        from scipy.sparse import diags
+        from scipy.sparse import spdiags #diags
         import scipy
         from numpy import array
         arr=DataArrayDouble(3) ; arr.iota()
@@ -620,7 +620,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(diff.getnnz(),0)
         # IntegralGlobConstraint (division by sum of cols)
         colSum=m.sum(axis=0)
-        m_0=m*diags(array(1/colSum),[0])
+        # version 0.12.0 # m_0=m*diags(array(1/colSum),[0])
+        m_0=m*spdiags(array(1/colSum),[0],colSum.shape[1],colSum.shape[1])
         del colSum
         self.assertAlmostEqual(m_0[0,0],0.625,12)
         self.assertAlmostEqual(m_0[1,0],0.25,12)
@@ -632,7 +633,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(m_0.getnnz(),7)
         # ConservativeVolumic (division by sum of rows)
         rowSum=m.sum(axis=1)
-        m_1=diags(array(1/rowSum.transpose()),[0])*m
+        # version 0.12.0 # m_1=diags(array(1/rowSum.transpose()),[0])*m
+        m_1=spdiags(array(1/rowSum.transpose()),[0],rowSum.shape[0],rowSum.shape[0])*m
         del rowSum
         self.assertAlmostEqual(m_1[0,0],1.,12)
         self.assertAlmostEqual(m_1[1,0],0.4,12)
