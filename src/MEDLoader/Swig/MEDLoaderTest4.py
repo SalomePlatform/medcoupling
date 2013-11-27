@@ -2145,4 +2145,100 @@ class MEDLoaderTest4(unittest.TestCase):
                 pass
             pass
 
+    def test15(self):
+        """
+        "ForMEDReader15.med" file has a spaceDim 3 mesh "mesh" (it is important !)
+        and a field "zeField" lying on a single geometric type for Cell discr and node part.
+        Test that can appear the most simple but it hides a big issue of MEDReader
+        that copies are reduced at most. So it can leads to SIGSEGV if the memory management is not OK for int* and double * similar between VTK and MEDCoupling.
+        """
+        fname="ForMEDReader15.med"
+        m0=MEDCouplingCMesh()
+        arr=DataArrayDouble(5) ; arr.iota(0)
+        m0.setCoords(arr,arr,arr)
+        m0.setName("mesh")
+        m0=m0.buildUnstructured()
+        #
+        fieldName="zeField"
+        fCell=MEDCouplingFieldDouble(ON_CELLS)
+        fCell.setName(fieldName)
+        fCell.setMesh(m0)
+        #
+        fNode=MEDCouplingFieldDouble(ON_NODES)
+        fNode.setName(fieldName)
+        fNode.setMesh(m0)
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m0)
+        #
+        ffs=MEDFileFieldMultiTS()
+        # TimeStep 0
+        t=(1.,0,0) ; off=0.
+        f1ts=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell.setArray(a)
+        fCell.setTime(*t)
+        fCell.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode.setArray(a)
+        fNode.setTime(*t)
+        fNode.checkCoherency()
+        f1ts.setFieldNoProfileSBT(fCell)
+        f1ts.setFieldNoProfileSBT(fNode)
+        ffs.pushBackTimeStep(f1ts)
+        # TimeStep 1
+        t=(2.1,1,0) ; off=100.
+        f1ts=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell.setArray(a)
+        fCell.setTime(*t)
+        fCell.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode.setArray(a)
+        fNode.setTime(*t)
+        fNode.checkCoherency()
+        f1ts.setFieldNoProfileSBT(fCell)
+        f1ts.setFieldNoProfileSBT(fNode)
+        ffs.pushBackTimeStep(f1ts)
+        # TimeStep 2
+        t=(3.2,2,0) ; off=200.
+        f1ts=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell.setArray(a)
+        fCell.setTime(*t)
+        fCell.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode.setArray(a)
+        fNode.setTime(*t)
+        fNode.checkCoherency()
+        f1ts.setFieldNoProfileSBT(fCell)
+        f1ts.setFieldNoProfileSBT(fNode)
+        ffs.pushBackTimeStep(f1ts)
+        # TimeStep 3
+        t=(4.3,3,1) ; off=300.
+        f1ts=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell.setArray(a)
+        fCell.setTime(*t)
+        fCell.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode.setArray(a)
+        fNode.setTime(*t)
+        fNode.checkCoherency()
+        f1ts.setFieldNoProfileSBT(fCell)
+        f1ts.setFieldNoProfileSBT(fNode)
+        ffs.pushBackTimeStep(f1ts)
+        #
+        mm.write(fname,2)
+        ffs.write(fname,0)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        
+        pass
+
+    pass
+
 unittest.main()
