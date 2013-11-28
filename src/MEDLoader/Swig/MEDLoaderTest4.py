@@ -50,6 +50,8 @@ class MEDLoaderTest4(unittest.TestCase):
         m.setName("mesh") ; m.getCoords().setInfoOnComponents(["XX [m]","YYY [km]"])
         m1=m.buildDescendingConnectivity()[0]
         mm=MEDFileUMesh() ; mm.setMeshes([m,m1])
+        fam=DataArrayInt(9) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam)
+        fam=DataArrayInt(32) ; fam.iota(20) ; mm.setFamilyFieldArr(-1,fam)
         #
         fieldName="zeField"
         fs=MEDFileFieldMultiTS()
@@ -182,6 +184,9 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a3.isEqual(DataArrayInt([2,0,1,2,1,2,2,2,0,2,3,4,2,4,5,2,5,3,2,6,7,2,7,8,2,8,6,2,9,10,2,10,11,2,11,9,2,12,13,2,13,14,2,14,15,2,15,12,2,16,17,2,17,18,2,18,19,2,19,16,2,20,21,2,21,22,2,22,23,2,23,20,2,24,25,2,25,26,2,26,27,2,27,24,2,28,29,2,29,30,2,30,31,2,31,28,3,0,1,2,3,3,4,5,3,6,7,8,3,9,10,11,4,12,13,14,15,4,16,17,18,19,4,20,21,22,23,4,24,25,26,27,4,28,29,30,31])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,0,1,2,3,4,5,6,7,8])))
+        self.assertTrue(not a7)
         for i in xrange(5):
             fsst=MEDFileField1TSStructItem.BuildItemFrom(fields[0][i],mst)
             fields[0][i].loadArraysIfNecessary()

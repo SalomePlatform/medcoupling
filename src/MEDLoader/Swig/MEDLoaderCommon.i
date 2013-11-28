@@ -105,6 +105,8 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevelM2Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevelM3Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh;
+%newobject ParaMEDMEM::MEDFileUMesh::extractFamilyFieldOnGeoType;
+%newobject ParaMEDMEM::MEDFileUMesh::extractNumberFieldOnGeoType;
 %newobject ParaMEDMEM::MEDFileUMesh::zipCoords;
 %newobject ParaMEDMEM::MEDFileCMesh::New;
 %newobject ParaMEDMEM::MEDFileCurveLinearMesh::New;
@@ -734,6 +736,8 @@ namespace ParaMEDMEM
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
+    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     %extend
        { 
          MEDFileUMesh(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
@@ -2835,6 +2839,35 @@ namespace ParaMEDMEM
     DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const throw(INTERP_KERNEL::Exception);
   protected:
     ~MEDMeshMultiLev();
+  public:
+    %extend
+    {
+      PyObject *retrieveFamilyIdsOnCells() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *famIds(0);
+        bool isWithoutCopy(false);
+        self->retrieveFamilyIdsOnCells(famIds,isWithoutCopy);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
+        Py_XINCREF(ret1Py);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(famIds),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
+
+      PyObject *retrieveNumberIdsOnCells() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *numIds(0);
+        bool isWithoutCopy(false);
+        self->retrieveNumberIdsOnCells(numIds,isWithoutCopy);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
+        Py_XINCREF(ret1Py);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(numIds),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
+    }
   };
 
   class MEDUMeshMultiLev : public MEDMeshMultiLev

@@ -80,6 +80,8 @@ namespace ParaMEDMEM
     void setNodeReduction(const DataArrayInt *nr);
     bool isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
+    MEDLOADER_EXPORT void retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const;
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) = 0;
     virtual MEDMeshMultiLev *prepare() const = 0;
     int getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const;
@@ -97,6 +99,11 @@ namespace ParaMEDMEM
     std::vector<int> _nb_entities;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_reduction;
     int _nb_nodes;
+    //
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_fam_ids;
+    bool _cell_fam_ids_nocpy;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_num_ids;
+    bool _cell_num_ids_nocpy;
   public:
     static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];

@@ -2966,6 +2966,36 @@ MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_
   return sp->getDirectUndergroundSingleGeoTypeMesh(gt);
 }
 
+/*!
+ * This method extracts from whole family field ids the part relative to the input parameter \a gt.
+ * \param [in] gt - the geometric type for which the family field is asked.
+ * \return DataArrayInt * - a pointer to DataArrayInt that the caller is to
+ *          delete using decrRef() as it is no more needed.
+ * \sa MEDFileUMesh::extractNumberFieldOnGeoType
+ */
+DataArrayInt *MEDFileUMesh::extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  int lev=(int)cm.getDimension()-getMeshDimension();
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
+  return sp->extractFamilyFieldOnGeoType(gt);
+}
+
+/*!
+ * This method extracts from whole number field ids the part relative to the input parameter \a gt.
+ * \param [in] gt - the geometric type for which the number field is asked.
+ * \return DataArrayInt * - a pointer to DataArrayInt that the caller is to
+ *          delete using decrRef() as it is no more needed.
+ * \sa MEDFileUMesh::extractFamilyFieldOnGeoType
+ */
+DataArrayInt *MEDFileUMesh::extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  int lev=(int)cm.getDimension()-getMeshDimension();
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
+  return sp->extractNumberFieldOnGeoType(gt);
+}
+
 const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt) const
 {
   if(meshDimRelToMaxExt==1)

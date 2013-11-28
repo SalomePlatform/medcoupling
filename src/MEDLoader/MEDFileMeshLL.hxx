@@ -147,6 +147,7 @@ namespace ParaMEDMEM
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
     std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const;
     MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
+    void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
@@ -198,6 +199,8 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.getPartsWithoutComputation(); }
     MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.getPartWithoutComputation(gt); }
+    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     std::vector<int> getDistributionOfTypes() const { return _m_by_types.getDistributionOfTypes(); }
     DataArrayInt *getOrCreateAndGetFamilyField();
     const DataArrayInt *getFamilyField() const;
