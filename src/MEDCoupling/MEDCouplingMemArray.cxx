@@ -4595,6 +4595,8 @@ DataArrayDouble *DataArrayDouble::Aggregate(const DataArrayDouble *a1, const Dat
  * the number of component in the result array is same as that of each of given arrays.
  * Info on components is copied from the first of the given arrays. Number of components
  * in the given arrays must be  the same.
+ * If the number of non null of elements in \a arr is equal to one the returned object is a copy of it
+ * not the object itself.
  *  \param [in] arr - a sequence of arrays to include in the result array.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -8800,6 +8802,8 @@ DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt
  * the number of component in the result array is same as that of each of given arrays.
  * Info on components is copied from the first of the given arrays. Number of components
  * in the given arrays must be  the same.
+ * If the number of non null of elements in \a arr is equal to one the returned object is a copy of it
+ * not the object itself.
  *  \param [in] arr - a sequence of arrays to include in the result array.
  *  \return DataArrayInt * - the new instance of DataArrayInt.
  *          The caller is to delete this result array using decrRef() as it is no more
