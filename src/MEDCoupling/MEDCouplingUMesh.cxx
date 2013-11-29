@@ -2910,7 +2910,7 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
  *         describing the cell types. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
- *  \sa getAllTypes()
+ *  \sa getAllGeoTypes()
  */
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getTypesOfPart(const int *begin, const int *end) const
 {
@@ -6281,7 +6281,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
   const int *connI=_nodal_connec_index->getConstPointer();
   const int *work=connI;
   int nbOfCells=getNumberOfCells();
-  std::size_t n=getAllTypes().size();
+  std::size_t n=getAllGeoTypes().size();
   std::vector<int> ret(3*n,-1); //ret[3*k+2]==-1 because it has no sense here
   std::set<INTERP_KERNEL::NormalizedCellType> types;
   for(std::size_t i=0;work!=connI+nbOfCells;i++)
@@ -6952,7 +6952,7 @@ DataArrayInt *MEDCouplingUMesh::convertCellArrayPerGeoType(const DataArrayInt *d
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   int nbOfCells=getNumberOfCells();
-  std::set<INTERP_KERNEL::NormalizedCellType> types=getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> types(getAllGeoTypes());
   int *tmp=new int[nbOfCells];
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=types.begin();iter!=types.end();iter++)
     {

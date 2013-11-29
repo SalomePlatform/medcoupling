@@ -123,7 +123,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(myCoords.getIJ(3,2)==-0.305)
         mesh.setCoords(myCoords);
         mesh.checkCoherency();
-        self.assertTrue(mesh.getAllTypes()==[4])
+        self.assertTrue(mesh.getAllGeoTypes()==[4])
         myFalseConn=DataArrayInt.New()
         myFalseConn.setValues(tab4,6,4)
         self.assertTrue(myFalseConn.getIJ(1,1)==3)
@@ -385,11 +385,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         subMesh=mesh.buildPartOfMySelf(tab1,True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         name=subMesh.getName();
-        self.assertEqual(2,len(mesh.getAllTypes()));
-        self.assertEqual(NORM_TRI3,mesh.getAllTypes()[0]);
-        self.assertEqual(NORM_QUAD4,mesh.getAllTypes()[1]);
-        self.assertEqual(1,len(subMesh.getAllTypes()));
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[0]);
+        self.assertEqual(2,len(mesh.getAllGeoTypes()));
+        self.assertEqual(NORM_TRI3,mesh.getAllGeoTypes()[0]);
+        self.assertEqual(NORM_QUAD4,mesh.getAllGeoTypes()[1]);
+        self.assertEqual(1,len(subMesh.getAllGeoTypes()));
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[0]);
         self.assertEqual(name,"Toto");
         self.assertEqual(2,subMesh.getNumberOfCells());
         subConn=[4,0,3,4,1,4,7,8,5,4];
@@ -402,9 +402,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         subMesh=mesh.buildPartOfMySelf(tab2[0:3],True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh));
         name=subMesh.getName();
-        self.assertEqual(2,len(subMesh.getAllTypes()));
-        self.assertEqual(NORM_TRI3,subMesh.getAllTypes()[0]);
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[1]);
+        self.assertEqual(2,len(subMesh.getAllGeoTypes()));
+        self.assertEqual(NORM_TRI3,subMesh.getAllGeoTypes()[0]);
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[1]);
         self.assertEqual(name,"Toto");
         self.assertEqual(3,subMesh.getNumberOfCells());
         subConn2=[4,0,3,4,1,3,4,5,2,4,6,7,4,3]
@@ -426,8 +426,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tab1=[5,7,8,4]
         subMesh=mesh.buildPartOfMySelfNode(tab1[0:4],True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
-        self.assertEqual(1,len(subMesh.getAllTypes()));
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[0]);
+        self.assertEqual(1,len(subMesh.getAllGeoTypes()));
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[0]);
         self.assertEqual(1,subMesh.getNumberOfCells());
         self.assertEqual(5,subMesh.getNodalConnectivity().getNbOfElems());
         self.assertEqual(2,subMesh.getNodalConnectivityIndex().getNbOfElems());
@@ -442,9 +442,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         subMesh=mesh.buildPartOfMySelfNode(ddd,False);
         self.assertEqual("ddd",subMesh.getName())
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
-        self.assertEqual(2,len(subMesh.getAllTypes()));
-        self.assertEqual(NORM_TRI3,subMesh.getAllTypes()[0]);
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[1]);
+        self.assertEqual(2,len(subMesh.getAllGeoTypes()));
+        self.assertEqual(NORM_TRI3,subMesh.getAllGeoTypes()[0]);
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[1]);
         self.assertEqual(3,subMesh.getNumberOfCells());
         self.assertEqual(14,subMesh.getNodalConnectivity().getNbOfElems());
         self.assertEqual(4,subMesh.getNodalConnectivityIndex().getNbOfElems());
@@ -456,15 +456,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tab2=[0,3,2,1,4,5,6]
         subMesh=mesh.buildPartOfMySelfNode(tab2[0:7],True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
-        self.assertEqual(2,len(subMesh.getAllTypes()));
-        self.assertEqual(NORM_TRI3,subMesh.getAllTypes()[0]);
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[1]);
+        self.assertEqual(2,len(subMesh.getAllGeoTypes()));
+        self.assertEqual(NORM_TRI3,subMesh.getAllGeoTypes()[0]);
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[1]);
         self.assertEqual(3,subMesh.getNumberOfCells());
         pass
     
     def testZipCoords(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
-        self.assertEqual(2,len(mesh.getAllTypes()));
+        self.assertEqual(2,len(mesh.getAllGeoTypes()));
         self.assertEqual(2,mesh.getSpaceDimension());
         self.assertEqual(9,mesh.getNumberOfNodes());
         self.assertEqual(5,mesh.getNumberOfCells());
@@ -472,7 +472,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         oldConnIndex=mesh.getNodalConnectivityIndex().getValues()[0:mesh.getNumberOfCells()+1]
         oldCoords=mesh.getCoords();
         mesh.zipCoords();
-        self.assertEqual(2,len(mesh.getAllTypes()));
+        self.assertEqual(2,len(mesh.getAllGeoTypes()));
         self.assertEqual(2,mesh.getSpaceDimension());
         self.assertEqual(9,mesh.getNumberOfNodes());
         self.assertEqual(5,mesh.getNumberOfCells());
@@ -486,7 +486,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         traducer=subMesh.zipCoordsTraducer();
         expectedTraducer=[0, 1, -1, 2, 3, 4, -1, 5, 6]
         self.assertEqual(expectedTraducer,list(traducer.getValues()));
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[0]);
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[0]);
         self.assertEqual(2,subMesh.getNumberOfCells());
         subConn=[4,0,2,3,1,4,5,6,4,3]
         subConnIndex=[0,5,10]
@@ -498,7 +498,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         subMesh=mesh.buildPartOfMySelf(tab1,False);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
-        self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[0]);
+        self.assertEqual(NORM_QUAD4,subMesh.getAllGeoTypes()[0]);
         self.assertEqual(2,subMesh.getNumberOfCells());
         self.assertEqual(7,subMesh.getNumberOfNodes());
         self.assertEqual(10,subMesh.getNodalConnectivity().getNbOfElems());
@@ -2619,7 +2619,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testConvertQuadraticCellsToLinear(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_3();
         mesh.checkCoherency();
-        types=mesh.getAllTypes();
+        types=mesh.getAllGeoTypes();
         types.sort()
         self.assertEqual(5,len(types));
         expected1=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4, NORM_TRI6, NORM_QUAD8]
@@ -2636,7 +2636,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f2=mesh.getMeasureField(False);
         self.assertTrue(f1.getArray().isEqual(f2.getArray(),1e-12));
         self.assertEqual(48,mesh.getMeshLength());
-        types2=mesh.getAllTypes();
+        types2=mesh.getAllGeoTypes();
         types2.sort()
         self.assertEqual(3,len(types2));
         expected2=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4]
@@ -5195,7 +5195,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(7):
             self.assertAlmostEqual(expected1[i]*sqrt(2.),f.getIJ(i,0),10);
             pass
-        types=m.getAllTypes();
+        types=m.getAllGeoTypes();
         self.assertEqual([NORM_TRI3,NORM_POLYGON],types);
         #
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
@@ -5207,7 +5207,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected2[i],da.getIJ(i,0));
             pass
         m.checkCoherency();
-        types=m.getAllTypes();
+        types=m.getAllGeoTypes();
         self.assertEqual([NORM_TRI3,NORM_POLYGON],types);
         self.assertEqual(7,m.getNumberOfCells());
         self.assertEqual(NORM_TRI3,m.getTypeOfCell(0));
@@ -6630,7 +6630,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,m.getNumberOfCells());
         self.assertEqual(3,m.getSpaceDimension());
         self.assertEqual(0,m.getMeshDimension());
-        types1=m.getAllTypes();
+        types1=m.getAllGeoTypes();
         self.assertEqual([NORM_POINT1],types1);
         for i in xrange(4):
             conn=m.getNodeIdsOfCell(i);
@@ -10150,14 +10150,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testUMeshSetPartOfMySelf2(self):
         # resize with explicit ids list
         m=MEDCouplingDataForTest.build2DTargetMesh_1()
-        self.assertEqual([3,4],m.getAllTypes())
+        self.assertEqual([3,4],m.getAllGeoTypes())
         part=m[[0,3,4]]
         part.simplexize(0)
         part2=part[[1,2,5]]
         m[[0,3,4]]=part2
         self.assertEqual([3,0,4,1,3,1,4,2,3,4,5,2,3,6,7,4,3,7,5,4],m.getNodalConnectivity().getValues())
         self.assertEqual([0,4,8,12,16,20],m.getNodalConnectivityIndex().getValues())
-        self.assertEqual([3],m.getAllTypes())
+        self.assertEqual([3],m.getAllGeoTypes())
         # no resize with explicit ids list
         m=MEDCouplingDataForTest.build2DTargetMesh_1()
         part=m[[0,3]]
@@ -10165,14 +10165,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m[[3,4]]=part
         self.assertEqual([4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3],m.getNodalConnectivity().getValues())
         self.assertEqual([0,5,9,13,18,23],m.getNodalConnectivityIndex().getValues())
-        self.assertEqual([3,4,5],m.getAllTypes())
+        self.assertEqual([3,4,5],m.getAllGeoTypes())
         # resize with range ids
         m=MEDCouplingDataForTest.build2DTargetMesh_1()
         part=m[3:]
         m[1:3]=part
         self.assertEqual([4,0,3,4,1,4,6,7,4,3,4,7,8,5,4,4,6,7,4,3,4,7,8,5,4],m.getNodalConnectivity().getValues())
         self.assertEqual([0,5,10,15,20,25],m.getNodalConnectivityIndex().getValues())
-        self.assertEqual([4],m.getAllTypes())
+        self.assertEqual([4],m.getAllGeoTypes())
         # no resize with range ids
         m=MEDCouplingDataForTest.build2DTargetMesh_1()
         part=m[0::3]
@@ -10180,7 +10180,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m[3:]=part
         self.assertEqual([4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3],m.getNodalConnectivity().getValues())
         self.assertEqual([0,5,9,13,18,23],m.getNodalConnectivityIndex().getValues())
-        self.assertEqual([3,4,5],m.getAllTypes())
+        self.assertEqual([3,4,5],m.getAllGeoTypes())
         # no resize with range ids negative direction
         m=MEDCouplingDataForTest.build2DTargetMesh_1()
         part=m[3::-3]
@@ -10188,7 +10188,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m[:-3:-1]=part
         self.assertEqual([4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3],m.getNodalConnectivity().getValues())
         self.assertEqual([0,5,9,13,18,23],m.getNodalConnectivityIndex().getValues())
-        self.assertEqual([3,4,5],m.getAllTypes())
+        self.assertEqual([3,4,5],m.getAllGeoTypes())
         pass
 
     def testUnPolyze3(self):
@@ -10208,7 +10208,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         m.unPolyze();
         #
-        self.assertEqual([NORM_PENTA6],m.getAllTypes())
+        self.assertEqual([NORM_PENTA6],m.getAllGeoTypes())
         self.assertTrue(DataArrayInt([0,7]).isEqual(m.getNodalConnectivityIndex()))
         self.assertTrue(DataArrayInt([16,0,2,1,3,5,4]).isEqual(m.getNodalConnectivity()))
         #
@@ -11884,7 +11884,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m.getNodalConnectivity().setIJ(87,0,21)# put again 21 as at the beginning
         #
         self.assertTrue(m.unPolyze())
-        self.assertEqual([NORM_HEXGP12],m.getAllTypes())
+        self.assertEqual([NORM_HEXGP12],m.getAllGeoTypes())
         self.assertTrue(m.computeIsoBarycenterOfNodesPerCell().isEqual(dReference,1e-12))
         m.getNodalConnectivity().setIJ(25,0,24)
         self.assertRaises(InterpKernelException,m.computeIsoBarycenterOfNodesPerCell)
@@ -13334,7 +13334,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(isinstance(mcpy0,MEDCouplingUMesh))
         self.assertTrue(mcpy0.getNodalConnectivity().isEqual(DataArrayInt([31,3,2,8,9,31,1,0,6,7,-1,7,6,1,31,2,1,7,8,-1,2,1,-1,8,-1,7,31,5,4,10,11,-1,11,10,-1,5,31,4,3,9,10,-1,5,3,9])))
         self.assertTrue(mcpy0.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,14,26,36,45])))
-        self.assertEqual(mcpy0.getAllTypes(),[NORM_POLYHED])
+        self.assertEqual(mcpy0.getAllGeoTypes(),[NORM_POLYHED])
         mcpy0.checkCoherency()
         mcpy0.checkCoherency2()
         mcpy1=mcpy0.convertIntoSingleGeoTypeMesh()

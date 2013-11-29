@@ -43,7 +43,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,mesh->getTypeOfCell(12));
@@ -67,7 +67,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,mesh->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL((std::size_t)11,mesh->getNodalConnectivity()->getNbOfElems());
@@ -90,7 +90,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(7,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<6;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,mesh->getTypeOfCell(6));
@@ -129,7 +129,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(12));
@@ -158,7 +158,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(12));
@@ -212,7 +212,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(12));
@@ -240,7 +240,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(3,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,constMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(3,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,constMesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(12));
@@ -266,7 +266,7 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(538,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(579,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<514;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(i));
   for(int i=514;i<538;i++)
@@ -300,7 +300,7 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT_EQUAL(2,constMesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(538,constMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(579,constMesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(2,(int)constMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)constMesh->getAllGeoTypes().size());
   for(int i=0;i<514;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,constMesh->getTypeOfCell(i));
   for(int i=514;i<538;i++)
@@ -329,7 +329,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_TETRA4,mesh->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(NORM_POLYHED,mesh->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL(NORM_POLYHED,mesh->getTypeOfCell(2));
@@ -345,7 +345,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(17,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(3,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(NORM_POLYGON,mesh->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(2));
@@ -382,7 +382,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(1,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(1,(int)mesh->getAllGeoTypes().size());
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_POLYGON,mesh->getTypeOfCell(i));
   CPPUNIT_ASSERT_EQUAL((std::size_t)19,mesh->getNodalConnectivity()->getNbOfElems());
@@ -394,6 +394,6 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(0,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getAllGeoTypes().size());
   mesh->decrRef();
 }

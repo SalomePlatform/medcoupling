@@ -1723,15 +1723,6 @@ namespace ParaMEDMEM
           ret->incrRef();
         return ret;
       }
-      PyObject *getAllTypes() const throw(INTERP_KERNEL::Exception)
-      {
-        std::set<INTERP_KERNEL::NormalizedCellType> result=self->getAllTypes();
-        std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
-        PyObject *res = PyList_New(result.size());
-        for (int i=0;iL!=result.end(); i++, iL++)
-          PyList_SetItem(res,i,PyInt_FromLong(*iL));
-        return res;
-      }
       
       static PyObject *ComputeSpreadZoneGraduallyFromSeed(PyObject *seed, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn, int nbOfDepthPeeling=-1) throw(INTERP_KERNEL::Exception)
       {
