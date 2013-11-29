@@ -754,6 +754,16 @@ namespace ParaMEDMEM
          {
            return MEDFileUMesh::New();
          }
+
+         PyObject *getGeoTypesAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getGeoTypesAtLevel(meshDimRelToMax));
+           std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+           PyObject *res=PyList_New(result.size());
+           for(int i=0;iL!=result.end(); i++, iL++)
+             PyList_SetItem(res,i,PyInt_FromLong(*iL));
+           return res;
+         }
          
          PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
          {
@@ -2880,14 +2890,17 @@ namespace ParaMEDMEM
        PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
        {
          DataArrayDouble *coords(0); DataArrayByte *types(0); DataArrayInt *cellLocations(0),*cells(0),*faceLocations(0),*faces(0);
-         self->buildVTUArrays(coords,types,cellLocations,cells,faceLocations,faces);
-         PyObject *ret=PyTuple_New(6);
-         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(coords),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(types),SWIGTYPE_p_ParaMEDMEM__DataArrayByte, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(cellLocations),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(cells),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(faceLocations),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-         PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(faces),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         bool ncc(self->buildVTUArrays(coords,types,cellLocations,cells,faceLocations,faces));
+         PyObject *ret0Py=ncc?Py_True:Py_False;
+         Py_XINCREF(ret0Py);
+         PyObject *ret=PyTuple_New(7);
+         PyTuple_SetItem(ret,0,ret0Py);
+         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(coords),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(types),SWIGTYPE_p_ParaMEDMEM__DataArrayByte, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(cellLocations),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(cells),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(faceLocations),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+         PyTuple_SetItem(ret,6,SWIG_NewPointerObj(SWIG_as_voidptr(faces),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
          return ret;
        }
      }

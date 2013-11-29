@@ -173,6 +173,9 @@ class MEDLoaderTest(unittest.TestCase):
         #
         mm=MEDFileMesh.New(outFileName)
         #
+        self.assertEqual([NORM_TRI3,NORM_QUAD4,NORM_POLYGON],mm.getGeoTypesAtLevel(0))
+        self.assertEqual([NORM_SEG2,NORM_SEG3],mm.getGeoTypesAtLevel(-1))
+        self.assertEqual([NORM_POINT1],mm.getGeoTypesAtLevel(-2))
         mm0=mm.getDirectUndergroundSingleGeoTypeMesh(NORM_POLYGON)
         self.assertTrue(isinstance(mm0,MEDCoupling1DGTUMesh))
         self.assertTrue(mm0.getNodalConnectivity().isEqual(DataArrayInt([6,7,4,3,7,8,5,4])))

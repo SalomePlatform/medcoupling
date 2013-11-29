@@ -51,7 +51,9 @@ class MEDLoaderTest4(unittest.TestCase):
         m1=m.buildDescendingConnectivity()[0]
         mm=MEDFileUMesh() ; mm.setMeshes([m,m1])
         fam=DataArrayInt(9) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam)
-        fam=DataArrayInt(32) ; fam.iota(20) ; mm.setFamilyFieldArr(-1,fam)
+        fam=DataArrayInt(32) ; fam.iota(20) ; mm.setFamilyFieldArr(-1,fam) ; del fam
+        num=DataArrayInt(9) ; num.iota(100) ; mm.setRenumFieldArr(0,num)
+        num=DataArrayInt(32) ; num.iota(120) ; mm.setRenumFieldArr(-1,num) ; del num
         #
         fieldName="zeField"
         fs=MEDFileFieldMultiTS()
@@ -177,7 +179,8 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,67,70,73,76,80,84,88,92,96])))
@@ -187,6 +190,9 @@ class MEDLoaderTest4(unittest.TestCase):
         a6,a7=mml2.retrieveFamilyIdsOnCells()
         self.assertTrue(a6.isEqual(DataArrayInt([20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,0,1,2,3,4,5,6,7,8])))
         self.assertTrue(not a7)
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,100,101,102,103,104,105,106,107,108])))
+        self.assertTrue(not a9)
         for i in xrange(5):
             fsst=MEDFileField1TSStructItem.BuildItemFrom(fields[0][i],mst)
             fields[0][i].loadArraysIfNecessary()
@@ -385,7 +391,8 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,67,70,73,76,80,84,88,92,96])))
@@ -543,7 +550,8 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,3):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,67,70,73,76,80,84,88,92,96])))
@@ -572,7 +580,8 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,2):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,16,20,24,28,32])))
@@ -793,7 +802,8 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,16,20,24,28,32])))
@@ -850,6 +860,8 @@ class MEDLoaderTest4(unittest.TestCase):
         m.insertNextCell(NORM_QUAD4,[0,5,6,1]) ; m.insertNextCell(NORM_QUAD4,[1,6,7,2]) ; m.insertNextCell(NORM_QUAD4,[5,10,11,6]) ; m.insertNextCell(NORM_QUAD4,[6,11,12,7])
         m.insertNextCell(NORM_QUAD4,[12,13,8,7])
         mm=MEDFileUMesh() ; mm.setMeshes([m])
+        fam=DataArrayInt(11) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam) ; del fam
+        num=DataArrayInt(11) ; num.iota(100) ; mm.setRenumFieldArr(0,num) ; del num
         #
         fieldName1="zeField1" ; pfl1=DataArrayInt([0,1,2,3,4,5]) ; pfl1.setName("pfl1") # on cells
         fieldName2="zeField2" ; pfl2=DataArrayInt([2,3,4,7,8,9,13,14]) ; pfl2.setName("pfl2") # on nodes
@@ -916,13 +928,20 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp[pfl2].changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,5,5])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,15,18])))
         self.assertTrue(a3.isEqual(DataArrayInt([3,0,3,1,3,3,4,1,3,1,4,2,3,4,5,2,3,6,5,4,3,6,7,5])))
         assert a4 is None
         assert a5 is None
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([0,1,2,3,4,5])))
+        self.assertTrue(not a7)
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105])))
+        self.assertTrue(not a9)
         for i in xrange(5):
             nbOfT=[6,8]
             fieldNames=[fieldName1,fieldName2]
@@ -946,13 +965,20 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,5):
             self.assertTrue(fcscp.isDataSetSupportEqualToThePreviousOne(i,fields))
             pass
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,5,5,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,15,18,22,26])))
         self.assertTrue(a3.isEqual(DataArrayInt([3,2,7,3,3,7,8,3,3,3,8,4,3,8,9,4,3,13,9,8,3,13,14,9,4,6,11,12,7,4,12,13,8,7])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([0,1,2,3,4,5,9,10])))
+        self.assertTrue(not a7)
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105,109,110])))
+        self.assertTrue(not a9)
         for i in xrange(5):
             f=allFMTSLeavesPerCommonSupport[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
@@ -974,6 +1000,8 @@ class MEDLoaderTest4(unittest.TestCase):
         coordsY=DataArrayDouble([0,1.7,3.4]) ; coordsY.setInfoOnComponents(["YYY [km]"])
         m.setCoords(coordsX,coordsY)
         mm=MEDFileCMesh() ; mm.setMesh(m)
+        fam=DataArrayInt(8) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam) ; del fam
+        num=DataArrayInt(8) ; num.iota(100) ; mm.setRenumFieldArr(0,num) ; del num
         #
         fieldName0="zeField0" ; # on cells
         fieldName1="zeField1" ; pfl1=DataArrayInt([2,3,6,7]) ; pfl1.setName("pfl1") # on cells
@@ -1064,6 +1092,12 @@ class MEDLoaderTest4(unittest.TestCase):
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([0,1,2,3,4,5,6,7])))
+        self.assertTrue(a7) # True because no copy
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105,106,107])))
+        self.assertTrue(a9) # True because no copy
         for i in xrange(5):
             f=allFMTSLeavesPerCommonSupport[0][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
@@ -1091,6 +1125,12 @@ class MEDLoaderTest4(unittest.TestCase):
         a,b=mml2.buildVTUArrays()
         self.assertTrue(a.isEqual(coordsX[[2,3,4]],1e-12))
         self.assertTrue(b.isEqual(coordsY,1e-12))
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([2,3,6,7])))
+        self.assertTrue(not a7) # False because copy
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([102,103,106,107])))
+        self.assertTrue(not a9) # False because copy
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
@@ -1118,7 +1158,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev)) # here the 3rd support is a part of CMesh but impossible to simplify more than a UMesh
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         a0Exp=DataArrayDouble([0.,0.,1.1,0.,2.2,0.,3.3,0.,4.4,0.,0.,1.7,1.1,1.7,2.2,1.7,3.3,1.7,4.4,1.7,0.,3.4,1.1,3.4,2.2,3.4,3.3,3.4,4.4,3.4],15,2)
         a0Exp.setInfoOnComponents(["XX [m]","YYY [km]"])
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
@@ -1127,6 +1168,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a3.isEqual(DataArrayInt([4,3,2,7,8,4,4,3,8,9,4,7,6,11,12,4,9,8,13,14])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([2,3,5,7])))
+        self.assertTrue(not a7) # False because copy
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([102,103,105,107])))
+        self.assertTrue(not a9) # False because copy
         for i in xrange(5):
             f=allFMTSLeavesPerCommonSupport[2][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
@@ -1149,6 +1196,8 @@ class MEDLoaderTest4(unittest.TestCase):
         a0Exp.setInfoOnComponents(["XX [m]","YYY [km]"])
         m.setCoords(a0Exp)
         mm=MEDFileCurveLinearMesh() ; mm.setMesh(m)
+        fam=DataArrayInt(8) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam) ; del fam
+        num=DataArrayInt(8) ; num.iota(100) ; mm.setRenumFieldArr(0,num) ; del num
         #
         fieldName0="zeField0" ; # on cells
         fieldName1="zeField1" ; pfl1=DataArrayInt([2,3,6,7]) ; pfl1.setName("pfl1") # on cells
@@ -1236,6 +1285,12 @@ class MEDLoaderTest4(unittest.TestCase):
         a,b=mml2.buildVTUArrays()
         self.assertTrue(a.isEqual(a0Exp,1e-12))
         self.assertEqual(b,[5,3])
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([0,1,2,3,4,5,6,7])))
+        self.assertTrue(a7) # True because no copy
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105,106,107])))
+        self.assertTrue(a9) # True because no copy
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
@@ -1266,6 +1321,12 @@ class MEDLoaderTest4(unittest.TestCase):
         a,b=mml2.buildVTUArrays()
         self.assertTrue(a.isEqual(a0Exp[pfl2],1e-12))
         self.assertEqual(b,[3,3])
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([2,3,6,7])))
+        self.assertTrue(not a7) # False because copy
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([102,103,106,107])))
+        self.assertTrue(not a9) # False because copy
         for i in xrange(1,5):
             self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
             pass
@@ -1293,7 +1354,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev)) # here the 3rd support is a part of CMesh but impossible to simplify more than a UMesh
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         a0Exp=DataArrayDouble([0.,0.,1.1,0.,2.2,0.,3.3,0.,4.4,0.,0.,1.7,1.1,1.7,2.2,1.7,3.3,1.7,4.4,1.7,0.,3.4,1.1,3.4,2.2,3.4,3.3,3.4,4.4,3.4],15,2)
         a0Exp.setInfoOnComponents(["XX [m]","YYY [km]"])
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
@@ -1302,6 +1364,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a3.isEqual(DataArrayInt([4,3,2,7,8,4,4,3,8,9,4,7,6,11,12,4,9,8,13,14])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([2,3,5,7])))
+        self.assertTrue(not a7) # False because copy
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([102,103,105,107])))
+        self.assertTrue(not a9) # False because copy
         for i in xrange(5):
             f=allFMTSLeavesPerCommonSupport[2][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
@@ -1404,7 +1472,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,5,5,5,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,9,12,15,18,22,26,30,34,38])))
@@ -1546,7 +1615,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp[pfl2].changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,10,14,18])))
@@ -1673,7 +1743,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp[pfl1].changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([5,5,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([3,6,10,14,18])))
@@ -1770,7 +1841,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64])))
@@ -1859,7 +1931,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-        a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(a0Exp.changeNbOfComponents(3,0.),1e-12))
         self.assertTrue(a1.isEqual(DataArrayByte([9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9])))
         self.assertTrue(a2.isEqual(DataArrayInt([4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64])))
@@ -1972,7 +2045,8 @@ class MEDLoaderTest4(unittest.TestCase):
             mml=fcscp.buildFromScratchDataSetSupport(0,fields)
             mml2=mml.prepare()
             self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-            a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            self.assertTrue(ncc)
             self.assertTrue(a0.isEqual(a0Exp,1e-12))
             self.assertTrue(a1.isEqual(DataArrayByte([12,12,42,42,42])))
             self.assertTrue(a2.isEqual(DataArrayInt([8,16,24,32,40])))
@@ -2007,7 +2081,8 @@ class MEDLoaderTest4(unittest.TestCase):
             mml=fcscp.buildFromScratchDataSetSupport(0,fields)
             mml2=mml.prepare()
             self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-            a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            self.assertTrue(ncc)
             self.assertTrue(a0.isEqual(a0Exp,1e-12))
             self.assertTrue(a1.isEqual(DataArrayByte([42,42])))
             self.assertTrue(a2.isEqual(DataArrayInt([8,16])))
@@ -2033,7 +2108,8 @@ class MEDLoaderTest4(unittest.TestCase):
             mml=fcscp.buildFromScratchDataSetSupport(0,fields)
             mml2=mml.prepare()
             self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-            a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            self.assertTrue(ncc)
             self.assertTrue(a0.isEqual(a0Exp,1e-12))
             self.assertTrue(a1.isEqual(DataArrayByte([42,42,42])))
             self.assertTrue(a2.isEqual(DataArrayInt([8,16,24])))
@@ -2118,7 +2194,8 @@ class MEDLoaderTest4(unittest.TestCase):
             mml=fcscp.buildFromScratchDataSetSupport(0,fields)
             mml2=mml.prepare()
             self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
-            a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+            self.assertTrue(ncc)
             self.assertTrue(a0.isEqual(a0Exp,1e-12))
             self.assertTrue(a1.isEqual(DataArrayByte([42,42,42])))
             self.assertTrue(a2.isEqual(DataArrayInt([8,16,24])))
@@ -2128,7 +2205,12 @@ class MEDLoaderTest4(unittest.TestCase):
             for i in xrange(1,5):
                 self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
                 pass
-            pass
+            a6,a7=mml2.retrieveFamilyIdsOnCells()
+            self.assertTrue(a6.isEqual(DataArrayInt([0,0,0])))
+            self.assertTrue(a7)
+            a8,a9=mml2.retrieveNumberIdsOnCells()
+            self.assertTrue(a8 is None)
+            self.assertTrue(a9)
             for i in xrange(5):
                 f=allFMTSLeavesPerCommonSupport[0][0][0][i]
                 fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
@@ -2159,7 +2241,7 @@ class MEDLoaderTest4(unittest.TestCase):
         """
         fname="ForMEDReader15.med"
         m0=MEDCouplingCMesh()
-        arr=DataArrayDouble(5) ; arr.iota(0)
+        arr=DataArrayDouble(3) ; arr.iota(0)
         m0.setCoords(arr,arr,arr)
         m0.setName("mesh")
         m0=m0.buildUnstructured()
@@ -2175,6 +2257,8 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m0)
+        fam=DataArrayInt(8) ; fam.iota(0) ; mm.setFamilyFieldArr(0,fam) ; del fam
+        num=DataArrayInt(8) ; num.iota(100) ; mm.setRenumFieldArr(0,num) ; del num
         #
         ffs=MEDFileFieldMultiTS()
         # TimeStep 0
@@ -2241,7 +2325,46 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.write(fname,2)
         ffs.write(fname,0)
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
-        
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),2)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1) # one time serie here : because the 2 fields are defined on the same time steps
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),2)
+        allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),2)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        #
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(ncc)
+        self.assertTrue(a0.isEqual(DataArrayDouble([0.,0.,0.,1.,0.,0.,2.,0.,0.,0.,1.,0.,1.,1.,0.,2.,1.,0.,0.,2.,0.,1.,2.,0.,2.,2.,0.,0.,0.,1.,1.,0.,1.,2.,0.,1.,0.,1.,1.,1.,1.,1.,2.,1.,1.,0.,2.,1.,1.,2.,1.,2.,2.,1.,0.,0.,2.,1.,0.,2.,2.,0.,2.,0.,1.,2.,1.,1.,2.,2.,1.,2.,0.,2.,2.,1.,2.,2.,2.,2.,2.0],27,3),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([12,12,12,12,12,12,12,12])))
+        self.assertTrue(a2.isEqual(DataArrayInt([8,16,24,32,40,48,56,64])))
+        self.assertTrue(a3.isEqual(DataArrayInt([8,1,0,3,4,10,9,12,13,8,2,1,4,5,11,10,13,14,8,4,3,6,7,13,12,15,16,8,5,4,7,8,14,13,16,17,8,10,9,12,13,19,18,21,22,8,11,10,13,14,20,19,22,23,8,13,12,15,16,22,21,24,25,8,14,13,16,17,23,22,25,26])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([0,1,2,3,4,5,6,7])))
+        self.assertTrue(a7) # no copy here
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([100,101,102,103,104,105,106,107])))
+        self.assertTrue(a9) # no copy here
         pass
 
     pass
