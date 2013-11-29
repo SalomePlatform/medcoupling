@@ -11046,9 +11046,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=MEDCouplingUMesh("toto",3)
         m.allocateCells(0)
         m.insertNextCell(NORM_TETRA4,[0,1,2,3])
+        self.assertEqual([NORM_TETRA4],m.getAllGeoTypesSorted())
         m.insertNextCell(NORM_HEXA8,[4,5,6,7,8,9,10,11])
+        self.assertEqual([NORM_TETRA4,NORM_HEXA8],m.getAllGeoTypesSorted())
         m.insertNextCell(NORM_HEXA8,[12,13,14,15,16,17,18,19])
+        self.assertEqual([NORM_TETRA4,NORM_HEXA8],m.getAllGeoTypesSorted())
         m.insertNextCell(NORM_TETRA4,[20,21,22,23])
+        self.assertEqual([NORM_TETRA4,NORM_HEXA8,NORM_TETRA4],m.getAllGeoTypesSorted())
         c1=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,0.,1.],4,3)
         c2=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,1.,0.,1.,0.,0., 0.,0.,1.,0.,1.,1.,1.,1.,1.,1.,0.,1.],8,3) ; c2+=[2.,0.,0.]
         c3=c2+[2.,0.,0.]

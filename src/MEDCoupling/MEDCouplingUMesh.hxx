@@ -62,6 +62,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellIterator *cellIterator();
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellByTypeEntry *cellsByType();
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
+    MEDCOUPLING_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypesSorted() const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true);
     MEDCOUPLING_EXPORT const DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }

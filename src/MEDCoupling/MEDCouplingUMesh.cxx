@@ -419,10 +419,37 @@ MEDCouplingUMeshCellByTypeEntry *MEDCouplingUMesh::cellsByType()
  * Returns a set of all cell types available in \a this mesh.
  * \return std::set<INTERP_KERNEL::NormalizedCellType> - the set of cell types.
  * \warning this method does not throw any exception even if \a this is not defined.
+ * \sa MEDCouplingUMesh::getAllGeoTypesSorted
  */
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() const
 {
   return _types;
+}
+
+/*!
+ * This method returns the sorted list of geometric types in \a this.
+ * Sorted means in the same order than the cells in \a this. A single entry in return vector means the maximal chunk of consecutive cells in \a this
+ * having the same geometric type. So a same geometric type can appear more than once if the cells are not sorted per geometric type.
+ *
+ * \throw if connectivity in \a this is not correctly defined.
+ *  
+ * \sa MEDCouplingMesh::getAllGeoTypes
+ */
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypesSorted() const
+{
+  std::vector<INTERP_KERNEL::NormalizedCellType> ret;
+  checkConnectivityFullyDefined();
+  int nbOfCells(getNumberOfCells());
+  if(nbOfCells==0)
+    return ret;
+  if(getMeshLength()<1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getAllGeoTypesSorted : the connectivity in this seems invalid !");
+  const int *c(_nodal_connec->begin()),*ci(_nodal_connec_index->begin());
+  ret.push_back((INTERP_KERNEL::NormalizedCellType)c[*ci++]);
+  for(int i=1;i<nbOfCells;i++,ci++)
+    if(ret.back()!=((INTERP_KERNEL::NormalizedCellType)c[*ci]))
+      ret.push_back((INTERP_KERNEL::NormalizedCellType)c[*ci]);
+  return ret;
 }
 
 /*!
