@@ -2967,6 +2967,16 @@ MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_
 }
 
 /*!
+ * Given a relative level \a meshDimRelToMax it returns the sorted vector of geometric types present in \a this.
+ * \throw if the reqsuested \a meshDimRelToMax does not exist.
+ */
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMesh::getGeoTypesAtLevel(int meshDimRelToMax) const
+{
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(meshDimRelToMax));
+  return sp->getGeoTypes();
+}
+
+/*!
  * This method extracts from whole family field ids the part relative to the input parameter \a gt.
  * \param [in] gt - the geometric type for which the family field is asked.
  * \return DataArrayInt * - a pointer to DataArrayInt that the caller is to

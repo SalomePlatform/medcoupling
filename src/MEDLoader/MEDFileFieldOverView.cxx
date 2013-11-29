@@ -596,15 +596,37 @@ MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector
 MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   std::size_t sz(gts.size());
+  if(sz<1)
+    throw INTERP_KERNEL::Exception("constructor of MEDUMeshMultiLev : number of different geo type must be >= 1 !");
+  unsigned dim(INTERP_KERNEL::CellModel::GetCellModel(gts[0]).getDimension());
   _parts.resize(sz);
+  bool isSameDim(true),isNoPfl(true);
   for(std::size_t i=0;i<sz;i++)
     {
       MEDCoupling1GTUMesh *elt(m->getDirectUndergroundSingleGeoTypeMesh(gts[i]));
+      if(INTERP_KERNEL::CellModel::GetCellModel(gts[i]).getDimension()!=dim)
+        isSameDim=false;
+      if(pfls[i])
+        isNoPfl=false;
       if(elt)
         elt->incrRef();
       _parts[i]=elt;
     }
   // ids fields management
+  int lev(m->getMeshDimension()-(int)dim);
+  if(isSameDim && isNoPfl && m->getGeoTypesAtLevel(lev)==gts)//optimized part
+    {
+      _cell_fam_ids_nocpy=true;
+      const DataArrayInt *famIds(m->getFamilyFieldAtLevel(lev));
+      if(famIds)
+        { _cell_fam_ids=const_cast<DataArrayInt*>(famIds); famIds->incrRef(); }
+      _cell_num_ids_nocpy=true;
+      const DataArrayInt *numIds(m->getNumberFieldAtLevel(lev));
+      if(numIds)
+        { _cell_num_ids=const_cast<DataArrayInt*>(numIds); numIds->incrRef(); }
+      return ;
+    }
+  //
   _cell_fam_ids_nocpy=false;
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > famIdsSafe(sz);
   std::vector<const DataArrayInt *> famIds(sz);

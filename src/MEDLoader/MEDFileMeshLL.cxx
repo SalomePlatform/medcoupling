@@ -777,6 +777,11 @@ DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const int *idsBg, const int 
   return da.retn();
 }
 
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshSplitL1::getGeoTypes() const
+{
+  return _m_by_types.getGeoTypes();
+}
+
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp;
@@ -1039,6 +1044,20 @@ MEDCouplingUMesh *MEDFileUMeshAggregateCompute::getUmesh() const
   _m_parts.clear();//to avoid memory peak !
   _m_time=_mp_time+1;//+1 is important ! That is to say that only _m is OK not _m_parts because cleared !
   return _m;
+}
+
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshAggregateCompute::getGeoTypes() const
+{
+  if(_mp_time>=_m_time)
+    {
+      std::size_t sz(_m_parts.size());
+      std::vector<INTERP_KERNEL::NormalizedCellType> ret(sz);
+      for(std::size_t i=0;i<sz;i++)
+        ret[i]=_m_parts[i]->getCellModelEnum();
+      return ret;
+    }
+  else
+    return _m->getAllGeoTypesSorted();
 }
 
 std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getPartsWithoutComputation() const
