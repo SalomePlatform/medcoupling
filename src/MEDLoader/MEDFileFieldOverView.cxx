@@ -602,6 +602,19 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
     }
   if(f)
     _cell_fam_ids=DataArrayInt::Aggregate(famIds);
+  _cell_num_ids_nocpy=false;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > numIdsSafe(sz);
+  std::vector<const DataArrayInt *> numIds(sz);
+  bool n(true);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      numIdsSafe[i]=m->extractNumberFieldOnGeoType(gts[i]);
+      numIds[i]=numIdsSafe[i];
+      if(!numIds[i])
+        n=false;
+    }
+  if(n)
+    _cell_num_ids=DataArrayInt::Aggregate(numIds);
 }
 
 void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
