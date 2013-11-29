@@ -292,6 +292,22 @@ void MEDMeshMultiLev::retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isW
   numIds=DataArrayInt::Aggregate(ret);
 }
 
+void MEDMeshMultiLev::setFamilyIdsOnCells(DataArrayInt *famIds, bool isNoCopy)
+{
+  _cell_fam_ids=famIds;
+  if(famIds)
+    famIds->incrRef();
+  _cell_fam_ids_nocpy=isNoCopy;
+}
+
+void MEDMeshMultiLev::setNumberIdsOnCells(DataArrayInt *numIds, bool isNoCopy)
+{
+  _cell_num_ids=numIds;
+  if(numIds)
+    numIds->incrRef();
+  _cell_num_ids_nocpy=isNoCopy;
+}
+
 std::string MEDMeshMultiLev::getPflNameOfId(int id) const
 {
   std::size_t sz(_pfls.size());
@@ -1029,6 +1045,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
   if(pfl)
     {
       std::vector< std::pair<int,int> > cellParts;
+      MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret2;
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
           MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
@@ -1040,7 +1057,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
           for(std::size_t i=0;i<_coords.size();i++)
             coords[i]=_coords[i]->selectByTupleId2(cellParts[i].first,cellParts[i].second+1,1);
           ret->_coords=coords;
-          return ret.retn();
+          ret2=(MEDCMeshMultiLev *)ret; ret2->incrRef();
         }
       else
         {
@@ -1052,8 +1069,21 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
           MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
           if(nr)
             { m3->zipCoords(); nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
-          return ret.retn();
+          ret2=(MEDUMeshMultiLev *)ret; ret2->incrRef();
         }
+      const DataArrayInt *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
+      if(famIds)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          ret2->setFamilyIdsOnCells(tmp,false);
+        }
+      if(numIds)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          ret2->setNumberIdsOnCells(tmp,false);
+        }
+      return ret2.retn();
+      
     }
   else
     {
@@ -1168,6 +1198,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
   if(pfl)
     {
       std::vector< std::pair<int,int> > cellParts,nodeParts;
+      MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret2;
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
           nodeParts=cellParts;
@@ -1185,7 +1216,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
           ret->_pfls[0]=0;
           ret->_coords=_coords->selectByTupleIdSafe(p->begin(),p->end());
           ret->_structure=st;
-          return ret.retn();
+          ret2=(MEDCurveLinearMeshMultiLev *)ret; ret2->incrRef();
         }
       else
         {
@@ -1196,8 +1227,20 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
           MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
           if(nr)
             { m3->zipCoords(); nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
-          return ret.retn();
+          ret2=(MEDUMeshMultiLev *)ret; ret2->incrRef();
         }
+      const DataArrayInt *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
+      if(famIds)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          ret2->setFamilyIdsOnCells(tmp,false);
+        }
+      if(numIds)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          ret2->setNumberIdsOnCells(tmp,false);
+        }
+      return ret2.retn();
     }
   else
     {

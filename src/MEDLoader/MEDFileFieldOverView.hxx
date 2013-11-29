@@ -82,6 +82,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
     MEDLOADER_EXPORT void retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const;
+    void setFamilyIdsOnCells(DataArrayInt *famIds, bool isNoCopy);
+    void setNumberIdsOnCells(DataArrayInt *numIds, bool isNoCopy);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) = 0;
     virtual MEDMeshMultiLev *prepare() const = 0;
     int getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const;
