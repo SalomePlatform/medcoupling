@@ -748,7 +748,7 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
   string name=_file_name;
   name.replace(name.find(".med"),4,"_WithVecFieldOnNodes.med");
   MEDCouplingUMesh * m=MEDLoader::ReadUMeshFromFile(name.c_str(),_mesh_name.c_str(),0);
-  const std::set<INTERP_KERNEL::NormalizedCellType>& types=m->getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> types(m->getAllGeoTypes());
   if (_verbose)
     {
       cout<<"\n types in "<<name<<" : ";
