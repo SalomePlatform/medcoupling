@@ -46,11 +46,13 @@ namespace ParaMEDMEM
   class SauvWriter : public ParaMEDMEM::RefCountObject
   {
   public:
-    MEDLOADER_EXPORT static SauvWriter * New();
+    MEDLOADER_EXPORT static SauvWriter *New();
     MEDLOADER_EXPORT void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0);
     MEDLOADER_EXPORT void write(const char* fileName);
-
+    MEDLOADER_EXPORT void setCpyGrpIfOnASingleFamilyStatus(bool status);
+    MEDLOADER_EXPORT bool getCpyGrpIfOnASingleFamilyStatus() const;
   private:
+    SauvWriter();
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     /*!
@@ -109,6 +111,7 @@ namespace ParaMEDMEM
     std::vector<SauvUtilities::nameGIBItoMED> _longNames[ LN_NB ];
 
     std::fstream*                             _sauvFile;
+    bool _cpy_grp_if_on_single_family;
   };
 }
 

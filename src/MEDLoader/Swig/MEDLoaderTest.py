@@ -658,6 +658,15 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m0.isEqual(mRead,1e-12))
         pass
 
+    def testChangeGroupName(self):
+        """ This test is a non regression test on MEDFileUMesh.changeGroupName thanks to Alliance.
+        """
+        mfd=MEDLoaderDataForTest.buildAMEDFileDataWithGroupOnOneFamilyForSauv()
+        mesh = mfd.getMeshes().getMeshAtPos(0)
+        mesh.changeGroupName("grp0_LM1", "xonall1")
+        self.assertTrue("xonall1" in mesh.getGroupsNames())
+        pass
+
     pass
 
 unittest.main()

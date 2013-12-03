@@ -2822,6 +2822,8 @@ namespace ParaMEDMEM
     static SauvWriter * New();
     void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0) throw(INTERP_KERNEL::Exception);
     void write(const char* fileName) throw(INTERP_KERNEL::Exception);
+    void setCpyGrpIfOnASingleFamilyStatus(bool status) throw(INTERP_KERNEL::Exception);
+    bool getCpyGrpIfOnASingleFamilyStatus() const throw(INTERP_KERNEL::Exception);
   };
   
   ///////////////
