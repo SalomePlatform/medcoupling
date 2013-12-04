@@ -8170,7 +8170,7 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   int nbOfCells=getNumberOfCells();
   if(nbOfCells<=0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::writeVTK : the unstructured mesh has no cells !");
-  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,-1,4};
+  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,36,4};
   ofs << "  <" << getVTKDataSetType() << ">\n";
   ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << nbOfCells << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;
