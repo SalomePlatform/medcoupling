@@ -2367,6 +2367,175 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a9) # no copy here
         pass
 
+    def test16(self):
+        """ Here 2 meshes "mesh1" and "mesh2" and 4 fields (no profiles here) :
+        - "zeField1_0" (CELLS) and "zeField2_0" (NODES) on "mesh1"
+        - "zeField3_1" (CELLS) and "zeField4_1" (NODES) on "mesh2"
+        time steps series are the same for the whole 4 fields
+        """
+        fname="ForMEDReader16.med"
+        m0=MEDCouplingCMesh()
+        arr=DataArrayDouble(3) ; arr.iota(0)
+        m0.setCoords(arr,arr,arr)
+        m0.setName("mesh1")
+        m0=m0.buildUnstructured()
+        #
+        fCell1=MEDCouplingFieldDouble(ON_CELLS)
+        fCell1.setName("zeField1_0")
+        fCell1.setMesh(m0)
+        #
+        fNode1=MEDCouplingFieldDouble(ON_NODES)
+        fNode1.setName("zeField2_0")
+        fNode1.setMesh(m0)
+        #
+        mms=MEDFileMeshes()
+        mm1=MEDFileUMesh()
+        mm1.setMeshAtLevel(0,m0)
+        fam=DataArrayInt([0,1,0,1,2,3,2,3]); mm1.setFamilyFieldArr(0,fam) ; del fam
+        num=DataArrayInt(8) ; num.iota(100) ; mm1.setRenumFieldArr(0,num) ; del num
+        mm1.setFamilyId("FAMILLE_ZERO",0) ; mm1.setFamilyId("Family1_1",1) ; mm1.setFamilyId("Family1_2",2) ; mm1.setFamilyId("Family1_3",3) ; mm1.setFamilyId("Family1_4",4)
+        mm1.setFamiliesIdsOnGroup("Grp1_1",[0,1]) ; mm1.setFamiliesIdsOnGroup("Grp1_2",[2,3])
+        mms.pushMesh(mm1) ; del mm1
+        #
+        m1=m0.deepCpy() ; m1.translate([2.5,0.,0.]) ; m1.setName("mesh2")
+        #
+        fCell2=MEDCouplingFieldDouble(ON_CELLS)
+        fCell2.setName("zeField3_1")
+        fCell2.setMesh(m1)
+        #
+        fNode2=MEDCouplingFieldDouble(ON_NODES)
+        fNode2.setName("zeField4_1")
+        fNode2.setMesh(m1)
+        #
+        mm2=MEDFileUMesh()
+        mm2.setMeshAtLevel(0,m1)
+        fam=DataArrayInt([0,1,0,1,2,3,2,3]); mm2.setFamilyFieldArr(0,fam) ; del fam
+        num=DataArrayInt(8) ; num.iota(200) ; mm2.setRenumFieldArr(0,num) ; del num
+        mm2.setFamilyId("FAMILLE_ZERO",0) ; mm2.setFamilyId("Family2_1",1) ; mm2.setFamilyId("Family2_2",2) ; mm2.setFamilyId("Family2_3",3) ; mm2.setFamilyId("Family2_4",4)
+        mm2.setFamiliesIdsOnGroup("Grp2_1",[0,1]) ; mm2.setFamiliesIdsOnGroup("Grp2_2",[2,3]) ; mm2.setFamiliesIdsOnGroup("Grp2_3",[1,2,3])
+        mms.pushMesh(mm2) ; del mm2
+        ffs1_1=MEDFileFieldMultiTS()
+        ffs1_2=MEDFileFieldMultiTS()
+        ffs2_1=MEDFileFieldMultiTS()
+        ffs2_2=MEDFileFieldMultiTS()
+        mts=MEDFileFields()
+        for elt in ffs1_1,ffs1_2,ffs2_1,ffs2_2:
+            mts.pushField(elt)
+            pass
+        # TimeStep 0
+        t=(1.,0,0) ; off=0.
+        f1ts1=MEDFileField1TS()
+        f1ts2=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell1.setArray(a)
+        fCell1.setTime(*t)
+        fCell1.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode1.setArray(a)
+        fNode1.setTime(*t)
+        fNode1.checkCoherency()
+        f1ts1.setFieldNoProfileSBT(fCell1) ; ffs1_1.pushBackTimeStep(f1ts1)
+        f1ts2.setFieldNoProfileSBT(fNode1) ; ffs1_2.pushBackTimeStep(f1ts2)
+        #
+        f1ts1=MEDFileField1TS()
+        f1ts2=MEDFileField1TS()
+        a=DataArrayDouble(m1.getNumberOfCells()) ; a.iota(1000.+off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell2.setArray(a)
+        fCell2.setTime(*t)
+        fCell2.checkCoherency()
+        a=DataArrayDouble(m1.getNumberOfNodes()) ; a.iota(1000+off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode2.setArray(a)
+        fNode2.setTime(*t)
+        fNode2.checkCoherency()
+        f1ts1.setFieldNoProfileSBT(fCell2) ; ffs2_1.pushBackTimeStep(f1ts1)
+        f1ts2.setFieldNoProfileSBT(fNode2) ; ffs2_2.pushBackTimeStep(f1ts2)
+        # TimeStep 1
+        t=(2.1,1,0) ; off=100.
+        f1ts1=MEDFileField1TS()
+        f1ts2=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell1.setArray(a)
+        fCell1.setTime(*t)
+        fCell1.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode1.setArray(a)
+        fNode1.setTime(*t)
+        fNode1.checkCoherency()
+        f1ts1.setFieldNoProfileSBT(fCell1) ; ffs1_1.pushBackTimeStep(f1ts1)
+        f1ts2.setFieldNoProfileSBT(fNode1) ; ffs1_2.pushBackTimeStep(f1ts2)
+        #
+        f1ts1=MEDFileField1TS()
+        f1ts2=MEDFileField1TS()
+        a=DataArrayDouble(m1.getNumberOfCells()) ; a.iota(1000.+off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell2.setArray(a)
+        fCell2.setTime(*t)
+        fCell2.checkCoherency()
+        a=DataArrayDouble(m1.getNumberOfNodes()) ; a.iota(1000+off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode2.setArray(a)
+        fNode2.setTime(*t)
+        fNode2.checkCoherency()
+        f1ts1.setFieldNoProfileSBT(fCell2) ; ffs2_1.pushBackTimeStep(f1ts1)
+        f1ts2.setFieldNoProfileSBT(fNode2) ; ffs2_2.pushBackTimeStep(f1ts2)
+        # TimeStep 2
+        t=(3.1,2,0) ; off=200.
+        f1ts1=MEDFileField1TS()
+        f1ts2=MEDFileField1TS()
+        a=DataArrayDouble(m0.getNumberOfCells()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell1.setArray(a)
+        fCell1.setTime(*t)
+        fCell1.checkCoherency()
+        a=DataArrayDouble(m0.getNumberOfNodes()) ; a.iota(off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode1.setArray(a)
+        fNode1.setTime(*t)
+        fNode1.checkCoherency()
+        f1ts1.setFieldNoProfileSBT(fCell1) ; ffs1_1.pushBackTimeStep(f1ts1)
+        f1ts2.setFieldNoProfileSBT(fNode1) ; ffs1_2.pushBackTimeStep(f1ts2)
+        #
+        f1ts1=MEDFileField1TS()
+        f1ts2=MEDFileField1TS()
+        a=DataArrayDouble(m1.getNumberOfCells()) ; a.iota(1000.+off) ; a.setInfoOnComponents(["xx [m]"])
+        fCell2.setArray(a)
+        fCell2.setTime(*t)
+        fCell2.checkCoherency()
+        a=DataArrayDouble(m1.getNumberOfNodes()) ; a.iota(1000+off) ; a.setInfoOnComponents(["xx [m]"])
+        a=a.negate()
+        fNode2.setArray(a)
+        fNode2.setTime(*t)
+        fNode2.checkCoherency()
+        f1ts1.setFieldNoProfileSBT(fCell2) ; ffs2_1.pushBackTimeStep(f1ts1)
+        f1ts2.setFieldNoProfileSBT(fNode2) ; ffs2_2.pushBackTimeStep(f1ts2)
+        #
+        mms.write(fname,2) ; mts.write(fname,0)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),2)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),2)
+        self.assertEqual(len(allFMTSLeavesToDisplay[1]),2)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1) # one time serie here : because the 2 fields are defined on the same time steps
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),4)
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[0][0]),2)
+        allFMTSLeavesPerCommonSupport2=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport2),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport2[0][0]),2)
+        pass
     pass
 
 unittest.main()
