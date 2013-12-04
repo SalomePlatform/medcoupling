@@ -3274,7 +3274,7 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
                                  ParaMEDMEM::MEDFileFields*  medFields,
                                  ParaMEDMEM::MEDFileUMesh*   mesh,
                                  const TID                   castemID,
-                                 std::set< std::string >&              usedFieldNames)
+                                 std::set< std::string >&    usedFieldNames)
 {
   bool sameNbGauss = true;
   if ( !fld || !fld->isMedCompatible( sameNbGauss )) return;
