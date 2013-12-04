@@ -799,7 +799,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
                 {
                   *dPtr++=connIPtr[1]-connIPtr[0];
                   dPtr=std::copy(connPtr+connIPtr[0],connPtr+connIPtr[1],dPtr);
-                  *cPtr=k+connIPtr[1]-connIPtr[0]; k=*cPtr++;
+                  *cPtr++=k; k+=connIPtr[1]-connIPtr[0];
                 }
             }
           else
@@ -809,7 +809,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
                   std::set<int> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
                   *dPtr++=(int)s.size();
                   dPtr=std::copy(s.begin(),s.end(),dPtr);
-                  *cPtr=k+(int)s.size(); k=*cPtr++;
+                  *cPtr++=k; k+=(int)s.size()+1;
                 }
             }
           if(isPolyh)
