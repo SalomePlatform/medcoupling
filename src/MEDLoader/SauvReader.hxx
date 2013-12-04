@@ -72,7 +72,8 @@ class SauvReader : public ParaMEDMEM::RefCountObject
   void read_PILE_MODL         (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
   void read_PILE_FIELD        (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
 
-  SauvUtilities::Group* getFieldSupport(const std::vector<SauvUtilities::Group*>& fieldSupports);
+  void setFieldSupport(const std::vector<SauvUtilities::Group*>& supports,
+                       SauvUtilities::DoubleField*               field);
   void setFieldNames(const std::vector<SauvUtilities::DoubleField*>& fields,
                      const std::vector<std::string>& objectNames,
                      const std::vector<int>& nameIndices);
