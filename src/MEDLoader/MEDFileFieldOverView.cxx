@@ -785,7 +785,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
             {
               *dPtr++=nnpc;
               dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
-              *cPtr=k+nnpc; k=*cPtr++;
+              *cPtr++=k; k+=nnpc+1;
             }
           if(isPolyh)
             { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
