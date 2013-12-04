@@ -21,6 +21,7 @@
 
 from MEDLoader import *
 import unittest
+import os
 
 class MEDLoaderBasicsTest(unittest.TestCase):
     def testExampleReadFieldOnAllEntity1(self):
