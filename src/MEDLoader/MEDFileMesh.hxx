@@ -92,6 +92,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setFamilyInfo(const std::map<std::string,int>& info);
     MEDLOADER_EXPORT void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
     MEDLOADER_EXPORT void copyFamGrpMapsFrom(const MEDFileMesh& other);
+    MEDLOADER_EXPORT void clearGrpMap();
+    MEDLOADER_EXPORT void clearFamMap();
+    MEDLOADER_EXPORT void clearFamGrpMaps();
     MEDLOADER_EXPORT const std::map<std::string,int>& getFamilyInfo() const { return _families; }
     MEDLOADER_EXPORT const std::map<std::string, std::vector<std::string> >& getGroupInfo() const { return _groups; }
     MEDLOADER_EXPORT std::vector<std::string> getFamiliesOnGroup(const char *name) const;

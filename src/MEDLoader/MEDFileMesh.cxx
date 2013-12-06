@@ -274,6 +274,45 @@ void MEDFileMesh::copyFamGrpMapsFrom(const MEDFileMesh& other)
   _families=other._families;
 }
 
+
+/*!
+ * This method clear all the groups in the map.
+ * So this method does not operate at all on arrays.
+ * So this method can lead to orphan families.
+ * 
+ * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamGrpMaps
+ */
+void MEDFileMesh::clearGrpMap()
+{
+  _groups.clear();
+}
+
+/*!
+ * This method clear all the families in the map.
+ * So this method does not operate at all on arrays.
+ * WARNING ! if there are some groups lying on cleared families, those groups will be impacted !
+ *
+ * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamGrpMaps
+ */
+void MEDFileMesh::clearFamMap()
+{
+  _families.clear();
+}
+
+/*!
+ * This method clear all the families and groups in the map.
+ * So this method does not operate at all on arrays.
+ * As all groups and families entry will be removed after 
+ * the call of MEDFileMesh::setFamilyFieldArr method with 0 or None (python) in the 2nd parameter can be useful to reduce the size of the object.
+ *
+ * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamMap
+ */
+void MEDFileMesh::clearFamGrpMaps()
+{
+  clearGrpMap();
+  clearFamMap();
+}
+
 /*!
  * Returns names of families constituting a group.
  *  \param [in] name - the name of the group of interest.

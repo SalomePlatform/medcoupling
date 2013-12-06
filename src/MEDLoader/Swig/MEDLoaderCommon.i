@@ -510,6 +510,9 @@ namespace ParaMEDMEM
     virtual void createGroupOnAll(int meshDimRelToMaxExt, const char *groupName) throw(INTERP_KERNEL::Exception);
     virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
     void copyFamGrpMapsFrom(const MEDFileMesh& other) throw(INTERP_KERNEL::Exception);
+    void clearGrpMap() throw(INTERP_KERNEL::Exception);
+    void clearFamMap() throw(INTERP_KERNEL::Exception);
+    void clearFamGrpMaps() throw(INTERP_KERNEL::Exception);
     const std::map<std::string,int>& getFamilyInfo() const throw(INTERP_KERNEL::Exception);
     const std::map<std::string, std::vector<std::string> >& getGroupInfo() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
