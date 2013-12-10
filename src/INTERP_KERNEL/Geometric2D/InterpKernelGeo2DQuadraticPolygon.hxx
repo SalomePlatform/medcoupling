@@ -35,6 +35,11 @@ namespace INTERP_KERNEL
   class Edge;
   class MergePoints;
 
+  /**
+   * A set of quadratic or linear edges, not necessarily connected to form a closed polygon.
+   * Some methods however requires a closed form.
+   * Class ComposedEdge focuses more on connectivity aspect.
+   */
   class QuadraticPolygon : public ComposedEdge
   {
   public:

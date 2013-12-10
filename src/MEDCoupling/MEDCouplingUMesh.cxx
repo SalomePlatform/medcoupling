@@ -4071,6 +4071,7 @@ namespace ParaMEDMEM
           INTERP_KERNEL::EdgeLin *e1=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]].first,mapp2[bg[2]].first);
           INTERP_KERNEL::EdgeLin *e2=new INTERP_KERNEL::EdgeLin(mapp2[bg[2]].first,mapp2[bg[1]].first);
           INTERP_KERNEL::SegSegIntersector inters(*e1,*e2);
+          // is the SEG3 degenerated, and thus can be reduced to a SEG2?
           bool colinearity=inters.areColinears();
           delete e1; delete e2;
           if(colinearity)
@@ -4087,11 +4088,14 @@ namespace ParaMEDMEM
   }
 
   /*!
-   * This method creates a sub mesh in Geometric2D DS. The sub mesh is composed be the sub set of cells in 'candidates' and the global mesh 'mDesc'.
-   * The input meth 'mDesc' must be so that mDim==1 et spaceDim==3.
-   * 'mapp' contains a mapping between local numbering in submesh and the global node numbering in 'mDesc'.
+   * This method creates a sub mesh in Geometric2D DS. The sub mesh is composed by the sub set of cells in 'candidates' taken from
+   * the global mesh 'mDesc'.
+   * The input mesh 'mDesc' must be so that mDim==1 and spaceDim==2.
+   * 'mapp' returns a mapping between local numbering in submesh (represented by a Node*) and the global node numbering in 'mDesc'.
    */
-  INTERP_KERNEL::QuadraticPolygon *MEDCouplingUMeshBuildQPFromMesh(const MEDCouplingUMesh *mDesc, const std::vector<int>& candidates, std::map<INTERP_KERNEL::Node *,int>& mapp) throw(INTERP_KERNEL::Exception)
+  INTERP_KERNEL::QuadraticPolygon *MEDCouplingUMeshBuildQPFromMesh(const MEDCouplingUMesh *mDesc, const std::vector<int>& candidates,
+      std::map<INTERP_KERNEL::Node *,int>& mapp)
+      throw(INTERP_KERNEL::Exception)
   {
     mapp.clear();
     std::map<int, std::pair<INTERP_KERNEL::Node *,bool> > mapp2;//bool is for a flag specifying if node is boundary (true) or only a middle for SEG3.
@@ -4136,6 +4140,9 @@ namespace ParaMEDMEM
     return new INTERP_KERNEL::Node(coo1[2*nodeId],coo1[2*nodeId+1]);
   }
 
+  /**
+   * Construct a mapping between set of Nodes and the standart MEDCoupling connectivity format (c, cI).
+   */
   void MEDCouplingUMeshBuildQPFromMesh3(const double *coo1, int offset1, const double *coo2, int offset2, const std::vector<double>& addCoo,
                                         const int *desc1Bg, const int *desc1End, const std::vector<std::vector<int> >& intesctEdges1,
                                         /*output*/std::map<INTERP_KERNEL::Node *,int>& mapp, std::map<int,INTERP_KERNEL::Node *>& mappRev)
@@ -8249,7 +8256,10 @@ std::string MEDCouplingUMesh::getVTKDataSetType() const
 
 /*!
  * Partitions the first given 2D mesh using the second given 2D mesh as a tool, and
- * returns a result mesh constituted by polygons. The meshes should be in 2D space. In
+ * returns a result mesh constituted by polygons.
+ * Thus the final result contains all nodes from m1 plus new nodes. However it doesn't necessarily contains
+ * all nodes from m2.
+ * The meshes should be in 2D space. In
  * addition, returns two arrays mapping cells of the result mesh to cells of the input
  * meshes.
  *  \param [in] m1 - the first input mesh which is a partitioned object.
@@ -8270,31 +8280,40 @@ std::string MEDCouplingUMesh::getVTKDataSetType() const
  *  \throw If the nodal connectivity of cells is not defined in any of the meshes.
  *  \throw If any of the meshes is not a 2D mesh in 2D space.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2)
+MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
+                                                      double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2)
 {
   m1->checkFullyDefined();
   m2->checkFullyDefined();
   if(m1->getMeshDimension()!=2 || m1->getSpaceDimension()!=2 || m2->getMeshDimension()!=2 || m2->getSpaceDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshes works on umeshes m1 AND m2  with meshdim equal to 2 and spaceDim equal to 2 too!");
+
+  // Step 1: compute all edge intersections (new nodes)
   std::vector< std::vector<int> > intersectEdge1, colinear2, subDiv2;
-  MEDCouplingUMesh *m1Desc=0,*m2Desc=0;
+  MEDCouplingUMesh *m1Desc=0,*m2Desc=0; // descending connec. meshes
   DataArrayInt *desc1=0,*descIndx1=0,*revDesc1=0,*revDescIndx1=0,*desc2=0,*descIndx2=0,*revDesc2=0,*revDescIndx2=0;
-  std::vector<double> addCoo,addCoordsQuadratic;
+  std::vector<double> addCoo,addCoordsQuadratic;  // coordinates of newly created nodes
   INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
   INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
-  IntersectDescending2DMeshes(m1,m2,eps,intersectEdge1,colinear2, subDiv2,m1Desc,desc1,descIndx1,revDesc1,revDescIndx1,
-                              m2Desc,desc2,descIndx2,revDesc2,revDescIndx2,addCoo);
+  IntersectDescending2DMeshes(m1,m2,eps,intersectEdge1,colinear2, subDiv2,
+                                      m1Desc,desc1,descIndx1,revDesc1,revDescIndx1,
+                              addCoo, m2Desc,desc2,descIndx2,revDesc2,revDescIndx2);
   revDesc1->decrRef(); revDescIndx1->decrRef(); revDesc2->decrRef(); revDescIndx2->decrRef();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dd1(desc1),dd2(descIndx1),dd3(desc2),dd4(descIndx2);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd5(m1Desc),dd6(m2Desc);
+
+  // Step 2: re-order newly created nodes according to the ordering found in m2
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,m2Desc,addCoo,subDiv2,intersectEdge2);
   subDiv2.clear(); dd5=0; dd6=0;
+
+  // Step 3:
   std::vector<int> cr,crI; //no DataArrayInt because interface with Geometric2D
   std::vector<int> cNb1,cNb2; //no DataArrayInt because interface with Geometric2D
   BuildIntersecting2DCellsFromEdges(eps,m1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
                                     /* outputs -> */addCoordsQuadratic,cr,crI,cNb1,cNb2);
-  //
+
+  // Step 4: Prepare final result:
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCooDa=DataArrayDouble::New();
   addCooDa->alloc((int)(addCoo.size())/2,2);
   std::copy(addCoo.begin(),addCoo.end(),addCooDa->getPointer());
@@ -8315,6 +8334,15 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   return ret.retn();
 }
 
+
+/**
+ * Private. Third step of the partitioning algorithm (Intersect2DMeshes): reconstruct full 2D cells from the
+ * (newly created) nodes corresponding to the edge intersections.
+ * Output params:
+ * @param[out] cr, crI connectivity of the resulting mesh
+ * @param[out] cNb1, cNb2 correspondance arrays giving for the merged mesh the initial cells IDs in m1 / m2
+ * TODO: describe input parameters
+ */
 void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const int *desc1, const int *descIndx1,
                                                          const std::vector<std::vector<int> >& intesctEdges1, const std::vector< std::vector<int> >& colinear2,
                                                          const MEDCouplingUMesh *m2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
@@ -8333,6 +8361,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
   int offset3=offset2+((int)addCoords.size())/2;
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox1Arr(m1->getBoundingBoxForBBTree()),bbox2Arr(m2->getBoundingBoxForBBTree());
   const double *bbox1(bbox1Arr->begin()),*bbox2(bbox2Arr->begin());
+  // Here a BBTree on 2D-cells, not on segments:
   BBTree<SPACEDIM,int> myTree(bbox2,0,0,m2->getNumberOfCells(),eps);
   int ncell1=m1->getNumberOfCells();
   crI.push_back(0);
@@ -8346,6 +8375,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)conn1[connI1[i]];
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
+      // pol1 is the full cell from mesh2, in QP format, with all the additional intersecting nodes.
       pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
                                    desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
       //
@@ -8355,7 +8385,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       for(it1.first();!it1.finished();it1.next())
         edges1.insert(it1.current()->getPtr());
       //
-      std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> > edgesIn2ForShare;
+      std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> > edgesIn2ForShare; // common edges
       std::vector<INTERP_KERNEL::QuadraticPolygon> pol2s(candidates2.size());
       int ii=0;
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
@@ -8363,6 +8393,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
           INTERP_KERNEL::NormalizedCellType typ2=(INTERP_KERNEL::NormalizedCellType)conn2[connI2[*it2]];
           const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel(typ2);
           MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
+          // pol2 is the new QP in the final merged result.
           pol2s[ii].buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
                                              pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2,edgesIn2ForShare);
         }
@@ -8374,6 +8405,8 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
           //MEDCouplingUMeshAssignOnLoc(pol1,pol2,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,colinear2);
           pol1.buildPartitionsAbs(pol2s[ii],edges1,edgesBoundary2,mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
         }
+      // Deals with remaining (non-consumed) edges from m1: these are the edges that were never touched
+      // by m2 but that we still want to keep in the final result.
       if(!edges1.empty())
         {
           try
@@ -8393,15 +8426,19 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
 
 /*!
  * This method is private and is the first step of Partition of 2D mesh (spaceDim==2 and meshDim==2).
- * 
+ * It builds the descending connectivity of the two meshes, and then using a binary tree
+ * it computes the edge intersections. This results in new points being created : they're stored in addCoo.
+ * Documentation about parameters  colinear2 and subDiv2 can be found in method QuadraticPolygon::splitAbs().
  */
 void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
                                                    std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2,
                                                    MEDCouplingUMesh *& m1Desc, DataArrayInt *&desc1, DataArrayInt *&descIndx1, DataArrayInt *&revDesc1, DataArrayInt *&revDescIndx1,
-                                                   MEDCouplingUMesh *& m2Desc, DataArrayInt *&desc2, DataArrayInt *&descIndx2, DataArrayInt *&revDesc2, DataArrayInt *&revDescIndx2,
-                                                   std::vector<double>& addCoo) throw(INTERP_KERNEL::Exception)
+                                                   std::vector<double>& addCoo,
+                                                   MEDCouplingUMesh *& m2Desc, DataArrayInt *&desc2, DataArrayInt *&descIndx2, DataArrayInt *&revDesc2, DataArrayInt *&revDescIndx2)
+                                                   throw(INTERP_KERNEL::Exception)
 {
   static const int SPACEDIM=2;
+  // Build desc connectivity
   desc1=DataArrayInt::New(); descIndx1=DataArrayInt::New(); revDesc1=DataArrayInt::New(); revDescIndx1=DataArrayInt::New();
   desc2=DataArrayInt::New();
   descIndx2=DataArrayInt::New();
@@ -8414,29 +8451,33 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd9(m1Desc),dd10(m2Desc);
   const int *c1=m1Desc->getNodalConnectivity()->getConstPointer();
   const int *ci1=m1Desc->getNodalConnectivityIndex()->getConstPointer();
+
+  // Build BB tree of all edges in the tool mesh (second mesh)
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox1Arr(m1Desc->getBoundingBoxForBBTree()),bbox2Arr(m2Desc->getBoundingBoxForBBTree());
   const double *bbox1(bbox1Arr->begin()),*bbox2(bbox2Arr->begin());
-  int ncell1=m1Desc->getNumberOfCells();
-  int ncell2=m2Desc->getNumberOfCells();
-  intersectEdge1.resize(ncell1);
-  colinear2.resize(ncell2);
-  subDiv2.resize(ncell2);
+  int nDescCell1=m1Desc->getNumberOfCells();
+  int nDescCell2=m2Desc->getNumberOfCells();
+  intersectEdge1.resize(nDescCell1);
+  colinear2.resize(nDescCell2);
+  subDiv2.resize(nDescCell2);
   BBTree<SPACEDIM,int> myTree(bbox2,0,0,m2Desc->getNumberOfCells(),-eps);
+
   std::vector<int> candidates1(1);
   int offset1=m1->getNumberOfNodes();
   int offset2=offset1+m2->getNumberOfNodes();
-  for(int i=0;i<ncell1;i++)
+  for(int i=0;i<nDescCell1;i++)  // for all edges in the first mesh
     {
-      std::vector<int> candidates2;
+      std::vector<int> candidates2; // edges of mesh2 candidate for intersection
       myTree.getIntersectingElems(bbox1+i*2*SPACEDIM,candidates2);
-      if(!candidates2.empty())
+      if(!candidates2.empty()) // candidates2 holds edges from the second mesh potentially intersecting current edge i in mesh1
         {
           std::map<INTERP_KERNEL::Node *,int> map1,map2;
+          // pol2 is not necessarily a closed polygon: just a set of (quadratic) edges (same as candidates2) in the Geometric DS format
           INTERP_KERNEL::QuadraticPolygon *pol2=MEDCouplingUMeshBuildQPFromMesh(m2Desc,candidates2,map2);
           candidates1[0]=i;
           INTERP_KERNEL::QuadraticPolygon *pol1=MEDCouplingUMeshBuildQPFromMesh(m1Desc,candidates1,map1);
-          // this following part is to avoid that a some remove nodes (for example due to a merge between pol1 and pol2) can be replaced by a newlt created one
-          // This trick garanties that Node * are discriminant
+          // This following part is to avoid that some removed nodes (for example due to a merge between pol1 and pol2) are replaced by a newly created one
+          // This trick guarantees that Node * are discriminant (i.e. form a unique identifier)
           std::set<INTERP_KERNEL::Node *> nodes;
           pol1->getAllNodes(nodes); pol2->getAllNodes(nodes);
           std::size_t szz(nodes.size());
@@ -8445,6 +8486,7 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
           for(std::size_t iii=0;iii<szz;iii++,itt++)
             { (*itt)->incrRef(); nodesSafe[iii]=*itt; }
           // end of protection
+          // Performs egde cutting:
           pol1->splitAbs(*pol2,map1,map2,offset1,offset2,candidates2,intersectEdge1[i],i,colinear2,subDiv2,addCoo);
           delete pol2;
           delete pol1;
@@ -8461,13 +8503,18 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
  * This method has 4 inputs :
  *  - a mesh 'm1' with meshDim==1 and a SpaceDim==2
  *  - a mesh 'm2' with meshDim==1 and a SpaceDim==2
- *  - subDiv of size 'm2->getNumberOfCells()' that lists for each seg cell in 'm' the splitting node ids in randomly sorted.
- * The aim of this method is to sort the splitting nodes, if any, and to put in 'intersectEdge' output paramter based on edges of mesh 'm2'
- * \param m1 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method. Only present for its coords in case of 'subDiv' shares some nodes of 'm1'
+ *  - subDiv of size 'm2->getNumberOfCells()' that lists for each seg cell in 'm' the splitting node ids randomly sorted.
+ * The aim of this method is to sort the splitting nodes, if any, and to put them in 'intersectEdge' output parameter based on edges of mesh 'm2'
+ * Nodes end up lying consecutively on a cutted edge.
+ * \param m1 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method.
+ * (Only present for its coords in case of 'subDiv' shares some nodes of 'm1')
  * \param m2 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method.
- * \param addCoo input parameter with additionnal nodes linked to intersection of the 2 meshes.
+ * \param addCoo input parameter with additional nodes linked to intersection of the 2 meshes.
+ * \param[out] intersectEdge the same content as subDiv, but correclty oriented.
  */
-void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, const std::vector<double>& addCoo, const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge)
+void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
+      const std::vector<double>& addCoo,
+      const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge)
 {
   int offset1=m1->getNumberOfNodes();
   int ncell=m2->getNumberOfCells();

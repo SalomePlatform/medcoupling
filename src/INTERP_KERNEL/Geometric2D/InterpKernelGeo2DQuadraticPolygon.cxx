@@ -225,18 +225,29 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 }
 
 /*!
- * This method splits 'this' with 'other' into smaller pieces localizable. 'mapThis' is a map that gives the correspondance between nodes contained in 'this' and node ids in a global mesh.
- * In the same way, 'mapOther' gives the correspondance between nodes contained in 'other' and node ids in a global mesh from wich 'other' is extracted.
- * This method has 1 out paramater : 'edgesThis', After the call of this method contains nodal connectivity (including type) of 'this' into globlal "this mesh".
- * This method has 2 in/out parameters : 'subDivOther' and 'addCoo'.'otherEdgeIds' is useful to put values in 'edgesThis', 'subDivOther' and 'addCoo'.
+ * This method splits 'this' with 'other' into smaller pieces localizable. 'mapThis' is a map that gives the correspondance
+ * between nodes contained in 'this' and node ids in a global mesh.
+ * In the same way, 'mapOther' gives the correspondance between nodes contained in 'other' and node ids in a
+ * global mesh from wich 'other' is extracted.
+ * This method has 1 out paramater : 'edgesThis', After the call of this method, it contains the nodal connectivity (including type)
+ * of 'this' into globlal "this mesh".
+ * This method has 2 in/out parameters : 'subDivOther' and 'addCoo'.'otherEdgeIds' is useful to put values in
+ * 'edgesThis', 'subDivOther' and 'addCoo'.
  * Size of 'otherEdgeIds' has to be equal to number of ElementaryEdges in 'other'. No check of that will be done.
+ * The term 'abs' in the name recalls that we normalize the mesh (spatially) so that node coordinates fit into [0;1].
  * @param offset1 is the number of nodes contained in global mesh from which 'this' is extracted.
  * @param offset2 is the sum of nodes contained in global mesh from which 'this' is extracted and 'other' is extracted.
  * @param edgesInOtherColinearWithThis will be appended at the end of the vector with colinear edge ids of other (if any)
- * @otherEdgeIds is a vector with the same size than other before calling this method. It gives in the same order the cell id in global other mesh.
+ * @param otherEdgeIds is a vector with the same size than other before calling this method. It gives in the same order
+ * the cell id in global other mesh.
  */
-void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2 , const std::vector<int>& otherEdgeIds,
-                                std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo)
+void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
+        const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther,
+        int offset1, int offset2 ,
+        const std::vector<int>& otherEdgeIds,
+        std::vector<int>& edgesThis, int cellIdThis,
+        std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther,
+        std::vector<double>& addCoo)
 {
   double xBaryBB, yBaryBB;
   double fact=normalizeExt(&other, xBaryBB, yBaryBB);
@@ -306,8 +317,10 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
 }
 
 /*!
- * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
- * orientation of edge.
+ * This method builds 'this' from its descending conn stored in crude mode (MEDCoupling).
+ * Descending conn is in FORTRAN relative mode in order to give the
+ * orientation of edge (see buildDescendingConnectivity2() method).
+ * See appendEdgeFromCrudeDataArray() for params description.
  */
 void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
                                                const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
@@ -319,13 +332,15 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
     }
 }
 
-void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
-                                                    const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
+
+void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad,
+                            const int *nodalBg, const double *coords,
+                            const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
 {
   if(!isQuad)
     {
       bool direct=descBg[edgePos]>0;
-      int edgeId=abs(descBg[edgePos])-1;
+      int edgeId=abs(descBg[edgePos])-1; // back to C indexing mode
       const std::vector<int>& subEdge=intersectEdges[edgeId];
       std::size_t nbOfSubEdges=subEdge.size()/2;
       for(std::size_t j=0;j<nbOfSubEdges;j++)
@@ -509,8 +524,11 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
 
 /*!
  * Method expected to be called on pol2. Every params not suffixed by numbered are supposed to refer to pol2 (this).
+ * Method to find edges that are ON.
  */
-void QuadraticPolygon::updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges, const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const
+void QuadraticPolygon::updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
+      const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1,
+      const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const
 {
   std::size_t nbOfSeg=std::distance(descBg,descEnd);
   for(std::size_t i=0;i<nbOfSeg;i++)//loop over all edges of pol2
@@ -599,7 +617,7 @@ void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, std::set<INTE
   double xBaryBB, yBaryBB;
   double fact=normalizeExt(&other, xBaryBB, yBaryBB);
   //Locate 'this' relative to 'other'
-  other.performLocatingOperationSlow(*this);
+  other.performLocatingOperationSlow(*this);  // without any assumption
   std::vector<QuadraticPolygon *> res=buildIntersectionPolygons(other,*this);
   for(std::vector<QuadraticPolygon *>::iterator it=res.begin();it!=res.end();it++)
     {

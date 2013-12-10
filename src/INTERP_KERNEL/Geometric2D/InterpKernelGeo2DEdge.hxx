@@ -190,9 +190,9 @@ namespace INTERP_KERNEL
 
   /*!
    * Deal with an oriented edge of a polygon.
-   * An Edge is definied with a start node a end node and an equation of 1D curve.
+   * An Edge is defined with a start node, an end node and an equation of 1D curve.
    * All other attributes are mutable because they don't impact these 3 invariant attributes.
-   * To be exact start and end node can change (adress) but their location remain
+   * To be exact start and end nodes can change (address) but their location remain
    * the same (at precision).
    */
   class INTERPKERNEL_EXPORT Edge

@@ -136,6 +136,10 @@ void ComposedEdge::initLocations() const
     (*iter)->initLocations();
 }
 
+/**
+ * Reset the status of all edges (OUT, IN, ON) because they were potentially assignated
+ * by the previous candidate processing.
+ */
 void ComposedEdge::initLocationsWithOther(const ComposedEdge& other) const
 {
   std::set<Edge *> s1,s2;
@@ -415,6 +419,9 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
   bary[1]/=weigh;
 }
 
+/**
+ * Detect if the node is in the Polygon (ComposedEdge or not)
+ */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 {
   Bounds b; b.prepareForAggregation();
