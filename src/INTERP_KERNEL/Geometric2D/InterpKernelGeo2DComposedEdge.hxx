@@ -22,6 +22,7 @@
 #define __INTERPKERNELGEO2DCOMPOSEDNODE_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "InterpKernelGeo2DEdge.hxx"
 
 #include <set>
 #include <list>
@@ -95,6 +96,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool intresincEqCoarse(const Edge *other) const;
   private:
     std::list<ElementaryEdge *>* getListBehind() { return &_sub_edges; }
+    double isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >& inOutSwitch) const;
   protected:
     ~ComposedEdge();
   private:

@@ -431,56 +431,8 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
  */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 {
-  Bounds b; b.prepareForAggregation();
-  fillBounds(b);
-  if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
-    return false;
-  // searching for e1
-  std::set<Node *> nodes;
-  getAllNodes(nodes);
-  std::set<double> radialDistributionOfNodes;
-  std::set<Node *>::const_iterator iter;
-  for(iter=nodes.begin();iter!=nodes.end();iter++)
-    radialDistributionOfNodes.insert(nodeToTest->getSlope(*(*iter)));
-  std::vector<double> radialDistrib(radialDistributionOfNodes.begin(),radialDistributionOfNodes.end());
-  radialDistributionOfNodes.clear();
-  std::vector<double> radialDistrib2(radialDistrib.size());
-  copy(radialDistrib.begin()+1,radialDistrib.end(),radialDistrib2.begin());
-  radialDistrib2.back()=M_PI+radialDistrib.front();
-  std::vector<double> radialDistrib3(radialDistrib.size());
-  std::transform(radialDistrib2.begin(),radialDistrib2.end(),radialDistrib.begin(),radialDistrib3.begin(),std::minus<double>());
-  std::vector<double>::iterator iter3=max_element(radialDistrib3.begin(),radialDistrib3.end());
-  int i=iter3-radialDistrib3.begin();
-  // ok for e1 - Let's go.
-  EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
-  double ref=e1->getCharactValue(*nodeToTest);
   std::set< IntersectElement > inOutSwitch;
-  for(std::list<ElementaryEdge *>::const_iterator iter4=_sub_edges.begin();iter4!=_sub_edges.end();iter4++)
-    {
-      ElementaryEdge *val=(*iter4);
-      if(val)
-        {
-          Edge *e=val->getPtr();
-          std::auto_ptr<EdgeIntersector> intersc(Edge::BuildIntersectorWith(e1,e));
-          bool obviousNoIntersection,areOverlapped;
-          intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);
-          if(obviousNoIntersection)
-            {
-              continue;
-            }
-          if(!areOverlapped)
-            {
-              std::list< IntersectElement > listOfIntesc=intersc->getIntersectionsCharacteristicVal();
-              for(std::list< IntersectElement >::iterator iter2=listOfIntesc.begin();iter2!=listOfIntesc.end();iter2++)
-                if((*iter2).isIncludedByBoth())
-                  inOutSwitch.insert(*iter2);
-              }
-          //if overlapped we can forget
-        }
-      else
-        throw Exception("Invalid use of ComposedEdge::isInOrOut : only one level supported !");
-    }
-  e1->decrRef();
+  double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
   bool ret=false;
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
@@ -503,6 +455,30 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
  * \sa ComposedEdge::isInOrOut
  */
 bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
+{
+  std::set< IntersectElement > inOutSwitch;
+  double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
+  bool ret=false;
+  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
+    {
+      double val((*iter4).getVal1());
+      if(fabs(val-ref)>=QUADRATIC_PLANAR::_precision)
+        {
+          if(val<ref)
+            {
+              if((*iter4).getNodeOnly()->getLoc()==ON_1)
+                ret=!ret;
+            }
+          else
+            break;
+        }
+      else
+        return true;
+    }
+  return ret;
+}
+
+double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >& inOutSwitch) const
 {
   Bounds b; b.prepareForAggregation();
   fillBounds(b);
@@ -527,7 +503,6 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
   // ok for e1 - Let's go.
   EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
   double ref=e1->getCharactValue(*nodeToTest);
-  std::set< IntersectElement > inOutSwitch;
   for(std::list<ElementaryEdge *>::const_iterator iter4=_sub_edges.begin();iter4!=_sub_edges.end();iter4++)
     {
       ElementaryEdge *val=(*iter4);
@@ -551,27 +526,10 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
           //if overlapped we can forget
         }
       else
-        throw Exception("Invalid use of ComposedEdge::isInOrOut : only one level supported !");
+        throw Exception("Invalid use of ComposedEdge::isInOrOutAlg : only one level supported !");
     }
   e1->decrRef();
-  bool ret=false;
-  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
-    {
-      double val((*iter4).getVal1());
-      if(fabs(val-ref)>=QUADRATIC_PLANAR::_precision)
-        {
-          if(val<ref)
-            {
-              if((*iter4).getNodeOnly()->getLoc()==ON_1)
-                ret=!ret;
-            }
-          else
-            break;
-        }
-      else
-        return true;
-    }
-  return ret;
+  return ref;
 }
 
 /*bool ComposedEdge::isInOrOut(Node *aNodeOn, Node *nodeToTest) const
