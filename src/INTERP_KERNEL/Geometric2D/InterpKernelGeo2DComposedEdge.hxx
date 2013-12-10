@@ -58,6 +58,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT double getHydraulicDiameter() const;
     INTERPKERNEL_EXPORT void getBarycenter(double *bary) const;
     INTERPKERNEL_EXPORT void getBarycenterGeneral(double *bary) const;
+    INTERPKERNEL_EXPORT double normalizeMe(double& xBary, double& yBary);
     INTERPKERNEL_EXPORT double normalize(ComposedEdge *other, double& xBary, double& yBary);
     INTERPKERNEL_EXPORT double normalizeExt(ComposedEdge *other, double& xBary, double& yBary);
     INTERPKERNEL_EXPORT void unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary, double yBary, double fact);
@@ -89,6 +90,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool changeStartNodeWith(Node *node) const;
     INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     INTERPKERNEL_EXPORT bool isInOrOut(Node *nodeToTest) const;
+    INTERPKERNEL_EXPORT bool isInOrOut2(Node *nodeToTest) const;
     INTERPKERNEL_EXPORT bool getDirection() const;
     INTERPKERNEL_EXPORT bool intresincEqCoarse(const Edge *other) const;
   private:

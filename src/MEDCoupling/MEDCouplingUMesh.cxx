@@ -4021,6 +4021,9 @@ void MEDCouplingUMesh::DistanceToPoint2DCurveAlg(const double *pt, const int *ce
 
 /*!
  * Finds cells in contact with a ball (i.e. a point with precision). 
+ * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
+ * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
+ *
  * \warning This method is suitable if the caller intends to evaluate only one
  *          point, for more points getCellsContainingPoints() is recommended as it is
  *          faster. 
@@ -4042,6 +4045,8 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
 
 /*!
  * Finds cells in contact with a ball (i.e. a point with precision).
+ * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
+ * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  * \warning This method is suitable if the caller intends to evaluate only one
  *          point, for more points getCellsContainingPoints() is recommended as it is
  *          faster. 
@@ -4211,10 +4216,35 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
       myTree.getIntersectingElems(bb,candidates);
       for(std::vector<int>::const_iterator iter=candidates.begin();iter!=candidates.end();iter++)
         {
-          int sz=connI[(*iter)+1]-connI[*iter]-1;
-          if(INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,
-                                                                                               (INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]],
-                                                                                               coords,conn+connI[*iter]+1,sz,eps))
+          int sz(connI[(*iter)+1]-connI[*iter]-1);
+          INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]]);
+          bool status(false);
+          if(ct!=INTERP_KERNEL::NORM_POLYGON && ct!=INTERP_KERNEL::NORM_QPOLYG)
+            status=INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,ct,coords,conn+connI[*iter]+1,sz,eps);
+          else
+            {
+              if(SPACEDIM!=2)
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPointsAlg : not implemented yet for POLYGON and QPOLYGON in spaceDim 3 !");
+              INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+              INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+              std::vector<INTERP_KERNEL::Node *> nodes(sz);
+              INTERP_KERNEL::QuadraticPolygon *pol(0);
+              for(int j=0;j<sz;j++)
+                {
+                  int nodeId(conn[connI[*iter]+1+j]);
+                  nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*SPACEDIM],coords[nodeId*SPACEDIM+1]);
+                }
+              if(!INTERP_KERNEL::CellModel::GetCellModel(ct).isQuadratic())
+                pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
+              else
+                pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
+              INTERP_KERNEL::Node *n(new INTERP_KERNEL::Node(pos[i*SPACEDIM],pos[i*SPACEDIM+1]));
+              double a(0.),b(0.),c(0.);
+              a=pol->normalizeMe(b,c); n->applySimilarity(b,c,a);
+              status=pol->isInOrOut2(n);
+              delete pol; n->decrRef();
+            }
+          if(status)
             {
               eltsIndexPtr[i+1]++;
               elts->pushBackSilent(*iter);
@@ -4226,6 +4256,8 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
  * Finds cells in contact with several balls (i.e. points with precision).
  * This method is an extension of getCellContainingPoint() and
  * getCellsContainingPoint() for the case of multiple points.
+ * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
+ * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  *  \param [in] pos - an array of coordinates of points in full interlace mode :
  *         X0,Y0,Z0,X1,Y1,Z1,... Size of the array must be \a
  *         this->getSpaceDimension() * \a nbOfPoints 

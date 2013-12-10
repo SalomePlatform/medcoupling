@@ -246,6 +246,17 @@ void ComposedEdge::getBarycenterGeneral(double *bary) const
   _sub_edges.back()->getBarycenter(bary,w);
 }
 
+double ComposedEdge::normalizeMe(double& xBary, double& yBary)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  fillBounds(b);
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  applyGlobalSimilarity(xBary,yBary,dimChar);
+  return dimChar;
+}
+
 double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary)
 {
   Bounds b;
@@ -415,6 +426,9 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
   bary[1]/=weigh;
 }
 
+/*!
+ * \sa ComposedEdge::isInOrOut2
+ */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 {
   Bounds b; b.prepareForAggregation();
@@ -477,6 +491,85 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
         }
       else
         break;
+    }
+  return ret;
+}
+
+/*!
+ * This method is close to ComposedEdge::isInOrOut behaviour except that here EPSILON is taken into account to detect if it is IN or OUT.
+ * If \a nodeToTest is close to an edge in \a this, true will be returned even if it is outside informatically from \a this.
+ * This method makes the hypothesis that 
+ *
+ * \sa ComposedEdge::isInOrOut
+ */
+bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
+{
+  Bounds b; b.prepareForAggregation();
+  fillBounds(b);
+  if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
+    return false;
+  // searching for e1
+  std::set<Node *> nodes;
+  getAllNodes(nodes);
+  std::set<double> radialDistributionOfNodes;
+  std::set<Node *>::const_iterator iter;
+  for(iter=nodes.begin();iter!=nodes.end();iter++)
+    radialDistributionOfNodes.insert(nodeToTest->getSlope(*(*iter)));
+  std::vector<double> radialDistrib(radialDistributionOfNodes.begin(),radialDistributionOfNodes.end());
+  radialDistributionOfNodes.clear();
+  std::vector<double> radialDistrib2(radialDistrib.size());
+  copy(radialDistrib.begin()+1,radialDistrib.end(),radialDistrib2.begin());
+  radialDistrib2.back()=M_PI+radialDistrib.front();
+  std::vector<double> radialDistrib3(radialDistrib.size());
+  std::transform(radialDistrib2.begin(),radialDistrib2.end(),radialDistrib.begin(),radialDistrib3.begin(),std::minus<double>());
+  std::vector<double>::iterator iter3=max_element(radialDistrib3.begin(),radialDistrib3.end());
+  int i=iter3-radialDistrib3.begin();
+  // ok for e1 - Let's go.
+  EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
+  double ref=e1->getCharactValue(*nodeToTest);
+  std::set< IntersectElement > inOutSwitch;
+  for(std::list<ElementaryEdge *>::const_iterator iter4=_sub_edges.begin();iter4!=_sub_edges.end();iter4++)
+    {
+      ElementaryEdge *val=(*iter4);
+      if(val)
+        {
+          Edge *e=val->getPtr();
+          std::auto_ptr<EdgeIntersector> intersc(Edge::BuildIntersectorWith(e1,e));
+          bool obviousNoIntersection,areOverlapped;
+          intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);
+          if(obviousNoIntersection)
+            {
+              continue;
+            }
+          if(!areOverlapped)
+            {
+              std::list< IntersectElement > listOfIntesc=intersc->getIntersectionsCharacteristicVal();
+              for(std::list< IntersectElement >::iterator iter2=listOfIntesc.begin();iter2!=listOfIntesc.end();iter2++)
+                if((*iter2).isIncludedByBoth())
+                  inOutSwitch.insert(*iter2);
+              }
+          //if overlapped we can forget
+        }
+      else
+        throw Exception("Invalid use of ComposedEdge::isInOrOut : only one level supported !");
+    }
+  e1->decrRef();
+  bool ret=false;
+  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
+    {
+      double val((*iter4).getVal1());
+      if(fabs(val-ref)>=QUADRATIC_PLANAR::_precision)
+        {
+          if(val<ref)
+            {
+              if((*iter4).getNodeOnly()->getLoc()==ON_1)
+                ret=!ret;
+            }
+          else
+            break;
+        }
+      else
+        return true;
     }
   return ret;
 }

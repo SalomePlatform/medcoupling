@@ -14000,6 +14000,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([3,12,5,6,14,16,23,100,23,1,0,6],d0i.getValues())
         pass
 
+    def testSwig2GetCellsContainingPointsForNonConvexPolygon(self):
+        coo=DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,0.,-0.5,0.,0.,0.5,0.],7,2)
+        m=MEDCouplingUMesh("Intersect2D",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_POLYGON,[6,3,4,5])
+        m.insertNextCell(NORM_POLYGON,[4,0,1,2,6,5])
+        m.checkCoherency2()
+        #
+        self.assertTrue(m.getCellsContainingPoint((0.4,-0.4),1e-12).isEqual(DataArrayInt([0])))
+        self.assertTrue(m.getCellsContainingPoint((-0.4,-0.4),1e-12).isEqual(DataArrayInt([1])))
+        self.assertTrue(m.getCellsContainingPoint((0.,-0.4),1e-12).isEqual(DataArrayInt([0,1])))
+        pass
+
     def setUp(self):
         pass
     pass
