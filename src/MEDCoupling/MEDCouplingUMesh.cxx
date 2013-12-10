@@ -6254,12 +6254,45 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * 
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ *                         For all other cases this input parameter is ignored.
+ * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
+ * 
+ * \throw If \a this is not fully set (coordinates and connectivity).
+ * \throw If a cell in \a this has no valid nodeId.
+ * \sa MEDCouplingUMesh::getBoundingBoxForBBTreeFast, MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic
+ */
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree(double arcDetEps) const
+{
+  int mDim(getMeshDimension()),sDim(getSpaceDimension());
+  if(mDim!=2 || sDim!=2)
+    return getBoundingBoxForBBTreeFast();
+  else
+    {
+      bool presenceOfQuadratic(false);
+      for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=_types.begin();it!=_types.end();it++)
+        {
+          const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(*it));
+          if(cm.isQuadratic())
+            presenceOfQuadratic=true;
+        }
+      if(presenceOfQuadratic)
+        return getBoundingBoxForBBTree2DQuadratic(arcDetEps);
+      else
+        return getBoundingBoxForBBTreeFast();
+    }
+}
+
+/*!
+ * This method aggregate the bbox of each cell only considering the nodes constituting each cell and put it into bbox parameter.
+ * So meshes having quadratic cells the computed bounding boxes can be invalid !
+ * 
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * 
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
-DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
 {
   checkFullyDefined();
   int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
@@ -6294,6 +6327,48 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
           std::ostringstream oss; oss << "MEDCouplingUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method aggregate the bbox regarding foreach 2D cell in \a this the whole shape. So this method is particulary useful for 2D meshes having quadratic cells
+ * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes.
+ * 
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
+ * \throw If \a this is not fully defined.
+ * \throw If \a this is not a mesh with meshDimension equal to 2.
+ * \throw If \a this is not a mesh with spaceDimension equal to 2.
+ */
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arcDetEps) const
+{
+  checkFullyDefined();
+  int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  if(mDim!=2 || spaceDim!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic : This method should be applied on mesh with mesh dimension equal to 2 and space dimension also equal to 2!");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  double *bbox(ret->getPointer());
+  const double *coords(_coords->getConstPointer());
+  const int *conn(_nodal_connec->getConstPointer()),*connI(_nodal_connec_index->getConstPointer());
+  for(int i=0;i<nbOfCells;i++,bbox+=4,connI++)
+    {
+      const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*connI]));
+      int sz(connI[1]-connI[0]-1);
+      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=1e-12;
+      std::vector<INTERP_KERNEL::Node *> nodes(sz);
+      INTERP_KERNEL::QuadraticPolygon *pol(0);
+      for(int j=0;j<sz;j++)
+        {
+          int nodeId(conn[*connI+1+j]);
+          nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*2],coords[nodeId*2+1]);
+        }
+      if(!cm.isQuadratic())
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
+      else
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
+      INTERP_KERNEL::Bounds b; pol->fillBounds(b); delete pol;
+      bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); 
     }
   return ret.retn();
 }

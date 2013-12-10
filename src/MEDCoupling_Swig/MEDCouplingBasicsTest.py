@@ -14000,8 +14000,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([3,12,5,6,14,16,23,100,23,1,0,6],d0i.getValues())
         pass
 
-    def testSwig2GetCellsContainingPointsForNonConvexPolygon(self):
-        coo=DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,0.,-0.5,0.,0.,0.5,0.],7,2)
+    def testSwig2GetCellsContainingPointsForNonConvexPolygon1(self):
+        coo=DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,0.,-0.5,0.,0.,0.5,0.,],7,2)
         m=MEDCouplingUMesh("Intersect2D",2) ; m.setCoords(coo) ; m.allocateCells()
         m.insertNextCell(NORM_POLYGON,[6,3,4,5])
         m.insertNextCell(NORM_POLYGON,[4,0,1,2,6,5])
@@ -14010,6 +14010,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getCellsContainingPoint((0.4,-0.4),1e-12).isEqual(DataArrayInt([0])))
         self.assertTrue(m.getCellsContainingPoint((-0.4,-0.4),1e-12).isEqual(DataArrayInt([1])))
         self.assertTrue(m.getCellsContainingPoint((0.,-0.4),1e-12).isEqual(DataArrayInt([0,1])))
+        pass
+    
+    def testSwig2GetCellsContainingPointsForNonConvexPolygon2(self):
+        coo=DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,-2.0816681711721685e-17,-2.0816681711721685e-17,-0.17677669529663687,0.1767766952966369,0.,0.5,0.5,0.,0.17677669529663684,-0.17677669529663692,0.17677669529663692,0.17677669529663684,-0.17677669529663692,-0.17677669529663687,0.,-0.5,-0.5,0.,0.33838834764831843,-0.3383883476483185,-0.33838834764831843,0.33838834764831843,-0.21213203435596423,0.21213203435596426,0.2121320343559642,-0.2121320343559643,0.21213203435596426,0.2121320343559642,-0.21213203435596423,-0.21213203435596428,0.3560660171779821,-0.35606601717798214,-0.35606601717798214,0.35606601717798214,0.19445436482630052,-0.19445436482630063,-0.19445436482630055,0.19445436482630057,0.,0.27],24,2)
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_QPOLYG,[8,5,4,9])
+        m.insertNextCell(NORM_QPOLYG,[5,8,4,10])
+        m.insertNextCell(NORM_QPOLYG,[16,8,5,15,21,9,22,17])
+        m.insertNextCell(NORM_QPOLYG,[15,1,2,3,16,20,6,7,19,17])
+        m.insertNextCell(NORM_QPOLYG,[15,5,8,16,22,10,21,18])
+        m.insertNextCell(NORM_QPOLYG,[16,3,0,1,15,19,11,12,20,18])
+        m.checkCoherency2()
+        self.assertTrue(m.getCellsContainingPoint([0.,0.27],1e-12).isEqual(DataArrayInt([2])))
         pass
 
     def setUp(self):

@@ -1960,12 +1960,14 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
 /*!
  * This method aggregate the bbox of each cell and put it into bbox 
  *
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ *                         For all other cases this input parameter is ignored.
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * 
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
-DataArrayDouble *MEDCoupling1SGTUMesh::getBoundingBoxForBBTree() const
+DataArrayDouble *MEDCoupling1SGTUMesh::getBoundingBoxForBBTree(double arcDetEps) const
 {
   int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes()),nbOfNodesPerCell(getNumberOfNodesPerCell());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
@@ -3352,12 +3354,14 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDi
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * 
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ *                         For all other cases this input parameter is ignored.
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * 
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
-DataArrayDouble *MEDCoupling1DGTUMesh::getBoundingBoxForBBTree() const
+DataArrayDouble *MEDCoupling1DGTUMesh::getBoundingBoxForBBTree(double arcDetEps) const
 {
   checkFullyDefined();
   int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
