@@ -2536,6 +2536,117 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertEqual(len(allFMTSLeavesPerCommonSupport2),1)
         self.assertEqual(len(allFMTSLeavesPerCommonSupport2[0][0]),2)
         pass
+
+    def test17(self):
+        """ First test on GAUSS_NE (Elno). Here no Profiles.
+        2 times steps.
+        """
+        fname="ForMEDReader17.med"
+        fieldName1="MyFirstElno"
+        fieldName2="ACellField"
+        fieldName3="ANodeField"
+        coo=DataArrayDouble([0.,0.,1.,0.,2.,0.,0.,1.,1.,1.,2.,1.],6,2)
+        m=MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m.insertNextCell(NORM_QUAD4,[1,4,5,2])
+        m.checkCoherency2()
+        #
+        t=(1.1,0,-1)
+        f=MEDCouplingFieldDouble(ON_GAUSS_NE) ; f.setTime(*t) ; f.setMesh(m)
+        f.setArray(DataArrayDouble([3.,5.,7.,6.,2.,3.,11.,8.]))
+        f.setName(fieldName1)
+        f.checkCoherency()
+        MEDLoader.WriteField(fname,f,True)
+        f2=MEDCouplingFieldDouble(ON_CELLS) ; f2.setTime(*t) ; f2.setMesh(m)
+        f2.setArray(DataArrayDouble([7.,11.],2,1))
+        f2.setName(fieldName2)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f2)
+        f3=MEDCouplingFieldDouble(ON_NODES) ; f3.setTime(*t) ; f3.setMesh(m)
+        f3.setArray(DataArrayDouble([1.,2.,4.,1.,2.,4.],6,1))
+        f3.setName(fieldName3)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f3)
+        #
+        t=(2.1,1,-1)
+        f=MEDCouplingFieldDouble(ON_GAUSS_NE) ; f.setTime(*t) ; f.setMesh(m)
+        f.setArray(DataArrayDouble([7.,6.,3.,5.,11.,8.,2.,3.]))
+        f.setName(fieldName1)
+        f.checkCoherency()
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f)
+        f2=MEDCouplingFieldDouble(ON_CELLS) ; f2.setTime(*t) ; f2.setMesh(m)
+        f2.setArray(DataArrayDouble([11.,7.],2,1))
+        f2.setName(fieldName2)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f2)
+        f3=MEDCouplingFieldDouble(ON_NODES) ; f3.setTime(*t) ; f3.setMesh(m)
+        f3.setArray(DataArrayDouble([4.,2.,1.,4.,2.,1.],6,1))
+        f3.setName(fieldName3)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f3)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),3)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),3)
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[0][0]),3)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        #
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc) # spaceDim 2 -> VTK wants 3D
+        self.assertTrue(a0.isEqual(DataArrayDouble([0.,0.,0.,1.,0.,0.,2.,0.,0.,0.,1.,0.,1.,1.,0.,2.,1.,0.],6,3),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([9,9])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,5])))
+        self.assertTrue(a3.isEqual(DataArrayInt([4,0,3,4,1,4,1,4,5,2])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([0,0])))
+        self.assertTrue(a7) # no copy here
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([0,1])))
+        self.assertTrue(a9) # no copy here
+        for i in xrange(1,2):
+            self.assertTrue((fcscp.isDataSetSupportEqualToThePreviousOne(i,fields)))
+            pass
+        vExp0=[DataArrayDouble([7.,11.]),DataArrayDouble([11.,7.])]
+        vExp1=[DataArrayDouble([3.,5.,7.,6.,2.,3.,11.,8.]),DataArrayDouble([7.,6.,3.,5.,11.,8.,2.,3.])]
+        for i in xrange(2):
+            f=allFMTSLeavesPerCommonSupport1[0][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
+            f.loadArraysIfNecessary()
+            v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
+            self.assertEqual(f.getName(),fieldName2)
+            self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
+            self.assertTrue(v.isEqual(vExp0[i],1e-12))
+            #
+            f=allFMTSLeavesPerCommonSupport1[0][0][1][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
+            f.loadArraysIfNecessary()
+            v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
+            self.assertEqual(f.getName(),fieldName1)
+            self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
+            self.assertTrue(v.isEqual(vExp1[i],1e-12))
+            pass
+        pass
+
     pass
 
 unittest.main()
