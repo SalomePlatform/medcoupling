@@ -4197,7 +4197,7 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
 {
   elts=DataArrayInt::New(); eltsIndex=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
   int *eltsIndexPtr(eltsIndex->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree(eps));
   const double *bbox(bboxArr->begin());
   int nbOfCells=getNumberOfCells();
   const int *conn=_nodal_connec->getConstPointer();
