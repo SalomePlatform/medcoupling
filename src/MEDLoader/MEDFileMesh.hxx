@@ -246,6 +246,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const;
+    MEDLOADER_EXPORT void forceComputationOfParts() const;
     MEDLOADER_EXPORT std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDLOADER_EXPORT DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;

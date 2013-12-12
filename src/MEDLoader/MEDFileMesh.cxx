@@ -2981,6 +2981,22 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const
 }
 
 /*!
+ * This method is for advanced users. There is two storing strategy of mesh in \a this.
+ * Either MEDCouplingUMesh, or vector of MEDCoupling1GTUMesh instances.
+ * When assignement is done the first one is done, which is not optimal in write mode for MED file.
+ * This method allows to switch from MEDCouplingUMesh mode to MEDCoupling1GTUMesh mode.
+ */
+void MEDFileUMesh::forceComputationOfParts() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
+    {
+      const MEDFileUMeshSplitL1 *elt(*it);
+      if(elt)
+        elt->forceComputationOfParts();
+    }
+}
+
+/*!
  * This method returns a vector of mesh parts containing each exactly one geometric type.
  * This method will never launch an automatic computation of split by type (an INTERP_KERNEL::Exception will be then thrown).
  * This method is only for memory aware users.

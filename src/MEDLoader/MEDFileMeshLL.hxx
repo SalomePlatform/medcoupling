@@ -161,8 +161,8 @@ namespace ParaMEDMEM
     std::vector<int> getDistributionOfTypes() const;
     int getSize() const;
     void setCoords(DataArrayDouble *coords);
-  private:
     void forceComputationOfPartsFromUMesh() const;
+  private:
     std::size_t getTimeOfParts() const;
     std::size_t getTimeOfUMesh() const;
   private:
@@ -190,6 +190,7 @@ namespace ParaMEDMEM
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     void assignMesh(MEDCouplingUMesh *m, bool newOrOld);
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
+    void forceComputationOfParts() const;
     bool empty() const;
     bool presenceOfOneFams(const std::vector<int>& ids) const;
     int getMeshDimension() const;

@@ -729,6 +729,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
+    void forceComputationOfParts() const throw(INTERP_KERNEL::Exception);
     //
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);

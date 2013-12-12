@@ -713,6 +713,11 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
   assignCommonPart();
 }
 
+void MEDFileUMeshSplitL1::forceComputationOfParts() const
+{
+  _m_by_types.forceComputationOfPartsFromUMesh();
+}
+
 void MEDFileUMeshSplitL1::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
 {
   _m_by_types.assignParts(mParts);
