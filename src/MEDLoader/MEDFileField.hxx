@@ -50,26 +50,27 @@ namespace ParaMEDMEM
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
-    void MEDLOADER_EXPORT simpleRepr(std::ostream& oss) const;
-    std::string MEDLOADER_EXPORT getName() const { return _name; }
-    void MEDLOADER_EXPORT setName(const char *name);
+    MEDLOADER_EXPORT void simpleRepr(std::ostream& oss) const;
+    MEDLOADER_EXPORT std::string getName() const { return _name; }
+    MEDLOADER_EXPORT void setName(const char *name);
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
     static MEDFileFieldLoc *New(med_idt fid, int id);
     static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDFileFieldLoc *deepCpy() const;
-    int MEDLOADER_EXPORT getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
-    void MEDLOADER_EXPORT writeLL(med_idt fid) const;
-    std::string MEDLOADER_EXPORT repr() const;
-    bool MEDLOADER_EXPORT isName(const char *name) const { return _name==name; }
-    int MEDLOADER_EXPORT getDimension() const { return _dim; }
-    int MEDLOADER_EXPORT getNumberOfGaussPoints() const { return _nb_gauss_pt; }
-    int MEDLOADER_EXPORT getNumberOfPointsInCells() const { return _nb_node_per_cell; }
-    const MEDLOADER_EXPORT std::vector<double>& getRefCoords() const { return _ref_coo; }
-    const MEDLOADER_EXPORT std::vector<double>& getGaussCoords() const { return _gs_coo; }
-    const MEDLOADER_EXPORT std::vector<double>& getGaussWeights() const { return _w; }
-    bool MEDLOADER_EXPORT isEqual(const MEDFileFieldLoc& other, double eps) const;
+    MEDLOADER_EXPORT int getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
+    MEDLOADER_EXPORT std::string repr() const;
+    MEDLOADER_EXPORT bool isName(const char *name) const { return _name==name; }
+    MEDLOADER_EXPORT int getDimension() const { return _dim; }
+    MEDLOADER_EXPORT int getNumberOfGaussPoints() const { return _nb_gauss_pt; }
+    MEDLOADER_EXPORT int getNumberOfPointsInCells() const { return _nb_node_per_cell; }
+    MEDLOADER_EXPORT const std::vector<double>& getRefCoords() const { return _ref_coo; }
+    MEDLOADER_EXPORT const std::vector<double>& getGaussCoords() const { return _gs_coo; }
+    MEDLOADER_EXPORT const std::vector<double>& getGaussWeights() const { return _w; }
+    MEDLOADER_EXPORT INTERP_KERNEL::NormalizedCellType getGeoType() const { return _geo_type; }
+    MEDLOADER_EXPORT bool isEqual(const MEDFileFieldLoc& other, double eps) const;
   private:
     MEDFileFieldLoc(med_idt fid, const char *locName);
     MEDFileFieldLoc(med_idt fid, int id);
