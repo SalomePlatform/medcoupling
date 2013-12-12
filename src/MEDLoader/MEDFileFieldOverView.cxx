@@ -613,7 +613,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
       _parts[i]=elt;
     }
   // ids fields management
-  int lev(m->getMeshDimension()-(int)dim);
+  int lev((int)dim-m->getMeshDimension());
   if(isSameDim && isNoPfl && m->getGeoTypesAtLevel(lev)==gts)//optimized part
     {
       _cell_fam_ids_nocpy=true;
