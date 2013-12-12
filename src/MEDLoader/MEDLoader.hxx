@@ -35,6 +35,7 @@ namespace ParaMEDMEM
   class MEDCouplingMesh;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
+  class MEDFileWritable;
 }
 
 class MEDLOADER_EXPORT MEDLoader
@@ -97,6 +98,8 @@ class MEDLOADER_EXPORT MEDLoader
   static void WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
   static void WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
   static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
+ public:
+  static void AssignStaticWritePropertiesTo(ParaMEDMEM::MEDFileWritable& obj);
  private:
   MEDLoader();
  public:

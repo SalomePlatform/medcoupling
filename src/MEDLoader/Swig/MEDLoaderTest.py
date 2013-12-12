@@ -667,6 +667,49 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue("xonall1" in mesh.getGroupsNames())
         pass
 
+    def testFieldWithTooLongName(self):
+        """ This test is a non regression test, to check that in basic API the policies are taken into account.
+        """
+        fname="Pyfile75.med"
+        # Coordinates
+        coords = [0.,0., 0.,1., 1.,1., 1.,0.]
+        # lvl 0 connectivity
+        conn2D   = [1,2,3,4]
+        # lvl 0 mesh
+        m=MEDLoader.MEDCouplingUMesh.New("mesh",2)
+        m.allocateCells(1)
+        m.insertNextCell(MEDLoader.NORM_QUAD4,4,conn2D)
+        m.finishInsertingCells()
+        # assigning coordinates
+        meshCoords=MEDLoader.DataArrayDouble.New()
+        meshCoords.setValues(coords, 4, 2)
+        m.setCoords(meshCoords)
+        #
+        f=MEDLoader.MEDCouplingFieldDouble.New(MEDLoader.ON_CELLS,MEDLoader.ONE_TIME)
+        f.setMesh(m)
+        d=MEDLoader.DataArrayDouble.New()
+        d.alloc(1,1)
+        d.iota(1.)
+        # seting a long name
+	d.setInfoOnComponent(0,"CONCENTRATION of I129")
+        f.setArray(d)
+        f.setName("field")
+        #
+        mm=MEDLoader.MEDFileUMesh()
+        MEDLoader.MEDLoader.SetTooLongStrPolicy(2)
+        MEDLoader.MEDLoader.AssignStaticWritePropertiesTo(mm)
+        self.assertEqual(2,mm.getTooLongStrPolicy())
+        MEDLoader.MEDLoader.SetTooLongStrPolicy(0)
+        MEDLoader.MEDLoader.AssignStaticWritePropertiesTo(mm)
+        self.assertEqual(0,mm.getTooLongStrPolicy())
+        del mm
+        #
+        MEDLoader.MEDLoader.SetTooLongStrPolicy(2)
+        self.assertRaises(MEDLoader.InterpKernelException,MEDLoader.MEDLoader.WriteField,fname,f,True)# the component name is too long + policy 2 -> throw
+        f.getArray().setInfoOnComponent(0,'I129')
+        MEDLoader.MEDLoader.WriteField(fname,f,True)
+        pass
+
     pass
 
 unittest.main()

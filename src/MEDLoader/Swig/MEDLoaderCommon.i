@@ -239,6 +239,7 @@ public:
   static std::vector<std::string> GetCellFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static double GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  static void AssignStaticWritePropertiesTo(ParaMEDMEM::MEDFileWritable& obj) throw(INTERP_KERNEL::Exception);
   %extend
      {
        static PyObject *MEDFileVersion()
