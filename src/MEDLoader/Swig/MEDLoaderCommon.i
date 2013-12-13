@@ -2819,6 +2819,13 @@ namespace ParaMEDMEM
   public:
     static SauvReader* New(const char *fileName) throw(INTERP_KERNEL::Exception);
     MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      SauvReader(const char *fileName) throw(INTERP_KERNEL::Exception)
+      {
+        return SauvReader::New(fileName);
+      }
+    }
   };
 
   class SauvWriter : public RefCountObject
@@ -2829,6 +2836,13 @@ namespace ParaMEDMEM
     void write(const char* fileName) throw(INTERP_KERNEL::Exception);
     void setCpyGrpIfOnASingleFamilyStatus(bool status) throw(INTERP_KERNEL::Exception);
     bool getCpyGrpIfOnASingleFamilyStatus() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      SauvWriter() throw(INTERP_KERNEL::Exception)
+      {
+        return SauvWriter::New();
+      }
+    }
   };
   
   ///////////////

@@ -34,7 +34,7 @@ class SauvLoaderTest(unittest.TestCase):
 
         # read SAUV and write MED
         medFile = "SauvLoaderTest.med"
-        sr=SauvReader.New(sauvFile);
+        sr=SauvReader(sauvFile);
         d2=sr.loadInMEDFileDS();
         d2.write(medFile,0);
 
@@ -95,7 +95,7 @@ class SauvLoaderTest(unittest.TestCase):
 
         # write pointeMed to SAUV
         sauvFile = "SauvLoaderTest.sauv"
-        sw=SauvWriter.New();
+        sw=SauvWriter();
         sw.setMEDFileDS(pointeMed);
         sw.write(sauvFile);
 
