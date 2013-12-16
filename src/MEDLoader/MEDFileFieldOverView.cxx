@@ -301,17 +301,6 @@ void MEDMeshMultiLev::retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isW
   const DataArrayInt *fids(_node_fam_ids);
   if(!fids)
     { famIds=0; isWithoutCopy=true; return ; }
-  std::size_t sz(_geo_types.size());
-  bool presenceOfPfls(false);
-  for(std::size_t i=0;i<sz && !presenceOfPfls;i++)
-    {
-      const DataArrayInt *pfl(_pfls[i]);
-      if(pfl)
-        presenceOfPfls=true;
-    }
-  if(!presenceOfPfls)
-    { famIds=const_cast<DataArrayInt *>(fids); famIds->incrRef(); isWithoutCopy=_node_fam_ids_nocpy; return ; }
-  //bad luck the slowest part
   const DataArrayInt *nr(_node_reduction);
   if(nr)
     {
@@ -334,17 +323,6 @@ void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isW
   const DataArrayInt *fids(_node_num_ids);
   if(!fids)
     { numIds=0; isWithoutCopy=true; return ; }
-  std::size_t sz(_geo_types.size());
-  bool presenceOfPfls(false);
-  for(std::size_t i=0;i<sz && !presenceOfPfls;i++)
-    {
-      const DataArrayInt *pfl(_pfls[i]);
-      if(pfl)
-        presenceOfPfls=true;
-    }
-  if(!presenceOfPfls)
-    { numIds=const_cast<DataArrayInt *>(fids); numIds->incrRef(); isWithoutCopy=_node_num_ids_nocpy; return ; }
-  //bad luck the slowest part
   const DataArrayInt *nr(_node_reduction);
   if(nr)
     {
