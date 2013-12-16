@@ -8395,13 +8395,14 @@ DataArrayIntIterator *DataArrayInt::iterator()
  *          array using decrRef() as it is no more needed.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
+ *  \sa DataArrayInt::getIdsEqualTuple
  */
 DataArrayInt *DataArrayInt::getIdsEqual(int val) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
-  const int *cptr=getConstPointer();
+  const int *cptr(getConstPointer());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
@@ -8424,7 +8425,7 @@ DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
-  const int *cptr=getConstPointer();
+  const int *cptr(getConstPointer());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
@@ -8433,6 +8434,45 @@ DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const
   return ret.retn();
 }
 
+/*!
+ * Creates a new DataArrayInt containing IDs (indices) of tuples holding tuple equal to those defined by [ \a tupleBg , \a tupleEnd )
+ * This method is an extension of  DataArrayInt::getIdsEqual method.
+ *
+ *  \param [in] tupleBg - the begin (included) of the input tuple to find within \a this.
+ *  \param [in] tupleEnd - the end (excluded) of the input tuple to find within \a this.
+ *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
+ *          array using decrRef() as it is no more needed.
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != std::distance(tupleBg,tupleEnd).
+ * \throw If \a this->getNumberOfComponents() is equal to 0.
+ * \sa DataArrayInt::getIdsEqual
+ */
+DataArrayInt *DataArrayInt::getIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const
+{
+  std::size_t nbOfCompoExp(std::distance(tupleBg,tupleEnd));
+  checkAllocated();
+  if(getNumberOfComponents()!=(int)nbOfCompoExp)
+    {
+      std::ostringstream oss; oss << "DataArrayInt::getIdsEqualTuple : mismatch of number of components. Input tuple has " << nbOfCompoExp << " whereas this array has " << getNumberOfComponents() << " components !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(nbOfCompoExp==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualTuple : number of components should be > 0 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  const int *bg(begin()),*end2(end()),*work(begin());
+  while(work!=end2)
+    {
+      work=std::search(work,end2,tupleBg,tupleEnd);
+      if(work!=end2)
+        {
+          std::size_t pos(std::distance(bg,work));
+          if(pos%nbOfCompoExp==0)
+            ret->pushBackSilent(pos/nbOfCompoExp);
+          work++;
+        }
+    }
+  return ret.retn();
+}
 
 /*!
  * Assigns \a newValue to all elements holding \a oldValue within \a this

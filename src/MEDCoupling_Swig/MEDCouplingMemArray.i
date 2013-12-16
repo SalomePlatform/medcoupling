@@ -67,6 +67,7 @@
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
+%newobject ParaMEDMEM::DataArrayInt::getIdsEqualTuple;
 %newobject ParaMEDMEM::DataArrayInt::sumPerTuple;
 %newobject ParaMEDMEM::DataArrayInt::negate;
 %newobject ParaMEDMEM::DataArrayInt::computeAbs;
@@ -2751,6 +2752,14 @@ namespace ParaMEDMEM
         std::vector<int> val2;
         const int *bg=convertObjToPossibleCpp1_Safe(indexArr,sw,sz,val,val2);
         return self->accumulatePerChunck(bg,bg+sz);
+      }
+
+      DataArrayInt *getIdsEqualTuple(PyObject *inputTuple) const throw(INTERP_KERNEL::Exception)
+      {
+        int sw,sz,val;
+        std::vector<int> val2;
+        const int *bg(convertObjToPossibleCpp1_Safe(inputTuple,sw,sz,val,val2));
+        return self->getIdsEqualTuple(bg,bg+sz);
       }
 
       PyObject *splitInBalancedSlices(int nbOfSlices) const throw(INTERP_KERNEL::Exception)

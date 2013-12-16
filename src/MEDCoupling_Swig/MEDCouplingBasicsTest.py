@@ -14025,6 +14025,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getCellsContainingPoint([0.,0.27],1e-12).isEqual(DataArrayInt([2])))
         pass
 
+    def testSwig2DAIGetIdsEqualTuple1(self):
+        da=DataArrayInt([0,7,1,2,4,1,2,1,1,2,0,1,2,1,5,1,1,2],9,2)
+        self.assertTrue(da.getIdsEqualTuple([1,2]).isEqual(DataArrayInt([1,4,8])))
+        self.assertTrue(da.getIdsEqualTuple((1,2)).isEqual(DataArrayInt([1,4,8])))
+        self.assertTrue(da.getIdsEqualTuple(DataArrayInt([1,2])).isEqual(DataArrayInt([1,4,8])))
+        da.rearrange(3)
+        self.assertRaises(InterpKernelException,da.getIdsEqualTuple,[1,2])# mismatch nb of compo (3) and nb of elts in input tuple (2)
+        self.assertTrue(da.getIdsEqualTuple([2,0,1]).isEqual(DataArrayInt([3])))
+        self.assertTrue(da.getIdsEqualTuple([2,0,7]).isEqual(DataArrayInt([])))
+        da.rearrange(1)
+        self.assertTrue(da.getIdsEqualTuple(2).isEqual(DataArrayInt([3,6,9,12,17])))
+        self.assertTrue(da.getIdsEqualTuple(2).isEqual(da.getIdsEqual(2)))
+        pass
+
     def setUp(self):
         pass
     pass
