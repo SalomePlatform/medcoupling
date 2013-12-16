@@ -2898,6 +2898,32 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
+      
+      PyObject *retrieveFamilyIdsOnNodes() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *famIds(0);
+        bool isWithoutCopy(false);
+        self->retrieveFamilyIdsOnNodes(famIds,isWithoutCopy);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
+        Py_XINCREF(ret1Py);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(famIds),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
+
+      PyObject *retrieveNumberIdsOnNodes() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *numIds(0);
+        bool isWithoutCopy(false);
+        self->retrieveNumberIdsOnNodes(numIds,isWithoutCopy);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret1Py=isWithoutCopy?Py_True:Py_False;
+        Py_XINCREF(ret1Py);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(numIds),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
     }
   };
 

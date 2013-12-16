@@ -39,6 +39,7 @@ namespace ParaMEDMEM
   class MEDFileMesh;
   class MEDFileUMesh;
   class MEDFileCMesh;
+  class MEDFileStructuredMesh;
   class MEDFileCurveLinearMesh;
   class MEDFileFieldGlobs;
   class MEDFileFieldGlobsReal;
@@ -82,8 +83,12 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
     MEDLOADER_EXPORT void retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT void retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT void retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isWithoutCopy) const;
     void setFamilyIdsOnCells(DataArrayInt *famIds, bool isNoCopy);
     void setNumberIdsOnCells(DataArrayInt *numIds, bool isNoCopy);
+    void setFamilyIdsOnNodes(DataArrayInt *famIds, bool isNoCopy);
+    void setNumberIdsOnNodes(DataArrayInt *numIds, bool isNoCopy);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) = 0;
     virtual MEDMeshMultiLev *prepare() const = 0;
     int getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const;
@@ -106,6 +111,10 @@ namespace ParaMEDMEM
     bool _cell_fam_ids_nocpy;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_num_ids;
     bool _cell_num_ids_nocpy;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_fam_ids;
+    bool _node_fam_ids_nocpy;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_num_ids;
+    bool _node_num_ids_nocpy;
   public:
     static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
@@ -140,7 +149,8 @@ namespace ParaMEDMEM
   protected:
     MEDStructuredMeshMultiLev();
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
-    MEDStructuredMeshMultiLev(int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev);
+    MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   };
   
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
