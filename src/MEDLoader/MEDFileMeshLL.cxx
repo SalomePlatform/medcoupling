@@ -535,13 +535,25 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
     {
       for(int i=0;i<sz;i++)
         fams[i]=v[i]->getFam();
-      _fam=DataArrayInt::Aggregate(fams);
+      if(sz!=1)
+        _fam=DataArrayInt::Aggregate(fams);
+      else
+        {
+          fams[0]->incrRef();
+          _fam=const_cast<DataArrayInt *>(fams[0]);
+        }
     }
   if(l2.isNumDefinedOnLev(id))
     {
       for(int i=0;i<sz;i++)
         nums[i]=v[i]->getNum();
-      _num=DataArrayInt::Aggregate(nums);
+      if(sz!=1)
+        _num=DataArrayInt::Aggregate(nums);
+      else
+        {
+          nums[0]->incrRef();
+          _num=const_cast<DataArrayInt *>(nums[0]);
+        }
       computeRevNum();
     }
   if(l2.isNamesDefinedOnLev(id))
@@ -701,6 +713,11 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
   assignCommonPart();
 }
 
+void MEDFileUMeshSplitL1::forceComputationOfParts() const
+{
+  _m_by_types.forceComputationOfPartsFromUMesh();
+}
+
 void MEDFileUMeshSplitL1::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
 {
   _m_by_types.assignParts(mParts);
@@ -765,6 +782,11 @@ DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const int *idsBg, const int 
   return da.retn();
 }
 
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshSplitL1::getGeoTypes() const
+{
+  return _m_by_types.getGeoTypes();
+}
+
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp;
@@ -773,6 +795,26 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
   else
     { tmp=_m_by_types.getUmesh(); if(tmp) tmp->incrRef(); }
   return tmp.retn();
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const DataArrayInt *fam(_fam);
+  if(!fam)
+    return 0;
+  int start(0),stop(0);
+  _m_by_types.getStartStopOfGeoTypeWithoutComputation(gt,start,stop);
+  return fam->selectByTupleId2(start,stop,1);
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const DataArrayInt *num(_num);
+  if(!num)
+    return 0;
+  int start(0),stop(0);
+  _m_by_types.getStartStopOfGeoTypeWithoutComputation(gt,start,stop);
+  return num->selectByTupleId2(start,stop,1);
 }
 
 DataArrayInt *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField()
@@ -1009,6 +1051,20 @@ MEDCouplingUMesh *MEDFileUMeshAggregateCompute::getUmesh() const
   return _m;
 }
 
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshAggregateCompute::getGeoTypes() const
+{
+  if(_mp_time>=_m_time)
+    {
+      std::size_t sz(_m_parts.size());
+      std::vector<INTERP_KERNEL::NormalizedCellType> ret(sz);
+      for(std::size_t i=0;i<sz;i++)
+        ret[i]=_m_parts[i]->getCellModelEnum();
+      return ret;
+    }
+  else
+    return _m->getAllGeoTypesSorted();
+}
+
 std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getPartsWithoutComputation() const
 {
   if(_mp_time<_m_time)
@@ -1042,6 +1098,27 @@ MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::getPartWithoutComputation(INT
           return v[i];
     }
   throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartWithoutComputation : the geometric type is not existing !");
+}
+
+void MEDFileUMeshAggregateCompute::getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const
+{
+  start=0; stop=0;
+  std::vector<MEDCoupling1GTUMesh *> v(getPartsWithoutComputation());
+  std::size_t sz(v.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(v[i])
+        {
+          if(v[i]->getCellModelEnum()==gt)
+            {
+              stop=start+v[i]->getNumberOfCells();
+              return;
+            }
+          else
+            start+=v[i]->getNumberOfCells();
+        }
+    }
+  throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getStartStopOfGeoTypeWithoutComputation : the geometric type is not existing !");
 }
 
 void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const

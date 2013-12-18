@@ -21,6 +21,7 @@
 #include "InterpKernelGeo2DElementaryEdge.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
 
 using namespace INTERP_KERNEL;
 

@@ -92,6 +92,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setFamilyInfo(const std::map<std::string,int>& info);
     MEDLOADER_EXPORT void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
     MEDLOADER_EXPORT void copyFamGrpMapsFrom(const MEDFileMesh& other);
+    MEDLOADER_EXPORT void clearGrpMap();
+    MEDLOADER_EXPORT void clearFamMap();
+    MEDLOADER_EXPORT void clearFamGrpMaps();
     MEDLOADER_EXPORT const std::map<std::string,int>& getFamilyInfo() const { return _families; }
     MEDLOADER_EXPORT const std::map<std::string, std::vector<std::string> >& getGroupInfo() const { return _groups; }
     MEDLOADER_EXPORT std::vector<std::string> getFamiliesOnGroup(const char *name) const;
@@ -214,6 +217,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
+    MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
@@ -242,8 +246,11 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const;
+    MEDLOADER_EXPORT void forceComputationOfParts() const;
     MEDLOADER_EXPORT std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const;
+    MEDLOADER_EXPORT DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    MEDLOADER_EXPORT DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     //
     MEDLOADER_EXPORT void setFamilyNameAttachedOnId(int id, const std::string& newFamName);
     MEDLOADER_EXPORT void setCoords(DataArrayDouble *coords);

@@ -22,7 +22,6 @@
 #define __INTERPKERNELGEO2DEDGE_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DBounds.hxx"
 #include "InterpKernelGeo2DNode.hxx"
@@ -94,6 +93,8 @@ namespace INTERP_KERNEL
     unsigned _ass2End2    : 1;
   };
 
+  class Edge;
+  class ComposedEdge;
   /*!
    * This class is in charge to store an intersection point as result of \b non oververlapping edge intersection.
    * This class manages the cases when intersect element is one of the extrimities of edge1 and/or edge2.

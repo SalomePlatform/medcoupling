@@ -267,6 +267,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeRangesFromTypeDistribution;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildUnionOf2DMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildUnionOf3DMesh;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTreeFast;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCoupling1GTUMesh::New;
@@ -917,7 +919,7 @@ namespace ParaMEDMEM
       virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
       virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
       virtual MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
-      virtual DataArrayDouble *getBoundingBoxForBBTree() const throw(INTERP_KERNEL::Exception);
+      virtual DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
       %extend 
          {
            std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -1534,6 +1536,8 @@ namespace ParaMEDMEM
     DataArrayInt *convertNodalConnectivityToStaticGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf2DMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getBoundingBoxForBBTreeFast() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
@@ -1565,6 +1569,16 @@ namespace ParaMEDMEM
       MEDCouplingUMeshCellIterator *__iter__() throw(INTERP_KERNEL::Exception)
       {
         return self->cellIterator();
+      }
+
+      PyObject *getAllGeoTypesSorted() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<INTERP_KERNEL::NormalizedCellType> result=self->getAllGeoTypesSorted();
+        std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+        PyObject *res=PyList_New(result.size());
+        for(int i=0;iL!=result.end(); i++, iL++)
+          PyList_SetItem(res,i,PyInt_FromLong(*iL));
+        return res;
       }
       
       void setPartOfMySelf(PyObject *li, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception)
@@ -1722,15 +1736,6 @@ namespace ParaMEDMEM
         if(ret)
           ret->incrRef();
         return ret;
-      }
-      PyObject *getAllTypes() const throw(INTERP_KERNEL::Exception)
-      {
-        std::set<INTERP_KERNEL::NormalizedCellType> result=self->getAllTypes();
-        std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
-        PyObject *res = PyList_New(result.size());
-        for (int i=0;iL!=result.end(); i++, iL++)
-          PyList_SetItem(res,i,PyInt_FromLong(*iL));
-        return res;
       }
       
       static PyObject *ComputeSpreadZoneGraduallyFromSeed(PyObject *seed, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn, int nbOfDepthPeeling=-1) throw(INTERP_KERNEL::Exception)

@@ -44,6 +44,10 @@ namespace INTERP_KERNEL
     Bounds():_x_min(0.),_x_max(0.),_y_min(0.),_y_max(0.) { }
     double &operator[](int i);
     const double& operator[](int i) const;
+    double getXMin() const { return _x_min; }
+    double getXMax() const { return _x_max; }
+    double getYMin() const { return _y_min; }
+    double getYMax() const { return _y_max; }
     double getDiagonal() const;
     void getBarycenter(double& xBary, double& yBary) const;
     void applySimilarity(double xBary, double yBary, double dimChar);

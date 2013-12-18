@@ -747,7 +747,7 @@ void MEDCouplingBasicsTest2::testConvertQuadraticCellsToLinear()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_3();
   mesh->checkCoherency();
-  const std::set<INTERP_KERNEL::NormalizedCellType>& types=mesh->getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> types=mesh->getAllGeoTypes();
   CPPUNIT_ASSERT_EQUAL(5,(int)types.size());
   INTERP_KERNEL::NormalizedCellType expected1[5]={INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QUAD8};
   std::set<INTERP_KERNEL::NormalizedCellType> expected1Bis(expected1,expected1+5);
@@ -763,8 +763,8 @@ void MEDCouplingBasicsTest2::testConvertQuadraticCellsToLinear()
   MEDCouplingFieldDouble *f2=mesh->getMeasureField(false);
   CPPUNIT_ASSERT(f1->getArray()->isEqual(*f2->getArray(),1e-12));
   CPPUNIT_ASSERT_EQUAL(48,mesh->getMeshLength());
-  const std::set<INTERP_KERNEL::NormalizedCellType>& types2=mesh->getAllTypes();
-  CPPUNIT_ASSERT_EQUAL(3,(int)types.size());
+  std::set<INTERP_KERNEL::NormalizedCellType> types2=mesh->getAllGeoTypes();
+  CPPUNIT_ASSERT_EQUAL(3,(int)types2.size());
   INTERP_KERNEL::NormalizedCellType expected2[3]={INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4};
   std::set<INTERP_KERNEL::NormalizedCellType> expected2Bis(expected2,expected2+3);
   CPPUNIT_ASSERT(expected2Bis==types2);

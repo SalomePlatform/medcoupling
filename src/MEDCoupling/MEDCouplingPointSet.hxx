@@ -131,7 +131,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
-    MEDCOUPLING_EXPORT virtual DataArrayDouble *getBoundingBoxForBBTree() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellsInBoundingBox(const double *bbox, double eps) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *zipCoordsTraducer();

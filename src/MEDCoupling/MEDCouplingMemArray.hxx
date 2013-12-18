@@ -534,6 +534,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const int *valsBg, const int *valsEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const int *valsBg, const int *valsEnd) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const;
     MEDCOUPLING_EXPORT int changeValue(int oldValue, int newValue);
     MEDCOUPLING_EXPORT int locateTuple(const std::vector<int>& tupl) const;
     MEDCOUPLING_EXPORT int locateValue(int value) const;

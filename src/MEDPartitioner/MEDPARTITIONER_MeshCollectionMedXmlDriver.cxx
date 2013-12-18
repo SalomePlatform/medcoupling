@@ -200,7 +200,7 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
 
   //Description tag
   time_t present; 
-  char date[6];
+  char date[20];
 #ifndef WIN32
   time( &present);
   struct tm *time_asc = localtime(&present);

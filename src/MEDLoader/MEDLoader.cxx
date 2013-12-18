@@ -284,6 +284,11 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
 
 /// @endcond
 
+void MEDLoader::AssignStaticWritePropertiesTo(ParaMEDMEM::MEDFileWritable& obj)
+{
+  obj.setTooLongStrPolicy(_TOO_LONG_STR);
+}
+
 bool MEDLoader::HasXDR()
 {
 #ifdef HAS_XDR
@@ -1063,7 +1068,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
 ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(mmuPtr)
@@ -1087,7 +1092,7 @@ ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const char *fileName, c
 ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const char *fileName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(mmuPtr)
@@ -1111,7 +1116,7 @@ ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const char *fileName, i
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
@@ -1125,7 +1130,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName,
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
@@ -1146,7 +1151,7 @@ int MEDLoader::ReadUMeshDimFromFile(const char *fileName, const char *meshName)
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
 {
   CheckFileForRead(fileName);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
@@ -1357,7 +1362,8 @@ void MEDLoader::WriteMesh(const char *fileName, const ParaMEDMEM::MEDCouplingMes
   const MEDCoupling1GTUMesh *um2(dynamic_cast<const MEDCoupling1GTUMesh *>(mesh));
   if(um2)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu=MEDFileUMesh::New();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu(MEDFileUMesh::New());
+      AssignStaticWritePropertiesTo(*mmu);
       mmu->setMeshAtLevel(0,const_cast<MEDCoupling1GTUMesh *>(um2));
       mmu->write(fileName,mod);
       return ;
@@ -1365,7 +1371,8 @@ void MEDLoader::WriteMesh(const char *fileName, const ParaMEDMEM::MEDCouplingMes
   const MEDCouplingCMesh *um3(dynamic_cast<const MEDCouplingCMesh *>(mesh));
   if(um3)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc=MEDFileCMesh::New();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc(MEDFileCMesh::New());
+      AssignStaticWritePropertiesTo(*mmc);
       mmc->setMesh(const_cast<MEDCouplingCMesh *>(um3));
       mmc->write(fileName,mod);
       return ;
@@ -1373,7 +1380,8 @@ void MEDLoader::WriteMesh(const char *fileName, const ParaMEDMEM::MEDCouplingMes
   const MEDCouplingCurveLinearMesh *um4(dynamic_cast<const MEDCouplingCurveLinearMesh *>(mesh));
   if(um4)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc=MEDFileCurveLinearMesh::New();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc(MEDFileCurveLinearMesh::New());
+      AssignStaticWritePropertiesTo(*mmc);
       mmc->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(um4));
       mmc->write(fileName,mod);
       return ;
@@ -1386,7 +1394,8 @@ void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUM
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteUMesh : input mesh is null !");
   int mod=writeFromScratch?2:0;
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m=MEDFileUMesh::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m(MEDFileUMesh::New());
+  AssignStaticWritePropertiesTo(*m);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mcpy(static_cast<MEDCouplingUMesh *>(mesh->deepCpy()));
   m->setMeshAtLevel(0,mcpy,true);
   m->write(fileName,mod);
@@ -1408,7 +1417,8 @@ void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshName
       std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m=MEDFileUMesh::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m(MEDFileUMesh::New());
+  AssignStaticWritePropertiesTo(*m);
   m->setGroupsFromScratch(0,meshes,true);
   m->setName(meshNameC);
   int mod=writeFromScratch?2:0;
@@ -1423,14 +1433,16 @@ void MEDLoader::WriteUMeshesPartitionDep(const char *fileName, const char *meshN
 void MEDLoader::WriteUMeshes(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   int mod=writeFromScratch?2:0;
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m=MEDFileUMesh::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m(MEDFileUMesh::New());
+  AssignStaticWritePropertiesTo(*m);
   m->setMeshes(meshes,true);
   m->write(fileName,mod);
 }
 
 void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New());
+  MEDLoader::AssignStaticWritePropertiesTo(*ff);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f2(f->deepCpy());
   const MEDCouplingMesh *m(f2->getMesh());
   const MEDCouplingUMesh *um(dynamic_cast<const MEDCouplingUMesh *>(m));
@@ -1441,9 +1453,10 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const char *fil
   int mod=writeFromScratch?2:0;
   if(um)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu=MEDFileUMesh::New();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=um->getRenumArrForMEDFileFrmt();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(o2n->getNumberOfTuples());
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu(MEDFileUMesh::New());
+      MEDLoader::AssignStaticWritePropertiesTo(*mmu);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(um->getRenumArrForMEDFileFrmt());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(o2n->getNumberOfTuples()));
       f2->renumberCells(o2n->begin(),false);
       mmu->setMeshAtLevel(0,const_cast<MEDCouplingUMesh *>(static_cast<const MEDCouplingUMesh *>(f2->getMesh())));
       mmu->setRenumFieldArr(0,n2o);
@@ -1452,21 +1465,24 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const char *fil
     }
   else if(um2)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu=MEDFileUMesh::New();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu(MEDFileUMesh::New());
+      MEDLoader::AssignStaticWritePropertiesTo(*mmu);
       mmu->setMeshAtLevel(0,const_cast<MEDCoupling1GTUMesh *>(um2));
       ff->setFieldNoProfileSBT(f2);
       mmu->write(fileName,mod);
     }
   else if(um3)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc=MEDFileCMesh::New();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc(MEDFileCMesh::New());
+      MEDLoader::AssignStaticWritePropertiesTo(*mmc);
       mmc->setMesh(const_cast<MEDCouplingCMesh *>(um3));
       ff->setFieldNoProfileSBT(f2);
       mmc->write(fileName,mod);
     }
   else if(um4)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc=MEDFileCurveLinearMesh::New();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc(MEDFileCurveLinearMesh::New());
+      MEDLoader::AssignStaticWritePropertiesTo(*mmc);
       mmc->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(um4));
       ff->setFieldNoProfileSBT(f2);
       mmc->write(fileName,mod);
@@ -1501,7 +1517,8 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
         MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(fileName,f,false);
       else
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,f->getMesh()->getName().c_str());
+          MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,f->getMesh()->getName().c_str()));
+          AssignStaticWritePropertiesTo(*mm);
           const MEDFileMesh *mmPtr(mm);
           const MEDFileUMesh *mmuPtr=dynamic_cast<const MEDFileUMesh *>(mmPtr);
           if(!mmuPtr)
@@ -1525,7 +1542,8 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
                   std::ostringstream oss; oss << "MEDLoader::WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart) with the mesh you intend to write ! This is maybe due to a too strict policy ! Try with to lease it by calling SetCompPolicyForCell !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
-              MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts=MEDFileField1TS::New();
+              MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
+              AssignStaticWritePropertiesTo(*f1ts);
               if(part->isIdentity() && part->getNumberOfTuples()==mread->getNumberOfCells())
                 f1ts->setFieldNoProfileSBT(f2);
               else
@@ -1546,7 +1564,8 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
                   std::ostringstream oss; oss << "MEDLoader::WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart regarding nodes) with the mesh you intend to write ! This is maybe due to a too strict epsilon ! Try with to lease it by calling SetEpsilonForNodeComp !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
-              MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts=MEDFileField1TS::New();
+              MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
+              AssignStaticWritePropertiesTo(*f1ts);
               if(part->isIdentity() && part->getNumberOfTuples()==mread->getNumberOfNodes())
                 f1ts->setFieldNoProfileSBT(f2);
               else
@@ -1576,7 +1595,8 @@ void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const Pa
       std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions or not exists !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts=MEDFileField1TS::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
+  AssignStaticWritePropertiesTo(*f1ts);
   MEDCouplingUMesh *m=dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f->getMesh()));
   if(!m)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteFieldUsingAlreadyWrittenMesh : only umesh in input field supported !");

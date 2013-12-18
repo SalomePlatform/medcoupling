@@ -21,7 +21,7 @@
 
 from MEDLoader import *
 from MEDCouplingRemapper import *
-import math
+import math, os
 
 d=DataArrayDouble.New(6,2)
 d[:,0]=3.

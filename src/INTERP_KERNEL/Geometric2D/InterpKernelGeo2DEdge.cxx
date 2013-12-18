@@ -23,6 +23,7 @@
 #include "InterpKernelGeo2DEdgeInfLin.hxx"
 //#include "EdgeParabol.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelException.hxx"
 
 #include <algorithm>

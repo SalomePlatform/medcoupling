@@ -657,6 +657,55 @@ class MEDLoaderDataForTest:
         #
         data=MEDFileData() ; data.setMeshes(ms) ; data.setFields(fs)
         return data
+
+    def buildAMEDFileDataWithGroupOnOneFamilyForSauv(self):
+        # Coordinates
+        coords = [0.,0., 0.,1., 1.,1., 1.,0.]
+        # lvl 0 connectivity
+        conn2D   = [1,2,3,4]
+        # lvl -1 connectivity
+        conn1D   = [0,1, 1,2, 2,3, 4,1]
+        # lvl 0 mesh
+        mesh2D=MEDCouplingUMesh.New()
+        mesh2D.setMeshDimension(2)
+        mesh2D.allocateCells(1)
+        mesh2D.insertNextCell(NORM_QUAD4,4,conn2D)
+        mesh2D.finishInsertingCells()
+        # lvl -1 mesh
+        mesh1D=MEDCouplingUMesh.New()
+        mesh1D.setMeshDimension(1)
+        mesh1D.allocateCells(4)
+        mesh1D.insertNextCell(NORM_SEG2,2,conn1D[0:2])
+        mesh1D.insertNextCell(NORM_SEG2,2,conn1D[2:4])
+        mesh1D.insertNextCell(NORM_SEG2,2,conn1D[4:6])
+        mesh1D.insertNextCell(NORM_SEG2,2,conn1D[6:8])
+        mesh1D.finishInsertingCells()
+        # assigning coordinates
+        meshCoords=DataArrayDouble.New()
+        meshCoords.setValues(coords, 4, 2)
+        mesh2D.setCoords(meshCoords)
+        mesh1D.setCoords(meshCoords)
+        # Creating a multi level mesh
+        mm = MEDFileUMesh.New()
+        mm.setMeshAtLevel(0, mesh2D)
+        mm.setMeshAtLevel(-1, mesh1D)
+        mm.setName("carre")
+        # Creating groups
+        # Creating a group with an element on level -1
+        grp0_LM1 = DataArrayInt.New([0])
+        grp0_LM1.setName("grp0_LM1")
+        # Creating a group with all elements on level -1
+        grp1_LM1 = DataArrayInt.New([0,1,2,3])
+        grp1_LM1.setName("grp1_LM1")
+        #
+        mm.setGroupsAtLevel(-1,[grp0_LM1,grp1_LM1])
+        #
+        ms=MEDFileMeshes.New()
+        ms.setMeshAtPos(0,mm)
+        mfd=MEDFileData.New()
+        mfd.setMeshes(ms)
+        #
+        return mfd
     
     build1DMesh_1=classmethod(build1DMesh_1)
     build2DCurveMesh_1=classmethod(build2DCurveMesh_1)
@@ -675,4 +724,5 @@ class MEDLoaderDataForTest:
     buildVecFieldOnGauss_2_Simpler=classmethod(buildVecFieldOnGauss_2_Simpler)
     buildVecFieldOnGaussNE_1=classmethod(buildVecFieldOnGaussNE_1)
     buildACompleteMEDDataStructureWithFieldsOnCells_1=classmethod(buildACompleteMEDDataStructureWithFieldsOnCells_1)
+    buildAMEDFileDataWithGroupOnOneFamilyForSauv=classmethod(buildAMEDFileDataWithGroupOnOneFamilyForSauv)
     pass

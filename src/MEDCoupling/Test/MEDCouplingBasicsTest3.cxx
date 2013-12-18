@@ -1573,7 +1573,7 @@ void MEDCouplingBasicsTest3::testSimplexize1()
   MEDCouplingFieldDouble *f=m->getMeasureField(false);
   for(int i=0;i<7;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i]*sqrt(2.),f->getIJ(i,0),1e-10);
-  std::set<INTERP_KERNEL::NormalizedCellType> types=m->getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> types=m->getAllGeoTypes();
   CPPUNIT_ASSERT_EQUAL(2,(int)types.size());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*(types.begin()));
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_POLYGON,*(++(types.begin())));
@@ -1590,7 +1590,7 @@ void MEDCouplingBasicsTest3::testSimplexize1()
   for(int i=0;i<7;i++)
     CPPUNIT_ASSERT_EQUAL(expected2[i],da->getIJ(i,0));
   m->checkCoherency();
-  types=m->getAllTypes();
+  types=m->getAllGeoTypes();
   CPPUNIT_ASSERT_EQUAL(2,(int)types.size());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*(types.begin()));
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_POLYGON,*(++(types.begin())));
@@ -2449,7 +2449,7 @@ void MEDCouplingBasicsTest3::testBuild0DMeshFromCoords1()
   CPPUNIT_ASSERT_EQUAL(4,m->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(3,m->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(0,m->getMeshDimension());
-  const std::set<INTERP_KERNEL::NormalizedCellType>& types=m->getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> types=m->getAllGeoTypes();
   CPPUNIT_ASSERT_EQUAL(1,(int)types.size());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_POINT1,*types.begin());
   for(int i=0;i<4;i++)

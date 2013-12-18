@@ -145,8 +145,10 @@ namespace ParaMEDMEM
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
+    std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
     std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const;
     MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
+    void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
@@ -159,8 +161,8 @@ namespace ParaMEDMEM
     std::vector<int> getDistributionOfTypes() const;
     int getSize() const;
     void setCoords(DataArrayDouble *coords);
-  private:
     void forceComputationOfPartsFromUMesh() const;
+  private:
     std::size_t getTimeOfParts() const;
     std::size_t getTimeOfUMesh() const;
   private:
@@ -188,6 +190,7 @@ namespace ParaMEDMEM
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     void assignMesh(MEDCouplingUMesh *m, bool newOrOld);
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
+    void forceComputationOfParts() const;
     bool empty() const;
     bool presenceOfOneFams(const std::vector<int>& ids) const;
     int getMeshDimension() const;
@@ -196,8 +199,11 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
+    std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.getPartsWithoutComputation(); }
     MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.getPartWithoutComputation(gt); }
+    DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     std::vector<int> getDistributionOfTypes() const { return _m_by_types.getDistributionOfTypes(); }
     DataArrayInt *getOrCreateAndGetFamilyField();
     const DataArrayInt *getFamilyField() const;

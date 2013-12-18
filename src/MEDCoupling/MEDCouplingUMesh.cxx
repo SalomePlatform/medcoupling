@@ -419,10 +419,37 @@ MEDCouplingUMeshCellByTypeEntry *MEDCouplingUMesh::cellsByType()
  * Returns a set of all cell types available in \a this mesh.
  * \return std::set<INTERP_KERNEL::NormalizedCellType> - the set of cell types.
  * \warning this method does not throw any exception even if \a this is not defined.
+ * \sa MEDCouplingUMesh::getAllGeoTypesSorted
  */
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() const
 {
   return _types;
+}
+
+/*!
+ * This method returns the sorted list of geometric types in \a this.
+ * Sorted means in the same order than the cells in \a this. A single entry in return vector means the maximal chunk of consecutive cells in \a this
+ * having the same geometric type. So a same geometric type can appear more than once if the cells are not sorted per geometric type.
+ *
+ * \throw if connectivity in \a this is not correctly defined.
+ *  
+ * \sa MEDCouplingMesh::getAllGeoTypes
+ */
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypesSorted() const
+{
+  std::vector<INTERP_KERNEL::NormalizedCellType> ret;
+  checkConnectivityFullyDefined();
+  int nbOfCells(getNumberOfCells());
+  if(nbOfCells==0)
+    return ret;
+  if(getMeshLength()<1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getAllGeoTypesSorted : the connectivity in this seems invalid !");
+  const int *c(_nodal_connec->begin()),*ci(_nodal_connec_index->begin());
+  ret.push_back((INTERP_KERNEL::NormalizedCellType)c[*ci++]);
+  for(int i=1;i<nbOfCells;i++,ci++)
+    if(ret.back()!=((INTERP_KERNEL::NormalizedCellType)c[*ci]))
+      ret.push_back((INTERP_KERNEL::NormalizedCellType)c[*ci]);
+  return ret;
 }
 
 /*!
@@ -2910,7 +2937,7 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
  *         describing the cell types. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
- *  \sa getAllTypes()
+ *  \sa getAllGeoTypes()
  */
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getTypesOfPart(const int *begin, const int *end) const
 {
@@ -3994,6 +4021,9 @@ void MEDCouplingUMesh::DistanceToPoint2DCurveAlg(const double *pt, const int *ce
 
 /*!
  * Finds cells in contact with a ball (i.e. a point with precision). 
+ * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
+ * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
+ *
  * \warning This method is suitable if the caller intends to evaluate only one
  *          point, for more points getCellsContainingPoints() is recommended as it is
  *          faster. 
@@ -4015,6 +4045,8 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
 
 /*!
  * Finds cells in contact with a ball (i.e. a point with precision).
+ * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
+ * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  * \warning This method is suitable if the caller intends to evaluate only one
  *          point, for more points getCellsContainingPoints() is recommended as it is
  *          faster. 
@@ -4172,7 +4204,7 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
 {
   elts=DataArrayInt::New(); eltsIndex=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
   int *eltsIndexPtr(eltsIndex->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree(eps));
   const double *bbox(bboxArr->begin());
   int nbOfCells=getNumberOfCells();
   const int *conn=_nodal_connec->getConstPointer();
@@ -4191,10 +4223,35 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
       myTree.getIntersectingElems(bb,candidates);
       for(std::vector<int>::const_iterator iter=candidates.begin();iter!=candidates.end();iter++)
         {
-          int sz=connI[(*iter)+1]-connI[*iter]-1;
-          if(INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,
-                                                                                               (INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]],
-                                                                                               coords,conn+connI[*iter]+1,sz,eps))
+          int sz(connI[(*iter)+1]-connI[*iter]-1);
+          INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]]);
+          bool status(false);
+          if(ct!=INTERP_KERNEL::NORM_POLYGON && ct!=INTERP_KERNEL::NORM_QPOLYG)
+            status=INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,ct,coords,conn+connI[*iter]+1,sz,eps);
+          else
+            {
+              if(SPACEDIM!=2)
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPointsAlg : not implemented yet for POLYGON and QPOLYGON in spaceDim 3 !");
+              INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+              INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+              std::vector<INTERP_KERNEL::Node *> nodes(sz);
+              INTERP_KERNEL::QuadraticPolygon *pol(0);
+              for(int j=0;j<sz;j++)
+                {
+                  int nodeId(conn[connI[*iter]+1+j]);
+                  nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*SPACEDIM],coords[nodeId*SPACEDIM+1]);
+                }
+              if(!INTERP_KERNEL::CellModel::GetCellModel(ct).isQuadratic())
+                pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
+              else
+                pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
+              INTERP_KERNEL::Node *n(new INTERP_KERNEL::Node(pos[i*SPACEDIM],pos[i*SPACEDIM+1]));
+              double a(0.),b(0.),c(0.);
+              a=pol->normalizeMe(b,c); n->applySimilarity(b,c,a);
+              status=pol->isInOrOut2(n);
+              delete pol; n->decrRef();
+            }
+          if(status)
             {
               eltsIndexPtr[i+1]++;
               elts->pushBackSilent(*iter);
@@ -4206,6 +4263,8 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
  * Finds cells in contact with several balls (i.e. points with precision).
  * This method is an extension of getCellContainingPoint() and
  * getCellsContainingPoint() for the case of multiple points.
+ * For speed reasons, the INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6 and INTERP_KERNEL::NORM_QUAD8 cells are considered as convex cells to detect if a point is IN or OUT.
+ * If it is not the case, please change their types to INTERP_KERNEL::NORM_POLYGON or INTERP_KERNEL::NORM_QPOLYG before invoking this method.
  *  \param [in] pos - an array of coordinates of points in full interlace mode :
  *         X0,Y0,Z0,X1,Y1,Z1,... Size of the array must be \a
  *         this->getSpaceDimension() * \a nbOfPoints 
@@ -6202,12 +6261,45 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * 
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ *                         For all other cases this input parameter is ignored.
+ * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
+ * 
+ * \throw If \a this is not fully set (coordinates and connectivity).
+ * \throw If a cell in \a this has no valid nodeId.
+ * \sa MEDCouplingUMesh::getBoundingBoxForBBTreeFast, MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic
+ */
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree(double arcDetEps) const
+{
+  int mDim(getMeshDimension()),sDim(getSpaceDimension());
+  if(mDim!=2 || sDim!=2)
+    return getBoundingBoxForBBTreeFast();
+  else
+    {
+      bool presenceOfQuadratic(false);
+      for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=_types.begin();it!=_types.end();it++)
+        {
+          const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(*it));
+          if(cm.isQuadratic())
+            presenceOfQuadratic=true;
+        }
+      if(presenceOfQuadratic)
+        return getBoundingBoxForBBTree2DQuadratic(arcDetEps);
+      else
+        return getBoundingBoxForBBTreeFast();
+    }
+}
+
+/*!
+ * This method aggregate the bbox of each cell only considering the nodes constituting each cell and put it into bbox parameter.
+ * So meshes having quadratic cells the computed bounding boxes can be invalid !
+ * 
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
  * 
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
-DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
 {
   checkFullyDefined();
   int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
@@ -6242,6 +6334,48 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree() const
           std::ostringstream oss; oss << "MEDCouplingUMesh::getBoundingBoxForBBTree : cell #" << i << " contains no valid nodeId !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method aggregate the bbox regarding foreach 2D cell in \a this the whole shape. So this method is particulary useful for 2D meshes having quadratic cells
+ * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes.
+ * 
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
+ * \throw If \a this is not fully defined.
+ * \throw If \a this is not a mesh with meshDimension equal to 2.
+ * \throw If \a this is not a mesh with spaceDimension equal to 2.
+ */
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arcDetEps) const
+{
+  checkFullyDefined();
+  int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  if(mDim!=2 || spaceDim!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic : This method should be applied on mesh with mesh dimension equal to 2 and space dimension also equal to 2!");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  double *bbox(ret->getPointer());
+  const double *coords(_coords->getConstPointer());
+  const int *conn(_nodal_connec->getConstPointer()),*connI(_nodal_connec_index->getConstPointer());
+  for(int i=0;i<nbOfCells;i++,bbox+=4,connI++)
+    {
+      const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*connI]));
+      int sz(connI[1]-connI[0]-1);
+      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=1e-12;
+      std::vector<INTERP_KERNEL::Node *> nodes(sz);
+      INTERP_KERNEL::QuadraticPolygon *pol(0);
+      for(int j=0;j<sz;j++)
+        {
+          int nodeId(conn[*connI+1+j]);
+          nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*2],coords[nodeId*2+1]);
+        }
+      if(!cm.isQuadratic())
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
+      else
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
+      INTERP_KERNEL::Bounds b; pol->fillBounds(b); delete pol;
+      bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); 
     }
   return ret.retn();
 }
@@ -6288,7 +6422,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
   const int *connI=_nodal_connec_index->getConstPointer();
   const int *work=connI;
   int nbOfCells=getNumberOfCells();
-  std::size_t n=getAllTypes().size();
+  std::size_t n=getAllGeoTypes().size();
   std::vector<int> ret(3*n,-1); //ret[3*k+2]==-1 because it has no sense here
   std::set<INTERP_KERNEL::NormalizedCellType> types;
   for(std::size_t i=0;work!=connI+nbOfCells;i++)
@@ -6959,7 +7093,7 @@ DataArrayInt *MEDCouplingUMesh::convertCellArrayPerGeoType(const DataArrayInt *d
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   int nbOfCells=getNumberOfCells();
-  std::set<INTERP_KERNEL::NormalizedCellType> types=getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> types(getAllGeoTypes());
   int *tmp=new int[nbOfCells];
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=types.begin();iter!=types.end();iter++)
     {
@@ -8150,7 +8284,7 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   int nbOfCells=getNumberOfCells();
   if(nbOfCells<=0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::writeVTK : the unstructured mesh has no cells !");
-  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,-1,4};
+  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,34,23,28,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,29,-1,-1,25,42,36,4};
   ofs << "  <" << getVTKDataSetType() << ">\n";
   ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << nbOfCells << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;

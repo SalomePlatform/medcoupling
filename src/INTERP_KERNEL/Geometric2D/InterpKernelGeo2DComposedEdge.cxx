@@ -250,6 +250,17 @@ void ComposedEdge::getBarycenterGeneral(double *bary) const
   _sub_edges.back()->getBarycenter(bary,w);
 }
 
+double ComposedEdge::normalizeMe(double& xBary, double& yBary)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  fillBounds(b);
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  applyGlobalSimilarity(xBary,yBary,dimChar);
+  return dimChar;
+}
+
 double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary)
 {
   Bounds b;
@@ -419,10 +430,59 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
   bary[1]/=weigh;
 }
 
-/**
- * Detect if the node is in the Polygon (ComposedEdge or not)
+/*!
+ * \sa ComposedEdge::isInOrOut2
  */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const
+{
+  std::set< IntersectElement > inOutSwitch;
+  double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
+  bool ret=false;
+  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
+    {
+      if((*iter4).getVal1()<ref)
+        {
+          if((*iter4).getNodeOnly()->getLoc()==ON_1)
+            ret=!ret;
+        }
+      else
+        break;
+    }
+  return ret;
+}
+
+/*!
+ * This method is close to ComposedEdge::isInOrOut behaviour except that here EPSILON is taken into account to detect if it is IN or OUT.
+ * If \a nodeToTest is close to an edge in \a this, true will be returned even if it is outside informatically from \a this.
+ * This method makes the hypothesis that 
+ *
+ * \sa ComposedEdge::isInOrOut
+ */
+bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
+{
+  std::set< IntersectElement > inOutSwitch;
+  double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
+  bool ret=false;
+  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
+    {
+      double val((*iter4).getVal1());
+      if(fabs(val-ref)>=QUADRATIC_PLANAR::_precision)
+        {
+          if(val<ref)
+            {
+              if((*iter4).getNodeOnly()->getLoc()==ON_1)
+                ret=!ret;
+            }
+          else
+            break;
+        }
+      else
+        return true;
+    }
+  return ret;
+}
+
+double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >& inOutSwitch) const
 {
   Bounds b; b.prepareForAggregation();
   fillBounds(b);
@@ -447,7 +507,6 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
   // ok for e1 - Let's go.
   EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
   double ref=e1->getCharactValue(*nodeToTest);
-  std::set< IntersectElement > inOutSwitch;
   for(std::list<ElementaryEdge *>::const_iterator iter4=_sub_edges.begin();iter4!=_sub_edges.end();iter4++)
     {
       ElementaryEdge *val=(*iter4);
@@ -471,21 +530,10 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
           //if overlapped we can forget
         }
       else
-        throw Exception("Invalid use of ComposedEdge::isInOrOut : only one level supported !");
+        throw Exception("Invalid use of ComposedEdge::isInOrOutAlg : only one level supported !");
     }
   e1->decrRef();
-  bool ret=false;
-  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
-    {
-      if((*iter4).getVal1()<ref)
-        {
-          if((*iter4).getNodeOnly()->getLoc()==ON_1)
-            ret=!ret;
-        }
-      else
-        break;
-    }
-  return ret;
+  return ref;
 }
 
 /*bool ComposedEdge::isInOrOut(Node *aNodeOn, Node *nodeToTest) const

@@ -591,11 +591,11 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelf()
   MEDCouplingUMesh *subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
   CPPUNIT_ASSERT(subMesh);
   std::string name(subMesh->getName());
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*mesh->getAllTypes().begin());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++(mesh->getAllTypes().begin())));
-  CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllTypes().size());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*mesh->getAllGeoTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++(mesh->getAllGeoTypes().begin())));
+  CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllGeoTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllGeoTypes().begin());
   CPPUNIT_ASSERT(name=="Toto");
   CPPUNIT_ASSERT(mesh->getCoords()==subMesh->getCoords());
   CPPUNIT_ASSERT_EQUAL(2,subMesh->getNumberOfCells());
@@ -611,9 +611,9 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelf()
   subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
   CPPUNIT_ASSERT(subMesh);
   name=subMesh->getName();
-  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllTypes().size());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++(subMesh->getAllTypes().begin())));
+  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllGeoTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllGeoTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++(subMesh->getAllGeoTypes().begin())));
   CPPUNIT_ASSERT(name=="Toto");
   CPPUNIT_ASSERT(mesh->getCoords()==subMesh->getCoords());
   CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
@@ -640,8 +640,8 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
   MEDCouplingPointSet *subMeshSimple=mesh->buildPartOfMySelfNode(tab1,tab1+4,true);
   MEDCouplingUMesh *subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
   CPPUNIT_ASSERT(subMesh);
-  CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllTypes().size());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllGeoTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllGeoTypes().begin());
   CPPUNIT_ASSERT_EQUAL(1,subMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL((std::size_t)5,subMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL((std::size_t)2,subMesh->getNodalConnectivityIndex()->getNbOfElems());
@@ -655,9 +655,9 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
   subMeshSimple=mesh->buildPartOfMySelfNode(tab1,tab1+2,false);
   subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
   CPPUNIT_ASSERT(subMesh);
-  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllTypes().size());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllTypes().begin()));
+  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllGeoTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllGeoTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllGeoTypes().begin()));
   CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL((std::size_t)14,subMesh->getNodalConnectivity()->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL((std::size_t)4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
@@ -672,9 +672,9 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
   subMeshSimple=mesh->buildPartOfMySelfNode(tab2,tab2+7,true);
   subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
   CPPUNIT_ASSERT(subMesh);
-  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllTypes().size());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllTypes().begin()));
+  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllGeoTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllGeoTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllGeoTypes().begin()));
   CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
   subMeshSimple->decrRef();
   //
@@ -684,7 +684,7 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
 void MEDCouplingBasicsTest1::testZipCoords()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_1();
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(9,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(5,mesh->getNumberOfCells());
@@ -695,7 +695,7 @@ void MEDCouplingBasicsTest1::testZipCoords()
   DataArrayDouble *oldCoords=mesh->getCoords();
   oldCoords->incrRef();
   mesh->zipCoords();
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllGeoTypes().size());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(9,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(5,mesh->getNumberOfCells());
@@ -713,7 +713,7 @@ void MEDCouplingBasicsTest1::testZipCoords()
   const int expectedTraducer[9]={0,1,-1,2,3,4,-1,5,6};
   CPPUNIT_ASSERT(std::equal(expectedTraducer,expectedTraducer+9,traducer->getPointer()));
   traducer->decrRef();
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllGeoTypes().begin());
   CPPUNIT_ASSERT_EQUAL(2,subMesh->getNumberOfCells());
   const int subConn[10]={4,0,2,3,1,4,5,6,4,3};
   const int subConnIndex[3]={0,5,10};
@@ -727,7 +727,7 @@ void MEDCouplingBasicsTest1::testZipCoords()
   subMeshPtSet=mesh->buildPartOfMySelf(tab1,tab1+2,false);
   subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshPtSet);
   CPPUNIT_ASSERT(subMesh);
-  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllGeoTypes().begin());
   CPPUNIT_ASSERT_EQUAL(2,subMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(7,subMesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL((std::size_t)10,subMesh->getNodalConnectivity()->getNbOfElems());

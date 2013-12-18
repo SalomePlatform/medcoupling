@@ -274,6 +274,45 @@ void MEDFileMesh::copyFamGrpMapsFrom(const MEDFileMesh& other)
   _families=other._families;
 }
 
+
+/*!
+ * This method clear all the groups in the map.
+ * So this method does not operate at all on arrays.
+ * So this method can lead to orphan families.
+ * 
+ * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamGrpMaps
+ */
+void MEDFileMesh::clearGrpMap()
+{
+  _groups.clear();
+}
+
+/*!
+ * This method clear all the families in the map.
+ * So this method does not operate at all on arrays.
+ * WARNING ! if there are some groups lying on cleared families, those groups will be impacted !
+ *
+ * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamGrpMaps
+ */
+void MEDFileMesh::clearFamMap()
+{
+  _families.clear();
+}
+
+/*!
+ * This method clear all the families and groups in the map.
+ * So this method does not operate at all on arrays.
+ * As all groups and families entry will be removed after 
+ * the call of MEDFileMesh::setFamilyFieldArr method with 0 or None (python) in the 2nd parameter can be useful to reduce the size of the object.
+ *
+ * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamMap
+ */
+void MEDFileMesh::clearFamGrpMaps()
+{
+  clearGrpMap();
+  clearFamMap();
+}
+
 /*!
  * Returns names of families constituting a group.
  *  \param [in] name - the name of the group of interest.
@@ -2942,6 +2981,22 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const
 }
 
 /*!
+ * This method is for advanced users. There is two storing strategy of mesh in \a this.
+ * Either MEDCouplingUMesh, or vector of MEDCoupling1GTUMesh instances.
+ * When assignement is done the first one is done, which is not optimal in write mode for MED file.
+ * This method allows to switch from MEDCouplingUMesh mode to MEDCoupling1GTUMesh mode.
+ */
+void MEDFileUMesh::forceComputationOfParts() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
+    {
+      const MEDFileUMeshSplitL1 *elt(*it);
+      if(elt)
+        elt->forceComputationOfParts();
+    }
+}
+
+/*!
  * This method returns a vector of mesh parts containing each exactly one geometric type.
  * This method will never launch an automatic computation of split by type (an INTERP_KERNEL::Exception will be then thrown).
  * This method is only for memory aware users.
@@ -2964,6 +3019,46 @@ MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_
   int lev=(int)cm.getDimension()-getMeshDimension();
   const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
   return sp->getDirectUndergroundSingleGeoTypeMesh(gt);
+}
+
+/*!
+ * Given a relative level \a meshDimRelToMax it returns the sorted vector of geometric types present in \a this.
+ * \throw if the reqsuested \a meshDimRelToMax does not exist.
+ */
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMesh::getGeoTypesAtLevel(int meshDimRelToMax) const
+{
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(meshDimRelToMax));
+  return sp->getGeoTypes();
+}
+
+/*!
+ * This method extracts from whole family field ids the part relative to the input parameter \a gt.
+ * \param [in] gt - the geometric type for which the family field is asked.
+ * \return DataArrayInt * - a pointer to DataArrayInt that the caller is to
+ *          delete using decrRef() as it is no more needed.
+ * \sa MEDFileUMesh::extractNumberFieldOnGeoType
+ */
+DataArrayInt *MEDFileUMesh::extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  int lev=(int)cm.getDimension()-getMeshDimension();
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
+  return sp->extractFamilyFieldOnGeoType(gt);
+}
+
+/*!
+ * This method extracts from whole number field ids the part relative to the input parameter \a gt.
+ * \param [in] gt - the geometric type for which the number field is asked.
+ * \return DataArrayInt * - a pointer to DataArrayInt that the caller is to
+ *          delete using decrRef() as it is no more needed.
+ * \sa MEDFileUMesh::extractFamilyFieldOnGeoType
+ */
+DataArrayInt *MEDFileUMesh::extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  int lev=(int)cm.getDimension()-getMeshDimension();
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
+  return sp->extractNumberFieldOnGeoType(gt);
 }
 
 const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt) const

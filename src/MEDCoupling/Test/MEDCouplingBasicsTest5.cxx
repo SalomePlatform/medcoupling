@@ -1403,7 +1403,7 @@ void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
   // resize with explicit ids list
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   std::set<INTERP_KERNEL::NormalizedCellType> s; s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   const int ids1[3]={0,3,4};
   MEDCouplingUMesh *part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(ids1,ids1+3,true));
   part->simplexize(0)->decrRef();
@@ -1417,7 +1417,7 @@ void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
   CPPUNIT_ASSERT(std::equal(expected2,expected2+6,m->getNodalConnectivityIndex()->getConstPointer()));
   CPPUNIT_ASSERT_EQUAL((std::size_t)6,m->getNodalConnectivityIndex()->getNbOfElems());
   s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   m->decrRef(); part->decrRef(); part2->decrRef();
   // no resize with explicit ids list
   m=build2DTargetMesh_1();
@@ -1431,7 +1431,7 @@ void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
   CPPUNIT_ASSERT(std::equal(expected4,expected4+6,m->getNodalConnectivityIndex()->getConstPointer()));
   CPPUNIT_ASSERT_EQUAL((std::size_t)6,m->getNodalConnectivityIndex()->getNbOfElems());
   s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4); s.insert(INTERP_KERNEL::NORM_POLYGON);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   m->decrRef(); part->decrRef();
   // resize with range ids
   m=build2DTargetMesh_1();
@@ -1444,7 +1444,7 @@ void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
   CPPUNIT_ASSERT(std::equal(expected6,expected6+6,m->getNodalConnectivityIndex()->getConstPointer()));
   CPPUNIT_ASSERT_EQUAL((std::size_t)6,m->getNodalConnectivityIndex()->getNbOfElems());
   s.clear(); s.insert(INTERP_KERNEL::NORM_QUAD4);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   m->decrRef(); part->decrRef();
   // no resize with range ids
   m=build2DTargetMesh_1();
@@ -1458,7 +1458,7 @@ void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
   CPPUNIT_ASSERT(std::equal(expected8,expected8+6,m->getNodalConnectivityIndex()->getConstPointer()));
   CPPUNIT_ASSERT_EQUAL((std::size_t)6,m->getNodalConnectivityIndex()->getNbOfElems());
 s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4); s.insert(INTERP_KERNEL::NORM_POLYGON);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   m->decrRef(); part->decrRef();
   // no resize with range ids negative direction
   m=build2DTargetMesh_1();
@@ -1472,7 +1472,7 @@ s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD
   CPPUNIT_ASSERT(std::equal(expected10,expected10+6,m->getNodalConnectivityIndex()->getConstPointer()));
   CPPUNIT_ASSERT_EQUAL((std::size_t)6,m->getNodalConnectivityIndex()->getNbOfElems());
   s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4); s.insert(INTERP_KERNEL::NORM_POLYGON);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   part->decrRef();
   m->decrRef();
 }
@@ -1500,7 +1500,7 @@ void MEDCouplingBasicsTest5::testUnPolyze3()
   m->unPolyze();
   CPPUNIT_ASSERT_EQUAL(1,m->getNumberOfCells());
   std::set<INTERP_KERNEL::NormalizedCellType> s; s.insert(INTERP_KERNEL::NORM_PENTA6);
-  CPPUNIT_ASSERT(s==m->getAllTypes());
+  CPPUNIT_ASSERT(s==m->getAllGeoTypes());
   //
   const int expected1[2]={0,7};
   const int expected2[7]={16,0,2,1,3,5,4};

@@ -34,7 +34,7 @@ class SauvLoaderTest(unittest.TestCase):
 
         # read SAUV and write MED
         medFile = "SauvLoaderTest.med"
-        sr=SauvReader.New(sauvFile);
+        sr=SauvReader(sauvFile);
         d2=sr.loadInMEDFileDS();
         d2.write(medFile,0);
 
@@ -95,7 +95,7 @@ class SauvLoaderTest(unittest.TestCase):
 
         # write pointeMed to SAUV
         sauvFile = "SauvLoaderTest.sauv"
-        sw=SauvWriter.New();
+        sw=SauvWriter();
         sw.setMEDFileDS(pointeMed);
         sw.write(sauvFile);
 
@@ -321,9 +321,70 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertTrue( f2.isEqual( f, 1e-12, 1e-12 ))
         del sr
         os.remove( sauvFile )
-
-
         pass
+
+    def testSauvWriterGroupWithOneFamily(self):
+        """
+        This test checks an option for sauv writing. It is requested here to copy a group from a family if a group is lying on a single family.
+        """
+        import re
+        mfd=MEDLoaderDataForTest.buildAMEDFileDataWithGroupOnOneFamilyForSauv()
+        sauvFile = "mesh.sauv"
+        sw=SauvWriter.New()
+        sw.setMEDFileDS(mfd)
+        self.assertTrue(not sw.getCpyGrpIfOnASingleFamilyStatus())
+        sw.setCpyGrpIfOnASingleFamilyStatus(True)
+        self.assertTrue(sw.getCpyGrpIfOnASingleFamilyStatus())
+        sw.write(sauvFile)
+        
+        f = open(sauvFile)
+        # String pattern for the header of the sub meshes record ("PILE" number, number of named objects, number of objects)
+        pattern_pile= re.compile(r'\sPILE\sNUMERO\s+(?P<number>[0-9]+)NBRE\sOBJETS\sNOMMES\s+(?P<nbnamed>[0-9]+)NBRE\sOBJETS\s+(?P<nbobjects>[0-9]+)')
+        # String pattern for a sub mesh header (cell type, number of components and three numbers)
+        pattern_header=re.compile(r'\s+(?P<type>[0-9]+)\s+(?P<nbsubs>[0-9]+)\s+[0-9]+\s+[0-9]+\s+[0-9]+')
+        
+        nbobjects=0
+        line = f.readline()
+        while(line):
+            match_pile = pattern_pile.match(line)
+            if match_pile:
+                number=int(match_pile.group("number"))
+                if number == 1:
+                    nbnamed=int(match_pile.group("nbnamed"))
+                    nbobjects=int(match_pile.group("nbobjects"))
+                    break
+                pass
+            line=f.readline()
+            pass
+        
+        # Skipping the objects names
+        f.readline()
+        # Skipping the objects ids
+        f.readline()
+
+        # Looking for each sub-mesh header 
+        line = f.readline()
+        cur_object=0
+        while(line and cur_object < nbobjects):
+            match_header=pattern_header.match(line)
+            if match_header:
+                cell_type=int(match_header.group("type"))
+                nb_subs=int(match_header.group("nbsubs"))
+                # Looking for a compound object
+                if cell_type == 0:
+                    # Testing if there is only one component
+                    self.assertTrue(nb_subs > 1)
+                else:
+                    f.readline()
+                    f.readline()
+                    cur_object = cur_object + 1
+                    pass
+                pass
+            line=f.readline()
+            pass
+        os.remove(sauvFile)
+        pass
+
     pass
 
 unittest.main()

@@ -4137,6 +4137,8 @@ void MEDFileAnyTypeField1TSWithoutSDA::updateData(int newLgth, const std::vector
         throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::updateData : internal error 1 !");
       MEDCouplingAutoRefCountObjectPtr<DataArray> newArr=createNewEmptyDataArrayInstance();
       newArr->alloc(newLgth,getNumberOfComponents());
+      if(oldArr)
+        newArr->copyStringInfoFrom(*oldArr);
       int pos=0;
       for(std::vector< std::pair<int,int> >::const_iterator it=oldStartStops.begin();it!=oldStartStops.end();it++)
         {

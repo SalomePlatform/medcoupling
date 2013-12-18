@@ -61,8 +61,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void finishInsertingCells();
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellIterator *cellIterator();
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellByTypeEntry *cellsByType();
-    MEDCOUPLING_EXPORT const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
+    MEDCOUPLING_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypesSorted() const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true);
     MEDCOUPLING_EXPORT const DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }
@@ -164,7 +164,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *convexEnvelop2D();
     MEDCOUPLING_EXPORT DataArrayInt *findAndCorrectBadOriented3DExtrudedCells();
     MEDCOUPLING_EXPORT DataArrayInt *findAndCorrectBadOriented3DCells();
-    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTreeFast() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy);
     MEDCOUPLING_EXPORT bool isFullyQuadratic() const;
     MEDCOUPLING_EXPORT bool isPresenceOfQuadratic() const;

@@ -212,11 +212,9 @@ namespace
   }
 }
 
-//================================================================================
-/*!
- * \brief Creates SauvWriter
- */
-//================================================================================
+SauvWriter::SauvWriter():_cpy_grp_if_on_single_family(false)
+{
+}
 
 SauvWriter* SauvWriter::New()
 {
@@ -231,6 +229,16 @@ std::size_t SauvWriter::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> SauvWriter::getDirectChildren() const
 {
   return std::vector<const BigMemoryObject *>();
+}
+
+void SauvWriter::setCpyGrpIfOnASingleFamilyStatus(bool status)
+{
+  _cpy_grp_if_on_single_family=status;
+}
+
+bool SauvWriter::getCpyGrpIfOnASingleFamilyStatus() const
+{
+  return _cpy_grp_if_on_single_family;
 }
 
 //================================================================================
@@ -447,7 +455,23 @@ void SauvWriter::fillGroupSubMeshes()
       if (k != famNames.size())
           famSubMeshes.resize(k);
       SubMesh* grpSubMesh = addSubMesh( groupName, famSubMeshes[0]->_dimRelExt );
-      grpSubMesh->_subs.swap( famSubMeshes );
+      if(!_cpy_grp_if_on_single_family)
+        grpSubMesh->_subs.swap( famSubMeshes );
+      else
+        {
+          /* If a group sub mesh consists of only one family, the group is written as 
+           * a copy of this family. 
+           * A mesh composed of only one submesh may cause an issue with some Gibi operators.*/
+          if (famSubMeshes.size() == 1)
+            {
+              for(int i = 0; i < famSubMeshes[0]->cellIDsByTypeSize() ; i++)
+                {
+                  grpSubMesh->_cellIDsByType[i] = famSubMeshes[0]->_cellIDsByType[i];
+                }
+            }
+          else
+            grpSubMesh->_subs.swap( famSubMeshes );
+        }
     }
 }
 
