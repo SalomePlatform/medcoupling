@@ -329,6 +329,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT static const double *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth);
     MEDCOUPLING_EXPORT static const double *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth);
+    MEDCOUPLING_EXPORT static const double *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
   public:
@@ -369,6 +370,23 @@ namespace ParaMEDMEM
     static const double REF_HEXA27[81];
     static const double REF_PYRA5[15];
     static const double REF_PYRA13[39];
+    static const double LOC_SEG2[2];
+    static const double LOC_SEG3[3];
+    static const double LOC_SEG4[4];
+    static const double LOC_TRI3[6];
+    static const double LOC_TRI6[12];
+    static const double LOC_TRI7[14];
+    static const double LOC_QUAD4[8];
+    //static const double LOC_QUAD8[16];
+    static const double LOC_QUAD9[18];
+    static const double LOC_TETRA4[12];
+    //static const double LOC_TETRA10[30];
+    static const double LOC_PENTA6[18];
+    //static const double LOC_PENTA15[45];
+    static const double LOC_HEXA8[24];
+    static const double LOC_HEXA27[81];
+    static const double LOC_PYRA5[15];
+    //static const double LOC_PYRA13[39];
   };
 
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes

@@ -345,6 +345,30 @@ namespace ParaMEDMEM
 
   class MEDCouplingFieldDiscretizationGaussNE : public MEDCouplingFieldDiscretization
   {
+  public:
+    %extend
+    {
+      static PyObject *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t sz(0);
+        const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(geoType,sz));
+        return convertDblArrToPyList(ret,sz);
+      }
+      
+      static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t sz(0);
+        const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(geoType,sz));
+        return convertDblArrToPyList(ret,sz);
+      }
+      
+      static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t sz(0);
+        const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(geoType,sz));
+        return convertDblArrToPyList(ret,sz);
+      }
+    }
   };
 
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes

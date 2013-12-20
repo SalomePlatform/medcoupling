@@ -14039,6 +14039,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(da.getIdsEqualTuple(2).isEqual(da.getIdsEqual(2)))
         pass
 
+    def testSwig2GaussNEStaticInfo1(self):
+        self.assertTrue(DataArrayDouble(MEDCouplingFieldDiscretizationGaussNE.GetWeightArrayFromGeometricType(NORM_TRI3)).isEqual(DataArrayDouble([0.16666666666666666,0.16666666666666666,0.16666666666666666]),1e-12))
+        self.assertTrue(DataArrayDouble(MEDCouplingFieldDiscretizationGaussNE.GetRefCoordsFromGeometricType(NORM_TRI3)).isEqual(DataArrayDouble([0.,0.,1.,0.,0.,1.]),1e-12))
+        self.assertTrue(DataArrayDouble(MEDCouplingFieldDiscretizationGaussNE.GetLocsFromGeometricType(NORM_TRI3)).isEqual(DataArrayDouble([0.16666666666666666,0.16666666666666666,0.6666666666666667,0.16666666666666666,0.16666666666666666,0.6666666666666667]),1e-12))
+        pass
+
     def setUp(self):
         pass
     pass
