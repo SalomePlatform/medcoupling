@@ -1431,8 +1431,8 @@ class MEDLoaderTest4(unittest.TestCase):
             fNode.setName(fieldName2) ; fNode.setMesh(m)
             fNode.setGaussLocalizationOnCells([0,1,2,3],[0.,0.,1.,0.,0.,1.],[0.5,0.5,0.7,0.7],[0.8,0.2])
             fNode.setGaussLocalizationOnCells([4,5],[0.,0.,1.,0.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3],[0.8,0.05,0.1,0.04,0.01])
-            fNode.setGaussLocalizationOnCells([6,7,8],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
-            fNode.setGaussLocalizationOnCells([9,10],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
+            fNode.setGaussLocalizationOnCells([6,7,8],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
+            fNode.setGaussLocalizationOnCells([9,10],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
             arr=DataArrayDouble(2*(4*2+2*5+3*4+2*7)) ; arr.iota(300+1000*i) ; arr.rearrange(2)
             fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"]) ; fNode.checkCoherency()
             f.setFieldNoProfileSBT(fNode)
@@ -1574,8 +1574,8 @@ class MEDLoaderTest4(unittest.TestCase):
             fNode.setName(fieldName2) ; fNode.setMesh(m[pfl1])
             fNode.setGaussLocalizationOnCells([0],[0.,0.,1.,0.,0.,1.],[0.5,0.5,0.7,0.7],[0.8,0.2])
             fNode.setGaussLocalizationOnCells([1],[0.,0.,1.,0.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3],[0.8,0.05,0.1,0.04,0.01])
-            fNode.setGaussLocalizationOnCells([2,3],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
-            fNode.setGaussLocalizationOnCells([4],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
+            fNode.setGaussLocalizationOnCells([2,3],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
+            fNode.setGaussLocalizationOnCells([4],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
             arr=DataArrayDouble(2*(2*1+5*1+4*2+7*1)) ; arr.iota(300+1000*i) ; arr.rearrange(2)
             fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_2 [m]","Com2_2 [s^2]"]) ; fNode.checkCoherency()
             f.setFieldProfile(fNode,mm,0,pfl1)
@@ -1808,10 +1808,10 @@ class MEDLoaderTest4(unittest.TestCase):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
-            fNode.setGaussLocalizationOnCells([0,2,3,4,7,15],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7],[0.8,0.2])
-            fNode.setGaussLocalizationOnCells([1,5,8,9],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3],[0.8,0.05,0.1,0.04,0.01])
-            fNode.setGaussLocalizationOnCells([6,10,13],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
-            fNode.setGaussLocalizationOnCells([11,12,14],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
+            fNode.setGaussLocalizationOnCells([0,2,3,4,7,15],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7],[0.8,0.2])
+            fNode.setGaussLocalizationOnCells([1,5,8,9],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3],[0.8,0.05,0.1,0.04,0.01])
+            fNode.setGaussLocalizationOnCells([6,10,13],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
+            fNode.setGaussLocalizationOnCells([11,12,14],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
             arr=DataArrayDouble(2*(2*6+5*4+4*3+7*3)) ; arr.iota(0+1000*i) ; arr.rearrange(2)
             fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"]) ; fNode.checkCoherency()
             f.setFieldNoProfileSBT(fNode)
@@ -1890,10 +1890,10 @@ class MEDLoaderTest4(unittest.TestCase):
             f=MEDFileField1TS()
             fNode=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fNode.setTime(float(i),i,0)
             fNode.setName(fieldName0) ; fNode.setMesh(m)
-            fNode.setGaussLocalizationOnCells([0,2,3,4,7,15],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7],[0.8,0.2])
-            fNode.setGaussLocalizationOnCells([1,5,8,9],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3],[0.8,0.05,0.1,0.04,0.01])
-            fNode.setGaussLocalizationOnCells([6,10,13],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
-            fNode.setGaussLocalizationOnCells([11,12,14],[0.,0.,1.,0.,1.,1.,0.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
+            fNode.setGaussLocalizationOnCells([0,2,3,4,7,15],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7],[0.8,0.2])
+            fNode.setGaussLocalizationOnCells([1,5,8,9],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3],[0.8,0.05,0.1,0.04,0.01])
+            fNode.setGaussLocalizationOnCells([6,10,13],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2],[0.8,0.05,0.1,0.04])
+            fNode.setGaussLocalizationOnCells([11,12,14],[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[0.5,0.5,0.7,0.7,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.8,0.8],[0.8,0.05,0.1,0.01,0.02,0.005,0.005])
             arr=DataArrayDouble(2*(2*6+5*4+4*3+7*3)) ; arr.iota(0+1000*i) ; arr.rearrange(2)
             fNode.setArray(arr) ; arr.setInfoOnComponents(["Comp1_0 [m]","Com2_0 [s^2]"]) ; fNode.checkCoherency()
             f.setFieldNoProfileSBT(fNode)
@@ -3166,6 +3166,38 @@ class MEDLoaderTest4(unittest.TestCase):
             vExp.setInfoOnComponents(["zzzz"])
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
+        pass
+
+    def test21(self):
+        """ Here the created MED file contains only a mesh. The aim here is to test capability of MEDReader to support no fields.
+        This test checks nothing but write a MED file to be used by MEDReader tests.
+        """
+        fname="ForMEDReader21.med"
+        mm=MEDFileUMesh()
+        #
+        m0=MEDCouplingCMesh("mesh") ; arr=DataArrayDouble(5) ; arr.iota() ; m0.setCoords(arr,arr) ; m0=m0.buildUnstructured()
+        mm.setMeshAtLevel(0,m0)
+        grp0=DataArrayInt([5,6,9,10]) ; grp0.setName("Inside2D")
+        grp1=DataArrayInt([0,1,2,3,4,7,8,11,12,13,14,15]) ; grp1.setName("Border2D")
+        grp2=DataArrayInt([2,3,6,7]) ; grp2.setName("LowerRight2D")
+        mm.setGroupsAtLevel(0,[grp0,grp1,grp2])
+        #
+        m1=MEDCouplingUMesh(m0.getName(),1) ; m1.setCoords(m0.getCoords()) ; m1.allocateCells()
+        for elt in [[0,1],[1,2],[2,3],[3,4],[4,9],[9,14],[14,19],[19,24],[24,23],[23,22],[22,21],[21,20],[20,15],[15,10],[10,5],[5,0],[2,7],[7,12],[12,17],[17,22],
+                    [10,11],[11,12],[12,13],[13,14]]:
+            m1.insertNextCell(NORM_SEG2,elt)
+            pass
+        mm.setMeshAtLevel(-1,m1)
+        grp4=DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]) ; grp4.setName("Border1D")
+        grp5=DataArrayInt([16,17,18,19,20,21,22,23]) ; grp5.setName("Inside1D")
+        grp6=DataArrayInt([18,19,22,23]) ; grp6.setName("UpperRight1D")
+        mm.setGroupsAtLevel(-1,[grp4,grp5,grp6])
+        #
+        grp7=DataArrayInt([1,2,3,6,7,8,11,12,13,16,17,18,21,22,23]) ; grp7.setName("InsideYNode")
+        grp8=DataArrayInt([5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]) ; grp8.setName("InsideXNode")
+        mm.setGroupsAtLevel(1,[grp7,grp8])
+        #
+        mm.write(fname,2)
         pass
     pass
 
