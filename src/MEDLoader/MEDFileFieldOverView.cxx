@@ -52,7 +52,7 @@ std::vector<const BigMemoryObject *> MEDFileMeshStruct::getDirectChildren() cons
 
 MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
 {
-  std::vector<int> levs=mesh->getNonEmptyLevels();
+  std::vector<int> levs(mesh->getNonEmptyLevels());
   _name=mesh->getName();
   _nb_nodes=mesh->getNumberOfNodes();
   _geo_types_distrib.resize(levs.size());
@@ -1965,9 +1965,8 @@ MEDMeshMultiLev *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MED
   else
     {
       if(!presenceOfPartialNodeDiscr(pos1))
-        {//we have only all nodes, no cell definition info -> level 0;
-          std::vector<int> levs(1,0);
-          return MEDMeshMultiLev::New(mst->getTheMesh(),levs);
+        {//we have only all nodes, no cell definition info -> all existing levels !;
+          return MEDMeshMultiLev::New(mst->getTheMesh(),mst->getTheMesh()->getNonEmptyLevels());
         }
       else
         return MEDMeshMultiLev::NewOnlyOnNode(mst->getTheMesh(),_already_checked[pos1][0].getPfl(globs));
