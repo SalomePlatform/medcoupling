@@ -153,8 +153,7 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<IN
 
 MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode)
 {
-  std::vector<int> levs(1,0);
-  MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,levs));
+  MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,m->getNonEmptyLevels()));
   ret->selectPartOfNodes(pflOnNode);
   return ret.retn();
 }
