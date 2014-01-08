@@ -375,6 +375,161 @@ MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
   return ret;
 }
 
+void MEDCouplingStructuredMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
+{
+  std::vector<int> ngs(getNodeGridStructure());
+  int dim(getMeshDimension());
+  switch(dim)
+  {
+    case 1:
+      return GetReverseNodalConnectivity1(ngs,revNodal,revNodalIndx);
+    case 2:
+      return GetReverseNodalConnectivity2(ngs,revNodal,revNodalIndx);
+    case 3:
+      return GetReverseNodalConnectivity3(ngs,revNodal,revNodalIndx);
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::getReverseNodalConnectivity : only dimensions 1, 2 and 3 are supported !");
+  }
+}
+
+void MEDCouplingStructuredMesh::GetReverseNodalConnectivity1(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx)
+{
+  int nbNodes(ngs[0]);
+  revNodalIndx->alloc(nbNodes+1,1);
+  if(nbNodes==0)
+    { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
+  if(nbNodes==1)
+    { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); revNodalIndx->setIJ(1,0,0); return ; }
+  revNodal->alloc(2*(nbNodes-1),1);
+  int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
+  *rni++=0; *rni=1; *rn++=0;
+  for(int i=1;i<nbNodes-1;i++,rni++)
+    {
+      rn[0]=i-1; rn[1]=i;
+      rni[1]=rni[0]+2;
+      rn+=2;
+    }
+  rn[0]=nbNodes-2; rni[1]=rni[0]+1;
+}
+
+void MEDCouplingStructuredMesh::GetReverseNodalConnectivity2(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx)
+{
+  int nbNodesX(ngs[0]),nbNodesY(ngs[1]);
+  int nbNodes(nbNodesX*nbNodesY);
+  if(nbNodesX==0 || nbNodesY==0)
+    { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
+  if(nbNodesX==1 || nbNodesY==1)
+    { std::vector<int> ngs2(1); ngs2[0]=std::max(nbNodesX,nbNodesY); return GetReverseNodalConnectivity1(ngs2,revNodal,revNodalIndx); }
+  revNodalIndx->alloc(nbNodes+1,1);
+  int nbCellsX(nbNodesX-1),nbCellsY(nbNodesY-1);
+  revNodal->alloc(4*(nbNodesX-2)*(nbNodesY-2)+2*2*(nbNodesX-2)+2*2*(nbNodesY-2)+4,1);
+  int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
+  *rni++=0; *rni=1; *rn++=0;
+  for(int i=1;i<nbNodesX-1;i++,rni++,rn+=2)
+    {
+      rn[0]=i-1; rn[1]=i;
+      rni[1]=rni[0]+2;
+    }
+  rni[1]=rni[0]+1; *rn++=nbCellsX-1;
+  rni++;
+  for(int j=1;j<nbNodesY-1;j++)
+    {
+      int off(nbCellsX*(j-1)),off2(nbCellsX*j);
+      rni[1]=rni[0]+2; rn[0]=off; rn[1]=off2;
+      rni++; rn+=2;
+      for(int i=1;i<nbNodesX-1;i++,rni++,rn+=4)
+        {
+          rn[0]=i-1+off; rn[1]=i+off; rn[2]=i-1+off2; rn[3]=i+off2;
+          rni[1]=rni[0]+4;
+        }
+      rni[1]=rni[0]+2; rn[0]=off+nbCellsX-1; rn[1]=off2+nbCellsX-1;
+      rni++; rn+=2;
+    }
+  int off3(nbCellsX*(nbCellsY-1));
+  rni[1]=rni[0]+1;
+  rni++; *rn++=off3;
+  for(int i=1;i<nbNodesX-1;i++,rni++,rn+=2)
+    {
+      rn[0]=i-1+off3; rn[1]=i+off3;
+      rni[1]=rni[0]+2;
+    }
+  rni[1]=rni[0]+1; rn[0]=nbCellsX*nbCellsY-1;
+}
+
+void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx)
+{
+  int nbNodesX(ngs[0]),nbNodesY(ngs[1]),nbNodesZ(ngs[2]);
+  int nbNodes(nbNodesX*nbNodesY*nbNodesZ);
+  if(nbNodesX==0 || nbNodesY==0 || nbNodesZ==0)
+    { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
+  if(nbNodesX==1 || nbNodesY==1 || nbNodesZ==1)
+    {
+      std::vector<int> ngs2(2);
+      int pos(0);
+      bool pass(false);
+      for(int i=0;i<3;i++)
+        {
+          if(pass)
+            { ngs2[pos++]=ngs[i]; }
+          else
+            {
+              pass=ngs[i]==1;
+              if(!pass)
+                { ngs2[pos++]=ngs[i]; }
+            }
+        }
+      return GetReverseNodalConnectivity2(ngs2,revNodal,revNodalIndx);
+    }
+  revNodalIndx->alloc(nbNodes+1,1);
+  int nbCellsX(nbNodesX-1),nbCellsY(nbNodesY-1),nbCellsZ(nbNodesZ-1);
+  revNodal->alloc(8*(nbNodesX-2)*(nbNodesY-2)*(nbNodesZ-2)+4*(2*(nbNodesX-2)*(nbNodesY-2)+2*(nbNodesX-2)*(nbNodesZ-2)+2*(nbNodesY-2)*(nbNodesZ-2))+2*4*(nbNodesX-2)+2*4*(nbNodesY-2)+2*4*(nbNodesZ-2)+8,1);
+  int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
+  *rni=0;
+  for(int k=0;k<nbNodesZ;k++)
+    {
+      bool factZ(k!=0 && k!=nbNodesZ-1);
+      int offZ0((k-1)*nbCellsX*nbCellsY),offZ1(k*nbCellsX*nbCellsY);
+      for(int j=0;j<nbNodesY;j++)
+        {
+          bool factYZ(factZ && (j!=0 && j!=nbNodesY-1));
+          int off00((j-1)*nbCellsX+offZ0),off01(j*nbCellsX+offZ0),off10((j-1)*nbCellsX+offZ1),off11(j*nbCellsX+offZ1);
+          for(int i=0;i<nbNodesX;i++,rni++)
+            {
+              int fact(factYZ && (i!=0 && i!=nbNodesX-1));
+              if(fact)
+                {//most of points fall in this part of code
+                  rn[0]=off00+i-1; rn[1]=off00+i; rn[2]=off01+i-1; rn[3]=off01+i;
+                  rn[4]=off10+i-1; rn[5]=off10+i; rn[6]=off11+i-1; rn[7]=off11+i;
+                  rni[1]=rni[0]+8;
+                  rn+=8;
+                }
+              else
+                {
+                  int *rnRef(rn);
+                  if(k>=1 && j>=1 && i>=1)
+                    *rn++=off00+i-1;
+                  if(k>=1 && j>=1 && i<nbCellsX)
+                    *rn++=off00+i;
+                  if(k>=1 && j<nbCellsY && i>=1)
+                    *rn++=off01+i-1;
+                  if(k>=1 && j<nbCellsY && i<nbCellsX)
+                    *rn++=off01+i;
+                  //
+                  if(k<nbCellsZ && j>=1 && i>=1)
+                    *rn++=off10+i-1;
+                  if(k<nbCellsZ && j>=1 && i<nbCellsX)
+                    *rn++=off10+i;
+                  if(k<nbCellsZ && j<nbCellsY && i>=1)
+                    *rn++=off11+i-1;
+                  if(k<nbCellsZ && j<nbCellsY && i<nbCellsX)
+                    *rn++=off11+i;
+                  rni[1]=rni[0]+(int)(std::distance(rnRef,rn));
+                }
+            }
+        }
+    }
+}
+
 /*!
  * \return DataArrayInt * - newly allocated instance of nodal connectivity compatible for MEDCoupling1SGTMesh instance
  */

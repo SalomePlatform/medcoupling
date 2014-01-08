@@ -97,6 +97,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
+    MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     //Serialization unserialisation
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;

@@ -766,6 +766,12 @@ DataArrayDouble *MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell() c
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::computeIsoBarycenterOfNodesPerCell: not yet implemented !");
 }
 
+void MEDCouplingExtrudedMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(buildUnstructured());
+  m->getReverseNodalConnectivity(revNodal,revNodalIndx);
+}
+
 void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);

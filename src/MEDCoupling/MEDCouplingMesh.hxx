@@ -128,6 +128,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingUMesh *buildUnstructured() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *simplexize(int policy) = 0;
+    MEDCOUPLING_EXPORT virtual void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const = 0;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
     MEDCOUPLING_EXPORT static MEDCouplingMesh *MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes);

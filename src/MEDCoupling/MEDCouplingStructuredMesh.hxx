@@ -54,6 +54,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
+    MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     //some useful methods
     MEDCOUPLING_EXPORT int getCellIdFromPos(int i, int j, int k) const;
     MEDCOUPLING_EXPORT int getNodeIdFromPos(int i, int j, int k) const;
@@ -67,6 +68,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
   private:
+    static void GetReverseNodalConnectivity1(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
+    static void GetReverseNodalConnectivity2(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
+    static void GetReverseNodalConnectivity3(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
     static DataArrayInt *Build1GTNodalConnectivity1D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivity2D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg);

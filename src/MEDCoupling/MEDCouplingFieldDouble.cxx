@@ -274,6 +274,50 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
 }
 
 /*!
+ * This method converts a field on cell (\a this) to a node field (returned field). The convertion is a \b non \b conservative remapping !
+ * This method is useful only for users that need a fast convertion from cell to node spatial discretization. The algorithm applied is simply to attach
+ * to each node the average of values on cell sharing this node. If \a this lies on a mesh having orphan nodes the values applied on them will be NaN (division by 0.).
+ *
+ * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
+ *         caller is to delete this field using decrRef() as it is no more needed. The returned field will share the same mesh object object than those in \a this.
+ * \throw If \a this spatial discretization is empty or not ON_CELLS.
+ * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
+ *
+ * \warning This method is a \b non \b conservative method of remapping from cell spatial discretization to node spatial discretization.
+ * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P0P1" method.
+ */
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
+{
+  checkCoherency();
+  TypeOfField tf(getTypeOfField());
+  if(tf!=ON_CELLS)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::cellToNodeDiscretization : this field is expected to be on ON_CELLS !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(clone(false));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP1> nsp(new MEDCouplingFieldDiscretizationP1);
+  ret->setDiscretization(nsp);
+  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
+  int nbCells(m->getNumberOfCells()),nbNodes(m->getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rn(DataArrayInt::New()),rni(DataArrayInt::New());
+  m->getReverseNodalConnectivity(rn,rni);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rni2(rni->deltaShiftIndex());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> rni3(rni2->convertToDblArr()); rni2=0;
+  std::vector<DataArrayDouble *> arrs(getArrays());
+  std::size_t sz(arrs.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
+  for(std::size_t j=0;j<sz;j++)
+    {
+      int nbCompo(arrs[j]->getNumberOfComponents());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(arrs[j]->selectByTupleIdSafe(rn->begin(),rn->end()));
+      outArrsSafe[j]=(tmp->accumulatePerChunck(rni->begin(),rni->end())); tmp=0;
+      outArrsSafe[j]->divideEqual(rni3);
+      outArrsSafe[j]->copyStringInfoFrom(*arrs[j]);
+      outArrs[j]=outArrsSafe[j];
+    }
+  ret->setArrays(outArrs);
+  return ret.retn();
+}
+
+/*!
  * Copies tiny info (component names, name and description) from an \a other field to
  * \a this one.
  * \warning The underlying mesh is not renamed (for safety reason).

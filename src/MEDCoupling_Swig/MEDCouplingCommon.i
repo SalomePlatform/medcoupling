@@ -183,6 +183,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::nodeToCellDiscretization;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
@@ -552,6 +553,17 @@ namespace ParaMEDMEM
            ret->alloc((int)elts.size(),1);
            std::copy(elts.begin(),elts.end(),ret->getPointer());
            return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+         }
+         
+         virtual PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+           self->getReverseNodalConnectivity(d0,d1);
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           return ret;
          }
          
          void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
@@ -1170,17 +1182,6 @@ namespace ParaMEDMEM
                default:
                  throw INTERP_KERNEL::Exception("MEDCouplingPointSet::duplicateNodesInCoords : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
                }
-           }
-
-           virtual PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
-           {
-             MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-             MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-             self->getReverseNodalConnectivity(d0,d1);
-             PyObject *ret=PyTuple_New(2);
-             PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-             PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-             return ret;
            }
 
            virtual PyObject *findCommonCells(int compType, int startCellId=0) const throw(INTERP_KERNEL::Exception)
@@ -3121,6 +3122,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *nodeToCellDiscretization() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *cellToNodeDiscretization() const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     double getIJK(int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
