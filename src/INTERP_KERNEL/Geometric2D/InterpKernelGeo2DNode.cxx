@@ -93,7 +93,7 @@ double Node::distanceWithSq(const Node& other) const
 
 /*!
  * WARNING different from 'computeAngle' method ! The returned value are not in the same interval !
- * Here in -Pi/2; Pi/2. Typically this method returns the same value by exchanging pt1 and pt2.
+ * Here in [0; Pi). Typically this method returns the same value by exchanging pt1 and pt2.
  * Use in process of detection of a point in or not in polygon.
  */
 double Node::computeSlope(const double *pt1, const double *pt2)

@@ -332,7 +332,6 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
     }
 }
 
-
 void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad,
                             const int *nodalBg, const double *coords,
                             const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)

@@ -1171,4 +1171,27 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0030()
   delete pol2;
 }
 
+void QuadraticPlanarInterpTest::checkIsInOrOut()
+{
+  double coords[8]={   0.30662641093707971,  -0.47819928619088981,
+                      -0.47819928619088964,  0.30662641093707987,
+                       0.0, 0.0,
+                       0.4, 0.4
+  };
+  coords[4] = (coords[0] + coords[2]) / 2.0;
+  coords[5] = (coords[1] + coords[3]) / 2.0;
+
+/*  double r = 0.55495557248864675969;
+  coords[6] = coords[4];
+  coords[7] = coords[5] + r;*/
+
+  int tab4[4]={ 0, 1, 2, 3};
+  QuadraticPolygon *pol1=buildQuadraticPolygonCoarseInfo(coords,tab4,4);
+  Node * n = new Node(0.3175267678416348, -0.4890996430954449);
+
+  CPPUNIT_ASSERT(! pol1->isInOrOut(n)); // node should be out
+  delete pol1;
+}
+
+
 }

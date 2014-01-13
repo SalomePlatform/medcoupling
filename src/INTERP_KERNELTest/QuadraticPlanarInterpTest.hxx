@@ -106,6 +106,8 @@ namespace INTERP_TEST
     //
     CPPUNIT_TEST( checkNormalize );
     CPPUNIT_TEST( checkMakePartitionAbs1 );
+    //
+    CPPUNIT_TEST( checkIsInOrOut );
     CPPUNIT_TEST_SUITE_END();
   public:  
     void setUp();
@@ -194,6 +196,9 @@ namespace INTERP_TEST
     //
     void checkNormalize();
     void checkMakePartitionAbs1();
+    // From Adrien:
+    void checkIsInOrOut();
+
   private:
     INTERP_KERNEL::QuadraticPolygon *buildQuadraticPolygonCoarseInfo(const double *coords, const int *conn, int lgth);
     INTERP_KERNEL::EdgeArcCircle *buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd);
