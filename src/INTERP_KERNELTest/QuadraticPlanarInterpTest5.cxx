@@ -1190,6 +1190,7 @@ void QuadraticPlanarInterpTest::checkIsInOrOut()
   Node * n = new Node(0.3175267678416348, -0.4890996430954449);
 
   CPPUNIT_ASSERT(! pol1->isInOrOut(n)); // node should be out
+  n->decrRef();
   delete pol1;
 }
 
