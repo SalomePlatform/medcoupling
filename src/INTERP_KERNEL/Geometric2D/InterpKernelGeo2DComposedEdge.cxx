@@ -441,13 +441,19 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
 }
 
 /*!
+ * This method makes the hypothesis that \a nodeToTest can be either IN or OUT.
+ * 
  * \sa ComposedEdge::isInOrOut2
  */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 {
+  Bounds b; b.prepareForAggregation();
+  fillBounds(b);
+  if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
+    return false;
   std::set< IntersectElement > inOutSwitch;
   double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
-  bool ret=false;
+  bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
       if((*iter4).getVal1()<ref)
@@ -464,7 +470,6 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 /*!
  * This method is close to ComposedEdge::isInOrOut behaviour except that here EPSILON is taken into account to detect if it is IN or OUT.
  * If \a nodeToTest is close to an edge in \a this, true will be returned even if it is outside informatically from \a this.
- * This method makes the hypothesis that 
  *
  * \sa ComposedEdge::isInOrOut
  */
@@ -472,7 +477,7 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
 {
   std::set< IntersectElement > inOutSwitch;
   double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
-  bool ret=false;
+  bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
       double val((*iter4).getVal1());
@@ -494,10 +499,6 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
 
 double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >& inOutSwitch) const
 {
-  Bounds b; b.prepareForAggregation();
-  fillBounds(b);
-  //if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
-  //  return false;
   // searching for e1
   std::set<Node *> nodes;
   getAllNodes(nodes);
