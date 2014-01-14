@@ -10367,6 +10367,58 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected2,d2.getValues())
         pass
 
+    def testSwig2Intersect2DMeshesQuadra1(self):
+        import cmath
+        def createDiagCircle(lX, lY, R, cells=[0,1]):  
+            """ A circle in a square box, cut along the diagonal. 
+            """    
+            c = []
+            for i in range(8):
+              c.append(cmath.rect(R, i*pi/4))
+        
+            coords = [0.0,0.0,          c[3].real,c[3].imag,       -lX/2.0, lY/2.0,
+                      0.0, lY/2.0,      lX/2.0,lY/2.0,             lX/2.0,0.0,
+                      #   6                  7                              8
+                      lX/2.0,-lY/2.0,   c[7].real,c[7].imag,       c[1].real,c[1].imag,
+                      #   9                  10                            11  
+                      c[5].real,c[5].imag,   -lX/2.0,-lY/2.0,      0.0, -lY/2.0,
+                      #   12                  13                            14
+                      -lX/2.0,0.0,         0.0,0.0,                  0.0, 0.0]
+            # Points 13 (reps. 14) are average of points (6,7) (resp (1,2))
+            coords[13*2]   = 0.5*(coords[6*2]+coords[7*2])
+            coords[13*2+1] = 0.5*(coords[6*2+1]+coords[7*2+1])
+            coords[14*2]   = 0.5*(coords[1*2]+coords[2*2])
+            coords[14*2+1] = 0.5*(coords[1*2+1]+coords[2*2+1])
+            connec  = [1,7,8,0]      # half circle up right
+            connec3 = [6,7,1,2,4,13,8,14,3,5]
+            
+            baseMesh = MEDCouplingUMesh.New("box_circle", 2)  
+            baseMesh.allocateCells(2)
+            meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
+            meshCoords.setInfoOnComponents(["X [au]", "Y [au]"])
+            baseMesh.setCoords(meshCoords)
+            
+            if 0 in cells:
+              baseMesh.insertNextCell(NORM_QPOLYG, connec)  
+            if 1 in cells: 
+              baseMesh.insertNextCell(NORM_QPOLYG, connec3) 
+            baseMesh.finishInsertingCells()  
+            baseMesh.checkCoherency() 
+            return baseMesh 
+        
+        eps = 1.0e-7
+        m1 = createDiagCircle(1.0, 1.0, 0.5*0.90, cells=[0,1])  
+        m2 = createDiagCircle(1.0, 1.0, 0.5*0.95, cells=[0])
+        m3, _, _= MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
+        m3.mergeNodes(eps)
+        m3.convertDegeneratedCells()
+        m3.zipCoords()        
+        m4 = m3.deepCpy()
+        m5, _, _ = MEDCouplingUMesh.Intersect2DMeshes(m3, m4, eps)
+        m5.mergeNodes(eps)
+        # Check coordinates:
+        self.assertTrue(m3.getCoords().isEqual(m5.getCoords(), eps))
+
     def testDAIBuildUnique1(self):
         d=DataArrayInt([1,2,2,3,3,3,3,4,5,5,7,7,7,19])
         e=d.buildUnique()
@@ -14133,4 +14185,5 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
     pass
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
