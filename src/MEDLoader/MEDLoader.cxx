@@ -1597,12 +1597,15 @@ void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const Pa
     }
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
   AssignStaticWritePropertiesTo(*f1ts);
-  MEDCouplingUMesh *m=dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f->getMesh()));
-  if(!m)
-    throw INTERP_KERNEL::Exception("MEDLoader::WriteFieldUsingAlreadyWrittenMesh : only umesh in input field supported !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=m->getRenumArrForMEDFileFrmt();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f2(f->deepCpy());
-  f2->renumberCells(o2n->begin(),false);
-  f1ts->setFieldNoProfileSBT(f2);
+  MEDCouplingUMesh *m(dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f->getMesh())));
+  if(m)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(m->getRenumArrForMEDFileFrmt());
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f2(f->deepCpy());
+      f2->renumberCells(o2n->begin(),false);
+      f1ts->setFieldNoProfileSBT(f2);
+    }
+  else
+    f1ts->setFieldNoProfileSBT(f);
   f1ts->write(fileName,0);
 }
