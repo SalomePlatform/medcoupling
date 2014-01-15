@@ -14111,8 +14111,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         c.setCoordsAt(0,arr)
         rn,rni=c.getReverseNodalConnectivity()
         rn2,rni2=c.buildUnstructured().getReverseNodalConnectivity()
-        self.assertTrue(rn.isEqual(DataArrayInt([])))
-        self.assertTrue(rni.isEqual(DataArrayInt([0,0])))
+        self.assertTrue(rn.isEqual(DataArrayInt([0])))
+        self.assertTrue(rni.isEqual(DataArrayInt([0,1])))
         self.assertTrue(rn.isEqual(rn2)) ; self.assertTrue(rni.isEqual(rni2))
         # 1D - limit
         c=MEDCouplingCMesh() ; arr=DataArrayDouble(0) ; arr.iota()
@@ -14179,6 +14179,35 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(f3.getTime()[0],1.1,15)
         self.assertEqual(f3.getMesh().getHiddenCppPointer(),u.getHiddenCppPointer())
         self.assertTrue(f3.getArray().isEqual(ref,1e-12))
+        pass
+
+    def testSwig2GetMeshSpaceDimensionCMesh1(self):
+        c=MEDCouplingCMesh()
+        arr0=DataArrayDouble([0,1,2])
+        arr1=DataArrayDouble([0])
+        c.setCoords(arr0,arr0,arr0)
+        self.assertEqual(c.getMeshDimension(),3)
+        self.assertEqual(c.getSpaceDimension(),3)
+        #
+        c.setCoords(arr0,arr0,arr1)
+        self.assertEqual(c.getMeshDimension(),2)
+        self.assertEqual(c.getSpaceDimension(),3)
+        #
+        c.setCoords(arr0,arr0)
+        self.assertEqual(c.getMeshDimension(),2)
+        self.assertEqual(c.getSpaceDimension(),2)
+        #
+        c.setCoords(arr0,arr1)
+        self.assertEqual(c.getMeshDimension(),1)
+        self.assertEqual(c.getSpaceDimension(),2)
+        #
+        c.setCoords(arr0)
+        self.assertEqual(c.getMeshDimension(),1)
+        self.assertEqual(c.getSpaceDimension(),1)
+        #
+        c.setCoords(arr1)
+        self.assertEqual(c.getMeshDimension(),0)
+        self.assertEqual(c.getSpaceDimension(),1)
         pass
 
     def setUp(self):
