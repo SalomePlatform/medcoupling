@@ -1143,13 +1143,14 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor : null input pointer !");
   if(levs.size()!=1 || levs[0]!=0)
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor : levels supported is 0 only !");
-  int mdim(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(m->getMeshDimension()));
-  _coords.resize(mdim);
-  for(int i=0;i<mdim;i++)
+  int sdim(m->getSpaceDimension());
+  _coords.resize(sdim);
+  for(int i=0;i<sdim;i++)
     {
       DataArrayDouble *elt(const_cast<DataArrayDouble *>(m->getMesh()->getCoordsAt(i)));
       if(!elt)
         throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : presence of null pointer for an vector of double along an axis !");
+      elt->incrRef();
       _coords[i]=elt;
     }
 }
@@ -1188,7 +1189,9 @@ std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const
 
 MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
 {
-  const DataArrayInt *pfl(_pfls[0]),*nr(_node_reduction);
+  const DataArrayInt *pfl(0),*nr(_node_reduction);
+  if(!_pfls.empty())
+    pfl=_pfls[0];
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
   std::vector<int> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());

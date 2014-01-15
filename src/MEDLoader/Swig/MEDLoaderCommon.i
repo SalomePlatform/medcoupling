@@ -860,6 +860,7 @@ namespace ParaMEDMEM
     static MEDFileCMesh *New(const char *fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
+    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileCMesh()

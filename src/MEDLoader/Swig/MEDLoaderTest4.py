@@ -3410,7 +3410,86 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
-
+    def test24(self):
+        """ Non regression test for cartesian mesh whose the 3rd direction has only one node. It a false 3D mesh.
+        """
+        fname="ForMEDReader24.med"
+        fieldName0="zeFieldNode"
+        cmesh=MEDCouplingCMesh("mesh")
+        arr0=DataArrayDouble([0.,1.1,2.2,3.3,4.4])
+        arr1=DataArrayDouble([0.,1.4,2.3])
+        arr2=DataArrayDouble([5.])
+        cmesh.setCoords(arr0,arr1,arr2)
+        fmts0=MEDFileFieldMultiTS()
+        fmts0.setDtUnit("s")
+        #
+        t=(1.1,2,3)
+        f=MEDCouplingFieldDouble(ON_NODES) ; f.setName(fieldName0)
+        f.setMesh(cmesh)
+        arr=DataArrayDouble(15) ; arr.setInfoOnComponents(["tutu"]) ; arr.iota()
+        f.setArray(arr)
+        f.setTime(*t)
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        fmts0.pushBackTimeStep(f1ts)
+        #
+        t=(3.3,4,5)
+        arr=DataArrayDouble(15) ; arr.setInfoOnComponents(["tutu"]) ; arr.iota()
+        arr.reverse()
+        f.setArray(arr)
+        f.setTime(*t)
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        fmts0.pushBackTimeStep(f1ts)
+        #
+        mm=MEDFileCMesh() ; mm.setMesh(cmesh)
+        mm.write(fname,2)
+        fmts0.write(fname,0)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),1)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),1)
+        allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),1)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        #
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDCMeshMultiLev))
+        a,b,c=mml2.buildVTUArrays()
+        self.assertTrue(a.isEqual(arr0,1e-12))
+        self.assertTrue(b.isEqual(arr1,1e-12))
+        self.assertTrue(c.isEqual(arr2,1e-12))
+        for i in xrange(2):
+            f=allFMTSLeavesPerCommonSupport[0][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(f,mst)
+            f.loadArraysIfNecessary()
+            v=mml.buildDataArray(fsst,fields,f.getUndergroundDataArray())
+            self.assertEqual(f.getName(),fieldName0)
+            self.assertEqual(v.getHiddenCppPointer(),f.getUndergroundDataArray().getHiddenCppPointer())
+            vExp=DataArrayDouble(15) ; vExp.iota(0) ; vExp.setInfoOnComponents(["tutu"])
+            if i==1:
+                vExp.reverse()
+                pass
+            self.assertTrue(v.isEqual(vExp,1e-12))
+            pass
+        pass
     
     pass
 

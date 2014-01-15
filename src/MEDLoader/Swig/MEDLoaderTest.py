@@ -710,6 +710,45 @@ class MEDLoaderTest(unittest.TestCase):
         MEDLoader.MEDLoader.WriteField(fname,f,True)
         pass
 
+    def testUsingAlreadyWrittenMesh2(self):
+        """ This test focuses on MEDLoader.WriteFieldUsingAlreadyWrittenMesh with mesh different from UMesh.
+        """
+        fname="Pyfile76.med"
+        mesh=MEDLoader.MEDCouplingCMesh("mesh")
+        arrX=MEDLoader.DataArrayDouble([0,1,2,3])
+        arrY=MEDLoader.DataArrayDouble([0,2,3,5,7])
+        arrZ=MEDLoader.DataArrayDouble([7])
+        mesh.setCoords(arrX,arrY,arrZ)
+        #
+        f1=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_NODES) ; f1.setName("f1")
+        f1.setMesh(mesh)
+        arr=MEDLoader.DataArrayDouble(20) ; arr.iota()
+        f1.setArray(arr)
+        f1.checkCoherency()
+        #
+        f2=MEDLoader.MEDCouplingFieldDouble(MEDLoader.ON_NODES) ; f2.setName("f2")
+        f2.setMesh(mesh)
+        arr=MEDLoader.DataArrayDouble(20) ; arr.iota() ; arr*=3
+        f2.setArray(arr)
+        f2.checkCoherency()
+        #
+        f11=f1.deepCpy() ; (f11.getArray())[:]*=4 ; f11.setTime(1.1,5,6)
+        #
+        MEDLoader.MEDLoader.WriteMesh(fname,f1.getMesh(),True)
+        MEDLoader.MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f1)
+        MEDLoader.MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f2)
+        MEDLoader.MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f11)
+        ##
+        f1r=MEDLoader.MEDLoader.ReadFieldNode(fname,"mesh",0,"f1",-1,-1);
+        self.assertTrue(f1.isEqual(f1r,1e-12,1e-12))
+        self.assertTrue(f1r.getArray().isEqual(MEDLoader.DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.]),1e-12))
+        f2r=MEDLoader.MEDLoader.ReadFieldNode(fname,"mesh",0,"f2",-1,-1);
+        self.assertTrue(f2.isEqual(f2r,1e-12,1e-12))
+        self.assertTrue(f2r.getArray().isEqual(MEDLoader.DataArrayDouble([0.,3.,6.,9.,12.,15.,18.,21.,24.,27.,30.,33.,36.,39.,42.,45.,48.,51.,54.,57.]),1e-12))
+        f3r=MEDLoader.MEDLoader.ReadFieldNode(fname,"mesh",0,"f1",5,6);
+        self.assertTrue(f11.isEqual(f3r,1e-12,1e-12))
+        self.assertTrue(f3r.getArray().isEqual(MEDLoader.DataArrayDouble([0.,4.,8.,12.,16.,20.,24.,28.,32.,36.,40.,44.,48.,52.,56.,60.,64.,68.,72.,76.]),1e-12))
+        pass
     pass
 
 unittest.main()
