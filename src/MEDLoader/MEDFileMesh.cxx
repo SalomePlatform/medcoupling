@@ -4753,6 +4753,18 @@ int MEDFileCMesh::getMeshDimension() const
 }
 
 /*!
+ * Returns the dimension on nodes in \a this mesh.
+ *  \return int - the space dimension.
+ *  \throw If there are no cells in this mesh.
+ */
+int MEDFileCMesh::getSpaceDimension() const
+{
+  if(!((const MEDCouplingCMesh*)_cmesh))
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getSpaceDimension : unable to get spacedimension because no mesh set !");
+  return _cmesh->getSpaceDimension();
+}
+
+/*!
  * Returns a string describing \a this mesh.
  *  \return std::string - the mesh information string.
  */
@@ -4908,8 +4920,7 @@ void MEDFileCMesh::writeLL(med_idt fid) const
   MEDLoaderBase::safeStrCpy(_name.c_str(),MED_NAME_SIZE,maa,_too_long_str);
   MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_COMMENT_SIZE,desc,_too_long_str);
   MEDLoaderBase::safeStrCpy(_dt_unit.c_str(),MED_LNAME_SIZE,dtunit,_too_long_str);
-  int spaceDim=_cmesh->getSpaceDimension();
-  int meshDim=_cmesh->getMeshDimension();
+  int spaceDim(_cmesh->getSpaceDimension());
   INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
   for(int i=0;i<spaceDim;i++)
@@ -4920,7 +4931,7 @@ void MEDFileCMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDmeshCr(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
+  MEDmeshCr(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
   MEDmeshUniversalNameWr(fid,maa);
   MEDmeshGridTypeWr(fid,maa,MED_CARTESIAN_GRID);
   for(int i=0;i<spaceDim;i++)

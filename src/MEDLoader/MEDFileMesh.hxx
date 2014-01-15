@@ -357,6 +357,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT int getMeshDimension() const;
+    MEDLOADER_EXPORT int getSpaceDimension() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT std::string advancedRepr() const;
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;

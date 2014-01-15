@@ -70,6 +70,8 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::GetGeoTypeGivenMesh
       return INTERP_KERNEL::NORM_QUAD4;
     case 1:
       return INTERP_KERNEL::NORM_SEG2;
+    case 0:
+      return INTERP_KERNEL::NORM_POINT1;
     default:
       throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension !");
     }
@@ -378,7 +380,7 @@ MEDCouplingFieldDouble *MEDCouplingStructuredMesh::buildOrthogonalField() const
 void MEDCouplingStructuredMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
 {
   std::vector<int> ngs(getNodeGridStructure());
-  int dim(getMeshDimension());
+  int dim(getSpaceDimension());
   switch(dim)
   {
     case 1:
@@ -399,7 +401,7 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity1(const std::vector<i
   if(nbNodes==0)
     { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); return ; }
   if(nbNodes==1)
-    { revNodal->alloc(0,1); revNodalIndx->setIJ(0,0,0); revNodalIndx->setIJ(1,0,0); return ; }
+    { revNodal->alloc(1,1); revNodal->setIJ(0,0,0); revNodalIndx->setIJ(0,0,0); revNodalIndx->setIJ(1,0,1); return ; }
   revNodal->alloc(2*(nbNodes-1),1);
   int *rn(revNodal->getPointer()),*rni(revNodalIndx->getPointer());
   *rni++=0; *rni=1; *rn++=0;
@@ -538,6 +540,12 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
   std::size_t dim=std::distance(nodeStBg,nodeStEnd);
   switch(dim)
     {
+    case 0:
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+        conn->alloc(1,1); conn->setIJ(0,0,0);
+        return conn.retn();
+      }
     case 1:
       return Build1GTNodalConnectivity1D(nodeStBg);
     case 2:
@@ -545,7 +553,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
     case 3:
       return Build1GTNodalConnectivity3D(nodeStBg);
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivity : only dimension in [1,2,3] supported !");
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivity : only dimension in [0,1,2,3] supported !");
     }
 }
 
@@ -620,7 +628,7 @@ int MEDCouplingStructuredMesh::getCellIdFromPos(int i, int j, int k) const
 {
   int tmp[3]={i,j,k};
   int tmp2[3];
-  int meshDim=getMeshDimension();
+  int meshDim(getMeshDimension());
   getSplitCellValues(tmp2);
   std::transform(tmp,tmp+meshDim,tmp2,tmp,std::multiplies<int>());
   return std::accumulate(tmp,tmp+meshDim,0);
@@ -637,10 +645,10 @@ int MEDCouplingStructuredMesh::getNodeIdFromPos(int i, int j, int k) const
 {
   int tmp[3]={i,j,k};
   int tmp2[3];
-  int meshDim=getMeshDimension();
+  int spaceDim(getSpaceDimension());
   getSplitNodeValues(tmp2);
-  std::transform(tmp,tmp+meshDim,tmp2,tmp,std::multiplies<int>());
-  return std::accumulate(tmp,tmp+meshDim,0);
+  std::transform(tmp,tmp+spaceDim,tmp2,tmp,std::multiplies<int>());
+  return std::accumulate(tmp,tmp+spaceDim,0);
 }
 
 void MEDCouplingStructuredMesh::GetPosFromId(int nodeId, int meshDim, const int *split, int *res)
