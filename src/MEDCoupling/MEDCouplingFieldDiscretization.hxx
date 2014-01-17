@@ -342,7 +342,7 @@ namespace ParaMEDMEM
     static const double FGP_TRI6[6];
     static const double FGP_TRI7[7];
     static const double FGP_QUAD4[4];
-    //static const double FGP_QUAD8[8];
+    static const double FGP_QUAD8[8];
     static const double FGP_QUAD9[9];
     static const double FGP_TETRA4[4];
     //static const double FGP_TETRA10[10];
@@ -377,7 +377,7 @@ namespace ParaMEDMEM
     static const double LOC_TRI6[12];
     static const double LOC_TRI7[14];
     static const double LOC_QUAD4[8];
-    //static const double LOC_QUAD8[16];
+    static const double LOC_QUAD8[16];
     static const double LOC_QUAD9[18];
     static const double LOC_TETRA4[12];
     //static const double LOC_TETRA10[30];
