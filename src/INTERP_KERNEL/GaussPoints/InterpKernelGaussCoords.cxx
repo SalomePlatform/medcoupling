@@ -267,6 +267,14 @@ void GaussInfo::initLocalInfo()
         }
       break;
 
+    case NORM_QUAD9:
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 9;
+      quad9aInit();
+      aSatify = isSatisfy();
+      CHECK_MACRO;
+      break;
+
     case NORM_TETRA4:
       _my_local_ref_dim = 3;
       _my_local_nb_ref  = 4;
@@ -431,7 +439,7 @@ void GaussInfo::seg3Init()
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = 0.5*(1.0 - gc[0])*gc[0];
+   funValue[0] = -0.5*(1.0 - gc[0])*gc[0];
    funValue[1] = 0.5*(1.0 + gc[0])*gc[0];
    funValue[2] = (1.0 + gc[0])*(1.0 - gc[0]);
    SHAPE_FUN_MACRO_END;
@@ -757,6 +765,60 @@ void GaussInfo::quad8bInit()
    funValue[5] = 0.5*(1.0 - gc[1]*gc[1])*(1.0 + gc[0]);
    funValue[6] = 0.5*(1.0 - gc[0]*gc[0])*(1.0 + gc[1]);
    funValue[7] = 0.5*(1.0 - gc[1]*gc[1])*(1.0 - gc[0]);
+   SHAPE_FUN_MACRO_END;
+}
+
+void GaussInfo::quad9aInit()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   break;
+ case  8:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.25*gc[0]*gc[1]*(gc[0]-1.)*(gc[1]-1.);
+   funValue[1] = 0.25*gc[0]*gc[1]*(gc[0]+1.)*(gc[1]-1.);
+   funValue[2] = 0.25*gc[0]*gc[1]*(gc[0]+1.)*(gc[1]+1.);
+   funValue[3] = 0.25*gc[0]*gc[1]*(gc[0]-1.)*(gc[1]+1.);
+   funValue[4] = 0.5*(1.-gc[0]*gc[0])*gc[1]*(gc[1]-1.);
+   funValue[5] = 0.5*gc[0]*(gc[0]+1.)*(1.-gc[1]*gc[1]);
+   funValue[6] = 0.5*(1.-gc[0]*gc[0])*gc[1]*(gc[1]+1.);
+   funValue[7] = 0.5*gc[0]*(gc[0]-1.)*(1.-gc[1]*gc[1]);
+   funValue[8] = (1.-gc[0]*gc[0])*(1.-gc[1]*gc[1]);
    SHAPE_FUN_MACRO_END;
 }
 

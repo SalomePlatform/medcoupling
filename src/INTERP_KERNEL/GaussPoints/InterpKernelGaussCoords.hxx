@@ -73,6 +73,7 @@ namespace INTERP_KERNEL
     void quad4bInit();
     void quad8aInit();
     void quad8bInit();
+    void quad9aInit();
 
     //3D
     void tetra4aInit();
