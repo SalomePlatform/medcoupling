@@ -415,7 +415,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(nr->deepCpy());
           p1->sort(true); p2->sort(true);
           if(!p1->isEqualWithoutConsideringStr(*p2))
-            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 3 !");
+            throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : it appears that a profile on nodes does not cover the cells correctly !");
           p1=DataArrayInt::FindPermutationFromFirstToSecond(globs->getProfile(pflName.c_str()),nr);
           MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
           ret->renumberInPlace(p1->begin());
