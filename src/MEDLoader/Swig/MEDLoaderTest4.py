@@ -1086,7 +1086,8 @@ class MEDLoaderTest4(unittest.TestCase):
         fcscp=allFMTSLeavesPerCommonSupport[0][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
-        a,b=mml2.buildVTUArrays()
+        (a,b),c=mml2.buildVTUArrays()
+        self.assertTrue(c)# c is True here because the returned array is directly those coming from internal structure
         self.assertTrue(a.isEqual(coordsX,1e-12))
         self.assertTrue(b.isEqual(coordsY,1e-12))
         self.assertTrue(isinstance(mml2,MEDCMeshMultiLev))
@@ -1126,7 +1127,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDCMeshMultiLev)) # here the 2nd support is a part of CMesh that is also a CMesh -> CMesh not a UMesh
-        a,b=mml2.buildVTUArrays()
+        (a,b),c=mml2.buildVTUArrays()
+        self.assertTrue(not c)# c is False because this a sub support specialy built for buildVTUArrays
         self.assertTrue(a.isEqual(coordsX[[2,3,4]],1e-12))
         self.assertTrue(b.isEqual(coordsY,1e-12))
         a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -1289,7 +1291,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDCurveLinearMeshMultiLev))
-        a,b=mml2.buildVTUArrays()
+        a,b,c=mml2.buildVTUArrays()
+        self.assertTrue(c)#True here because a is directly coming from internal data without copy
         self.assertTrue(a.isEqual(a0Exp,1e-12))
         self.assertEqual(b,[5,3])
         a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -1325,7 +1328,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDCurveLinearMeshMultiLev)) # here the 2nd support is a part of CMesh that is also a CMesh -> CMesh not a UMesh
-        a,b=mml2.buildVTUArrays()
+        a,b,c=mml2.buildVTUArrays()
+        self.assertTrue(not c)#False here because a is the result of a computation not the internal strucutre
         self.assertTrue(a.isEqual(a0Exp[pfl2],1e-12))
         self.assertEqual(b,[3,3])
         a6,a7=mml2.retrieveFamilyIdsOnCells()
@@ -3472,7 +3476,8 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDCMeshMultiLev))
-        a,b,c=mml2.buildVTUArrays()
+        (a,b,c),d=mml2.buildVTUArrays()
+        self.assertTrue(d)#d is True because the a,b and c are directly those in the internal data structure
         self.assertTrue(a.isEqual(arr0,1e-12))
         self.assertTrue(b.isEqual(arr1,1e-12))
         self.assertTrue(c.isEqual(arr2,1e-12))

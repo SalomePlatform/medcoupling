@@ -151,6 +151,8 @@ namespace ParaMEDMEM
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+  protected:
+    bool _is_internal;
   };
   
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
@@ -160,7 +162,7 @@ namespace ParaMEDMEM
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
     std::vector<int> getNodeGridStructure() const;
     MEDMeshMultiLev *prepare() const;
-    MEDLOADER_EXPORT std::vector< DataArrayDouble * > buildVTUArrays() const;
+    MEDLOADER_EXPORT std::vector< DataArrayDouble * > buildVTUArrays(bool& isInternal) const;
   private:
     MEDCMeshMultiLev(const MEDCMeshMultiLev& other);
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>& levs);
@@ -176,7 +178,7 @@ namespace ParaMEDMEM
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls , const std::vector<int>& nbEntities);
     std::vector<int> getNodeGridStructure() const;
     MEDMeshMultiLev *prepare() const;
-    MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const;
+    MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct, bool& isInternal) const;
   private:
     MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other);
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);

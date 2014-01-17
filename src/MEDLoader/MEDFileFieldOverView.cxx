@@ -1024,11 +1024,11 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<
 
 //=
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev()
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev():_is_internal(true)
 {
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev):_is_internal(true)
 {
   // ids fields management
   _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
@@ -1062,7 +1062,7 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh
     }
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(nbOfNodes,gts,pfls,nbEntities)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(nbOfNodes,gts,pfls,nbEntities),_is_internal(true)
 {
   // ids fields management
   _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
@@ -1094,6 +1094,10 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh
       tmp->incrRef();
       _node_num_ids=const_cast<DataArrayInt *>(tmp);
     }
+}
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other):MEDMeshMultiLev(other),_is_internal(true)
+{
 }
 
 void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
@@ -1119,10 +1123,6 @@ void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
     _pfls[0]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
   else
     _pfls[0]=cellIdsSafe;
-}
-
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other):MEDMeshMultiLev(other)
-{
 }
 
 //=
@@ -1203,6 +1203,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
           MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
+	  ret->_is_internal=false;
           if(nr)
             { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret->_nb_entities[0]=pfl->getNumberOfTuples();
@@ -1248,8 +1249,12 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
     }
 }
 
-std::vector< DataArrayDouble * > MEDCMeshMultiLev::buildVTUArrays() const
+/*!
+ * \a param [out] isInternal if true the returned pointers are those in main data structure. If false those pointers have been built espacially for that method.
+ */
+std::vector< DataArrayDouble * > MEDCMeshMultiLev::buildVTUArrays(bool& isInternal) const
 {
+  isInternal=_is_internal;
   std::size_t sz(_coords.size());
   std::vector< DataArrayDouble * > ret(sz);
   for(std::size_t i=0;i<sz;i++)
@@ -1314,7 +1319,9 @@ std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const
 
 MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
 {
-  const DataArrayInt *pfl(_pfls[0]),*nr(_node_reduction);
+  const DataArrayInt *pfl(0),*nr(_node_reduction);
+  if(!_pfls.empty())
+    pfl=_pfls[0];
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
   std::vector<int> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
@@ -1334,6 +1341,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
             }
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
           MEDCouplingAutoRefCountObjectPtr<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
+	  ret->_is_internal=false;
           if(nr)
             { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret->_nb_entities[0]=pfl->getNumberOfTuples();
@@ -1375,8 +1383,9 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
     }
 }
 
-void MEDCurveLinearMeshMultiLev::buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct) const
+void MEDCurveLinearMeshMultiLev::buildVTUArrays(DataArrayDouble *&coords, std::vector<int>& nodeStrct, bool& isInternal) const
 {
+  isInternal=_is_internal;
   nodeStrct=_structure;
   const DataArrayDouble *coo(_coords);
   if(!coo)
