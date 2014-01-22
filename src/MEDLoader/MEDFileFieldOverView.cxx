@@ -1203,7 +1203,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
           MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
-	  ret->_is_internal=false;
+          ret->_is_internal=false;
           if(nr)
             { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret->_nb_entities[0]=pfl->getNumberOfTuples();
@@ -1341,7 +1341,7 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
             }
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
           MEDCouplingAutoRefCountObjectPtr<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
-	  ret->_is_internal=false;
+          ret->_is_internal=false;
           if(nr)
             { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret->_nb_entities[0]=pfl->getNumberOfTuples();
