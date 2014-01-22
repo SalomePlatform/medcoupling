@@ -296,7 +296,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP1> nsp(new MEDCouplingFieldDiscretizationP1);
   ret->setDiscretization(nsp);
   const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
-  int nbCells(m->getNumberOfCells()),nbNodes(m->getNumberOfNodes());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rn(DataArrayInt::New()),rni(DataArrayInt::New());
   m->getReverseNodalConnectivity(rn,rni);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rni2(rni->deltaShiftIndex());
@@ -306,7 +305,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
   for(std::size_t j=0;j<sz;j++)
     {
-      int nbCompo(arrs[j]->getNumberOfComponents());
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(arrs[j]->selectByTupleIdSafe(rn->begin(),rn->end()));
       outArrsSafe[j]=(tmp->accumulatePerChunck(rni->begin(),rni->end())); tmp=0;
       outArrsSafe[j]->divideEqual(rni3);
