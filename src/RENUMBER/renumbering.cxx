@@ -107,13 +107,13 @@ int main(int argc, char** argv)
       for(int i=0;i<fs->getNumberOfFields();i++)
         {
           MEDFileFieldMultiTS *fmts=dynamic_cast<MEDFileFieldMultiTS *>(fs->getFieldAtPos(i));
-	  if(!fmts) continue;
+          if(!fmts) continue;
           if(fmts->getMeshName()==meshname)
             {
               for(int j=0;j<fmts->getNumberOfTS();j++)
                 {
                   MEDFileField1TS *f1ts=dynamic_cast<MEDFileField1TS*>(fmts->getTimeStepAtPos(j));
-		  if(!f1ts) continue;
+                  if(!f1ts) continue;
                   DataArrayDouble *arr=f1ts->getUndergroundDataArray();
                   arr->renumberInPlace(perm->begin());
                 }
