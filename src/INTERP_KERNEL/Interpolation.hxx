@@ -40,14 +40,14 @@ namespace INTERP_KERNEL
     int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result)
     { return asLeaf().interpolateMeshes(meshS,meshT,result); }
     template<class MyMeshType, class MatrixType>
-    int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshT,result,method); }
+    int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const std::string& method) { return fromToIntegralUniform(false,meshT,result,method); }
     template<class MyMeshType, class MatrixType>
-    int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshS,result,method); }
+    int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const std::string& method) { return fromToIntegralUniform(true,meshS,result,method); }
     template<class MyMeshType>
     static double CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel);
   protected:
     template<class MyMeshType, class MatrixType>
-    int fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const char *method);
+    int fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method);
   protected:
     TrueMainInterpolator& asLeaf() { return static_cast<TrueMainInterpolator&>(*this); }
   };

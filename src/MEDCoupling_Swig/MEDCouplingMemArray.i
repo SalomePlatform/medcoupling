@@ -203,13 +203,13 @@ namespace ParaMEDMEM
   class DataArray : public RefCountObject, public TimeLabel
   {
   public:
-    void setName(const char *name);
+    void setName(const std::string& name);
     void copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception);
     void copyPartOfStringInfoFrom(const DataArray& other, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     void copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other) throw(INTERP_KERNEL::Exception);
     bool areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const throw(INTERP_KERNEL::Exception);
     bool areInfoEquals(const DataArray& other) const throw(INTERP_KERNEL::Exception);
-    std::string cppRepr(const char *varName) const throw(INTERP_KERNEL::Exception);
+    std::string cppRepr(const std::string& varName) const throw(INTERP_KERNEL::Exception);
     std::string getName() const;
     void setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
     void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
@@ -218,7 +218,7 @@ namespace ParaMEDMEM
     std::string getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     std::string getVarOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     std::string getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception);
-    void setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception);
+    void setInfoOnComponent(int i, const std::string& info) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
     virtual void alloc(int nbOfTuple, int nbOfCompo=1) throw(INTERP_KERNEL::Exception);
     virtual void reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception);
@@ -231,13 +231,13 @@ namespace ParaMEDMEM
     virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception);
     virtual DataArray *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
-    void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
-    void checkNbOfElems(std::size_t nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
-    static int GetNumberOfItemGivenBES(int begin, int end, int step, const char *msg) throw(INTERP_KERNEL::Exception);
-    static int GetNumberOfItemGivenBESRelative(int begin, int end, int step, const char *msg) throw(INTERP_KERNEL::Exception);
+    void checkNbOfTuples(int nbOfTuples, const std::string& msg) const throw(INTERP_KERNEL::Exception);
+    void checkNbOfComps(int nbOfCompo, const std::string& msg) const throw(INTERP_KERNEL::Exception);
+    void checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const throw(INTERP_KERNEL::Exception);
+    void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const std::string& msg) const throw(INTERP_KERNEL::Exception);
+    void checkNbOfElems(std::size_t nbOfElems, const std::string& msg) const throw(INTERP_KERNEL::Exception);
+    static int GetNumberOfItemGivenBES(int begin, int end, int step, const std::string& msg) throw(INTERP_KERNEL::Exception);
+    static int GetNumberOfItemGivenBESRelative(int begin, int end, int step, const std::string& msg) throw(INTERP_KERNEL::Exception);
     static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step) throw(INTERP_KERNEL::Exception);
     static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
@@ -574,12 +574,12 @@ namespace ParaMEDMEM
     void applyRPow(double val) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *negate() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(const char *func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc2(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const throw(INTERP_KERNEL::Exception);
-    void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc(int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc(const std::string& func) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    void applyFuncFast32(const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFuncFast64(const std::string& func) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsNotInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);

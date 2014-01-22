@@ -82,7 +82,7 @@ namespace INTERP_KERNEL
   class ExprParser
   {
   public:
-    INTERPKERNEL_EXPORT ExprParser(const char *expr, ExprParser *father=0);
+    INTERPKERNEL_EXPORT ExprParser(const std::string& expr, ExprParser *father=0);
     INTERPKERNEL_EXPORT ExprParser(const char *expr, int lgth, ExprParser *father=0);
     INTERPKERNEL_EXPORT ~ExprParser();
     INTERPKERNEL_EXPORT void parse();

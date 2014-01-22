@@ -1486,7 +1486,7 @@ void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MED
     }
 }
 
-bool MEDFileField1TSStructItem2::isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const char *pflName) const
+bool MEDFileField1TSStructItem2::isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const
 {
   if(startExp!=_start_end.first)
     return false;
@@ -1828,7 +1828,7 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFile
   std::vector< std::vector<std::string> > pfls,locs;
   std::vector< std::vector<TypeOfField> > typesF;
   std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes;
-  std::vector< std::vector<std::pair<int,int> > > strtEnds=ref->getFieldSplitedByType(0,geoTypes,typesF,pfls,locs);
+  std::vector< std::vector<std::pair<int,int> > > strtEnds=ref->getFieldSplitedByType(std::string(),geoTypes,typesF,pfls,locs);
   std::size_t nbOfGeoTypes(geoTypes.size());
   if(nbOfGeoTypes==0)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : not null by empty ref  !");

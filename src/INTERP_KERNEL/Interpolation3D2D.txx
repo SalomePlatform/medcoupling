@@ -63,7 +63,7 @@ namespace INTERP_KERNEL
   int Interpolation3D2D::interpolateMeshes(const MyMeshType& srcMesh,
                                            const MyMeshType& targetMesh,
                                            MyMatrixType& matrix,
-                                           const char *method)
+                                           const std::string& method)
   {
     typedef typename MyMeshType::MyConnType ConnType;
     // create MeshElement objects corresponding to each element of the two meshes

@@ -48,7 +48,7 @@ namespace ParaMEDMEM
   public:
     MEDLOADER_EXPORT static SauvWriter *New();
     MEDLOADER_EXPORT void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0);
-    MEDLOADER_EXPORT void write(const char* fileName);
+    MEDLOADER_EXPORT void write(const std::string& fileName);
     MEDLOADER_EXPORT void setCpyGrpIfOnASingleFamilyStatus(bool status);
     MEDLOADER_EXPORT bool getCpyGrpIfOnASingleFamilyStatus() const;
   private:

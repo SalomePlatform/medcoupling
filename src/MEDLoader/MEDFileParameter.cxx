@@ -189,17 +189,17 @@ MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New()
   return new MEDFileParameterDouble1TS;
 }
 
-MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New(const char *fileName)
+MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New(const std::string& fileName)
 {
   return new MEDFileParameterDouble1TS(fileName);
 }
 
-MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New(const char *fileName, const char *paramName)
+MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New(const std::string& fileName, const std::string& paramName)
 {
   return new MEDFileParameterDouble1TS(fileName,paramName);
 }
 
-MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New(const char *fileName, const char *paramName, int dt, int it)
+MEDFileParameterDouble1TS *MEDFileParameterDouble1TS::New(const std::string& fileName, const std::string& paramName, int dt, int it)
 {
   return new MEDFileParameterDouble1TS(fileName,paramName,dt,it);
 }
@@ -208,10 +208,10 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS()
 {
 }
 
-MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const char *fileName, const char *paramName, int dt, int it)
+MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName, int dt, int it)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int nbPar=MEDnParameter(fid);
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS : no double param name \"" << paramName << "\" ! Double Parameters available are : ";
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -240,10 +240,10 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const char *fileName, const
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const char *fileName, const char *paramName)
+MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int nbPar=MEDnParameter(fid);
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS : no double param name \"" << paramName << "\" ! Double Parameters available are : ";
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -280,10 +280,10 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const char *fileName, const
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const char *fileName)
+MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int nbPar=MEDnParameter(fid);
   if(nbPar<1)
     {
@@ -355,10 +355,10 @@ std::vector<const BigMemoryObject *> MEDFileParameterDouble1TS::getDirectChildre
   return std::vector<const BigMemoryObject *>();
 }
 
-void MEDFileParameterDouble1TS::write(const char *fileName, int mode) const
+void MEDFileParameterDouble1TS::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   MEDFileParameterTinyInfo::writeLLHeader(fid,MED_FLOAT64);
   MEDFileParameterDouble1TSWTI::writeLL(fid,_name,*this);
 }
@@ -368,12 +368,12 @@ MEDFileParameterMultiTS *MEDFileParameterMultiTS::New()
   return new MEDFileParameterMultiTS;
 }
 
-MEDFileParameterMultiTS *MEDFileParameterMultiTS::New(const char *fileName)
+MEDFileParameterMultiTS *MEDFileParameterMultiTS::New(const std::string& fileName)
 {
   return new MEDFileParameterMultiTS(fileName);
 }
 
-MEDFileParameterMultiTS *MEDFileParameterMultiTS::New(const char *fileName, const char *paramName)
+MEDFileParameterMultiTS *MEDFileParameterMultiTS::New(const std::string& fileName, const std::string& paramName)
 {
   return new MEDFileParameterMultiTS(fileName,paramName);
 }
@@ -393,10 +393,10 @@ MEDFileParameterMultiTS::MEDFileParameterMultiTS(const MEDFileParameterMultiTS& 
       }
 }
 
-MEDFileParameterMultiTS::MEDFileParameterMultiTS(const char *fileName)
+MEDFileParameterMultiTS::MEDFileParameterMultiTS(const std::string& fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int nbPar=MEDnParameter(fid);
   if(nbPar<1)
     {
@@ -416,10 +416,10 @@ MEDFileParameterMultiTS::MEDFileParameterMultiTS(const char *fileName)
   finishLoading(fid,paramType,nbOfSteps);
 }
 
-MEDFileParameterMultiTS::MEDFileParameterMultiTS(const char *fileName, const char *paramName)
+MEDFileParameterMultiTS::MEDFileParameterMultiTS(const std::string& fileName, const std::string& paramName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int nbPar=MEDnParameter(fid);
   std::ostringstream oss; oss << "MEDFileParameterDouble1TS : no double param name \"" << paramName << "\" ! Double Parameters available are : ";
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -522,10 +522,10 @@ bool MEDFileParameterMultiTS::isEqual(const MEDFileParameterMultiTS *other, doub
   return true;
 }
 
-void MEDFileParameterMultiTS::write(const char *fileName, int mode) const
+void MEDFileParameterMultiTS::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   writeLL(fid,*this);
 }
 
@@ -702,15 +702,15 @@ MEDFileParameters *MEDFileParameters::New()
   return new MEDFileParameters;
 }
 
-MEDFileParameters *MEDFileParameters::New(const char *fileName)
+MEDFileParameters *MEDFileParameters::New(const std::string& fileName)
 {
   return new MEDFileParameters(fileName);
 }
 
-MEDFileParameters::MEDFileParameters(const char *fileName)
+MEDFileParameters::MEDFileParameters(const std::string& fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int nbPar=MEDnParameter(fid);
   _params.resize(nbPar);
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -722,7 +722,7 @@ MEDFileParameters::MEDFileParameters(const char *fileName)
       int nbOfSteps;
       MEDparameterInfo(fid,i+1,pName,&paramType,descName,unitName,&nbOfSteps);
       std::string paramNameCpp=MEDLoaderBase::buildStringFromFortran(pName,MED_NAME_SIZE);
-      _params[i]=MEDFileParameterMultiTS::New(fileName,paramNameCpp.c_str());
+      _params[i]=MEDFileParameterMultiTS::New(fileName,paramNameCpp);
     }
 }
 
@@ -784,10 +784,10 @@ MEDFileParameters::MEDFileParameters(const MEDFileParameters& other, bool deepCo
       }
 }
 
-void MEDFileParameters::write(const char *fileName, int mode) const
+void MEDFileParameters::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   writeLL(fid);
 }
 
@@ -882,7 +882,7 @@ MEDFileParameterMultiTS *MEDFileParameters::getParamAtPos(int i) const
 /*!
  * \return an internal pointer that can be null. Warning the caller is \b not responsible of the returned pointer.
  */
-MEDFileParameterMultiTS *MEDFileParameters::getParamWithName(const char *paramName) const
+MEDFileParameterMultiTS *MEDFileParameters::getParamWithName(const std::string& paramName) const
 {
   int pos=getPosFromParamName(paramName);
   return getParamAtPos(pos);
@@ -898,7 +898,7 @@ void MEDFileParameters::destroyParamAtPos(int i)
   _params[i]=MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS>(0);
 }
 
-int MEDFileParameters::getPosFromParamName(const char *paramName) const
+int MEDFileParameters::getPosFromParamName(const std::string& paramName) const
 {
   std::ostringstream oss; oss << "MEDFileParameters::getPosFromParamName : no such name=" << paramName << " ! Possibilities are :";
   int ret=0;

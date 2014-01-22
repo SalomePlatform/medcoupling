@@ -17,6 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 // Author : Anthony Geay (CEA/DEN)
+
 #ifndef __INTERPOLATIONPLANAR_TXX__
 #define __INTERPOLATIONPLANAR_TXX__
 
@@ -111,7 +112,7 @@ namespace INTERP_KERNEL
       */
   template<class RealPlanar>
   template<class MyMeshType, class MatrixType>
-  int InterpolationPlanar<RealPlanar>::interpolateMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, MatrixType& result, const char *method)
+  int InterpolationPlanar<RealPlanar>::interpolateMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, MatrixType& result, const std::string& method)
   {
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     typedef typename MyMeshType::MyConnType ConnType;

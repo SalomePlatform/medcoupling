@@ -135,18 +135,17 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
     }
 }
 
-TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const char *repr)
+TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const std::string& repr)
 {
-  std::string reprCpp(repr);
-  if(reprCpp==MEDCouplingFieldDiscretizationP0::REPR)
+  if(repr==MEDCouplingFieldDiscretizationP0::REPR)
     return MEDCouplingFieldDiscretizationP0::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationP1::REPR)
+  if(repr==MEDCouplingFieldDiscretizationP1::REPR)
     return MEDCouplingFieldDiscretizationP1::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationGauss::REPR)
+  if(repr==MEDCouplingFieldDiscretizationGauss::REPR)
     return MEDCouplingFieldDiscretizationGauss::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationGaussNE::REPR)
+  if(repr==MEDCouplingFieldDiscretizationGaussNE::REPR)
     return MEDCouplingFieldDiscretizationGaussNE::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationKriging::REPR)
+  if(repr==MEDCouplingFieldDiscretizationKriging::REPR)
     return MEDCouplingFieldDiscretizationKriging::TYPE;
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
@@ -396,7 +395,7 @@ void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const char *msg)
+void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const std::string& msg)
 {
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr : input array is NULL !");
@@ -434,7 +433,7 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, cons
     }
 }
 
-void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg)
+void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const std::string& msg)
 {
   int nbOfComp=arr->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrCpy=arr->deepCpy();

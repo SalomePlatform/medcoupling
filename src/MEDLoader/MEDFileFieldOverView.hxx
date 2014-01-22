@@ -208,7 +208,7 @@ namespace ParaMEDMEM
     int getNbOfIntegrationPts(const MEDFileFieldGlobsReal *globs) const;
     //! warning this method also set _nb_of_entity attribute !
     void checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs);
-    bool isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const char *pflName) const;
+    bool isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const;
     bool operator==(const MEDFileField1TSStructItem2& other) const throw(INTERP_KERNEL::Exception);
     bool isCellSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const;
     bool isNodeSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const;

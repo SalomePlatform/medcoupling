@@ -79,7 +79,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::New()
   return new MEDCouplingCMesh;
 }
 
-MEDCouplingCMesh *MEDCouplingCMesh::New(const char *meshName)
+MEDCouplingCMesh *MEDCouplingCMesh::New(const std::string& meshName)
 {
   MEDCouplingCMesh *ret=new MEDCouplingCMesh;
   ret->setName(meshName);
@@ -617,7 +617,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
   name+=getName();
   int nbelem=getNumberOfCells();
   MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
-  field->setName(name.c_str());
+  field->setName(name);
   DataArrayDouble* array=DataArrayDouble::New();
   array->alloc(nbelem,1);
   double *area_vol=array->getPointer();
@@ -758,7 +758,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
   for(int j=0;j<spaceDim;j++)
     {
       tabsPtr[j]=tabs[j]->getConstPointer();
-      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0));
     }
   int tmp2[3];
   for(int i=0;i<nbNodes;i++)
@@ -792,7 +792,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   for(int j=0;j<spaceDim;j++)
     {
       int sz=tabs[j]->getNbOfElems()-1;
-      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0));
       const double *srcPtr=tabs[j]->getConstPointer();
       tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
       std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),srcPtr+1,tabsPtr[j].begin(),std::plus<double>());
@@ -878,9 +878,9 @@ void MEDCouplingCMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
-  setName(littleStrings[0].c_str());
-  setDescription(littleStrings[1].c_str());
-  setTimeUnit(littleStrings[2].c_str());
+  setName(littleStrings[0]);
+  setDescription(littleStrings[1]);
+  setTimeUnit(littleStrings[2]);
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   const double *data=a2->getConstPointer();
   for(int i=0;i<3;i++)
@@ -889,7 +889,7 @@ void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, con
         {
           (*(thisArr[i]))=DataArrayDouble::New();
           (*(thisArr[i]))->alloc(tinyInfo[i],1);
-          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+3].c_str());
+          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+3]);
           std::copy(data,data+tinyInfo[i],(*(thisArr[i]))->getPointer());
           data+=tinyInfo[i];
         }

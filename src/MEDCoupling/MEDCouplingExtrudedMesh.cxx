@@ -101,7 +101,7 @@ try:_mesh2D(const_cast<MEDCouplingUMesh *>(mesh2D)),_mesh1D(MEDCouplingUMesh::Ne
   if(_mesh2D!=0)
     _mesh2D->incrRef();
   computeExtrusion(mesh3D);
-  setName(mesh3D->getName().c_str());
+  setName(mesh3D->getName());
 }
 catch(INTERP_KERNEL::Exception& e)
   {
@@ -448,7 +448,7 @@ MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
   MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMesh(_mesh1D,0);
   const int *renum=_mesh3D_ids->getConstPointer();
   ret->renumberCells(renum,false);
-  ret->setName(getName().c_str());
+  ret->setName(getName());
   return ret;
 }
 
@@ -480,7 +480,7 @@ MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
       retPtr[renum[i*nbOf2DCells+j]]=ret2DPtr[j]*ret1DPtr[i];
   ret->setArray(da);
   da->decrRef();
-  ret->setName(name.c_str());
+  ret->setName(name);
   ret2D->decrRef();
   ret1D->decrRef();
   return ret;
@@ -903,8 +903,8 @@ void MEDCouplingExtrudedMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2)
 
 void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
-  setName(littleStrings[littleStrings.size()-2].c_str());
-  setDescription(littleStrings.back().c_str());
+  setName(littleStrings[littleStrings.size()-2]);
+  setDescription(littleStrings.back());
   std::size_t sz=tinyInfo.size();
   int sz1=tinyInfo[sz-2];
   _cell_2D_id=tinyInfo[sz-3];

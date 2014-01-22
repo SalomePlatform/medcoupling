@@ -33,7 +33,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCMesh *New();
-    MEDCOUPLING_EXPORT static MEDCouplingCMesh *New(const char *meshName);
+    MEDCOUPLING_EXPORT static MEDCouplingCMesh *New(const std::string& meshName);
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT void updateTime() const;

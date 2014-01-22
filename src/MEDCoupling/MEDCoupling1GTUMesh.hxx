@@ -35,7 +35,7 @@ namespace ParaMEDMEM
   class MEDCoupling1GTUMesh : public MEDCouplingPointSet
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static MEDCoupling1GTUMesh *New(const std::string& name, INTERP_KERNEL::NormalizedCellType type);
     MEDCOUPLING_EXPORT static MEDCoupling1GTUMesh *New(const MEDCouplingUMesh *m);
     MEDCOUPLING_EXPORT const INTERP_KERNEL::CellModel& getCellModel() const;
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getCellModelEnum() const;
@@ -73,7 +73,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArrayInt *getNodalConnectivity() const = 0;
     MEDCOUPLING_EXPORT virtual void checkCoherencyOfConnectivity() const = 0;
   protected:
-    MEDCoupling1GTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCoupling1GTUMesh(const std::string& name, const INTERP_KERNEL::CellModel& cm);
     MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
     MEDCoupling1GTUMesh();
   protected:
@@ -85,7 +85,7 @@ namespace ParaMEDMEM
   class MEDCoupling1SGTUMesh : public MEDCoupling1GTUMesh
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const std::string& name, INTERP_KERNEL::NormalizedCellType type);
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m);
     //! useless constructor only for CORBA -> not swigged
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New();
@@ -153,7 +153,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
   private:
-    MEDCoupling1SGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCoupling1SGTUMesh(const std::string& name, const INTERP_KERNEL::CellModel& cm);
     MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bool recDeepCpy);
     MEDCoupling1SGTUMesh();
   private:
@@ -174,7 +174,7 @@ namespace ParaMEDMEM
   class MEDCoupling1DGTUMesh : public MEDCoupling1GTUMesh
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type);
+    MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const std::string& name, INTERP_KERNEL::NormalizedCellType type);
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m);
     //! useless constructor only for CORBA -> not swigged
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New();
@@ -244,7 +244,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
   private:
-    MEDCoupling1DGTUMesh(const char *name, const INTERP_KERNEL::CellModel& cm);
+    MEDCoupling1DGTUMesh(const std::string& name, const INTERP_KERNEL::CellModel& cm);
     MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy);
     MEDCoupling1DGTUMesh();
   private:

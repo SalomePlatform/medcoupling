@@ -37,7 +37,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDiscretization *New(TypeOfField type) throw(INTERP_KERNEL::Exception);
     double getPrecision() const throw(INTERP_KERNEL::Exception);
     void setPrecision(double val) throw(INTERP_KERNEL::Exception);
-    static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
+    static TypeOfField GetTypeOfFieldFromStringRepr(const std::string& repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const throw(INTERP_KERNEL::Exception);

@@ -714,10 +714,10 @@ DataArrayChar *DataArrayChar::changeNbOfComponents(int newNbOfComp, char dftValu
       for(;j<newNbOfComp;j++)
         nc[newNbOfComp*i+j]=dftValue;
     }
-  ret->setName(getName().c_str());
+  ret->setName(getName());
   for(int i=0;i<dim;i++)
-    ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
-  ret->setName(getName().c_str());
+    ret->setInfoOnComponent(i,getInfoOnComponent(i));
+  ret->setName(getName());
   return ret.retn();
 }
 
@@ -1937,7 +1937,7 @@ DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr
   int k=0;
   for(int i=0;i<(int)a.size();i++)
     for(int j=0;j<nbc[i];j++,k++)
-      ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j).c_str());
+      ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j));
   return ret;
 }
 
@@ -2070,7 +2070,7 @@ void DataArrayByte::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
-void DataArrayByte::reprCppStream(const char *varName, std::ostream& stream) const
+void DataArrayByte::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
   int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
   const char *data=getConstPointer();
@@ -2402,7 +2402,7 @@ void DataArrayAsciiChar::reprZipWithoutNameStream(std::ostream& stream) const
   reprWithoutNameStream(stream);
 }
 
-void DataArrayAsciiChar::reprCppStream(const char *varName, std::ostream& stream) const
+void DataArrayAsciiChar::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
   int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
   const char *data=getConstPointer();

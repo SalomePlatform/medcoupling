@@ -156,7 +156,7 @@ LeafExprVar::~LeafExprVar()
 {
 }
 
-ExprParser::ExprParser(const char *expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
+ExprParser::ExprParser(const std::string& expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
 {
   _expr=deleteWhiteSpaces(_expr);
 }

@@ -55,14 +55,14 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT void setName(const char *name) { _name=name; }
+    MEDCOUPLING_EXPORT void setName(const std::string& name) { _name=name; }
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
-    MEDCOUPLING_EXPORT void setDescription(const char *descr) { _description=descr; }
+    MEDCOUPLING_EXPORT void setDescription(const std::string& descr) { _description=descr; }
     MEDCOUPLING_EXPORT std::string getDescription() const { return _description; }
     MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _time; }
     MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order) { _time=val; _iteration=iteration; _order=order; }
-    MEDCOUPLING_EXPORT void setTimeUnit(const char *unit) { _time_unit=unit; }
-    MEDCOUPLING_EXPORT const char *getTimeUnit() const { return _time_unit.c_str(); }
+    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
+    MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCpy() const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMeshType getType() const = 0;
     MEDCOUPLING_EXPORT bool isStructured() const;
@@ -113,9 +113,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
     MEDCOUPLING_EXPORT virtual void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     MEDCOUPLING_EXPORT virtual void rotate(const double *center, const double *vector, double angle) = 0;
     MEDCOUPLING_EXPORT virtual void translate(const double *vector) = 0;
@@ -144,9 +144,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
     MEDCOUPLING_EXPORT virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                                     const std::vector<std::string>& littleStrings) = 0;
-    MEDCOUPLING_EXPORT void writeVTK(const char *fileName, bool isBinary=true) const;
+    MEDCOUPLING_EXPORT void writeVTK(const std::string& fileName, bool isBinary=true) const;
     /// @cond INTERNAL
-    MEDCOUPLING_EXPORT void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const;
+    MEDCOUPLING_EXPORT void writeVTKAdvanced(const std::string& fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const;
     /// @endcond
     MEDCOUPLING_EXPORT virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const = 0;
     MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;

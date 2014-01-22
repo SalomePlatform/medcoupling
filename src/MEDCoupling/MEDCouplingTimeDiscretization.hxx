@@ -44,8 +44,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDCOUPLING_EXPORT static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
-    MEDCOUPLING_EXPORT void setTimeUnit(const char *unit) { _time_unit=unit; }
-    MEDCOUPLING_EXPORT const char *getTimeUnit() const { return _time_unit.c_str(); }
+    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
+    MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
     MEDCOUPLING_EXPORT virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     MEDCOUPLING_EXPORT virtual void checkCoherency() const;
@@ -139,16 +139,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value);
     MEDCOUPLING_EXPORT virtual void applyLin(double a, double b, int compoId);
     MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
-    MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT virtual void applyFunc2(int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func);
-    MEDCOUPLING_EXPORT virtual void applyFunc(const char *func);
-    MEDCOUPLING_EXPORT virtual void applyFuncFast32(const char *func);
-    MEDCOUPLING_EXPORT virtual void applyFuncFast64(const char *func);
+    MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFunc2(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFunc(const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFuncFast32(const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFuncFast64(const std::string& func);
     MEDCOUPLING_EXPORT virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, FunctionToEvaluate func);
-    MEDCOUPLING_EXPORT virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT virtual void fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT virtual void fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func);
+    MEDCOUPLING_EXPORT virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
     //
     MEDCOUPLING_EXPORT virtual ~MEDCouplingTimeDiscretization();
   protected:

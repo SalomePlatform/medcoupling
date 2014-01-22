@@ -28,16 +28,16 @@
 
 const char MEDLoaderBase::WHITE_SPACES[]=" \n";
 
-int MEDLoaderBase::getStatusOfFile(const char *fileName)
+int MEDLoaderBase::getStatusOfFile(const std::string& fileName)
 {
   std::ifstream ifs;
-  ifs.open(fileName);
+  ifs.open(fileName.c_str());
   if((ifs.rdstate() & std::ifstream::failbit)!=0)
     {
       ifs.close();
       return NOT_EXIST;
     }
-  std::ofstream ofs(fileName,std::ios_base::app);
+  std::ofstream ofs(fileName.c_str(),std::ios_base::app);
   if((ofs.rdstate() & std::ofstream::failbit)!=0)
     {
       return EXIST_RDONLY;
@@ -199,7 +199,7 @@ std::string MEDLoaderBase::buildStringFromFortran(const char *expr, int lgth)
  * This method given the target size to respect 'sizeToRespect' tries to reduce size of 'src' string.
  * This method uses several soft methods to do its job. But if it fails a simple cut of string will be performed.
  */
-std::string MEDLoaderBase::zipString(const char *src, int sizeToRespect)
+std::string MEDLoaderBase::zipString(const std::string& src, int sizeToRespect)
 {
   std::string s(src);
   strip(s);

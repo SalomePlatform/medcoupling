@@ -58,7 +58,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::New()
   return new MEDCouplingUMesh;
 }
 
-MEDCouplingUMesh *MEDCouplingUMesh::New(const char *meshName, int meshDim)
+MEDCouplingUMesh *MEDCouplingUMesh::New(const std::string& meshName, int meshDim)
 {
   MEDCouplingUMesh *ret=new MEDCouplingUMesh;
   ret->setName(meshName);
@@ -879,7 +879,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivityGen(DataArrayInt 
   const int *conn=_nodal_connec->getConstPointer();
   const int *connIndex=_nodal_connec_index->getConstPointer();
   std::string name="Mesh constituent of "; name+=getName();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(name.c_str(),getMeshDimension()-SonsGenerator::DELTA);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(name,getMeshDimension()-SonsGenerator::DELTA);
   ret->setCoords(getCoords());
   ret->allocateCells(2*nbOfCells);
   descIndx->alloc(nbOfCells+1,1);
@@ -1849,7 +1849,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType,nbOfCells);
   arr=o2n->substr(nbOfCells);
-  arr->setName(other->getName().c_str());
+  arr->setName(other->getName());
   int tmp;
   if(other->getNumberOfCells()==0)
     return true;
@@ -1893,7 +1893,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn2(const MEDCouplingUMesh *other, DataAr
             }
         }
     }
-  arr2->setName(other->getName().c_str());
+  arr2->setName(other->getName());
   if(arr2->presenceOfValue(0))
     return false;
   arr=arr2.retn();
@@ -2863,7 +2863,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSetInstanceFromThis(int spaceDim) const
   int mdim=getMeshDimension();
   if(mdim<0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSetInstanceFromThis : invalid mesh dimension ! Should be >= 0 !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName().c_str(),mdim);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),mdim);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1,tmp2;
   bool needToCpyCT=true;
   if(!_nodal_connec)
@@ -3251,7 +3251,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
   name+=getName();
   int nbelem=getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
-  field->setName(name.c_str());
+  field->setName(name);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array=DataArrayDouble::New();
   array->alloc(nbelem,1);
   double *area_vol=array->getPointer();
@@ -3306,7 +3306,7 @@ DataArrayDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const int *be
   name+=getName();
   int nbelem=(int)std::distance(begin,end);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array=DataArrayDouble::New();
-  array->setName(name.c_str());
+  array->setName(name);
   array->alloc(nbelem,1);
   double *area_vol=array->getPointer();
   if(getMeshDimension()!=-1)
@@ -6913,7 +6913,7 @@ MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const
     if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : current mesh does not contain exactly one geometric type !");
   INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName().c_str(),typ);
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName(),typ);
   ret->setCoords(getCoords());
   MEDCoupling1SGTUMesh *retC=dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh*)ret);
   if(retC)
@@ -7389,7 +7389,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Build0DMeshFromCoords(DataArrayDouble *da)
   if(!da)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Build0DMeshFromCoords : instance of DataArrayDouble must be not null !");
   da->checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(da->getName().c_str(),0);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(da->getName(),0);
   ret->setCoords(da);
   int nbOfTuples=da->getNumberOfTuples();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New();
@@ -7662,7 +7662,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
       tmp->alloc(curNbOfCells,1);
       std::copy(o2nPtr+offset,o2nPtr+offset+curNbOfCells,tmp->getPointer());
       offset+=curNbOfCells;
-      tmp->setName(meshes[i]->getName().c_str());
+      tmp->setName(meshes[i]->getName());
       corr[i]=tmp;
     }
   return ret.retn();
@@ -9479,7 +9479,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const
   std::vector<DataArrayInt *> partition=partitionBySpreadZone();
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > partitionAuto; partitionAuto.reserve(partition.size());
   std::copy(partition.begin(),partition.end(),std::back_insert_iterator<std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > >(partitionAuto));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName().c_str(),mdim);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),mdim);
   ret->setCoords(getCoords());
   ret->allocateCells((int)partition.size());
   //
@@ -9589,7 +9589,7 @@ MEDCoupling1SGTUMesh *MEDCouplingUMesh::tetrahedrize(int policy, DataArrayInt *&
   if(getMeshDimension()!=3 || getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tetrahedrize : only available for mesh with meshdim == 3 and spacedim == 3 !");
   int nbOfCells(getNumberOfCells()),nbNodes(getNumberOfNodes());
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret0(MEDCoupling1SGTUMesh::New(getName().c_str(),INTERP_KERNEL::NORM_TETRA4));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret0(MEDCoupling1SGTUMesh::New(getName(),INTERP_KERNEL::NORM_TETRA4));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfCells,1);
   int *retPt(ret->getPointer());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()); newConn->alloc(0,1);

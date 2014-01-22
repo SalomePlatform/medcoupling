@@ -56,7 +56,7 @@ const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
     }
 }
 
-void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg)
+void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const std::string& msg)
 {
   if(code<0)
     {
@@ -66,7 +66,7 @@ void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg)
     }
 }
 
-void MEDFileUtilities::CheckFileForRead(const char *fileName)
+void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
 {
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   std::ostringstream oss;
@@ -89,7 +89,7 @@ void MEDFileUtilities::CheckFileForRead(const char *fileName)
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
     }
-  AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   if(fid<0)
     {
       oss << " has been detected as unreadable by MED file : impossible to read anything !";

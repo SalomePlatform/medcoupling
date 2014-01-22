@@ -111,7 +111,7 @@ namespace INTERP_KERNEL
     bool setOptionString(const std::string& key, const std::string& value);
     std::string printOptions() const;
   public:
-    static void CheckAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth);
+    static void CheckAndSplitInterpolationMethod(const std::string& method, std::string& srcMeth, std::string& trgMeth);
   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;

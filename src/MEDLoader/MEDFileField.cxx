@@ -43,7 +43,7 @@ using namespace ParaMEDMEM;
 const char MEDFileField1TSWithoutSDA::TYPE_STR[]="FLOAT64";
 const char MEDFileIntField1TSWithoutSDA::TYPE_STR[]="INT32";
 
-MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, const char *locName)
+MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, const std::string& locName)
 {
   return new MEDFileFieldLoc(fid,locName);
 }
@@ -53,26 +53,26 @@ MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, int id)
   return new MEDFileFieldLoc(fid,id);
 }
 
-MEDFileFieldLoc *MEDFileFieldLoc::New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
+MEDFileFieldLoc *MEDFileFieldLoc::New(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
 {
   return new MEDFileFieldLoc(locName,geoType,refCoo,gsCoo,w);
 }
 
-MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const char *locName):_name(locName)
+MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const std::string& locName):_name(locName)
 {
   med_geometry_type geotype;
   med_geometry_type sectiongeotype;
   int nsectionmeshcell;
   INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  MEDlocalizationInfoByName(fid,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
+  MEDlocalizationInfoByName(fid,locName.c_str(),&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
   _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+34,geotype)));
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   _nb_node_per_cell=cm.getNumberOfNodes();
   _ref_coo.resize(_dim*_nb_node_per_cell);
   _gs_coo.resize(_dim*_nb_gauss_pt);
   _w.resize(_nb_gauss_pt);
-  MEDlocalizationRd(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
+  MEDlocalizationRd(fid,locName.c_str(),MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
 }
 
 MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
@@ -94,7 +94,7 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
   MEDlocalizationRd(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
 }
 
-MEDFileFieldLoc::MEDFileFieldLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType,
+MEDFileFieldLoc::MEDFileFieldLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType,
                                  const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w):_name(locName),_geo_type(geoType),_ref_coo(refCoo),_gs_coo(gsCoo),
                                                                                                                                     _w(w)
 {
@@ -132,7 +132,7 @@ void MEDFileFieldLoc::simpleRepr(std::ostream& oss) const
   oss << "GaussPtsCoords="; std::copy(_gs_coo.begin(),_gs_coo.end(),std::ostream_iterator<double>(oss," ")); oss << std::endl;
 }
 
-void MEDFileFieldLoc::setName(const char *name)
+void MEDFileFieldLoc::setName(const std::string& name)
 {
   _name=name;
 }
@@ -631,7 +631,7 @@ std::string MEDFileFieldPerMeshPerTypePerDisc::getProfile() const
   return _profile;
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::setProfile(const char *newPflName)
+void MEDFileFieldPerMeshPerTypePerDisc::setProfile(const std::string& newPflName)
 {
   _profile=newPflName;
 }
@@ -641,7 +641,7 @@ std::string MEDFileFieldPerMeshPerTypePerDisc::getLocalization() const
   return _localization;
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::setLocalization(const char *newLocName)
+void MEDFileFieldPerMeshPerTypePerDisc::setLocalization(const std::string& newLocName)
 {
   _localization=newLocName;
 }
@@ -1887,7 +1887,7 @@ bool MEDFileFieldPerMesh::changeMeshNames(const std::vector< std::pair<std::stri
   return false;
 }
 
-bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
+bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
                                                       MEDFileFieldGlobsReal& glob)
 {
   if(_mesh_name!=meshName)
@@ -2395,15 +2395,15 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileAnyTypeField1TSWithoutSDA *fath,
   copyTinyInfoFrom(mesh);
 }
 
-void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int id, const char *pflName)
+void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int id, const std::string& pflName)
 {
   if(id>=(int)_pfls.size())
     _pfls.resize(id+1);
   _pfls[id]=DataArrayInt::New();
-  int lgth=MEDprofileSizeByName(fid,pflName);
+  int lgth=MEDprofileSizeByName(fid,pflName.c_str());
   _pfls[id]->setName(pflName);
   _pfls[id]->alloc(lgth,1);
-  MEDprofileRd(fid,pflName,_pfls[id]->getPointer());
+  MEDprofileRd(fid,pflName.c_str(),_pfls[id]->getPointer());
   _pfls[id]->applyLin(1,-1,0);//Converting into C format
 }
 
@@ -2519,7 +2519,7 @@ void MEDFileFieldGlobs::loadAllGlobals(med_idt fid)
     }
 }
 
-MEDFileFieldGlobs *MEDFileFieldGlobs::New(const char *fname)
+MEDFileFieldGlobs *MEDFileFieldGlobs::New(const std::string& fname)
 {
   return new MEDFileFieldGlobs(fname);
 }
@@ -2626,7 +2626,7 @@ MEDFileFieldGlobs *MEDFileFieldGlobs::deepCpyPart(const std::vector<std::string>
   return ret.retn();
 }
 
-MEDFileFieldGlobs::MEDFileFieldGlobs(const char *fname):_file_name(fname)
+MEDFileFieldGlobs::MEDFileFieldGlobs(const std::string& fname):_file_name(fname)
 {
 }
 
@@ -2664,7 +2664,7 @@ void MEDFileFieldGlobs::simpleRepr(std::ostream& oss) const
     }
 }
 
-void MEDFileFieldGlobs::setFileName(const char *fileName)
+void MEDFileFieldGlobs::setFileName(const std::string& fileName)
 {
   _file_name=fileName;
 }
@@ -2716,7 +2716,7 @@ int MEDFileFieldGlobs::getNbOfGaussPtPerCell(int locId) const
   return _locs[locId]->getNbOfGaussPtPerCell();
 }
 
-const MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const char *locName) const
+const MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const std::string& locName) const
 {
   return getLocalizationFromId(getLocalizationId(locName));
 }
@@ -2733,10 +2733,10 @@ namespace ParaMEDMEMImpl
   class LocFinder
   {
   public:
-    LocFinder(const char *loc):_loc(loc) { }
+    LocFinder(const std::string& loc):_loc(loc) { }
     bool operator() (const MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc>& loc) { return loc->isName(_loc); }
   private:
-    const char *_loc;
+    const std::string &_loc;
   };
 
   class PflFinder
@@ -2749,7 +2749,7 @@ namespace ParaMEDMEMImpl
   };
 }
 
-int MEDFileFieldGlobs::getLocalizationId(const char *loc) const
+int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
 {
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=std::find_if(_locs.begin(),_locs.end(),ParaMEDMEMImpl::LocFinder(loc));
   if(it==_locs.end())
@@ -2765,7 +2765,7 @@ int MEDFileFieldGlobs::getLocalizationId(const char *loc) const
 /*!
  * The returned value is never null.
  */
-const DataArrayInt *MEDFileFieldGlobs::getProfile(const char *pflName) const
+const DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName) const
 {
   std::string pflNameCpp(pflName);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
@@ -2793,7 +2793,7 @@ MEDFileFieldLoc& MEDFileFieldGlobs::getLocalizationFromId(int locId)
   return *_locs[locId];
 }
 
-MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const char *locName)
+MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const std::string& locName)
 {
   return getLocalizationFromId(getLocalizationId(locName));
 }
@@ -2801,7 +2801,7 @@ MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const char *locName)
 /*!
  * The returned value is never null.
  */
-DataArrayInt *MEDFileFieldGlobs::getProfile(const char *pflName)
+DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName)
 {
   std::string pflNameCpp(pflName);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
@@ -2864,14 +2864,14 @@ std::vector<std::string> MEDFileFieldGlobs::getLocs() const
   return ret;
 }
 
-bool MEDFileFieldGlobs::existsPfl(const char *pflName) const
+bool MEDFileFieldGlobs::existsPfl(const std::string& pflName) const
 {
   std::vector<std::string> v=getPfls();
   std::string s(pflName);
   return std::find(v.begin(),v.end(),s)!=v.end();
 }
 
-bool MEDFileFieldGlobs::existsLoc(const char *locName) const
+bool MEDFileFieldGlobs::existsLoc(const std::string& locName) const
 {
   std::vector<std::string> v=getLocs();
   std::string s(locName);
@@ -2941,7 +2941,7 @@ void MEDFileFieldGlobs::appendProfile(DataArrayInt *pfl)
   _pfls.push_back(pfl);
 }
 
-void MEDFileFieldGlobs::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
+void MEDFileFieldGlobs::appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
 {
   std::string name(locName);
   if(name.empty())
@@ -2971,7 +2971,7 @@ std::string MEDFileFieldGlobs::createNewNameOfLoc() const
   return CreateNewNameNotIn("NewLoc_",names);
 }
 
-std::string MEDFileFieldGlobs::CreateNewNameNotIn(const char *prefix, const std::vector<std::string>& namesToAvoid)
+std::string MEDFileFieldGlobs::CreateNewNameNotIn(const std::string& prefix, const std::vector<std::string>& namesToAvoid)
 {
   for(std::size_t sz=0;sz<100000;sz++)
     {
@@ -2987,7 +2987,7 @@ std::string MEDFileFieldGlobs::CreateNewNameNotIn(const char *prefix, const std:
  * Creates a MEDFileFieldGlobsReal on a given file name. Nothing is read here.
  *  \param [in] fname - the file name.
  */
-MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(const char *fname):_globals(MEDFileFieldGlobs::New(fname))
+MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(const std::string& fname):_globals(MEDFileFieldGlobs::New(fname))
 {
 }
 
@@ -3113,7 +3113,7 @@ void MEDFileFieldGlobsReal::checkGlobsLocsPartCoherency() const
   contentNotNull()->checkGlobsLocsPartCoherency(getLocsReallyUsed());
 }
 
-void MEDFileFieldGlobsReal::loadProfileInFile(med_idt fid, int id, const char *pflName)
+void MEDFileFieldGlobsReal::loadProfileInFile(med_idt fid, int id, const std::string& pflName)
 {
   contentNotNull()->loadProfileInFile(fid,id,pflName);
 }
@@ -3163,7 +3163,7 @@ std::vector<std::string> MEDFileFieldGlobsReal::getLocs() const
  *  \param [in] pflName - the profile name of interest.
  *  \return bool - \c true if the profile named \a pflName exists.
  */
-bool MEDFileFieldGlobsReal::existsPfl(const char *pflName) const
+bool MEDFileFieldGlobsReal::existsPfl(const std::string& pflName) const
 {
   return contentNotNull()->existsPfl(pflName);
 }
@@ -3173,7 +3173,7 @@ bool MEDFileFieldGlobsReal::existsPfl(const char *pflName) const
  *  \param [in] locName - the localization name of interest.
  *  \return bool - \c true if the localization named \a locName exists.
  */
-bool MEDFileFieldGlobsReal::existsLoc(const char *locName) const
+bool MEDFileFieldGlobsReal::existsLoc(const std::string& locName) const
 {
   return contentNotNull()->existsLoc(locName);
 }
@@ -3192,7 +3192,7 @@ std::string MEDFileFieldGlobsReal::createNewNameOfLoc() const
  * Sets the name of a MED file.
  *  \param [inout] fileName - the file name.
  */
-void MEDFileFieldGlobsReal::setFileName(const char *fileName)
+void MEDFileFieldGlobsReal::setFileName(const std::string& fileName)
 {
   contentNotNull()->setFileName(fileName);
 }
@@ -3285,7 +3285,7 @@ void MEDFileFieldGlobsReal::changeLocsNames(const std::vector< std::pair<std::ve
  *  \param [in] newName - a new name of the profile.
  * \sa changePflsNames().
  */
-void MEDFileFieldGlobsReal::changePflName(const char *oldName, const char *newName)
+void MEDFileFieldGlobsReal::changePflName(const std::string& oldName, const std::string& newName)
 {
   std::vector< std::pair<std::vector<std::string>, std::string > > mapOfModif(1);
   std::pair<std::vector<std::string>, std::string > p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
@@ -3299,7 +3299,7 @@ void MEDFileFieldGlobsReal::changePflName(const char *oldName, const char *newNa
  *  \param [in] newName - a new name of the localization.
  * \sa changeLocsNames().
  */
-void MEDFileFieldGlobsReal::changeLocName(const char *oldName, const char *newName)
+void MEDFileFieldGlobsReal::changeLocName(const std::string& oldName, const std::string& newName)
 {
   std::vector< std::pair<std::vector<std::string>, std::string > > mapOfModif(1);
   std::pair<std::vector<std::string>, std::string > p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
@@ -3384,16 +3384,16 @@ int MEDFileFieldGlobsReal::getNbOfGaussPtPerCell(int locId) const
  *  \return int - the id of the localization.
  *  \throw If there is no a localization named \a loc.
  */
-int MEDFileFieldGlobsReal::getLocalizationId(const char *loc) const
+int MEDFileFieldGlobsReal::getLocalizationId(const std::string& loc) const
 {
   return contentNotNull()->getLocalizationId(loc);
 }
 
 /*!
  * Returns the name of the MED file.
- *  \return const char * - the MED file name.
+ *  \return const std::string&  - the MED file name.
  */
-const char *MEDFileFieldGlobsReal::getFileName() const
+std::string MEDFileFieldGlobsReal::getFileName() const
 {
   return contentNotNull()->getFileName();
 }
@@ -3409,7 +3409,7 @@ std::string MEDFileFieldGlobsReal::getFileName2() const
  *  \return const MEDFileFieldLoc& - the localization object having the name \a locName.
  *  \throw If there is no a localization named \a locName.
  */
-const MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const char *locName) const
+const MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const std::string& locName) const
 {
   return contentNotNull()->getLocalization(locName);
 }
@@ -3431,7 +3431,7 @@ const MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalizationFromId(int locId) c
  *  \return const DataArrayInt * - the profile array having the name \a pflName.
  *  \throw If there is no a profile named \a pflName.
  */
-const DataArrayInt *MEDFileFieldGlobsReal::getProfile(const char *pflName) const
+const DataArrayInt *MEDFileFieldGlobsReal::getProfile(const std::string& pflName) const
 {
   return contentNotNull()->getProfile(pflName);
 }
@@ -3466,7 +3466,7 @@ MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalizationFromId(int locId)
  *          having the name \a locName.
  *  \throw If there is no a localization named \a locName.
  */
-MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const char *locName)
+MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const std::string& locName)
 {
   return contentNotNull()->getLocalization(locName);
 }
@@ -3477,7 +3477,7 @@ MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const char *locName)
  *  \return DataArrayInt * - a non-const pointer to the profile array having the name \a pflName.
  *  \throw If there is no a profile named \a pflName.
  */
-DataArrayInt *MEDFileFieldGlobsReal::getProfile(const char *pflName)
+DataArrayInt *MEDFileFieldGlobsReal::getProfile(const std::string& pflName)
 {
   return contentNotNull()->getProfile(pflName);
 }
@@ -3536,7 +3536,7 @@ void MEDFileFieldGlobsReal::appendProfile(DataArrayInt *pfl)
  *  \throw If a localization with the name \a locName already exists but is
  *         different form the new one.
  */
-void MEDFileFieldGlobsReal::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
+void MEDFileFieldGlobsReal::appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
 {
   contentNotNull()->appendLoc(locName,geoType,refCoo,gsCoo,w);
 }
@@ -3563,7 +3563,7 @@ MEDFileFieldNameScope::MEDFileFieldNameScope()
 {
 }
 
-MEDFileFieldNameScope::MEDFileFieldNameScope(const char *fieldName):_name(fieldName)
+MEDFileFieldNameScope::MEDFileFieldNameScope(const std::string& fieldName):_name(fieldName)
 {
 }
 
@@ -3580,7 +3580,7 @@ std::string MEDFileFieldNameScope::getName() const
  * Sets name of \a this field
  *  \param [in] name - the new field name.
  */
-void MEDFileFieldNameScope::setName(const char *fieldName)
+void MEDFileFieldNameScope::setName(const std::string& fieldName)
 {
   _name=fieldName;
 }
@@ -3590,7 +3590,7 @@ std::string MEDFileFieldNameScope::getDtUnit() const
   return _dt_unit;
 }
 
-void MEDFileFieldNameScope::setDtUnit(const char *dtUnit)
+void MEDFileFieldNameScope::setDtUnit(const std::string& dtUnit)
 {
   _dt_unit=dtUnit;
 }
@@ -3691,7 +3691,7 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> 
   return ret;
 }
 
-MEDFileAnyTypeField1TSWithoutSDA::MEDFileAnyTypeField1TSWithoutSDA(const char *fieldName, int csit, int iteration, int order):MEDFileFieldNameScope(fieldName),_iteration(iteration),_order(order),_csit(csit),_nb_of_tuples_to_be_allocated(-2)
+MEDFileAnyTypeField1TSWithoutSDA::MEDFileAnyTypeField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order):MEDFileFieldNameScope(fieldName),_iteration(iteration),_order(order),_csit(csit),_nb_of_tuples_to_be_allocated(-2)
 {
 }
 
@@ -3724,7 +3724,7 @@ std::string MEDFileAnyTypeField1TSWithoutSDA::getMeshName() const
   return _field_per_mesh[0]->getMeshName();
 }
 
-void MEDFileAnyTypeField1TSWithoutSDA::setMeshName(const char *newMeshName)
+void MEDFileAnyTypeField1TSWithoutSDA::setMeshName(const std::string& newMeshName)
 {
   std::string oldName(getMeshName());
   std::vector< std::pair<std::string,std::string> > v(1);
@@ -3932,10 +3932,10 @@ void MEDFileAnyTypeField1TSWithoutSDA::changeLocsRefsNamesGen2(const std::vector
  *          Length of this and of nested sequences is the same as that of \a typesF.
  *  \throw If no field is lying on \a mname.
  */
-std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeField1TSWithoutSDA::getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
+std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeField1TSWithoutSDA::getFieldSplitedByType(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
 {
   int meshId=0;
-  if(mname)
+  if(!mname.empty())
     meshId=getMeshIdFromMeshName(mname);
   else
     if(_field_per_mesh.empty())
@@ -3984,7 +3984,7 @@ std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeField1TSWithoutSD
  *  \return int - the maximal absolute dimension of elements \a this fields lies on.
  *  \throw If no field is lying on \a mname.
  */
-int MEDFileAnyTypeField1TSWithoutSDA::getNonEmptyLevels(const char *mname, std::vector<int>& levs) const
+int MEDFileAnyTypeField1TSWithoutSDA::getNonEmptyLevels(const std::string& mname, std::vector<int>& levs) const
 {
   levs.clear();
   int meshId=getMeshIdFromMeshName(mname);
@@ -4016,7 +4016,7 @@ int MEDFileAnyTypeField1TSWithoutSDA::getNonEmptyLevels(const char *mname, std::
  * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
  *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutSDA::getFieldSplitedByType. For non gausspoints field users, the value is 0.
  */
-MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId)
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId)
 {
   int mid=getMeshIdFromMeshName(mName);
   return _field_per_mesh[mid]->getLeafGivenTypeAndLocId(typ,locId);
@@ -4028,7 +4028,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGive
  * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
  *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutSDA::getFieldSplitedByType. For non gausspoints field users, the value is 0.
  */
-const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const
+const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const
 {
   int mid=getMeshIdFromMeshName(mName);
   return _field_per_mesh[mid]->getLeafGivenTypeAndLocId(typ,locId);
@@ -4037,11 +4037,11 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TSWithoutSDA::getLe
 /*!
  * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
  */
-int MEDFileAnyTypeField1TSWithoutSDA::getMeshIdFromMeshName(const char *mName) const
+int MEDFileAnyTypeField1TSWithoutSDA::getMeshIdFromMeshName(const std::string& mName) const
 {
   if(_field_per_mesh.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutSDA::getMeshIdFromMeshName : No field set !");
-  if(mName==0)
+  if(mName.empty())
     return 0;
   std::string mName2(mName);
   int ret=0;
@@ -4078,7 +4078,7 @@ int MEDFileAnyTypeField1TSWithoutSDA::addNewEntryIfNecessary(const MEDCouplingMe
   return sz;
 }
 
-bool MEDFileAnyTypeField1TSWithoutSDA::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
+bool MEDFileAnyTypeField1TSWithoutSDA::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
                                                             MEDFileFieldGlobsReal& glob)
 {
   bool ret=false;
@@ -4474,10 +4474,10 @@ std::vector<std::string>& MEDFileAnyTypeField1TSWithoutSDA::getInfo()
  *  \throw If no field of \a this is lying on the mesh \a mName.
  *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
  */
-MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFileFieldGlobsReal *glob, MEDCouplingAutoRefCountObjectPtr<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
+MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const std::string& mName, int renumPol, const MEDFileFieldGlobsReal *glob, MEDCouplingAutoRefCountObjectPtr<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
-  if(mName==0)
+  if(mName.empty())
     mm=MEDFileMesh::New(glob->getFileName(),getMeshName().c_str(),getMeshIteration(),getMeshOrder());
   else
     mm=MEDFileMesh::New(glob->getFileName(),mName,getMeshIteration(),getMeshOrder());
@@ -4534,10 +4534,10 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
  *  \throw If there are no mesh entities in the mesh.
  *  \throw If no field values of the given \a type are available.
  */
-MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtTopLevel(TypeOfField type, const char *mName, int renumPol, const MEDFileFieldGlobsReal *glob, MEDCouplingAutoRefCountObjectPtr<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
+MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtTopLevel(TypeOfField type, const std::string& mName, int renumPol, const MEDFileFieldGlobsReal *glob, MEDCouplingAutoRefCountObjectPtr<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
-   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
-  if(mName==0)
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
+  if(mName.empty())
     mm=MEDFileMesh::New(glob->getFileName(),getMeshName().c_str(),getMeshIteration(),getMeshOrder());
   else
     mm=MEDFileMesh::New(glob->getFileName(),mName,getMeshIteration(),getMeshOrder());
@@ -4571,7 +4571,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtTopLevel(Typ
 MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum, MEDCouplingAutoRefCountObjectPtr<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
   static const char msg1[]="MEDFileField1TSWithoutSDA::getFieldOnMeshAtLevel : request for a renumbered field following mesh numbering whereas it is a profile field !";
-  int meshId=getMeshIdFromMeshName(mesh->getName().c_str());
+  int meshId=getMeshIdFromMeshName(mesh->getName());
   bool isPfl=false;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=_field_per_mesh[meshId]->getFieldOnMeshAtLevel(type,glob,mesh,isPfl,arrOut,nasc);
   switch(renumPol)
@@ -4712,7 +4712,7 @@ std::vector<int> MEDFileField1TSWithoutSDA::CheckSBTMesh(const MEDCouplingMesh *
   return code;
 }
 
-MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos)
+MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::New(const std::string& fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos)
 {
   return new MEDFileField1TSWithoutSDA(fieldName,csit,iteration,order,infos);
 }
@@ -4751,10 +4751,10 @@ MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::New(const char *fieldName,
  *          Length of this and of nested sequences is the same as that of \a typesF.
  *  \throw If no field is lying on \a mname.
  */
-std::vector< std::vector<DataArrayDouble *> > MEDFileField1TSWithoutSDA::getFieldSplitedByType2(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
+std::vector< std::vector<DataArrayDouble *> > MEDFileField1TSWithoutSDA::getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
 {
   int meshId=0;
-  if(mname)
+  if(!mname.empty())
     meshId=getMeshIdFromMeshName(mname);
   else
     if(_field_per_mesh.empty())
@@ -4870,7 +4870,7 @@ DataArray *MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt(std::vector< st
   return getUndergroundDataArrayDoubleExt(entries);
 }
 
-MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA(const char *fieldName, int csit, int iteration, int order,
+MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order,
                                                      const std::vector<std::string>& infos):MEDFileAnyTypeField1TSWithoutSDA(fieldName,csit,iteration,order)
 {
   DataArrayDouble *arr=getOrCreateAndGetArrayDouble();
@@ -4949,7 +4949,7 @@ const DataArray *MEDFileField1TSWithoutSDA::getOrCreateAndGetArray() const
 
 //= MEDFileIntField1TSWithoutSDA
 
-MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::New(const char *fieldName, int csit, int iteration, int order,
+MEDFileIntField1TSWithoutSDA *MEDFileIntField1TSWithoutSDA::New(const std::string& fieldName, int csit, int iteration, int order,
                                                                 const std::vector<std::string>& infos)
 {
   return new MEDFileIntField1TSWithoutSDA(fieldName,csit,iteration,order,infos);
@@ -4959,7 +4959,7 @@ MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA():MEDFileAnyTypeField
 {
 }
 
-MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA(const char *fieldName, int csit, int iteration, int order,
+MEDFileIntField1TSWithoutSDA::MEDFileIntField1TSWithoutSDA(const std::string& fieldName, int csit, int iteration, int order,
                                                            const std::vector<std::string>& infos):MEDFileAnyTypeField1TSWithoutSDA(fieldName,csit,iteration,order)
 {
   DataArrayInt *arr=getOrCreateAndGetArrayInt();
@@ -5132,7 +5132,7 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS()
 
 //= MEDFileAnyTypeField1TS
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const char *fileName, bool loadAll)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fileName, bool loadAll)
 {
   med_field_type typcha;
   //
@@ -5173,11 +5173,11 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const char *fileName, bool loadAll)
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, bool loadAll)
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   _content=BuildContentFrom(fid,fileName,loadAll);
   loadGlobals(fid);
 }
@@ -5186,7 +5186,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const char *fileName, const char *fieldName, bool loadAll)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
@@ -5223,7 +5223,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   //
   med_int numdt,numit;
   med_float dt;
-  MEDfieldComputingStepInfo(fid,fieldName,1,&numdt,&numit,&dt);
+  MEDfieldComputingStepInfo(fid,fieldName.c_str(),1,&numdt,&numit,&dt);
   ret->setTime(numdt,numit,dt);
   ret->_csit=1;
   if(loadAll)
@@ -5233,11 +5233,11 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll)
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   _content=BuildContentFrom(fid,fileName,fieldName,loadAll);
   loadGlobals(fid);
 }
@@ -5246,7 +5246,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, const char *fileName)
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDFileAnyTypeField1TSWithoutSDA *c, const std::string& fileName)
 {
   if(!c)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : empty content in input : unable to build a new instance !");
@@ -5267,37 +5267,37 @@ MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::BuildNewInstanceFromContent(MEDF
   throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
 }
 
-MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const char *fileName, bool loadAll)
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> c=BuildContentFrom(fid,fileName,loadAll);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,loadAll);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileAnyTypeField1TS *MEDFileAnyTypeField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,iteration,order,loadAll);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
@@ -5332,7 +5332,7 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
     {
       med_int numdt,numit;
       med_float dt;
-      MEDfieldComputingStepInfo(fid,fieldName,i+1,&numdt,&numit,&dt);
+      MEDfieldComputingStepInfo(fid,fieldName.c_str(),i+1,&numdt,&numit,&dt);
       if(numdt==iteration && numit==order)
         {
           found=true;
@@ -5355,12 +5355,12 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName,fieldName,iteration,order,loadAll);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  _content=BuildContentFrom(fid,fileName.c_str(),fieldName.c_str(),iteration,order,loadAll);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -5388,7 +5388,7 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(const MEDFileAnyTypeField1TSWitho
     }
 }
 
-int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, const char *fileName, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
+int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, const std::string& fileName, int fieldIdCFormat, bool checkFieldId, std::string& fieldName, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
 {
   if(checkFieldId)
     {
@@ -5422,7 +5422,7 @@ int MEDFileAnyTypeField1TS::LocateField2(med_idt fid, const char *fileName, int 
  * \param [out]
  * \return in case of success the number of time steps available for the field with name \a fieldName.
  */
-int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const char *fileName, const char *fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
+int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const std::string& fileName, const std::string& fieldName, int& posCFormat, med_field_type& typcha, std::vector<std::string>& infos, std::string& dtunitOut)
 {
   int nbFields=MEDnField(fid);
   bool found=false;
@@ -5465,7 +5465,7 @@ int MEDFileAnyTypeField1TS::LocateField(med_idt fid, const char *fileName, const
  * \param [in] forceRenameOnGlob specifies the behaviour in case of profile \b newPflName already exists. If true, the renaming is done without check. It can lead to major bug.
  *             If false, an exception will be thrown to force user to change previously the name of the profile with name \b newPflName
  */
-void MEDFileAnyTypeField1TS::setProfileNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob)
+void MEDFileAnyTypeField1TS::setProfileNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newPflName, bool forceRenameOnGlob)
 {
   MEDFileFieldPerMeshPerTypePerDisc *disc=getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
   std::string oldPflName=disc->getProfile();
@@ -5503,7 +5503,7 @@ void MEDFileAnyTypeField1TS::setProfileNameOnLeaf(const char *mName, INTERP_KERN
  * \param [in] forceRenameOnGlob specifies the behaviour in case of profile \b newLocName already exists. If true, the renaming is done without check. It can lead to major bug.
  *             If false, an exception will be thrown to force user to change previously the name of the profile with name \b newLocName
  */
-void MEDFileAnyTypeField1TS::setLocNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob)
+void MEDFileAnyTypeField1TS::setLocNameOnLeaf(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const std::string& newLocName, bool forceRenameOnGlob)
 {
   MEDFileFieldPerMeshPerTypePerDisc *disc=getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
   std::string oldLocName=disc->getLocalization();
@@ -5549,10 +5549,10 @@ const MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::contentNotNullBa
  *  \throw If no field data is set.
  *  \throw If \a mode == 1 and the same data is present in an existing file.
  */
-void MEDFileAnyTypeField1TS::write(const char *fileName, int mode) const
+void MEDFileAnyTypeField1TS::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   writeLL(fid);
 }
 
@@ -5566,7 +5566,7 @@ void MEDFileAnyTypeField1TS::write(const char *fileName, int mode) const
  */
 void MEDFileAnyTypeField1TS::loadArrays()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
 
@@ -5579,7 +5579,7 @@ void MEDFileAnyTypeField1TS::loadArrays()
  */
 void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
 }
 
@@ -5716,7 +5716,7 @@ std::string MEDFileAnyTypeField1TS::getName() const
   return contentNotNullBase()->getName();
 }
 
-void MEDFileAnyTypeField1TS::setName(const char *name)
+void MEDFileAnyTypeField1TS::setName(const std::string& name)
 {
   contentNotNullBase()->setName(name);
 }
@@ -5731,7 +5731,7 @@ std::string MEDFileAnyTypeField1TS::getDtUnit() const
   return contentNotNullBase()->getDtUnit();
 }
 
-void MEDFileAnyTypeField1TS::setDtUnit(const char *dtUnit)
+void MEDFileAnyTypeField1TS::setDtUnit(const std::string& dtUnit)
 {
   contentNotNullBase()->setDtUnit(dtUnit);
 }
@@ -5741,7 +5741,7 @@ std::string MEDFileAnyTypeField1TS::getMeshName() const
   return contentNotNullBase()->getMeshName();
 }
 
-void MEDFileAnyTypeField1TS::setMeshName(const char *newMeshName)
+void MEDFileAnyTypeField1TS::setMeshName(const std::string& newMeshName)
 {
   contentNotNullBase()->setMeshName(newMeshName);
 }
@@ -5800,17 +5800,17 @@ std::vector<std::string>& MEDFileAnyTypeField1TS::getInfo()
   return contentNotNullBase()->getInfo();
 }
 
-MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TS::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId)
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TS::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId)
 {
   return contentNotNullBase()->getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
 }
 
-const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TS::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const
+const MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TS::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const
 {
   return contentNotNullBase()->getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
 }
 
-int MEDFileAnyTypeField1TS::getNonEmptyLevels(const char *mname, std::vector<int>& levs) const
+int MEDFileAnyTypeField1TS::getNonEmptyLevels(const std::string& mname, std::vector<int>& levs) const
 {
   return contentNotNullBase()->getNonEmptyLevels(mname,levs);
 }
@@ -5820,7 +5820,7 @@ std::vector<TypeOfField> MEDFileAnyTypeField1TS::getTypesOfFieldAvailable() cons
   return contentNotNullBase()->getTypesOfFieldAvailable();
 }
 
-std::vector< std::vector<std::pair<int,int> > > MEDFileAnyTypeField1TS::getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
+std::vector< std::vector<std::pair<int,int> > > MEDFileAnyTypeField1TS::getFieldSplitedByType(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
                                                                                        std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
 {
   return contentNotNullBase()->getFieldSplitedByType(mname,types,typesF,pfls,locs);
@@ -5891,7 +5891,7 @@ int MEDFileAnyTypeField1TS::copyTinyInfoFrom(const MEDCouplingFieldDouble *field
  *          is to delete this field using decrRef() as it is no more needed.
  *  \throw If reading the file fails.
  */
-MEDFileField1TS *MEDFileField1TS::New(const char *fileName, bool loadAll)
+MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ret=new MEDFileField1TS(fileName,loadAll);
   ret->contentNotNull();
@@ -5908,7 +5908,7 @@ MEDFileField1TS *MEDFileField1TS::New(const char *fileName, bool loadAll)
  *  \throw If reading the file fails.
  *  \throw If there is no field named \a fieldName in the file.
  */
-MEDFileField1TS *MEDFileField1TS::New(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ret=new MEDFileField1TS(fileName,fieldName,loadAll);
   ret->contentNotNull();
@@ -5928,7 +5928,7 @@ MEDFileField1TS *MEDFileField1TS::New(const char *fileName, const char *fieldNam
  *  \throw If there is no field named \a fieldName in the file.
  *  \throw If the required time step is missing from the file.
  */
-MEDFileField1TS *MEDFileField1TS::New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileField1TS *MEDFileField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ret=new MEDFileField1TS(fileName,fieldName,iteration,order,loadAll);
   ret->contentNotNull();
@@ -6040,21 +6040,21 @@ DataArrayDouble *MEDFileField1TS::ReturnSafelyDataArrayDouble(MEDCouplingAutoRef
   return arrOutC;
 }
 
-MEDFileField1TS::MEDFileField1TS(const char *fileName, bool loadAll)
+MEDFileField1TS::MEDFileField1TS(const std::string& fileName, bool loadAll)
 try:MEDFileAnyTypeField1TS(fileName,loadAll)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileField1TS::MEDFileField1TS(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileField1TS::MEDFileField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll)
 try:MEDFileAnyTypeField1TS(fileName,fieldName,loadAll)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileField1TS::MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileField1TS::MEDFileField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 try:MEDFileAnyTypeField1TS(fileName,fieldName,iteration,order,loadAll)
 {
 }
@@ -6107,7 +6107,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(TypeOfField type, int m
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,0,renumPol,this,arrOut,*contentNotNull());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut,*contentNotNull());
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6139,7 +6139,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtTopLevel(TypeOfField type, in
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,0,renumPol,this,arrOut,*contentNotNull());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arrOut,*contentNotNull());
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -6227,7 +6227,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(TypeOfField type,
  *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
  *  \sa getFieldAtLevel()
  */
-MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol) const
+MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol) const
 {
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
@@ -6321,7 +6321,7 @@ DataArrayDouble *MEDFileField1TS::getUndergroundDataArrayExt(std::vector< std::p
   return contentNotNull()->getUndergroundDataArrayDoubleExt(entries);
 }
 
-std::vector< std::vector<DataArrayDouble *> > MEDFileField1TS::getFieldSplitedByType2(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
+std::vector< std::vector<DataArrayDouble *> > MEDFileField1TS::getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
                                                                                       std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
 {
   return contentNotNull()->getFieldSplitedByType2(mname,types,typesF,pfls,locs);
@@ -6336,21 +6336,21 @@ MEDFileIntField1TS *MEDFileIntField1TS::New()
   return ret.retn();
 }
 
-MEDFileIntField1TS *MEDFileIntField1TS::New(const char *fileName, bool loadAll)
+MEDFileIntField1TS *MEDFileIntField1TS::New(const std::string& fileName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TS> ret=new MEDFileIntField1TS(fileName,loadAll);
   ret->contentNotNull();
   return ret.retn();
 }
 
-MEDFileIntField1TS *MEDFileIntField1TS::New(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileIntField1TS *MEDFileIntField1TS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TS> ret=new MEDFileIntField1TS(fileName,fieldName,loadAll);
   ret->contentNotNull();
   return ret.retn();
 }
 
-MEDFileIntField1TS *MEDFileIntField1TS::New(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileIntField1TS *MEDFileIntField1TS::New(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntField1TS> ret=new MEDFileIntField1TS(fileName,fieldName,iteration,order,loadAll);
   ret->contentNotNull();
@@ -6369,21 +6369,21 @@ MEDFileIntField1TS::MEDFileIntField1TS()
   _content=new MEDFileIntField1TSWithoutSDA;
 }
 
-MEDFileIntField1TS::MEDFileIntField1TS(const char *fileName, bool loadAll)
+MEDFileIntField1TS::MEDFileIntField1TS(const std::string& fileName, bool loadAll)
 try:MEDFileAnyTypeField1TS(fileName,loadAll)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileIntField1TS::MEDFileIntField1TS(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileIntField1TS::MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll)
 try:MEDFileAnyTypeField1TS(fileName,fieldName,loadAll)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileIntField1TS::MEDFileIntField1TS(const char *fileName, const char *fieldName, int iteration, int order, bool loadAll)
+MEDFileIntField1TS::MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll)
 try:MEDFileAnyTypeField1TS(fileName,fieldName,iteration,order,loadAll)
 {
 }
@@ -6499,7 +6499,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevel(TypeOfField type, in
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut2;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,0,renumPol,this,arrOut2,*contentNotNull());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut2,*contentNotNull());
   DataArrayInt *arrOutC=dynamic_cast<DataArrayInt *>((DataArray *)arrOut2);
   if(!arrOutC)
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevelOld : mismatch between dataArrays type and MEDFileIntField1TS ! Expected int32 !");
@@ -6546,7 +6546,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtTopLevel(TypeOfField type,
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arr;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,0,renumPol,this,arr,*contentNotNull());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arr,*contentNotNull());
   arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
   return ret.retn();
 }
@@ -6637,7 +6637,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
  *  \sa getFieldAtLevel()
  */
-MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
 {
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
@@ -6691,7 +6691,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA()
 {
 }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(const char *fieldName):MEDFileFieldNameScope(fieldName)
+MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(const std::string& fieldName):MEDFileFieldNameScope(fieldName)
 {
 }
 
@@ -6707,7 +6707,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_i
   loadStructureOrStructureAndBigArraysRecursively(fid,nbOfStep,typcha,loadAll);
 }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
+MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
 try:MEDFileFieldNameScope(fieldName),_infos(infos)
 {
   setDtUnit(dtunit.c_str());
@@ -6886,7 +6886,7 @@ std::string MEDFileAnyTypeFieldMultiTSWithoutSDA::getMeshName() const
   return _time_steps[0]->getMeshName();
 }
 
-void MEDFileAnyTypeFieldMultiTSWithoutSDA::setMeshName(const char *newMeshName)
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::setMeshName(const std::string& newMeshName)
 {
   std::string oldName(getMeshName());
   std::vector< std::pair<std::string,std::string> > v(1);
@@ -6922,7 +6922,7 @@ DataArray *MEDFileAnyTypeFieldMultiTSWithoutSDA::getUndergroundDataArrayExt(int 
   return getTimeStepEntry(iteration,order).getUndergroundDataArrayExt(entries);
 }
 
-bool MEDFileAnyTypeFieldMultiTSWithoutSDA::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
+bool MEDFileAnyTypeFieldMultiTSWithoutSDA::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
                                                                 MEDFileFieldGlobsReal& glob)
 {
   bool ret=false;
@@ -7243,7 +7243,7 @@ std::vector< std::pair<int,int> > MEDFileAnyTypeFieldMultiTSWithoutSDA::getItera
  * To retrieve the highest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+0);//absDim-meshDim+relativeLev
  * To retrieve the lowest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+(-1));//absDim-meshDim+relativeLev
  */
-int MEDFileAnyTypeFieldMultiTSWithoutSDA::getNonEmptyLevels(int iteration, int order, const char *mname, std::vector<int>& levs) const
+int MEDFileAnyTypeFieldMultiTSWithoutSDA::getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const
 {
   return getTimeStepEntry(iteration,order).getNonEmptyLevels(mname,levs);
 }
@@ -7362,7 +7362,7 @@ std::vector< std::vector<TypeOfField> > MEDFileAnyTypeFieldMultiTSWithoutSDA::ge
 /*!
  * entry point for users that want to iterate into MEDFile DataStructure without any overhead.
  */
-std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeFieldMultiTSWithoutSDA::getFieldSplitedByType(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
+std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeFieldMultiTSWithoutSDA::getFieldSplitedByType(int iteration, int order, const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
 {
   return getTimeStepEntry(iteration,order).getFieldSplitedByType(mname,types,typesF,pfls,locs);
 }
@@ -7565,7 +7565,7 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::setIteration(int i, MEDCouplingAutoRe
 
 //= MEDFileFieldMultiTSWithoutSDA
 
-MEDFileFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::New(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
+MEDFileFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::New(med_idt fid, const std::string& fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
 {
   return new MEDFileFieldMultiTSWithoutSDA(fid,fieldName,fieldTyp,infos,nbOfStep,dtunit,loadAll);
 }
@@ -7574,7 +7574,7 @@ MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA()
 {
 }
 
-MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(const char *fieldName):MEDFileAnyTypeFieldMultiTSWithoutSDA(fieldName)
+MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(const std::string& fieldName):MEDFileAnyTypeFieldMultiTSWithoutSDA(fieldName)
 {
 }
 
@@ -7588,7 +7588,7 @@ try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldId,loadAll)
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
+MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
 try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldName,fieldTyp,infos,nbOfStep,dtunit,loadAll)
 {
 }
@@ -7628,7 +7628,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileFieldMultiTSWithoutSDA::createNew()
  * entry point for users that want to iterate into MEDFile DataStructure with a reduced overhead because output arrays are extracted (created) specially
  * for the call of this method. That's why the DataArrayDouble instance in returned vector of vector should be dealed by the caller.
  */
-std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTSWithoutSDA::getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
+std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTSWithoutSDA::getFieldSplitedByType2(int iteration, int order, const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
 {
   const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=getTimeStepEntry(iteration,order);
   const MEDFileField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileField1TSWithoutSDA *>(&myF1TS);
@@ -7663,11 +7663,11 @@ MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS()
 {
 }
 
-MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const char *fileName, bool loadAll)
+MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const std::string& fileName, bool loadAll)
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   _content=BuildContentFrom(fid,fileName,loadAll);
   loadGlobals(fid);
 }
@@ -7676,7 +7676,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const char *fileName, const char *fieldName, bool loadAll)
+MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
@@ -7706,7 +7706,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   return ret.retn();
 }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const char *fileName, bool loadAll)
+MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fileName, bool loadAll)
 {
   med_field_type typcha;
   //
@@ -7736,7 +7736,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   return ret.retn();
 }
 
-MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, const char *fileName)
+MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(MEDFileAnyTypeFieldMultiTSWithoutSDA *c, const std::string& fileName)
 {
   if(!c)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : empty content in input : unable to build a new instance !");
@@ -7757,11 +7757,11 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
   throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
 }
 
-MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll)
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   _content=BuildContentFrom(fid,fileName,fieldName,loadAll);
   loadGlobals(fid);
 }
@@ -7772,7 +7772,7 @@ catch(INTERP_KERNEL::Exception& e)
 
 //= MEDFileIntFieldMultiTSWithoutSDA
 
-MEDFileIntFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::New(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
+MEDFileIntFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::New(med_idt fid, const std::string& fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
 {
   return new MEDFileIntFieldMultiTSWithoutSDA(fid,fieldName,fieldTyp,infos,nbOfStep,dtunit,loadAll);
 }
@@ -7781,11 +7781,11 @@ MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA()
 {
 }
 
-MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA(const char *fieldName):MEDFileAnyTypeFieldMultiTSWithoutSDA(fieldName)
+MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA(const std::string& fieldName):MEDFileAnyTypeFieldMultiTSWithoutSDA(fieldName)
 {
 }
 
-MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA(med_idt fid, const char *fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
+MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll)
 try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldName,fieldTyp,infos,nbOfStep,dtunit,loadAll)
 {
 }
@@ -7861,10 +7861,10 @@ MEDFileFieldMultiTSWithoutSDA *MEDFileIntFieldMultiTSWithoutSDA::convertToDouble
  *          is to delete this field using decrRef() as it is no more needed.
  *  \throw If reading the file fails.
  */
-MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const char *fileName, bool loadAll)
+MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const std::string& fileName, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> c=BuildContentFrom(fid,fileName,loadAll);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
@@ -7881,10 +7881,10 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const char *fileName
  *  \throw If reading the file fails.
  *  \throw If there is no field named \a fieldName in the file.
  */
-MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,loadAll);
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
@@ -8035,7 +8035,7 @@ int MEDFileAnyTypeFieldMultiTS::getPosGivenTime(double time, double eps) const
   return contentNotNullBase()->getPosGivenTime(time,eps);
 }
 
-int MEDFileAnyTypeFieldMultiTS::getNonEmptyLevels(int iteration, int order, const char *mname, std::vector<int>& levs) const
+int MEDFileAnyTypeFieldMultiTS::getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const
 {
   return contentNotNullBase()->getNonEmptyLevels(iteration,order,mname,levs);
 }
@@ -8045,7 +8045,7 @@ std::vector< std::vector<TypeOfField> > MEDFileAnyTypeFieldMultiTS::getTypesOfFi
   return contentNotNullBase()->getTypesOfFieldAvailable();
 }
 
-std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeFieldMultiTS::getFieldSplitedByType(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
+std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeFieldMultiTS::getFieldSplitedByType(int iteration, int order, const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
 {
   return contentNotNullBase()->getFieldSplitedByType(iteration,order,mname,types,typesF,pfls,locs);
 }
@@ -8055,7 +8055,7 @@ std::string MEDFileAnyTypeFieldMultiTS::getName() const
   return contentNotNullBase()->getName();
 }
 
-void MEDFileAnyTypeFieldMultiTS::setName(const char *name)
+void MEDFileAnyTypeFieldMultiTS::setName(const std::string& name)
 {
   contentNotNullBase()->setName(name);
 }
@@ -8065,7 +8065,7 @@ std::string MEDFileAnyTypeFieldMultiTS::getDtUnit() const
   return contentNotNullBase()->getDtUnit();
 }
 
-void MEDFileAnyTypeFieldMultiTS::setDtUnit(const char *dtUnit)
+void MEDFileAnyTypeFieldMultiTS::setDtUnit(const std::string& dtUnit)
 {
   contentNotNullBase()->setDtUnit(dtUnit);
 }
@@ -8085,7 +8085,7 @@ std::string MEDFileAnyTypeFieldMultiTS::getMeshName() const
   return contentNotNullBase()->getMeshName();
 }
 
-void MEDFileAnyTypeFieldMultiTS::setMeshName(const char *newMeshName)
+void MEDFileAnyTypeFieldMultiTS::setMeshName(const std::string& newMeshName)
 {
   contentNotNullBase()->setMeshName(newMeshName);
 }
@@ -8128,10 +8128,10 @@ void MEDFileAnyTypeFieldMultiTS::writeLL(med_idt fid) const
  *  \throw If no field data is set.
  *  \throw If \a mode == 1 and the same data is present in an existing file.
  */
-void MEDFileAnyTypeFieldMultiTS::write(const char *fileName, int mode) const
+void MEDFileAnyTypeFieldMultiTS::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   writeLL(fid);
 }
 
@@ -8144,7 +8144,7 @@ void MEDFileAnyTypeFieldMultiTS::write(const char *fileName, int mode) const
  */
 void MEDFileAnyTypeFieldMultiTS::loadArrays()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
 
@@ -8157,7 +8157,7 @@ void MEDFileAnyTypeFieldMultiTS::loadArrays()
  */
 void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
 }
 
@@ -8511,7 +8511,7 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New()
  *          is to delete this field using decrRef() as it is no more needed.
  *  \throw If reading the file fails.
  */
-MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName, bool loadAll)
+MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const std::string& fileName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ret=new MEDFileFieldMultiTS(fileName,loadAll);
   ret->contentNotNull();//to check that content type matches with \a this type.
@@ -8528,7 +8528,7 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName, bool loadAll
  *  \throw If reading the file fails.
  *  \throw If there is no field named \a fieldName in the file.
  */
-MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ret=new MEDFileFieldMultiTS(fileName,fieldName,loadAll);
   ret->contentNotNull();//to check that content type matches with \a this type.
@@ -8650,7 +8650,7 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtLevel(TypeOfField type, i
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::getFieldAtLevel : mismatch of type of field expecting FLOAT64 !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtLevel(type,meshDimRelToMax,0,renumPol,this,arrOut,*contentNotNullBase());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut,*contentNotNullBase());
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -8682,7 +8682,7 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtTopLevel(TypeOfField type
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::getFieldAtTopLevel : mismatch of type of field !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtTopLevel(type,0,renumPol,this,arrOut,*contentNotNullBase());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtTopLevel(type,std::string(),renumPol,this,arrOut,*contentNotNullBase());
   MEDFileField1TS::SetDataArrayDoubleInField(ret,arrOut);
   return ret.retn();
 }
@@ -8758,7 +8758,7 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField t
  * This method is called 'old' because the user should give the mesh name he wants to use for it's field.
  * This method is useful for MED2 file format when field on different mesh was autorized.
  */
-MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol) const
+MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int iteration, int order, int meshDimRelToMax, int renumPol) const
 {
   const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
   const MEDFileField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileField1TSWithoutSDA *>(&myF1TS);
@@ -8876,14 +8876,14 @@ MEDFileFieldMultiTS::MEDFileFieldMultiTS()
   _content=new MEDFileFieldMultiTSWithoutSDA;
 }
 
-MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName, bool loadAll)
+MEDFileFieldMultiTS::MEDFileFieldMultiTS(const std::string& fileName, bool loadAll)
 try:MEDFileAnyTypeFieldMultiTS(fileName,loadAll)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileFieldMultiTS::MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll)
 try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll)
 {
 }
@@ -8894,7 +8894,7 @@ MEDFileFieldMultiTS::MEDFileFieldMultiTS(const MEDFileFieldMultiTSWithoutSDA& ot
 {
 }
 
-std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTS::getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
+std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTS::getFieldSplitedByType2(int iteration, int order, const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const
 {
   return contentNotNull()->getFieldSplitedByType2(iteration,order,mname,types,typesF,pfls,locs);
 }
@@ -8958,7 +8958,7 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New()
  *          is to delete this field using decrRef() as it is no more needed.
  *  \throw If reading the file fails.
  */
-MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const char *fileName, bool loadAll)
+MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const std::string& fileName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTS> ret=new MEDFileIntFieldMultiTS(fileName,loadAll);
   ret->contentNotNull();//to check that content type matches with \a this type.
@@ -8975,7 +8975,7 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const char *fileName, bool l
  *  \throw If reading the file fails.
  *  \throw If there is no field named \a fieldName in the file.
  */
-MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const std::string& fileName, const std::string& fieldName, bool loadAll)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTS> ret=new MEDFileIntFieldMultiTS(fileName,fieldName,loadAll);
   ret->contentNotNull();//to check that content type matches with \a this type.
@@ -9072,7 +9072,7 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtLevel(TypeOfField type
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::getFieldAtLevel : mismatch of type of field expecting INT32 !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arr;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtLevel(type,meshDimRelToMax,0,renumPol,this,arr,*contentNotNullBase());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arr,*contentNotNullBase());
   arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
   return ret.retn();
 }
@@ -9105,7 +9105,7 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtTopLevel(TypeOfField t
   if(!myF1TSC)
     throw INTERP_KERNEL::Exception("MEDFileIntFieldMultiTS::getFieldAtTopLevel : mismatch of type of field ! INT32 expected !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arr;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtTopLevel(type,0,renumPol,this,arr,*contentNotNullBase());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=myF1TSC->getFieldAtTopLevel(type,std::string(),renumPol,this,arr,*contentNotNullBase());
   arrOut=MEDFileIntField1TS::ReturnSafelyDataArrayInt(arr);
   return ret.retn();
 }
@@ -9183,7 +9183,7 @@ MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldOnMeshAtLevel(TypeOfFiel
  * This method is called 'old' because the user should give the mesh name he wants to use for it's field.
  * This method is useful for MED2 file format when field on different mesh was autorized.
  */
-MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtLevelOld(TypeOfField type, int iteration, int order, const char *mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
+MEDCouplingFieldDouble *MEDFileIntFieldMultiTS::getFieldAtLevelOld(TypeOfField type, int iteration, int order, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
 {
   const MEDFileAnyTypeField1TSWithoutSDA& myF1TS=contentNotNullBase()->getTimeStepEntry(iteration,order);
   const MEDFileIntField1TSWithoutSDA *myF1TSC=dynamic_cast<const MEDFileIntField1TSWithoutSDA *>(&myF1TS);
@@ -9326,14 +9326,14 @@ MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const MEDFileIntFieldMultiTSWitho
 {
 }
 
-MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const char *fileName, bool loadAll)
+MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const std::string& fileName, bool loadAll)
 try:MEDFileAnyTypeFieldMultiTS(fileName,loadAll)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
   { throw e; }
 
-MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const char *fileName, const char *fieldName, bool loadAll)
+MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll)
 try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll)
 {
 }
@@ -9352,7 +9352,7 @@ MEDFileFields *MEDFileFields::New()
   return new MEDFileFields;
 }
 
-MEDFileFields *MEDFileFields::New(const char *fileName, bool loadAll)
+MEDFileFields *MEDFileFields::New(const std::string& fileName, bool loadAll)
 {
   return new MEDFileFields(fileName,loadAll);
 }
@@ -9516,11 +9516,11 @@ MEDFileFields::MEDFileFields()
 {
 }
 
-MEDFileFields::MEDFileFields(const char *fileName, bool loadAll)
+MEDFileFields::MEDFileFields(const std::string& fileName, bool loadAll)
 try:MEDFileFieldGlobsReal(fileName)
   {
     MEDFileUtilities::CheckFileForRead(fileName);
-    MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+    MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
     int nbFields=MEDnField(fid);
     _fields.resize(nbFields);
     med_field_type typcha;
@@ -9571,10 +9571,10 @@ void MEDFileFields::writeLL(med_idt fid) const
     }
 }
 
-void MEDFileFields::write(const char *fileName, int mode) const
+void MEDFileFields::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
   writeLL(fid);
 }
 
@@ -9587,7 +9587,7 @@ void MEDFileFields::write(const char *fileName, int mode) const
  */
 void MEDFileFields::loadArrays()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
       MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
@@ -9605,7 +9605,7 @@ void MEDFileFields::loadArrays()
  */
 void MEDFileFields::loadArraysIfNecessary()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
       MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
@@ -9622,7 +9622,7 @@ void MEDFileFields::loadArraysIfNecessary()
  */
 void MEDFileFields::unloadArrays()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName(),MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
       MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
@@ -9797,7 +9797,7 @@ bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std
  * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not refered by any 
  *         field in \a this.
  */
-bool MEDFileFields::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N)
+bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N)
 {
   bool ret=false;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
@@ -9861,7 +9861,7 @@ MEDFileFields *MEDFileFields::buildSubPart(const int *startIds, const int *endId
   return ret.retn();
 }
 
-MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const char *fieldName) const
+MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const std::string& fieldName) const
 {
   return getFieldAtPos(getPosFromFieldName(fieldName));
 }
@@ -9875,7 +9875,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const char *fieldNam
  * \param [in] meshName - the name of the mesh on w
  * \return a new object that the caller should deal with.
  */
-MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const char *meshName) const
+MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileFields> ret=MEDFileFields::New();
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
@@ -9946,7 +9946,7 @@ MEDFileFieldsIterator *MEDFileFields::iterator()
   return new MEDFileFieldsIterator(this);
 }
 
-int MEDFileFields::getPosFromFieldName(const char *fieldName) const
+int MEDFileFields::getPosFromFieldName(const std::string& fieldName) const
 {
   std::string tmp(fieldName);
   std::vector<std::string> poss;

@@ -80,9 +80,9 @@ namespace ParaMEDMEM
   class MEDFileParameterTinyInfo : public MEDFileWritable
   {
   public:
-    MEDLOADER_EXPORT void setDescription(const char *name) { _desc_name=name; }
+    MEDLOADER_EXPORT void setDescription(const std::string& name) { _desc_name=name; }
     MEDLOADER_EXPORT std::string getDescription() const { return _desc_name; }
-    MEDLOADER_EXPORT void setTimeUnit(const char *unit) { _dt_unit=unit; }
+    MEDLOADER_EXPORT void setTimeUnit(const std::string& unit) { _dt_unit=unit; }
     MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
     MEDLOADER_EXPORT std::size_t getHeapMemSizeOfStrings() const;
     MEDLOADER_EXPORT bool isEqualStrings(const MEDFileParameterTinyInfo& other, std::string& what) const;
@@ -99,37 +99,37 @@ namespace ParaMEDMEM
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New();
-    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const char *fileName);
-    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName);
-    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName, int dt, int it);
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName);
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName);
+    MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it);
     MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCpy() const;
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDLOADER_EXPORT void setName(const char *name) { _name=name; }
+    MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::string getName() const { return _name; }
-    MEDLOADER_EXPORT void write(const char *fileName, int mode) const;
+    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
   private:
     MEDFileParameterDouble1TS();
-    MEDFileParameterDouble1TS(const char *fileName);
-    MEDFileParameterDouble1TS(const char *fileName, const char *paramName);
-    MEDFileParameterDouble1TS(const char *fileName, const char *paramName, int dt, int it);
+    MEDFileParameterDouble1TS(const std::string& fileName);
+    MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName);
+    MEDFileParameterDouble1TS(const std::string& fileName, const std::string& paramName, int dt, int it);
   };
 
   class MEDFileParameterMultiTS : public RefCountObject, public MEDFileParameterTinyInfo
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameterMultiTS *New();
-    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const char *fileName);
-    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const char *fileName, const char *paramName);
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const std::string& fileName);
+    MEDLOADER_EXPORT static MEDFileParameterMultiTS *New(const std::string& fileName, const std::string& paramName);
     MEDLOADER_EXPORT std::string getName() const { return _name; }
-    MEDLOADER_EXPORT void setName(const char *name) { _name=name; }
+    MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDLOADER_EXPORT MEDFileParameterMultiTS *deepCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
-    MEDLOADER_EXPORT void write(const char *fileName, int mode) const;
+    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& mw) const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void appendValue(int dt, int it, double time, double val);
@@ -144,8 +144,8 @@ namespace ParaMEDMEM
   protected:
     MEDFileParameterMultiTS();
     MEDFileParameterMultiTS(const MEDFileParameterMultiTS& other, bool deepCopy);
-    MEDFileParameterMultiTS(const char *fileName);
-    MEDFileParameterMultiTS(const char *fileName, const char *paramName);
+    MEDFileParameterMultiTS(const std::string& fileName);
+    MEDFileParameterMultiTS(const std::string& fileName, const std::string& paramName);
     void finishLoading(med_idt fid, med_parameter_type typ, int nbOfSteps);
   protected:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS> > _param_per_ts;
@@ -155,12 +155,12 @@ namespace ParaMEDMEM
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameters *New();
-    MEDLOADER_EXPORT static MEDFileParameters *New(const char *fileName);
+    MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDLOADER_EXPORT MEDFileParameters *deepCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
-    MEDLOADER_EXPORT void write(const char *fileName, int mode) const;
+    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::vector<std::string> getParamsNames() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
@@ -169,13 +169,13 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void pushParam(MEDFileParameterMultiTS *param);
     MEDLOADER_EXPORT void setParamAtPos(int i, MEDFileParameterMultiTS *param);
     MEDLOADER_EXPORT MEDFileParameterMultiTS *getParamAtPos(int i) const;
-    MEDLOADER_EXPORT MEDFileParameterMultiTS *getParamWithName(const char *paramName) const;
+    MEDLOADER_EXPORT MEDFileParameterMultiTS *getParamWithName(const std::string& paramName) const;
     MEDLOADER_EXPORT void destroyParamAtPos(int i);
-    MEDLOADER_EXPORT int getPosFromParamName(const char *paramName) const;
+    MEDLOADER_EXPORT int getPosFromParamName(const std::string& paramName) const;
     MEDLOADER_EXPORT int getNumberOfParams() const;
   protected:
     void simpleRepr2(int bkOffset, std::ostream& oss) const;
-    MEDFileParameters(const char *fileName);
+    MEDFileParameters(const std::string& fileName);
     MEDFileParameters(const MEDFileParameters& other, bool deepCopy);
     MEDFileParameters();
   protected:

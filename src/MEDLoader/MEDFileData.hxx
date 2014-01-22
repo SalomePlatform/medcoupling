@@ -34,7 +34,7 @@ namespace ParaMEDMEM
   class MEDFileData : public RefCountObject, public MEDFileWritable
   {
   public:
-    MEDLOADER_EXPORT static MEDFileData *New(const char *fileName);
+    MEDLOADER_EXPORT static MEDFileData *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileData *New();
     MEDLOADER_EXPORT MEDFileData *deepCpy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -51,13 +51,13 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::string simpleRepr() const;
     //
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
-    MEDLOADER_EXPORT bool changeMeshName(const char *oldMeshName, const char *newMeshName);
+    MEDLOADER_EXPORT bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName);
     MEDLOADER_EXPORT bool unPolyzeMeshes();
     //
-    MEDLOADER_EXPORT void write(const char *fileName, int mode) const;
+    MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
   private:
     MEDFileData();
-    MEDFileData(const char *fileName);
+    MEDFileData(const std::string& fileName);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fields;
     MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _meshes;

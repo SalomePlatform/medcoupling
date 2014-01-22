@@ -44,14 +44,14 @@ using namespace std;
  */
 //================================================================================
 
-SauvReader* SauvReader::New(const char *fileName)
+SauvReader* SauvReader::New(const std::string& fileName)
 {
-  if ( !fileName || strlen(fileName) < 1 ) THROW_IK_EXCEPTION("Invalid file name");
+  if ( fileName.empty() ) THROW_IK_EXCEPTION("Invalid file name");
 
   ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr< SauvUtilities::FileReader> parser;
 
   // try to open as XRD
-  parser = new XDRReader( fileName );
+  parser = new XDRReader( fileName.c_str() );
   if ( parser->open() )
     {
       SauvReader* reader = new SauvReader;
@@ -60,7 +60,7 @@ SauvReader* SauvReader::New(const char *fileName)
     }
 
   // try to open as ASCII
-  parser = new ASCIIReader( fileName );
+  parser = new ASCIIReader( fileName.c_str() );
   if ( parser->open() )
     {
       SauvReader* reader = new SauvReader;

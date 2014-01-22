@@ -374,7 +374,7 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
  *  \ref cpp_mcmesh_fillFromAnalytic "Here is a C++ example".<br>
  *  \ref  py_mcmesh_fillFromAnalytic "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
@@ -389,7 +389,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * function to coordinates of field location points (defined by the given field type).
  * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
  * barycenters. This method differs from
- * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const "fillFromAnalytic()"
+ * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a variable name corresponding to a component is retrieved from
@@ -424,7 +424,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  *  \ref cpp_mcmesh_fillFromAnalytic2 "Here is a C++ example".<br>
  *  \ref  py_mcmesh_fillFromAnalytic2 "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
@@ -475,7 +475,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nb
  *  \ref cpp_mcmesh_fillFromAnalytic3 "Here is a C++ example".<br>
  *  \ref  py_mcmesh_fillFromAnalytic3 "Here is a Python example".
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
@@ -682,7 +682,7 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
  *  \param [in] fileName - the name of the file to write in.
  *  \throw If \a fileName is not a writable file.
  */
-void MEDCouplingMesh::writeVTK(const char *fileName, bool isBinary) const
+void MEDCouplingMesh::writeVTK(const std::string& fileName, bool isBinary) const
 {
   std::string cda,pda;
   MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
@@ -691,18 +691,18 @@ void MEDCouplingMesh::writeVTK(const char *fileName, bool isBinary) const
   writeVTKAdvanced(fileName,cda,pda,byteArr);
 }
 
-void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const
+void MEDCouplingMesh::writeVTKAdvanced(const std::string& fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const
 {
-  std::ofstream ofs(fileName);
+  std::ofstream ofs(fileName.c_str());
   ofs << "<VTKFile type=\""  << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"" << MEDCouplingByteOrderStr() << "\">\n";
   writeVTKLL(ofs,cda,pda,byteData);
   if(byteData)
     {
       ofs << "<AppendedData encoding=\"raw\">\n_1234";
       ofs << std::flush; ofs.close();
-      std::ofstream ofs2(fileName,std::ios_base::binary | std::ios_base::app);
+      std::ofstream ofs2(fileName.c_str(),std::ios_base::binary | std::ios_base::app);
       ofs2.write(byteData->begin(),byteData->getNbOfElems()); ofs2 << std::flush; ofs2.close();
-      std::ofstream ofs3(fileName,std::ios_base::app); ofs3 << "\n</AppendedData>\n</VTKFile>\n"; ofs3.close();
+      std::ofstream ofs3(fileName.c_str(),std::ios_base::app); ofs3 << "\n</AppendedData>\n</VTKFile>\n"; ofs3.close();
     }
   else
     {

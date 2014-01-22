@@ -35,15 +35,15 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT void setTimeUnit(const char *unit);
-    MEDCOUPLING_EXPORT const char *getTimeUnit() const;
+    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit);
+    MEDCOUPLING_EXPORT std::string getTimeUnit() const;
     MEDCOUPLING_EXPORT void synchronizeTimeWithSupport();
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingField *other);
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingFieldDouble *other);
     MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other);
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT void writeVTK(const char *fileName, bool isBinary=true) const;
+    MEDCOUPLING_EXPORT void writeVTK(const std::string& fileName, bool isBinary=true) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const;
@@ -117,17 +117,17 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func);
-    MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT void fillFromAnalytic2(int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func);
+    MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT void fillFromAnalytic2(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
     MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, double val);
-    MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT void applyFunc2(int nbOfComp, const char *func);
-    MEDCOUPLING_EXPORT void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func);
-    MEDCOUPLING_EXPORT void applyFunc(const char *func);
-    MEDCOUPLING_EXPORT void applyFuncFast32(const char *func);
-    MEDCOUPLING_EXPORT void applyFuncFast64(const char *func);
+    MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT void applyFunc2(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
+    MEDCOUPLING_EXPORT void applyFunc(const std::string& func);
+    MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
+    MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
     MEDCOUPLING_EXPORT int getNumberOfComponents() const;
     MEDCOUPLING_EXPORT int getNumberOfTuples() const;
     MEDCOUPLING_EXPORT int getNumberOfValues() const;
@@ -190,7 +190,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT static void WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
+    MEDCOUPLING_EXPORT static void WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
   public:
     MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }
