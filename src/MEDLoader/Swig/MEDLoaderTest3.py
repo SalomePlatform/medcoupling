@@ -3421,6 +3421,61 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f_read.isEqual(f,1e-12,1e-12))
         pass
 
+    def testLoadIfNecessaryOnFromScratchFields0(self):
+        """
+        This test checks that a call to loadArraysIfNecessary works (does nothing) on field data structure whatever its level 1TS, MTS, Fields.
+        """
+        fname="Pyfile77.med"
+        coords=DataArrayDouble([(0,0,0),(2,1,0),(1,0,0),(1,1,0),(2,0,0),(0,1,0)])
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coords)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,5,3,2])
+        m.insertNextCell(NORM_QUAD4,[4,2,3,1])
+        m.finishInsertingCells()
+        #
+        mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m)
+        ms=MEDFileMeshes() ; ms.pushMesh(mm)
+        fs=MEDFileFields()
+        arrs=4*[None]
+        #
+        ff0=MEDFileFieldMultiTS() ; fs.pushField(ff0)
+        f0=MEDCouplingFieldDouble(ON_GAUSS_NE) ; f0.setMesh(m) ; f0.setTimeUnit("ms")
+        f0.setTime(1.1,1,1)
+        f0.setName("myELNOField")
+        arrs[0]=DataArrayDouble([7,5,3,1,5,3,1,7]) ; arrs[0].setInfoOnComponent(0,"Comp0")
+        f0.setArray(arrs[0])
+        ff0.appendFieldNoProfileSBT(f0)
+        #
+        f0.setTime(2.2,2,1)
+        arrs[1]=DataArrayDouble([1,7,5,3,7,5,3,1]) ; arrs[1].setInfoOnComponent(0,"Comp0")
+        f0.setArray(arrs[1])
+        ff0.appendFieldNoProfileSBT(f0)
+        #
+        f0.setTime(3.3,3,1)
+        arrs[2]=DataArrayDouble([3,1,7,5,1,7,5,3]) ; arrs[2].setInfoOnComponent(0,"Comp0")
+        f0.setArray(arrs[2])
+        ff0.appendFieldNoProfileSBT(f0)
+        #
+        f0.setTime(4.4,4,1)
+        arrs[3]=DataArrayDouble([5,3,1,7,3,1,7,5]) ; arrs[3].setInfoOnComponent(0,"Comp0")
+        f0.setArray(arrs[3])
+        ff0.appendFieldNoProfileSBT(f0)
+        #
+        for i,arr in enumerate(arrs):
+            self.assertTrue(fs[0][i].getUndergroundDataArray().isEqual(arr,1e-12))
+            fs[0][i].loadArraysIfNecessary()
+            self.assertTrue(fs[0][i].getUndergroundDataArray().isEqual(arr,1e-12))
+            pass
+        fs.loadArraysIfNecessary()
+        for i,arr in enumerate(arrs):
+            self.assertTrue(fs[0][i].getUndergroundDataArray().isEqual(arr,1e-12))
+            pass
+        fs[0].loadArraysIfNecessary()
+        for i,arr in enumerate(arrs):
+            self.assertTrue(fs[0][i].getUndergroundDataArray().isEqual(arr,1e-12))
+            pass
+        pass
+    
     pass
 
 unittest.main()

@@ -5566,21 +5566,26 @@ void MEDFileAnyTypeField1TS::write(const std::string& fileName, int mode) const
  */
 void MEDFileAnyTypeField1TS::loadArrays()
 {
+  if(getFileName().empty())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::loadArrays : the structure does not come from a file !");
   MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
 
 /*!
  * This method behaves as MEDFileAnyTypeField1TS::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
- * But once data loaded once, this method does nothing.
+ * But once data loaded once, this method does nothing. Contrary to MEDFileAnyTypeField1TS::loadArrays and MEDFileAnyTypeField1TS::unloadArrays
+ * this method does not throw if \a this does not come from file read.
  * 
- * \throw If the fileName is not set or points to a non readable MED file.
  * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::unloadArrays
  */
 void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
-  contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
+  if(!getFileName().empty())
+    {
+      MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+      contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
+    }
 }
 
 /*!
@@ -8144,6 +8149,8 @@ void MEDFileAnyTypeFieldMultiTS::write(const std::string& fileName, int mode) co
  */
 void MEDFileAnyTypeFieldMultiTS::loadArrays()
 {
+  if(getFileName().empty())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::loadArrays : the structure does not come from a file !");
   MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   contentNotNullBase()->loadBigArraysRecursively(fid,*contentNotNullBase());
 }
@@ -8157,8 +8164,11 @@ void MEDFileAnyTypeFieldMultiTS::loadArrays()
  */
 void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
-  contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
+  if(!getFileName().empty())
+    {
+      MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+      contentNotNullBase()->loadBigArraysRecursivelyIfNecessary(fid,*contentNotNullBase());
+    }
 }
 
 /*!
@@ -9587,6 +9597,8 @@ void MEDFileFields::write(const std::string& fileName, int mode) const
  */
 void MEDFileFields::loadArrays()
 {
+  if(getFileName().empty())
+    throw INTERP_KERNEL::Exception("MEDFileFields::loadArrays : the structure does not come from a file !");
   MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
@@ -9605,12 +9617,15 @@ void MEDFileFields::loadArrays()
  */
 void MEDFileFields::loadArraysIfNecessary()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+  if(!getFileName().empty())
     {
-      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
-      if(elt)
-        elt->loadBigArraysRecursivelyIfNecessary(fid,*elt);
+      MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+        {
+          MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
+          if(elt)
+            elt->loadBigArraysRecursivelyIfNecessary(fid,*elt);
+        }
     }
 }
 
@@ -9622,7 +9637,6 @@ void MEDFileFields::loadArraysIfNecessary()
  */
 void MEDFileFields::unloadArrays()
 {
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(getFileName().c_str(),MED_ACC_RDONLY);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
       MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
