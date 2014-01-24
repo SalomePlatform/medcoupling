@@ -691,7 +691,7 @@ class MEDLoaderTest(unittest.TestCase):
         d.alloc(1,1)
         d.iota(1.)
         # seting a long name
-	d.setInfoOnComponent(0,"CONCENTRATION of I129")
+        d.setInfoOnComponent(0,"CONCENTRATION of I129")
         f.setArray(d)
         f.setName("field")
         #
