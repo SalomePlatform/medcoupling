@@ -3495,7 +3495,199 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue(v.isEqual(vExp,1e-12))
             pass
         pass
-    
+
+    def test25(self):
+        """ A tricky test that reproduces an invalid behaviour
+        Here a same field is defined both on CELLS and GAUSS_PT, with a profile for each.
+        The problem appears on array computation when performing CELLS then GAUSS_PT and CELLS again.
+        """
+        fname="ForMEDReader25.med"
+        m=MEDFileUMesh()
+        coords=DataArrayDouble([0.,0.,1.,0.,2.,0.,0.,1.,1.,1.,2.,1.,0.,2.,1.,2.,2.,2.,0.,3.,1.,3.,2.,3.,1.,4.,1.,5.,1.,6.],15,2)
+        m0=MEDCouplingUMesh("mesh",2) ; m0.setCoords(coords)
+        m0.allocateCells()
+        m0.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m0.insertNextCell(NORM_QUAD4,[1,4,5,2])
+        m0.insertNextCell(NORM_QUAD4,[3,6,7,4])
+        m0.insertNextCell(NORM_QUAD4,[4,7,8,5])
+        m0.insertNextCell(NORM_QUAD4,[6,9,10,7])
+        m0.insertNextCell(NORM_QUAD4,[7,10,11,8])
+        m.setMeshAtLevel(0,m0)
+        m1=MEDCouplingUMesh("mesh",1) ; m1.setCoords(coords)
+        m1.allocateCells()
+        m1.insertNextCell(NORM_SEG2,[10,12])
+        m1.insertNextCell(NORM_SEG2,[12,13])
+        m1.insertNextCell(NORM_SEG2,[13,14])
+        m.setMeshAtLevel(-1,m1)
+        m.setFamilyFieldArr(0,DataArrayInt([-1,-2,-3,-4,-5,-6]))
+        m.setFamilyFieldArr(-1,DataArrayInt([-7,-8,-9]))
+        m.setFamilyFieldArr(1,DataArrayInt([3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]))
+        m.setRenumFieldArr(0,DataArrayInt([101,102,103,104,105,106]))
+        m.setRenumFieldArr(-1,DataArrayInt([107,108,109]))
+        m.setRenumFieldArr(1,DataArrayInt([203,204,205,206,207,208,209,210,211,212,213,214,215,216,217]))
+        #
+        fmts=MEDFileFieldMultiTS()
+        info0=["aa","bbb"]
+        name0="zeField"
+        pflName0="pfl"
+        pflName1="pfl2"
+        #
+        f1ts=MEDFileField1TS()
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setName(name0)
+        arr=DataArrayDouble([(-1,-11),(-2,-22)]) ; arr.setInfoOnComponents(info0)
+        f.setArray(arr)
+        pfl0=DataArrayInt([0,1]) ; pfl0.setName(pflName0)
+        f1ts.setFieldProfile(f,m,-1,pfl0)
+        del f
+        f2=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f2.setName(name0)
+        arr=DataArrayDouble(15) ; arr.iota(1)
+        arr=DataArrayDouble.Meld(arr,arr+10) ; arr.setInfoOnComponents(info0)
+        f2.setArray(arr)
+        pfl1=DataArrayInt([1,3,5]) ; pfl1.setName(pflName1)
+        tmp=m0[pfl1] ; f2.setMesh(tmp)
+        f2.setGaussLocalizationOnType(NORM_QUAD4,[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[-0.5,-0.5,0.5,-0.5,0.5,0.5,-0.5,0.5,0.,0.],[0.1,0.1,0.1,0.1,0.6])
+        f2.checkCoherency()
+        f1ts.setFieldProfile(f2,m,0,pfl1)
+        fmts.pushBackTimeStep(f1ts)
+        #
+        m.write(fname,2)
+        fmts.write(fname,0)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False) # false is absolutely necessary for the test
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),2)
+        ### here the test is important !!! Pointers must be different !
+        self.assertTrue(allFMTSLeavesToDisplay[0][0][0].getUndergroundDataArray().getHiddenCppPointer()!=allFMTSLeavesToDisplay[0][1][0].getUndergroundDataArray().getHiddenCppPointer())
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),2)
+        ### here the test is important !!! Pointers must be different !
+        self.assertTrue(allFMTSLeavesToDisplay[0][0][0].getUndergroundDataArray().getHiddenCppPointer()!=allFMTSLeavesToDisplay[0][1][0].getUndergroundDataArray().getHiddenCppPointer())
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertTrue(allFMTSLeavesToDisplay[0][0][0].getUndergroundDataArray().getHiddenCppPointer()!=allFMTSLeavesToDisplay[0][1][0].getUndergroundDataArray().getHiddenCppPointer())
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),2)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[0][0]),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[1][0]),1)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        # emulate first click
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc) # copy here because 2D -> 3D
+        expCoords=coords.changeNbOfComponents(3,0.)
+        self.assertTrue(a0.isEqual(expCoords,1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([3,3])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,3])))
+        self.assertTrue(a3.isEqual(DataArrayInt([2,10,12,2,12,13])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([-7,-8])))
+        self.assertTrue(not a7) # copy here because profile on cells
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([107,108])))
+        self.assertTrue(not a9) # copy here because profile on cells
+        a10,a11=mml2.retrieveFamilyIdsOnNodes()
+        self.assertTrue(a10.isEqual(DataArrayInt([3,4,5,6,7,8,9,10,11,12,13,14,15,16,17])))
+        self.assertTrue(a11) # no copy here
+        a12,a13=mml2.retrieveNumberIdsOnNodes()
+        self.assertTrue(a12.isEqual(DataArrayInt([203,204,205,206,207,208,209,210,211,212,213,214,215,216,217])))
+        self.assertTrue(a13) # no copy here
+        fff0=allFMTSLeavesPerCommonSupport1[0][0][0][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(fff0,mst)
+        fff0.loadArraysIfNecessary()
+        self.assertEqual([ON_CELLS],fff0.getTypesOfFieldAvailable())
+        v=mml.buildDataArray(fsst,fields,fff0.getUndergroundDataArray())
+        self.assertEqual(fff0.getName(),name0)
+        self.assertEqual(v.getHiddenCppPointer(),fff0.getUndergroundDataArray().getHiddenCppPointer())
+        vExp=DataArrayDouble([(-1,-11),(-2,-22)]) ; vExp.setInfoOnComponents(info0)
+        self.assertTrue(v.isEqual(vExp,1e-12))
+        del fff0
+        # emulate second click
+        fcscp=allFMTSLeavesPerCommonSupport1[1][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc) # copy here because 2D -> 3D
+        expCoords=coords.changeNbOfComponents(3,0.)
+        self.assertTrue(a0.isEqual(expCoords,1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([9,9,9])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,5,10])))
+        self.assertTrue(a3.isEqual(DataArrayInt([4,1,4,5,2,4,4,7,8,5,4,7,10,11,8])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([-2,-4,-6])))
+        self.assertTrue(not a7) # copy here because profile on cells
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([102,104,106])))
+        self.assertTrue(not a9) # copy here because profile on cells
+        a10,a11=mml2.retrieveFamilyIdsOnNodes()
+        self.assertTrue(a10.isEqual(DataArrayInt([3,4,5,6,7,8,9,10,11,12,13,14,15,16,17])))
+        self.assertTrue(a11) # no copy here
+        a12,a13=mml2.retrieveNumberIdsOnNodes()
+        self.assertTrue(a12.isEqual(DataArrayInt([203,204,205,206,207,208,209,210,211,212,213,214,215,216,217])))
+        self.assertTrue(a13) # no copy here
+        fff1=allFMTSLeavesPerCommonSupport1[1][0][0][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(fff1,mst)
+        fff1.loadArraysIfNecessary()
+        self.assertEqual([ON_GAUSS_PT],fff1.getTypesOfFieldAvailable())
+        v=mml.buildDataArray(fsst,fields,fff1.getUndergroundDataArray())
+        self.assertEqual(fff1.getName(),name0)
+        self.assertEqual(v.getHiddenCppPointer(),fff1.getUndergroundDataArray().getHiddenCppPointer())
+        vExp=DataArrayDouble([1.,11.,2.,12.,3.,13.,4.,14.,5.,15.,6.,16.,7.,17.,8.,18.,9.,19.,10.,20.,11.,21.,12.,22.,13.,23.,14.,24.,15.,25.],15,2) ; vExp.setInfoOnComponents(info0)
+        self.assertTrue(v.isEqual(vExp,1e-12))
+        # emulate third click
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc) # copy here because 2D -> 3D
+        expCoords=coords.changeNbOfComponents(3,0.)
+        self.assertTrue(a0.isEqual(expCoords,1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([3,3])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,3])))
+        self.assertTrue(a3.isEqual(DataArrayInt([2,10,12,2,12,13])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6.isEqual(DataArrayInt([-7,-8])))
+        self.assertTrue(not a7) # copy here because profile on cells
+        a8,a9=mml2.retrieveNumberIdsOnCells()
+        self.assertTrue(a8.isEqual(DataArrayInt([107,108])))
+        self.assertTrue(not a9) # copy here because profile on cells
+        a10,a11=mml2.retrieveFamilyIdsOnNodes()
+        self.assertTrue(a10.isEqual(DataArrayInt([3,4,5,6,7,8,9,10,11,12,13,14,15,16,17])))
+        self.assertTrue(a11) # no copy here
+        a12,a13=mml2.retrieveNumberIdsOnNodes()
+        self.assertTrue(a12.isEqual(DataArrayInt([203,204,205,206,207,208,209,210,211,212,213,214,215,216,217])))
+        self.assertTrue(a13) # no copy here
+        fff0=allFMTSLeavesPerCommonSupport1[0][0][0][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(fff0,mst)
+        fff0.loadArraysIfNecessary()
+        self.assertEqual([ON_CELLS],fff0.getTypesOfFieldAvailable())
+        v=mml.buildDataArray(fsst,fields,fff0.getUndergroundDataArray())
+        self.assertEqual(fff0.getName(),name0)
+        self.assertEqual(v.getHiddenCppPointer(),fff0.getUndergroundDataArray().getHiddenCppPointer())
+        vExp=DataArrayDouble([(-1,-11),(-2,-22)]) ; vExp.setInfoOnComponents(info0)
+        self.assertTrue(v.isEqual(vExp,1e-12)) # <- THE test is here !!!
+        del fff0
+        pass
     pass
 
 unittest.main()
