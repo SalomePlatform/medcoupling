@@ -4126,16 +4126,24 @@ void MEDFileAnyTypeField1TSWithoutSDA::updateData(int newLgth, const std::vector
   if(_nb_of_tuples_to_be_allocated>=0)
     {
       _nb_of_tuples_to_be_allocated=newLgth;
+      const DataArray *oldArr(getUndergroundDataArray());
+      if(oldArr)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArray> newArr(createNewEmptyDataArrayInstance());
+          newArr->setInfoAndChangeNbOfCompo(oldArr->getInfoOnComponents());
+          setArray(newArr);
+          _nb_of_tuples_to_be_allocated=newLgth;//force the _nb_of_tuples_to_be_allocated because setArray has been used specialy
+        }
       return ;
     }
   if(_nb_of_tuples_to_be_allocated==-1)
     return ;
   if(_nb_of_tuples_to_be_allocated==-2 || _nb_of_tuples_to_be_allocated==-3)
     {
-      const DataArray *oldArr=getUndergroundDataArray();
+      const DataArray *oldArr(getUndergroundDataArray());
       if(!oldArr || !oldArr->isAllocated())
         throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::updateData : internal error 1 !");
-      MEDCouplingAutoRefCountObjectPtr<DataArray> newArr=createNewEmptyDataArrayInstance();
+      MEDCouplingAutoRefCountObjectPtr<DataArray> newArr(createNewEmptyDataArrayInstance());
       newArr->alloc(newLgth,getNumberOfComponents());
       if(oldArr)
         newArr->copyStringInfoFrom(*oldArr);
