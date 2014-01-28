@@ -2304,6 +2304,74 @@ void IntermediateMED::checkDataAvailability() const
 
 //================================================================================
 /*!
+ * \brief Safely adds a new Group
+ */
+//================================================================================
+
+Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix)
+{
+  if ( _groups.size() == _groups.capacity() ) // re-allocation would occure
+    {
+      std::vector<Group> newGroups( _groups.size() );
+      newGroups.push_back( Group() );
+
+      for ( size_t i = 0; i < _groups.size(); ++i )
+        {
+          // avoid copying _cells
+          std::vector<const Cell*> cells;
+          cells.swap( _groups[i]._cells );
+          newGroups[i] = _groups[i];
+          newGroups[i]._cells.swap( cells );
+
+          // correct pointers to sub-groups
+          for ( size_t j = 0; j < _groups[i]._groups.size(); ++j )
+            {
+              int iG = _groups[i]._groups[j] - &_groups[0];
+              newGroups[i]._groups[j] = & newGroups[ iG ];
+            }
+        }
+
+      // fix given groups
+      if ( groupsToFix )
+        for ( size_t i = 0; i < groupsToFix->size(); ++i )
+          if ( (*groupsToFix)[i] )
+            {
+              int iG = (*groupsToFix)[i] - &_groups[0];
+              (*groupsToFix)[i] = & newGroups[ iG ];
+            }
+
+      // fix field supports
+      for ( int isNode = 0; isNode < 2; ++isNode )
+        {
+          std::vector<DoubleField* >& fields = isNode ? _nodeFields : _cellFields;
+          for ( size_t i = 0; i < fields.size(); ++i )
+            {
+              if ( !fields[i] ) continue;
+              for ( size_t j = 0; j < fields[i]->_sub.size(); ++j )
+                if ( fields[i]->_sub[j]._support )
+                  {
+                    int iG = fields[i]->_sub[j]._support - &_groups[0];
+                    fields[i]->_sub[j]._support = & newGroups[ iG ];
+                  }
+              if ( fields[i]->_group )
+                {
+                  int iG = fields[i]->_group - &_groups[0];
+                  fields[i]->_group = & newGroups[ iG ];
+                }
+            }
+        }
+
+      _groups.swap( newGroups );
+    }
+  else
+    {
+      _groups.push_back( Group() );
+    }
+  return &_groups.back();
+}
+
+//================================================================================
+/*!
  * \brief Makes ParaMEDMEM::MEDFileData from self
  */
 //================================================================================

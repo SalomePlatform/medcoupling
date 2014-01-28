@@ -428,9 +428,9 @@ void SauvReader::read_PILE_SOUS_MAILLAGE(const int                 nbObjects,
       SauvUtilities::Group & grp = _iMed->_groups[ grpID-1 ];
       if ( !grp._name.empty() ) // a group has several names
         { // create a group with subgroup grp and named grp.name
-          _iMed->_groups.push_back(Group());
-          _iMed->_groups.back()._groups.push_back( &_iMed->_groups[ grpID-1 ]);
-          _iMed->_groups.back()._name = grp._name;
+          SauvUtilities::Group* newGroup = _iMed->addNewGroup();
+          newGroup->_groups.push_back( &_iMed->_groups[ grpID-1 ]);
+          newGroup->_name = grp._name;
         }
       grp._name=objectNames[i];
 #ifdef _DEBUG
@@ -688,8 +688,7 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
             sameOrder = ( supports[j] == newGroups[ j % newGroups.size() ]);
           if ( sameOrder )
             {
-              _iMed->_groups.push_back( SauvUtilities::Group() );
-              group = & _iMed->_groups.back();
+              group = _iMed->addNewGroup( & newGroups );
               group->_groups.swap( newGroups );
             }
         }

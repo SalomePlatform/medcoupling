@@ -94,7 +94,6 @@ namespace SauvUtilities
     std::string              _name;
     std::vector<const Cell*> _cells;
     std::vector< Group* >    _groups;    // des sous-groupes composant le Group
-    //bool                     _isShared;  // true if any Cell was added to the mesh from other Group
     bool                     _isProfile; // is a field support or not
     std::vector<std::string> _refNames;  /* names of groups referring this one;
                                             _refNames is resized according to nb of references
@@ -255,6 +254,7 @@ namespace SauvUtilities
     Node* getNode( TID nID ) { return _points.getNode( nID ); }
     int getNbCellsOfType( TCellType type ) const { return _cellsByType[type].size(); }
     const Cell* insert(TCellType type, const Cell& ma) { return &( *_cellsByType[type].insert( ma ).first ); }
+    Group* addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix=0);
     ParaMEDMEM::MEDFileData* convertInMEDFileDS();
 
   private:
