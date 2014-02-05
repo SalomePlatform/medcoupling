@@ -347,6 +347,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m.getUnivNameWrStatus())
         m.write(outFileName,2);
         mm=MEDFileMesh.New(outFileName)
+        self.assertEqual([NORM_HEXA8],mm.getGeoTypesAtLevel(0))
         self.assertTrue(isinstance(mm,MEDFileCMesh))
         self.assertTrue(isinstance(mm.getUnivName(),str))
         self.assertTrue(len(mm.getUnivName())!=0)
@@ -3476,6 +3477,76 @@ class MEDLoaderTest(unittest.TestCase):
             pass
         pass
     
+    def testField1TSSetFieldNoProfileSBTPerGeoTypes(self):
+        """ This test is very important, because the same mechanism is used by the MEDReader to generate a field on all the mesh without any processing and memory.
+        """
+        fname="Pyfile78.med"
+        coords=DataArrayDouble([-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ],9,3)
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        m0=MEDCouplingUMesh("mesh",3) ; m0.setCoords(coords)
+        m0.allocateCells()
+        for elt in [[0,1,2,3],[1,2,3,4],[2,3,4,5],[3,4,5,6],[4,5,6,7],[5,6,7,8]]:#6
+            m0.insertNextCell(NORM_TETRA4,elt)
+            pass
+        for elt in [[0,1,2,3,4],[1,2,3,4,5],[2,3,4,5,6],[3,4,5,6,7],[4,5,6,7,8]]:#5
+            m0.insertNextCell(NORM_PYRA5,elt)
+            pass
+        for elt in [[0,1,2,3,4,5],[1,2,3,4,5,6],[2,3,4,5,6,7],[3,4,5,6,7,8]]:#4
+            m0.insertNextCell(NORM_PENTA6,elt)
+            pass
+        m0.checkCoherency2()
+        m1=MEDCouplingUMesh(); m1.setName("mesh")
+        m1.setMeshDimension(2);
+        m1.allocateCells(5);
+        m1.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
+        m1.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
+        m1.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
+        m1.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
+        m1.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
+        m1.setCoords(coords);
+        m3=MEDCouplingUMesh("mesh",0) ; m3.setCoords(coords)
+        m3.allocateCells()
+        m3.insertNextCell(NORM_POINT1,[2])
+        m3.insertNextCell(NORM_POINT1,[3])
+        m3.insertNextCell(NORM_POINT1,[4])
+        m3.insertNextCell(NORM_POINT1,[5])
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m0)
+        mm.setMeshAtLevel(-1,m1)
+        mm.setMeshAtLevel(-3,m3)
+        mm.write(fname,2)
+        #### The file is written only with one mesh and no fields. Let's put a field on it geo types per geo types.
+        mm=MEDFileMesh.New(fname)
+        fs=MEDFileFields()
+        fmts=MEDFileFieldMultiTS()
+        f1ts=MEDFileField1TS()
+        for lev in mm.getNonEmptyLevels():
+            for gt in mm.getGeoTypesAtLevel(lev):
+                p0=mm.getDirectUndergroundSingleGeoTypeMesh(gt)
+                f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(p0)
+                arr=DataArrayDouble(f.getNumberOfTuplesExpected()) ; arr.iota()
+                f.setArray(arr) ; f.setName("f0")
+                f1ts.setFieldNoProfileSBT(f)
+                pass
+            pass
+        self.assertEqual(mm.getNonEmptyLevels(),(0,-1,-3))
+        for lev in [0,-1,-3]:
+            mm.getDirectUndergroundSingleGeoTypeMeshes(lev) # please let this line, it is for the test to emulate that
+            pass
+        fmts.pushBackTimeStep(f1ts)
+        fs.pushField(fmts)
+        fs.write(fname,0)
+        del fs,fmts,f1ts
+        #### The file contains now one mesh and one cell field with all cells wathever their level ang type fetched.
+        fs=MEDFileFields(fname)
+        self.assertEqual(len(fs),1)
+        self.assertEqual(len(fs[0]),1)
+        f1ts=fs[0][0]
+        self.assertEqual(f1ts.getFieldSplitedByType(),[(0,[(0,(0,4),'','')]),(3,[(0,(4,6),'','')]),(4,[(0,(6,9),'','')]),(14,[(0,(9,15),'','')]),(15,[(0,(15,20),'','')]),(16,[(0,(20,24),'','')])])
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0,1,2,3,0,1,0,1,2,0,1,2,3,4,5,0,1,2,3,4,0,1,2,3]),1e-12))
+        pass
+
     pass
 
 unittest.main()

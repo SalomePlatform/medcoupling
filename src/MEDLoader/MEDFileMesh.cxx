@@ -4499,10 +4499,19 @@ int MEDFileStructuredMesh::getSizeAtLevel(int meshDimRelToMaxExt) const
 
 int MEDFileStructuredMesh::getNumberOfNodes() const
 {
-  const MEDCouplingStructuredMesh *cmesh=getStructuredMesh();
+  const MEDCouplingStructuredMesh *cmesh(getStructuredMesh());
   if(!cmesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberOfNodes : no cartesian mesh set !");
   return cmesh->getNumberOfNodes();
+}
+
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileStructuredMesh::getGeoTypesAtLevel(int meshDimRelToMax) const
+{
+  if(meshDimRelToMax!=0)
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGeoTypesAtLevel : only one level available for structured meshes ! Input 0 is mandatory !");
+  const MEDCouplingStructuredMesh *cmesh(getStructuredMesh());
+  std::vector<INTERP_KERNEL::NormalizedCellType> ret(1,cmesh->getTypeOfCell(0));
+  return ret;
 }
 
 void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const

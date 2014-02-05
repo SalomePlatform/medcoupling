@@ -65,6 +65,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setTimeUnit(const std::string& unit) { _dt_unit=unit; }
     MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
     MEDLOADER_EXPORT virtual int getNumberOfNodes() const = 0;
+    MEDLOADER_EXPORT virtual std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getNonEmptyLevels() const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getFamArrNonEmptyLevelsExt() const = 0;
@@ -322,6 +323,7 @@ namespace ParaMEDMEM
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
     MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
+    MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
     // tools
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);

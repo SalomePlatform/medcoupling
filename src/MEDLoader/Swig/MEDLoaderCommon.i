@@ -624,6 +624,16 @@ namespace ParaMEDMEM
            return res;
          }
 
+         PyObject *getGeoTypesAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getGeoTypesAtLevel(meshDimRelToMax));
+           std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+           PyObject *res=PyList_New(result.size());
+           for(int i=0;iL!=result.end(); i++, iL++)
+             PyList_SetItem(res,i,PyInt_FromLong(*iL));
+           return res;
+         }
+
          PyObject *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
          {
            const DataArrayInt *tmp=self->getFamilyFieldAtLevel(meshDimRelToMaxExt);
@@ -758,16 +768,6 @@ namespace ParaMEDMEM
          MEDFileUMesh()
          {
            return MEDFileUMesh::New();
-         }
-
-         PyObject *getGeoTypesAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
-         {
-           std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getGeoTypesAtLevel(meshDimRelToMax));
-           std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
-           PyObject *res=PyList_New(result.size());
-           for(int i=0;iL!=result.end(); i++, iL++)
-             PyList_SetItem(res,i,PyInt_FromLong(*iL));
-           return res;
          }
          
          PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
