@@ -3547,6 +3547,42 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0,1,2,3,0,1,0,1,2,0,1,2,3,4,5,0,1,2,3,4,0,1,2,3]),1e-12))
         pass
 
+    def testMEDFileUMeshSetName(self):
+        """ This test is a small but important one for MEDReader in sauv mode. When .sauv file is loaded the convertion is performed in memory and a preparation is done then.
+        This preparation makes access to internal MEDCouplingMesh pointers whose name must be updated.
+        """
+        fname="Pyfile79.med"
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        mm=MEDFileUMesh()
+        m0=MEDCouplingUMesh() ; m0.setMeshDimension(2) # important no name here.
+        coords=DataArrayDouble([-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ],9,3)
+        m0.allocateCells(5);
+        m0.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
+        m0.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
+        m0.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
+        m0.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
+        m0.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
+        m0.setCoords(coords);
+        mm.setMeshAtLevel(0,m0)
+        m2=MEDCouplingUMesh() ; m2.setMeshDimension(0) ; m2.setCoords(coords) # important no name here.
+        m2.allocateCells()
+        m2.insertNextCell(NORM_POINT1,[2])
+        m2.insertNextCell(NORM_POINT1,[3])
+        m2.insertNextCell(NORM_POINT1,[4])
+        m2.insertNextCell(NORM_POINT1,[5])
+        mm.setMeshAtLevel(-2,m2)
+        self.assertEqual(mm.getName(),"")
+        self.assertEqual(mm.getMeshAtLevel(0).getName(),"")
+        mm.forceComputationOfParts()
+        self.assertEqual(mm.getDirectUndergroundSingleGeoTypeMesh(NORM_TRI3).getName(),"")
+        mm.setName("abc")
+        self.assertEqual(mm.getName(),"abc")
+        self.assertEqual(mm.getDirectUndergroundSingleGeoTypeMesh(NORM_TRI3).getName(),"abc")
+        self.assertEqual(mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getName(),"abc")
+        self.assertEqual(mm.getDirectUndergroundSingleGeoTypeMesh(NORM_POINT1).getName(),"abc")
+        self.assertEqual(mm.getMeshAtLevel(0).getName(),"abc")
+        pass
+
     pass
 
 unittest.main()
