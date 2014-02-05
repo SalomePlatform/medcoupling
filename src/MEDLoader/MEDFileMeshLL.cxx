@@ -581,6 +581,11 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(
   assignMesh(m,newOrOld);
 }
 
+void MEDFileUMeshSplitL1::setName(const std::string& name)
+{
+  _m_by_types.setName(name);
+}
+
 std::size_t MEDFileUMeshSplitL1::getHeapMemorySizeWithoutChildren() const
 {
   return 0;
@@ -1014,6 +1019,25 @@ void MEDFileUMeshSplitL1::computeRevNum() const
 
 MEDFileUMeshAggregateCompute::MEDFileUMeshAggregateCompute():_mp_time(0),_m_time(0)
 {
+}
+
+void MEDFileUMeshAggregateCompute::setName(const std::string& name)
+{
+  if(_m_time>=_mp_time)
+    {
+      MEDCouplingUMesh *um(_m);
+      if(um)
+        um->setName(name);
+    }
+  if(_mp_time>=_m_time)
+    {
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+        {
+          MEDCoupling1GTUMesh *tmp(*it);
+          if(tmp)
+            tmp->setName(name);
+        }
+    }
 }
 
 void MEDFileUMeshAggregateCompute::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)

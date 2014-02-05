@@ -141,6 +141,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileUMeshAggregateCompute();
+    void setName(const std::string& name);
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
@@ -181,6 +182,7 @@ namespace ParaMEDMEM
     MEDFileUMeshSplitL1(MEDCoupling1GTUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
+    void setName(const std::string& name);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDFileUMeshSplitL1 *deepCpy(DataArrayDouble *coords) const;

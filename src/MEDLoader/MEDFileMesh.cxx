@@ -243,6 +243,11 @@ bool MEDFileMesh::isEqual(const MEDFileMesh *other, double eps, std::string& wha
   return true;
 }
 
+void MEDFileMesh::setName(const std::string& name)
+{
+  _name=name;
+}
+
 /*!
  * Clears redundant attributes of incorporated data arrays.
  */
@@ -2155,6 +2160,14 @@ void MEDFileUMesh::clearNonDiscrAttributes() const
       if(tmp)
         tmp->clearNonDiscrAttributes();
     }
+}
+
+void MEDFileUMesh::setName(const std::string& name)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
+    if((MEDFileUMeshSplitL1 *)(*it)!=0)
+      (*it)->setName(name);
+  MEDFileMesh::setName(name);
 }
 
 MEDFileUMesh::MEDFileUMesh()

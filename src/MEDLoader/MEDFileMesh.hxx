@@ -46,7 +46,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual MEDFileMesh *shallowCpy() const = 0;
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual void clearNonDiscrAttributes() const;
-    MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
+    MEDLOADER_EXPORT virtual void setName(const std::string& name);
     MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT std::string getUnivName() const { return _univ_name; }
@@ -203,6 +203,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
+    MEDLOADER_EXPORT void setName(const std::string& name);
     MEDLOADER_EXPORT ~MEDFileUMesh();
     //
     MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const;
