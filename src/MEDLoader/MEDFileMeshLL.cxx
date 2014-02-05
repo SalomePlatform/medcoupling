@@ -1132,7 +1132,7 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
   _m_parts.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     _m_parts[i]=MEDCoupling1GTUMesh::New(ms[i]);
-  _mp_time=std::max(_mp_time,_m_time)+1;
+  _mp_time=std::max(_mp_time,_m_time);
 }
 
 std::size_t MEDFileUMeshAggregateCompute::getTimeOfThis() const

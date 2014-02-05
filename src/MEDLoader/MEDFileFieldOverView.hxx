@@ -96,6 +96,7 @@ namespace ParaMEDMEM
   protected:
     std::string getPflNameOfId(int id) const;
     DataArray *constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
+    virtual void appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr);
   protected:
     MEDMeshMultiLev();
     MEDMeshMultiLev(const MEDMeshMultiLev& other);
@@ -131,6 +132,8 @@ namespace ParaMEDMEM
     MEDMeshMultiLev *prepare() const;
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part);
     MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const;
+  protected:
+    void appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr);
   private:
     void reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const;
   private:
@@ -139,6 +142,8 @@ namespace ParaMEDMEM
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> > _parts;
+    //! this attribute is used only for mesh with no cells but having coordinates. For classical umeshes those pointer is equal to pointer of coordinates of instances in this->_parts.
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
   };
 
   class MEDStructuredMeshMultiLev : public MEDMeshMultiLev

@@ -55,9 +55,12 @@ MEDFileMeshStruct::MEDFileMeshStruct(const MEDFileMesh *mesh):_mesh(mesh)
   std::vector<int> levs(mesh->getNonEmptyLevels());
   _name=mesh->getName();
   _nb_nodes=mesh->getNumberOfNodes();
-  _geo_types_distrib.resize(levs.size());
-  for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
-    _geo_types_distrib[-(*lev)]=mesh->getDistributionOfTypes(*lev);
+  if(!levs.empty())
+    {
+      _geo_types_distrib.resize(-(*std::min_element(levs.begin(),levs.end()))+1);
+      for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
+        _geo_types_distrib[-(*lev)]=mesh->getDistributionOfTypes(*lev);
+    }
 }
 
 int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
@@ -176,6 +179,8 @@ bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst
       const DataArrayInt *nr(_node_reduction);
       if(pflName.empty() && !nr)
         return true;
+      if(!pflName.empty() && !nr)
+        return false;
       if(pflName==nr->getName())
         return true;
       return false;
@@ -543,6 +548,51 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
     }
 }
 
+/*!
+ * This method is called to add NORM_POINT1 cells in \a this so that orphan nodes in \a verticesToAdd will be fetched.
+ */
+void MEDMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr)
+{
+  int nbOfVertices(verticesToAdd->getNumberOfTuples());
+  std::size_t sz(_pfls.size());
+  _pfls.resize(sz+1);
+  _geo_types.resize(sz+1,INTERP_KERNEL::NORM_POINT1);
+  _nb_entities.resize(sz+1,nbOfVertices);
+  _node_reduction=nr; nr->incrRef();
+  _nb_nodes+=nbOfVertices;
+  const DataArrayInt *cf(_cell_fam_ids),*cn(_cell_num_ids),*nf(_node_fam_ids),*nn(_node_num_ids);
+  if(cf)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+      std::vector<const DataArrayInt *> a(2);
+      a[0]=cf;
+      if(nf)
+        tmp=nf->selectByTupleIdSafe(verticesToAdd->begin(),verticesToAdd->end());
+      else
+        {
+          tmp=DataArrayInt::New(); tmp->alloc(nbOfVertices,1); tmp->fillWithZero();
+        }
+      a[1]=tmp;
+      _cell_fam_ids=DataArrayInt::Aggregate(a);
+      _cell_fam_ids_nocpy=false;
+    }
+  if(cn)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+      std::vector<const DataArrayInt *> a(2);
+      a[0]=cn;
+      if(nn)
+        tmp=nn->selectByTupleIdSafe(verticesToAdd->begin(),verticesToAdd->end());
+      else
+        {
+          tmp=DataArrayInt::New(); tmp->alloc(nbOfVertices,1); tmp->fillWithZero();
+        }
+      a[1]=tmp;
+      _cell_num_ids=DataArrayInt::Aggregate(a);
+      _cell_num_ids_nocpy=false;
+    }
+}
+
 MEDMeshMultiLev::MEDMeshMultiLev():_nb_nodes(0),_cell_fam_ids_nocpy(false)
 {
 }
@@ -583,6 +633,10 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
       v.insert(v.end(),vTmp.begin(),vTmp.end());
     }
   std::size_t sz(v.size());
+  if(v.empty())
+    {
+      _coords=m->getCoords(); _coords->incrRef();
+    }
   _parts.resize(sz);
   _pfls.resize(sz);
   _geo_types.resize(sz);
@@ -619,7 +673,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
           if(!tmps[i])
             f=false;
         }
-      if(f)
+      if(f && !tmps.empty())
         _cell_fam_ids=DataArrayInt::Aggregate(tmps);
     }
   _cell_num_ids_nocpy=(levs.size()==1);
@@ -642,7 +696,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>
           if(!tmps[i])
             n=false;
         }
-      if(n)
+      if(n && !tmps.empty())
         _cell_num_ids=DataArrayInt::Aggregate(tmps);
     }
   // node part
@@ -759,7 +813,6 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
    std::vector< const DataArrayInt *> aa(sz);
    for(std::size_t i=0;i<sz;i++)
      {
-       
        const DataArrayInt *pfl(_pfls[i]);
        MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m(_parts[i]);
        if(pfl)
@@ -776,9 +829,21 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
        else
          _pfls[i]=cellIdsSafe;
      }
-   _node_reduction=DataArrayInt::Aggregate(aa);
+   if(!aa.empty())
+     _node_reduction=DataArrayInt::Aggregate(aa);//general case
+   else
+     _node_reduction=pflNodes->deepCpy();//case where no cells in read mesh.
    _node_reduction->sort(true);
    _node_reduction=_node_reduction->buildUnique();
+   if(_node_reduction->getNumberOfTuples()==pflNodes->getNumberOfTuples())
+     return ;//This is the classical case where the input node profile corresponds perfectly to a subset of cells in _parts
+   if(_node_reduction->getNumberOfTuples()>pflNodes->getNumberOfTuples())
+     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::selectPartOfNodes : internal error in MEDCoupling during cell select from a list of nodes !");
+   // Here the cells available in _parts is not enough to cover all the nodes in pflNodes. So adding vertices cells in _parts...
+   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflNodes2(pflNodes->deepCpy());
+   pflNodes2->sort(true);
+   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
+   appendVertices(diff,pflNodes2);
 }
 
 MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const
@@ -786,7 +851,7 @@ MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const
   return new MEDUMeshMultiLev(*this);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDUMeshMultiLev& other):MEDMeshMultiLev(other),_parts(other._parts)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDUMeshMultiLev& other):MEDMeshMultiLev(other),_parts(other._parts),_coords(other._coords)
 {
 }
 
@@ -805,11 +870,11 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
  */
 bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const
 {
+  const DataArrayDouble *tmp(0);
   if(_parts.empty())
-    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : empty array !");
-  if(!(const MEDCoupling1GTUMesh *)_parts[0])
-    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : first part is null !");
-  const DataArrayDouble *tmp(_parts[0]->getCoords());
+    tmp=_coords;
+  else
+    tmp=_parts[0]->getCoords();
   if(!tmp)
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : the coordinates are null !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
@@ -952,6 +1017,11 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<
   const DataArrayInt *nr(_node_reduction);
   if(!nr)
     return ;
+  if(nodalConnVTK->empty() && !polyhedNodalConnVTK)
+    {
+      coords=(coords->selectByTupleIdSafe(nr->begin(),nr->end()));
+      return ;
+    }
   int sz(coords->getNumberOfTuples());
   std::vector<bool> b(sz,false);
   const int *work(nodalConnVTK->begin()),*endW(nodalConnVTK->end());
@@ -1020,6 +1090,25 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<
         }
     }
   coords=(coords->selectByTupleIdSafe(nr->begin(),nr->end()));
+}
+
+
+void MEDUMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr)
+{
+  int nbOfCells(verticesToAdd->getNumberOfTuples());//it is not a bug cells are NORM_POINT1
+  MEDMeshMultiLev::appendVertices(verticesToAdd,nr);
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> elt(MEDCoupling1SGTUMesh::New("",INTERP_KERNEL::NORM_POINT1));
+  elt->allocateCells(nbOfCells);
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int pt(verticesToAdd->getIJ(i,0));
+      elt->insertNextCell(&pt,&pt+1);
+    }
+  if(_parts.empty())
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::appendVertices : parts are empty !");
+  elt->setCoords(_parts[0]->getCoords());
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> elt2((MEDCoupling1SGTUMesh *)elt); elt2->incrRef();
+  _parts.push_back(elt2);
 }
 
 //=
