@@ -2728,6 +2728,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         #
         fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        self.assertEqual([NORM_QUAD4],fcscp.getGeoTypesAt(0,ms[0]))
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
@@ -3267,6 +3268,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         #
         fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        self.assertEqual([NORM_TRI3,NORM_SEG2],fcscp.getGeoTypesAt(0,ms[0]))#contains all cell types of underlying mesh because only nodes with no profiles
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
@@ -3582,6 +3584,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mst=MEDFileMeshStruct.New(ms[0])
         # emulate first click
         fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        self.assertEqual([NORM_SEG2],fcscp.getGeoTypesAt(0,ms[0]))
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
@@ -3618,6 +3621,7 @@ class MEDLoaderTest4(unittest.TestCase):
         del fff0
         # emulate second click
         fcscp=allFMTSLeavesPerCommonSupport1[1][1]
+        self.assertEqual([NORM_QUAD4],fcscp.getGeoTypesAt(0,ms[0]))
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))

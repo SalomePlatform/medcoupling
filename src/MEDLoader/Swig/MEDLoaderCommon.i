@@ -624,6 +624,16 @@ namespace ParaMEDMEM
            return res;
          }
 
+         PyObject *getAllGeoTypes() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getAllGeoTypes());
+           std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+           PyObject *res=PyList_New(result.size());
+           for(int i=0;iL!=result.end(); i++, iL++)
+             PyList_SetItem(res,i,PyInt_FromLong(*iL));
+           return res;
+         }
+
          PyObject *getGeoTypesAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
          {
            std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getGeoTypesAtLevel(meshDimRelToMax));
@@ -3029,7 +3039,21 @@ namespace ParaMEDMEM
     static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref) throw(INTERP_KERNEL::Exception);
     MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
     bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfTS() const throw(INTERP_KERNEL::Exception);
   protected:
     ~MEDFileFastCellSupportComparator();
+  public:
+    %extend
+    {
+      PyObject *getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< INTERP_KERNEL::NormalizedCellType > result(self->getGeoTypesAt(timeStepId,m));
+        std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator iL(result.begin());
+        PyObject *res(PyList_New(result.size()));
+        for(int i=0;iL!=result.end(); i++, iL++)
+          PyList_SetItem(res,i,PyInt_FromLong(*iL));
+        return res;
+      }
+    }
   };
 }

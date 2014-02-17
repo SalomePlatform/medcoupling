@@ -1914,6 +1914,31 @@ MEDMeshMultiLev *MEDFileField1TSStructItem::buildFromScratchDataSetSupportOnCell
   return MEDMeshMultiLev::New(mst->getTheMesh(),a0,a1,a2);
 }
 
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileField1TSStructItem::getGeoTypes(const MEDFileMesh *m) const
+{
+  std::vector<INTERP_KERNEL::NormalizedCellType> ret;
+  if(_type==ON_NODES)
+    {
+      if(!_items.empty() && _items[0].getPflName().empty())
+        {
+          if(m)
+            return m->getAllGeoTypes();
+          else
+            return ret;
+        }
+      else
+        return ret;
+    }
+  for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++)
+    {
+      INTERP_KERNEL::NormalizedCellType elt((*it).getGeo());
+      std::vector<INTERP_KERNEL::NormalizedCellType>::iterator it2(std::find(ret.begin(),ret.end(),elt));
+      if(it2==ret.end())
+        ret.push_back(elt);
+    }
+  return ret;
+}
+
 MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt)
 {
   TypeOfField atype;
@@ -2096,6 +2121,24 @@ bool MEDFileField1TSStruct::isDataSetSupportFastlyEqualTo(const MEDFileField1TSS
   return true;
 }
 
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileField1TSStruct::getGeoTypes(const MEDFileMesh *m) const
+{
+  std::vector<INTERP_KERNEL::NormalizedCellType> ret;
+  for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++)
+    {
+      std::vector<INTERP_KERNEL::NormalizedCellType> ret2((*it).getGeoTypes(m));
+      for(std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator it2=ret2.begin();it2!=ret2.end();it2++)
+        {
+          if(*it2==INTERP_KERNEL::NORM_ERROR)
+            continue;
+          std::vector<INTERP_KERNEL::NormalizedCellType>::iterator it3(std::find(ret.begin(),ret.end(),*it2));
+          if(it3==ret.end())
+            ret.push_back(*it2);
+        }
+    }
+  return ret;
+}
+
 /*!
  * Returns true if presence in \a this of discretization ON_CELLS, ON_GAUSS_PT, ON_GAUSS_NE.
  * If true is returned the pos of the easiest is returned. The easiest is the first element in \a this having the less splitted subparts.
@@ -2248,4 +2291,25 @@ bool MEDFileFastCellSupportComparator::isDataSetSupportEqualToThePreviousOne(int
   const MEDFileField1TSStruct *obj(_f1ts_cmps[timeStepId]);
   const MEDFileField1TSStruct *objRef(_f1ts_cmps[timeStepId-1]);
   return objRef->isDataSetSupportFastlyEqualTo(*obj,globs);
+}
+
+int MEDFileFastCellSupportComparator::getNumberOfTS() const
+{
+  return _f1ts_cmps.size();
+}
+
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileFastCellSupportComparator::getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const
+{
+  if(timeStepId<0 || timeStepId>=(int)_f1ts_cmps.size())
+    {
+      std::ostringstream oss; oss << "MEDFileFastCellSupportComparator::getGeoTypesAt : requested time step id #" << timeStepId << " is not in [0," << _f1ts_cmps.size() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const MEDFileField1TSStruct *elt(_f1ts_cmps[timeStepId]);
+  if(!elt)
+    {
+      std::ostringstream oss; oss << "MEDFileFastCellSupportComparator::getGeoTypesAt : requested time step id #" << timeStepId << " points to a NULL pointer !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return elt->getGeoTypes(m);
 }

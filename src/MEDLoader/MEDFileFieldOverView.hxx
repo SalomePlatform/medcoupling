@@ -249,6 +249,7 @@ namespace ParaMEDMEM
     MEDFileField1TSStructItem simplifyMeOnCellEntity(const MEDFileFieldGlobsReal *globs) const;
     bool isCompatibleWithNodesDiscr(const MEDFileField1TSStructItem& other, const MEDFileMeshStruct *meshSt, const MEDFileFieldGlobsReal *globs) const;
     bool isFullyOnOneLev(const MEDFileMeshStruct *meshSt, int& theFirstLevFull) const;
+    std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes(const MEDFileMesh *m) const;
     MEDLOADER_EXPORT MEDMeshMultiLev *buildFromScratchDataSetSupportOnCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT static MEDFileField1TSStructItem BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt);
   private:
@@ -269,6 +270,7 @@ namespace ParaMEDMEM
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt);
     MEDLOADER_EXPORT MEDMeshMultiLev *buildFromScratchDataSetSupport(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs) const;
     bool isDataSetSupportFastlyEqualTo(const MEDFileField1TSStruct& other, const MEDFileFieldGlobsReal *globs) const;
+    std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes(const MEDFileMesh *m) const;
   private:
     MEDFileField1TSStruct(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
     bool presenceOfCellDiscr(int& pos) const;
@@ -283,6 +285,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileFastCellSupportComparator *New(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref);
     MEDLOADER_EXPORT MEDMeshMultiLev *buildFromScratchDataSetSupport(int timeStepId, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT bool isDataSetSupportEqualToThePreviousOne(int timeStepId, const MEDFileFieldGlobsReal *globs) const;
+    MEDLOADER_EXPORT int getNumberOfTS() const;
+    MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const;
     bool isEqual(const MEDFileAnyTypeFieldMultiTS *other);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeFieldMultiTS *other);
     std::size_t getHeapMemorySizeWithoutChildren() const;

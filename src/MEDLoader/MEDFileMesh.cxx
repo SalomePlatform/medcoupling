@@ -1787,6 +1787,18 @@ void MEDFileMesh::appendFamilyEntries(const DataArrayInt *famIds, const std::vec
     }
 }
 
+std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileMesh::getAllGeoTypes() const
+{
+  std::vector<int> levs(getNonEmptyLevels());
+  std::vector<INTERP_KERNEL::NormalizedCellType> ret;
+  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+    {
+      std::vector<INTERP_KERNEL::NormalizedCellType> elts(getGeoTypesAtLevel(*it));
+      ret.insert(ret.end(),elts.begin(),elts.end());
+    }
+  return ret;
+}
+
 std::vector<int> MEDFileMesh::getDistributionOfTypes(int meshDimRelToMax) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mLev(getGenMeshAtLevel(meshDimRelToMax));
