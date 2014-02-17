@@ -2925,6 +2925,16 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
+
+      PyObject *getGeoTypes() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< INTERP_KERNEL::NormalizedCellType > result(self->getGeoTypes());
+        std::vector< INTERP_KERNEL::NormalizedCellType >::const_iterator iL(result.begin());
+        PyObject *res(PyList_New(result.size()));
+        for(int i=0;iL!=result.end(); i++, iL++)
+          PyList_SetItem(res,i,PyInt_FromLong(*iL));
+        return res;
+      }
     }
   };
 

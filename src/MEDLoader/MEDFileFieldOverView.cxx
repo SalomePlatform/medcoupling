@@ -340,6 +340,11 @@ void MEDMeshMultiLev::retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isW
     }
 }
 
+std::vector< INTERP_KERNEL::NormalizedCellType > MEDMeshMultiLev::getGeoTypes() const
+{
+  return _geo_types;
+}
+
 void MEDMeshMultiLev::setFamilyIdsOnCells(DataArrayInt *famIds, bool isNoCopy)
 {
   _cell_fam_ids=famIds;

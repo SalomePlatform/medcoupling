@@ -3787,6 +3787,7 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         mml2=mml.prepare()
         self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        self.assertEqual([3,4,0],mml2.getGeoTypes())
         ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
         self.assertTrue(not ncc)
         self.assertTrue(a0.isEqual(DataArrayDouble([0.,1.,0.,1.,1.,0.,2.,1.,0.,0.,2.,0.,1.,2.,0.,0.,3.,0.],6,3),1e-12))

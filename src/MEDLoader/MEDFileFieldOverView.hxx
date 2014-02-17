@@ -85,6 +85,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isWithoutCopy) const;
+    MEDLOADER_EXPORT std::vector< INTERP_KERNEL::NormalizedCellType > getGeoTypes() const;
     void setFamilyIdsOnCells(DataArrayInt *famIds, bool isNoCopy);
     void setNumberIdsOnCells(DataArrayInt *numIds, bool isNoCopy);
     void setFamilyIdsOnNodes(DataArrayInt *famIds, bool isNoCopy);
