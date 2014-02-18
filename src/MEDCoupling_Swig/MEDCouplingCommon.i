@@ -1516,6 +1516,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *explode3DMeshTo1D(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     bool isPresenceOfQuadratic() const throw(INTERP_KERNEL::Exception);
+    bool isFullyQuadratic() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildDirectionVectorField() const throw(INTERP_KERNEL::Exception);
     bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
     void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
