@@ -54,6 +54,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT const double* getFunctionValues( const int theGaussId ) const;
 
     INTERPKERNEL_EXPORT void initLocalInfo();
+    
+    INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
 
   protected:
 
@@ -70,9 +72,16 @@ namespace INTERP_KERNEL
     void tria6bInit();
 
     void quad4aInit();
+    static void Quad4aInit(GaussInfo& obj) { obj.quad4aInit(); }
     void quad4bInit();
+    static void Quad4bInit(GaussInfo& obj) { obj.quad4bInit(); }
+    void quad4cInit();
+    static void Quad4cInit(GaussInfo& obj) { obj.quad4cInit(); }
+    void quad4DegSeg2Init();
+    static void Quad4DegSeg2Init(GaussInfo& obj) { obj.quad4DegSeg2Init(); }
     void quad8aInit();
     void quad8bInit();
+    void quad9aInit();
 
     //3D
     void tetra4aInit();
@@ -86,12 +95,27 @@ namespace INTERP_KERNEL
     void pyra13bInit();
 
     void penta6aInit();
+    static void Penta6aInit(GaussInfo& obj) { obj.penta6aInit(); }
     void penta6bInit();
+    static void Penta6bInit(GaussInfo& obj) { obj.penta6bInit(); }
+    void penta6DegTria3aInit();
+    static void Penta6DegTria3aInit(GaussInfo& obj) { obj.penta6DegTria3aInit(); }
+    void penta6DegTria3bInit();
+    static void Penta6DegTria3bInit(GaussInfo& obj) { obj.penta6DegTria3bInit(); }
+    
     void penta15aInit();
     void penta15bInit();
 
     void hexa8aInit();
+    static void Hexa8aInit(GaussInfo& obj) { obj.hexa8aInit(); }
     void hexa8bInit();
+    static void Hexa8bInit(GaussInfo& obj) { obj.hexa8bInit(); }
+    void hexa8DegQuad4aInit();
+    static void Hexa8DegQuad4aInit(GaussInfo& obj) { obj.hexa8DegQuad4aInit(); }
+    void hexa8DegQuad4bInit();
+    static void Hexa8DegQuad4bInit(GaussInfo& obj) { obj.hexa8DegQuad4bInit(); }
+    void hexa8DegQuad4cInit();
+    static void Hexa8DegQuad4cInit(GaussInfo& obj) { obj.hexa8DegQuad4cInit(); }
     void hexa20aInit();
     void hexa20bInit();
 

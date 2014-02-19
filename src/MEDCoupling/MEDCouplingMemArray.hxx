@@ -117,13 +117,13 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDCOUPLING_EXPORT void setName(const char *name);
+    MEDCOUPLING_EXPORT void setName(const std::string& name);
     MEDCOUPLING_EXPORT void copyStringInfoFrom(const DataArray& other);
     MEDCOUPLING_EXPORT void copyPartOfStringInfoFrom(const DataArray& other, const std::vector<int>& compoIds);
     MEDCOUPLING_EXPORT void copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other);
     MEDCOUPLING_EXPORT bool areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool areInfoEquals(const DataArray& other) const;
-    MEDCOUPLING_EXPORT std::string cppRepr(const char *varName) const;
+    MEDCOUPLING_EXPORT std::string cppRepr(const std::string& varName) const;
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
     MEDCOUPLING_EXPORT const std::vector<std::string> &getInfoOnComponents() const { return _info_on_compo; }
     MEDCOUPLING_EXPORT std::vector<std::string> &getInfoOnComponents() { return _info_on_compo; }
@@ -134,7 +134,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getInfoOnComponent(int i) const;
     MEDCOUPLING_EXPORT std::string getVarOnComponent(int i) const;
     MEDCOUPLING_EXPORT std::string getUnitOnComponent(int i) const;
-    MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const char *info);
+    MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const std::string& info);
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
     MEDCOUPLING_EXPORT void setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
     MEDCOUPLING_EXPORT virtual DataArray *deepCpy() const = 0;
@@ -156,14 +156,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId2(int bg, int end2, int step) const = 0;
     MEDCOUPLING_EXPORT virtual void rearrange(int newNbOfCompo) = 0;
-    MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const char *msg) const;
-    MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const char *msg) const;
-    MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const;
-    MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const;
-    MEDCOUPLING_EXPORT void checkNbOfElems(std::size_t nbOfElems, const char *msg) const;
+    MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const std::string& msg) const;
+    MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const std::string& msg) const;
+    MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const;
+    MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const std::string& msg) const;
+    MEDCOUPLING_EXPORT void checkNbOfElems(std::size_t nbOfElems, const std::string& msg) const;
     MEDCOUPLING_EXPORT static void GetSlice(int start, int stop, int step, int sliceId, int nbOfSlices, int& startSlice, int& stopSlice);
-    MEDCOUPLING_EXPORT static int GetNumberOfItemGivenBES(int begin, int end, int step, const char *msg);
-    MEDCOUPLING_EXPORT static int GetNumberOfItemGivenBESRelative(int begin, int end, int step, const char *msg);
+    MEDCOUPLING_EXPORT static int GetNumberOfItemGivenBES(int begin, int end, int step, const std::string& msg);
+    MEDCOUPLING_EXPORT static int GetNumberOfItemGivenBESRelative(int begin, int end, int step, const std::string& msg);
     MEDCOUPLING_EXPORT static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step);
     MEDCOUPLING_EXPORT static std::string GetVarNameFromInfo(const std::string& info);
     MEDCOUPLING_EXPORT static std::string GetUnitFromInfo(const std::string& info);
@@ -172,16 +172,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void reprZipStream(std::ostream& stream) const = 0;
     MEDCOUPLING_EXPORT virtual void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT virtual void reprZipWithoutNameStream(std::ostream& stream) const = 0;
-    MEDCOUPLING_EXPORT virtual void reprCppStream(const char *varName, std::ostream& stream) const = 0;
+    MEDCOUPLING_EXPORT virtual void reprCppStream(const std::string& varName, std::ostream& stream) const = 0;
     MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;
     MEDCOUPLING_EXPORT virtual void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const = 0;
   protected:
     DataArray() { }
     ~DataArray() { }
   protected:
-    static void CheckValueInRange(int ref, int value, const char *msg);
-    static void CheckValueInRangeEx(int value, int start, int end, const char *msg);
-    static void CheckClosingParInRange(int ref, int value, const char *msg);
+    static void CheckValueInRange(int ref, int value, const std::string& msg);
+    static void CheckValueInRangeEx(int value, int start, int end, const std::string& msg);
+    static void CheckClosingParInRange(int ref, int value, const std::string& msg);
   protected:
     std::string _name;
     std::vector<std::string> _info_on_compo;
@@ -227,12 +227,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
-    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *nameInFile, DataArrayByte *byteArr) const;
+    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const std::string& nameInFile, DataArrayByte *byteArr) const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
-    MEDCOUPLING_EXPORT void reprCppStream(const char *varName, std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
@@ -340,12 +340,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyRPow(double val);
     MEDCOUPLING_EXPORT DataArrayDouble *negate() const;
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const char *func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const char *func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc2(int nbOfComp, const char *func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const;
-    MEDCOUPLING_EXPORT void applyFuncFast32(const char *func);
-    MEDCOUPLING_EXPORT void applyFuncFast64(const char *func);
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const std::string& func) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const std::string& func) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const;
+    MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
+    MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
@@ -464,12 +464,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void iota(int init=0);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
-    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile, DataArrayByte *byteArr) const;
+    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
-    MEDCOUPLING_EXPORT void reprCppStream(const char *varName, std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArrBg, const int *indArrEnd);
@@ -776,7 +776,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
-    MEDCOUPLING_EXPORT void reprCppStream(const char *varName, std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
@@ -833,7 +833,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
-    MEDCOUPLING_EXPORT void reprCppStream(const char *varName, std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;

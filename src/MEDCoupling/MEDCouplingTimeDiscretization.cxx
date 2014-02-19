@@ -264,7 +264,7 @@ void MEDCouplingTimeDiscretization::finishUnserialization(const std::vector<int>
   _time_tolerance=tinyInfoD[0];
   int nbOfCompo=_array->getNumberOfComponents();
   for(int i=0;i<nbOfCompo;i++)
-    _array->setInfoOnComponent(i,tinyInfoS[i].c_str());
+    _array->setInfoOnComponent(i,tinyInfoS[i]);
 }
 
 void MEDCouplingTimeDiscretization::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
@@ -715,7 +715,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
+void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -733,7 +733,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::applyFunc2(int nbOfComp, const char *func)
+void MEDCouplingTimeDiscretization::applyFunc2(int nbOfComp, const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -751,7 +751,7 @@ void MEDCouplingTimeDiscretization::applyFunc2(int nbOfComp, const char *func)
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
+void MEDCouplingTimeDiscretization::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -769,7 +769,7 @@ void MEDCouplingTimeDiscretization::applyFunc3(int nbOfComp, const std::vector<s
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::applyFunc(const char *func)
+void MEDCouplingTimeDiscretization::applyFunc(const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -787,7 +787,7 @@ void MEDCouplingTimeDiscretization::applyFunc(const char *func)
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::applyFuncFast32(const char *func)
+void MEDCouplingTimeDiscretization::applyFuncFast32(const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -798,7 +798,7 @@ void MEDCouplingTimeDiscretization::applyFuncFast32(const char *func)
     }
 }
 
-void MEDCouplingTimeDiscretization::applyFuncFast64(const char *func)
+void MEDCouplingTimeDiscretization::applyFuncFast64(const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -822,7 +822,7 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc,
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const char *func)
+void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -835,7 +835,7 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc,
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const char *func)
+void MEDCouplingTimeDiscretization::fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
@@ -848,7 +848,7 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic2(const DataArrayDouble *loc
   setArrays(arrays3,0);
 }
 
-void MEDCouplingTimeDiscretization::fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
+void MEDCouplingTimeDiscretization::fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);

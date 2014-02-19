@@ -48,7 +48,7 @@ namespace INTERP_KERNEL
 
     // Main function to interpolate triangular and quadratic meshes
     template<class MyMeshType, class MatrixType>
-    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const char *method);
+    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const std::string& method);
     DuplicateFacesType retrieveDuplicateFaces() const
     {
       return _duplicate_faces;

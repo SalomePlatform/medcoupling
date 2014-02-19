@@ -1270,7 +1270,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
     </mesh>\n \
   </mapping>\n \
 </root>\n";
-          std::vector<std::string> meshNames=MEDLoader::GetMeshNames(myfile.c_str());
+          std::vector<std::string> meshNames=MEDLoader::GetMeshNames(myfile);
           xml.replace(xml.find("$fileName"),9,myfile);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
@@ -2003,13 +2003,13 @@ void MEDPARTITIONER::MeshCollection::setDomainNames(const std::string& name)
       std::ostringstream oss;
       oss<<name<<"_"<<i;
       if (!isParallelMode() || _domain_selector->isMyDomain(i))
-        _mesh[i]->setName(oss.str().c_str());
+        _mesh[i]->setName(oss.str());
     }
 }
 
 ParaMEDMEM::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::string descriptionField, int iold)
 //getField look for and read it if not done, and assume decrRef() in ~MeshCollection;
-//something like MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
+//something like MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
 {
   int rank=MyGlobals::_Rank;
   std::string tag="ioldFieldDouble="+IntToStr(iold);
@@ -2032,7 +2032,7 @@ ParaMEDMEM::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::strin
   meshName=MyGlobals::_Mesh_Names[iold];
   
   ParaMEDMEM::MEDCouplingFieldDouble* f2=MEDLoader::ReadField((ParaMEDMEM::TypeOfField) typeField,
-                                                              fileName.c_str(), meshName.c_str(), 0, fieldName.c_str(), DT, IT);
+                                                              fileName, meshName, 0, fieldName, DT, IT);
   
   ParaMEDMEM::DataArrayDouble* res=f2->getArray();
   //to know names of components

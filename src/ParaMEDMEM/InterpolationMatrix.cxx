@@ -119,19 +119,19 @@ namespace ParaMEDMEM
           {
             MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(source_supportC);
             INTERP_KERNEL::Interpolation2D interpolation(*this);
-            interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth.c_str());
+            interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth);
           }
         else if(source_supportC->getMeshDimension()==3 && source_supportC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(source_supportC);
             INTERP_KERNEL::Interpolation3D interpolation(*this);
-            interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth.c_str());
+            interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth);
           }
         else if(source_supportC->getMeshDimension()==2 && source_supportC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(source_supportC);
             INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-            interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth.c_str());
+            interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth);
           }
         else
           throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of source mesh to -1D targetMesh");
@@ -142,19 +142,19 @@ namespace ParaMEDMEM
           {
             MEDCouplingNormalizedUnstructuredMesh<2,2> distant_mesh_wrapper(distant_supportC);
             INTERP_KERNEL::Interpolation2D interpolation(*this);
-            interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth.c_str());
+            interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth);
           }
         else if(distant_supportC->getMeshDimension()==3 && distant_supportC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,3> distant_mesh_wrapper(distant_supportC);
             INTERP_KERNEL::Interpolation3D interpolation(*this);
-            interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth.c_str());
+            interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth);
           }
         else if(distant_supportC->getMeshDimension()==2 && distant_supportC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,2> distant_mesh_wrapper(distant_supportC);
             INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-            interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth.c_str());
+            interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth);
           }
         else
           throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of distant mesh to -1D sourceMesh");
@@ -166,7 +166,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(distant_supportC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
         INTERP_KERNEL::Interpolation3D2D interpolator (*this);
-        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -177,7 +177,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(distant_supportC);
         MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(source_supportC);
         INTERP_KERNEL::Interpolation2D1D interpolator (*this);
-        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -192,7 +192,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<1,1> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation1D interpolation(*this);
-        interpolation.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolation.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -203,7 +203,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<2,1> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation2DCurve interpolation(*this);
-        interpolation.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolation.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -214,7 +214,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,2> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation3DSurf interpolator (*this);
-        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -225,7 +225,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation2D interpolator (*this);
-        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -236,7 +236,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation3D interpolator (*this);
-        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }

@@ -590,8 +590,8 @@ void MEDCouplingField::copyTinyStringsFrom(const MEDCouplingField *other)
 {
   if(other)
     {
-      setName(other->_name.c_str());
-      setDescription(other->_desc.c_str());    
+      setName(other->_name);
+      setDescription(other->_desc);    
     }
 }
 

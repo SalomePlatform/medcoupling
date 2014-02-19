@@ -57,8 +57,8 @@ int main(int argc, char** argv)
     }
   // Reading file structure
   cout << "Reading : " << flush;
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> fd=MEDFileData::New(filename_in.c_str());
-  MEDFileMesh *m=fd->getMeshes()->getMeshWithName(meshname.c_str());
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> fd(MEDFileData::New(filename_in));
+  MEDFileMesh *m=fd->getMeshes()->getMeshWithName(meshname);
   MEDFileUMesh *mc=dynamic_cast<MEDFileUMesh *>(m);
   if(!mc)
     {
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famField2=famField->renumber(perm->begin());
       mc->setFamilyFieldArr(0,famField2);
     }
-  mc->write(filename_out.c_str(),2);
+  mc->write(filename_out,2);
   t_family=clock();
   cout << " : " << (t_family-t_compute_graph)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   // Fields
@@ -107,20 +107,20 @@ int main(int argc, char** argv)
       for(int i=0;i<fs->getNumberOfFields();i++)
         {
           MEDFileFieldMultiTS *fmts=dynamic_cast<MEDFileFieldMultiTS *>(fs->getFieldAtPos(i));
-	  if(!fmts) continue;
+          if(!fmts) continue;
           if(fmts->getMeshName()==meshname)
             {
               for(int j=0;j<fmts->getNumberOfTS();j++)
                 {
                   MEDFileField1TS *f1ts=dynamic_cast<MEDFileField1TS*>(fmts->getTimeStepAtPos(j));
-		  if(!f1ts) continue;
+                  if(!f1ts) continue;
                   DataArrayDouble *arr=f1ts->getUndergroundDataArray();
                   arr->renumberInPlace(perm->begin());
                 }
             }
         }
-      fs->write(filename_out.c_str(),0);
-      //fs->renumberEntitiesLyingOnMesh(meshname.c_str(),code,code,o2n); bugged
+      fs->write(filename_out,0);
+      //fs->renumberEntitiesLyingOnMesh(meshname,code,code,o2n); bugged
     }
   t_field=clock();
   cout << " : " << (t_field-t_family)/(double) CLOCKS_PER_SEC << "s" << endl << flush;

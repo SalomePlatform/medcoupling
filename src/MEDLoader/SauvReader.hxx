@@ -46,7 +46,7 @@ namespace ParaMEDMEM
 class SauvReader : public ParaMEDMEM::RefCountObject
 {
  public:
-  MEDLOADER_EXPORT static SauvReader* New(const char *fileName);
+  MEDLOADER_EXPORT static SauvReader* New(const std::string& fileName);
   MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS();
   MEDLOADER_EXPORT ~SauvReader();
 

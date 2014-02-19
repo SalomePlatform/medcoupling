@@ -53,9 +53,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingField *other);
     MEDCOUPLING_EXPORT void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     MEDCOUPLING_EXPORT const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
-    MEDCOUPLING_EXPORT void setName(const char *name) { _name=name; }
+    MEDCOUPLING_EXPORT void setName(const std::string& name) { _name=name; }
     MEDCOUPLING_EXPORT std::string getDescription() const { return _desc; }
-    MEDCOUPLING_EXPORT void setDescription(const char *desc) { _desc=desc; }
+    MEDCOUPLING_EXPORT void setDescription(const std::string& desc) { _desc=desc; }
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
     MEDCOUPLING_EXPORT TypeOfField getTypeOfField() const;
     MEDCOUPLING_EXPORT NatureOfField getNature() const;

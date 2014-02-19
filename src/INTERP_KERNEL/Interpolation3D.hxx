@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
     Interpolation3D();
     Interpolation3D(const InterpolationOptions& io);
     template<class MyMeshType, class MatrixType>
-    int interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const char *method);
+    int interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method);
   private:
     SplittingPolicy _splitting_policy;
   };

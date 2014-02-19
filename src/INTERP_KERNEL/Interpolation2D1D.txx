@@ -46,7 +46,7 @@ namespace INTERP_KERNEL
       *
       */
   template<class MyMeshType, class MatrixType>
-  int Interpolation2D1D::interpolateMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, MatrixType& result, const char *method)
+  int Interpolation2D1D::interpolateMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, MatrixType& result, const std::string& method)
   {
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     typedef typename MyMeshType::MyConnType ConnType;

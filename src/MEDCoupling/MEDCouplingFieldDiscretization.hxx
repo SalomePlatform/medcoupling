@@ -49,7 +49,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDCOUPLING_EXPORT static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr);
+    MEDCOUPLING_EXPORT static TypeOfField GetTypeOfFieldFromStringRepr(const std::string& repr);
     MEDCOUPLING_EXPORT virtual TypeOfField getEnum() const = 0;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
@@ -107,8 +107,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual ~MEDCouplingFieldDiscretization();
   protected:
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization();
-    MEDCOUPLING_EXPORT static void RenumberEntitiesFromO2NArr(double epsOnVals, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const char *msg);
-    MEDCOUPLING_EXPORT static void RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg);
+    MEDCOUPLING_EXPORT static void RenumberEntitiesFromO2NArr(double epsOnVals, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const std::string& msg);
+    MEDCOUPLING_EXPORT static void RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const std::string& msg);
   protected:
     double _precision;
     static const double DFLT_PRECISION;
@@ -329,6 +329,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT static const double *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth);
     MEDCOUPLING_EXPORT static const double *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth);
+    MEDCOUPLING_EXPORT static const double *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
   public:
@@ -341,7 +342,7 @@ namespace ParaMEDMEM
     static const double FGP_TRI6[6];
     static const double FGP_TRI7[7];
     static const double FGP_QUAD4[4];
-    //static const double FGP_QUAD8[8];
+    static const double FGP_QUAD8[8];
     static const double FGP_QUAD9[9];
     static const double FGP_TETRA4[4];
     //static const double FGP_TETRA10[10];
@@ -369,6 +370,23 @@ namespace ParaMEDMEM
     static const double REF_HEXA27[81];
     static const double REF_PYRA5[15];
     static const double REF_PYRA13[39];
+    static const double LOC_SEG2[2];
+    static const double LOC_SEG3[3];
+    static const double LOC_SEG4[4];
+    static const double LOC_TRI3[6];
+    static const double LOC_TRI6[12];
+    static const double LOC_TRI7[14];
+    static const double LOC_QUAD4[8];
+    static const double LOC_QUAD8[16];
+    static const double LOC_QUAD9[18];
+    static const double LOC_TETRA4[12];
+    //static const double LOC_TETRA10[30];
+    static const double LOC_PENTA6[18];
+    //static const double LOC_PENTA15[45];
+    static const double LOC_HEXA8[24];
+    static const double LOC_HEXA27[81];
+    static const double LOC_PYRA5[15];
+    //static const double LOC_PYRA13[39];
   };
 
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes

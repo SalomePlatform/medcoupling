@@ -54,7 +54,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper();
     MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
-    MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
+    MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method);
     MEDCOUPLINGREMAPPER_EXPORT int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
     MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
     MEDCOUPLINGREMAPPER_EXPORT void partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField);

@@ -308,7 +308,7 @@ ArcCSegIntersector::ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e
 
 void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
 {
-  areOverlapped=false;//No overlapping by contruction
+  areOverlapped=false;//No overlapping by construction
   const double *center=getE1().getCenter();
   _dx=(*(_e2.getEndNode()))[0]-(*(_e2.getStartNode()))[0];
   _dy=(*(_e2.getEndNode()))[1]-(*(_e2.getStartNode()))[1];

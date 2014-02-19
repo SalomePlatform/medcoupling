@@ -130,7 +130,7 @@ std::vector<const BigMemoryObject *> DataArray::getDirectChildren() const
  * See \ref MEDCouplingArrayBasicsName "DataArrays infos" for more information.
  *  \param [in] name - new array name
  */
-void DataArray::setName(const char *name)
+void DataArray::setName(const std::string& name)
 {
   _name=name;
 }
@@ -164,7 +164,7 @@ void DataArray::copyPartOfStringInfoFrom(const DataArray& other, const std::vect
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   for(std::size_t i=0;i<newNbOfCompo;i++)
-    setInfoOnComponent((int)i,other.getInfoOnComponent(compoIds[i]).c_str());
+    setInfoOnComponent((int)i,other.getInfoOnComponent(compoIds[i]));
 }
 
 void DataArray::copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other)
@@ -180,7 +180,7 @@ void DataArray::copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, cons
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   for(std::size_t i=0;i<partOfCompoToSet;i++)
-    setInfoOnComponent(compoIds[i],other.getInfoOnComponent((int)i).c_str());
+    setInfoOnComponent(compoIds[i],other.getInfoOnComponent((int)i));
 }
 
 bool DataArray::areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const
@@ -231,7 +231,7 @@ void DataArray::reprWithoutNameStream(std::ostream& stream) const
   stream << "\n";
 }
 
-std::string DataArray::cppRepr(const char *varName) const
+std::string DataArray::cppRepr(const std::string& varName) const
 {
   std::ostringstream ret;
   reprCppStream(varName,ret);
@@ -478,7 +478,7 @@ DataArray *DataArray::Aggregate(const std::vector<const DataArray *>& arrs)
  *  \param [in] info - the string containing the information.
  *  \throw If \a i is not a valid component index.
  */
-void DataArray::setInfoOnComponent(int i, const char *info)
+void DataArray::setInfoOnComponent(int i, const std::string& info)
 {
   if(i<(int)_info_on_compo.size() && i>=0)
     _info_on_compo[i]=info;
@@ -516,7 +516,7 @@ void DataArray::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info)
     _info_on_compo=info;
 }
 
-void DataArray::checkNbOfTuples(int nbOfTuples, const char *msg) const
+void DataArray::checkNbOfTuples(int nbOfTuples, const std::string& msg) const
 {
   if(getNumberOfTuples()!=nbOfTuples)
     {
@@ -525,7 +525,7 @@ void DataArray::checkNbOfTuples(int nbOfTuples, const char *msg) const
     }
 }
 
-void DataArray::checkNbOfComps(int nbOfCompo, const char *msg) const
+void DataArray::checkNbOfComps(int nbOfCompo, const std::string& msg) const
 {
   if(getNumberOfComponents()!=nbOfCompo)
     {
@@ -534,7 +534,7 @@ void DataArray::checkNbOfComps(int nbOfCompo, const char *msg) const
     }
 }
 
-void DataArray::checkNbOfElems(std::size_t nbOfElems, const char *msg) const
+void DataArray::checkNbOfElems(std::size_t nbOfElems, const std::string& msg) const
 {
   if(getNbOfElems()!=nbOfElems)
     {
@@ -543,7 +543,7 @@ void DataArray::checkNbOfElems(std::size_t nbOfElems, const char *msg) const
     }
 }
 
-void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const
+void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const
 {
    if(getNumberOfTuples()!=other.getNumberOfTuples())
     {
@@ -557,7 +557,7 @@ void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const char *msg) 
     }
 }
 
-void DataArray::checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const
+void DataArray::checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const std::string& msg) const
 {
   checkNbOfTuples(nbOfTuples,msg);
   checkNbOfComps(nbOfCompo,msg);
@@ -566,7 +566,7 @@ void DataArray::checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char
 /*!
  * Simply this method checks that \b value is in [0,\b ref).
  */
-void DataArray::CheckValueInRange(int ref, int value, const char *msg)
+void DataArray::CheckValueInRange(int ref, int value, const std::string& msg)
 {
   if(value<0 || value>=ref)
     {
@@ -579,7 +579,7 @@ void DataArray::CheckValueInRange(int ref, int value, const char *msg)
  * This method checks that [\b start, \b end) is compliant with ref length \b value.
  * typicaly start in [0,\b value) and end in [0,\b value). If value==start and start==end, it is supported.
  */
-void DataArray::CheckValueInRangeEx(int value, int start, int end, const char *msg)
+void DataArray::CheckValueInRangeEx(int value, int start, int end, const std::string& msg)
 {
   if(start<0 || start>=value)
     {
@@ -596,7 +596,7 @@ void DataArray::CheckValueInRangeEx(int value, int start, int end, const char *m
     }
 }
 
-void DataArray::CheckClosingParInRange(int ref, int value, const char *msg)
+void DataArray::CheckClosingParInRange(int ref, int value, const std::string& msg)
 {
   if(value<0 || value>ref)
     {
@@ -644,7 +644,7 @@ void DataArray::GetSlice(int start, int stop, int step, int sliceId, int nbOfSli
     stopSlice=stop;
 }
 
-int DataArray::GetNumberOfItemGivenBES(int begin, int end, int step, const char *msg)
+int DataArray::GetNumberOfItemGivenBES(int begin, int end, int step, const std::string& msg)
 {
   if(end<begin)
     {
@@ -661,7 +661,7 @@ int DataArray::GetNumberOfItemGivenBES(int begin, int end, int step, const char 
   return (end-1-begin)/step+1;
 }
 
-int DataArray::GetNumberOfItemGivenBESRelative(int begin, int end, int step, const char *msg)
+int DataArray::GetNumberOfItemGivenBESRelative(int begin, int end, int step, const std::string& msg)
 {
   if(step==0)
     throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES : step=0 is not allowed !");
@@ -1150,7 +1150,7 @@ std::string DataArrayDouble::reprZip() const
   return ret.str();
 }
 
-void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameInFile, DataArrayByte *byteArr) const
+void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string& nameInFile, DataArrayByte *byteArr) const
 {
   static const char SPACE[4]={' ',' ',' ',' '};
   checkAllocated();
@@ -1204,7 +1204,7 @@ void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
-void DataArrayDouble::reprCppStream(const char *varName, std::ostream& stream) const
+void DataArrayDouble::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
   int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
   const double *data=getConstPointer();
@@ -1783,10 +1783,10 @@ DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double d
       for(;j<newNbOfComp;j++)
         nc[newNbOfComp*i+j]=dftValue;
     }
-  ret->setName(getName().c_str());
+  ret->setName(getName());
   for(int i=0;i<dim;i++)
-    ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
-  ret->setName(getName().c_str());
+    ret->setInfoOnComponent(i,getInfoOnComponent(i));
+  ret->setName(getName());
   return ret.retn();
 }
 
@@ -3536,7 +3536,7 @@ DataArrayDouble *DataArrayDouble::fromCylToCart() const
       w[1]=wIn[0]*sin(wIn[1]);
       w[2]=wIn[2];
     }
-  ret->setInfoOnComponent(2,getInfoOnComponent(2).c_str());
+  ret->setInfoOnComponent(2,getInfoOnComponent(2));
   return ret;
 }
 
@@ -4276,7 +4276,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate fun
  *  \throw If \a this is not allocated.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const char *func) const
+DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const std::string& func) const
 {
   checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
@@ -4330,7 +4330,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const char *func) cons
  *  \throw If \a this is not allocated.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(const char *func) const
+DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func) const
 {
   checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
@@ -4376,7 +4376,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(const char *func) const
  *  \throw If \a func contains vars that are not in \a this->getInfoOnComponent().
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const char *func) const
+DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& func) const
 {
   checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
@@ -4432,7 +4432,7 @@ DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const char *func) con
  *  \throw If \a func contains vars not in \a varsOrder.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const
+DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
 {
   checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
@@ -4472,7 +4472,7 @@ DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std
   return newArr;
 }
 
-void DataArrayDouble::applyFuncFast32(const char *func)
+void DataArrayDouble::applyFuncFast32(const std::string& func)
 {
   checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
@@ -4490,7 +4490,7 @@ void DataArrayDouble::applyFuncFast32(const char *func)
   declareAsNew();
 }
 
-void DataArrayDouble::applyFuncFast64(const char *func)
+void DataArrayDouble::applyFuncFast64(const std::string& func)
 {
   checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
@@ -4705,7 +4705,7 @@ DataArrayDouble *DataArrayDouble::Meld(const std::vector<const DataArrayDouble *
   int k=0;
   for(int i=0;i<(int)a.size();i++)
     for(int j=0;j<nbc[i];j++,k++)
-      ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j).c_str());
+      ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j));
   return ret;
 }
 
@@ -4749,8 +4749,8 @@ DataArrayDouble *DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArray
         sum+=a1Ptr[i*nbOfComp+j]*a2Ptr[i*nbOfComp+j];
       retPtr[i]=sum;
     }
-  ret->setInfoOnComponent(0,a1->getInfoOnComponent(0).c_str());
-  ret->setName(a1->getName().c_str());
+  ret->setInfoOnComponent(0,a1->getInfoOnComponent(0));
+  ret->setName(a1->getName());
   return ret;
 }
 
@@ -5605,12 +5605,12 @@ bool DataArrayDouble::resizeForUnserialization(const std::vector<int>& tinyInfoI
  */
 void DataArrayDouble::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS)
 {
-  setName(tinyInfoS[0].c_str());
+  setName(tinyInfoS[0]);
   if(isAllocated())
     {
       int nbOfCompo=getNumberOfComponents();
       for(int i=0;i<nbOfCompo;i++)
-        setInfoOnComponent(i,tinyInfoS[i+1].c_str());
+        setInfoOnComponent(i,tinyInfoS[i+1]);
     }
 }
 
@@ -6028,7 +6028,7 @@ std::string DataArrayInt::reprZip() const
   return ret.str();
 }
 
-void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile, DataArrayByte *byteArr) const
+void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const
 {
   static const char SPACE[4]={' ',' ',' ',' '};
   checkAllocated();
@@ -6093,7 +6093,7 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
-void DataArrayInt::reprCppStream(const char *varName, std::ostream& stream) const
+void DataArrayInt::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
   int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
   const int *data=getConstPointer();
@@ -7568,10 +7568,10 @@ DataArrayInt *DataArrayInt::changeNbOfComponents(int newNbOfComp, int dftValue) 
       for(;j<newNbOfComp;j++)
         nc[newNbOfComp*i+j]=dftValue;
     }
-  ret->setName(getName().c_str());
+  ret->setName(getName());
   for(int i=0;i<dim;i++)
-    ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
-  ret->setName(getName().c_str());
+    ret->setInfoOnComponent(i,getInfoOnComponent(i));
+  ret->setName(getName());
   return ret.retn();
 }
 
@@ -9407,7 +9407,7 @@ DataArrayInt *DataArrayInt::Meld(const std::vector<const DataArrayInt *>& arr)
   int k=0;
   for(int i=0;i<(int)a.size();i++)
     for(int j=0;j<nbc[i];j++,k++)
-      ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j).c_str());
+      ret->setInfoOnComponent(k,a[i]->getInfoOnComponent(j));
   return ret;
 }
 
@@ -11192,12 +11192,12 @@ bool DataArrayInt::resizeForUnserialization(const std::vector<int>& tinyInfoI)
  */
 void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS)
 {
-  setName(tinyInfoS[0].c_str());
+  setName(tinyInfoS[0]);
   if(isAllocated())
     {
       int nbOfCompo=tinyInfoI[1];
       for(int i=0;i<nbOfCompo;i++)
-        setInfoOnComponent(i,tinyInfoS[i+1].c_str());
+        setInfoOnComponent(i,tinyInfoS[i+1]);
     }
 }
 

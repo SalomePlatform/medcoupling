@@ -49,15 +49,15 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
   releaseData(false);
 }
 
-int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method)
+int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method)
 {
   if(!srcMesh || !targetMesh)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepare : presence of NULL input pointer !");
   std::string srcMethod,targetMethod;
   INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method,srcMethod,targetMethod);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> src=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(srcMethod.c_str()));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> src=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(srcMethod));
   src->setMesh(srcMesh);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> target=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(targetMethod.c_str()));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> target=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(targetMethod));
   target->setMesh(targetMesh);
   return prepareEx(src,target);
 }
@@ -322,35 +322,35 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<1,1> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<1,1> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation1D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==1 && trgMeshDim==1 && srcSpaceDim==2)
     {
       MEDCouplingNormalizedUnstructuredMesh<2,1> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<2,1> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation2DCurve interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==2 && trgMeshDim==2 && srcSpaceDim==2)
     {
       MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation2D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==3 && trgMeshDim==3 && srcSpaceDim==3)
     {
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==2 && trgMeshDim==2 && srcSpaceDim==3)
     {
       MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==3 && trgMeshDim==1 && srcSpaceDim==3)
     {
@@ -359,7 +359,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
   else if(srcMeshDim==1 && trgMeshDim==3 && srcSpaceDim==3)
     {
@@ -369,7 +369,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method.c_str());
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
       ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
     }
@@ -380,7 +380,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D interpolation(*this);
-          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
         }
       else
         {
@@ -388,7 +388,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D1D interpolation(*this);
           std::vector<std::map<int,double> > matrixTmp;
-          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method.c_str());
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
@@ -412,7 +412,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D interpolation(*this);
           std::vector<std::map<int,double> > matrixTmp;
-          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method.c_str());
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
         }
@@ -421,7 +421,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D1D interpolation(*this);
-          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
             {
@@ -440,7 +440,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D2D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method.c_str());
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
       INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
       if(!duplicateFaces.empty())
         {
@@ -459,7 +459,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D2D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method.c_str());
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
       ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
       INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
@@ -480,19 +480,19 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
         {
           MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
           INTERP_KERNEL::Interpolation2D interpolation(*this);
-          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,srcMeth.c_str());
+          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,srcMeth);
         }
       else if(srcMeshDim==3 && srcSpaceDim==3)
         {
           MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
           INTERP_KERNEL::Interpolation3D interpolation(*this);
-          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,srcMeth.c_str());
+          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,srcMeth);
         }
       else if(srcMeshDim==2 && srcSpaceDim==3)
         {
           MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh);
           INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,srcMeth.c_str());
+          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,srcMeth);
         }
       else
         throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension of source mesh to -1D targetMesh");
@@ -503,19 +503,19 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
         {
           MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D interpolation(*this);
-          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,trgMeth.c_str());
+          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,trgMeth);
         }
       else if(trgMeshDim==3 && trgSpaceDim==3)
         {
           MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation3D interpolation(*this);
-          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,trgMeth.c_str());
+          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,trgMeth);
         }
       else if(trgMeshDim==2 && trgSpaceDim==3)
         {
           MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,trgMeth.c_str());
+          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,trgMeth);
         }
       else
         throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension of source mesh from -1D sourceMesh");
@@ -542,7 +542,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(target_mesh->getMesh2D());
   INTERP_KERNEL::Interpolation3DSurf interpolation2D(*this);
   std::vector<std::map<int,double> > matrix2D;
-  int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,methC.c_str());
+  int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,methC);
   MEDCouplingUMesh *s1D,*t1D;
   double v[3];
   MEDCouplingExtrudedMesh::Project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),getPrecision(),s1D,t1D,v);
@@ -550,7 +550,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   MEDCouplingNormalizedUnstructuredMesh<1,1> t1DWrapper(t1D);
   std::vector<std::map<int,double> > matrix1D;
   INTERP_KERNEL::Interpolation1D interpolation1D(*this);
-  int nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC.c_str());
+  int nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,methC);
   s1D->decrRef();
   t1D->decrRef();
   buildFinalInterpolationMatrixByConvolution(matrix1D,matrix2D,src_mesh->getMesh3DIds()->getConstPointer(),nbCols2D,nbCols1D,
@@ -810,7 +810,7 @@ bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const
         try
           {
             std::string tmp1,tmp2;
-            INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method.c_str(),tmp1,tmp2);
+            INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method,tmp1,tmp2);
             return true;
           }
         catch(INTERP_KERNEL::Exception& /*e*/)

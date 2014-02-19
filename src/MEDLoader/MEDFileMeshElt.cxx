@@ -212,7 +212,7 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int 
   loadCommonPart(fid,mName,dt,it,mdim,curNbOfElem,MED_POLYHEDRON,entity,mrs);
 }
 
-void MEDFileUMeshPerType::Write(med_idt fid, const char *mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names)
+void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names)
 {
   int nbOfCells=m->getNumberOfCells();
   if(nbOfCells<1)
@@ -229,7 +229,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const char *mname, int mdim, const 
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #1 !");
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(m0->getNodalConnectivity()->deepCpy());
       std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::plus<int>(),1));
-      MEDmeshElementConnectivityWr(fid,mname,dt,it,timm,MED_CELL,curMedType,MED_NODAL,MED_FULL_INTERLACE,nbOfCells,arr->begin());
+      MEDmeshElementConnectivityWr(fid,mname.c_str(),dt,it,timm,MED_CELL,curMedType,MED_NODAL,MED_FULL_INTERLACE,nbOfCells,arr->begin());
     }
   else
     {
@@ -241,7 +241,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const char *mname, int mdim, const 
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(m0->getNodalConnectivity()->deepCpy()),arrI(m0->getNodalConnectivityIndex()->deepCpy());
           std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::plus<int>(),1));
           std::transform(arrI->begin(),arrI->end(),arrI->getPointer(),std::bind2nd(std::plus<int>(),1));
-          MEDmeshPolygon2Wr(fid,mname,dt,it,timm,MED_CELL,ikt==INTERP_KERNEL::NORM_POLYGON?MED_POLYGON:MED_POLYGON2,MED_NODAL,nbOfCells+1,arrI->begin(),arr->begin());
+          MEDmeshPolygon2Wr(fid,mname.c_str(),dt,it,timm,MED_CELL,ikt==INTERP_KERNEL::NORM_POLYGON?MED_POLYGON:MED_POLYGON2,MED_NODAL,nbOfCells+1,arrI->begin(),arr->begin());
         }
       else
         {
@@ -271,13 +271,13 @@ void MEDFileUMeshPerType::Write(med_idt fid, const char *mname, int mdim, const 
                 }
               w1[1]=w1[0]+nbOfFaces2;
             }
-          MEDmeshPolyhedronWr(fid,mname,dt,it,timm,MED_CELL,MED_NODAL,nbOfCells+1,tab1,nbOfFaces+1,tab2,bigtab);
+          MEDmeshPolyhedronWr(fid,mname.c_str(),dt,it,timm,MED_CELL,MED_NODAL,nbOfCells+1,tab1,nbOfFaces+1,tab2,bigtab);
         }
     }
   if(fam)
-    MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,fam->getConstPointer());
+    MEDmeshEntityFamilyNumberWr(fid,mname.c_str(),dt,it,MED_CELL,curMedType,nbOfCells,fam->getConstPointer());
   if(num)
-    MEDmeshEntityNumberWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,num->getConstPointer());
+    MEDmeshEntityNumberWr(fid,mname.c_str(),dt,it,MED_CELL,curMedType,nbOfCells,num->getConstPointer());
   if(names)
     {
       if(names->getNumberOfComponents()!=MED_SNAME_SIZE)
@@ -286,6 +286,6 @@ void MEDFileUMeshPerType::Write(med_idt fid, const char *mname, int mdim, const 
           oss << " ! The array has " << names->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDmeshEntityNameWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,names->getConstPointer());
+      MEDmeshEntityNameWr(fid,mname.c_str(),dt,it,MED_CELL,curMedType,nbOfCells,names->getConstPointer());
     }
 }

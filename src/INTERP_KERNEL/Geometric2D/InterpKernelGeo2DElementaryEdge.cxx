@@ -138,7 +138,7 @@ TypeOfEdgeLocInPolygon ElementaryEdge::locateFullyMySelf(const ComposedEdge& pol
 
 TypeOfEdgeLocInPolygon ElementaryEdge::locateFullyMySelfAbsolute(const ComposedEdge& pol) const
 {
-  Node *node=_ptr->buildRepresentantOfMySelf();
+  Node *node=_ptr->buildRepresentantOfMySelf(); // build barycenter used to detect if the edge is IN or OUT
   if(pol.isInOrOut(node))
     declareIn(); 
   else

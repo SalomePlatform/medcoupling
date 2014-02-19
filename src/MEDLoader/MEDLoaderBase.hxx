@@ -29,7 +29,7 @@
 class MEDLOADER_EXPORT MEDLoaderBase
 {
 public:
-  static int getStatusOfFile(const char *fileName);
+  static int getStatusOfFile(const std::string& fileName);
   static char *buildEmptyString(int lgth);
   static void getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName);
   static std::string getPathSep();
@@ -41,7 +41,7 @@ public:
   static void safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour);
   static std::string buildStringFromFortran(const char *expr, int lgth);
   static void zipEqualConsChar(std::string& s, int minConsSmChar);
-  static std::string zipString(const char *src, int sizeToRespect);
+  static std::string zipString(const std::string& src, int sizeToRespect);
 public:
   static const int EXIST_RW=0;
   static const int NOT_EXIST=1;

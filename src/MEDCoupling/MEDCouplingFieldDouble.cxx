@@ -85,7 +85,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(const MEDCouplingFieldTempla
  * Sets a time \a unit of \a this field. For more info, see \ref MEDCouplingFirstSteps3.
  * \param [in] unit \a unit (string) in which time is measured.
  */
-void MEDCouplingFieldDouble::setTimeUnit(const char *unit)
+void MEDCouplingFieldDouble::setTimeUnit(const std::string& unit)
 {
   _time_discr->setTimeUnit(unit);
 }
@@ -94,7 +94,7 @@ void MEDCouplingFieldDouble::setTimeUnit(const char *unit)
  * Returns a time unit of \a this field.
  * \return a string describing units in which time is measured.
  */
-const char *MEDCouplingFieldDouble::getTimeUnit() const
+std::string MEDCouplingFieldDouble::getTimeUnit() const
 {
   return _time_discr->getTimeUnit();
 }
@@ -212,8 +212,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
     disc=_type->clone();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),tdo,disc.retn());
   ret->setMesh(getMesh());
-  ret->setName(getName().c_str());
-  ret->setDescription(getDescription().c_str());
+  ret->setName(getName());
+  ret->setDescription(getDescription());
   return ret.retn();
 }
 
@@ -268,6 +268,48 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
+    }
+  ret->setArrays(outArrs);
+  return ret.retn();
+}
+
+/*!
+ * This method converts a field on cell (\a this) to a node field (returned field). The convertion is a \b non \b conservative remapping !
+ * This method is useful only for users that need a fast convertion from cell to node spatial discretization. The algorithm applied is simply to attach
+ * to each node the average of values on cell sharing this node. If \a this lies on a mesh having orphan nodes the values applied on them will be NaN (division by 0.).
+ *
+ * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
+ *         caller is to delete this field using decrRef() as it is no more needed. The returned field will share the same mesh object object than those in \a this.
+ * \throw If \a this spatial discretization is empty or not ON_CELLS.
+ * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
+ *
+ * \warning This method is a \b non \b conservative method of remapping from cell spatial discretization to node spatial discretization.
+ * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P0P1" method.
+ */
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
+{
+  checkCoherency();
+  TypeOfField tf(getTypeOfField());
+  if(tf!=ON_CELLS)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::cellToNodeDiscretization : this field is expected to be on ON_CELLS !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(clone(false));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP1> nsp(new MEDCouplingFieldDiscretizationP1);
+  ret->setDiscretization(nsp);
+  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rn(DataArrayInt::New()),rni(DataArrayInt::New());
+  m->getReverseNodalConnectivity(rn,rni);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rni2(rni->deltaShiftIndex());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> rni3(rni2->convertToDblArr()); rni2=0;
+  std::vector<DataArrayDouble *> arrs(getArrays());
+  std::size_t sz(arrs.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
+  for(std::size_t j=0;j<sz;j++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(arrs[j]->selectByTupleIdSafe(rn->begin(),rn->end()));
+      outArrsSafe[j]=(tmp->accumulatePerChunck(rni->begin(),rni->end())); tmp=0;
+      outArrsSafe[j]->divideEqual(rni3);
+      outArrsSafe[j]->copyStringInfoFrom(*arrs[j]);
+      outArrs[j]=outArrsSafe[j];
     }
   ret->setArrays(outArrs);
   return ret.retn();
@@ -408,7 +450,7 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
   return ret.str();
 }
 
-void MEDCouplingFieldDouble::writeVTK(const char *fileName, bool isBinary) const
+void MEDCouplingFieldDouble::writeVTK(const std::string& fileName, bool isBinary) const
 {
   std::vector<const MEDCouplingFieldDouble *> fs(1,this);
   MEDCouplingFieldDouble::WriteVTK(fileName,fs,isBinary);
@@ -1471,7 +1513,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate f
  *  \ref cpp_mcfielddouble_fillFromAnalytic "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic "Here is a Python example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func)
+void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic : no mesh defined !");
@@ -1486,7 +1528,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func)
  * The function is applied to coordinates of value location points. For example, if
  * \a this field is on cells, the function is applied to cell barycenters.<br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) "fillFromAnalytic()"
+ * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a variable name corresponding to a component is retrieved from
@@ -1518,7 +1560,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func)
  *  \ref cpp_mcfielddouble_fillFromAnalytic2 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic2 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func)
+void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
@@ -1533,7 +1575,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func)
  * The function is applied to coordinates of value location points. For example, if
  * \a this field is on cells, the function is applied to cell barycenters.<br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) "fillFromAnalytic()"
+ * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a component index of a variable is defined by a
@@ -1565,7 +1607,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func)
  *  \ref cpp_mcfielddouble_fillFromAnalytic3 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic3 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
+void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
@@ -1642,7 +1684,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
  *  \ref cpp_mcfielddouble_applyFunc "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
 {
   _time_discr->applyFunc(nbOfComp,func);
 }
@@ -1654,7 +1696,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
  * For more info on supported expressions that can be used in the function, see \ref
  * MEDCouplingArrayApplyFuncExpr. <br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func) "applyFunc()"
+ * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
  * by the way how variable
  * names, used in the function, are associated with components of field values;
  * here, a variable name corresponding to a component is retrieved from
@@ -1680,7 +1722,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
  *  \ref cpp_mcfielddouble_applyFunc2 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc2 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func)
+void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string& func)
 {
   _time_discr->applyFunc2(nbOfComp,func);
 }
@@ -1689,7 +1731,7 @@ void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func)
  * Modifies values of \a this field by applying a function to each tuple of all
  * data arrays.
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func) "applyFunc()"
+ * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
  * by the way how variable
  * names, used in the function, are associated with components of field values;
  * here, a component index of a variable is defined by a
@@ -1717,7 +1759,7 @@ void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func)
  *  \ref cpp_mcfielddouble_applyFunc3 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc3 "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
+void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
   _time_discr->applyFunc3(nbOfComp,varsOrder,func);
 }
@@ -1747,7 +1789,7 @@ void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::str
  *  \ref cpp_mcfielddouble_applyFunc_same_nb_comp "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc_same_nb_comp "Here is a Python example".
  */
-void MEDCouplingFieldDouble::applyFunc(const char *func)
+void MEDCouplingFieldDouble::applyFunc(const std::string& func)
 {
   _time_discr->applyFunc(func);
 }
@@ -1757,7 +1799,7 @@ void MEDCouplingFieldDouble::applyFunc(const char *func)
  * The field will contain exactly the same number of components after the call.
  * Use is not warranted for the moment !
  */
-void MEDCouplingFieldDouble::applyFuncFast32(const char *func)
+void MEDCouplingFieldDouble::applyFuncFast32(const std::string& func)
 {
   _time_discr->applyFuncFast32(func);
 }
@@ -1767,7 +1809,7 @@ void MEDCouplingFieldDouble::applyFuncFast32(const char *func)
  * The field will contain exactly the same number of components after the call.
  * Use is not warranted for the moment !
  */
-void MEDCouplingFieldDouble::applyFuncFast64(const char *func)
+void MEDCouplingFieldDouble::applyFuncFast64(const std::string& func)
 {
   _time_discr->applyFuncFast64(func);
 }
@@ -1875,7 +1917,7 @@ void MEDCouplingFieldDouble::synchronizeTimeWithMesh()
   double val=_mesh->getTime(it,ordr);
   std::string timeUnit(_mesh->getTimeUnit());
   setTime(val,it,ordr);
-  setTimeUnit(timeUnit.c_str());
+  setTimeUnit(timeUnit);
 }
 
 /*!
@@ -2024,7 +2066,7 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
   int nbOfElemS=(int)tinyInfoS.size();
   _name=tinyInfoS[nbOfElemS-3];
   _desc=tinyInfoS[nbOfElemS-2];
-  setTimeUnit(tinyInfoS[nbOfElemS-1].c_str());
+  setTimeUnit(tinyInfoS[nbOfElemS-1]);
 }
 
 /*!
@@ -2556,7 +2598,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   std::ostringstream oss;
   oss << "Max_" << getName();
-  ret->setName(oss.str().c_str());
+  ret->setName(oss.str());
   ret->setMesh(getMesh());
   return ret.retn();
 }
@@ -2595,7 +2637,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std
   MEDCouplingTimeDiscretization *td=_time_discr->keepSelectedComponents(compoIds);
   td->copyTinyAttrFrom(*_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
-  ret->setName(getName().c_str());
+  ret->setName(getName());
   ret->setMesh(getMesh());
   return ret.retn();
 }
@@ -2656,8 +2698,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
   MEDCouplingTimeDiscretization *td=f1->_time_discr->aggregate(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
-  ret->setName(f1->getName().c_str());
-  ret->setDescription(f1->getDescription().c_str());
+  ret->setName(f1->getName());
+  ret->setDescription(f1->getDescription());
   if(m1)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=m1->mergeMyselfWith(m2);
@@ -2708,8 +2750,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
   MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
   td->copyTinyAttrFrom(*(a[0]->_time_discr));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
-  ret->setName(a[0]->getName().c_str());
-  ret->setDescription(a[0]->getDescription().c_str());
+  ret->setName(a[0]->getName());
+  ret->setDescription(a[0]->getDescription());
   if(ms2[0])
     {
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
@@ -3137,7 +3179,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCoupli
  *  \ref cpp_mcfielddouble_WriteVTK "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_WriteVTK "Here is a Python example".
  */
-void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary)
+void MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary)
 {
   if(fs.empty())
     return;
@@ -3167,9 +3209,9 @@ void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<co
         }
       TypeOfField typ=cur->getTypeOfField();
       if(typ==ON_CELLS)
-        cur->getArray()->writeVTK(coss,8,cur->getName().c_str(),byteArr);
+        cur->getArray()->writeVTK(coss,8,cur->getName(),byteArr);
       else if(typ==ON_NODES)
-        cur->getArray()->writeVTK(noss,8,cur->getName().c_str(),byteArr);
+        cur->getArray()->writeVTK(noss,8,cur->getName(),byteArr);
       else
         throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : only node and cell fields supported for the moment !");
     }

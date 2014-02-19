@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <functional>
 
 namespace INTERP_KERNEL
 {

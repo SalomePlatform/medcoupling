@@ -57,7 +57,7 @@ MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::New()
   return new MEDCouplingCurveLinearMesh;
 }
 
-MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::New(const char *meshName)
+MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::New(const std::string& meshName)
 {
   MEDCouplingCurveLinearMesh *ret=new MEDCouplingCurveLinearMesh;
   ret->setName(meshName);
@@ -391,7 +391,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
   int meshDim=getMeshDimension();
   std::string name="MeasureOfMesh_"; name+=getName();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
-  field->setName(name.c_str()); field->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(this)); field->synchronizeTimeWithMesh();
+  field->setName(name); field->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(this)); field->synchronizeTimeWithMesh();
   switch(meshDim)
     {
     case 3:
@@ -878,9 +878,9 @@ void MEDCouplingCurveLinearMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&
 void MEDCouplingCurveLinearMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                                  const std::vector<std::string>& littleStrings)
 {
-  setName(littleStrings[0].c_str());
-  setDescription(littleStrings[1].c_str());
-  setTimeUnit(littleStrings[2].c_str());
+  setName(littleStrings[0]);
+  setDescription(littleStrings[1]);
+  setTimeUnit(littleStrings[2]);
   setTime(tinyInfoD[0],tinyInfo[0],tinyInfo[1]);
   int sz=tinyInfo[2];
   _structure.resize(sz);

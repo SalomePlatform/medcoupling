@@ -97,7 +97,7 @@ void MeshCollectionDriver::readSubdomain(std::vector<int*>& cellglobal,
   std::string meshname=MyGlobals::_Mesh_Names[idomain];
   std::string file=MyGlobals::_File_Names[idomain];
 
-  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(file.c_str(),meshname.c_str());
+  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(file,meshname);
   std::vector<int> nonEmpty=mfm->getNonEmptyLevels();
   
   try 
@@ -163,7 +163,7 @@ void MeshCollectionDriver::readSubdomain(int idomain)
   std::string meshname=MyGlobals::_Mesh_Names[idomain];
   std::string file=MyGlobals::_File_Names[idomain];
 
-  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(file.c_str(),meshname.c_str());
+  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(file,meshname);
   std::vector<int> nonEmpty=mfm->getNonEmptyLevels();
   
   try 
@@ -240,7 +240,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
   //     faceMeshFilter=(ParaMEDMEM::MEDCouplingUMesh *) faceMesh->buildPartOfMySelf(index,index+filter->getNbOfElems(),true);
   //     faceMesh=faceMeshFilter;
   //   }
-  cellMesh->setName(finalMeshName.c_str());
+  cellMesh->setName(finalMeshName);
   meshes.push_back(cellMesh);
   
   faceMesh->checkCoherency();
@@ -259,17 +259,17 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
   //     boundaryMesh->setName("boundaryMesh");
   //   }
 
-  MEDLoader::WriteUMeshes(distfilename.c_str(), meshes, true);
+  MEDLoader::WriteUMeshes(distfilename, meshes, true);
   // if (faceMeshFilter!=0)
   //   faceMeshFilter->decrRef();
 
   // if (boundaryMesh!=0)
   //   {
   //     //doing that testMesh becomes second mesh sorted by alphabetical order of name
-  //     MEDLoader::WriteUMesh(distfilename.c_str(), boundaryMesh, false);
+  //     MEDLoader::WriteUMesh(distfilename, boundaryMesh, false);
   //     boundaryMesh->decrRef();
   //   }
-  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(distfilename.c_str(), _collection->getMesh(idomain)->getName().c_str());
+  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(distfilename, _collection->getMesh(idomain)->getName());
 
   mfm->setFamilyInfo(_collection->getFamilyInfo());
   mfm->setGroupInfo(_collection->getGroupInfo());
@@ -286,7 +286,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
   if (_collection->getMapDataArrayInt().find(key)!=_collection->getMapDataArrayInt().end())
     mfm->setFamilyFieldArr(0,_collection->getMapDataArrayInt().find(key)->second);
 
-  mfm->write(distfilename.c_str(),0);
+  mfm->write(distfilename,0);
   key="/inewFieldDouble="+IntToStr(idomain)+"/";
 
   std::map<std::string,ParaMEDMEM::DataArrayDouble*>::iterator it;
@@ -327,7 +327,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
           continue;
         }
       nbfFieldFound++;
-      field->setName(fieldName.c_str());
+      field->setName(fieldName);
       field->setMesh(mfm->getLevel0Mesh(false));
       ParaMEDMEM::DataArrayDouble *da=(*it).second;
     
@@ -337,12 +337,12 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
       r1=SelectTagsInVectorOfString(r1,"typeField="+IntToStr(typeField));
       r1=SelectTagsInVectorOfString(r1,"DT="+IntToStr(DT));
       r1=SelectTagsInVectorOfString(r1,"IT="+IntToStr(IT));
-      //not saved in file? field->setDescription(ExtractFromDescription(r1[0], "fieldDescription=").c_str());
+      //not saved in file? field->setDescription(ExtractFromDescription(r1[0], "fieldDescription="));
       int nbc=StrToInt(ExtractFromDescription(r1[0], "nbComponents="));
       if (nbc==da->getNumberOfComponents())
         {
           for (int i=0; i<nbc; i++) 
-            da->setInfoOnComponent(i,ExtractFromDescription(r1[0], "componentInfo"+IntToStr(i)+"=").c_str());
+            da->setInfoOnComponent(i,ExtractFromDescription(r1[0], "componentInfo"+IntToStr(i)+"="));
         }
       else
         {
@@ -354,7 +354,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
       field->checkCoherency();
       try
         {
-          MEDLoader::WriteField(distfilename.c_str(),field,false);
+          MEDLoader::WriteField(distfilename,field,false);
         }
       catch(INTERP_KERNEL::Exception& e)
         {
@@ -363,7 +363,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
           tmp+="_"+fieldName+"_"+IntToStr(nbfFieldFound)+".med";
           newName.replace(newName.find(".med"),4,tmp);
           std::cout << "WARNING : writeMedFile : create a new file name with only one field because MEDLoader::WriteField throw:" << newName << std::endl;
-          MEDLoader::WriteField(newName.c_str(),field,true);
+          MEDLoader::WriteField(newName,field,true);
         }
     }
   mfm->decrRef();

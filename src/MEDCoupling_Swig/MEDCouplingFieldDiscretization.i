@@ -37,7 +37,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDiscretization *New(TypeOfField type) throw(INTERP_KERNEL::Exception);
     double getPrecision() const throw(INTERP_KERNEL::Exception);
     void setPrecision(double val) throw(INTERP_KERNEL::Exception);
-    static TypeOfField GetTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
+    static TypeOfField GetTypeOfFieldFromStringRepr(const std::string& repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const throw(INTERP_KERNEL::Exception);
@@ -345,6 +345,30 @@ namespace ParaMEDMEM
 
   class MEDCouplingFieldDiscretizationGaussNE : public MEDCouplingFieldDiscretization
   {
+  public:
+    %extend
+    {
+      static PyObject *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t sz(0);
+        const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(geoType,sz));
+        return convertDblArrToPyList(ret,sz);
+      }
+      
+      static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t sz(0);
+        const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(geoType,sz));
+        return convertDblArrToPyList(ret,sz);
+      }
+      
+      static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
+      {
+        std::size_t sz(0);
+        const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(geoType,sz));
+        return convertDblArrToPyList(ret,sz);
+      }
+    }
   };
 
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes

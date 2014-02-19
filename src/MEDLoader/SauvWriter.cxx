@@ -621,10 +621,10 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
  */
 //================================================================================
 
-void SauvWriter::write(const char* fileName)
+void SauvWriter::write(const std::string& fileName)
 {
   std::fstream fileStream;
-  fileStream.open( fileName, ios::out);
+  fileStream.open( fileName.c_str(), ios::out);
   if
 #ifdef WIN32
     ( !fileStream || !fileStream.is_open() )

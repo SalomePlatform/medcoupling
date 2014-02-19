@@ -66,12 +66,13 @@ const TypeOfField MEDCouplingFieldDiscretizationKriging::TYPE=ON_NODES_KR;
 
 // doc is here http://www.code-aster.org/V2/doc/default/fr/man_r/r3/r3.01.01.pdf
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG2[2]={1.,1.};
-const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG3[3]={0.5555555555555556,0.5555555555555556,0.8888888888888888};
+const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG3[3]={0.5555555555555556,0.8888888888888888,0.5555555555555556};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG4[4]={0.347854845137454,0.347854845137454,0.652145154862546,0.652145154862546};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_TRI3[3]={0.16666666666666666,0.16666666666666666,0.16666666666666666};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_TRI6[6]={0.0549758718227661,0.0549758718227661,0.0549758718227661,0.11169079483905,0.11169079483905,0.11169079483905};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_TRI7[7]={0.062969590272413,0.062969590272413,0.062969590272413,0.066197076394253,0.066197076394253,0.066197076394253,0.1125};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_QUAD4[4]={1.,1.,1.,1.};
+const double MEDCouplingFieldDiscretizationGaussNE::FGP_QUAD8[8]={1.,1.,1.,1.,1.,1.,1.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_QUAD9[9]={0.30864197530864196,0.30864197530864196,0.30864197530864196,0.30864197530864196,0.49382716049382713,0.49382716049382713,0.49382716049382713,0.49382716049382713,0.7901234567901234};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_TETRA4[4]={0.041666666666666664,0.041666666666666664,0.041666666666666664,0.041666666666666664};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_PENTA6[6]={0.16666666666666666,0.16666666666666666,0.16666666666666666,0.16666666666666666,0.16666666666666666,0.16666666666666666};
@@ -79,7 +80,7 @@ const double MEDCouplingFieldDiscretizationGaussNE::FGP_HEXA8[8]={1.,1.,1.,1.,1.
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_HEXA27[27]={0.1714677640603567,0.1714677640603567,0.1714677640603567,0.1714677640603567,0.1714677640603567,0.1714677640603567,0.1714677640603567,0.1714677640603567,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.27434842249657065,0.43895747599451296,0.43895747599451296,0.43895747599451296,0.43895747599451296,0.43895747599451296,0.43895747599451296,0.7023319615912208};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_PYRA5[5]={0.13333333333333333,0.13333333333333333,0.13333333333333333,0.13333333333333333,0.13333333333333333};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_SEG2[2]={-1.,1.};
-const double MEDCouplingFieldDiscretizationGaussNE::REF_SEG3[3]={-1.,0.,1.};
+const double MEDCouplingFieldDiscretizationGaussNE::REF_SEG3[3]={-1.,1.,0.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_SEG4[4]={-1.,1.,-0.3333333333333333,0.3333333333333333};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_TRI3[6]={0.,0.,1.,0.,0.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_TRI6[12]={0.,0.,1.,0.,0.,1.,0.5,0.,0.5,0.5,0.,0.5};
@@ -96,6 +97,20 @@ const double MEDCouplingFieldDiscretizationGaussNE::REF_HEXA20[60]={-1.,-1.,-1.,
 const double MEDCouplingFieldDiscretizationGaussNE::REF_HEXA27[81]={-1.,-1.,-1.,1.,-1.,-1.,1.,1.,-1.,-1.,1.,-1.,-1.,-1.,1.,1.,-1.,1.,1.,1.,1.,-1.,1.,1.,0.,-1.,-1.,1.,0.,-1.,0.,1.,-1.,-1.,0.,-1.,-1.,-1.,0.,1.,-1.,0.,1.,1.,0.,-1.,1.,0.,0.,-1.,1.,1.,0.,1.,0.,1.,1.,-1.,0.,1.,0.,0.,-1.,0.,-1.,0.,1.,0.,0.,0.,1.,0.,-1.,0.,0.,0.,0.,1.,0.,0.,0.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_PYRA5[15]={1.,0.,0.,0.,1.,0.,-1.,0.,0.,0.,-1.,0.,0.,0.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::REF_PYRA13[39]={1.,0.,0.,0.,1.,0.,-1.,0.,0.,0.,-1.,0.,0.,0.,1.,0.5,0.5,0.,-0.5,0.5,0.,-0.5,-0.5,0.,0.5,-0.5,0.,0.5,0.,0.5,0.,0.5,0.5,-0.5,0.,0.5,0.,-0.5,0.5};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_SEG2[2]={0.577350269189626,-0.577350269189626};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_SEG3[3]={-0.774596669241,0.,0.774596669241};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_SEG4[4]={0.339981043584856,-0.339981043584856,0.861136311594053,-0.861136311594053};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_TRI3[6]={0.16666666666666667,0.16666666666666667,0.6666666666666667,0.16666666666666667,0.16666666666666667,0.6666666666666667};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_TRI6[12]={0.091576213509771,0.091576213509771,0.816847572980458,0.091576213509771,0.091576213509771,0.816847572980458,0.445948490915965,0.10810301816807,0.445948490915965,0.445948490915965,0.10810301816807,0.445948490915965};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_TRI7[14]={0.3333333333333333,0.3333333333333333,0.470142064105115,0.470142064105115,0.05971587178977,0.470142064105115,0.470142064105115,0.05971587178977,0.101286507323456,0.101286507323456,0.797426985353088,0.101286507323456,0.101286507323456,0.797426985353088};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_QUAD4[8]={-0.774596669241483,-0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_QUAD8[16]={-0.774596669241483,-0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483,0.,-0.774596669241483,0.774596669241483,0.,0.,0.774596669241483,-0.774596669241483,0.};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_QUAD9[18]={-0.774596669241483,-0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483,0.,-0.774596669241483,0.774596669241483,0.,0.,0.774596669241483,-0.774596669241483,0.,0.,0.};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_TETRA4[12]={0.1381966011250105,0.1381966011250105,0.1381966011250105,0.1381966011250105,0.1381966011250105,0.5854101966249685,0.1381966011250105,0.5854101966249685,0.1381966011250105,0.5854101966249685,0.1381966011250105,0.1381966011250105};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_PENTA6[18]={-0.5773502691896258,0.5,0.5,-0.5773502691896258,0.,0.5,-0.5773502691896258,0.5,0.,0.5773502691896258,0.5,0.5,0.5773502691896258,0.,0.5,0.5773502691896258,0.5,0.};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_HEXA8[24]={-0.5773502691896258,-0.5773502691896258,-0.5773502691896258,-0.5773502691896258,-0.5773502691896258,0.5773502691896258,-0.5773502691896258,0.5773502691896258,-0.5773502691896258,-0.5773502691896258,0.5773502691896258,0.5773502691896258,0.5773502691896258,-0.5773502691896258,-0.5773502691896258,0.5773502691896258,-0.5773502691896258,0.5773502691896258,0.5773502691896258,0.5773502691896258,-0.5773502691896258,0.5773502691896258,0.5773502691896258,0.5773502691896258};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_HEXA27[81]={-0.7745966692414834,-0.7745966692414834,-0.7745966692414834,-0.7745966692414834,-0.7745966692414834,0.,-0.7745966692414834,-0.7745966692414834,0.7745966692414834,-0.7745966692414834,0.,-0.7745966692414834,-0.7745966692414834,0.,0.,-0.7745966692414834,0.,0.7745966692414834,-0.7745966692414834,0.7745966692414834,-0.7745966692414834,-0.7745966692414834,0.7745966692414834,0.,-0.7745966692414834,0.7745966692414834,0.7745966692414834,0.,-0.7745966692414834,-0.7745966692414834,0,-0.7745966692414834,0.,0.,-0.7745966692414834,0.7745966692414834,0.,0.,-0.7745966692414834,0.,0.,0.,0.,0.,0.7745966692414834,0.,0.7745966692414834,-0.7745966692414834,0.,0.7745966692414834,0.,0.,0.7745966692414834,0.7745966692414834,0.7745966692414834,-0.7745966692414834,-0.7745966692414834,0.7745966692414834,-0.7745966692414834,0.,0.7745966692414834,-0.7745966692414834,0.7745966692414834,0.7745966692414834,0,-0.7745966692414834,0.7745966692414834,0.,0.,0.7745966692414834,0.,0.7745966692414834,0.7745966692414834,0.7745966692414834,-0.7745966692414834,0.7745966692414834,0.7745966692414834,0.,0.7745966692414834,0.7745966692414834,0.7745966692414834};
+const double MEDCouplingFieldDiscretizationGaussNE::LOC_PYRA5[15]={0.5,0.,0.1531754163448146,0.,0.5,0.1531754163448146,-0.5,0.,0.1531754163448146,0.,-0.5,0.1531754163448146,0.,0.,0.6372983346207416};
 
 MEDCouplingFieldDiscretization::MEDCouplingFieldDiscretization():_precision(DFLT_PRECISION)
 {
@@ -120,18 +135,17 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
     }
 }
 
-TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const char *repr)
+TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const std::string& repr)
 {
-  std::string reprCpp(repr);
-  if(reprCpp==MEDCouplingFieldDiscretizationP0::REPR)
+  if(repr==MEDCouplingFieldDiscretizationP0::REPR)
     return MEDCouplingFieldDiscretizationP0::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationP1::REPR)
+  if(repr==MEDCouplingFieldDiscretizationP1::REPR)
     return MEDCouplingFieldDiscretizationP1::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationGauss::REPR)
+  if(repr==MEDCouplingFieldDiscretizationGauss::REPR)
     return MEDCouplingFieldDiscretizationGauss::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationGaussNE::REPR)
+  if(repr==MEDCouplingFieldDiscretizationGaussNE::REPR)
     return MEDCouplingFieldDiscretizationGaussNE::TYPE;
-  if(reprCpp==MEDCouplingFieldDiscretizationKriging::REPR)
+  if(repr==MEDCouplingFieldDiscretizationKriging::REPR)
     return MEDCouplingFieldDiscretizationKriging::TYPE;
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
@@ -381,7 +395,7 @@ void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
-void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const char *msg)
+void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, const int *old2NewPtr, int newNbOfEntity, DataArrayDouble *arr, const std::string& msg)
 {
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr : input array is NULL !");
@@ -419,7 +433,7 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, cons
     }
 }
 
-void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg)
+void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const std::string& msg)
 {
   int nbOfComp=arr->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrCpy=arr->deepCpy();
@@ -2276,6 +2290,9 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometric
     case INTERP_KERNEL::NORM_QUAD4:
       lgth=(int)sizeof(FGP_QUAD4)/sizeof(double);
       return FGP_QUAD4;
+    case INTERP_KERNEL::NORM_QUAD8:
+      lgth=(int)sizeof(FGP_QUAD8)/sizeof(double);
+      return FGP_QUAD8;
     case INTERP_KERNEL::NORM_QUAD9:
       lgth=(int)sizeof(FGP_QUAD9)/sizeof(double);
       return FGP_QUAD9;
@@ -2359,6 +2376,85 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricTy
       return REF_PYRA13;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
+    }
+}
+
+const double *MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth)
+{
+  switch(geoType)
+    {
+    case INTERP_KERNEL::NORM_SEG2:
+      {
+        lgth=(int)sizeof(LOC_SEG2)/sizeof(double);
+        return LOC_SEG2;
+      }
+    case INTERP_KERNEL::NORM_SEG3:
+      {
+        lgth=(int)sizeof(LOC_SEG3)/sizeof(double);
+        return LOC_SEG3;
+      }
+    case INTERP_KERNEL::NORM_SEG4:
+      {
+        lgth=(int)sizeof(LOC_SEG4)/sizeof(double);
+        return LOC_SEG4;
+      }
+    case INTERP_KERNEL::NORM_TRI3:
+      {
+        lgth=(int)sizeof(LOC_TRI3)/sizeof(double);
+        return LOC_TRI3;
+      }
+    case INTERP_KERNEL::NORM_TRI6:
+      {
+        lgth=(int)sizeof(LOC_TRI6)/sizeof(double);
+        return LOC_TRI6;
+      }
+    case INTERP_KERNEL::NORM_TRI7:
+      {
+        lgth=(int)sizeof(LOC_TRI7)/sizeof(double);
+        return LOC_TRI7;
+      }
+    case INTERP_KERNEL::NORM_QUAD4:
+      {
+        lgth=(int)sizeof(LOC_QUAD4)/sizeof(double);
+        return LOC_QUAD4;
+      }
+    case INTERP_KERNEL::NORM_QUAD8:
+      {
+        lgth=(int)sizeof(LOC_QUAD8)/sizeof(double);
+        return LOC_QUAD8;
+      }
+    case INTERP_KERNEL::NORM_QUAD9:
+      {
+        lgth=(int)sizeof(LOC_QUAD9)/sizeof(double);
+        return LOC_QUAD9;
+      }
+    case INTERP_KERNEL::NORM_TETRA4:
+      {
+        lgth=(int)sizeof(LOC_TETRA4)/sizeof(double);
+        return LOC_TETRA4;
+      }
+    case INTERP_KERNEL::NORM_PENTA6:
+      {
+        lgth=(int)sizeof(LOC_PENTA6)/sizeof(double);
+        return LOC_PENTA6;
+      }
+    case INTERP_KERNEL::NORM_HEXA8:
+      {
+        lgth=(int)sizeof(LOC_HEXA8)/sizeof(double);
+        return LOC_HEXA8;
+      }
+    case INTERP_KERNEL::NORM_HEXA27:
+      {
+        lgth=(int)sizeof(LOC_HEXA27)/sizeof(double);
+        return LOC_HEXA27;
+      }
+    case INTERP_KERNEL::NORM_PYRA5:
+      {
+        lgth=(int)sizeof(LOC_PYRA5)/sizeof(double);
+        return LOC_PYRA5;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
     }
 }
 

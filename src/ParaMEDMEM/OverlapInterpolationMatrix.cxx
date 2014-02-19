@@ -95,19 +95,19 @@ namespace ParaMEDMEM
           {
             MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(trgC);
             INTERP_KERNEL::Interpolation2D interpolation(*this);
-            colSize=interpolation.fromIntegralUniform(target_mesh_wrapper,surfaces,trgMeth.c_str());
+            colSize=interpolation.fromIntegralUniform(target_mesh_wrapper,surfaces,trgMeth);
           }
         else if(trgC->getMeshDimension()==3 && trgC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(trgC);
             INTERP_KERNEL::Interpolation3D interpolation(*this);
-            colSize=interpolation.fromIntegralUniform(target_mesh_wrapper,surfaces,trgMeth.c_str());
+            colSize=interpolation.fromIntegralUniform(target_mesh_wrapper,surfaces,trgMeth);
           }
         else if(trgC->getMeshDimension()==2 && trgC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(trgC);
             INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-            colSize=interpolation.fromIntegralUniform(target_mesh_wrapper,surfaces,trgMeth.c_str());
+            colSize=interpolation.fromIntegralUniform(target_mesh_wrapper,surfaces,trgMeth);
           }
         else
           throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of source mesh to -1D targetMesh");
@@ -118,19 +118,19 @@ namespace ParaMEDMEM
           {
             MEDCouplingNormalizedUnstructuredMesh<2,2> local_mesh_wrapper(srcC);
             INTERP_KERNEL::Interpolation2D interpolation(*this);
-            colSize=interpolation.toIntegralUniform(local_mesh_wrapper,surfaces,srcMeth.c_str());
+            colSize=interpolation.toIntegralUniform(local_mesh_wrapper,surfaces,srcMeth);
           }
         else if(srcC->getMeshDimension()==3 && srcC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,3> local_mesh_wrapper(srcC);
             INTERP_KERNEL::Interpolation3D interpolation(*this);
-            colSize=interpolation.toIntegralUniform(local_mesh_wrapper,surfaces,srcMeth.c_str());
+            colSize=interpolation.toIntegralUniform(local_mesh_wrapper,surfaces,srcMeth);
           }
         else if(srcC->getMeshDimension()==2 && srcC->getSpaceDimension()==3)
           {
             MEDCouplingNormalizedUnstructuredMesh<3,2> local_mesh_wrapper(srcC);
             INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-            colSize=interpolation.toIntegralUniform(local_mesh_wrapper,surfaces,srcMeth.c_str());
+            colSize=interpolation.toIntegralUniform(local_mesh_wrapper,surfaces,srcMeth);
           }
         else
           throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of distant mesh to -1D sourceMesh");
@@ -142,7 +142,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
         
         INTERP_KERNEL::Interpolation3D2D interpolator (*this);
-        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -154,7 +154,7 @@ namespace ParaMEDMEM
         
         INTERP_KERNEL::Interpolation3D2D interpolator (*this);
         vector<map<int,double> > surfacesTranspose;
-        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());//not a bug target in source.
+        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);//not a bug target in source.
         TransposeMatrix(surfacesTranspose,colSize,surfaces);
         colSize=surfacesTranspose.size();
         target_wrapper.releaseTempArrays();
@@ -167,7 +167,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(srcC);
         
         INTERP_KERNEL::Interpolation2D1D interpolator (*this);
-        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -179,7 +179,7 @@ namespace ParaMEDMEM
         
         INTERP_KERNEL::Interpolation2D1D interpolator (*this);
         vector<map<int,double> > surfacesTranspose;
-        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfacesTranspose,interpMethod.c_str());//not a bug target in source.
+        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfacesTranspose,interpMethod);//not a bug target in source.
         TransposeMatrix(surfacesTranspose,colSize,surfaces);
         colSize=surfacesTranspose.size();
         target_wrapper.releaseTempArrays();
@@ -196,7 +196,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<1,1> source_wrapper(srcC);
 
         INTERP_KERNEL::Interpolation1D interpolation(*this);
-        colSize=interpolation.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolation.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -207,7 +207,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<2,1> source_wrapper(srcC);
 
         INTERP_KERNEL::Interpolation2DCurve interpolation(*this);
-        colSize=interpolation.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolation.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -218,7 +218,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,2> source_wrapper(srcC);
 
         INTERP_KERNEL::Interpolation3DSurf interpolator (*this);
-        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -229,7 +229,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(srcC);
 
         INTERP_KERNEL::Interpolation2D interpolator (*this);
-        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
@@ -240,7 +240,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
 
         INTERP_KERNEL::Interpolation3D interpolator (*this);
-        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }

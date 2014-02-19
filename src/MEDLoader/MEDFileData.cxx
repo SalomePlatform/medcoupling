@@ -22,7 +22,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDFileData *MEDFileData::New(const char *fileName)
+MEDFileData *MEDFileData::New(const std::string& fileName)
 {
   return new MEDFileData(fileName);
 }
@@ -169,7 +169,7 @@ bool MEDFileData::changeMeshNames(const std::vector< std::pair<std::string,std::
   return ret;
 }
 
-bool MEDFileData::changeMeshName(const char *oldMeshName, const char *newMeshName)
+bool MEDFileData::changeMeshName(const std::string& oldMeshName, const std::string& newMeshName)
 {
   std::string oldName(oldMeshName);
   std::vector< std::pair<std::string,std::string> > v(1);
@@ -214,7 +214,7 @@ bool MEDFileData::unPolyzeMeshes()
       MEDFileFields *fs=_fields;
       if(fs)
         for(std::size_t i=0;i<meshesImpacted.size();i++)
-          fs->renumberEntitiesLyingOnMesh(meshesImpacted[i]->getName().c_str(),oldCodeOfMeshImpacted[i],newCodeOfMeshImpacted[i],renumParamsOfMeshImpacted[i]);
+          fs->renumberEntitiesLyingOnMesh(meshesImpacted[i]->getName(),oldCodeOfMeshImpacted[i],newCodeOfMeshImpacted[i],renumParamsOfMeshImpacted[i]);
     }
   return !meshesImpacted.empty();
 }
@@ -223,7 +223,7 @@ MEDFileData::MEDFileData()
 {
 }
 
-MEDFileData::MEDFileData(const char *fileName)
+MEDFileData::MEDFileData(const std::string& fileName)
 try
   {
     _fields=MEDFileFields::New(fileName);
@@ -235,10 +235,10 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-void MEDFileData::write(const char *fileName, int mode) const
+void MEDFileData::write(const std::string& fileName, int mode) const
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   const MEDFileMeshes *ms=_meshes;
   if(ms)
     ms->write(fid);

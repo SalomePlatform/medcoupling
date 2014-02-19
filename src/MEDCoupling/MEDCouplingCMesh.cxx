@@ -79,7 +79,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::New()
   return new MEDCouplingCMesh;
 }
 
-MEDCouplingCMesh *MEDCouplingCMesh::New(const char *meshName)
+MEDCouplingCMesh *MEDCouplingCMesh::New(const std::string& meshName)
 {
   MEDCouplingCMesh *ret=new MEDCouplingCMesh;
   ret->setName(meshName);
@@ -217,6 +217,7 @@ void MEDCouplingCMesh::checkCoherency() const
   const char msg0[]="Invalid ";
   const char msg1[]=" array ! Must contain more than 1 element.";
   const char msg2[]=" array ! Must be with only one component.";
+  getSpaceDimension();// here to check that no holes in arrays !
   if(_x_array)
     {
       if(_x_array->getNbOfElems()<2)
@@ -301,19 +302,19 @@ int MEDCouplingCMesh::getNumberOfNodes() const
 
 void MEDCouplingCMesh::getSplitCellValues(int *res) const
 {
-  int spaceDim=getSpaceDimension();
-  for(int l=0;l<spaceDim;l++)
+  int meshDim(getMeshDimension());
+  for(int l=0;l<meshDim;l++)
     {
       int val=1;
-      for(int p=0;p<spaceDim-l-1;p++)
+      for(int p=0;p<meshDim-l-1;p++)
         val*=getCoordsAt(p)->getNbOfElems()-1;
-      res[spaceDim-l-1]=val;
+      res[meshDim-l-1]=val;
     }
 }
 
 void MEDCouplingCMesh::getSplitNodeValues(int *res) const
 {
-  int spaceDim=getSpaceDimension();
+  int spaceDim(getSpaceDimension());
   for(int l=0;l<spaceDim;l++)
     {
       int val=1;
@@ -325,14 +326,14 @@ void MEDCouplingCMesh::getSplitNodeValues(int *res) const
 
 void MEDCouplingCMesh::getNodeGridStructure(int *res) const
 {
-  int meshDim=getMeshDimension();
-  for(int i=0;i<meshDim;i++)
+  int spaceDim(getSpaceDimension());
+  for(int i=0;i<spaceDim;i++)
     res[i]=getCoordsAt(i)->getNbOfElems();
 }
 
 std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const
 {
-  std::vector<int> ret(getMeshDimension());
+  std::vector<int> ret(getSpaceDimension());
   getNodeGridStructure(&ret[0]);
   return ret;
 }
@@ -355,21 +356,61 @@ MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::v
   return ret.retn();
 }
 
+/*!
+ * Return the space dimension of \a this. It only considers the arrays along X, Y and Z to deduce that.
+ * This method throws exceptions if the not null arrays defining this are not contiguouly at the end. For example X!=0,Y==0,Z!=0 will throw.
+ */
 int MEDCouplingCMesh::getSpaceDimension() const
 {
-  int ret=0;
+  static const char MSG[]="MEDCouplingCMesh::getSpaceDimension : mesh is invalid ! null vectors (X, Y or Z) must be put contiguously at the end !";
+  int ret(0);
+  bool isOK(true);
   if(_x_array)
     ret++;
+  else
+    isOK=false;
   if(_y_array)
-    ret++;
+    {
+      if(!isOK)
+        throw INTERP_KERNEL::Exception(MSG);
+      ret++;
+    }
+  else
+    isOK=false;
   if(_z_array)
-    ret++;
+    {
+      if(!isOK)
+        throw INTERP_KERNEL::Exception(MSG);
+      ret++;
+    }
   return ret;
 }
 
+/*!
+ * This method returns the mesh dimension of \a this. It can be different from space dimension in case of a not null dimension contains only one node.
+ */
 int MEDCouplingCMesh::getMeshDimension() const
 {
-  return getSpaceDimension();
+  int ret(getSpaceDimension());
+  if(_x_array)
+    {
+      if(_x_array->isAllocated())
+        if(_x_array->getNumberOfTuples()==1)
+          ret--;
+    }
+  if(_y_array)
+    {
+      if(_y_array->isAllocated())
+        if(_y_array->getNumberOfTuples()==1)
+          ret--;
+    }
+  if(_z_array)
+    {
+      if(_z_array->isAllocated())
+        if(_z_array->getNumberOfTuples()==1)
+          ret--;
+    }
+  return ret;
 }
 
 void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
@@ -576,7 +617,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
   name+=getName();
   int nbelem=getNumberOfCells();
   MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
-  field->setName(name.c_str());
+  field->setName(name);
   DataArrayDouble* array=DataArrayDouble::New();
   array->alloc(nbelem,1);
   double *area_vol=array->getPointer();
@@ -717,7 +758,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
   for(int j=0;j<spaceDim;j++)
     {
       tabsPtr[j]=tabs[j]->getConstPointer();
-      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0));
     }
   int tmp2[3];
   for(int i=0;i<nbNodes;i++)
@@ -751,7 +792,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   for(int j=0;j<spaceDim;j++)
     {
       int sz=tabs[j]->getNbOfElems()-1;
-      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0));
       const double *srcPtr=tabs[j]->getConstPointer();
       tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
       std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),srcPtr+1,tabsPtr[j].begin(),std::plus<double>());
@@ -837,9 +878,9 @@ void MEDCouplingCMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
-  setName(littleStrings[0].c_str());
-  setDescription(littleStrings[1].c_str());
-  setTimeUnit(littleStrings[2].c_str());
+  setName(littleStrings[0]);
+  setDescription(littleStrings[1]);
+  setTimeUnit(littleStrings[2]);
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   const double *data=a2->getConstPointer();
   for(int i=0;i<3;i++)
@@ -848,7 +889,7 @@ void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, con
         {
           (*(thisArr[i]))=DataArrayDouble::New();
           (*(thisArr[i]))->alloc(tinyInfo[i],1);
-          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+3].c_str());
+          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+3]);
           std::copy(data,data+tinyInfo[i],(*(thisArr[i]))->getPointer());
           data+=tinyInfo[i];
         }

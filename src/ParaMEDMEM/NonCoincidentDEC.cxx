@@ -98,7 +98,8 @@ namespace ParaMEDMEM
   fvm_nodal_t*  medmemMeshToFVMMesh(const MEDMEM::MESH* mesh)
   {
     // create an FVM structure from the paramesh structure
-    fvm_nodal_t * fvm_nodal = fvm_nodal_create(mesh->getName().c_str(),mesh->getMeshDimension());
+    std::string meshName(mesh->getName());//this line avoid that mesh->getName() object killed before fvm_nodal_create read the const char *.
+    fvm_nodal_t * fvm_nodal = fvm_nodal_create(meshName.c_str(),mesh->getMeshDimension());
       
     //loop on cell types
     int nbtypes = mesh->getNumberOfTypes(MED_EN::MED_CELL);
@@ -168,7 +169,8 @@ namespace ParaMEDMEM
   {
 
     // create an FVM structure from the paramesh structure
-    fvm_nodal_t * fvm_nodal = fvm_nodal_create(support->getName().c_str(),1);
+    std::string supportName(support->getName());//this line avoid that support->getName() object killed before fvm_nodal_create read the const char *.
+    fvm_nodal_t * fvm_nodal = fvm_nodal_create(supportName.c_str(),1);
       
     const MEDMEM::MESH* mesh= support->getMesh();
       

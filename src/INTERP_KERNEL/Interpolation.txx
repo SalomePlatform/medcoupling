@@ -29,12 +29,11 @@ namespace INTERP_KERNEL
 { 
   template<class TrueMainInterpolator>
   template<class MyMeshType, class MatrixType>
-  int Interpolation<TrueMainInterpolator>::fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const char *method)
+  int Interpolation<TrueMainInterpolator>::fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method)
   {
     typedef typename MyMeshType::MyConnType ConnType;
-    std::string methodCPP(method);
     int ret=-1;
-    if(methodCPP=="P0")
+    if(method=="P0")
       {
         IntegralUniformIntersectorP0<MyMeshType,MatrixType> intersector(mesh,InterpolationOptions::getMeasureAbsStatus());
         intersector.setFromTo(fromTo);
@@ -42,7 +41,7 @@ namespace INTERP_KERNEL
         intersector.intersectCells(0,tmp,result);
         ret=intersector.getNumberOfColsOfResMatrix();
       }
-    else if(methodCPP=="P1")
+    else if(method=="P1")
       {
         IntegralUniformIntersectorP1<MyMeshType,MatrixType> intersector(mesh,InterpolationOptions::getMeasureAbsStatus());
         intersector.setFromTo(fromTo);

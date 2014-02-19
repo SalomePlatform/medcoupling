@@ -136,7 +136,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *zipCoordsTraducer();
     MEDCOUPLING_EXPORT virtual DataArrayInt *zipConnectivityTraducer(int compType, int startCellId=0);
-    MEDCOUPLING_EXPORT virtual void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const = 0;
     //tools
   public:
     MEDCOUPLING_EXPORT bool areCellsFrom2MeshEqual(const MEDCouplingPointSet *other, int cellId, double prec) const;

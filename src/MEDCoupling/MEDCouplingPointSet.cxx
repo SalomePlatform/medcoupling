@@ -910,19 +910,19 @@ void MEDCouplingPointSet::unserialization(const std::vector<double>& tinyInfoD, 
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
       setCoords(a2);
-      setName(littleStrings[0].c_str());
-      setDescription(littleStrings[1].c_str());
-      a2->setName(littleStrings[2].c_str());
-      setTimeUnit(littleStrings[3].c_str());
+      setName(littleStrings[0]);
+      setDescription(littleStrings[1]);
+      a2->setName(littleStrings[2]);
+      setTimeUnit(littleStrings[3]);
       for(int i=0;i<tinyInfo[1];i++)
-        getCoords()->setInfoOnComponent(i,littleStrings[i+4].c_str());
+        getCoords()->setInfoOnComponent(i,littleStrings[i+4]);
       setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
     }
   else
     {
-      setName(littleStrings[0].c_str());
-      setDescription(littleStrings[1].c_str());
-      setTimeUnit(littleStrings[2].c_str());
+      setName(littleStrings[0]);
+      setDescription(littleStrings[1]);
+      setTimeUnit(littleStrings[2]);
       setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
     }
 }
@@ -1537,7 +1537,7 @@ DataArrayInt *MEDCouplingPointSet::getCellIdsLyingOnNodes(const int *begin, cons
 {
   DataArrayInt *cellIdsKept=0;
   fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
-  cellIdsKept->setName(getName().c_str());
+  cellIdsKept->setName(getName());
   return cellIdsKept;
 }
 

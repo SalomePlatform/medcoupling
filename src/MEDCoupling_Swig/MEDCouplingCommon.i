@@ -183,6 +183,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::nodeToCellDiscretization;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
@@ -397,13 +398,13 @@ namespace ParaMEDMEM
   class MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
-    void setName(const char *name);
+    void setName(const std::string& name);
     std::string getName() const;
-    void setDescription(const char *descr);
+    void setDescription(const std::string& descr);
     std::string getDescription() const;
     void setTime(double val, int iteration, int order);
-    void setTimeUnit(const char *unit);
-    const char *getTimeUnit() const;
+    void setTimeUnit(const std::string& unit);
+    std::string getTimeUnit() const;
     virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception);
     bool isStructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *deepCpy() const;
@@ -431,13 +432,13 @@ namespace ParaMEDMEM
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     virtual std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
-    void writeVTK(const char *fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    void writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
     // tools
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
@@ -552,6 +553,17 @@ namespace ParaMEDMEM
            ret->alloc((int)elts.size(),1);
            std::copy(elts.begin(),elts.end(),ret->getPointer());
            return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+         }
+         
+         virtual PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+           self->getReverseNodalConnectivity(d0,d1);
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           return ret;
          }
          
          void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
@@ -1172,17 +1184,6 @@ namespace ParaMEDMEM
                }
            }
 
-           virtual PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
-           {
-             MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-             MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-             self->getReverseNodalConnectivity(d0,d1);
-             PyObject *ret=PyTuple_New(2);
-             PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-             PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-             return ret;
-           }
-
            virtual PyObject *findCommonCells(int compType, int startCellId=0) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *v0=0,*v1=0;
@@ -1515,6 +1516,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *explode3DMeshTo1D(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     bool isPresenceOfQuadratic() const throw(INTERP_KERNEL::Exception);
+    bool isFullyQuadratic() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildDirectionVectorField() const throw(INTERP_KERNEL::Exception);
     bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
     void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
@@ -2541,7 +2543,7 @@ namespace ParaMEDMEM
   class MEDCoupling1GTUMesh : public ParaMEDMEM::MEDCouplingPointSet
   {
   public:
-    static MEDCoupling1GTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1GTUMesh *New(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static MEDCoupling1GTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
     int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
@@ -2578,7 +2580,7 @@ namespace ParaMEDMEM
   class MEDCoupling1SGTUMesh : public ParaMEDMEM::MEDCoupling1GTUMesh
   {
   public:
-    static MEDCoupling1SGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1SGTUMesh *New(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     void setNodalConnectivity(DataArrayInt *nodalConn) throw(INTERP_KERNEL::Exception);
     int getNumberOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
@@ -2589,7 +2591,7 @@ namespace ParaMEDMEM
     DataArrayInt *sortHexa8EachOther() throw(INTERP_KERNEL::Exception);
     %extend
     {
-      MEDCoupling1SGTUMesh(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+      MEDCoupling1SGTUMesh(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1SGTUMesh::New(name,type);
       }
@@ -2634,14 +2636,14 @@ namespace ParaMEDMEM
   class MEDCoupling1DGTUMesh : public ParaMEDMEM::MEDCoupling1GTUMesh
   {
   public:
-    static MEDCoupling1DGTUMesh *New(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
+    static MEDCoupling1DGTUMesh *New(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     void setNodalConnectivity(DataArrayInt *nodalConn, DataArrayInt *nodalConnIndex) throw(INTERP_KERNEL::Exception);
     MEDCoupling1DGTUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     bool isPacked() const throw(INTERP_KERNEL::Exception);
     %extend
     {
-      MEDCoupling1DGTUMesh(const char *name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+      MEDCoupling1DGTUMesh(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1DGTUMesh::New(name,type);
       }
@@ -2826,7 +2828,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCMesh *New();
-    static MEDCouplingCMesh *New(const char *meshName);
+    static MEDCouplingCMesh *New(const std::string& meshName);
     MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coordsX,
                    const DataArrayDouble *coordsY=0,
@@ -2837,7 +2839,7 @@ namespace ParaMEDMEM
       {
         return MEDCouplingCMesh::New();
       }
-      MEDCouplingCMesh(const char *meshName)
+      MEDCouplingCMesh(const std::string& meshName)
       {
         return MEDCouplingCMesh::New(meshName);
       }
@@ -2869,7 +2871,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCurveLinearMesh *New();
-    static MEDCouplingCurveLinearMesh *New(const char *meshName);
+    static MEDCouplingCurveLinearMesh *New(const std::string& meshName);
     MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     %extend {
@@ -2877,7 +2879,7 @@ namespace ParaMEDMEM
       {
         return MEDCouplingCurveLinearMesh::New();
       }
-      MEDCouplingCurveLinearMesh(const char *meshName)
+      MEDCouplingCurveLinearMesh(const std::string& meshName)
       {
         return MEDCouplingCurveLinearMesh::New(meshName);
       }
@@ -3108,19 +3110,20 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
     static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
-    void setTimeUnit(const char *unit);
-    const char *getTimeUnit() const;
+    void setTimeUnit(const std::string& unit);
+    std::string getTimeUnit() const;
     void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
-    void writeVTK(const char *fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    void writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *nodeToCellDiscretization() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *cellToNodeDiscretization() const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     double getIJK(int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
@@ -3161,16 +3164,16 @@ namespace ParaMEDMEM
     void changeNbOfComponents(int newNbOfComp, double dftValue=0.) throw(INTERP_KERNEL::Exception);
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic2(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFunc(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFunc2(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, double val) throw(INTERP_KERNEL::Exception);
-    void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
-    void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc(const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFuncFast32(const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFuncFast64(const std::string& func) throw(INTERP_KERNEL::Exception);
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
     double getMinValue() const throw(INTERP_KERNEL::Exception);

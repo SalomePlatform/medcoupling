@@ -876,7 +876,11 @@ inline bool eqpair(const std::pair<double,Node *>& p1, const std::pair<double,No
   return fabs(p1.first-p2.first)<QUADRATIC_PLANAR::_precision;
 }
 
-void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
+/**
+ * Sort nodes so that they all lie consecutively on the edge that has been cut.
+ */
+void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1,
+                      const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
 {
   Bounds b;
   b.prepareForAggregation();

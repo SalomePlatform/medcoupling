@@ -50,7 +50,7 @@ std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildren() const
   return std::vector<const BigMemoryObject *>();
 }
 
-int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1)
+int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1)
 {
   med_mesh_type type_maillage;
   char maillage_description[MED_COMMENT_SIZE+1];
@@ -94,7 +94,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM:
     case MED_STRUCTURED_MESH:
       {
         med_grid_type gt;
-        MEDmeshGridTypeRd(fid,mname,&gt);
+        MEDmeshGridTypeRd(fid,mname.c_str(),&gt);
         switch(gt)
           {
           case MED_CARTESIAN_GRID:
@@ -113,12 +113,12 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM:
     }
   med_int numdt,numit;
   med_float dtt;
-  MEDmeshComputationStepInfo(fid,mname,1,&numdt,&numit,&dtt);
+  MEDmeshComputationStepInfo(fid,mname.c_str(),1,&numdt,&numit,&dtt);
   dt=numdt; it=numit;
   return ret;
 }
 
-double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const char *mName, int nstep, int dt, int it)
+double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const std::string& mName, int nstep, int dt, int it)
 {
   bool found=false;
   med_int numdt,numit;
@@ -126,7 +126,7 @@ double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const char *mName, int nste
   std::vector< std::pair<int,int> > p(nstep);
   for(int i=0;i<nstep;i++)
     {
-      MEDmeshComputationStepInfo(fid,mName,i+1,&numdt,&numit,&dtt);
+      MEDmeshComputationStepInfo(fid,mName.c_str(),i+1,&numdt,&numit,&dtt);
       p[i]=std::make_pair<int,int>(numdt,numit);
       found=(numdt==dt) && (numit==numit);
     }
@@ -141,7 +141,7 @@ double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const char *mName, int nste
   return dtt;
 }
 
-std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const char *mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim)
+std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim)
 {
   med_mesh_type type_maillage;
   med_int spaceDim;
@@ -164,7 +164,7 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
     case MED_STRUCTURED_MESH:
       {
         med_grid_type gt;
-        MEDmeshGridTypeRd(fid,mName,&gt);
+        MEDmeshGridTypeRd(fid,mName.c_str(),&gt);
         switch(gt)
           {
           case MED_CARTESIAN_GRID:
@@ -191,22 +191,22 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   return infosOnComp;
 }
 
-void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const char *meshName, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs)
+void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const std::string& meshName, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs)
 {
   if(mrs && !(mrs->isCellFamilyFieldReading() || mrs->isNodeFamilyFieldReading()))
     return ;
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
-  int nfam=MEDnFamily(fid,meshName);
+  int nfam=MEDnFamily(fid,meshName.c_str());
   for(int i=0;i<nfam;i++)
     {
-      int ngro=MEDnFamilyGroup(fid,meshName,i+1);
-      med_int natt=MEDnFamily23Attribute(fid,meshName,i+1);
+      int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
+      med_int natt=MEDnFamily23Attribute(fid,meshName.c_str(),i+1);
       INTERP_KERNEL::AutoPtr<med_int> attide=new med_int[natt];
       INTERP_KERNEL::AutoPtr<med_int> attval=new med_int[natt];
       INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_COMMENT_SIZE*natt+1];
       INTERP_KERNEL::AutoPtr<char> gro=new char[MED_LNAME_SIZE*ngro+1];
-      MEDfamily23Info(fid,meshName,i+1,nomfam,attide,attval,attdes,&numfam,gro);
+      MEDfamily23Info(fid,meshName.c_str(),i+1,nomfam,attide,attval,attdes,&numfam,gro);
       std::string famName=MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE);
       fams[famName]=numfam;
       for(int j=0;j<ngro;j++)
@@ -217,7 +217,7 @@ void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const char *meshName, std::
     }
 }
 
-void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol)
+void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol)
 {
   for(std::map<std::string,int>::const_iterator it=fams.begin();it!=fams.end();it++)
     {
@@ -234,7 +234,7 @@ void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const char *mname, const s
         MEDLoaderBase::safeStrCpy2((*it2).c_str(),MED_LNAME_SIZE-1,groName+i*MED_LNAME_SIZE,tooLongStrPol);
       INTERP_KERNEL::AutoPtr<char> famName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
       MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_NAME_SIZE,famName,tooLongStrPol);
-      int ret=MEDfamilyCr(fid,mname,famName,(*it).second,ngro,groName);
+      int ret=MEDfamilyCr(fid,mname.c_str(),famName,(*it).second,ngro,groName);
       ret++;
     }
 }
@@ -243,13 +243,13 @@ MEDFileUMeshL2::MEDFileUMeshL2()
 {
 }
 
-void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  _name.set(mName);
+  _name.set(mName.c_str());
   int nstep;
   int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,nstep,Mdim);
+  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim);
   if(meshType!=UNSTRUCTURED)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected an unstructured one whereas in file it is not an unstructured !");
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
@@ -259,55 +259,55 @@ void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
   loadCoords(fid,mId,infosOnComp,mName,dt,it);
 }
 
-void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const char *mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   _per_type_mesh.resize(1);
   _per_type_mesh[0].clear();
   for(int j=0;j<MED_N_CELL_FIXED_GEO;j++)
     {
-      MEDFileUMeshPerType *tmp=MEDFileUMeshPerType::New(fid,mName,dt,it,mdim,typmai[j],typmai2[j],mrs);
+      MEDFileUMeshPerType *tmp=MEDFileUMeshPerType::New(fid,mName.c_str(),dt,it,mdim,typmai[j],typmai2[j],mrs);
       if(tmp)
         _per_type_mesh[0].push_back(tmp);
     }
   sortTypes();
 }
 
-void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const char *mName, int dt, int it)
+void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it)
 {
   int spaceDim=infosOnComp.size();
   med_bool changement,transformation;
-  int nCoords=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation);
+  int nCoords=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation);
   _coords=DataArrayDouble::New();
   _coords->alloc(nCoords,spaceDim);
   double *coordsPtr=_coords->getPointer();
-  MEDmeshNodeCoordinateRd(fid,mName,dt,it,MED_FULL_INTERLACE,coordsPtr);
-  if(MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
+  MEDmeshNodeCoordinateRd(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,coordsPtr);
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       _fam_coords=DataArrayInt::New();
       _fam_coords->alloc(nCoords,1);
-      MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_fam_coords->getPointer());
+      MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_fam_coords->getPointer());
     }
   else
     _fam_coords=0;
-  if(MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       _num_coords=DataArrayInt::New();
       _num_coords->alloc(nCoords,1);
-      MEDmeshEntityNumberRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_num_coords->getPointer());
+      MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_num_coords->getPointer());
     }
   else
     _num_coords=0;
-  if(MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
     {
       _name_coords=DataArrayAsciiChar::New();
       _name_coords->alloc(nCoords+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-      MEDmeshEntityNameRd(fid,mName,dt,it,MED_NODE,MED_NO_GEOTYPE,_name_coords->getPointer());
+      MEDmeshEntityNameRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_name_coords->getPointer());
       _name_coords->reAlloc(nCoords);//not a bug to avoid the memory corruption due to last \0 at the end
     }
   else
     _name_coords=0;
   for(int i=0;i<spaceDim;i++)
-    _coords->setInfoOnComponent(i,infosOnComp[i].c_str());
+    _coords->setInfoOnComponent(i,infosOnComp[i]);
 }
 
 void MEDFileUMeshL2::sortTypes()
@@ -343,15 +343,15 @@ void MEDFileUMeshL2::sortTypes()
   _per_type_mesh.resize(_per_type_mesh.size()-nbOfUselessLev);
 }
 
-void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords)
+void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords, const DataArrayAsciiChar *nameCoords)
 {
   if(!coords)
     return ;
-  MEDmeshNodeCoordinateWr(fid,mname,dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getConstPointer());
+  MEDmeshNodeCoordinateWr(fid,mname.c_str(),dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getConstPointer());
   if(famCoords)
-    MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer());
+    MEDmeshEntityFamilyNumberWr(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer());
   if(numCoords)
-    MEDmeshEntityNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer());
+    MEDmeshEntityNumberWr(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer());
   if(nameCoords)
     {
       if(nameCoords->getNumberOfComponents()!=MED_SNAME_SIZE)
@@ -360,7 +360,7 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it,
           oss << " ! The array has " << nameCoords->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDmeshEntityNameWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->getConstPointer());
+      MEDmeshEntityNameWr(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->getConstPointer());
     }
 }
 
@@ -392,13 +392,13 @@ MEDFileCMeshL2::MEDFileCMeshL2()
 {
 }
 
-void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it)
+void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it)
 {
-  _name.set(mName);
+  _name.set(mName.c_str());
   int nstep;
   int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,nstep,Mdim);
+  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim);
   if(meshType!=CARTESIAN)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
@@ -406,7 +406,7 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
   _order=it;
   //
   med_grid_type gridtype;
-  MEDmeshGridTypeRd(fid,mName,&gridtype);
+  MEDmeshGridTypeRd(fid,mName.c_str(),&gridtype);
   if(gridtype!=MED_CARTESIAN_GRID)
     throw INTERP_KERNEL::Exception("Invalid structured mesh ! Expected cartesian mesh type !");
   _cmesh=MEDCouplingCMesh::New();
@@ -414,11 +414,11 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
     {
       med_data_type dataTypeReq=GetDataTypeCorrespondingToSpaceId(i);
       med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-      int nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,dataTypeReq,MED_NO_CMODE,&chgt,&trsf);
+      int nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,dataTypeReq,MED_NO_CMODE,&chgt,&trsf);
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::New();
       da->alloc(nbOfElt,1);
-      da->setInfoOnComponent(0,infosOnComp[i].c_str());
-      MEDmeshGridIndexCoordinateRd(fid,mName,dt,it,i+1,da->getPointer());
+      da->setInfoOnComponent(0,infosOnComp[i]);
+      MEDmeshGridIndexCoordinateRd(fid,mName.c_str(),dt,it,i+1,da->getPointer());
       _cmesh->setCoordsAt(i,da);
     }
 }
@@ -442,9 +442,9 @@ MEDFileCLMeshL2::MEDFileCLMeshL2()
 {
 }
 
-void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it)
+void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it)
 {
-  _name.set(mName);
+  _name.set(mName.c_str());
   int nstep;
   int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
@@ -457,14 +457,14 @@ void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, i
   //
   _clmesh=MEDCouplingCurveLinearMesh::New();
   INTERP_KERNEL::AutoPtr<int> stGrid=new int[Mdim];
-  MEDmeshGridStructRd(fid,mName,dt,it,stGrid);
+  MEDmeshGridStructRd(fid,mName.c_str(),dt,it,stGrid);
   _clmesh->setNodeGridStructure(stGrid,((int *)stGrid)+Mdim);
   med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-  int nbNodes=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf);
+  int nbNodes=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::New();
   da->alloc(nbNodes,infosOnComp.size());
   da->setInfoOnComponents(infosOnComp);
-  MEDmeshNodeCoordinateRd(fid,mName,dt,it,MED_FULL_INTERLACE,da->getPointer());
+  MEDmeshNodeCoordinateRd(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,da->getPointer());
   _clmesh->setCoords(da);
 }
 
@@ -514,7 +514,7 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):RefCo
 {
 }
 
-MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id):_m(this)
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const std::string& mName, int id):_m(this)
 {
   const std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >& v=l2.getLev(id);
   if(v.empty())
@@ -579,6 +579,11 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(this)
 {
   assignMesh(m,newOrOld);
+}
+
+void MEDFileUMeshSplitL1::setName(const std::string& name)
+{
+  _m_by_types.setName(name);
 }
 
 std::size_t MEDFileUMeshSplitL1::getHeapMemorySizeWithoutChildren() const
@@ -872,7 +877,7 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
     *w=famIdTrad[*w];
 }
 
-void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
+void MEDFileUMeshSplitL1::write(med_idt fid, const std::string& mName, int mdim) const
 {
   std::vector<MEDCoupling1GTUMesh *> ms(_m_by_types.getParts());
   int start=0;
@@ -1016,6 +1021,25 @@ MEDFileUMeshAggregateCompute::MEDFileUMeshAggregateCompute():_mp_time(0),_m_time
 {
 }
 
+void MEDFileUMeshAggregateCompute::setName(const std::string& name)
+{
+  if(_m_time>=_mp_time)
+    {
+      MEDCouplingUMesh *um(_m);
+      if(um)
+        um->setName(name);
+    }
+  if(_mp_time>=_m_time)
+    {
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+        {
+          MEDCoupling1GTUMesh *tmp(*it);
+          if(tmp)
+            tmp->setName(name);
+        }
+    }
+}
+
 void MEDFileUMeshAggregateCompute::assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts)
 {
   std::size_t sz(mParts.size());
@@ -1132,7 +1156,7 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
   _m_parts.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     _m_parts[i]=MEDCoupling1GTUMesh::New(ms[i]);
-  _mp_time=std::max(_mp_time,_m_time)+1;
+  _mp_time=std::max(_mp_time,_m_time);
 }
 
 std::size_t MEDFileUMeshAggregateCompute::getTimeOfThis() const

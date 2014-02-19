@@ -187,13 +187,51 @@ bool GaussInfo::isSatisfy()
   return anIsSatisfy;
 }
 
+std::vector<double> GaussInfo::NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray)
+{
+  std::size_t sz(inputArray.size()),dim((std::size_t)inputDim);
+  if(dim==0)
+    throw INTERP_KERNEL::Exception("GaussInfo::NormalizeCoordinatesIfNecessary : invalid dimension ! Must be !=0 !");
+  if(sz%dim!=0)
+    throw INTERP_KERNEL::Exception("GaussInfo::NormalizeCoordinatesIfNecessary : invalid input array ! Inconsistent with the given dimension !");
+  const CellModel& cm(CellModel::GetCellModel(ct));
+  std::size_t baseDim((std::size_t)cm.getDimension());
+  if(baseDim==dim)
+    return inputArray;
+  std::size_t nbOfItems(sz/dim);
+  std::vector<double> ret(nbOfItems*baseDim);
+  if(baseDim>dim)
+    {
+      for(std::size_t i=0;i<nbOfItems;i++)
+        {
+          std::size_t j=0;
+          for(;j<dim;j++)
+            ret[i*baseDim+j]=inputArray[i*dim+j];
+          for(;j<baseDim;j++)
+            ret[i*baseDim+j]=0.;
+        }
+    }
+  else
+    {
+      for(std::size_t i=0;i<nbOfItems;i++)
+        {
+          std::size_t j=0;
+          for(;j<baseDim;j++)
+            ret[i*baseDim+j]=inputArray[i*dim+j];
+        }
+    }
+  return ret;
+}
+
+typedef void (*MapToShapeFunction)(GaussInfo& obj);
+
 /*!
  * Initialize the internal vectors
  */
 void GaussInfo::initLocalInfo()
 {
   bool aSatify = false;
-  const CellModel& cellModel=CellModel::GetCellModel(_my_geometry);
+  const CellModel& cellModel(CellModel::GetCellModel(_my_geometry));
   switch( _my_geometry ) 
     {
     case NORM_SEG2:
@@ -240,17 +278,19 @@ void GaussInfo::initLocalInfo()
       break;
 
     case NORM_QUAD4:
-      _my_local_ref_dim = 2;
-      _my_local_nb_ref  = 4;
-      quad4aInit();
-      aSatify = isSatisfy();
-
-      if(!aSatify)
-        {
-          quad4bInit();
-          aSatify = isSatisfy();
-          CHECK_MACRO;
-        }
+      {
+        _my_local_ref_dim = 2;
+        _my_local_nb_ref  = 4;
+        MapToShapeFunction QUAD4PTR[]={Quad4aInit,Quad4bInit,Quad4cInit,Quad4DegSeg2Init};
+        std::size_t NB_OF_QUAD4PTR(sizeof(QUAD4PTR)/sizeof(MapToShapeFunction));
+        for(std::size_t i=0;i<NB_OF_QUAD4PTR && !aSatify;i++)
+          {
+            (QUAD4PTR[i])(*this);
+            aSatify = isSatisfy();
+          }
+        CHECK_MACRO;
+        break;
+      }
       break;
 
     case NORM_QUAD8:
@@ -265,6 +305,14 @@ void GaussInfo::initLocalInfo()
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
+      break;
+
+    case NORM_QUAD9:
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 9;
+      quad9aInit();
+      aSatify = isSatisfy();
+      CHECK_MACRO;
       break;
 
     case NORM_TETRA4:
@@ -324,6 +372,21 @@ void GaussInfo::initLocalInfo()
       break;
 
     case NORM_PENTA6:
+      {
+        _my_local_ref_dim = 3;
+        _my_local_nb_ref  = 6;
+        MapToShapeFunction PENTA6PTR[]={Penta6aInit,Penta6bInit,Penta6DegTria3aInit,Penta6DegTria3bInit};
+        std::size_t NB_OF_PENTA6PTR(sizeof(PENTA6PTR)/sizeof(MapToShapeFunction));
+        for(std::size_t i=0;i<NB_OF_PENTA6PTR && !aSatify;i++)
+          {
+            (PENTA6PTR[i])(*this);
+            aSatify = isSatisfy();
+          }
+        CHECK_MACRO;
+        break;
+      }
+
+
       _my_local_ref_dim = 3;
       _my_local_nb_ref  = 6;
       penta6aInit();
@@ -352,18 +415,19 @@ void GaussInfo::initLocalInfo()
       break;
 
     case NORM_HEXA8:
-      _my_local_ref_dim = 3;
-      _my_local_nb_ref  = 8;
-      hexa8aInit();
-      aSatify = isSatisfy();
-
-      if(!aSatify)
-        {
-          hexa8bInit();
-          aSatify = isSatisfy();
-          CHECK_MACRO;
-        }
-      break;
+      {
+        _my_local_ref_dim = 3;
+        _my_local_nb_ref  = 8;
+        MapToShapeFunction HEXA8PTR[]={Hexa8aInit,Hexa8bInit,Hexa8DegQuad4aInit,Hexa8DegQuad4bInit,Hexa8DegQuad4cInit};
+        std::size_t NB_OF_HEXA8PTR(sizeof(HEXA8PTR)/sizeof(MapToShapeFunction));
+        for(std::size_t i=0;i<NB_OF_HEXA8PTR && !aSatify;i++)
+          {
+            (HEXA8PTR[i])(*this);
+            aSatify = isSatisfy();
+          }
+        CHECK_MACRO;
+        break;
+      }
 
     case NORM_HEXA20:
       _my_local_ref_dim = 3;
@@ -431,7 +495,7 @@ void GaussInfo::seg3Init()
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
-   funValue[0] = 0.5*(1.0 - gc[0])*gc[0];
+   funValue[0] = -0.5*(1.0 - gc[0])*gc[0];
    funValue[1] = 0.5*(1.0 + gc[0])*gc[0];
    funValue[2] = (1.0 + gc[0])*(1.0 - gc[0]);
    SHAPE_FUN_MACRO_END;
@@ -653,6 +717,67 @@ void GaussInfo::quad4bInit()
    SHAPE_FUN_MACRO_END;
 }
 
+void GaussInfo::quad4cInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
+   funValue[1] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
+   funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
+   funValue[3] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
+   SHAPE_FUN_MACRO_END;
+}
+
+/*!
+ * This shapefunc map is same as degenerated seg2Init
+ */
+void GaussInfo::quad4DegSeg2Init()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.5*(1.0 - gc[0]);
+   funValue[1] = 0.5*(1.0 + gc[0]);
+   funValue[2] = 0.;
+   funValue[3] = 0.;
+   SHAPE_FUN_MACRO_END;
+}
 
 /*!
  * Init Quadratic Quadrangle Reference coordinates ans Shape function.
@@ -757,6 +882,60 @@ void GaussInfo::quad8bInit()
    funValue[5] = 0.5*(1.0 - gc[1]*gc[1])*(1.0 + gc[0]);
    funValue[6] = 0.5*(1.0 - gc[0]*gc[0])*(1.0 + gc[1]);
    funValue[7] = 0.5*(1.0 - gc[1]*gc[1])*(1.0 - gc[0]);
+   SHAPE_FUN_MACRO_END;
+}
+
+void GaussInfo::quad9aInit()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   break;
+ case  8:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.25*gc[0]*gc[1]*(gc[0]-1.)*(gc[1]-1.);
+   funValue[1] = 0.25*gc[0]*gc[1]*(gc[0]+1.)*(gc[1]-1.);
+   funValue[2] = 0.25*gc[0]*gc[1]*(gc[0]+1.)*(gc[1]+1.);
+   funValue[3] = 0.25*gc[0]*gc[1]*(gc[0]-1.)*(gc[1]+1.);
+   funValue[4] = 0.5*(1.-gc[0]*gc[0])*gc[1]*(gc[1]-1.);
+   funValue[5] = 0.5*gc[0]*(gc[0]+1.)*(1.-gc[1]*gc[1]);
+   funValue[6] = 0.5*(1.-gc[0]*gc[0])*gc[1]*(gc[1]+1.);
+   funValue[7] = 0.5*gc[0]*(gc[0]-1.)*(1.-gc[1]*gc[1]);
+   funValue[8] = (1.-gc[0]*gc[0])*(1.-gc[1]*gc[1]);
    SHAPE_FUN_MACRO_END;
 }
 
@@ -1378,6 +1557,103 @@ void GaussInfo::penta6bInit()
    funValue[4] = 0.5*(1.0 - gc[1] - gc[2])*(1.0 + gc[0]);
    SHAPE_FUN_MACRO_END;
 }
+
+/*!
+ * This shapefunc map is same as degenerated tria3aInit
+ */
+void GaussInfo::penta6DegTria3aInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.5*(1.0 + gc[1]);
+   funValue[1] = -0.5*(gc[0] + gc[1]);
+   funValue[2] = 0.5*(1.0 + gc[0]);
+   funValue[3] = 0.;
+   funValue[4] = 0.;
+   funValue[5] = 0.;
+   SHAPE_FUN_MACRO_END;
+}
+
+/*!
+ * This shapefunc map is same as degenerated tria3bInit
+ */
+void GaussInfo::penta6DegTria3bInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 1.0 - gc[0] - gc[1];
+   funValue[1] = gc[0];
+   funValue[2] = gc[1];
+   funValue[3] = 0.;
+   funValue[4] = 0.;
+   funValue[5] = 0.;
+   SHAPE_FUN_MACRO_END;
+}
+
 /*!
  * Init Pentahedron Reference coordinates and Shape function.
  * Case A.
@@ -1715,6 +1991,187 @@ void GaussInfo::hexa8bInit()
    funValue[7] = 0.125*(1.0 + gc[0])*(1.0 - gc[1])*(1.0 + gc[2]);
    funValue[6] = 0.125*(1.0 + gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
    funValue[5] = 0.125*(1.0 - gc[0])*(1.0 + gc[1])*(1.0 + gc[2]);
+   SHAPE_FUN_MACRO_END;
+}
+
+/*!
+ * This shapefunc map is same as degenerated quad4bInit
+ */
+void GaussInfo::hexa8DegQuad4aInit()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+  LOCAL_COORD_MACRO_END;
+  
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0] = 0.25*(1.0 + gc[1])*(1.0 - gc[0]);
+  funValue[1] = 0.25*(1.0 - gc[1])*(1.0 - gc[0]);
+  funValue[2] = 0.25*(1.0 - gc[1])*(1.0 + gc[0]);
+  funValue[3] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
+  funValue[4] = 0.;
+  funValue[5] = 0.;
+  funValue[6] = 0.;
+  funValue[7] = 0.;
+  SHAPE_FUN_MACRO_END;
+}
+
+/*!
+ * This shapefunc map is same as degenerated quad4bInit
+ */
+void GaussInfo::hexa8DegQuad4bInit()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
+   funValue[1] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
+   funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
+   funValue[3] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
+   funValue[4] = 0.;
+   funValue[5] = 0.;
+   funValue[6] = 0.;
+   funValue[7] = 0.;
+   SHAPE_FUN_MACRO_END;
+}
+
+/*!
+ * This shapefunc map is same as degenerated quad4cInit
+ */
+void GaussInfo::hexa8DegQuad4cInit() 
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+
+   LOCAL_COORD_MACRO_END;
+
+   SHAPE_FUN_MACRO_BEGIN;
+   funValue[0] = 0.25*(1.0 - gc[0])*(1.0 - gc[1]);
+   funValue[1] = 0.25*(1.0 - gc[0])*(1.0 + gc[1]);
+   funValue[2] = 0.25*(1.0 + gc[0])*(1.0 + gc[1]);
+   funValue[3] = 0.25*(1.0 + gc[0])*(1.0 - gc[1]);
+   funValue[4] = 0. ;
+   funValue[5] = 0. ;
+   funValue[6] = 0. ;
+   funValue[7] = 0. ;
    SHAPE_FUN_MACRO_END;
 }
 

@@ -136,6 +136,10 @@ void ComposedEdge::initLocations() const
     (*iter)->initLocations();
 }
 
+/**
+ * Reset the status of all edges (OUT, IN, ON) because they were potentially assignated
+ * by the previous candidate processing.
+ */
 void ComposedEdge::initLocationsWithOther(const ComposedEdge& other) const
 {
   std::set<Edge *> s1,s2;
@@ -280,9 +284,14 @@ void ComposedEdge::unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary,
   other.getAllNodes(allNodes);
   for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
     (*iter)->unApplySimilarity(xBary,yBary,fact);
+
+  // [Adrien] - same issue as in applyGlobalSimilarity() - see comments there
+  std::set<Edge *> allEdges;
   for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
-    (*iter)->unApplySimilarity(xBary,yBary,fact);
+    allEdges.insert((*iter)->getPtr());
   for(std::list<ElementaryEdge *>::iterator iter=other._sub_edges.begin();iter!=other._sub_edges.end();iter++)
+    allEdges.insert((*iter)->getPtr());
+  for(std::set<Edge *>::iterator iter = allEdges.begin();iter != allEdges.end();iter++)
     (*iter)->unApplySimilarity(xBary,yBary,fact);
 }
 
@@ -369,10 +378,15 @@ void ComposedEdge::applyGlobalSimilarity2(ComposedEdge *other, double xBary, dou
   allNodes.insert(allNodes2.begin(),allNodes2.end());
   for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
     (*iter)->applySimilarity(xBary,yBary,dimChar);
+  // [Adrien] many ElementaryEdge might reference the same Edge* - ensure we don'y scale twice!
+  std::set<Edge *> allEdges;
   for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
-    (*iter)->applySimilarity(xBary,yBary,dimChar);
+    allEdges.insert((*iter)->getPtr());
   for(std::list<ElementaryEdge *>::iterator iter=other->_sub_edges.begin();iter!=other->_sub_edges.end();iter++)
-    (*iter)->applySimilarity(xBary,yBary,dimChar);
+    allEdges.insert((*iter)->getPtr());
+  // Similarity only on set of unique underlying edges:
+  for(std::set<Edge *>::iterator iter = allEdges.begin();iter != allEdges.end();iter++)
+      (*iter)->applySimilarity(xBary,yBary,dimChar);
 }
 
 /*!
@@ -427,13 +441,19 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
 }
 
 /*!
+ * This method makes the hypothesis that \a nodeToTest can be either IN or OUT.
+ * 
  * \sa ComposedEdge::isInOrOut2
  */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 {
+  Bounds b; b.prepareForAggregation();
+  fillBounds(b);
+  if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
+    return false;
   std::set< IntersectElement > inOutSwitch;
   double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
-  bool ret=false;
+  bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
       if((*iter4).getVal1()<ref)
@@ -450,7 +470,6 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
 /*!
  * This method is close to ComposedEdge::isInOrOut behaviour except that here EPSILON is taken into account to detect if it is IN or OUT.
  * If \a nodeToTest is close to an edge in \a this, true will be returned even if it is outside informatically from \a this.
- * This method makes the hypothesis that 
  *
  * \sa ComposedEdge::isInOrOut
  */
@@ -458,7 +477,7 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
 {
   std::set< IntersectElement > inOutSwitch;
   double ref(isInOrOutAlg(nodeToTest,inOutSwitch));
-  bool ret=false;
+  bool ret(false);
   for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
       double val((*iter4).getVal1());
@@ -480,10 +499,6 @@ bool ComposedEdge::isInOrOut2(Node *nodeToTest) const
 
 double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >& inOutSwitch) const
 {
-  Bounds b; b.prepareForAggregation();
-  fillBounds(b);
-  if(b.nearlyWhere((*nodeToTest)[0],(*nodeToTest)[1])==OUT)
-    return false;
   // searching for e1
   std::set<Node *> nodes;
   getAllNodes(nodes);
@@ -511,7 +526,7 @@ double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >
           Edge *e=val->getPtr();
           std::auto_ptr<EdgeIntersector> intersc(Edge::BuildIntersectorWith(e1,e));
           bool obviousNoIntersection,areOverlapped;
-          intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);
+          intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);  // first parameter never used
           if(obviousNoIntersection)
             {
               continue;

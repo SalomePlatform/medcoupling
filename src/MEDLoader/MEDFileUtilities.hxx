@@ -30,8 +30,8 @@ namespace MEDFileUtilities
 {
   med_access_mode TraduceWriteMode(int medloaderwritemode);
   const char *GetReadableMEDFieldType(med_field_type ft);
-  void CheckMEDCode(int code, med_idt fid, const char *msg);
-  void CheckFileForRead(const char *fileName);
+  void CheckMEDCode(int code, med_idt fid, const std::string& msg);
+  void CheckFileForRead(const std::string& fileName);
 
   class AutoFid
   {

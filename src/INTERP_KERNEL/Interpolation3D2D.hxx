@@ -50,7 +50,7 @@ namespace INTERP_KERNEL
     int interpolateMeshes(const MyMeshType& srcMesh,
                           const MyMeshType& targetMesh,
                           MyMatrixType& matrix,
-                          const char *method);
+                          const std::string& method);
     INTERPKERNEL_EXPORT DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
   private:
     SplittingPolicy _splitting_policy;
