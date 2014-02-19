@@ -6272,7 +6272,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const
 DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree(double arcDetEps) const
 {
   int mDim(getMeshDimension()),sDim(getSpaceDimension());
-  if(mDim!=2 || sDim!=2)
+  if(sDim!=2)  // Compute refined boundary box for quadratic elements only in 2D.
     return getBoundingBoxForBBTreeFast();
   else
     {
@@ -6339,8 +6339,10 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
 }
 
 /*!
- * This method aggregate the bbox regarding foreach 2D cell in \a this the whole shape. So this method is particulary useful for 2D meshes having quadratic cells
- * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes.
+ * This method aggregates the bbox of each 2D cell in \a this considering the whole shape. This method is particularly
+ * useful for 2D meshes having quadratic cells
+ * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes (since it just considers
+ * the two extremities of the arc of circle).
  * 
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
@@ -6352,7 +6354,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
 {
   checkFullyDefined();
   int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
-  if(mDim!=2 || spaceDim!=2)
+  if(spaceDim!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic : This method should be applied on mesh with mesh dimension equal to 2 and space dimension also equal to 2!");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
   double *bbox(ret->getPointer());
@@ -6371,9 +6373,9 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
           nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*2],coords[nodeId*2+1]);
         }
       if(!cm.isQuadratic())
-        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes, mDim==2);
       else
-        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes, mDim==2);
       INTERP_KERNEL::Bounds b; pol->fillBounds(b); delete pol;
       bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); 
     }

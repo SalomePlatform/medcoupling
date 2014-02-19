@@ -70,36 +70,41 @@ QuadraticPolygon::~QuadraticPolygon()
 {
 }
 
-QuadraticPolygon *QuadraticPolygon::BuildLinearPolygon(std::vector<Node *>& nodes)
+QuadraticPolygon *QuadraticPolygon::BuildLinearPolygon(std::vector<Node *>& nodes, bool isClosed)
 {
   QuadraticPolygon *ret=new QuadraticPolygon;
   std::size_t size=nodes.size();
-  for(std::size_t i=0;i<size;i++)
+  for(std::size_t i=0;i< (size - (isClosed?0:1));i++)
     {
       ret->pushBack(new EdgeLin(nodes[i],nodes[(i+1)%size]));
       nodes[i]->decrRef();
     }
+  if(!isClosed)
+    nodes[size-1]->decrRef();
   return ret;
 }
 
-QuadraticPolygon *QuadraticPolygon::BuildArcCirclePolygon(std::vector<Node *>& nodes)
+QuadraticPolygon *QuadraticPolygon::BuildArcCirclePolygon(std::vector<Node *>& nodes, bool isClosed)
 {
   QuadraticPolygon *ret=new QuadraticPolygon;
   std::size_t size=nodes.size();
-  for(std::size_t i=0;i<size/2;i++)
+  std::size_t quad_offset = isClosed ? (size/2) : (size/2+1);
+  for(std::size_t i = 0; i < size/2; i++)
     {
       EdgeLin *e1,*e2;
-      e1=new EdgeLin(nodes[i],nodes[i+size/2]);
-      e2=new EdgeLin(nodes[i+size/2],nodes[(i+1)%(size/2)]);
+      e1=new EdgeLin(nodes[i],nodes[i+quad_offset]);
+      e2=new EdgeLin(nodes[i+quad_offset],nodes[(i+1)%quad_offset]);
       SegSegIntersector inters(*e1,*e2);
       bool colinearity=inters.areColinears();
       delete e1; delete e2;
       if(colinearity)
-        ret->pushBack(new EdgeLin(nodes[i],nodes[(i+1)%(size/2)]));
+        ret->pushBack(new EdgeLin(nodes[i],nodes[(i+1)%quad_offset]));
       else
-        ret->pushBack(new EdgeArcCircle(nodes[i],nodes[i+size/2],nodes[(i+1)%(size/2)]));
-      nodes[i]->decrRef(); nodes[i+size/2]->decrRef();
+        ret->pushBack(new EdgeArcCircle(nodes[i],nodes[i+quad_offset],nodes[(i+1)%quad_offset]));
+      nodes[i]->decrRef(); nodes[i+quad_offset]->decrRef();
     }
+  if(!isClosed)
+    nodes[quad_offset-1]->decrRef();
   return ret;
 }
 

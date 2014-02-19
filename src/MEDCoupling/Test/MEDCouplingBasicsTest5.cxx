@@ -1798,6 +1798,64 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp6()
   d2->decrRef();
 }
 
+void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp7()
+{
+  double eps = 1.0e-8;
+  // coordinates circle - SEE getCircle() on the Python side
+  DataArrayDouble *coords1=DataArrayDouble::New();
+  const double coordsData1[16]={0.5328427124746189, -0.08284271247461905, -0.03284271247461901, 0.4828427124746191, -0.03284271247461906, -0.082842712474619, 0.5328427124746191, 0.482842712474619};
+  coords1->useArray(coordsData1,false,CPP_DEALLOC,8,2);
+  // connectivity
+  DataArrayInt *conn1=DataArrayInt::New();
+  const int connData1[5]={INTERP_KERNEL::NORM_QPOLYG,0,1,2,3};
+  conn1->useArray(connData1,false,CPP_DEALLOC,5,1);
+  DataArrayInt *connI1=DataArrayInt::New();
+  const int connIData1[2]={0,5};
+  connI1->useArray(connIData1,false,CPP_DEALLOC,2,1);
+  MEDCouplingUMesh *m1=MEDCouplingUMesh::New("circle",2);
+  m1->setCoords(coords1);
+  m1->setConnectivity(conn1,connI1,true);
+  coords1->decrRef(); conn1->decrRef(); connI1->decrRef();
+
+  // square
+  DataArrayDouble *coords2=DataArrayDouble::New();
+  const double coordsData2[8]={-0.5,-0.5,   -0.5, 0.5, 0.5, 0.5,    0.5,-0.5};
+  coords2->useArray(coordsData2,false,CPP_DEALLOC,4,2);
+  // connectivity
+  DataArrayInt *conn2=DataArrayInt::New();
+  const int connData2[5]={INTERP_KERNEL::NORM_POLYGON, 0,1,2,3};
+  conn2->useArray(connData2,false,CPP_DEALLOC,5,1);
+  DataArrayInt *connI2=DataArrayInt::New();
+  const int connIData2[2]={0,5};
+  connI2->useArray(connIData2,false,CPP_DEALLOC,2,1);
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::New("square",2);
+  m2->setCoords(coords2);
+  m2->setConnectivity(conn2,connI2,true);
+  coords2->decrRef(); conn2->decrRef(); connI2->decrRef();
+
+  DataArrayInt * resToM1 = 0, * resToM2 = 0;
+  MEDCouplingUMesh *m_intersec=MEDCouplingUMesh::Intersect2DMeshes(m2, m1, eps, resToM1, resToM2);
+  m_intersec->zipCoords();
+
+  const double coo_tgt[34]={-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.03284271247461901, 0.4828427124746191, \
+    -0.014575131106459124, 0.5000000000000001, 0.5, -0.11224989991991996, 0.24271243444677046, 0.5, 0.5, 0.19387505004004, \
+    -0.04799910280454185, -0.06682678787499614, -0.023843325638122054, 0.4915644577163915, 0.5, -0.30612494995996, 0.0, -0.5,\
+    -0.5, 0.0, -0.25728756555322957, 0.5, -0.023843325638122026, 0.49156445771639157, -0.04799910280454181, -0.06682678787499613};
+  const int conn_tgt[22]={32, 5, 2, 6, 4, 7, 8, 9, 10, 32, 6, 3, 0, 1, 5, 4, 11, 12, 13, 14, 15, 16};
+  const int connI_tgt[3]={0, 9, 22};
+  const int res1_tgt[2] = {0, 0};
+  const int res2_tgt[2] = {0, -1};
+
+  CPPUNIT_ASSERT(std::equal(conn_tgt,conn_tgt+22,m_intersec->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(connI_tgt,connI_tgt+3,m_intersec->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(res1_tgt,res1_tgt+2,resToM1->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(res2_tgt,res2_tgt+2,resToM2->getConstPointer()));
+  for(int i=0;i<34;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(coo_tgt[i],m_intersec->getCoords()->getIJ(0,i),1e-12);
+  m1->decrRef(); m2->decrRef(); m_intersec->decrRef();
+  resToM1->decrRef(); resToM2->decrRef();
+}
+
 void MEDCouplingBasicsTest5::testDAIBuildSubstractionOptimized1()
 {
   const int tab1[7]={1,3,5,6,7,9,13};
