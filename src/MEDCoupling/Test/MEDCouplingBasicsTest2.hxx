@@ -40,6 +40,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGaussPointNEField1 );
     CPPUNIT_TEST( testCellOrientation1 );
     CPPUNIT_TEST( testCellOrientation2 );
+    CPPUNIT_TEST( testCellOrientation3 );
     CPPUNIT_TEST( testPolyhedronBarycenter );
     CPPUNIT_TEST( testNormL12Integ1D );
     CPPUNIT_TEST( testAreaBary2D );
@@ -83,6 +84,7 @@ namespace ParaMEDMEM
     void testGaussPointNEField1();
     void testCellOrientation1();
     void testCellOrientation2();
+    void testCellOrientation3();
     void testPolyhedronBarycenter();
     void testNormL12Integ1D();
     void testAreaBary2D();

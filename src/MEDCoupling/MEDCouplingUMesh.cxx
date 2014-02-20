@@ -7863,17 +7863,43 @@ void MEDCouplingUMesh::AppendExtrudedCell(const int *connBg, const int *connEnd,
  */
 bool MEDCouplingUMesh::IsPolygonWellOriented(bool isQuadratic, const double *vec, const int *begin, const int *end, const double *coords)
 {
+  std::size_t i, ip1;
   double v[3]={0.,0.,0.};
   std::size_t sz=std::distance(begin,end);
   if(isQuadratic)
     sz/=2;
-  for(std::size_t i=0;i<sz;i++)
+  for(i=0;i<sz;i++)
     {
       v[0]+=coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]+2]-coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]+1];
       v[1]+=coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]]-coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+2];
       v[2]+=coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+1]-coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]];
     }
-  return vec[0]*v[0]+vec[1]*v[1]+vec[2]*v[2]>0.;
+  double ret = vec[0]*v[0]+vec[1]*v[1]+vec[2]*v[2];
+
+  // Try using quadratic points if standard points are degenerated (for example a QPOLYG with two
+  // SEG3 forming a circle):
+  if (fabs(ret) < INTERP_KERNEL::DEFAULT_ABS_TOL && isQuadratic)
+    {
+      v[0] = 0.0; v[1] = 0.0; v[2] = 0.0;
+      for(std::size_t j=0;j<sz;j++)
+        {
+          if (j%2)  // current point i is quadratic, next point i+1 is standard
+            {
+              i = sz+j;
+              ip1 = (j+1)%sz; // ip1 = "i+1"
+            }
+          else      // current point i is standard, next point i+1 is quadratic
+            {
+              i = j;
+              ip1 = j+sz;
+            }
+          v[0]+=coords[3*begin[i]+1]*coords[3*begin[ip1]+2]-coords[3*begin[i]+2]*coords[3*begin[ip1]+1];
+          v[1]+=coords[3*begin[i]+2]*coords[3*begin[ip1]]-coords[3*begin[i]]*coords[3*begin[ip1]+2];
+          v[2]+=coords[3*begin[i]]*coords[3*begin[ip1]+1]-coords[3*begin[i]+1]*coords[3*begin[ip1]];
+        }
+      ret = vec[0]*v[0]+vec[1]*v[1]+vec[2]*v[2];
+    }
+  return (ret>0.);
 }
 
 /*!

@@ -2183,6 +2183,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
+    def testCellOrientation3(self):
+        from cmath import rect  
+
+        c = [rect(1.0, i*pi/4.0) for i in range(8)]
+        coords = [c[-1].real,c[-1].imag,  c[3].real,c[3].imag,
+                   c[5].real,c[5].imag,  c[1].real,c[1].imag]
+        connec = [0,1,2,3] 
+        baseMesh = MEDCouplingUMesh.New("circle", 2)  
+        baseMesh.allocateCells(1)
+        meshCoords = DataArrayDouble.New(coords, 4, 2)
+        baseMesh.setCoords(meshCoords)
+        baseMesh.insertNextCell(NORM_QPOLYG, connec)  # a circle
+        baseMesh.finishInsertingCells()  
+        baseMesh.changeSpaceDimension(3)
+        Oz = [0.0, 0.0, -1.0] 
+        cell_lst = baseMesh.are2DCellsNotCorrectlyOriented(Oz, False)
+        self.assertEqual(cell_lst.getNumberOfTuples(), 0)
+        Oz[2] = 1.0
+        cell_lst = baseMesh.are2DCellsNotCorrectlyOriented(Oz, False)
+        self.assertEqual(cell_lst.getNumberOfTuples(), 1)
+
     def testPolyhedronBarycenter(self):
         connN=[0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0];
         coords=[0.,0.,0., 1.,0.,0., 1.,1.,0., 0.,1.,0., 0.,0.,1., 1.,0.,1., 1.,1.,1., 0.,1.,1., 0.5, 0.5, 0.5];
