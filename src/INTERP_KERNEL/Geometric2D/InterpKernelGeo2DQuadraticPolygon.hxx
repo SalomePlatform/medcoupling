@@ -48,6 +48,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT QuadraticPolygon(const char *fileName);
     INTERPKERNEL_EXPORT static QuadraticPolygon *BuildLinearPolygon(std::vector<Node *>& nodes);
     INTERPKERNEL_EXPORT static QuadraticPolygon *BuildArcCirclePolygon(std::vector<Node *>& nodes);
+    INTERPKERNEL_EXPORT static Edge *BuildLinearEdge(std::vector<Node *>& nodes);
+    INTERPKERNEL_EXPORT static Edge *BuildArcCircleEdge(std::vector<Node *>& nodes);
     INTERPKERNEL_EXPORT static void BuildDbgFile(const std::vector<Node *>& nodes, const char *fileName);
     INTERPKERNEL_EXPORT ~QuadraticPolygon();
     INTERPKERNEL_EXPORT void closeMe() const;

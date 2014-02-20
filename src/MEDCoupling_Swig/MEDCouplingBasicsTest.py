@@ -10440,6 +10440,35 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # Check coordinates:
         self.assertTrue(m3.getCoords().isEqual(m5.getCoords(), eps))
 
+    def testIntersect2DMeshesTmp7(self):
+        eps = 1.0e-8
+        coords = [-0.5,-0.5,   -0.5, 0.5, 0.5, 0.5,    0.5,-0.5]
+        connec = range(4)
+        m1 = MEDCouplingUMesh.New("box", 2)  
+        m1.allocateCells(1)
+        meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
+        m1.setCoords(meshCoords)
+        m1.insertNextCell(NORM_POLYGON, connec)
+        m1.finishInsertingCells()  
+     
+        m2 = MEDCouplingDataForTest.buildCircle(0.25, 0.2, 0.4)
+        # Was looping indefinitly:
+        m_intersec, resToM1, resToM2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
+        m_intersec.zipCoords()
+        coo_tgt = DataArrayDouble([-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.03284271247461901, 0.4828427124746191, 
+          -0.014575131106459124, 0.5000000000000001, 0.5, -0.11224989991991996, 0.24271243444677046, 0.5, 0.5, 0.19387505004004, 
+          -0.04799910280454185, -0.06682678787499614, -0.023843325638122054, 0.4915644577163915, 0.5, -0.30612494995996, 0.0, -0.5, 
+          -0.5, 0.0, -0.25728756555322957, 0.5, -0.023843325638122026, 0.49156445771639157, -0.04799910280454181, -0.06682678787499613], 17 ,2)
+        conn_tgt = [32, 5, 2, 6, 4, 7, 8, 9, 10, 32, 6, 3, 0, 1, 5, 4, 11, 12, 13, 14, 15, 16]
+        connI_tgt = [0, 9, 22]
+        res1_tgt  = [0, 0]
+        res2_tgt = [0, -1]
+        self.assert_(coo_tgt.isEqualWithoutConsideringStr(m_intersec.getCoords(), 1e-12))
+        self.assertEqual(conn_tgt, m_intersec.getNodalConnectivity().getValues())
+        self.assertEqual(connI_tgt, m_intersec.getNodalConnectivityIndex().getValues())
+        self.assertEqual(res1_tgt, resToM1.getValues())
+        self.assertEqual(res2_tgt, resToM2.getValues())
+        
     def testDAIBuildUnique1(self):
         d=DataArrayInt([1,2,2,3,3,3,3,4,5,5,7,7,7,19])
         e=d.buildUnique()
