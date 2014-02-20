@@ -167,6 +167,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTreeFast() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy);
     MEDCOUPLING_EXPORT bool isFullyQuadratic() const;
     MEDCOUPLING_EXPORT bool isPresenceOfQuadratic() const;

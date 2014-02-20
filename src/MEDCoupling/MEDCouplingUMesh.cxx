@@ -6272,9 +6272,9 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const
 DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree(double arcDetEps) const
 {
   int mDim(getMeshDimension()),sDim(getSpaceDimension());
-  if(sDim!=2)  // Compute refined boundary box for quadratic elements only in 2D.
+  if((mDim==3 && sDim==3) || (mDim==2 && sDim==3) || (mDim==1 && sDim==1) || ( mDim==1 && sDim==3))  // Compute refined boundary box for quadratic elements only in 2D.
     return getBoundingBoxForBBTreeFast();
-  else
+  if((mDim==2 && sDim==2) || (mDim==1 && sDim==2))
     {
       bool presenceOfQuadratic(false);
       for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=_types.begin();it!=_types.end();it++)
@@ -6283,11 +6283,14 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree(double arcDetEps) con
           if(cm.isQuadratic())
             presenceOfQuadratic=true;
         }
-      if(presenceOfQuadratic)
+      if(!presenceOfQuadratic)
+        return getBoundingBoxForBBTreeFast();
+      if(mDim==2 && sDim==2)
         return getBoundingBoxForBBTree2DQuadratic(arcDetEps);
       else
-        return getBoundingBoxForBBTreeFast();
+        return getBoundingBoxForBBTree1DQuadratic(arcDetEps);
     }
+  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree : Managed dimensions are (mDim=1,sDim=1), (mDim=1,sDim=2), (mDim=1,sDim=3), (mDim=2,sDim=2), (mDim=2,sDim=3) and (mDim=3,sDim=3) !");
 }
 
 /*!
@@ -6349,12 +6352,13 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTreeFast() const
  * \throw If \a this is not fully defined.
  * \throw If \a this is not a mesh with meshDimension equal to 2.
  * \throw If \a this is not a mesh with spaceDimension equal to 2.
+ * \sa MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic
  */
 DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arcDetEps) const
 {
   checkFullyDefined();
   int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
-  if(spaceDim!=2)
+  if(spaceDim!=2 || spaceDim!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic : This method should be applied on mesh with mesh dimension equal to 2 and space dimension also equal to 2!");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
   double *bbox(ret->getPointer());
@@ -6364,7 +6368,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
     {
       const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*connI]));
       int sz(connI[1]-connI[0]-1);
-      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=1e-12;
+      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=arcDetEps;
       std::vector<INTERP_KERNEL::Node *> nodes(sz);
       INTERP_KERNEL::QuadraticPolygon *pol(0);
       for(int j=0;j<sz;j++)
@@ -6373,11 +6377,56 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
           nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*2],coords[nodeId*2+1]);
         }
       if(!cm.isQuadratic())
-        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes, mDim==2);
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
       else
-        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes, mDim==2);
+        pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
       INTERP_KERNEL::Bounds b; pol->fillBounds(b); delete pol;
       bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); 
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method aggregates the bbox of each 1D cell in \a this considering the whole shape. This method is particularly
+ * useful for 2D meshes having quadratic cells
+ * because for this type of cells getBoundingBoxForBBTreeFast method may return invalid bounding boxes (since it just considers
+ * the two extremities of the arc of circle).
+ * 
+ * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
+ * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
+ * \throw If \a this is not fully defined.
+ * \throw If \a this is not a mesh with meshDimension equal to 1.
+ * \throw If \a this is not a mesh with spaceDimension equal to 2.
+ * \sa MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic
+ */
+DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic(double arcDetEps) const
+{
+  checkFullyDefined();
+  int spaceDim(getSpaceDimension()),mDim(getMeshDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  if(spaceDim!=2 || spaceDim!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic : This method should be applied on mesh with mesh dimension equal to 1 and space dimension also equal to 2!");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  double *bbox(ret->getPointer());
+  const double *coords(_coords->getConstPointer());
+  const int *conn(_nodal_connec->getConstPointer()),*connI(_nodal_connec_index->getConstPointer());
+  for(int i=0;i<nbOfCells;i++,bbox+=4,connI++)
+    {
+      const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*connI]));
+      int sz(connI[1]-connI[0]-1);
+      INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=arcDetEps;
+      std::vector<INTERP_KERNEL::Node *> nodes(sz);
+      INTERP_KERNEL::Edge *edge(0);
+      for(int j=0;j<sz;j++)
+        {
+          int nodeId(conn[*connI+1+j]);
+          nodes[j]=new INTERP_KERNEL::Node(coords[nodeId*2],coords[nodeId*2+1]);
+        }
+      if(!cm.isQuadratic())
+        edge=INTERP_KERNEL::QuadraticPolygon::BuildLinearEdge(nodes);
+      else
+        edge=INTERP_KERNEL::QuadraticPolygon::BuildArcCircleEdge(nodes);
+      const INTERP_KERNEL::Bounds& b(edge->getBounds());
+      bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); edge->decrRef();
     }
   return ret.retn();
 }

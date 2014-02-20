@@ -270,6 +270,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildUnionOf3DMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTreeFast;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCoupling1GTUMesh::New;
@@ -1540,6 +1541,7 @@ namespace ParaMEDMEM
     DataArrayInt *buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTreeFast() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
