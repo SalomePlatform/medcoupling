@@ -1015,7 +1015,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const i
   int dim=getMeshDimension();
   if(dim<2 || dim>3)
     throw INTERP_KERNEL::Exception("Invalid mesh dimension : must be 2 or 3 !");
-  int nbOfCells=getNumberOfCells();
+  int nbOfCells(getNumberOfCells());
   if(dim==2)
     {
       const int *connIndex=_nodal_connec_index->getConstPointer();
@@ -1044,33 +1044,12 @@ void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const i
       int connIndexLgth=_nodal_connec_index->getNbOfElems();
       const int *connOld=_nodal_connec->getConstPointer();
       int connOldLgth=_nodal_connec->getNbOfElems();
-      std::vector<int> connNew(connOld,connOld+connOldLgth);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connNew(DataArrayInt::New()),connNewI(DataArrayInt::New()); connNew->alloc(0,1); connNewI->alloc(1,1); connNewI->setIJ(0,0,0);
+      std::vector<bool> toBeDone(nbOfCells,false);
       for(const int *iter=cellIdsToConvertBg;iter!=cellIdsToConvertEnd;iter++)
         {
           if(*iter>=0 && *iter<nbOfCells)
-            {
-              int pos=connIndex[*iter];
-              int posP1=connIndex[(*iter)+1];
-              int lgthOld=posP1-pos-1;
-              const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connNew[pos]);
-              connNew[pos]=INTERP_KERNEL::NORM_POLYHED;
-              unsigned nbOfFaces=cm.getNumberOfSons2(&connNew[pos+1],lgthOld);
-              int *tmp=new int[nbOfFaces*lgthOld];
-              int *work=tmp;
-              for(int j=0;j<(int)nbOfFaces;j++)
-                {
-                  INTERP_KERNEL::NormalizedCellType type;
-                  unsigned offset=cm.fillSonCellNodalConnectivity2(j,&connNew[pos+1],lgthOld,work,type);
-                  work+=offset;
-                  *work++=-1;
-                }
-              std::size_t newLgth=std::distance(tmp,work)-1;
-              std::size_t delta=newLgth-lgthOld;
-              std::transform(connIndex+(*iter)+1,connIndex+connIndexLgth,connIndex+(*iter)+1,std::bind2nd(std::plus<int>(),delta));
-              connNew.insert(connNew.begin()+posP1,tmp+lgthOld,tmp+newLgth);
-              std::copy(tmp,tmp+lgthOld,connNew.begin()+pos+1);
-              delete [] tmp;
-            }
+            toBeDone[*iter]=true;
           else
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertToPolyTypes : On rank #" << std::distance(cellIdsToConvertBg,iter) << " value is " << *iter << " which is not";
@@ -1078,9 +1057,35 @@ void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const i
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
-      _nodal_connec->alloc((int)connNew.size(),1);
-      int *newConnPtr=_nodal_connec->getPointer();
-      std::copy(connNew.begin(),connNew.end(),newConnPtr);
+      for(int cellId=0;cellId<nbOfCells;cellId++)
+        {
+          int pos(connIndex[cellId]),posP1(connIndex[cellId+1]);
+          int lgthOld(posP1-pos-1);
+          if(toBeDone[cellId])
+            {
+              const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connOld[pos]);
+              unsigned nbOfFaces(cm.getNumberOfSons2(connOld+pos+1,lgthOld));
+              int *tmp(new int[nbOfFaces*lgthOld+1]);
+              int *work=tmp; *work++=INTERP_KERNEL::NORM_POLYHED;
+              for(unsigned j=0;j<nbOfFaces;j++)
+                {
+                  INTERP_KERNEL::NormalizedCellType type;
+                  unsigned offset=cm.fillSonCellNodalConnectivity2(j,connOld+pos+1,lgthOld,work,type);
+                  work+=offset;
+                  *work++=-1;
+                }
+              std::size_t newLgth(std::distance(tmp,work)-1);//-1 for last -1
+              connNew->pushBackValsSilent(tmp,tmp+newLgth);
+              connNewI->pushBackSilent(connNewI->back()+(int)newLgth);
+              delete [] tmp;
+            }
+          else
+            {
+              connNew->pushBackValsSilent(connOld+pos,connOld+posP1);
+              connNewI->pushBackSilent(connNewI->back()+posP1-pos);
+            }
+        }
+      setConnectivity(connNew,connNewI,false);//false because computeTypes called just behind.
     }
   computeTypes();
 }
