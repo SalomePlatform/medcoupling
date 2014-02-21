@@ -49,6 +49,7 @@ SET(InterpKernelTest_SOURCES
   UnitTetra3D2DIntersectionTest.cxx
   UnitTetraIntersectionBaryTest.cxx
   TestInterpKernelUtils.cxx
+  ThreeDSurfProjectionTest.cxx
 )
 
 SET(TestINTERP_KERNEL_SOURCES

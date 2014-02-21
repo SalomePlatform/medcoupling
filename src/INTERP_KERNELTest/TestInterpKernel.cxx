@@ -32,6 +32,7 @@
 #include "MultiElement2DTests.hxx"
 #include "MultiElementTetraTests.hxx"
 #include "SingleElementTetraTests.hxx"
+#include "ThreeDSurfProjectionTest.hxx"
 
 using namespace INTERP_TEST;
 
@@ -51,7 +52,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( HexaTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElement2DTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElementTetraTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementTetraTests );
-
+CPPUNIT_TEST_SUITE_REGISTRATION( ThreeDSurfProjectionTest );
 // --- generic Main program from KERNEL_SRC/src/Basics/Test
 
 #include "BasicMainTest.hxx"
