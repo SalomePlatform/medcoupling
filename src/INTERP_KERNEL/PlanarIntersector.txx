@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel):
     _meshT(meshT),_meshS(meshS),
-    _dim_caracteristic(dimCaracteristic),_max_distance_3Dsurf_intersect(md3DSurf),_precision(precision),_median_plane(medianPlane),
+    _dim_caracteristic(dimCaracteristic),_max_distance_3Dsurf_intersect(md3DSurf),_min_dot_btw_3Dsurf_intersect(minDot3DSurf),_precision(precision),_median_plane(medianPlane),
     _do_rotate(doRotate),_orientation(orientation),_print_level(printLevel)
   {
     _connectT=meshT.getConnectivityPtr();
@@ -344,7 +344,13 @@ namespace INTERP_KERNEL
     if(i_A2<nb_NodesA && i_B2<nb_NodesB)
       {
         //Build the normal of the median plane
-        same_orientation=dotprod<SPACEDIM>(normal_A,normal_B)>=0;
+
+        double dotProd(dotprod<SPACEDIM>(normal_A,normal_B)/(normA*normB));
+
+        if(fabs(dotProd)<minDot3DSurf)
+          return 0;
+
+        same_orientation=(dotProd>=0);
         
         if(!same_orientation)
           for(int idim =0; idim< SPACEDIM; idim++)

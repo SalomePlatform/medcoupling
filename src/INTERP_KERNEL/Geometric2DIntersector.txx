@@ -63,7 +63,7 @@ namespace INTERP_KERNEL
     QuadraticPolygon *p2=buildPolygonFrom(CoordsS,tS);
     double ret=p1->intersectWithAbs(*p2);
     delete p1; delete p2;
-    return ret;
+    return orientation*ret;
   }
 
   INTERSECTOR_TEMPLATE
@@ -81,7 +81,7 @@ namespace INTERP_KERNEL
     QuadraticPolygon *p2=buildPolygonOfOneEdgeFrom(CoordsS,tS);
     double ret=p1->intersectWithAbs1D(*p2, isColinear);
     delete p1; delete p2;
-    return ret;
+    return orientation*ret;
   }
 
   INTERSECTOR_TEMPLATE

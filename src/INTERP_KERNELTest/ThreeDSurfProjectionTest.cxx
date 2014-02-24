@@ -100,6 +100,26 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test2()
   std::copy(coo2,coo2+9,tmp1);
   ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-8/* <- */,-1.,0.5,true);
   CPPUNIT_ASSERT_EQUAL(0,ret);
+  // again max 3D distance is 1e-5 > 1e-6 so 1 is expected
+  std::copy(coo,coo+9,tmp0);
+  std::copy(coo2,coo2+9,tmp1);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,-1.,0.5,true);
+  CPPUNIT_ASSERT_EQUAL(1,ret);
+  // again max 3D distance is 1e-5 > 1e-6 but minDot set to 0.8. 0 expected. because the angle is pi/4 so cos(pi/3) > 0.8
+  std::copy(coo,coo+9,tmp0);
+  std::copy(coo2,coo2+9,tmp1);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,0.8/* <- */,0.5,true);
+  CPPUNIT_ASSERT_EQUAL(0,ret);
+  // again max 3D distance is 1e-5 > 1e-6 but minDot set to 0.7. 1 expected. because the angle is pi/4 so cos(pi/3) < 0.49
+  std::copy(coo,coo+9,tmp0);
+  std::copy(coo2,coo2+9,tmp1);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,0.49/* <- */,0.5,true);
+  CPPUNIT_ASSERT_EQUAL(1,ret);
+  // again max 3D distance is 1e-5 > 1e-6 but minDot set to 0.7. 0 expected. because the angle is pi/4 so cos(pi/3) > 0.51
+  std::copy(coo,coo+9,tmp0);
+  std::copy(coo2,coo2+9,tmp1);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,0.51/* <- */,0.5,true);
+  CPPUNIT_ASSERT_EQUAL(0,ret);
   //
   delete [] tmp0;
   delete [] tmp1;
