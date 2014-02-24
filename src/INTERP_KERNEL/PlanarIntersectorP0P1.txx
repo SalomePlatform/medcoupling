@@ -28,9 +28,9 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix, class ConcreteP0P1Intersector>
   PlanarIntersectorP0P1<MyMeshType,MyMatrix,ConcreteP0P1Intersector>::PlanarIntersectorP0P1(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                                            double dimCaracteristic, double precision, double md3DSurf, double medianPlane,
+                                                                                            double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane,
                                                                                             bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,medianPlane,doRotate,orientation,printLevel)
+    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,minDot3DSurf,medianPlane,doRotate,orientation,printLevel)
   {
   }
 

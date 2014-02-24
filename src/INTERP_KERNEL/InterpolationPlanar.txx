@@ -164,6 +164,7 @@ namespace INTERP_KERNEL
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
                                                                                                   InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                  InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -172,6 +173,7 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
                                                                                            InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
@@ -180,6 +182,7 @@ namespace INTERP_KERNEL
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                 InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
@@ -187,6 +190,7 @@ namespace INTERP_KERNEL
           case PointLocator:
             intersector=new PointLocator2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                    InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                   InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                    InterpolationOptions::getMedianPlane(),
                                                                                                    InterpolationOptions::getPrecision(),
                                                                                                    InterpolationOptions::getOrientation());
@@ -203,6 +207,7 @@ namespace INTERP_KERNEL
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
                                                                                                   InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                  InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -211,6 +216,7 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
                                                                                            InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
@@ -219,6 +225,7 @@ namespace INTERP_KERNEL
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                 InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
@@ -226,6 +233,7 @@ namespace INTERP_KERNEL
           case PointLocator:
             intersector=new PlanarIntersectorP0P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                            InterpolationOptions::getMedianPlane(),
                                                                            InterpolationOptions::getPrecision(),
                                                                            InterpolationOptions::getOrientation());
@@ -234,6 +242,7 @@ namespace INTERP_KERNEL
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1Bary>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                       InterpolationOptions::getPrecision(),
                                                                                                       InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                      InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                       InterpolationOptions::getMedianPlane(),
                                                                                                       InterpolationOptions::getOrientation(),
                                                                                                       InterpolationOptions::getPrintLevel());
@@ -241,6 +250,7 @@ namespace INTERP_KERNEL
           case BarycentricGeo2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1Bary>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                     InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                    InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                     InterpolationOptions::getMedianPlane(),
                                                                                                     InterpolationOptions::getPrecision(),
                                                                                                     InterpolationOptions::getOrientation());
@@ -257,6 +267,7 @@ namespace INTERP_KERNEL
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
                                                                                                   InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                  InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -265,6 +276,7 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
                                                                                            InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
@@ -273,21 +285,24 @@ namespace INTERP_KERNEL
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                 InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
           case PointLocator:
             intersector=new PlanarIntersectorP1P0PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
-                                                                       InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                       InterpolationOptions::getMedianPlane(),
-                                                                       InterpolationOptions::getPrecision(),
-                                                                       InterpolationOptions::getOrientation());
+                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
+                                                                           InterpolationOptions::getMedianPlane(),
+                                                                           InterpolationOptions::getPrecision(),
+                                                                           InterpolationOptions::getOrientation());
             break;
           case Barycentric:
              intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                        InterpolationOptions::getPrecision(),
                                                                                                        InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                       InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                        InterpolationOptions::getMedianPlane(),
                                                                                                        InterpolationOptions::getOrientation(),
                                                                                                        InterpolationOptions::getPrintLevel());
@@ -295,6 +310,7 @@ namespace INTERP_KERNEL
           case BarycentricGeo2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                     InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                    InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                     InterpolationOptions::getMedianPlane(),
                                                                                                     InterpolationOptions::getPrecision(),
                                                                                                     InterpolationOptions::getOrientation());
@@ -309,6 +325,7 @@ namespace INTERP_KERNEL
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
                                                                                                   InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                  InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -317,6 +334,7 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
                                                                                            InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
@@ -325,6 +343,7 @@ namespace INTERP_KERNEL
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                 InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
@@ -332,6 +351,7 @@ namespace INTERP_KERNEL
           case PointLocator:
             intersector=new PlanarIntersectorP1P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                            InterpolationOptions::getMedianPlane(),
                                                                            InterpolationOptions::getPrecision(),
                                                                            InterpolationOptions::getOrientation());

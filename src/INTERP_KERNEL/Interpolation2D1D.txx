@@ -80,6 +80,7 @@ namespace INTERP_KERNEL
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,Planar2D1DIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                     InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                    InterpolationOptions::getMinDotBtwPlane3DSurfIntersect(),
                                                                                                     InterpolationOptions::getMedianPlane(),
                                                                                                     InterpolationOptions::getPrecision(),
                                                                                                     InterpolationOptions::getOrientation());

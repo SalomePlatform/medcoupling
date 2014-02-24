@@ -1202,7 +1202,7 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
     {
       std::vector<double> cpy(res);
       int nbNodes=(int)std::distance(startConn,endConn);
-      INTERP_KERNEL::PlanarIntersector<DummyClsMCPS,int>::projection(&res[0],&cpy[0],nbNodes,nbNodes,1.e-12,0.,0.,true);
+      INTERP_KERNEL::PlanarIntersector<DummyClsMCPS,int>::Projection(&res[0],&cpy[0],nbNodes,nbNodes,1.e-12,0./*max distance*/,-1./*min dot*/,0.,true);
       res.resize(2*nbNodes);
       for(int i=0;i<nbNodes;i++)
         {

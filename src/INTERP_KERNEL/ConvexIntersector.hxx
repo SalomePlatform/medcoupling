@@ -40,7 +40,7 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
-                      double dimCaracteristic, double precision, double md3DSurf, double medianPlane,
+                      double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane,
                       bool doRotate, int orientation, int printLevel);
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
     double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);

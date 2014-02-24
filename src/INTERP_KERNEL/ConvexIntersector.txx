@@ -39,9 +39,9 @@ namespace INTERP_KERNEL
 {
   CONVINTERSECTOR_TEMPLATE
   CONVEX_INTERSECTOR_::ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
-                                         double dimCaracteristic, double precision, double md3DSurf,
+                                         double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf,
                                          double medianPlane, bool doRotate , int oriantation, int printLevel)
-    :InterpType<MyMeshType,MyMatrix,CONVEX_INTERSECTOR_ >(meshT,meshS,dimCaracteristic, precision, md3DSurf, medianPlane, doRotate, oriantation, printLevel),
+    :InterpType<MyMeshType,MyMatrix,CONVEX_INTERSECTOR_ >(meshT,meshS,dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, doRotate, oriantation, printLevel),
      _epsilon(precision*dimCaracteristic)
   {
     if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 1)

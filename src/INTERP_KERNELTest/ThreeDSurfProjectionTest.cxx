@@ -48,7 +48,7 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test1()
   // here the max 3D distance is 1e-5 > 1e-6 so 1 is expected
   std::copy(coo,coo+9,tmp0);
   std::copy(coo2,coo2+9,tmp1);
-  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,0.5,true);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,-1.,0.5,true);
   CPPUNIT_ASSERT_EQUAL(1,ret);
   const double expected0[9]={0.,0.,0.,1.,0.,0.,0.,1.,0.};
   for(int i=0;i<9;i++)
@@ -59,12 +59,12 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test1()
   // here the max 3D distance is 1e-8 < 1e-6 so 0 is expected
   std::copy(coo,coo+9,tmp0);
   std::copy(coo2,coo2+9,tmp1);
-  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::projection(tmp0,tmp1,3,3,1e-2,1e-8/* <- */,0.5,true);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-8/* <- */,-1.,0.5,true);
   CPPUNIT_ASSERT_EQUAL(0,ret);
   // here testing when max 3D distance is 1e-5 > 1e-6 with inverted cells
   std::copy(coo,coo+9,tmp0);
   std::copy(coo2,coo2+3,tmp1+6); std::copy(coo2+3,coo2+6,tmp1+3); std::copy(coo2+6,coo2+9,tmp1);
-  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,0.5,true);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,-1.,0.5,true);
   CPPUNIT_ASSERT_EQUAL(-1,ret);
   const double expected1[9]={-0.7071067811865476,-0.7071067811865476,0.,0.,-1.4142135623730951,0.,-1.4142135623730951,-1.4142135623730951,0.};
   const double expected2[9]={-1.4142135623730951,-1.4142135623730951,0.,0.,-1.4142135623730951,0.,-0.7071067811865476,-0.7071067811865476,0.};
@@ -93,12 +93,12 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test2()
   // here the max 3D distance is 1e-5 > 1e-6 so 1 is expected
   std::copy(coo,coo+9,tmp0);
   std::copy(coo2,coo2+9,tmp1);
-  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,0.5,true);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-5/* <- */,-1.,0.5,true);
   CPPUNIT_ASSERT_EQUAL(1,ret);
   // here the max 3D distance is 1e-8 < 1e-6 so 0 is expected
   std::copy(coo,coo+9,tmp0);
   std::copy(coo2,coo2+9,tmp1);
-  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::projection(tmp0,tmp1,3,3,1e-2,1e-8/* <- */,0.5,true);
+  ret=INTERP_KERNEL::PlanarIntersector<MyMeshType,MyMatrixType>::Projection(tmp0,tmp1,3,3,1e-2,1e-8/* <- */,-1.,0.5,true);
   CPPUNIT_ASSERT_EQUAL(0,ret);
   //
   delete [] tmp0;

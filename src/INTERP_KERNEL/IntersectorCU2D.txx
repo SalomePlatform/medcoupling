@@ -37,7 +37,7 @@ namespace INTERP_KERNEL
   INTERSECTOR_CU2D::IntersectorCU2D(const MyCMeshType& meshS,
                                     const MyUMeshType& meshT):
     IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU2D<MyCMeshType,MyUMeshType,MyMatrix> >( meshS, meshT ),
-    _intersector(meshT, meshT, 0,0,0,0,0,0 )
+    _intersector(meshT, meshT, 0,0,0,0,0,0,0 )
   {
     if ( MyCMeshType::MY_SPACEDIM != 2 || MyCMeshType::MY_MESHDIM != 2 ||
          MyUMeshType::MY_SPACEDIM != 2 || MyUMeshType::MY_MESHDIM != 2 )

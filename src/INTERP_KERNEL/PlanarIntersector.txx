@@ -30,7 +30,7 @@
 namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix>
-  PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel):
+  PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel):
     _meshT(meshT),_meshS(meshS),
     _dim_caracteristic(dimCaracteristic),_max_distance_3Dsurf_intersect(md3DSurf),_precision(precision),_median_plane(medianPlane),
     _do_rotate(doRotate),_orientation(orientation),_print_level(printLevel)
@@ -275,12 +275,12 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   int PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB)
   {
-    return projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_max_distance_3Dsurf_intersect,_median_plane,_do_rotate);
+    return Projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_max_distance_3Dsurf_intersect,_min_dot_btw_3Dsurf_intersect,_median_plane,_do_rotate);
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersector<MyMeshType,MyMatrix>::projection(double *Coords_A, double *Coords_B, 
-                                                         int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate)
+  int PlanarIntersector<MyMeshType,MyMatrix>::Projection(double *Coords_A, double *Coords_B, 
+                                                         int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate)
   {
     double normal_A[3]={0,0,0};
     double normal_B[3]={0,0,0};

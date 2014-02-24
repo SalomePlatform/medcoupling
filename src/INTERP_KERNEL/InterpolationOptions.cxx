@@ -29,6 +29,8 @@ const double INTERP_KERNEL::InterpolationOptions::DFT_SURF3D_ADJ_EPS=1.e-4;
 
 const double INTERP_KERNEL::InterpolationOptions::DFT_MAX_DIST_3DSURF_INTERSECT=-1.;
 
+const double INTERP_KERNEL::InterpolationOptions::DFT_MIN_DOT_BTW_3DSURF_INTERSECT=-1.;
+
 const char INTERP_KERNEL::InterpolationOptions::PRECISION_STR[]="Precision";
 
 const char INTERP_KERNEL::InterpolationOptions::MEDIANE_PLANE_STR[]="MedianPlane";
@@ -38,6 +40,8 @@ const char INTERP_KERNEL::InterpolationOptions::BOUNDING_BOX_ADJ_STR[]="Bounding
 const char INTERP_KERNEL::InterpolationOptions::BOUNDING_BOX_ADJ_ABS_STR[]="BoundingBoxAdjustmentAbs";
 
 const char INTERP_KERNEL::InterpolationOptions::MAX_DISTANCE_3DSURF_INSECT_STR[]="MaxDistance3DSurfIntersect";
+
+const char INTERP_KERNEL::InterpolationOptions::MIN_DOT_BTW_3DSURF_INSECT_STR[]="MinDotBetween3DSurfIntersect";
 
 const char INTERP_KERNEL::InterpolationOptions::PRINT_LEV_STR[]="PrintLevel";
 
@@ -81,6 +85,7 @@ void INTERP_KERNEL::InterpolationOptions::init()
   _bounding_box_adjustment=DFT_SURF3D_ADJ_EPS;
   _bounding_box_adjustment_abs=0.;
   _max_distance_for_3Dsurf_intersect=DFT_MAX_DIST_3DSURF_INTERSECT;
+  _min_dot_btw_3Dsurf_intersect=DFT_MIN_DOT_BTW_3DSURF_INTERSECT;
   _orientation=0;
   _measure_abs=true;
   _splitting_policy=PLANAR_FACE_5;
@@ -129,6 +134,11 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionDouble(const std::string& key
   else if(key==MAX_DISTANCE_3DSURF_INSECT_STR) 
     {
       setMaxDistance3DSurfIntersect(value);
+      return true;
+    }
+  else if(key==MIN_DOT_BTW_3DSURF_INSECT_STR)
+    {
+      setMinDotBtwPlane3DSurfIntersect(value);
       return true;
     }
   else
@@ -279,6 +289,7 @@ std::string INTERP_KERNEL::InterpolationOptions::printOptions() const
   oss << "Bounding box adj : " << _bounding_box_adjustment << std::endl;
   oss << "Bounding box adj abs : " << _bounding_box_adjustment_abs << std::endl;
   oss << "Max distance for 3DSurf intersect : " << _max_distance_for_3Dsurf_intersect << std::endl;
+  oss << "Min dot between plane for 3DSurf intersect : " << _min_dot_btw_3Dsurf_intersect << std::endl;
   oss << "Orientation : " << _orientation << std::endl;
   oss << "Measure abs : " << _measure_abs << std::endl;
   oss << "Splitting policy : " << getSplittingPolicyRepr() << std::endl;
