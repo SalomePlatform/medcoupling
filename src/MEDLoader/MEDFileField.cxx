@@ -3398,11 +3398,6 @@ std::string MEDFileFieldGlobsReal::getFileName() const
   return contentNotNull()->getFileName();
 }
 
-std::string MEDFileFieldGlobsReal::getFileName2() const
-{
-  return contentNotNull()->getFileName2();
-}
-
 /*!
  * Returns a localization object by its name.
  *  \param [in] locName - the name of the localization of interest.
@@ -5598,13 +5593,27 @@ void MEDFileAnyTypeField1TS::loadArraysIfNecessary()
 
 /*!
  * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
- * This method does not release arrays set outside the context of a MED file.
+ * \b WARNING, this method does release arrays even if \a this does not come from a load of a MED file.
+ * So this method can lead to a loss of data. If you want to unload arrays safely call MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss instead.
  * 
- * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::loadArraysIfNecessary
+ * \sa MEDFileAnyTypeField1TS::loadArrays, MEDFileAnyTypeField1TS::loadArraysIfNecessary, MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss
  */
 void MEDFileAnyTypeField1TS::unloadArrays()
 {
   contentNotNullBase()->unloadArrays();
+}
+
+/*!
+ * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
+ * This method is the symetrical method of MEDFileAnyTypeField1TS::loadArraysIfNecessary.
+ * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
+ * 
+ * \sa MEDFileAnyTypeField1TS::loadArraysIfNecessary
+ */
+void MEDFileAnyTypeField1TS::unloadArraysWithoutDataLoss()
+{
+  if(!getFileName().empty())
+    contentNotNullBase()->unloadArrays();
 }
 
 void MEDFileAnyTypeField1TS::writeLL(med_idt fid) const
@@ -6117,7 +6126,7 @@ MEDFileField1TS::MEDFileField1TS()
  */
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol) const
 {
-  if(getFileName2().empty())
+  if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut,*contentNotNull());
@@ -6149,7 +6158,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(TypeOfField type, int m
  */
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtTopLevel(TypeOfField type, int renumPol) const
 {
-  if(getFileName2().empty())
+  if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arrOut,*contentNotNull());
@@ -6242,7 +6251,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(TypeOfField type,
  */
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, int renumPol) const
 {
-  if(getFileName2().empty())
+  if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arrOut,*contentNotNull());
@@ -6509,7 +6518,7 @@ const MEDFileIntField1TSWithoutSDA *MEDFileIntField1TS::contentNotNull() const
 
 MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
 {
-  if(getFileName2().empty())
+  if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arrOut2;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,std::string(),renumPol,this,arrOut2,*contentNotNull());
@@ -6556,7 +6565,7 @@ DataArrayInt *MEDFileIntField1TS::ReturnSafelyDataArrayInt(MEDCouplingAutoRefCou
  */
 MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtTopLevel(TypeOfField type, DataArrayInt* &arrOut, int renumPol) const
 {
-  if(getFileName2().empty())
+  if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arr;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtTopLevel(type,std::string(),renumPol,this,arr,*contentNotNull());
@@ -6652,7 +6661,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldOnMeshAtLevel(TypeOfField ty
  */
 MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevelOld(TypeOfField type, const std::string& mname, int meshDimRelToMax, DataArrayInt* &arrOut, int renumPol) const
 {
-  if(getFileName2().empty())
+  if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevelOld : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   MEDCouplingAutoRefCountObjectPtr<DataArray> arr;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=contentNotNull()->getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this,arr,*contentNotNull());
@@ -8181,13 +8190,27 @@ void MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary()
 
 /*!
  * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
- * This method does not release arrays set outside the context of a MED file.
+ * \b WARNING, this method does release arrays even if \a this does not come from a load of a MED file.
+ * So this method can lead to a loss of data. If you want to unload arrays safely call MEDFileAnyTypeFieldMultiTS::unloadArraysWithoutDataLoss instead.
  * 
- * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary
+ * \sa MEDFileAnyTypeFieldMultiTS::loadArrays, MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary, MEDFileAnyTypeFieldMultiTS::unloadArraysWithoutDataLoss
  */
 void MEDFileAnyTypeFieldMultiTS::unloadArrays()
 {
   contentNotNullBase()->unloadArrays();
+}
+
+/*!
+ * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
+ * This method is the symetrical method of MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary.
+ * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
+ * 
+ * \sa MEDFileAnyTypeFieldMultiTS::loadArraysIfNecessary
+ */
+void MEDFileAnyTypeFieldMultiTS::unloadArraysWithoutDataLoss()
+{
+  if(!getFileName().empty())
+    contentNotNullBase()->unloadArrays();
 }
 
 std::string MEDFileAnyTypeFieldMultiTS::simpleRepr() const
@@ -9639,9 +9662,10 @@ void MEDFileFields::loadArraysIfNecessary()
 
 /*!
  * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
- * This method does not release arrays set outside the context of a MED file.
+ * \b WARNING, this method does release arrays even if \a this does not come from a load of a MED file.
+ * So this method can lead to a loss of data. If you want to unload arrays safely call MEDFileFields::unloadArraysWithoutDataLoss instead.
  * 
- * \sa MEDFileFields::loadArrays, MEDFileFields::loadArraysIfNecessary
+ * \sa MEDFileFields::loadArrays, MEDFileFields::loadArraysIfNecessary, MEDFileFields::unloadArraysWithoutDataLoss
  */
 void MEDFileFields::unloadArrays()
 {
@@ -9651,6 +9675,19 @@ void MEDFileFields::unloadArrays()
       if(elt)
         elt->unloadArrays();
     }
+}
+
+/*!
+ * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
+ * This method is the symetrical method of MEDFileFields::loadArraysIfNecessary.
+ * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
+ * 
+ * \sa MEDFileFields::loadArraysIfNecessary
+ */
+void MEDFileFields::unloadArraysWithoutDataLoss()
+{
+  if(!getFileName().empty())
+    unloadArrays();
 }
 
 std::vector<std::string> MEDFileFields::getPflsReallyUsed() const

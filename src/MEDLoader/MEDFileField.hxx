@@ -334,7 +334,6 @@ namespace ParaMEDMEM
     int getNbOfGaussPtPerCell(int locId) const;
     int getLocalizationId(const std::string& loc) const;
     std::string getFileName() const { return _file_name; }
-    std::string getFileName2() const { return _file_name; }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
     const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
     const DataArrayInt *getProfileFromId(int pflId) const;
@@ -412,7 +411,6 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT int getNbOfGaussPtPerCell(int locId) const;
     MEDLOADER_EXPORT int getLocalizationId(const std::string& loc) const;
     MEDLOADER_EXPORT std::string getFileName() const;
-    MEDLOADER_EXPORT std::string getFileName2() const;
     MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
     MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
     MEDLOADER_EXPORT MEDFileFieldLoc& getLocalizationFromId(int locId);
@@ -665,6 +663,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
     MEDLOADER_EXPORT void unloadArrays();
+    MEDLOADER_EXPORT void unloadArraysWithoutDataLoss();
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitComponents() const;
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitDiscretizations() const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *deepCpy() const;
@@ -913,6 +912,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
     MEDLOADER_EXPORT void unloadArrays();
+    MEDLOADER_EXPORT void unloadArraysWithoutDataLoss();
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -1085,6 +1085,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
     MEDLOADER_EXPORT void unloadArrays();
+    MEDLOADER_EXPORT void unloadArraysWithoutDataLoss();
     MEDLOADER_EXPORT int getNumberOfFields() const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getCommonIterations(bool& areThereSomeForgottenTS) const;
     MEDLOADER_EXPORT std::vector<std::string> getFieldsNames() const;
