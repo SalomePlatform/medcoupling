@@ -22,12 +22,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "InterpKernelTestExport.hxx"
+
 namespace INTERP_TEST 
 {
   /**
    * \brief Class dedicated of the test of the preprocessing of 3D surf cells before performing invoking 2D algorithms.
    */
-  class ThreeDSurfProjectionTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT ThreeDSurfProjectionTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE( ThreeDSurfProjectionTest );
     CPPUNIT_TEST ( test1 );
