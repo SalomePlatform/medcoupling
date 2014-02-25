@@ -697,6 +697,7 @@ namespace ParaMEDMEM
 #endif
         else
           throw INTERP_KERNEL::Exception(msg.c_str());
+        throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
       }
    
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
@@ -2704,6 +2705,7 @@ namespace ParaMEDMEM
 #endif
         else
           throw INTERP_KERNEL::Exception(msg.c_str());
+        throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
       }
 
       DataArrayInt(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)

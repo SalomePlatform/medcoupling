@@ -270,7 +270,9 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         {
           ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(eltOwning),NULL);
-          void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) ParaMEDMEM::MemArray<T>::CDeallocator;
+          typename ParaMEDMEM::MemArray<T>::Deallocator tmp(ParaMEDMEM::MemArray<T>::CDeallocator);
+          void **tmp2(reinterpret_cast<void**>(&tmp));
+          void **objs=new void *[2]; objs[0]=ref; objs[1]=*tmp2;
           mma.setParameterForDeallocator(objs);
           mma.setSpecificDeallocator(numarrdeal);
         }
@@ -368,13 +370,15 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
   npy_intp dim[2];
   dim[0]=(npy_intp)self->getNumberOfTuples(); dim[1]=nbComp;
   const T *bg=self->getConstPointer();
-  PyObject *ret=PyArray_SimpleNewFromData(nbDims,dim,npyObjectType,const_cast<T *>(bg));
+  PyObject *ret(PyArray_SimpleNewFromData(nbDims,dim,npyObjectType,const_cast<T *>(bg)));
   if(mem.isDeallocatorCalled())
     {
       if(mem.getDeallocator()!=numarrdeal)
         {// case for the first call of toNumPyArray
-          PyObject *ref=PyWeakref_NewRef(ret,NULL);
-          void **objs=new void *[2]; objs[0]=ref; objs[1]=(void*) mem.getDeallocator();
+          PyObject *ref(PyWeakref_NewRef(ret,NULL));
+          typename ParaMEDMEM::MemArray<T>::Deallocator tmp(mem.getDeallocator());
+          void **tmp2(reinterpret_cast<void**>(&tmp));
+          void **objs=new void *[2]; objs[0]=reinterpret_cast<void*>(ref); objs[1]=*tmp2;
           mem.setParameterForDeallocator(objs);
           mem.setSpecificDeallocator(numarrdeal);
           return ret;
