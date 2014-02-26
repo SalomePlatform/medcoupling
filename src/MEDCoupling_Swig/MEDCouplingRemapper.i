@@ -74,6 +74,7 @@ namespace ParaMEDMEM
       int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception);
       double getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception);
       int getNumberOfColsOfMatrix() const throw(INTERP_KERNEL::Exception);
+      static std::string BuildMethodFrom(const std::string& meth1, const std::string& meth2) throw(INTERP_KERNEL::Exception);
       %extend
          {
            PyObject *getCrudeMatrix() const throw(INTERP_KERNEL::Exception)
