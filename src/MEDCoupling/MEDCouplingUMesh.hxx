@@ -288,6 +288,8 @@ namespace ParaMEDMEM
     DataArrayInt *convertLinearCellsToQuadratic2D1(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayInt *convertLinearCellsToQuadratic3D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayInt *convertLinearCellsToQuadratic3D1(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
+    DataArrayInt *buildUnionOf2DMeshLinear(const MEDCouplingUMesh *skin, const DataArrayInt *n2o) const;
+    DataArrayInt *buildUnionOf2DMeshQuadratic(const MEDCouplingUMesh *skin, const DataArrayInt *n2o) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const;

@@ -8252,6 +8252,98 @@ void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(int *begin, int *end, c
     }
 }
 
+DataArrayInt *MEDCouplingUMesh::buildUnionOf2DMeshLinear(const MEDCouplingUMesh *skin, const DataArrayInt *n2o) const
+{
+  int nbOfNodesExpected(skin->getNumberOfNodes());
+  const int *n2oPtr(n2o->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodal(DataArrayInt::New()),revNodalI(DataArrayInt::New());
+  skin->getReverseNodalConnectivity(revNodal,revNodalI);
+  const int *revNodalPtr(revNodal->getConstPointer()),*revNodalIPtr(revNodalI->getConstPointer());
+  const int *nodalPtr(skin->getNodalConnectivity()->getConstPointer());
+  const int *nodalIPtr(skin->getNodalConnectivityIndex()->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfNodesExpected+1,1);
+  int *work(ret->getPointer());  *work++=INTERP_KERNEL::NORM_POLYGON;
+  if(nbOfNodesExpected<1)
+    return ret.retn();
+  int prevCell(0),prevNode(nodalPtr[nodalIPtr[0]+1]);
+  *work++=n2oPtr[prevNode];
+  for(int i=1;i<nbOfNodesExpected;i++)
+    {
+      if(nodalIPtr[prevCell+1]-nodalIPtr[prevCell]==3)
+        {
+          std::set<int> conn(nodalPtr+nodalIPtr[prevCell]+1,nodalPtr+nodalIPtr[prevCell]+3);
+          conn.erase(prevNode);
+          if(conn.size()==1)
+            {
+              int curNode(*(conn.begin()));
+              *work++=n2oPtr[curNode];
+              std::set<int> shar(revNodalPtr+revNodalIPtr[curNode],revNodalPtr+revNodalIPtr[curNode+1]);
+              shar.erase(prevCell);
+              if(shar.size()==1)
+                {
+                  prevCell=*(shar.begin());
+                  prevNode=curNode;
+                }
+              else
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMeshLinear : presence of unexpected 2 !");
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMeshLinear : presence of unexpected 1 !");
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMeshLinear : presence of unexpected cell !");
+    }
+  return ret.retn();
+}
+
+DataArrayInt *MEDCouplingUMesh::buildUnionOf2DMeshQuadratic(const MEDCouplingUMesh *skin, const DataArrayInt *n2o) const
+{
+  int nbOfNodesExpected(skin->getNumberOfNodes());
+  int nbOfTurn(nbOfNodesExpected/2);
+  const int *n2oPtr(n2o->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodal(DataArrayInt::New()),revNodalI(DataArrayInt::New());
+  skin->getReverseNodalConnectivity(revNodal,revNodalI);
+  const int *revNodalPtr(revNodal->getConstPointer()),*revNodalIPtr(revNodalI->getConstPointer());
+  const int *nodalPtr(skin->getNodalConnectivity()->getConstPointer());
+  const int *nodalIPtr(skin->getNodalConnectivityIndex()->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfNodesExpected+1,1);
+  int *work(ret->getPointer());  *work++=INTERP_KERNEL::NORM_QPOLYG;
+  if(nbOfNodesExpected<1)
+    return ret.retn();
+  int prevCell(0),prevNode(nodalPtr[nodalIPtr[0]+1]);
+  *work=n2oPtr[prevNode]; work[nbOfTurn]=n2oPtr[nodalPtr[nodalIPtr[0]+3]]; work++;
+  for(int i=1;i<nbOfTurn;i++)
+    {
+      if(nodalIPtr[prevCell+1]-nodalIPtr[prevCell]==4)
+        {
+          std::set<int> conn(nodalPtr+nodalIPtr[prevCell]+1,nodalPtr+nodalIPtr[prevCell]+3);
+          conn.erase(prevNode);
+          if(conn.size()==1)
+            {
+              int curNode(*(conn.begin()));
+              *work=n2oPtr[curNode];
+              std::set<int> shar(revNodalPtr+revNodalIPtr[curNode],revNodalPtr+revNodalIPtr[curNode+1]);
+              shar.erase(prevCell);
+              if(shar.size()==1)
+                {
+                  int curCell(*(shar.begin()));
+                  work[nbOfTurn]=n2oPtr[nodalPtr[nodalIPtr[curCell]+3]];
+                  prevCell=curCell;
+                  prevNode=curNode;
+                  work++;
+                }
+              else
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMeshQuadratic : presence of unexpected 2 !");
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMeshQuadratic : presence of unexpected 1 !");
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMeshQuadratic : presence of unexpected cell !");
+    }
+  return ret.retn();
+}
+
 /*!
  * This method makes the assumption spacedimension == meshdimension == 2.
  * This method works only for linear cells.
@@ -8262,52 +8354,18 @@ DataArrayInt *MEDCouplingUMesh::buildUnionOf2DMesh() const
 {
   if(getMeshDimension()!=2 || getSpaceDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : meshdimension, spacedimension must be equal to 2 !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=computeSkin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=m->zipCoordsTraducer();
-  int nbOfNodesExpected=m->getNumberOfNodes();
-  if(m->getNumberOfCells()!=nbOfNodesExpected)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : the mesh 2D in input appears to be not in a single part or a quadratic 2D mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(m->getNumberOfNodes());
-  const int *n2oPtr=n2o->getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodal(DataArrayInt::New()),revNodalI(DataArrayInt::New());
-  m->getReverseNodalConnectivity(revNodal,revNodalI);
-  const int *revNodalPtr=revNodal->getConstPointer(),*revNodalIPtr=revNodalI->getConstPointer();
-  const int *nodalPtr=m->getNodalConnectivity()->getConstPointer();
-  const int *nodalIPtr=m->getNodalConnectivityIndex()->getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfNodesExpected+1,1);
-  int *work=ret->getPointer();  *work++=INTERP_KERNEL::NORM_POLYGON;
-  if(nbOfNodesExpected<1)
-    return ret.retn();
-  int prevCell=0;
-  int prevNode=nodalPtr[nodalIPtr[0]+1];
-  *work++=n2oPtr[prevNode];
-  for(int i=1;i<nbOfNodesExpected;i++)
-    {
-      if(nodalIPtr[prevCell+1]-nodalIPtr[prevCell]==3)
-        {
-          std::set<int> conn(nodalPtr+nodalIPtr[prevCell]+1,nodalPtr+nodalIPtr[prevCell]+3);
-          conn.erase(prevNode);
-          if(conn.size()==1)
-            {
-              int curNode=*(conn.begin());
-              *work++=n2oPtr[curNode];
-              std::set<int> shar(revNodalPtr+revNodalIPtr[curNode],revNodalPtr+revNodalIPtr[curNode+1]);
-              shar.erase(prevCell);
-              if(shar.size()==1)
-                {
-                  prevCell=*(shar.begin());
-                  prevNode=curNode;
-                }
-              else
-                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : presence of unexpected 2 !");
-            }
-          else
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : presence of unexpected 1 !");
-        }
-      else
-        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : presence of unexpected cell !");
-    }
-  return ret.retn();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> skin(computeSkin());
+  int oldNbOfNodes(skin->getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(skin->zipCoordsTraducer());
+  int nbOfNodesExpected(skin->getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(oldNbOfNodes));
+  int nbCells(skin->getNumberOfCells());
+  if(nbCells==nbOfNodesExpected)
+    return buildUnionOf2DMeshLinear(skin,n2o);
+  else if(2*nbCells==nbOfNodesExpected)
+    return buildUnionOf2DMeshQuadratic(skin,n2o);
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : the mesh 2D in input appears to be not in a single part of a 2D mesh !");
 }
 
 /*!

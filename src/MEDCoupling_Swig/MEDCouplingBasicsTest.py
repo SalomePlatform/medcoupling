@@ -14260,6 +14260,29 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(c.getSpaceDimension(),1)
         pass
 
+    def testSwig2BuildSpreadZonesWithPolyOnQPolyg1(self):
+        nx=6
+        ny=6
+        m=MEDCouplingCMesh()
+        arr1=DataArrayDouble(nx) ; arr1.iota()
+        arr2=DataArrayDouble(ny) ; arr2.iota()
+        m.setCoords(arr1,arr2)
+        m=m.buildUnstructured()
+        da=DataArrayInt.Range(nx-1,(nx-1)*(ny-1),nx)
+        m2=m[da] ; m2.simplexize(0)
+        dan=da.buildComplement(m.getNumberOfCells())
+        m1=m[dan]
+        m=MEDCouplingUMesh.MergeUMeshesOnSameCoords(m1,m2)
+        #
+        m.convertLinearCellsToQuadratic()
+        m1=m[::2] ; m2=m[1::2] ; m2.convertAllToPoly()
+        m=MEDCouplingUMesh.MergeUMeshesOnSameCoords(m1,m2)
+        p=m.buildSpreadZonesWithPoly()
+        self.assertTrue(p.getNodalConnectivity().isEqual(DataArrayInt([32,1,0,6,12,18,24,30,31,32,33,34,35,29,23,17,11,5,4,3,2,36,37,94,62,72,83,84,86,89,99,92,93,82,71,60,51,49,46,43,40])))
+        self.assertTrue(p.getNodalConnectivityIndex().isEqual(DataArrayInt([0,41])))
+        self.assertTrue(p.getCoords().isEqual(DataArrayDouble([0.,0.,1.,0.,2.,0.,3.,0.,4.,0.,5.,0.,0.,1.,1.,1.,2.,1.,3.,1.,4.,1.,5.,1.,0.,2.,1.,2.,2.,2.,3.,2.,4.,2.,5.,2.,0.,3.,1.,3.,2.,3.,3.,3.,4.,3.,5.,3.,0.,4.,1.,4.,2.,4.,3.,4.,4.,4.,5.,4.,0.,5.,1.,5.,2.,5.,3.,5.,4.,5.,5.,5.,0.5,0.,0.,0.5,0.5,1.,1.,0.5,1.5,0.,1.5,1.,2.,0.5,2.5,0.,2.5,1.,3.,0.5,3.5,0.,3.5,1.,4.,0.5,4.5,0.,4.5,1.,5.,0.5,1.,1.5,1.5,2.,2.,1.5,2.5,2.,3.,1.5,3.5,2.,4.,1.5,4.5,2.,5.,1.5,0.5,2.,0.,2.5,0.5,3.,1.,2.5,2.,2.5,2.5,3.,3.,2.5,3.5,3.,4.,2.5,4.5,3.,5.,2.5,0.,3.5,0.5,4.,1.,3.5,1.5,3.,1.5,4.,2.,3.5,3.,3.5,3.5,4.,4.,3.5,4.5,4.,5.,3.5,0.,4.5,0.5,5.,1.,4.5,1.5,5.,2.,4.5,2.5,4.,2.5,5.,3.,4.5,4.,4.5,4.5,5.,5.,4.5,0.,1.5,0.5,1.5,1.5,2.5,2.5,3.5,3.5,4.5,3.5,5.0],100,2),1e-13))
+        pass
+
     def setUp(self):
         pass
     pass
