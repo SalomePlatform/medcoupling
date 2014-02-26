@@ -24,6 +24,8 @@ class MyMeshType
 {
 public:
   static const int MY_SPACEDIM=3;
+  static const int MY_MESHDIM=3;
+  static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
   typedef int MyConnType;
 };
 

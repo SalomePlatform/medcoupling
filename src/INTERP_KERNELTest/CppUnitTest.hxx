@@ -22,10 +22,12 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "InterpKernelTestExport.hxx"
+
 /**
  * \brief Class tested by TestBogusClass : not very useful
  */
-class BogusClass {
+class INTERPKERNELTEST_EXPORT BogusClass {
   friend class TestBogusClass;
 
 public:
@@ -41,7 +43,7 @@ private:
  * \brief Class used to figure out CppUnit : not very useful
  *
  */
-class TestBogusClass : public CppUnit::TestFixture
+class INTERPKERNELTEST_EXPORT TestBogusClass : public CppUnit::TestFixture
 {
 
   CPPUNIT_TEST_SUITE( TestBogusClass );
