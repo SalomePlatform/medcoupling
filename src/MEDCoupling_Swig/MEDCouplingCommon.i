@@ -238,6 +238,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGradually;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
+%newobject ParaMEDMEM::MEDCouplingUMesh::conformize2D;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::sortCellsInMEDFileFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForMEDFileFrmt;
@@ -1501,6 +1502,7 @@ namespace ParaMEDMEM
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
+    DataArrayInt *conformize2D(double eps) throw(INTERP_KERNEL::Exception);
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
@@ -1542,6 +1544,7 @@ namespace ParaMEDMEM
     DataArrayDouble *getBoundingBoxForBBTreeFast() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
+    int split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt=0, const DataArrayInt *midOptI=0) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);

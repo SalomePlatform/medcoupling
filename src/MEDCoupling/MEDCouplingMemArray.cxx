@@ -9564,10 +9564,33 @@ DataArrayInt *DataArrayInt::BuildIntersection(const std::vector<const DataArrayI
       else
         r=s1;
     }
-  DataArrayInt *ret=DataArrayInt::New();
+  DataArrayInt *ret(DataArrayInt::New());
   ret->alloc((int)r.size(),1);
   std::copy(r.begin(),r.end(),ret->getPointer());
   return ret;
+}
+
+/*!
+ * This method allows to put a vector of vector of integer into a more compact data stucture (skyline). 
+ * This method is not available into python because no available optimized data structure available to map std::vector< std::vector<int> >.
+ *
+ * \param [in] v the input data structure to be translate into skyline format.
+ * \param [out] data the first element of the skyline format. The user is expected to deal with newly allocated array.
+ * \param [out] dataIndex the second element of the skyline format.
+ */
+void DataArrayInt::PutIntoToSkylineFrmt(const std::vector< std::vector<int> >& v, DataArrayInt *& data, DataArrayInt *& dataIndex)
+{
+  int sz((int)v.size());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0(DataArrayInt::New()),ret1(DataArrayInt::New());
+  ret1->alloc(sz+1,1);
+  int *pt(ret1->getPointer()); *pt=0;
+  for(int i=0;i<sz;i++,pt++)
+    pt[1]=pt[0]+(int)v[i].size();
+  ret0->alloc(ret1->back(),1);
+  pt=ret0->getPointer();
+  for(int i=0;i<sz;i++)
+    pt=std::copy(v[i].begin(),v[i].end(),pt);
+  data=ret0.retn(); dataIndex=ret1.retn();
 }
 
 /*!

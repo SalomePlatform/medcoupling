@@ -14283,6 +14283,102 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(p.getCoords().isEqual(DataArrayDouble([0.,0.,1.,0.,2.,0.,3.,0.,4.,0.,5.,0.,0.,1.,1.,1.,2.,1.,3.,1.,4.,1.,5.,1.,0.,2.,1.,2.,2.,2.,3.,2.,4.,2.,5.,2.,0.,3.,1.,3.,2.,3.,3.,3.,4.,3.,5.,3.,0.,4.,1.,4.,2.,4.,3.,4.,4.,4.,5.,4.,0.,5.,1.,5.,2.,5.,3.,5.,4.,5.,5.,5.,0.5,0.,0.,0.5,0.5,1.,1.,0.5,1.5,0.,1.5,1.,2.,0.5,2.5,0.,2.5,1.,3.,0.5,3.5,0.,3.5,1.,4.,0.5,4.5,0.,4.5,1.,5.,0.5,1.,1.5,1.5,2.,2.,1.5,2.5,2.,3.,1.5,3.5,2.,4.,1.5,4.5,2.,5.,1.5,0.5,2.,0.,2.5,0.5,3.,1.,2.5,2.,2.5,2.5,3.,3.,2.5,3.5,3.,4.,2.5,4.5,3.,5.,2.5,0.,3.5,0.5,4.,1.,3.5,1.5,3.,1.5,4.,2.,3.5,3.,3.5,3.5,4.,4.,3.5,4.5,4.,5.,3.5,0.,4.5,0.5,5.,1.,4.5,1.5,5.,2.,4.5,2.5,4.,2.5,5.,3.,4.5,4.,4.5,4.5,5.,5.,4.5,0.,1.5,0.5,1.5,1.5,2.5,2.5,3.5,3.5,4.5,3.5,5.0],100,2),1e-13))
         pass
 
+    def testSwig2Conformize2D1(self):
+        eps = 1.0e-8
+        coo = [0.,-0.5,0.,0.,0.5,0.,0.5,-0.5,0.25,
+               -0.1,0.25,0.,0.5,-0.1,0.,0.5,0.5,0.5,0.25,0.4,0.25,0.5,0.5,0.4]
+        conn = [5,5,2,6,4,5,6,3,0,1,5,4,5,10,8,11,9,5,11,2,1,7,10,9]
+        connI = [0,5,12,17,24]
+        m = MEDCouplingUMesh("box",2)
+        cooArr = DataArrayDouble(coo,len(coo)/2,2)
+        m.setCoords(cooArr)
+        m.setConnectivity(DataArrayInt(conn),DataArrayInt(connI))
+        m.mergeNodes(eps)
+        m.checkCoherency()
+        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([3])))
+        self.assertEqual(m.getCoords().getHiddenCppPointer(),cooArr.getHiddenCppPointer()) # check that coordinates remain the same here
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,5,2,6,4,5,6,3,0,1,5,4,5,10,8,11,9,5,11,2,5,1,7,10,9])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,12,17,25])))
+        pass
+
+    def testSwig2Conformize2D2(self):
+        eps = 1.0e-8
+        coo=DataArrayDouble([-10,-6,0,-6,0,0,7,0,-10,2,0,2,0,6,7,6,0,8,7,8,-10,12,-4,12,0,12,0,11,7,11,-4,16,0,16,7,16],18,2)
+        conn=DataArrayInt([2,3,7,6, 13,16,17,14, 4,10,12,5, 9,14,13,8, 8,9,7,6, 5,4,0,1, 16,12,11,15])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        m.setCoords(coo)
+        m.setNodalConnectivity(conn)
+        m=m.buildUnstructured()
+        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0,1,2,5])))
+        self.assertEqual(m.getCoords().getHiddenCppPointer(),coo.getHiddenCppPointer()) # check that coordinates remain the same here
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,2,3,7,6,5, 5,13,12,16,17,14, 5,4,10,11,12,13,8,6,5, 4,9,14,13,8, 4,8,9,7,6, 5,5,4,0,1,2, 4,16,12,11,15])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,6,12,21,26,31,37,42])))
+        pass
+
+    def testSwigSplit2DCells1(self):
+        coo=DataArrayDouble([[0,0],[1,0],[1,1],[0,1],[0.5,0],[1,0.5],[0.5,1],[0.,0.5]])
+        m=MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD8,[0,1,2,3,4,5,6,7])
+        _,d,di,_,_=m.buildDescendingConnectivity()
+        subb=DataArrayInt([5])
+        subbi=DataArrayInt([0,0,1,1,1])
+        mid=DataArrayInt([-1,-1])
+        midi=DataArrayInt([0,0,2,2,2])
+        self.assertEqual(2,m.split2DCells(d,di,subb,subbi,mid,midi))
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,1,5,2,3,4,8,9,6,7])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,11])))
+        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([[0,0],[1,0],[1,1],[0,1],[0.5,0],[1,0.5],[0.5,1],[0.,0.5],[1.,0.25],[1.,0.75]]),1e-12))
+        pass
+
+    def testSwig2Conformize2D3(self):
+        eps = 1.0e-8
+        coo=DataArrayDouble([-10,-6,0,-6,0,0,7,0,-10,2,0,2,0,6.5,7,6.5,0,8,7,8,-10,12,-4,12,0,12,0,11,7,11,-4,16,0,16,7,16],18,2)
+        conn=DataArrayInt([2,3,7,6, 13,16,17,14, 4,10,12,5, 9,14,13,8, 8,9,7,6, 5,4,0,1, 16,12,11,15])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        m.setCoords(coo)
+        m.setNodalConnectivity(conn)
+        m=m.buildUnstructured()
+        m.convertLinearCellsToQuadratic()
+        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0,1,2,5])))
+        self.assertTrue(m.getCoords().getHiddenCppPointer()!=coo.getHiddenCppPointer()) # coordinates are not the same here contrary to testSwig2Conformize2D2 ...
+        self.assertTrue(m.getCoords()[:18].isEqual(coo,1e-12)) # but the 18 first nodes are the same
+        pass
+
+    def testSwig2Conformize2D4(self):
+        eps = 1.0e-8
+        coo=DataArrayDouble([-10,-6,0,-6,0,0,7,0,-10,2,0,2,0,6.5,7,6.5,0,8,7,8,-10,12,-4,12,0,12,0,11,7,11,-4,16,0,16,7,16],18,2)
+        conn=DataArrayInt([2,3,7,6, 13,16,17,14, 4,10,12,5, 9,14,13,8, 8,9,7,6, 5,4,0,1, 16,12,11,15])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        m.setCoords(coo)
+        m.setNodalConnectivity(conn)
+        m=m.buildUnstructured()
+        m.convertLinearCellsToQuadratic()
+        self.assertEqual(42,m.getNumberOfNodes())
+        oldCoo=m.getCoords().deepCpy()
+        m.conformize2D(eps)
+        self.assertTrue(m.getCoords()[:42].isEqual(oldCoo,1e-12))
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,2,3,7,6,5,18,19,20,42,43,32,13,12,16,17,14,44,38,23,24,25,32,4,10,11,12,13,8,6,5,26,45,39,44,31,34,42,29,8,9,14,13,8,30,25,31,32,8,8,9,7,6,32,33,20,34,32,5,4,0,1,2,29,35,36,46,43,8,16,12,11,15,38,39,40,41])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,11,22,39,48,57,68,77])))
+        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([[-10.,-6.0],[0.,-6.0],[0.,0.0],[7.,0.0],[-10.,2.0],[0.,2.0],[0.,6.5],[7.,6.5],[0.,8.0],[7.,8.0],[-10.,12.0],[-4.,12.0],[0.,12.0],[0.,11.0],[7.,11.0],[-4.,16.0],[0.,16.0],[7.,16.0],[3.5, 0.0],[7.,3.25],[3.5, 6.5],[0.,3.25],[0.,13.5],[3.5, 16.0],[7.,13.5],[3.5, 11.0],[-10.,7.0],[-5.,12.0],[0.,7.0],[-5.,2.0],[7.,9.5],[0.,9.5],[3.5, 8.0],[7.,7.25],[0.,7.25],[-10.,-2.0],[-5.,-6.0],[0.,-2.0],[0.,14.0],[-2.,12.0],[-4.,14.0],[-2.,16.0],[0.,4.25],[0.,1.0],[0.,11.5],[-7.,12.0],[0.,-3.]]),1e-12))
+        pass
+
+    def testSwig2Conformize2D5(self):
+        eps=1e-8
+        coo=DataArrayDouble([[2,2],[2,-6],[10,-2],[-2,-2],[6,0],[6,-4],[2,7],[2,4.5],[-1.4641016151377544,0],[-1.950753362380551,-1.3742621398390762],[-7,-3],[-0.8284271247461898,-4.82842712474619],[0.26794919243112281,3.5],[0,1.4641016151377548],[-4.4753766811902755,-2.1871310699195381],[-3.9142135623730949,-3.9142135623730949],[-1.8042260651806146,-3.23606797749979]])
+        m=MEDCouplingUMesh("mesh",2)
+        m.allocateCells()
+        m.setCoords(coo)
+        m.insertNextCell(NORM_TRI6,[1,2,0,5,4,3])
+        m.insertNextCell(NORM_TRI6,[8,6,0,12,7,13])
+        m.insertNextCell(NORM_TRI6,[11,9,10,16,14,15])
+        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0])))
+        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([2.,2.,2.,-6.,10.,-2.,-2.,-2.,6.,0.,6.,-4.,2.,7.,2.,4.5,-1.4641016151377544,0.,-1.950753362380551,-1.3742621398390762,-7.,-3.,-0.8284271247461898,-4.82842712474619,0.2679491924311228,3.5,8.881784197001252e-16,1.4641016151377548,-4.4753766811902755,-2.187131069919538,-3.914213562373095,-3.914213562373095,-1.8042260651806146,-3.236067977499789,-1.7705659643687133,-0.6647725630649153,0.46926627053963865,-5.695518130045146],19,2),1e-12))
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,1,2,0,8,9,11,5,4,13,17,16,18,6,8,6,0,12,7,13,6,11,9,10,16,14,15])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,13,20,27])))
+        pass
+
     def setUp(self):
         pass
     pass

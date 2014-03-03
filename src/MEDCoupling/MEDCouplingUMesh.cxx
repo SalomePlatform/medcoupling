@@ -4090,6 +4090,41 @@ namespace ParaMEDMEM
     INTERP_KERNEL::NormalizedCellType getTypeOfElement(int) const { return (INTERP_KERNEL::NormalizedCellType)0; }
     // end
   };
+  
+  /*!
+   * Warning the nodes in \a m should be decrRefed ! To avoid that Node * pointer be replaced by another instance.
+   */
+  INTERP_KERNEL::Edge *MEDCouplingUMeshBuildQPFromEdge2(INTERP_KERNEL::NormalizedCellType typ, const int *bg, const double *coords2D, std::map<INTERP_KERNEL::Node *,int>& m)
+  {
+    INTERP_KERNEL::Edge *ret=0;
+    INTERP_KERNEL::Node *n0(new INTERP_KERNEL::Node(coords2D[2*bg[0]],coords2D[2*bg[0]+1])),*n1(new INTERP_KERNEL::Node(coords2D[2*bg[1]],coords2D[2*bg[1]+1]));
+    m[n0]=bg[0]; m[n1]=bg[1];
+    switch(typ)
+      {
+      case INTERP_KERNEL::NORM_SEG2:
+        {
+          ret=new INTERP_KERNEL::EdgeLin(n0,n1);
+          break;
+        }
+      case INTERP_KERNEL::NORM_SEG3:
+        {
+          INTERP_KERNEL::Node *n2(new INTERP_KERNEL::Node(coords2D[2*bg[2]],coords2D[2*bg[2]+1])); m[n2]=bg[2];
+          INTERP_KERNEL::EdgeLin *e1(new INTERP_KERNEL::EdgeLin(n0,n2)),*e2(new INTERP_KERNEL::EdgeLin(n2,n1));
+          INTERP_KERNEL::SegSegIntersector inters(*e1,*e2);
+          // is the SEG3 degenerated, and thus can be reduced to a SEG2?
+          bool colinearity(inters.areColinears());
+          delete e1; delete e2;
+          if(colinearity)
+            { ret=new INTERP_KERNEL::EdgeLin(n0,n1); }
+          else
+            { ret=new INTERP_KERNEL::EdgeArcCircle(n0,n2,n1); }
+          break;
+        }
+      default:
+        throw INTERP_KERNEL::Exception("MEDCouplingUMeshBuildQPFromEdge2 : Expecting a mesh with spaceDim==2 and meshDim==1 !");
+      } 
+    return ret;
+  }
 
   INTERP_KERNEL::Edge *MEDCouplingUMeshBuildQPFromEdge(INTERP_KERNEL::NormalizedCellType typ, std::map<int, std::pair<INTERP_KERNEL::Node *,bool> >& mapp2, const int *bg)
   {
@@ -8698,6 +8733,208 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
     }
 }
 
+void IKGeo2DInternalMapper2(INTERP_KERNEL::Node *n, const std::map<INTERP_KERNEL::Node *,int>& m, int forbVal0, int forbVal1, std::vector<int>& isect)
+{
+  std::map<INTERP_KERNEL::Node *,int>::const_iterator it(m.find(n));
+  if(it==m.end())
+    throw INTERP_KERNEL::Exception("Internal error in remapping !");
+  int v((*it).second);
+  if(v==forbVal0 || v==forbVal1)
+    return ;
+  if(std::find(isect.begin(),isect.end(),v)==isect.end())
+    isect.push_back(v);
+}
+
+bool IKGeo2DInternalMapper(const INTERP_KERNEL::ComposedEdge& c, const std::map<INTERP_KERNEL::Node *,int>& m, int forbVal0, int forbVal1, std::vector<int>& isect)
+{
+  int sz(c.size());
+  if(sz<=1)
+    return false;
+  bool presenceOfOn(false);
+  for(int i=0;i<sz;i++)
+    {
+      INTERP_KERNEL::ElementaryEdge *e(c[i]);
+      if(e->getLoc()!=INTERP_KERNEL::FULL_ON_1)
+        continue ;
+      IKGeo2DInternalMapper2(e->getStartNode(),m,forbVal0,forbVal1,isect);
+      IKGeo2DInternalMapper2(e->getEndNode(),m,forbVal0,forbVal1,isect);
+    }
+  return presenceOfOn;
+}
+
+/**
+ * This method split some of edges of 2D cells in \a this. The edges to be split are specified in \a subNodesInSeg and in \a subNodesInSegI using index storage mode.
+ * To do the work this method can optionnaly needs information about middle of subedges for quadratic cases if a minimal creation of new nodes is wanted.
+ * So this method try to reduce at most the number of new nodes. The only case that can lead this method to add nodes if a SEG3 is split without information of middle.
+ * \b WARNING : is returned value is different from 0 a call to MEDCouplingUMesh::mergeNodes is necessary to avoid to have a non conform mesh.
+ *
+ * \return int - the number of new nodes created (in most of cases 0).
+ * 
+ * \throw If \a this is not coherent.
+ * \throw If \a this has not spaceDim equal to 2.
+ * \throw If \a this has not meshDim equal to 2.
+ * \throw If some subcells needed to be split are orphan.
+ * \sa MEDCouplingUMesh::conformize2D
+ */
+int MEDCouplingUMesh::split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt, const DataArrayInt *midOptI)
+{
+  if(!desc || !descI || !subNodesInSeg || !subNodesInSegI)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split2DCells : the 4 first arrays must be not null !");
+  desc->checkAllocated(); descI->checkAllocated(); subNodesInSeg->checkAllocated(); subNodesInSegI->checkAllocated();
+  if(getSpaceDimension()!=2 || getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split2DCells : This method only works for meshes with spaceDim=2 and meshDim=2 !");
+  if(midOpt==0 && midOptI==0)
+    {
+      split2DCellsLinear(desc,descI,subNodesInSeg,subNodesInSegI);
+      return 0;
+    }
+  else if(midOpt!=0 && midOptI!=0)
+    return split2DCellsQuadratic(desc,descI,subNodesInSeg,subNodesInSegI,midOpt,midOptI);
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split2DCells : middle parameters must be set to null for all or not null for all.");
+}
+
+/*!
+ * \b WARNING this method is \b potentially \b non \b const (if returned array is empty).
+ * \b WARNING this method lead to have a non geometric type sorted mesh (for MED file users) !
+ * This method performs a conformization of \b this. So if a edge in \a this can be split into entire edges in \a this this method
+ * will suppress such edges to use sub edges in \a this. So this method does not add nodes in \a this if merged edges have same nature each other (Linear,Quadratic).
+ * Whatever the returned value, this method does not alter the order of cells in \a this neither the orientation of cells.
+ * The modified cells if any are systematically declared as NORM_POLYGON or NORM_QPOLYG depending on the 
+ *
+ * This method expects that \b this has a meshDim equal 2 and spaceDim equal to 2 too.
+ * This method expects that all nodes in \a this are not closer than \a eps.
+ * If it is not the case you can invoke MEDCouplingUMesh::mergeNodes before calling this method.
+ * 
+ * \param [in] eps the relative error to detect merged edges.
+ * \return DataArrayInt  * - The list of cellIds in \a this that have been subdivided. If empty, nothing changed in \a this (as if it were a const method). The array is a newly allocated array
+ *                           that the user is expected to deal with.
+ *
+ * \throw If \a this is not coherent.
+ * \throw If \a this has not spaceDim equal to 2.
+ * \throw If \a this has not meshDim equal to 2.
+ * \sa MEDCouplingUMesh::mergeNodes, MEDCouplingUMesh::split2DCells
+ */
+DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
+{
+  static const int SPACEDIM=2;
+  checkCoherency();
+  if(getSpaceDimension()!=2 || getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize2D : This method only works for meshes with spaceDim=2 and meshDim=2 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1(DataArrayInt::New()),descIndx1(DataArrayInt::New()),revDesc1(DataArrayInt::New()),revDescIndx1(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc(buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1));
+  const int *c(mDesc->getNodalConnectivity()->getConstPointer()),*ci(mDesc->getNodalConnectivityIndex()->getConstPointer()),*rd(revDesc1->getConstPointer()),*rdi(revDescIndx1->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(mDesc->getBoundingBoxForBBTree());
+  const double *bbox(bboxArr->begin()),*coords(getCoords()->begin());
+  int nCell(getNumberOfCells()),nDescCell(mDesc->getNumberOfCells());
+  std::vector< std::vector<int> > intersectEdge(nDescCell),overlapEdge(nDescCell);
+  std::vector<double> addCoo;
+  BBTree<SPACEDIM,int> myTree(bbox,0,0,nDescCell,-eps);
+  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+  for(int i=0;i<nDescCell;i++)
+    {
+      std::vector<int> candidates;
+      myTree.getIntersectingElems(bbox+i*2*SPACEDIM,candidates);
+      for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+        if(*it>i)
+          {
+            std::map<INTERP_KERNEL::Node *,int> m;
+            INTERP_KERNEL::Edge *e1(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[i]],c+ci[i]+1,coords,m)),
+              *e2(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[*it]],c+ci[*it]+1,coords,m));
+            INTERP_KERNEL::MergePoints merge;
+            INTERP_KERNEL::QuadraticPolygon c1,c2;
+            e1->intersectWith(e2,merge,c1,c2);
+            e1->decrRef(); e2->decrRef();
+            if(IKGeo2DInternalMapper(c1,m,c[ci[i]+1],c[ci[i]+2],intersectEdge[i]))
+              overlapEdge[i].push_back(*it);
+            if(IKGeo2DInternalMapper(c2,m,c[ci[*it]+1],c[ci[*it]+2],intersectEdge[*it]))
+              overlapEdge[*it].push_back(i);
+            for(std::map<INTERP_KERNEL::Node *,int>::const_iterator it2=m.begin();it2!=m.end();it2++)
+              (*it2).first->decrRef();
+          }
+    }
+  // splitting done. sort intersect point in intersectEdge.
+  std::vector< std::vector<int> > middle(nDescCell);
+  int nbOf2DCellsToBeSplit(0);
+  bool middleNeedsToBeUsed(false);
+  std::vector<bool> cells2DToTreat(nDescCell,false);
+  for(int i=0;i<nDescCell;i++)
+    {
+      std::vector<int>& isect(intersectEdge[i]);
+      int sz((int)isect.size());
+      if(sz>1)
+        {
+          std::map<INTERP_KERNEL::Node *,int> m;
+          INTERP_KERNEL::Edge *e(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[i]],c+ci[i]+1,coords,m));
+          e->sortSubNodesAbs(coords,isect);
+          e->decrRef();
+          for(std::map<INTERP_KERNEL::Node *,int>::const_iterator it2=m.begin();it2!=m.end();it2++)
+            (*it2).first->decrRef();
+        }
+      if(sz!=0)
+        {
+          int idx0(rdi[i]),idx1(rdi[i+1]);
+          if(idx1-idx0!=1)
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::conformize2D : internal error #0 !");
+          if(!cells2DToTreat[rd[idx0]])
+            {
+              cells2DToTreat[rd[idx0]]=true;
+              nbOf2DCellsToBeSplit++;
+            }
+          // try to reuse at most eventual 'middle' of SEG3
+          std::vector<int>& mid(middle[i]);
+          mid.resize(sz+1,-1);
+          if((INTERP_KERNEL::NormalizedCellType)c[ci[i]]==INTERP_KERNEL::NORM_SEG3)
+            {
+              middleNeedsToBeUsed=true;
+              const std::vector<int>& candidates(overlapEdge[i]);
+              std::vector<int> trueCandidates;
+              for(std::vector<int>::const_iterator itc=candidates.begin();itc!=candidates.end();itc++)
+                if((INTERP_KERNEL::NormalizedCellType)c[ci[*itc]]==INTERP_KERNEL::NORM_SEG3)
+                  trueCandidates.push_back(*itc);
+              int stNode(c[ci[i]+1]),endNode(isect[0]);
+              for(int j=0;j<sz+1;j++)
+                {
+                  for(std::vector<int>::const_iterator itc=trueCandidates.begin();itc!=trueCandidates.end();itc++)
+                    {
+                      int tmpSt(c[ci[*itc]+1]),tmpEnd(c[ci[*itc]+2]);
+                      if((tmpSt==stNode && tmpEnd==endNode) || (tmpSt==endNode && tmpEnd==stNode))
+                        { mid[j]=*itc; break; }
+                    }
+                  stNode=endNode;
+                  endNode=j<sz-1?isect[j+1]:c[ci[i]+2];
+                }
+            }
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()),notRet(DataArrayInt::New()); ret->alloc(nbOf2DCellsToBeSplit,1);
+  if(nbOf2DCellsToBeSplit==0)
+    return ret.retn();
+  //
+  int *retPtr(ret->getPointer());
+  for(int i=0;i<nCell;i++)
+    if(cells2DToTreat[i])
+      *retPtr++=i;
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> mSafe,nSafe,oSafe,pSafe,qSafe,rSafe;
+  DataArrayInt *m(0),*n(0),*o(0),*p(0),*q(0),*r(0);
+  MEDCouplingUMesh::ExtractFromIndexedArrays(ret->begin(),ret->end(),desc1,descIndx1,m,n); mSafe=m; nSafe=n;
+  DataArrayInt::PutIntoToSkylineFrmt(intersectEdge,o,p); oSafe=o; pSafe=p;
+  if(middleNeedsToBeUsed)
+    { DataArrayInt::PutIntoToSkylineFrmt(middle,q,r); qSafe=q; rSafe=r; }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> modif(static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(ret->begin(),ret->end(),true)));
+  int nbOfNodesCreated(modif->split2DCells(mSafe,nSafe,oSafe,pSafe,qSafe,rSafe));
+  setCoords(modif->getCoords());//if nbOfNodesCreated==0 modif and this have the same coordinates pointer so this line has no effect. But for quadratic cases this line is important.
+  setPartOfMySelf(ret->begin(),ret->end(),*modif);
+  {
+    bool areNodesMerged; int newNbOfNodes;
+    if(nbOfNodesCreated!=0)
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(mergeNodes(eps,areNodesMerged,newNbOfNodes));
+  }
+  return ret.retn();
+}
+
 /*!
  * This method is private and is the first step of Partition of 2D mesh (spaceDim==2 and meshDim==2).
  * It builds the descending connectivity of the two meshes, and then using a binary tree
@@ -9769,6 +10006,116 @@ MEDCoupling1SGTUMesh *MEDCouplingUMesh::tetrahedrize(int policy, DataArrayInt *&
   ret->computeOffsets2();
   n2oCells=ret->buildExplicitArrOfSliceOnScaledArr(0,nbOfCells,1);
   return ret0.retn();
+}
+
+/*!
+ * It is the linear part of MEDCouplingUMesh::split2DCells. Here no additionnal nodes will be added in \b this. So coordinates pointer remain unchanged (is not even touch). 
+ *
+ * \sa MEDCouplingUMesh::split2DCells
+ */
+void MEDCouplingUMesh::split2DCellsLinear(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI)
+{
+  checkConnectivityFullyDefined();
+  int ncells(getNumberOfCells()),lgthToReach(getMeshLength()+subNodesInSeg->getNumberOfTuples());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()); c->alloc((std::size_t)lgthToReach);
+  const int *subPtr(subNodesInSeg->begin()),*subIPtr(subNodesInSegI->begin()),*descPtr(desc->begin()),*descIPtr(descI->begin()),*oldConn(getNodalConnectivity()->begin());
+  int *cPtr(c->getPointer()),*ciPtr(getNodalConnectivityIndex()->getPointer());
+  int prevPosOfCi(ciPtr[0]);
+  for(int i=0;i<ncells;i++,ciPtr++,descIPtr++)
+    {
+      int offset(descIPtr[0]),sz(descIPtr[1]-descIPtr[0]),deltaSz(0);
+      *cPtr++=(int)INTERP_KERNEL::NORM_POLYGON; *cPtr++=oldConn[prevPosOfCi+1];
+      for(int j=0;j<sz;j++)
+        {
+          int offset2(subIPtr[descPtr[offset+j]]),sz2(subIPtr[descPtr[offset+j]+1]-subIPtr[descPtr[offset+j]]);
+          for(int k=0;k<sz2;k++)
+            *cPtr++=subPtr[offset2+k];
+          if(j!=sz-1)
+            *cPtr++=oldConn[prevPosOfCi+j+2];
+          deltaSz+=sz2;
+        }
+      prevPosOfCi=ciPtr[1];
+      ciPtr[1]=ciPtr[0]+1+sz+deltaSz;//sz==old nb of nodes because (nb of subedges=nb of nodes for polygons)
+    }
+  if(c->end()!=cPtr)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split2DCellsLinear : Some of edges to be split are orphan !");
+  _nodal_connec->decrRef();
+  _nodal_connec=c.retn(); _types.clear(); _types.insert(INTERP_KERNEL::NORM_POLYGON);
+}
+
+int internalAddPoint(const INTERP_KERNEL::Edge *e, int id, const double *coo, int startId, int endId, DataArrayDouble& addCoo, int& nodesCnter)
+{
+  if(id!=-1)
+    return id;
+  else
+    {
+      int ret(nodesCnter++);
+      double newPt[2];
+      e->getMiddleOfPoints(coo+2*startId,coo+2*endId,newPt);
+      addCoo.insertAtTheEnd(newPt,newPt+2);
+      return ret;
+    }
+}
+
+/*!
+ * It is the quadratic part of MEDCouplingUMesh::split2DCells. Here some additionnal nodes can be added at the end of coordinates array object.
+ *
+ * \return  int - the number of new nodes created.
+ * \sa MEDCouplingUMesh::split2DCells
+ */
+int MEDCouplingUMesh::split2DCellsQuadratic(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *mid, const DataArrayInt *midI)
+{
+  checkCoherency();
+  int ncells(getNumberOfCells()),lgthToReach(getMeshLength()+2*subNodesInSeg->getNumberOfTuples()),nodesCnt(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()); c->alloc((std::size_t)lgthToReach);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCoo(DataArrayDouble::New()); addCoo->alloc(0,1);
+  const int *subPtr(subNodesInSeg->begin()),*subIPtr(subNodesInSegI->begin()),*descPtr(desc->begin()),*descIPtr(descI->begin()),*oldConn(getNodalConnectivity()->begin());
+  const int *midPtr(mid->begin()),*midIPtr(midI->begin());
+  const double *oldCoordsPtr(getCoords()->begin());
+  int *cPtr(c->getPointer()),*ciPtr(getNodalConnectivityIndex()->getPointer());
+  int prevPosOfCi(ciPtr[0]);
+  for(int i=0;i<ncells;i++,ciPtr++,descIPtr++)
+    {
+      int offset(descIPtr[0]),sz(descIPtr[1]-descIPtr[0]),deltaSz(sz);
+      for(int j=0;j<sz;j++)
+        { int sz2(subIPtr[descPtr[offset+j]+1]-subIPtr[descPtr[offset+j]]); deltaSz+=sz2; }
+      *cPtr++=(int)INTERP_KERNEL::NORM_QPOLYG; cPtr[0]=oldConn[prevPosOfCi+1];
+      for(int j=0;j<sz;j++)//loop over subedges of oldConn
+        {
+          int offset2(subIPtr[descPtr[offset+j]]),sz2(subIPtr[descPtr[offset+j]+1]-subIPtr[descPtr[offset+j]]),offset3(midIPtr[descPtr[offset+j]]);
+          if(sz2==0)
+            {
+              if(j<sz-1)
+                cPtr[1]=oldConn[prevPosOfCi+2+j];
+              cPtr[deltaSz]=oldConn[prevPosOfCi+1+j+sz]; cPtr++;
+              continue;
+            }
+          std::vector<INTERP_KERNEL::Node *> ns(3);
+          ns[0]=new INTERP_KERNEL::Node(oldCoordsPtr[2*oldConn[prevPosOfCi+1+j]],oldCoordsPtr[2*oldConn[prevPosOfCi+1+j]+1]);
+          ns[1]=new INTERP_KERNEL::Node(oldCoordsPtr[2*oldConn[prevPosOfCi+1+(1+j)%sz]],oldCoordsPtr[2*oldConn[prevPosOfCi+1+(1+j)%sz]+1]);
+          ns[2]=new INTERP_KERNEL::Node(oldCoordsPtr[2*oldConn[prevPosOfCi+1+sz+j]],oldCoordsPtr[2*oldConn[prevPosOfCi+1+sz+j]+1]);
+          MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> e(INTERP_KERNEL::QuadraticPolygon::BuildArcCircleEdge(ns));
+          for(int k=0;k<sz2;k++)//loop over subsplit of current subedge
+            {
+              cPtr[1]=subPtr[offset2+k];
+              cPtr[deltaSz]=internalAddPoint(e,midPtr[offset3+k],oldCoordsPtr,cPtr[0],cPtr[1],*addCoo,nodesCnt); cPtr++;
+            }
+          int tmpEnd(oldConn[prevPosOfCi+1+(j+1)%sz]);
+          if(j!=sz-1)
+            { cPtr[1]=tmpEnd; }
+          cPtr[deltaSz]=internalAddPoint(e,midPtr[offset3+sz2],oldCoordsPtr,cPtr[0],tmpEnd,*addCoo,nodesCnt); cPtr++;
+        }
+      prevPosOfCi=ciPtr[1]; cPtr+=deltaSz;
+      ciPtr[1]=ciPtr[0]+1+2*deltaSz;//sz==old nb of nodes because (nb of subedges=nb of nodes for polygons)
+    }
+  if(c->end()!=cPtr)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split2DCellsQuadratic : Some of edges to be split are orphan !");
+  _nodal_connec->decrRef();
+  _nodal_connec=c.retn(); _types.clear(); _types.insert(INTERP_KERNEL::NORM_QPOLYG);
+  addCoo->rearrange(2);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::Aggregate(getCoords(),addCoo));//info are copied from getCoords() by using Aggregate
+  setCoords(coo);
+  return addCoo->getNumberOfTuples();
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),

@@ -273,6 +273,15 @@ void EdgeLin::getBarycenterOfZone(double *bary) const
   bary[1]=(x1-x2)*(y1*(y1+y2)+y2*y2)/6.;
 }
 
+/*!
+ * Here \a this is not used (contrary to EdgeArcCircle class).
+ */
+void EdgeLin::getMiddleOfPoints(const double *p1, const double *p2, double *mid) const
+{
+  mid[0]=(p1[0]+p2[0])/2.;
+  mid[1]=(p1[1]+p2[1])/2.;
+}
+
 double EdgeLin::getCurveLength() const
 {
   double x=(*_start)[0]-(*_end)[0];

@@ -2115,7 +2115,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
     renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
   if(nodeCor)
     renumberNodesWithoutMesh(nodeCor->getConstPointer(),nodeCor->getMaxValueInArray()+1,eps);
-  setMesh(const_cast<MEDCouplingMesh *>(other));
+  setMesh(other);
 }
 
 /*!

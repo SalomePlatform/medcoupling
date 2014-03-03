@@ -238,6 +238,7 @@ namespace INTERP_KERNEL
     virtual double getCurveLength() const = 0;
     virtual void getBarycenter(double *bary) const = 0;
     virtual void getBarycenterOfZone(double *bary) const = 0;
+    virtual void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const = 0;
     //! Retrieves a point that is owning to this, well placed for IN/OUT detection of this. Typically midlle of this is returned.
     virtual Node *buildRepresentantOfMySelf() const = 0;
     //! Given a magnitude specified by sub-type returns if in or not. See getCharactValue method.
@@ -264,6 +265,7 @@ namespace INTERP_KERNEL
     virtual void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const = 0;
     bool isEqual(const Edge& other) const;
   public:
+    bool sortSubNodesAbs(const double *coo, std::vector<int>& subNodes);
     void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis);
     virtual void fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
                                    std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const = 0;
