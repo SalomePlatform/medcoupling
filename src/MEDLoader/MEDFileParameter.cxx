@@ -606,7 +606,7 @@ int MEDFileParameterMultiTS::getPosOfTimeStep(int iteration, int order) const
       const MEDFileParameter1TS *elt(*it);
       if(elt)
         {
-          if(elt->getIteration()==iteration && elt->getOrder())
+          if(elt->getIteration()==iteration && elt->getOrder()==order)
             return ret;
           else
             oss << "(" << elt->getIteration() << "," << elt->getOrder() << "), ";
