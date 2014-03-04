@@ -19,23 +19,22 @@
 
 ADD_SUBDIRECTORY(testfiles)
 
-IF(SALOME_BUILD_GUI)
-  SET(MED_RESOURCES_FILES
-    datasource_add.png
-    datasource_changeUnderlyingMesh.png
-    datasource_expandfield.png
-    datasource_field.png
-    datasource_mesh.png
-    datasource.png
-    datasource_use.png
-    datasource_view.png
-    fileimport-32.png
-    folder.png
-    image_add.png
-    MEDOP.png
-    MEDOP_small.png
-    workspace_clean.png
-    workspace_save.png
-    )
-  INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
-ENDIF(SALOME_BUILD_GUI)
+SET(MED_RESOURCES_FILES
+  datasource_add.png
+  datasource_changeUnderlyingMesh.png
+  datasource_expandfield.png
+  datasource_field.png
+  datasource_mesh.png
+  datasource.png
+  datasource_use.png
+  datasource_view.png
+  fileimport-32.png
+  folder.png
+  image_add.png
+  MEDOP.png
+  MEDOP_small.png
+  workspace_clean.png
+  workspace_save.png
+  )
+INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
+

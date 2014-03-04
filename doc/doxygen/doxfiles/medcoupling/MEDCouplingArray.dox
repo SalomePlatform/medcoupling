@@ -101,9 +101,10 @@ on each call.
 
 Here is a description of typical usages of \ref ParaMEDMEM::DataArrayDouble "MEDCoupling arrays".
 
+\if ENABLE_EXAMPLES
 \ref MEDCouplingArraySteps1 "Here is a C++ example."<br>
 \ref MEDCouplingArraySteps0 "Here is a Python example."<br>
-
+\endif
 
 \section MEDCouplingArrayBasicsCopy Copy DataArrays.
 
@@ -119,15 +120,18 @@ As for all potentially heavy memory consumer objects in \ref medcoupling "MEDCou
  method \c deepCpy. This method deeply copies an instance. The life cycle of the returned object is *fully* independent from the instance on which the method
 \c deepCpy has been invoked.
 
+\if ENABLE_EXAMPLES
 \ref cpp_mcdataarray_deepcopy "Here is a C++ example."<br>
+\endif
 
 \subsection MEDCouplingArrayBasicsCopyShallow Shallow copy of DataArray
 
 As \ref ParaMEDMEM::DataArray "DataArrays" are the atomic entity of potentially big memory objects into \ref medcoupling "MEDCoupling", the shallow copy
 simply returns the same object with the reference counter incremented.
 
+\if ENABLE_EXAMPLES
 \ref cpp_mcdataarray_shallowcopy "Here is a C++ example."<br>
-
+\endif
 
 \section MEDCouplingArrayBasicsCompare Compare DataArrays.
 

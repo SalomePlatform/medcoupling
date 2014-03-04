@@ -314,8 +314,10 @@ void MEDCouplingUMesh::setMeshDimension(int meshDim)
  *
  *  \param [in] nbOfCells - estimation of the number of cell \a this mesh will contain.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesUmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref medcouplingpyexamplesUmeshStdBuild1 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::allocateCells(int nbOfCells)
 {
@@ -345,8 +347,10 @@ void MEDCouplingUMesh::allocateCells(int nbOfCells)
  *  \param [in] size - number of nodes constituting this cell.
  *  \param [in] nodalConnOfCell - the connectivity of the cell to add.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesUmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref medcouplingpyexamplesUmeshStdBuild1 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell)
 {
@@ -381,8 +385,10 @@ void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, in
  * Compacts data arrays to release unused memory. This method is to be called after
  * finishing cell insertion using \a this->insertNextCell().
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesUmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref medcouplingpyexamplesUmeshStdBuild1 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::finishInsertingCells()
 {
@@ -583,8 +589,10 @@ void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double
  * \throw If the coordinates array is not set.
  * \throw If the nodal connectivity of cells is not defined.
  * 
+ * \if ENABLE_EXAMPLES
  * \ref cpp_mcumesh_getReverseNodalConnectivity "Here is a C++ example".<br>
  * \ref  py_mcumesh_getReverseNodalConnectivity "Here is a Python example".
+ * \endif
  */
 void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
 {
@@ -715,8 +723,10 @@ private:
  *  \throw If \a desc == NULL || \a descIndx == NULL || \a revDesc == NULL || \a
  *         revDescIndx == NULL.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildDescendingConnectivity "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildDescendingConnectivity "Here is a Python example".
+ *  \endif
  * \sa buildDescendingConnectivity2()
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const
@@ -784,8 +794,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::explode3DMeshTo1D(DataArrayInt *desc, DataAr
  *  \throw If \a desc == NULL || \a descIndx == NULL || \a revDesc == NULL || \a
  *         revDescIndx == NULL.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildDescendingConnectivity2 "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildDescendingConnectivity2 "Here is a Python example".
+ *  \endif
  * \sa buildDescendingConnectivity()
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const
@@ -1006,8 +1018,10 @@ struct MEDCouplingAccVisit
  *  \throw If the nodal connectivity of cells is node defined.
  *  \throw If dimension of \a this mesh is not either 2 or 3.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_convertToPolyTypes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_convertToPolyTypes "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const int *cellIdsToConvertEnd)
 {
@@ -1129,8 +1143,10 @@ void MEDCouplingUMesh::convertAllToPoly()
  *  \throw If \a this mesh contains polyhedrons with the valid connectivity.
  *  \throw If \a this mesh contains polyhedrons with odd number of nodes.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_arePolyhedronsNotCorrectlyOriented "Here is a C++ example".<br>
  *  \ref  py_mcumesh_arePolyhedronsNotCorrectlyOriented "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::convertExtrudedPolyhedra()
 {
@@ -1388,8 +1404,10 @@ void MEDCouplingUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getNodeIdsInUse "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getNodeIdsInUse "Here is a Python example".
+ *  \endif
  * \sa computeNodeIdsAlg()
  */
 DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
@@ -1512,8 +1530,10 @@ DataArrayInt *MEDCouplingUMesh::computeNbOfFacesPerCell() const
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_zipCoordsTraducer "Here is a C++ example".<br>
  *  \ref  py_mcumesh_zipCoordsTraducer "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
 {
@@ -1833,8 +1853,10 @@ void MEDCouplingUMesh::FindCommonCellsAlg(int compType, int startCellId, const D
  *  \return bool - \c true if all cells of \a other mesh are present in the \a this
  *         mesh.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_areCellsIncludedIn "Here is a C++ example".<br>
  *  \ref  py_mcumesh_areCellsIncludedIn "Here is a Python example".
+ *  \endif
  *  \sa checkDeepEquivalOnSameNodesWith()
  *  \sa checkGeoEquivalWith()
  */
@@ -1961,8 +1983,10 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, in
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any cell id in the array \a begin is not valid.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildPartOfMySelf "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildPartOfMySelf "Here is a Python example".
+ *  \endif
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
@@ -2149,8 +2173,10 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any node id in \a begin is not valid.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildFacePartOfMySelfNode "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildFacePartOfMySelfNode "Here is a Python example".
+ *  \endif
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
 {
@@ -2172,8 +2198,10 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begi
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildBoundaryMesh "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildBoundaryMesh "Here is a Python example".
+ *  \endif
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
 {
@@ -2324,8 +2352,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::computeSkin() const
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is node defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_findBoundaryNodes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_findBoundaryNodes "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingUMesh::findBoundaryNodes() const
 {
@@ -2427,8 +2457,10 @@ void MEDCouplingUMesh::duplicateNodes(const int *nodeIdsToDuplicateBg, const int
  *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_renumberNodesInConn "Here is a C++ example".<br>
  *  \ref  py_mcumesh_renumberNodesInConn "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
@@ -2583,8 +2615,10 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check)
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellsInBoundingBox "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellsInBoundingBox "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingUMesh::getCellsInBoundingBox(const double *bbox, double eps) const
 {
@@ -3299,8 +3333,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
  *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
  *          delete this array using decrRef() as it is no more needed.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getPartMeasureField "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getPartMeasureField "Here is a Python example".
+ *  \endif
  *  \sa getMeasureField()
  */
 DataArrayDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const int *begin, const int *end) const
@@ -3468,8 +3504,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
  *  \throw If the mesh and space dimension is not as specified above.
  *  \sa buildOrthogonalField()
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildPartOrthogonalField "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildPartOrthogonalField "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingUMesh::buildPartOrthogonalField(const int *begin, const int *end) const
 {
@@ -4060,8 +4098,10 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
  *  \throw If the coordinates array is not set.
  *  \throw If \a this->getMeshDimension() != \a this->getSpaceDimension().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellsContainingPoint "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellsContainingPoint "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
@@ -4321,8 +4361,10 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
  *  \throw If the coordinates array is not set.
  *  \throw If \a this->getMeshDimension() != \a this->getSpaceDimension().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellsContainingPoints "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps,
                                                 MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const
@@ -5746,8 +5788,10 @@ void MEDCouplingUMesh::convertDegeneratedCells()
  *  \throw If \a this->getMeshDimension() != 2.
  *  \throw If \a this->getSpaceDimension() != 3.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_are2DCellsNotCorrectlyOriented "Here is a C++ example".<br>
  *  \ref  py_mcumesh_are2DCellsNotCorrectlyOriented "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::are2DCellsNotCorrectlyOriented(const double *vec, bool polyOnly, std::vector<int>& cells) const
 {
@@ -5780,8 +5824,10 @@ void MEDCouplingUMesh::are2DCellsNotCorrectlyOriented(const double *vec, bool po
  *  \throw If \a this->getMeshDimension() != 2.
  *  \throw If \a this->getSpaceDimension() != 3.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_are2DCellsNotCorrectlyOriented "Here is a C++ example".<br>
  *  \ref  py_mcumesh_are2DCellsNotCorrectlyOriented "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::orientCorrectly2DCells(const double *vec, bool polyOnly)
 {
@@ -5834,8 +5880,10 @@ void MEDCouplingUMesh::orientCorrectly2DCells(const double *vec, bool polyOnly)
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_arePolyhedronsNotCorrectlyOriented "Here is a C++ example".<br>
  *  \ref  py_mcumesh_arePolyhedronsNotCorrectlyOriented "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingUMesh::arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const
 {
@@ -5865,8 +5913,10 @@ void MEDCouplingUMesh::arePolyhedronsNotCorrectlyOriented(std::vector<int>& cell
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the reparation fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_arePolyhedronsNotCorrectlyOriented "Here is a C++ example".<br>
  *  \ref  py_mcumesh_arePolyhedronsNotCorrectlyOriented "Here is a Python example".
+ *  \endif
  * \sa MEDCouplingUMesh::findAndCorrectBadOriented3DCells
  */
 void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
@@ -5910,8 +5960,10 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_findAndCorrectBadOriented3DExtrudedCells "Here is a C++ example".<br>
  *  \ref  py_mcumesh_findAndCorrectBadOriented3DExtrudedCells "Here is a Python example".
+ *  \endif
  * \sa MEDCouplingUMesh::findAndCorrectBadOriented3DCells
  */
 DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells()
@@ -7395,8 +7447,10 @@ DataArrayDouble *MEDCouplingUMesh::computeIsoBarycenterOfNodesPerCell() const
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getPartBarycenterAndOwner "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getPartBarycenterAndOwner "Here is a Python example".
+ *  \endif
  */
 DataArrayDouble *MEDCouplingUMesh::getPartBarycenterAndOwner(const int *begin, const int *end) const
 {

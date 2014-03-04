@@ -8,8 +8,9 @@ The simplest way of using the \ref interptools in sequential mode is to use the 
 
 If you intend to use \ref MEDCoupling data structure, ParaMEDMEM::MEDCouplingRemapper class should be used.
 
+\if ENABLE_EXAMPLES
 Here is a \ref cpp_mcfield_remapper_highlevel "C++ example".
-
+\endif
 
 \section InterpKerMidLevUsage Middle-level usage
 
@@ -20,6 +21,8 @@ hand it is needed to specify precisely nature of interpolator.
 As a consequence of the genericity of the interpolators,  they are usable only by
 instantiating an underlying \ref InterpKerMeshType "mesh" and \ref  InterpKerMatrixType "matrix" data structure fulfilling some requirements.
 
+\if ENABLE_EXAMPLES
 Here is a \ref cpp_mcfield_remapper_middlelevel "C++ example".
+\endif
 
 */

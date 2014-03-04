@@ -131,8 +131,9 @@ void DataArrayDouble::updateTime() const {}
  *  \param [out] res - C array returning values of the \a tupleId-th tuple. The \a res
  *         must be allocated by the caller and be of size not less than \a
  *         this->getNumberOfComponents().
- *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_getTuple "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::getTuple(int tupleId, int *res) const {}
 

@@ -223,8 +223,10 @@ bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingP
  *  \throw If the coordinates array is not set.
  *  \throw If \a nodeId is not a valid index for the coordinates array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_getcoordinatesofnode "Here is a C++ example".<br>
  *  \ref  py_mcpointset_getcoordinatesofnode "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
@@ -293,8 +295,10 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, 
  *               is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_findcommonnodes "Here is a C++ example".<br>
  *  \ref  py_mcpointset_findcommonnodes "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const
 {
@@ -315,8 +319,10 @@ void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArra
  *          array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_getnodeidsnearpoint "Here is a C++ example".<br>
  *  \ref  py_mcpointset_getnodeidsnearpoint "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const
 {
@@ -348,8 +354,10 @@ DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double
  *         The caller is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_getnodeidsnearpoints "Here is a C++ example".<br>
  *  \ref  py_mcpointset_getnodeidsnearpoints "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfPoints, double eps, DataArrayInt *& c, DataArrayInt *& cI) const
 {
@@ -386,8 +394,10 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_renumberNodes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_renumberNodes "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
@@ -412,8 +422,10 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_renumberNodes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_renumberNodes "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfNodes)
 {
@@ -449,8 +461,10 @@ void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfN
  *         pre-allocated by the caller.
  *  \throw If the coordinates array is not set.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_getBoundingBox "Here is a C++ example".<br>
  *  \ref  py_mcpointset_getBoundingBox "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::getBoundingBox(double *bbox) const
 {
@@ -521,8 +535,10 @@ void MEDCouplingPointSet::recenterForMaxPrecision(double eps)
  *  \throw If \a vector == NULL && \a this->getSpaceDimension() == 3.
  *  \throw If Magnitude of \a vector is zero.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_rotate "Here is a C++ example".<br>
  *  \ref  py_mcpointset_rotate "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::rotate(const double *center, const double *vector, double angle)
 {
@@ -544,8 +560,10 @@ void MEDCouplingPointSet::rotate(const double *center, const double *vector, dou
  *  \throw If the coordinates array is not set.
  *  \throw If \a vector == NULL.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_translate "Here is a C++ example".<br>
  *  \ref  py_mcpointset_translate "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::translate(const double *vector)
 {
@@ -572,8 +590,10 @@ void MEDCouplingPointSet::translate(const double *vector)
  *  \throw If the coordinates array is not set.
  *  \throw If \a point == NULL.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcpointset_scale "Here is a C++ example".<br>
  *  \ref  py_mcpointset_scale "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::scale(const double *point, double factor)
 {
@@ -1346,8 +1366,10 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelf2(int start, int end,
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any node id in \a begin is not valid.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_buildPartOfMySelfNode "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildPartOfMySelfNode "Here is a Python example".
+ *  \endif
  */
 MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
 {
@@ -1383,8 +1405,10 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfNode(const int *begin
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_zipConnectivityTraducer "Here is a C++ example".<br>
  *  \ref  py_mcumesh_zipConnectivityTraducer "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::zipConnectivityTraducer(int compType, int startCellId)
 {
@@ -1417,8 +1441,10 @@ DataArrayInt *MEDCouplingPointSet::zipConnectivityTraducer(int compType, int sta
  *         to delete this array using decrRef() as it is no more needed.
  *  \throw If the two meshes do not match.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_checkDeepEquivalWith "Here is a C++ example".<br>
  *  \ref  py_mcumesh_checkDeepEquivalWith "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
@@ -1471,8 +1497,10 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
  *         to delete this array using decrRef() as it is no more needed.
  *  \throw If the two meshes do not match.
  *
+ * \if ENABLE_EXAMPLES
  * \ref cpp_mcumesh_checkDeepEquivalWith "Here is a C++ example".<br>
  * \ref  py_mcumesh_checkDeepEquivalWith "Here is a Python example".
+ * \endif
  */
 void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
@@ -1530,8 +1558,10 @@ void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, dou
  *
  * \sa MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellIdsLyingOnNodes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellIdsLyingOnNodes "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::getCellIdsLyingOnNodes(const int *begin, const int *end, bool fullyIn) const
 {
@@ -1556,8 +1586,10 @@ DataArrayInt *MEDCouplingPointSet::getCellIdsLyingOnNodes(const int *begin, cons
  * 
  * \sa MEDCouplingPointSet::getCellIdsLyingOnNodes
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellIdsFullyIncludedInNodeIds "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellIdsFullyIncludedInNodeIds "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
 {
@@ -1575,8 +1607,10 @@ DataArrayInt *MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds(const int *p
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_zipCoordsTraducer "Here is a C++ example".<br>
  *  \ref  py_mcumesh_zipCoordsTraducer "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer()
 {
@@ -1599,8 +1633,10 @@ DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer()
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_mergeNodes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
@@ -1624,8 +1660,10 @@ DataArrayInt *MEDCouplingPointSet::mergeNodes(double precision, bool& areNodesMe
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_mergeNodes "Here is a C++ example".<br>
  *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *MEDCouplingPointSet::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {

@@ -113,8 +113,9 @@ disconnected in MED file.
 The aspect of profile is managed by MEDLoader, that is why this
 aspect does not appear in the MEDLoader API.
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_loadfile_onetimestep_basic "Python example".
-
+\endif
 
 \subsection MEDLoaderMEDFieldsRead Reading several field time steps at a time in MED files
 
@@ -122,8 +123,9 @@ It is possible with MEDLoader to read several time steps of a field at once.
 The advantage with this approach is to avoid reading and loading the same mesh several
 times.
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_loadfile_alltimesteps_basic "Python example".
-
+\endif
 
 \section MEDLoaderWriteMain Writing a MED file with MEDLoader
 
@@ -170,8 +172,9 @@ a mesh in MED file is discriminated by a name, so the \b meshName
 \b should \b be \b non \b empty. If it is the case an
 INTERP_KERNEL::Exception will be thrown.
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcumesh_writefile_onemesh_basic "Python example".
-
+\endif
 
 \subsection MEDLoaderWriteMeshes Writing several meshes in a MED file with MEDLoader
 
@@ -226,6 +229,8 @@ writes the underlying mesh and writes the specified time step on it.
 
 \subsection MEDLoaderWriteFields Writing several time steps of a field in a MED file with MEDLoader
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_writefile_severaltimesteps_basic "Python example".
+\endif
 
 */

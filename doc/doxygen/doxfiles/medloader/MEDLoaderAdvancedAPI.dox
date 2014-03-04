@@ -157,7 +157,9 @@ mesh at specified level.
 
 \anchor AdvMEDLoaderAPIMeshReadingSampl
 
+\if ENABLE_EXAMPLES
 Here is a \ref cpp_mcumesh_loadfile "C++ example" illustrating a typical use of \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" instance.
+\endif
 
 \subsection AdvMEDLoaderAPIMeshWriting Writing a mesh.
 
@@ -190,8 +192,9 @@ set to the desired group name. If not an exception will be thrown, because MED f
 
 \anchor AdvMEDLoaderAPIMeshWritingSampl
 
+\if ENABLE_EXAMPLES
 Here is a \ref cpp_mcumesh_writefile "C++ example".
-
+\endif
 
 \section AdvMEDLoaderAPIFieldRW Dealing with Fields with advanced API.
 
@@ -224,12 +227,15 @@ Fields defined on all entities are the most used and common fields in MED file w
 
 In this mode the user does **not** want to retrieve the entity ids of the constituting subsupport of the whole mesh because it has no sense.
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_loadfile_allentities "Python example".
+\endif
 
 \subsubsection AdvMEDLoaderAPIFieldRP Reading a partial field
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_loadfile_partial "Python example".
-
+\endif
 
 \subsection AdvMEDLoaderAPIFieldW Writing a field
 
@@ -239,10 +245,14 @@ Fields defined on all entities are the most used and common fields in MED file w
 
 In this mode the user do **not** want to retrieve the entity ids of the constituting subsupport of the whole mesh because it has no sense.
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_writefile_allentities "Python example".
+\endif
 
 \subsubsection AdvMEDLoaderAPIFieldWP Writing a partial field
 
+\if ENABLE_EXAMPLES
 Here is a \ref py_mcfield_writefile_partial "Python example".
+\endif
 
 */

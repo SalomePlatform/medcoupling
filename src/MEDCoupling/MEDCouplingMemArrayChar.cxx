@@ -734,7 +734,9 @@ DataArrayChar *DataArrayChar::changeNbOfComponents(int newNbOfComp, char dftValu
  *  \throw If a component index (\a i) is not valid: 
  *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_keepselectedcomponents "Here is a Python example".
+ *  \endif
  */
 DataArray *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
@@ -763,9 +765,11 @@ DataArray *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoId
  *  \throw If \a this is not allocated.
  *  \throw If \a this and \a other arrays have different number of tuples.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_meldwith "Here is a C++ example".
  *
  *  \ref py_mcdataarrayint_meldwith "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::meldWith(const DataArrayChar *other)
 {
@@ -826,7 +830,9 @@ void DataArrayChar::meldWith(const DataArrayChar *other)
  *  \throw If \a strictCompoCompare == \a true && \a a->getNumberOfComponents() !=
  *            \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues1 "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::setPartOfValues1(const DataArrayChar *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
 {
@@ -889,7 +895,9 @@ void DataArrayChar::setPartOfValues1(const DataArrayChar *a, int bgTuples, int e
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple1 "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::setPartOfValuesSimple1(char a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp)
 {
@@ -944,7 +952,9 @@ void DataArrayChar::setPartOfValuesSimple1(char a, int bgTuples, int endTuples, 
  *  \throw In the second *mode of usage*, if \a a->getNumberOfTuples() != 1 or
  *         <em> a->getNumberOfComponents() != (endComp - bgComp)</em>.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues2 "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::setPartOfValues2(const DataArrayChar *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare)
 {
@@ -1015,7 +1025,9 @@ void DataArrayChar::setPartOfValues2(const DataArrayChar *a, const int *bgTuples
  *  \throw If any index of tuple/component given by <em>bgTuples / bgComp</em> is
  *         out of a valid range for \a this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple2 "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::setPartOfValuesSimple2(char a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp)
 {
@@ -1075,7 +1087,9 @@ void DataArrayChar::setPartOfValuesSimple2(char a, const int *bgTuples, const in
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues3 "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::setPartOfValues3(const DataArrayChar *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
 {
@@ -1147,7 +1161,9 @@ void DataArrayChar::setPartOfValues3(const DataArrayChar *a, const int *bgTuples
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple3 "Here is a Python example".
+ *  \endif
  */
 void DataArrayChar::setPartOfValuesSimple3(char a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp)
 {

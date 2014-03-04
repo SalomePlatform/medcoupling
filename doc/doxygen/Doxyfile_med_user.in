@@ -236,7 +236,7 @@ PREDEFINED             =
 EXPAND_AS_DEFINED      = MEDCOUPLING_EXPORT MEDCOUPLINGREMAPPER_EXPORT MEDLOADER_EXPORT
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
-# Configuration::addtions related to external references
+# Configuration::additions related to external references
 #---------------------------------------------------------------------------
 TAGFILES               =
 GENERATE_TAGFILE       =
@@ -260,6 +260,6 @@ DOTFILE_DIRS           =
 GENERATE_LEGEND        = YES
 DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
-# Configuration::addtions related to the search engine
+# Configuration::additions related to the search engine
 #---------------------------------------------------------------------------
 SEARCHENGINE           = NO

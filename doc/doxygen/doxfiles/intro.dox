@@ -51,12 +51,16 @@ used for cross process exchange of meshes and fields.
 MED file format.
 - \ref interptools, from theory to practice using MEDCoupling.
 - Summary of  \ref functionalities "available functionalities".
+  \if ENABLE_EXAMPLES
 - \ref medcouplingpyexamples and tutorials.
+  \endif
 - \ref gui that exhibits some useful functions of the library for a graphical
 manipulation of data in standard use cases.
 - \ref tools based on MEDLoader that can be used to process MED data files
 (conversion tools and splitting tools).
+  \if ENABLE_EXAMPLES
 - \ref medcouplingcppexamples for advanced users.
+  \endif
 
 
 \section install Installation

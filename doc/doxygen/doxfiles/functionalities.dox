@@ -10,22 +10,25 @@
 
 \subsection directOperations_modification Partial modifications
 - Creation: \b New, \b setMesh, \b setArray* \n
+  \if ENABLE_EXAMPLES
   Example 1: \ref medcouplingpyexamplesFieldDoubleBuild1 \n
   Example 2: \ref medcouplingpyexamplesFieldDoubleBuild2 \n
   Example 3: \ref medcouplingpyexamplesFieldDoubleBuild3 \n
   Example 4: \ref medcouplingpyexamplesFieldDoubleBuild4 \n
-
+  \endif
 - Copy
   - \b buildNewTimeReprFromThis
+  \if ENABLE_EXAMPLES
   .
   Example: \ref py_mcfielddouble_buildNewTimeReprFromThis
-
+  \endif
 - Subparts
   - \b buildSubPart*
+  \if ENABLE_EXAMPLES
   .
   Example: \ref py_mcfielddouble_subpart1
+  \endif
   - \b keepSelectedComponents, \b setSelectedComponents
-
 
 And also:
 
@@ -39,6 +42,7 @@ And also:
 - Affectation
   - From a constant: \b =
   - From an expression: \b applyFunc* \b applyLin \b fillFromAnalytic* \n
+  \if ENABLE_EXAMPLES
     Example 1: \ref py_mcfielddouble_applyFunc_same_nb_comp \n
     Example 2: \ref py_mcfielddouble_applyFunc3 \n
     Example 3: \ref py_mcfielddouble_applyFunc2 \n
@@ -48,28 +52,32 @@ And also:
     Example 7: \ref py_mcmesh_fillFromAnalytic \n
     Example 8: \ref cpp_mcfielddouble_fillFromAnalytic_c_func \n
     Example 9: \ref cpp_mcfielddouble_applyFunc_c_func
-
+  \endif
 - Addition
   - \b + \b += \b AddFields
+  \if ENABLE_EXAMPLES
   .
   Example: \ref medcouplingpyexamplesFieldDoubleBuild5
-
+  \endif
 - Subtraction
   - \b \- \b \-= \b SubstractFields
   - \b substractInPlaceDM
+  \if ENABLE_EXAMPLES
   .
   Example: \ref py_mcfielddouble_substractInPlaceDM
-
+  \endif
 - Multiplication
   - \b * \b *= \b MultiplyFields
+  \if ENABLE_EXAMPLES
   .
   Example: \ref medcouplingpyexamplesFieldDoubleBuild5
-
+  \endif
 - Division:
   - \b / \b /= \b DivideFields
+  \if ENABLE_EXAMPLES
   .
   Example: \ref medcouplingpyexamplesFieldDoubleBuild5
-
+  \endif
 - Power: \b ^ \b ^= \b PowFields
 
 \subsection arithmeticOperations_vector Operations on vectors or second order tensors
@@ -87,8 +95,9 @@ And also:
 
 \section globalOperations Global operations
 - Spatial extrema: \b MaxFields, \b MinFields \n
+  \if ENABLE_EXAMPLES
   Example: \ref py_mcfielddouble_MaxFields
-
+  \endif
 - Spatial mean: \b getAverageValue
 
 - Temporal extrema
@@ -98,10 +107,12 @@ And also:
 
 \section otherOperations Others
 - Renumbering a mesh: \b renumber* \n
+  \if ENABLE_EXAMPLES
   Example 1: \ref py_mcfielddouble_renumberNodes \n
   Example 2: \ref py_mcfielddouble_renumberCells
-
+  \endif
 - Merge non overlapping fields: \b MergeFields \n
+  \if ENABLE_EXAMPLES
   Example: \ref py_mcfielddouble_MergeFields
-
+  \endif
 */
