@@ -9926,6 +9926,30 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const std::string& f
 }
 
 /*!
+ * This method removes, if any, fields in \a this having no time steps.
+ * If there is one or more than one such field in \a this true is returned and those fields will not be referenced anymore in \a this.
+ * 
+ * If false is returned \a this does not contain such fields. If false is returned this method can be considered as const.
+ */
+bool MEDFileFields::removeFieldsWithoutAnyTimeStep()
+{
+  std::vector<MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > newFields;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      const MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
+      if(elt)
+        {
+          if(elt->getNumberOfTS()>0)
+            newFields.push_back(*it);
+        }
+    }
+  if(_fields.size()==newFields.size())
+    return false;
+  _fields=newFields;
+  return true;
+}
+
+/*!
  * This method returns a new object containing part of \a this fields lying on mesh name specified by the input parameter \a meshName.
  * This method can be seen as a filter applied on \a this, that returns an object containing
  * reduced the list of fields compared to those in \a this. The returned object is a new object but the object on which it lies are only

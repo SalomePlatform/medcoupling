@@ -2236,6 +2236,7 @@ namespace ParaMEDMEM
     MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
+    bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileFields()

@@ -1101,6 +1101,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *getFieldAtPos(int i) const;
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const;
     MEDLOADER_EXPORT MEDFileFields *buildSubPart(const int *startIds, const int *endIds) const;
+    MEDLOADER_EXPORT bool removeFieldsWithoutAnyTimeStep();
     MEDLOADER_EXPORT MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const;
     MEDLOADER_EXPORT MEDFileFields *partOfThisLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
     MEDLOADER_EXPORT MEDFileFields *partOfThisNotLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const;
