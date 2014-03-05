@@ -118,7 +118,7 @@ namespace INTERP_KERNEL
     static void Hexa8DegQuad4cInit(GaussInfo& obj) { obj.hexa8DegQuad4cInit(); }
     void hexa20aInit();
     void hexa20bInit();
-
+    void hexa27aInit();
 
   private:
     //INFORMATION from MEDMEM

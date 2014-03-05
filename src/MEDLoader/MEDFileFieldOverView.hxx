@@ -120,6 +120,7 @@ namespace ParaMEDMEM
   public:
     static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
+    static const unsigned char HEXA27_PERM_ARRAY[27];
   };
   
   class MEDStructuredMeshMultiLev;

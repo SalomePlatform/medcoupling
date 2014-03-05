@@ -443,8 +443,16 @@ void GaussInfo::initLocalInfo()
         }
       break;
 
+    case NORM_HEXA27:
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 27;
+      hexa27aInit();
+      aSatify = isSatisfy();
+      CHECK_MACRO
+      break;
+
     default:
-      throw INTERP_KERNEL::Exception("Not manged cell type !");
+      throw INTERP_KERNEL::Exception("Not managed cell type !");
       break;
     }
 }
@@ -2462,7 +2470,178 @@ void GaussInfo::hexa20bInit()
    SHAPE_FUN_MACRO_END;
 }
 
+void GaussInfo::hexa27aInit()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case 0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case 1:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case 2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case 3:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case 4:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case 5:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case 6:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case 7:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case 8:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case 9:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case 10:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case 11:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case 12:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 13:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case 14:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 15:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case 16:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 17:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 18:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 19:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 20:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case 21:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case 22:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 23:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case 24:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 25:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 26:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+   LOCAL_COORD_MACRO_END;
 
+   SHAPE_FUN_MACRO_BEGIN;
+
+   funValue[0] =0.125*gc[0]*(gc[0]-1.)*gc[1]*(gc[1]-1.)*gc[2]*(gc[2]-1.);
+   funValue[1] =0.125*gc[0]*(gc[0]-1.)*gc[1]*(gc[1]+1.)*gc[2]*(gc[2]-1.);
+   funValue[2] =0.125*gc[0]*(gc[0]+1.)*gc[1]*(gc[1]+1.)*gc[2]*(gc[2]-1.);
+   funValue[3] =0.125*gc[0]*(gc[0]+1.)*gc[1]*(gc[1]-1.)*gc[2]*(gc[2]-1.);
+   funValue[4] =0.125*gc[0]*(gc[0]-1.)*gc[1]*(gc[1]-1.)*gc[2]*(gc[2]+1.);
+   funValue[5] =0.125*gc[0]*(gc[0]-1.)*gc[1]*(gc[1]+1.)*gc[2]*(gc[2]+1.);
+   funValue[6] =0.125*gc[0]*(gc[0]+1.)*gc[1]*(gc[1]+1.)*gc[2]*(gc[2]+1.);
+   funValue[7] =0.125*gc[0]*(gc[0]+1.)*gc[1]*(gc[1]-1.)*gc[2]*(gc[2]+1.);
+   funValue[8] =0.25*(1.-gc[0])*(1.-gc[1]*gc[1])*(1.-gc[2]);
+   funValue[9] =0.25*(1.-gc[0]*gc[0])*(1.+gc[1])*(1.-gc[2]);
+   funValue[10]=0.25*(1.+gc[0])*(1.-gc[1]*gc[1])*(1.-gc[2]);
+   funValue[11]=0.25*(1.-gc[0]*gc[0])*(1.-gc[1])*(1.-gc[2]);
+   funValue[12]=0.25*(1.-gc[0])*(1.-gc[1]*gc[1])*(1.+gc[2]);
+   funValue[13]=0.25*(1.-gc[0]*gc[0])*(1.+gc[1])*(1.+gc[2]);
+   funValue[14]=0.25*(1.+gc[0])*(1.-gc[1]*gc[1])*(1.+gc[2]);
+   funValue[15]=0.25*(1.-gc[0]*gc[0])*(1.-gc[1])*(1.+gc[2]);
+   funValue[16]=0.25*(1.-gc[0])*(1.-gc[1])*(1.-gc[2]*gc[2]);
+   funValue[17]=0.25*(1.-gc[0])*(1.+gc[1])*(1.-gc[2]*gc[2]);
+   funValue[18]=0.25*(1.+gc[0])*(1.+gc[1])*(1.-gc[2]*gc[2]);
+   funValue[19]=0.25*(1.+gc[0])*(1.-gc[1])*(1.-gc[2]*gc[2]);
+   funValue[20]=0.5*(1.-gc[0]*gc[0])*(1.-gc[1]*gc[1])*gc[2]*(gc[2]-1.);
+   funValue[21]=0.5*gc[0]*(gc[0]-1.)*(1.-gc[1]*gc[1])*(1.-gc[2]*gc[2]);
+   funValue[22]=0.5*(1.-gc[0]*gc[0])*gc[1]*(gc[1]+1.)*(1.-gc[2]*gc[2]);
+   funValue[23]=0.5*gc[0]*(gc[0]+1.)*(1.-gc[1]*gc[1])*(1.-gc[2]*gc[2]);
+   funValue[24]=0.5*(1.-gc[0]*gc[0])*gc[1]*(gc[1]-1.)*(1.-gc[2]*gc[2]);
+   funValue[25]=0.5*(1.-gc[0]*gc[0])*(1.-gc[1]*gc[1])*gc[2]*(gc[2]+1.);
+   funValue[26]=(1.-gc[0]*gc[0])*(1.-gc[1]*gc[1])*(1.-gc[2]*gc[2]);
+   
+   SHAPE_FUN_MACRO_END;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //                                GAUSS COORD CLASS                                           //
