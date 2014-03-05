@@ -31,7 +31,7 @@ import os,gc,weakref,unittest
 
 class MEDCouplingNumPyTest(unittest.TestCase):
     
-    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and architecture()[0]=="64bit","requires numpy")
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test1(self):
         sz=20
         a=array(0,dtype=int32)

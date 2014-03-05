@@ -2080,8 +2080,7 @@ namespace ParaMEDMEM
         arrIndxIn->checkAllocated();
         if(arrIndxIn->getNumberOfComponents()!=1)
           throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : number of components of last argument must be equal to one !");
-        if(PySlice_GetIndices(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : Invalid slice regarding nb of elements !");
+        GetIndicesOfSlice(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArrays2 (wrap) : Invalid slice regarding nb of elements !");
         DataArrayInt *arrOut=0,*arrIndexOut=0;
         MEDCouplingUMesh::ExtractFromIndexedArrays2(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
         PyObject *ret=PyTuple_New(2);

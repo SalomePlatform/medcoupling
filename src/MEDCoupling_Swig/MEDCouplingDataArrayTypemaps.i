@@ -20,6 +20,53 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
+/*!
+ * This method is an extention of PySlice_GetIndices but less
+ * open than PySlice_GetIndicesEx that accepts too many situations.
+ */
+void GetIndicesOfSlice(PySliceObject *slice, Py_ssize_t length, Py_ssize_t *start, Py_ssize_t *stop, Py_ssize_t *step, const char *msgInCaseOfFailure)
+{
+  int ret(PySlice_GetIndices(slice,length,start,stop,step));
+  if(ret==0)
+    return ;
+  if(*step>0 && *start==*stop && length==*start)
+    return ;
+  throw INTERP_KERNEL::Exception(msgInCaseOfFailure);
+}
+
+/*!
+ * This method allows to retrieve slice info from \a slice.
+ */
+void GetIndicesOfSliceExplicitely(PySliceObject *slice, Py_ssize_t *start, Py_ssize_t *stop, Py_ssize_t *step, const char *msgInCaseOfFailure)
+{
+  int ret(PySlice_GetIndices(slice,std::numeric_limits<int>::max(),start,stop,step));
+  if(ret==0)
+    {
+      if(*start!=std::numeric_limits<int>::max() && *stop!=std::numeric_limits<int>::max())
+        return ;
+      std::ostringstream oss;
+      oss << msgInCaseOfFailure << " The input slice contains some unknowns that can't be determined in static method ! The input slice must be explicit here !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  throw INTERP_KERNEL::Exception(msgInCaseOfFailure);
+}
+
+int InterpreteNegativeInt(int val, int nbelem)
+{
+  if(val<0)
+    {
+      int newVal(nbelem+val);
+      if(newVal<0)
+        {
+          std::ostringstream oss; oss << "interpreteNegativeInt : request for negative int=" << val << " but number of elems is equal to " << nbelem << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      return newVal;
+    }
+  else
+    return val;
+}
+
 #ifdef WITH_NUMPY
 #include <numpy/arrayobject.h>
 
@@ -1420,12 +1467,7 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
     {
       Py_ssize_t strt=2,stp=2,step=2;
       PySliceObject *oC=reinterpret_cast<PySliceObject *>(value);
-      if(PySlice_GetIndices(oC,nbelem,&strt,&stp,&step)!=0)
-        if(nbelem!=0 || strt!=0 || stp!=0)
-          {
-            std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elements is : " << nbelem;
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
-          }
+      GetIndicesOfSlice(oC,nbelem,&strt,&stp,&step,"Slice in subscriptable object DataArray invalid !");
       p.first=strt;
       p.second.first=stp;
       p.second.second=step;
@@ -1460,6 +1502,18 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
       return ;
     }
   throw INTERP_KERNEL::Exception(msg);
+}
+
+/*!
+ * Idem than convertObjToPossibleCpp2
+ */
+static void convertObjToPossibleCpp2WithNegIntInterp(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+{
+  convertObjToPossibleCpp2(value,nbelem,sw,iTyypp,stdvecTyypp,p,daIntTyypp);
+  if(sw==1)
+    {
+      iTyypp=InterpreteNegativeInt(iTyypp,nbelem);
+    }
 }
 
 /*!
@@ -1518,12 +1572,7 @@ static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int&
     {
       Py_ssize_t strt=2,stp=2,step=2;
       PySliceObject *oC=reinterpret_cast<PySliceObject *>(value);
-      if(PySlice_GetIndices(oC,nbelem,&strt,&stp,&step)!=0)
-        if(nbelem!=0 || strt!=0 || stp!=0)
-          {
-            std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elements is : " << nbelem;
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
-          }
+      GetIndicesOfSlice(oC,nbelem,&strt,&stp,&step,"Slice in subscriptable object DataArray invalid !");
       p.first=strt;
       p.second.first=stp;
       p.second.second=step;
@@ -1653,7 +1702,7 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
 {
   if(!PyTuple_Check(value))
     {
-      convertObjToPossibleCpp2(value,nbTuple,sw,it,vt,pt,dt);
+      convertObjToPossibleCpp2WithNegIntInterp(value,nbTuple,sw,it,vt,pt,dt);
       return ;
     }
   else
@@ -1663,9 +1712,9 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
         throw INTERP_KERNEL::Exception("Unexpected nb of slice element : 1 or 2 expected !\n1st is for tuple selection, 2nd for component selection !");
       PyObject *ob0=PyTuple_GetItem(value,0);
       int sw1,sw2;
-      convertObjToPossibleCpp2(ob0,nbTuple,sw1,it,vt,pt,dt);
+      convertObjToPossibleCpp2WithNegIntInterp(ob0,nbTuple,sw1,it,vt,pt,dt);
       PyObject *ob1=PyTuple_GetItem(value,1);
-      convertObjToPossibleCpp2(ob1,nbCompo,sw2,ic,vc,pc,dc);
+      convertObjToPossibleCpp2WithNegIntInterp(ob1,nbCompo,sw2,ic,vc,pc,dc);
       sw=4*sw2+sw1;
     }
 }

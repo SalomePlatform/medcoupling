@@ -666,6 +666,11 @@ void MEDFileParameterMultiTS::eraseTimeStepIds(const int *startIds, const int *e
   _param_per_ts=paramPerTs;
 }
 
+int MEDFileParameterMultiTS::getNumberOfTS() const
+{
+  return (int) getIterations().size();
+}
+
 std::vector< std::pair<int,int> > MEDFileParameterMultiTS::getIterations() const
 {
   std::vector< std::pair<int,int> > ret;

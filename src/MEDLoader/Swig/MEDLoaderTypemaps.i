@@ -310,7 +310,7 @@ int MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(const MEDFileAnyTypeFieldMultiTS
 {
   if(elt0 && PyInt_Check(elt0))
     {//fmts[3]
-      return PyInt_AS_LONG(elt0);
+      return InterpreteNegativeInt(PyInt_AS_LONG(elt0),self->getNumberOfTS());
     }
   else if(elt0 && PyTuple_Check(elt0))
     {
@@ -347,7 +347,7 @@ int MEDFileFieldsgetitemSingleTS__(const MEDFileFields *self, PyObject *obj) thr
 {
   if(PyInt_Check(obj))
     {
-      return (int)PyInt_AS_LONG(obj);
+      return InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfFields());
     }
   else if(PyString_Check(obj))
     {

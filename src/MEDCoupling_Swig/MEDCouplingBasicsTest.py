@@ -6020,13 +6020,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         else:
             self.assertTrue(False)
             pass
-        try:
-            da2=da[5:8,-2]
-        except InterpKernelException as e:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-            pass
+        self.assertTrue(da[5:8,-2].isEqualWithoutConsideringStr(DataArrayInt([23,26,29])))
         da2=da[5:8,:-2]
         self.assertEqual([22, 25, 28],da2.getValues())
         try:
@@ -6075,13 +6069,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         else:
             self.assertTrue(False)
             pass
-        try:
-            da2=da[5:8,-2]
-        except InterpKernelException as e:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-            pass
+        self.assertTrue(da[5:8,-2].isEqualWithoutConsideringStr(DataArrayDouble([23.,26.,29.]),1e-12))
         da2=da[5:8,:-2]
         self.assertEqual([22., 25., 28.],da2.getValues())
         try:
@@ -9583,13 +9571,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testSwigGetItem3(self):
         da=DataArrayInt.New([4,5,6])
         self.assertEqual(5,da[1])
-        self.assertRaises(InterpKernelException,da.__getitem__,-1)
+        self.assertEqual(6,da[-1])
         self.assertRaises(InterpKernelException,da.__getitem__,3)
         da=DataArrayInt.New([4,5,6,7,8,9],2,3)
         self.assertEqual(9,da[1,2])
         da=DataArrayDouble.New([4.1,5.2,6.3])
         self.assertAlmostEqual(5.2,da[1],12)
-        self.assertRaises(InterpKernelException,da.__getitem__,-1)
+        self.assertAlmostEqual(6.3,da[-1],12)
         self.assertRaises(InterpKernelException,da.__getitem__,3)
         da=DataArrayDouble.New([4.12,5.12,6.12,7.12,8.12,9.12],2,3)
         self.assertAlmostEqual(9.12,da[1,2],12)
@@ -14377,6 +14365,78 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getCoords().isEqual(DataArrayDouble([2.,2.,2.,-6.,10.,-2.,-2.,-2.,6.,0.,6.,-4.,2.,7.,2.,4.5,-1.4641016151377544,0.,-1.950753362380551,-1.3742621398390762,-7.,-3.,-0.8284271247461898,-4.82842712474619,0.2679491924311228,3.5,8.881784197001252e-16,1.4641016151377548,-4.4753766811902755,-2.187131069919538,-3.914213562373095,-3.914213562373095,-1.8042260651806146,-3.236067977499789,-1.7705659643687133,-0.6647725630649153,0.46926627053963865,-5.695518130045146],19,2),1e-12))
         self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,1,2,0,8,9,11,5,4,13,17,16,18,6,8,6,0,12,7,13,6,11,9,10,16,14,15])))
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,13,20,27])))
+        pass
+
+    def testSwigExtendedSlice1(self):
+        d=DataArrayInt([5,6,7])
+        self.assertTrue(d[2:].isEqual(DataArrayInt([7])))
+        self.assertTrue(d[3:].isEqual(DataArrayInt([])))
+        try:
+            d[4:]
+        except InterpKernelException as e:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+            pass
+        d=DataArrayInt([5,6,7,8])
+        self.assertEqual(d[-1],8)
+        self.assertEqual(d[-4],5)
+        try:
+            d[-5]
+        except InterpKernelException as e:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+            pass
+        self.assertTrue(d[2::-1].isEqual(DataArrayInt([7,6,5])))
+        self.assertTrue(d[0::-1].isEqual(DataArrayInt([5])))
+        self.assertTrue(d[-1::-1].isEqual(DataArrayInt([8,7,6,5])))
+        self.assertTrue(d[-3::-1].isEqual(DataArrayInt([6,5])))
+        self.assertTrue(d[-5::-1].isEqual(DataArrayInt([])))
+        try:
+            d[-6::-1]
+        except InterpKernelException as e:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+            pass
+        d=DataArrayInt([])
+        self.assertTrue(d[0:].isEqual(DataArrayInt([])))
+        #
+        d=DataArrayDouble([5,6,7])
+        self.assertTrue(d[2:].isEqual(DataArrayDouble([7]),1e-12))
+        self.assertTrue(d[3:].isEqual(DataArrayDouble([]),1e-12))
+        try:
+            d[4:]
+        except InterpKernelException as e:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+            pass
+        d=DataArrayDouble([5,6,7,8])
+        self.assertAlmostEqual(d[-1],8.,12)
+        self.assertAlmostEqual(d[-4],5.,12)
+        try:
+            d[-5]
+        except InterpKernelException as e:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+            pass
+        self.assertTrue(d[2::-1].isEqual(DataArrayDouble([7,6,5]),1e-12))
+        self.assertTrue(d[0::-1].isEqual(DataArrayDouble([5]),1e-12))
+        self.assertTrue(d[-1::-1].isEqual(DataArrayDouble([8,7,6,5]),1e-12))
+        self.assertTrue(d[-3::-1].isEqual(DataArrayDouble([6,5]),1e-12))
+        self.assertTrue(d[-5::-1].isEqual(DataArrayDouble([]),1e-12))
+        try:
+            d[-6::-1]
+        except InterpKernelException as e:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+            pass
+        d=DataArrayDouble([])
+        self.assertTrue(d[0:].isEqual(DataArrayDouble([]),1e-12))
         pass
 
     def setUp(self):

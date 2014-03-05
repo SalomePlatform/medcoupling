@@ -138,6 +138,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT int getPosGivenTime(double time, double eps=1e-8) const;
     MEDLOADER_EXPORT MEDFileParameter1TS *getTimeStepAtPos(int posId) const;
     MEDLOADER_EXPORT void eraseTimeStepIds(const int *startIds, const int *endIds);
+    MEDLOADER_EXPORT int getNumberOfTS() const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getIterations() const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const;
     MEDLOADER_EXPORT void simpleRepr2(int bkOffset, std::ostream& oss) const;
