@@ -335,6 +335,7 @@ namespace ParaMEDMEM
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
+    static const double FGP_POINT1[1];
     static const double FGP_SEG2[2];
     static const double FGP_SEG3[3];
     static const double FGP_SEG4[4];

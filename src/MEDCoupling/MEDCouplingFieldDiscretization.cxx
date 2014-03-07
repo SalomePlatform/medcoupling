@@ -65,6 +65,7 @@ const char MEDCouplingFieldDiscretizationKriging::REPR[]="KRIGING";
 const TypeOfField MEDCouplingFieldDiscretizationKriging::TYPE=ON_NODES_KR;
 
 // doc is here http://www.code-aster.org/V2/doc/default/fr/man_r/r3/r3.01.01.pdf
+const double MEDCouplingFieldDiscretizationGaussNE::FGP_POINT1[1]={0.};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG2[2]={1.,1.};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG3[3]={0.5555555555555556,0.8888888888888888,0.5555555555555556};
 const double MEDCouplingFieldDiscretizationGaussNE::FGP_SEG4[4]={0.347854845137454,0.347854845137454,0.652145154862546,0.652145154862546};
@@ -2269,6 +2270,9 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometric
 {
   switch(geoType)
     {
+    case INTERP_KERNEL::NORM_POINT1:
+      lgth=(int)sizeof(FGP_POINT1)/sizeof(double);
+      return FGP_POINT1;
     case INTERP_KERNEL::NORM_SEG2:
       lgth=(int)sizeof(FGP_SEG2)/sizeof(double);
       return FGP_SEG2;
@@ -2320,6 +2324,9 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricTy
 {
   switch(geoType)
     {
+    case INTERP_KERNEL::NORM_POINT1:
+      lgth=0;
+      return 0;
     case INTERP_KERNEL::NORM_SEG2:
       lgth=(int)sizeof(REF_SEG2)/sizeof(double);
       return REF_SEG2;
@@ -2383,6 +2390,11 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(IN
 {
   switch(geoType)
     {
+    case INTERP_KERNEL::NORM_POINT1:
+      {
+	lgth=0;
+	return 0;
+      }
     case INTERP_KERNEL::NORM_SEG2:
       {
         lgth=(int)sizeof(LOC_SEG2)/sizeof(double);

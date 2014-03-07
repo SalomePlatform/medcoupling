@@ -14491,6 +14491,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(arrOfDisc2.isEqual(coo,1e-10)) # be less exigent 1e-10 instead of 1e-12 due to shape function sensitivity arount 0.,0.,1. !
         pass
 
+    def testSwig2Tri7GP1(self):
+        coo=DataArrayDouble([[0,0],[0,2],[2,0],[0,1],[1,1],[1,0],[0.6666666666666667,0.6666666666666667]])
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo)
+        m.allocateCells()
+        # the cell description is exactly those described in the description of TRI7 in MED file 3.0.7 documentation
+        m.insertNextCell(NORM_TRI7,range(7))
+        refCoords=[0.,0.,1.,0.,0.,1.,0.5,0.,0.5,0.5,0.,0.5,0.3333333333333333,0.3333333333333333]
+        gaussCoords=[0.3333333333333333,0.3333333333333333,0.470142064105115,0.470142064105115,0.05971587178977,0.470142064105115,0.470142064105115,0.05971587178977,0.101286507323456,0.101286507323456,0.797426985353088,0.101286507323456,0.101286507323456,0.797426985353088]
+        weights=[0.062969590272413,0.062969590272413,0.062969590272413,0.066197076394253,0.066197076394253,0.066197076394253,0.1125]
+        fGauss=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fGauss.setName("fGauss")
+        fGauss.setMesh(m)
+        fGauss.setGaussLocalizationOnType(NORM_TRI7,refCoords,gaussCoords,weights)
+        arr=DataArrayDouble(fGauss.getNumberOfTuplesExpected()) ; arr.iota()
+        fGauss.setArray(arr)
+        arrOfDisc=fGauss.getLocalizationOfDiscr()
+        self.assertTrue(arrOfDisc.isEqual(DataArrayDouble([0.666666666666667,0.666666666666667,0.9402841282102293,0.9402841282102293,0.9402841282102299,0.11943174357954002,0.11943174357953992,0.9402841282102299,0.20257301464691194,0.20257301464691196,0.20257301464691205,1.5948539707061757,1.5948539707061757,0.20257301464691202],7,2),1e-12))
+        #
+        weights=7*[1]
+        gaussCoords=refCoords
+        fGauss.setGaussLocalizationOnType(NORM_TRI7,refCoords,gaussCoords,weights)
+        arrOfDisc2=fGauss.getLocalizationOfDiscr()
+        self.assertTrue(arrOfDisc2.isEqual(coo,1e-12))
+        pass
+
     def setUp(self):
         pass
     pass

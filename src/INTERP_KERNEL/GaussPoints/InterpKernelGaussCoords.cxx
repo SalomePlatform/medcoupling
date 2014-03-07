@@ -234,6 +234,14 @@ void GaussInfo::initLocalInfo()
   const CellModel& cellModel(CellModel::GetCellModel(_my_geometry));
   switch( _my_geometry ) 
     {
+    case NORM_POINT1:
+      _my_local_ref_dim = 0;
+      _my_local_nb_ref  = 1;
+      point1Init();
+      aSatify = isSatisfy();
+      CHECK_MACRO;
+      break;
+
     case NORM_SEG2:
       _my_local_ref_dim = 1;
       _my_local_nb_ref  = 2;
@@ -275,6 +283,14 @@ void GaussInfo::initLocalInfo()
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
+      break;
+
+    case NORM_TRI7:
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 7;
+      tria7aInit();
+      aSatify = isSatisfy();
+      CHECK_MACRO;
       break;
 
     case NORM_QUAD4:
@@ -401,18 +417,19 @@ void GaussInfo::initLocalInfo()
       break;
 
     case NORM_PENTA15:
-      _my_local_ref_dim = 3;
-      _my_local_nb_ref  = 15;
-      penta15aInit();
-      aSatify = isSatisfy();
-
-      if(!aSatify)
-        {
-          penta15bInit();
-          aSatify = isSatisfy();
-          CHECK_MACRO;
-        }
-      break;
+      {
+        _my_local_ref_dim = 3;
+        _my_local_nb_ref  = 15;
+        MapToShapeFunction PENTA15PTR[]={Penta15aInit,Penta15bInit};
+        std::size_t NB_OF_PENTA15PTR(sizeof(PENTA15PTR)/sizeof(MapToShapeFunction));
+        for(std::size_t i=0;i<NB_OF_PENTA15PTR && !aSatify;i++)
+          {
+            (PENTA15PTR[i])(*this);
+            aSatify = isSatisfy();
+          }
+        CHECK_MACRO;
+        break;
+      }
 
     case NORM_HEXA8:
       {
@@ -463,6 +480,12 @@ void GaussInfo::initLocalInfo()
 const double* GaussInfo::getFunctionValues( const int theGaussId ) const 
 {
   return &_my_function_value[ _my_nb_ref*theGaussId ];
+}
+
+void GaussInfo::point1Init()
+{
+  double *funValue(&_my_function_value[0]);
+  funValue[0] = 1. ;
 }
 
 /*!
@@ -655,6 +678,51 @@ void GaussInfo::tria6bInit()
    funValue[4] = 4.0*gc[0]*gc[1];
    funValue[5] = 4.0*gc[1]*(1.0 - gc[0] - gc[1]);
    SHAPE_FUN_MACRO_END;
+}
+
+void GaussInfo::tria7aInit()
+{
+  LOCAL_COORD_MACRO_BEGIN;
+ case 0:
+   coords[0] = 0.0;
+   coords[1] = 0.0;
+   break;
+ case 1:
+   coords[0] = 1.0;
+   coords[1] = 0.0;
+   break;
+ case 2:
+   coords[0] = 0.0;
+   coords[1] = 1.0;
+   break;
+ case 3:
+   coords[0] = 0.5;
+   coords[1] = 0.0;
+   break;
+ case 4:
+   coords[0] = 0.5;
+   coords[1] = 0.5;
+   break;
+ case 5:
+   coords[0] = 0.0;
+   coords[1] = 0.5;
+   break;
+ case 6:
+   coords[0] = 0.3333333333333333;
+   coords[1] = 0.3333333333333333;
+   break;
+
+  LOCAL_COORD_MACRO_END;
+
+  SHAPE_FUN_MACRO_BEGIN;
+  funValue[0]=1-3*(gc[0]+gc[1])+2*(gc[0]*gc[0]+gc[1]*gc[1])+7*gc[0]*gc[1]-3*gc[0]*gc[1]*(gc[0]+gc[1]);
+  funValue[1]=gc[0]*(-1+2*gc[0]+3*gc[1]-3*gc[1]*(gc[0]+gc[1]));
+  funValue[2]=gc[1]*(-1.+3.*gc[0]+2.*gc[1]-3.*gc[0]*(gc[0]+gc[1]));
+  funValue[3]=4*gc[0]*(1-gc[0]-4*gc[1]+3*gc[1]*(gc[0]+gc[1]));
+  funValue[4]=4*gc[0]*gc[1]*(-2+3*(gc[0]+gc[1]));
+  funValue[5]=4*gc[1]*(1-4*gc[0]-gc[1]+3*gc[0]*(gc[0]+gc[1]));
+  funValue[6]=27*gc[0]*gc[1]*(1-gc[0]-gc[1]);
+  SHAPE_FUN_MACRO_END;
 }
 
 /*!
