@@ -336,7 +336,7 @@ IF(NOT SALOME_MED_STANDALONE)
   LIST(APPEND _${PROJECT_NAME}_exposed_targets 
     SalomeIDLMED SalomeIDLMEDTests medcouplingcorba medcouplingclient)
   IF(NOT SALOME_MED_MICROMED)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets medcalculator)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets medcalculator MEDOPFactoryEngine)
     IF(SALOME_MED_ENABLE_PYTHON)
       LIST(APPEND _${PROJECT_NAME}_exposed_targets medcalculatorspython)
     ENDIF()
@@ -345,10 +345,8 @@ ENDIF()
 
 IF(SALOME_BUILD_GUI)
   IF(NOT SALOME_MED_MICROMED)
-    IF(SALOME_MED_ENABLE_PYTHON)
-      LIST(APPEND _${PROJECT_NAME}_exposed_targets 
-        MEDOPFactoryEngine MEDOPGUI_dialogs MEDOPGUI)
-    ENDIF()
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets 
+       MEDOPGUI_dialogs MEDOPGUI)
   ENDIF()
 ENDIF()
 
