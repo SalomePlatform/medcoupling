@@ -4606,8 +4606,11 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
     {
       if(!mrs || mrs->isNodeFamilyFieldReading())
         {
+          int nbNodes(getNumberOfNodes());
           _fam_nodes=DataArrayInt::New();
-          _fam_nodes->alloc(nbOfElt,1);
+          _fam_nodes->alloc(nbNodes,1);//yes nbNodes and not nbOfElt see next line.
+          if(nbNodes!=nbOfElt)//yes it appends some times... It explains surely the mdump implementation. Bug revealed by PARAVIS EDF #2475 on structured.med file where only 12 first nodes are !=0 so nbOfElt=12 and nbOfNodes=378...
+            _fam_nodes->fillWithZero();
           MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer());
         }
     }

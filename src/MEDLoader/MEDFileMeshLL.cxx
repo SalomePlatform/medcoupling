@@ -250,6 +250,8 @@ void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
   int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
   std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim);
+  if(nstep==0)
+    return ;
   if(meshType!=UNSTRUCTURED)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected an unstructured one whereas in file it is not an unstructured !");
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
