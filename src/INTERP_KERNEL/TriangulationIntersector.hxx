@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     TriangulationIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                             double dimCaracteristic, double precision, double md3DSurf, double medianPlane, int orientation, int printLevel);
+                             double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, int orientation, int printLevel);
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
     double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
     double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);

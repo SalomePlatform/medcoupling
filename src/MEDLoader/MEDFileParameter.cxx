@@ -606,7 +606,7 @@ int MEDFileParameterMultiTS::getPosOfTimeStep(int iteration, int order) const
       const MEDFileParameter1TS *elt(*it);
       if(elt)
         {
-          if(elt->getIteration()==iteration && elt->getOrder())
+          if(elt->getIteration()==iteration && elt->getOrder()==order)
             return ret;
           else
             oss << "(" << elt->getIteration() << "," << elt->getOrder() << "), ";
@@ -664,6 +664,11 @@ void MEDFileParameterMultiTS::eraseTimeStepIds(const int *startIds, const int *e
     if(b[i])
       paramPerTs[j++]=_param_per_ts[i];
   _param_per_ts=paramPerTs;
+}
+
+int MEDFileParameterMultiTS::getNumberOfTS() const
+{
+  return (int) getIterations().size();
 }
 
 std::vector< std::pair<int,int> > MEDFileParameterMultiTS::getIterations() const

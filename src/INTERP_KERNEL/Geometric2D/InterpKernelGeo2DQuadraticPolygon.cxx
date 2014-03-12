@@ -72,7 +72,7 @@ QuadraticPolygon::~QuadraticPolygon()
 
 QuadraticPolygon *QuadraticPolygon::BuildLinearPolygon(std::vector<Node *>& nodes)
 {
-  QuadraticPolygon *ret=new QuadraticPolygon;
+  QuadraticPolygon *ret(new QuadraticPolygon);
   std::size_t size=nodes.size();
   for(std::size_t i=0;i<size;i++)
     {
@@ -84,9 +84,10 @@ QuadraticPolygon *QuadraticPolygon::BuildLinearPolygon(std::vector<Node *>& node
 
 QuadraticPolygon *QuadraticPolygon::BuildArcCirclePolygon(std::vector<Node *>& nodes)
 {
-  QuadraticPolygon *ret=new QuadraticPolygon;
+  QuadraticPolygon *ret(new QuadraticPolygon);
   std::size_t size=nodes.size();
   for(std::size_t i=0;i<size/2;i++)
+
     {
       EdgeLin *e1,*e2;
       e1=new EdgeLin(nodes[i],nodes[i+size/2]);
@@ -100,6 +101,32 @@ QuadraticPolygon *QuadraticPolygon::BuildArcCirclePolygon(std::vector<Node *>& n
         ret->pushBack(new EdgeArcCircle(nodes[i],nodes[i+size/2],nodes[(i+1)%(size/2)]));
       nodes[i]->decrRef(); nodes[i+size/2]->decrRef();
     }
+  return ret;
+}
+
+Edge *QuadraticPolygon::BuildLinearEdge(std::vector<Node *>& nodes)
+{
+  if(nodes.size()!=2)
+    throw INTERP_KERNEL::Exception("QuadraticPolygon::BuildLinearEdge : input vector is expected to be of size 2 !");
+  Edge *ret(new EdgeLin(nodes[0],nodes[1]));
+  nodes[0]->decrRef(); nodes[1]->decrRef();
+  return ret;
+}
+
+Edge *QuadraticPolygon::BuildArcCircleEdge(std::vector<Node *>& nodes)
+{
+  if(nodes.size()!=3)
+    throw INTERP_KERNEL::Exception("QuadraticPolygon::BuildArcCircleEdge : input vector is expected to be of size 3 !");
+  EdgeLin *e1(new EdgeLin(nodes[0],nodes[2])),*e2(new EdgeLin(nodes[2],nodes[1]));
+  SegSegIntersector inters(*e1,*e2);
+  bool colinearity=inters.areColinears();
+  delete e1; delete e2;
+  Edge *ret(0);
+  if(colinearity)
+    ret=new EdgeLin(nodes[0],nodes[1]);
+  else
+    ret=new EdgeArcCircle(nodes[0],nodes[2],nodes[1]);
+  nodes[0]->decrRef(); nodes[1]->decrRef(); nodes[2]->decrRef();
   return ret;
 }
 

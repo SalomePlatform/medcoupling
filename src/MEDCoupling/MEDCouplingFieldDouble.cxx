@@ -200,8 +200,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. 
  * 
+ * \if ENABLE_EXAMPLES
  * \ref cpp_mcfielddouble_buildNewTimeReprFromThis "Here is a C++ example."<br>
  * \ref py_mcfielddouble_buildNewTimeReprFromThis "Here is a Python example."
+ * \endif
  * \sa clone()
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const
@@ -596,8 +598,10 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
  *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
  *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_renumberCells "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_renumberCells "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check)
 {
@@ -659,8 +663,10 @@ void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool
  *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
  *  \throw If values at merged nodes deffer more than \a eps.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_renumberNodes "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_renumberNodes "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, double eps)
 {
@@ -752,8 +758,10 @@ DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) co
  *  \param [in] part - an array of cell ids to include to the result field.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The caller is to delete this field using decrRef() as it is no more needed.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_subpart1 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_subpart1 "Here is a Python example".
+ *  \endif
  *  \sa MEDCouplingFieldDouble::buildSubPartRange
  */
 
@@ -791,8 +799,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * 
  * \throw if there is presence of an invalid cell id in [ \a partBg, \a partEnd ) regarding the number of cells of \a this->getMesh().
  *
+ * \if ENABLE_EXAMPLES
  * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."<br>
  * \ref py_mcfielddouble_subpart1 "Here a Python example."
+ * \endif
  * \sa ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const
@@ -1334,8 +1344,10 @@ void MEDCouplingFieldDouble::integral(bool isWAbs, double *res) const
  *  \throw If the mesh is not set.
  *  \throw If the mesh is not a structured one.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_getValueOnPos "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOnPos "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const
 {
@@ -1356,8 +1368,10 @@ void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) con
  *  \throw If the mesh is not set.
  *  \throw If \a spaceLoc is out of the spatial discretization.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_getValueOn "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOn "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const
 {
@@ -1382,8 +1396,10 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) con
  *  \throw If the mesh is not set.
  *  \throw If any point in \a spaceLoc is out of the spatial discretization.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_getValueOnMulti "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOnMulti "Here is a Python example".
+ *  \endif
  */
 DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc, int nbOfPoints) const
 {
@@ -1407,8 +1423,10 @@ DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc,
  *  \throw If \a spaceLoc is out of the spatial discretization.
  *  \throw If \a time is not covered by \a this->_time_discr.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_getValueOn_time "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_getValueOn_time "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const
 {
@@ -1466,7 +1484,9 @@ MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value) throw(IN
  *  \throw If \a func returns \c false.
  *  \throw If the spatial discretization of \a this field is NULL.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_fillFromAnalytic_c_func "Here is a C++ example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func)
 {
@@ -1510,8 +1530,10 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate f
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_fillFromAnalytic "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func)
 {
@@ -1557,8 +1579,10 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& f
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_fillFromAnalytic2 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic2 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& func)
 {
@@ -1604,8 +1628,10 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& 
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_fillFromAnalytic3 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_fillFromAnalytic3 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
@@ -1625,7 +1651,9 @@ void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<s
  *         This function is to compute a field value basing on a current field value.
  *  \throw If \a func returns \c false.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_applyFunc_c_func "Here is a C++ example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
 {
@@ -1641,8 +1669,10 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_applyFunc_val "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc_val "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
 {
@@ -1681,8 +1711,10 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
  *         This function is to compute a field value basing on a current field value.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_applyFunc "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
 {
@@ -1719,8 +1751,10 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
  *         This function is to compute a new field value basing on a current field value.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_applyFunc2 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc2 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string& func)
 {
@@ -1756,8 +1790,10 @@ void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string& func)
  *         This function is to compute a new field value basing on a current field value.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_applyFunc3 "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc3 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
@@ -1786,8 +1822,10 @@ void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::str
  *         This function is to compute a field value basing on a current field value.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_applyFunc_same_nb_comp "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_applyFunc_same_nb_comp "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::applyFunc(const std::string& func)
 {
@@ -2101,8 +2139,10 @@ void MEDCouplingFieldDouble::serialize(DataArrayInt *&dataInt, std::vector<DataA
  *  \throw If the two meshes do not match.
  *  \throw If field values at merged nodes (if any) deffer more than \a eps.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_changeUnderlyingMesh "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_changeUnderlyingMesh "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps)
 {
@@ -2115,7 +2155,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
     renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
   if(nodeCor)
     renumberNodesWithoutMesh(nodeCor->getConstPointer(),nodeCor->getMaxValueInArray()+1,eps);
-  setMesh(const_cast<MEDCouplingMesh *>(other));
+  setMesh(other);
 }
 
 /*!
@@ -2147,8 +2187,10 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
  *  \throw If the two fields are not coherent for merge.
  *  \throw If field values at merged nodes (if any) deffer more than \a eps.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_substractInPlaceDM "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_substractInPlaceDM "Here is a Python example".
+ *  \endif
  *  \sa changeUnderlyingMesh().
  */
 void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps)
@@ -2683,8 +2725,10 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc)
  *  \throw If the spatial discretization of \a f1 is NULL.
  *  \throw If the time discretization of \a f1 is NULL.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_MergeFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MergeFields "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
@@ -2722,8 +2766,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
  *  \throw If \a a is empty.
  *  \throw If the fields are not compatible for the merge.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_MergeFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MergeFields "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a)
 {
@@ -2857,8 +2903,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCoup
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_MaxFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MaxFields "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
@@ -2885,8 +2933,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingField
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_MaxFields "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_MaxFields "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
@@ -3176,8 +3226,10 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCoupli
  *  \throw If the mesh is not set.
  *  \throw If any of the fields has no name.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcfielddouble_WriteVTK "Here is a C++ example".<br>
  *  \ref  py_mcfielddouble_WriteVTK "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary)
 {

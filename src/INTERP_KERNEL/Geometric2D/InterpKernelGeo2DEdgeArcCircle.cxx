@@ -630,6 +630,21 @@ void EdgeArcCircle::getBarycenterOfZone(double *bary) const
     +tmp2*(tmp4-tmp3+(tmp3*tmp3*tmp3-tmp4*tmp4*tmp4)/3.)/2.;
 }
 
+void EdgeArcCircle::getMiddleOfPoints(const double *p1, const double *p2, double *mid) const
+{
+  double dx1((p1[0]-_center[0])/_radius),dy1((p1[1]-_center[1])/_radius),dx2((p2[0]-_center[0])/_radius),dy2((p2[1]-_center[1])/_radius);
+  double angle1(GetAbsoluteAngleOfNormalizedVect(dx1,dy1)),angle2(GetAbsoluteAngleOfNormalizedVect(dx2,dy2));
+  //
+  double myDelta1(angle1-_angle0),myDelta2(angle2-_angle0);
+  if(_angle>0.)
+    { myDelta1=myDelta1>=0.?myDelta1:myDelta1+2.*M_PI; myDelta2=myDelta2>=0.?myDelta2:myDelta2+2.*M_PI; }
+  else
+    { myDelta1=myDelta1<=0.?myDelta1:myDelta1-2.*M_PI; myDelta2=myDelta2<=0.?myDelta2:myDelta2-2.*M_PI; }
+  ////
+  mid[0]=_center[0]+_radius*cos(_angle0+(myDelta1+myDelta2)/2.);
+  mid[1]=_center[1]+_radius*sin(_angle0+(myDelta1+myDelta2)/2.);
+}
+
 /*!
  * Characteristic value used is angle in ]_Pi;Pi[ from axe 0x.
  */

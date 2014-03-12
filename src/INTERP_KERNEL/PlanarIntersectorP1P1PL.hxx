@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
-    PlanarIntersectorP1P1PL(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double md3DSurf, double medianPlane, double precision, int orientation);
+    PlanarIntersectorP1P1PL(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane, double precision, int orientation);
     void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
     int getNumberOfRowsOfResMatrix() const;
     int getNumberOfColsOfResMatrix() const;

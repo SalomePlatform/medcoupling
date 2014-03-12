@@ -408,10 +408,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : the input slice is invalid !");
-        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
-          throw INTERP_KERNEL::Exception("DataArray::GetSlice (wrap) : the input slice contains some unknowns that can't be determined in static method ! Call DataArray::getSlice (non static) instead !");
+        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArray::GetSlice (wrap) : the input slice is invalid !");
         int a,b;
         DataArray::GetSlice(strt,stp,step,sliceId,nbOfSlices,a,b);
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
@@ -423,8 +420,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::getSlice (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,self->getNumberOfTuples(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArray::getSlice (wrap) : the input slice is invalid !");
+        GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getSlice (wrap) : the input slice is invalid !");
         int a,b;
         DataArray::GetSlice(strt,stp,step,sliceId,nbOfSlices,a,b);
         return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(step));
@@ -436,10 +432,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : the input slice is invalid !");
-        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
-          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES (wrap) : the input slice contains some unknowns that can't be determined in static method !");
+        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBES (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
       }
 
@@ -449,10 +442,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
-        if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
-          throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice contains some unknowns that can't be determined in static method !");
+        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArray::GetNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
       
@@ -469,8 +459,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBES (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,self->getNumberOfTuples(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBES (wrap) : the input slice is invalid !");
+        GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBES (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBES(strt,stp,step,"");
       }
 
@@ -480,8 +469,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBESRelative (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,self->getNumberOfTuples(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArray::getNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
+        GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
     }
@@ -697,6 +685,7 @@ namespace ParaMEDMEM
 #endif
         else
           throw INTERP_KERNEL::Exception(msg.c_str());
+        throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
       }
    
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
@@ -2270,7 +2259,7 @@ namespace ParaMEDMEM
         ParaMEDMEM::DataArrayInt *daIntTyypp=0;
         const double *pt=self->getConstPointer();
         int nbc=self->getNumberOfCompo();
-        convertObjToPossibleCpp2(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -2339,7 +2328,7 @@ namespace ParaMEDMEM
         std::pair<int, std::pair<int,int> > slic;
         ParaMEDMEM::DataArrayInt *daIntTyypp=0;
         double *pt=self->getPointer();
-        convertObjToPossibleCpp2(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
+        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
         switch(sw2)
           {
           case 1:
@@ -2704,6 +2693,7 @@ namespace ParaMEDMEM
 #endif
         else
           throw INTERP_KERNEL::Exception(msg.c_str());
+        throw INTERP_KERNEL::Exception(msg.c_str());//to make g++ happy
       }
 
       DataArrayInt(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
@@ -2777,8 +2767,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : expecting a pyslice as second (first) parameter !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sly=reinterpret_cast<PySliceObject *>(slic);
-        if(PySlice_GetIndices(sly,std::numeric_limits<int>::max(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice is invalid !");
+        GetIndicesOfSliceExplicitely(sly,&strt,&stp,&step,"DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice is invalid !");
         if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
           throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice contains some unknowns that can't be determined in static method ! Call DataArray::getSlice (non static) instead !");
         return self->buildExplicitArrOfSliceOnScaledArr(strt,stp,step);
@@ -4532,7 +4521,7 @@ namespace ParaMEDMEM
         ParaMEDMEM::DataArrayInt *daIntTyypp=0;
         const int *pt=self->getConstPointer();
         int nbc=self->getNumberOfCompo();
-        convertObjToPossibleCpp2(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -4602,7 +4591,7 @@ namespace ParaMEDMEM
         std::pair<int, std::pair<int,int> > slic;
         ParaMEDMEM::DataArrayInt *daIntTyypp=0;
         int *pt=self->getPointer();
-        convertObjToPossibleCpp2(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
+        convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
         switch(sw2)
           {
           case 1:
@@ -5529,7 +5518,7 @@ namespace ParaMEDMEM
         std::vector<int> stdvecTyyppArr;
         std::pair<int, std::pair<int,int> > sTyyppArr;
         ParaMEDMEM::DataArrayInt *daIntTyypp=0;
-        convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
+        convertObjToPossibleCpp2WithNegIntInterp(obj,self->getNumberOfTuples(),sw,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
         switch(sw)
           {
           case 1:
@@ -5554,7 +5543,7 @@ namespace ParaMEDMEM
         ParaMEDMEM::DataArrayInt *daIntTyypp=0;
         int nbOfCompo=self->getNumberOfComponents();
         int nbOfTuples=self->getNumberOfTuples();
-        convertObjToPossibleCpp2(obj,nbOfTuples,sw1,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
+        convertObjToPossibleCpp2WithNegIntInterp(obj,nbOfTuples,sw1,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
         int sw2;
         char vc; std::string sc; std::vector<std::string> vsc; DataArrayChar *dacc=0;
         convertObjToPossibleCpp6(value,sw2,vc,sc,vsc,dacc);

@@ -695,6 +695,71 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         delta=m0-m1t
         self.assertTrue(DataArrayDouble(delta.data).isUniform(0.,1e-17))
         pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
+    def testNonConformWithRemapper_1(self):
+        coo=DataArrayDouble([-0.396700000780411,-0.134843245350081,-0.0361311386958691,-0.407550009429364,-0.13484324535008,-0.0361311386958923,-0.396700000780411,-0.132191446077668,-0.0448729493559049,-0.407550009429364,-0.132191446077666,-0.0448729493559254,-0.396700000780411,-0.128973582738749,-0.0534226071577727,-0.407550009429364,-0.128973582738747,-0.0534226071577904,-0.396700000780411,-0.128348829636458,-0.0346583696473619,-0.407550009429364,-0.128348829636457,-0.0346583696473822,-0.396700000780411,-0.125874740261886,-0.0430683597970123,-0.407550009429364,-0.125874740261885,-0.0430683597970302,-0.396700000780411,-0.122905344829122,-0.051310216195766,-0.407550009429364,-0.12290534482912,-0.0513102161957814],12,3)
+        conn=DataArrayInt([2,9,3,11,2,3,5,11,2,8,9,11,2,10,8,11,2,5,4,11,2,4,10,11,3,0,1,6,3,1,7,6,3,2,0,6,3,8,2,6,3,7,9,6,3,9,8,6])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_TETRA4)
+        m.setNodalConnectivity(conn)
+        m.setCoords(coo)
+        # m is ready
+        m1,d,di,rd,rdi=m.buildUnstructured().buildDescendingConnectivity()
+        rdi2=rdi.deltaShiftIndex()
+        cellIds=rdi2.getIdsEqual(1)
+        skinAndNonConformCells=m1[cellIds]
+        skinAndNonConformCells.zipCoords() # at this point skinAndNonConformCells contains non conform cells and skin cells. Now trying to split them in two parts.
+        #
+        rem=MEDCouplingRemapper()
+        rem.setMaxDistance3DSurfIntersect(1e-12)
+        rem.setMinDotBtwPlane3DSurfIntersect(0.99)# this line is important it is to tell to remapper to select only cells with very close orientation 
+        rem.prepare(skinAndNonConformCells,skinAndNonConformCells,"P0P0")
+        mat=rem.getCrudeCSRMatrix()
+        indptr=DataArrayInt(mat.indptr)
+        indptr2=indptr.deltaShiftIndex()
+        cellIdsOfNonConformCells=indptr2.getIdsNotEqual(1)
+        cellIdsOfSkin=indptr2.getIdsEqual(1)
+        self.assertTrue(cellIdsOfSkin.isEqual(DataArrayInt([1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,19,20,21,23])))
+        self.assertTrue(cellIdsOfNonConformCells.isEqual(DataArrayInt([0,4,18,22])))
+        pass
+
+    def test3D1DOnP1P0_1(self):
+        """ This test focused on P1P0 interpolation with a source with meshDim=1 spaceDim=3 and a target with meshDim=3.
+        This test has revealed a bug in remapper. A reverse matrix is computed so a reverse method should be given in input.
+        """
+        target=MEDCouplingCMesh()
+        arrX=DataArrayDouble([0,1]) ; arrY=DataArrayDouble([0,1]) ; arrZ=DataArrayDouble(11) ; arrZ.iota()
+        target.setCoords(arrX,arrY,arrZ)
+        target=target.buildUnstructured() ; target.setName("TargetSecondaire")
+        #
+        sourceCoo=DataArrayDouble([(0.5,0.5,0.1),(0.5,0.5,1.2),(0.5,0.5,1.6),(0.5,0.5,1.8),(0.5,0.5,2.43),(0.5,0.5,2.55),(0.5,0.5,4.1),(0.5,0.5,4.4),(0.5,0.5,4.9),(0.5,0.5,5.1),(0.5,0.5,7.6),(0.5,0.5,7.7),(0.5,0.5,8.2),(0.5,0.5,8.4),(0.5,0.5,8.6),(0.5,0.5,8.8),(0.5,0.5,9.2),(0.5,0.5,9.6),(0.5,0.5,11.5)])
+        source=MEDCoupling1SGTUMesh("SourcePrimaire",NORM_SEG2)
+        source.setCoords(sourceCoo)
+        source.allocateCells()
+        for i in xrange(len(sourceCoo)-1):
+            source.insertNextCell([i,i+1])
+            pass
+        source=source.buildUnstructured()
+        fsource=MEDCouplingFieldDouble(ON_NODES) ; fsource.setName("field")
+        fsource.setMesh(source)
+        arr=DataArrayDouble(len(sourceCoo)) ; arr.iota(0.7) ; arr*=arr
+        fsource.setArray(arr)
+        fsource.setNature(ConservativeVolumic)
+        #
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(source,target,"P1P0")
+        f2Test=rem.transferField(fsource,-27)
+        self.assertEqual(f2Test.getName(),fsource.getName())
+        self.assertEqual(f2Test.getMesh().getHiddenCppPointer(),target.getHiddenCppPointer())
+        expArr=DataArrayDouble([0.49,7.956666666666667,27.29,-27,59.95666666666667,94.09,-27,125.69,202.89,296.09])
+        self.assertTrue(f2Test.getArray().isEqual(expArr,1e-12))
+        f2Test=rem.reverseTransferField(f2Test,-36)
+        self.assertEqual(f2Test.getName(),fsource.getName())
+        self.assertEqual(f2Test.getMesh().getHiddenCppPointer(),source.getHiddenCppPointer())
+        expArr2=DataArrayDouble([0.49,7.956666666666667,7.956666666666667,7.956666666666667,27.29,27.29,59.95666666666667,59.95666666666667,59.95666666666667,94.09,125.69,125.69,202.89,202.89,202.89,202.89,296.09,296.09,-36.])
+        self.assertTrue(f2Test.getArray().isEqual(expArr2,1e-12))
+        pass
     
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]

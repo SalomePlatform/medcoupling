@@ -304,7 +304,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
   const MEDCouplingPointSet *src_mesh=static_cast<const MEDCouplingPointSet *>(_src_ft->getMesh());
   const MEDCouplingPointSet *target_mesh=static_cast<const MEDCouplingPointSet *>(_target_ft->getMesh());
   std::string srcMeth,trgMeth;
-  std::string method=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
+  std::string method(checkAndGiveInterpolationMethodStr(srcMeth,trgMeth));
   const int srcMeshDim=src_mesh->getMeshDimension();
   int srcSpaceDim=-1;
   if(srcMeshDim!=-1)
@@ -369,7 +369,8 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+      std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
       ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
     }
@@ -388,7 +389,8 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D1D interpolation(*this);
           std::vector<std::map<int,double> > matrixTmp;
-          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+          std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
@@ -412,7 +414,8 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D interpolation(*this);
           std::vector<std::map<int,double> > matrixTmp;
-          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+          std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
           ReverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
         }
@@ -459,7 +462,8 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D2D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+      std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
       ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
       INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
@@ -869,7 +873,12 @@ std::string MEDCouplingRemapper::checkAndGiveInterpolationMethodStr(std::string&
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::checkAndGiveInterpolationMethodStr : it appears that no all field templates have their mesh set !");
   srcMeth=_src_ft->getDiscretization()->getRepr();
   trgMeth=_target_ft->getDiscretization()->getRepr();
-  std::string method(srcMeth); method+=trgMeth;
+  return BuildMethodFrom(srcMeth,trgMeth);
+}
+
+std::string MEDCouplingRemapper::BuildMethodFrom(const std::string& meth1, const std::string& meth2)
+{
+  std::string method(meth1); method+=meth2;
   return method;
 }
 

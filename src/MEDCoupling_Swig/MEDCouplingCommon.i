@@ -238,6 +238,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGradually;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
+%newobject ParaMEDMEM::MEDCouplingUMesh::conformize2D;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::sortCellsInMEDFileFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForMEDFileFrmt;
@@ -270,6 +271,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildUnionOf3DMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTreeFast;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCoupling1GTUMesh::New;
@@ -1500,6 +1502,7 @@ namespace ParaMEDMEM
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
+    DataArrayInt *conformize2D(double eps) throw(INTERP_KERNEL::Exception);
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
@@ -1540,6 +1543,8 @@ namespace ParaMEDMEM
     DataArrayInt *buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTreeFast() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
+    int split2DCells(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *midOpt=0, const DataArrayInt *midOptI=0) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
@@ -2075,8 +2080,7 @@ namespace ParaMEDMEM
         arrIndxIn->checkAllocated();
         if(arrIndxIn->getNumberOfComponents()!=1)
           throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : number of components of last argument must be equal to one !");
-        if(PySlice_GetIndices(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step)!=0)
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : Invalid slice regarding nb of elements !");
+        GetIndicesOfSlice(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArrays2 (wrap) : Invalid slice regarding nb of elements !");
         DataArrayInt *arrOut=0,*arrIndexOut=0;
         MEDCouplingUMesh::ExtractFromIndexedArrays2(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
         PyObject *ret=PyTuple_New(2);

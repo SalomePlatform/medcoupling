@@ -39,9 +39,9 @@ namespace INTERP_KERNEL
 {
   TRI_INTER_TEMPLATE
   TRI_INTERSECTOR::TriangulationIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
-                                            double DimCaracteristic, double Precision, double md3DSurf,
+                                            double DimCaracteristic, double Precision, double md3DSurf, double minDot3DSurf,
                                             double MedianPlane, int orientation, int PrintLevel)
-    :InterpType<MyMeshType,MyMatrix,TRI_INTERSECTOR >(meshT,meshS,DimCaracteristic, Precision, md3DSurf,
+    :InterpType<MyMeshType,MyMatrix,TRI_INTERSECTOR >(meshT,meshS,DimCaracteristic, Precision, md3DSurf, minDot3DSurf,
                                                       MedianPlane, true, orientation, PrintLevel)
   {
     if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 1)

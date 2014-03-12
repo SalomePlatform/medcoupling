@@ -30,9 +30,9 @@
 namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix>
-  PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel):
+  PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel):
     _meshT(meshT),_meshS(meshS),
-    _dim_caracteristic(dimCaracteristic),_max_distance_3Dsurf_intersect(md3DSurf),_precision(precision),_median_plane(medianPlane),
+    _dim_caracteristic(dimCaracteristic),_max_distance_3Dsurf_intersect(md3DSurf),_min_dot_btw_3Dsurf_intersect(minDot3DSurf),_precision(precision),_median_plane(medianPlane),
     _do_rotate(doRotate),_orientation(orientation),_print_level(printLevel)
   {
     _connectT=meshT.getConnectivityPtr();
@@ -275,12 +275,12 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   int PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB)
   {
-    return projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_max_distance_3Dsurf_intersect,_median_plane,_do_rotate);
+    return Projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_max_distance_3Dsurf_intersect,_min_dot_btw_3Dsurf_intersect,_median_plane,_do_rotate);
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersector<MyMeshType,MyMatrix>::projection(double *Coords_A, double *Coords_B, 
-                                                         int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate)
+  int PlanarIntersector<MyMeshType,MyMatrix>::Projection(double *Coords_A, double *Coords_B, 
+                                                         int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate)
   {
     double normal_A[3]={0,0,0};
     double normal_B[3]={0,0,0};
@@ -289,11 +289,12 @@ namespace INTERP_KERNEL
     bool same_orientation;
 
     //Find the normal to cells A and B
-    int i_A1=1;
-    while(i_A1<nb_NodesA && distance2<SPACEDIM>(Coords_A,&Coords_A[SPACEDIM*i_A1])< epsilon) i_A1++;
-    int i_A2=i_A1+1;
+    int i_A1(1);
+    while(i_A1<nb_NodesA && distance2<SPACEDIM>(Coords_A,&Coords_A[SPACEDIM*i_A1])< epsilon)
+      i_A1++;
+    int i_A2(i_A1+1);
     crossprod<SPACEDIM>(Coords_A, &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2],normal_A);
-    double normA = sqrt(dotprod<SPACEDIM>(normal_A,normal_A));
+    double normA(sqrt(dotprod<SPACEDIM>(normal_A,normal_A)));
     while(i_A2<nb_NodesA && normA < epsilon)
       {
         crossprod<SPACEDIM>(Coords_A, &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2],normal_A);
@@ -301,11 +302,12 @@ namespace INTERP_KERNEL
         normA = sqrt(dotprod<SPACEDIM>(normal_A,normal_A));
 
       }
-    int i_B1=1;
-    while(i_B1<nb_NodesB && distance2<SPACEDIM>(Coords_B,Coords_B+SPACEDIM*i_B1)< epsilon) i_B1++;
-    int i_B2=i_B1+1;
+    int i_B1(1);
+    while(i_B1<nb_NodesB && distance2<SPACEDIM>(Coords_B,Coords_B+SPACEDIM*i_B1)< epsilon)
+      i_B1++;
+    int i_B2(i_B1+1);
     crossprod<SPACEDIM>(Coords_B, Coords_B+SPACEDIM*i_B1, Coords_B+SPACEDIM*i_B2,normal_B);
-    double normB = sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
+    double normB(sqrt(dotprod<SPACEDIM>(normal_B,normal_B)));
     while(i_B2<nb_NodesB && normB < epsilon)
       {
         crossprod<SPACEDIM>(Coords_B, Coords_B+SPACEDIM*i_B1, Coords_B+SPACEDIM*i_B2,normal_B);
@@ -317,7 +319,7 @@ namespace INTERP_KERNEL
     if(md3DSurf>0.)
       {
         double coords_GA[3];
-        for (int i=0;i<3;i++)
+        for(int i=0;i<3;i++)
           {
             coords_GA[i]=0.;
             for (int j=0;j<nb_NodesA;j++)
@@ -325,36 +327,44 @@ namespace INTERP_KERNEL
             coords_GA[i]/=nb_NodesA;
           }
         double G1[3],G2[3],G3[3];
-      for (int i=0;i<3;i++)
-        {
-          G1[i]=Coords_B[i]-coords_GA[i];
-          G2[i]=Coords_B[i+3]-coords_GA[i];
-          G3[i]=Coords_B[i+6]-coords_GA[i];
-        }
-      double prodvect[3];
-      prodvect[0]=G1[1]*G2[2]-G1[2]*G2[1];
-      prodvect[1]=G1[2]*G2[0]-G1[0]*G2[2];
-      prodvect[2]=G1[0]*G2[1]-G1[1]*G2[0];
-      double prodscal=prodvect[0]*G3[0]+prodvect[1]*G3[1]+prodvect[2]*G3[2];
-      if(fabs(prodscal)>md3DSurf)
-        return 0;
+        for(int i=0;i<3;i++)
+          {
+            G1[i]=Coords_B[i]-coords_GA[i];
+            G2[i]=Coords_B[i+3]-coords_GA[i];
+            G3[i]=Coords_B[i+6]-coords_GA[i];
+          }
+        double prodvect[3];
+        prodvect[0]=G1[1]*G2[2]-G1[2]*G2[1];
+        prodvect[1]=G1[2]*G2[0]-G1[0]*G2[2];
+        prodvect[2]=G1[0]*G2[1]-G1[1]*G2[0];
+        double prodscal=prodvect[0]*G3[0]+prodvect[1]*G3[1]+prodvect[2]*G3[2];
+        if(fabs(prodscal)>md3DSurf)
+          return 0;
       }
     if(i_A2<nb_NodesA && i_B2<nb_NodesB)
       {
         //Build the normal of the median plane
-        same_orientation = dotprod<SPACEDIM>(normal_A,normal_B)>=0;
+
+        double dotProd(dotprod<SPACEDIM>(normal_A,normal_B)/(normA*normB));
+
+        if(fabs(dotProd)<minDot3DSurf)
+          return 0;
+
+        same_orientation=(dotProd>=0);
         
         if(!same_orientation)
-          for(int idim =0; idim< SPACEDIM; idim++) normal_A[idim] *=-1;
+          for(int idim =0; idim< SPACEDIM; idim++)
+            normal_A[idim] *=-1;
         
-        double normBB= sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
+        double normBB(sqrt(dotprod<SPACEDIM>(normal_B,normal_B)));
         
         for(int idim =0; idim< SPACEDIM; idim++)
           linear_comb[idim] = median_plane*normal_A[idim]/normA + (1-median_plane)*normal_B[idim]/normBB;
         double norm= sqrt(dotprod<SPACEDIM>(linear_comb,linear_comb));
 
         //Necessarily: norm>epsilon, no need to check
-        for(int idim =0; idim< SPACEDIM; idim++) linear_comb[idim]/=norm;
+        for(int idim =0; idim< SPACEDIM; idim++)
+          linear_comb[idim]/=norm;
         
         //Project the nodes of A and B on the median plane
         for(int i_A=0; i_A<nb_NodesA; i_A++)
@@ -376,12 +386,12 @@ namespace INTERP_KERNEL
             TranslationRotationMatrix rotation;
             //rotate3DTriangle(Coords_A, &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2], rotation);
             rotate3DTriangle(Coords_B, Coords_B+SPACEDIM*i_B1, Coords_B+SPACEDIM*i_B2, rotation);
-            for (int i=0; i<nb_NodesA; i++)    rotation.transform_vector(Coords_A+SPACEDIM*i);
-            for (int i=0; i<nb_NodesB; i++)    rotation.transform_vector(Coords_B+SPACEDIM*i);
+            for (int i=0; i<nb_NodesA; i++)
+              rotation.transform_vector(Coords_A+SPACEDIM*i);
+            for (int i=0; i<nb_NodesB; i++)
+              rotation.transform_vector(Coords_B+SPACEDIM*i);
           }
-        if(same_orientation)
-          return 1;
-        else return -1;
+        return same_orientation?1:-1;
       }
     else
       {
@@ -392,7 +402,6 @@ namespace INTERP_KERNEL
         std::cout << " i_B1= " << i_B1 << " i_B2= " << i_B2 << std::endl; 
         std::cout << " distance2<SPACEDIM>(&Coords_B[0],&Coords_B[i_B1])= " <<  distance2<SPACEDIM>(Coords_B,Coords_B+i_B1) << std::endl;
         std::cout << "normal_B = " << normal_B[0] << " ; " << normal_B[1] << " ; " << normal_B[2] << std::endl;
-
         return 1;
       }
   }

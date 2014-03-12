@@ -181,6 +181,17 @@ namespace ParaMEDMEM
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();
       }
+    else if ( distant_support.getMeshDimension() == 3
+              && _source_support->getMeshDimension() == 1
+              && distant_support.getSpaceDimension() == 3 && _source_support->getSpaceDimension() == 3)
+      {
+        MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
+        INTERP_KERNEL::Interpolation3D interpolator (*this);
+        interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
+      }
     else if (distant_support.getMeshDimension() != _source_support->getMeshDimension())
       {
         throw INTERP_KERNEL::Exception("local and distant meshes do not have the same space and mesh dimensions");

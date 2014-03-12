@@ -261,6 +261,38 @@ void MEDCouplingBasicsTest2::testCellOrientation2()
   m2->decrRef();
 }
 
+void MEDCouplingBasicsTest2::testCellOrientation3()
+{
+  MEDCouplingUMesh *m = MEDCouplingUMesh::New("circle", 2);
+
+  double coords[8]={ 0.,0.,  0.,0.,  0.,0., 0.,0.};
+  coords[0] = cos(-M_PI/4.0); coords[1] = sin(-M_PI/4.0);
+  coords[2] = cos(3*M_PI/4.0); coords[3] = sin(3*M_PI/4.0);
+  coords[4] = cos(5*M_PI/4.0); coords[5] = sin(5*M_PI/4.0);
+  coords[6] = cos(M_PI/4.0); coords[7] = sin(M_PI/4.0);
+
+  int conn[4]= { 0,1,2,3 };
+  double vec[3]={0.,0.,-1.};
+  m->allocateCells(1);
+  m->insertNextCell(INTERP_KERNEL::NORM_QPOLYG,4,conn);
+  m->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(4,2);
+  std::copy(coords,coords+8,myCoords->getPointer());
+  m->setCoords(myCoords);
+  myCoords->decrRef();
+  m->changeSpaceDimension(3);
+
+  std::vector<int> res1;
+  m->are2DCellsNotCorrectlyOriented(vec,false,res1);
+  CPPUNIT_ASSERT(res1.empty());
+  vec[2] = 1.0;
+  res1.clear();
+  m->are2DCellsNotCorrectlyOriented(vec,false,res1);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res1.size());
+  m->decrRef();
+}
+
 /*!
  * This test check polyhedron true barycenter computation. 
  */
