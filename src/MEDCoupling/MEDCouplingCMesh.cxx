@@ -467,8 +467,10 @@ std::string MEDCouplingCMesh::advancedRepr() const
  *         referred by \a this mesh.
  *  \throw If \a i is not one of [0,1,2].
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mccmesh_getCoordsAt "Here is a C++ example".<br>
  *  \ref  py_mccmesh_getCoordsAt "Here is a Python example".
+ *  \endif
  */
 const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const
 {
@@ -493,8 +495,10 @@ const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const
  *         referred by \a this mesh.
  *  \throw If \a i is not one of [0,1,2].
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mccmesh_getCoordsAt "Here is a C++ example".<br>
  *  \ref  py_mccmesh_getCoordsAt "Here is a Python example".
+ *  \endif
  */
 DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i)
 {
@@ -520,8 +524,10 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i)
  *  \throw If \a arr->getNumberOfComponents() != 1.
  *  \throw If \a i is not one of [0,1,2].
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesCmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref  medcouplingpyexamplesCmeshStdBuild1 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr)
 {
@@ -553,8 +559,10 @@ void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr)
  *         axis. It must be an array of one component or \c NULL.
  *  \throw If \a coords*->getNumberOfComponents() != 1.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref medcouplingcppexamplesCmeshStdBuild1 "Here is a C++ example".<br>
  *  \ref  medcouplingpyexamplesCmeshStdBuild1 "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArrayDouble *coordsY, const DataArrayDouble *coordsZ)
 {

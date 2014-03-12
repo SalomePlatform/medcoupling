@@ -335,6 +335,7 @@ namespace ParaMEDMEM
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
+    static const double FGP_POINT1[1];
     static const double FGP_SEG2[2];
     static const double FGP_SEG3[3];
     static const double FGP_SEG4[4];
@@ -345,13 +346,14 @@ namespace ParaMEDMEM
     static const double FGP_QUAD8[8];
     static const double FGP_QUAD9[9];
     static const double FGP_TETRA4[4];
-    //static const double FGP_TETRA10[10];
+    static const double FGP_TETRA10[10];//to check
     static const double FGP_PENTA6[6];
-    //static const double FGP_PENTA15[15];
+    static const double FGP_PENTA15[15];//to check
     static const double FGP_HEXA8[8];
+    static const double FGP_HEXA20[20];//to check
     static const double FGP_HEXA27[27];
     static const double FGP_PYRA5[5];
-    //static const double FGP_PYRA13[13];
+    static const double FGP_PYRA13[13];//to check
     static const double REF_SEG2[2];
     static const double REF_SEG3[3];
     static const double REF_SEG4[4];
@@ -380,13 +382,14 @@ namespace ParaMEDMEM
     static const double LOC_QUAD8[16];
     static const double LOC_QUAD9[18];
     static const double LOC_TETRA4[12];
-    //static const double LOC_TETRA10[30];
+    static const double LOC_TETRA10[30];//to check
     static const double LOC_PENTA6[18];
-    //static const double LOC_PENTA15[45];
+    static const double LOC_PENTA15[45];//to check
     static const double LOC_HEXA8[24];
+    static const double LOC_HEXA20[60];//to check
     static const double LOC_HEXA27[81];
     static const double LOC_PYRA5[15];
-    //static const double LOC_PYRA13[39];
+    static const double LOC_PYRA13[39];//to check
   };
 
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes

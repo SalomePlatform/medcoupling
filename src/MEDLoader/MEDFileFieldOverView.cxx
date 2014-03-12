@@ -29,6 +29,8 @@ using namespace ParaMEDMEM;
 const unsigned char MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE[MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE_LGTH]=
   {1,3,21,5,9,7,22,34,23,28,255,255,255,255,10,14,13,255,12,255,24,255,16,27,255,26,255,29,255,255,25,42,36,4};
 
+const unsigned char MEDMeshMultiLev::HEXA27_PERM_ARRAY[27]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24,22,21,23,20,25,26};
+
 const char MEDFileField1TSStructItem2::NEWLY_CREATED_PFL_NAME[]="???";
 
 MEDFileMeshStruct *MEDFileMeshStruct::New(const MEDFileMesh *mesh)
@@ -945,12 +947,25 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : internal error !");
       if(scur)
         {
-          int nnpc(scur->getNumberOfNodesPerCell());
-          for(int i=0;i<curNbCells;i++,connPtr+=nnpc)
+          if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA27)
             {
-              *dPtr++=nnpc;
-              dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
-              *cPtr++=k; k+=nnpc+1;
+              int nnpc(scur->getNumberOfNodesPerCell());
+              for(int i=0;i<curNbCells;i++,connPtr+=nnpc)
+                {
+                  *dPtr++=nnpc;
+                  dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
+                  *cPtr++=k; k+=nnpc+1;
+                }
+            }
+          else
+            {
+              for(int i=0;i<curNbCells;i++,connPtr+=27)
+                {
+                  *dPtr++=27;
+                  for(int j=0;j<27;j++,dPtr++)
+                    *dPtr=connPtr[HEXA27_PERM_ARRAY[j]];
+                  *cPtr++=k; k+=28;
+                }
             }
           if(isPolyh)
             { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }

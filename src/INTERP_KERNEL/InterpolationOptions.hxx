@@ -50,6 +50,7 @@ namespace INTERP_KERNEL
     //! this measure is absolute \b not relative to the cell size
     double _bounding_box_adjustment_abs ;
     double _max_distance_for_3Dsurf_intersect;
+    double _min_dot_btw_3Dsurf_intersect;
     int _orientation ;
     bool _measure_abs;
     SplittingPolicy _splitting_policy ;
@@ -79,6 +80,9 @@ namespace INTERP_KERNEL
     
     double getMaxDistance3DSurfIntersect() const { return _max_distance_for_3Dsurf_intersect; }
     void setMaxDistance3DSurfIntersect(double bba) { _max_distance_for_3Dsurf_intersect=bba; }
+
+    double getMinDotBtwPlane3DSurfIntersect() const { return _min_dot_btw_3Dsurf_intersect; }
+    void setMinDotBtwPlane3DSurfIntersect(double v) { _min_dot_btw_3Dsurf_intersect=v; }
 
     int getOrientation() const { return _orientation; }
     void setOrientation(int o) { _orientation=o; }
@@ -116,12 +120,14 @@ namespace INTERP_KERNEL
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;
     static const double DFT_MAX_DIST_3DSURF_INTERSECT;
+    static const double DFT_MIN_DOT_BTW_3DSURF_INTERSECT;
   public:
     static const char PRECISION_STR[];
     static const char MEDIANE_PLANE_STR[];
     static const char BOUNDING_BOX_ADJ_STR[];
     static const char BOUNDING_BOX_ADJ_ABS_STR[];
     static const char MAX_DISTANCE_3DSURF_INSECT_STR[];
+    static const char MIN_DOT_BTW_3DSURF_INSECT_STR[];
     static const char PRINT_LEV_STR[];
     static const char DO_ROTATE_STR[];
     static const char ORIENTATION_STR[];

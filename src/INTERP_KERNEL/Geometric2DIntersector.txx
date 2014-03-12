@@ -42,9 +42,9 @@ namespace INTERP_KERNEL
 {
   INTERSECTOR_TEMPLATE
   GEO2D_INTERSECTOR::Geometric2DIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                                            double dimCaracteristic, double md3DSurf, double medianPlane,
+                                            double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane,
                                             double precision, int orientation):
-    InterpType<MyMeshType,MyMatrix,GEO2D_INTERSECTOR >(meshT,meshS,dimCaracteristic, precision, md3DSurf, medianPlane, true, orientation, 0)
+    InterpType<MyMeshType,MyMatrix,GEO2D_INTERSECTOR >(meshT,meshS,dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, true, orientation, 0)
   {
     QUADRATIC_PLANAR::_precision=precision;
   }
@@ -63,7 +63,7 @@ namespace INTERP_KERNEL
     QuadraticPolygon *p2=buildPolygonFrom(CoordsS,tS);
     double ret=p1->intersectWithAbs(*p2);
     delete p1; delete p2;
-    return ret;
+    return orientation*ret;
   }
 
   INTERSECTOR_TEMPLATE
@@ -81,7 +81,7 @@ namespace INTERP_KERNEL
     QuadraticPolygon *p2=buildPolygonOfOneEdgeFrom(CoordsS,tS);
     double ret=p1->intersectWithAbs1D(*p2, isColinear);
     delete p1; delete p2;
-    return ret;
+    return orientation*ret;
   }
 
   INTERSECTOR_TEMPLATE

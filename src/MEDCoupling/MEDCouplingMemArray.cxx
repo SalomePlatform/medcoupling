@@ -1846,7 +1846,9 @@ void DataArrayDouble::transpose()
  *  \throw If a component index (\a i) is not valid: 
  *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_KeepSelectedComponents "Here is a Python example".
+ *  \endif
  */
 DataArray *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
@@ -1879,9 +1881,11 @@ DataArray *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compo
  *  \throw If \a this is not allocated.
  *  \throw If \a this and \a other arrays have different number of tuples.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarraydouble_meldwith "Here is a C++ example".
  *
  *  \ref py_mcdataarraydouble_meldwith "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::meldWith(const DataArrayDouble *other)
 {
@@ -1961,9 +1965,11 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
  *  \throw If \a this is not allocated.
  *  \throw If the number of components is not in [1,2,3,4].
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarraydouble_findcommontuples "Here is a C++ example".
  *
  *  \ref py_mcdataarraydouble_findcommontuples  "Here is a Python example".
+ *  \endif
  *  \sa DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(), DataArrayDouble::areIncludedInMe
  */
 void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const
@@ -2190,7 +2196,9 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
  *  \throw If \a this is not allocated.
  *  \throw If the number of components is not in [1,2,3,4].
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_getdifferentvalues "Here is a Python example".
+ *  \endif
  */
 DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, int limitTupleId) const
 {
@@ -2214,7 +2222,9 @@ DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, int limitTuple
  *  \throw If \a compoIds.size() != \a a->getNumberOfComponents().
  *  \throw If \a compoIds[i] < 0 or \a compoIds[i] > \a this->getNumberOfComponents().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setselectedcomponents "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std::vector<int>& compoIds)
 {
@@ -2264,7 +2274,9 @@ void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std:
  *  \throw If \a strictCompoCompare == \a true && \a a->getNumberOfComponents() !=
  *            \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvalues1 "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
 {
@@ -2327,7 +2339,9 @@ void DataArrayDouble::setPartOfValues1(const DataArrayDouble *a, int bgTuples, i
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvaluessimple1 "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp)
 {
@@ -2381,7 +2395,9 @@ void DataArrayDouble::setPartOfValuesSimple1(double a, int bgTuples, int endTupl
  *  \throw In the second *mode of usage*, if \a a->getNumberOfTuples() != 1 or
  *         <em> a->getNumberOfComponents() != (endComp - bgComp)</em>.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvalues2 "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setPartOfValues2(const DataArrayDouble *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare)
 {
@@ -2452,7 +2468,9 @@ void DataArrayDouble::setPartOfValues2(const DataArrayDouble *a, const int *bgTu
  *  \throw If any index of tuple/component given by <em>bgTuples / bgComp</em> is
  *         out of a valid range for \a this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvaluessimple2 "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setPartOfValuesSimple2(double a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp)
 {
@@ -2512,7 +2530,9 @@ void DataArrayDouble::setPartOfValuesSimple2(double a, const int *bgTuples, cons
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvalues3 "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setPartOfValues3(const DataArrayDouble *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
 {
@@ -2584,7 +2604,9 @@ void DataArrayDouble::setPartOfValues3(const DataArrayDouble *a, const int *bgTu
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvaluessimple3 "Here is a Python example".
+ *  \endif
  */
 void DataArrayDouble::setPartOfValuesSimple3(double a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp)
 {
@@ -4525,8 +4547,10 @@ DataArrayDoubleIterator *DataArrayDouble::iterator()
  *
  *  \sa DataArrayDouble::getIdsNotInRange
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarraydouble_getidsinrange "Here is a C++ example".<br>
  *  \ref py_mcdataarraydouble_getidsinrange "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const
 {
@@ -6353,8 +6377,10 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_invertarrayo2n2n2o "Here is a C++ example".<br>
  *  \ref py_mcdataarrayint_invertarrayo2n2n2o  "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
 {
@@ -6418,9 +6444,11 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_invertarrayn2o2o2n "Here is a C++ example".
  *
  *  \ref py_mcdataarrayint_invertarrayn2o2o2n "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
 {
@@ -6720,9 +6748,11 @@ void DataArrayInt::checkStrictlyMonotonic(bool increasing) const
  *  \throw If \a this->getNumberOfTuples() != \a other->getNumberOfTuples().
  *  \throw If \a other includes a value which is not in \a this array.
  * 
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_buildpermutationarr "Here is a C++ example".
  *
  *  \ref py_mcdataarrayint_buildpermutationarr "Here is a Python example".
+ *  \endif
  */
 DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const
 {
@@ -7605,7 +7635,9 @@ void DataArrayInt::reAlloc(int nbOfTuples)
  *  \throw If a component index (\a i) is not valid: 
  *         \a i < 0 || \a i >= \a this->getNumberOfComponents().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_keepselectedcomponents "Here is a Python example".
+ *  \endif
  */
 DataArray *DataArrayInt::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
@@ -7634,9 +7666,11 @@ DataArray *DataArrayInt::keepSelectedComponents(const std::vector<int>& compoIds
  *  \throw If \a this is not allocated.
  *  \throw If \a this and \a other arrays have different number of tuples.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarrayint_meldwith "Here is a C++ example".
  *
  *  \ref py_mcdataarrayint_meldwith "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::meldWith(const DataArrayInt *other)
 {
@@ -7677,7 +7711,9 @@ void DataArrayInt::meldWith(const DataArrayInt *other)
  *  \throw If \a compoIds.size() != \a a->getNumberOfComponents().
  *  \throw If \a compoIds[i] < 0 or \a compoIds[i] > \a this->getNumberOfComponents().
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setselectedcomponents "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setSelectedComponents(const DataArrayInt *a, const std::vector<int>& compoIds)
 {
@@ -7728,7 +7764,9 @@ void DataArrayInt::setSelectedComponents(const DataArrayInt *a, const std::vecto
  *  \throw If \a strictCompoCompare == \a true && \a a->getNumberOfComponents() !=
  *            \c len(\c range(\a bgComp,\a endComp,\a stepComp)).
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues1 "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setPartOfValues1(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
 {
@@ -7791,7 +7829,9 @@ void DataArrayInt::setPartOfValues1(const DataArrayInt *a, int bgTuples, int end
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple1 "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setPartOfValuesSimple1(int a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp)
 {
@@ -7846,7 +7886,9 @@ void DataArrayInt::setPartOfValuesSimple1(int a, int bgTuples, int endTuples, in
  *  \throw In the second *mode of usage*, if \a a->getNumberOfTuples() != 1 or
  *         <em> a->getNumberOfComponents() != (endComp - bgComp)</em>.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues2 "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setPartOfValues2(const DataArrayInt *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare)
 {
@@ -7917,7 +7959,9 @@ void DataArrayInt::setPartOfValues2(const DataArrayInt *a, const int *bgTuples, 
  *  \throw If any index of tuple/component given by <em>bgTuples / bgComp</em> is
  *         out of a valid range for \a this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple2 "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setPartOfValuesSimple2(int a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp)
 {
@@ -7977,7 +8021,9 @@ void DataArrayInt::setPartOfValuesSimple2(int a, const int *bgTuples, const int 
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues3 "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setPartOfValues3(const DataArrayInt *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare)
 {
@@ -8049,7 +8095,9 @@ void DataArrayInt::setPartOfValues3(const DataArrayInt *a, const int *bgTuples, 
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for \this array.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple3 "Here is a Python example".
+ *  \endif
  */
 void DataArrayInt::setPartOfValuesSimple3(int a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp)
 {
@@ -9564,10 +9612,33 @@ DataArrayInt *DataArrayInt::BuildIntersection(const std::vector<const DataArrayI
       else
         r=s1;
     }
-  DataArrayInt *ret=DataArrayInt::New();
+  DataArrayInt *ret(DataArrayInt::New());
   ret->alloc((int)r.size(),1);
   std::copy(r.begin(),r.end(),ret->getPointer());
   return ret;
+}
+
+/*!
+ * This method allows to put a vector of vector of integer into a more compact data stucture (skyline). 
+ * This method is not available into python because no available optimized data structure available to map std::vector< std::vector<int> >.
+ *
+ * \param [in] v the input data structure to be translate into skyline format.
+ * \param [out] data the first element of the skyline format. The user is expected to deal with newly allocated array.
+ * \param [out] dataIndex the second element of the skyline format.
+ */
+void DataArrayInt::PutIntoToSkylineFrmt(const std::vector< std::vector<int> >& v, DataArrayInt *& data, DataArrayInt *& dataIndex)
+{
+  int sz((int)v.size());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0(DataArrayInt::New()),ret1(DataArrayInt::New());
+  ret1->alloc(sz+1,1);
+  int *pt(ret1->getPointer()); *pt=0;
+  for(int i=0;i<sz;i++,pt++)
+    pt[1]=pt[0]+(int)v[i].size();
+  ret0->alloc(ret1->back(),1);
+  pt=ret0->getPointer();
+  for(int i=0;i<sz;i++)
+    pt=std::copy(v[i].begin(),v[i].end(),pt);
+  data=ret0.retn(); dataIndex=ret1.retn();
 }
 
 /*!

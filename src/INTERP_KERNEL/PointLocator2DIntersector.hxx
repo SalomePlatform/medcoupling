@@ -41,7 +41,7 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     PointLocator2DIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                           double dimCaracteristic, double md3DSurf, double medianPlane, double precision, int orientation);
+                           double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane, double precision, int orientation);
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
     double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
     double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);

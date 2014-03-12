@@ -151,6 +151,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False) # False is important to not read the values
+        fields.removeFieldsWithoutAnyTimeStep()
         refMem=fields.getHeapMemorySize()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
@@ -362,6 +363,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -523,6 +525,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -773,6 +776,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader, by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -900,6 +904,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1061,6 +1066,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1265,6 +1271,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1459,6 +1466,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1602,6 +1610,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1730,6 +1739,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1828,6 +1838,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -1918,6 +1929,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -2030,6 +2042,7 @@ class MEDLoaderTest4(unittest.TestCase):
             ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
             ms=MEDFileMeshes(fname)
             fields=MEDFileFields(fname,False)
+            fields.removeFieldsWithoutAnyTimeStep()
             fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
             allFMTSLeavesToDisplay=[]
             for fields in fields_per_mesh:
@@ -2181,6 +2194,7 @@ class MEDLoaderTest4(unittest.TestCase):
             ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
             ms=MEDFileMeshes(fname)
             fields=MEDFileFields(fname,False)
+            fields.removeFieldsWithoutAnyTimeStep()
             fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
             allFMTSLeavesToDisplay=[]
             for fields in fields_per_mesh:
@@ -2338,6 +2352,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -2525,6 +2540,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -2596,6 +2612,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -2707,6 +2724,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -2872,6 +2890,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3051,6 +3070,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3247,6 +3267,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3354,6 +3375,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3454,6 +3476,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3557,6 +3580,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False) # false is absolutely necessary for the test
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3766,6 +3790,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -3876,6 +3901,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         self.assertEqual(fields[0].getMeshName(),"mesh")
         self.assertEqual(fields[1].getMeshName(),"mesh")
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
@@ -4017,6 +4043,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes(fname)
         fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
         for fields in fields_per_mesh:
@@ -4123,6 +4150,85 @@ class MEDLoaderTest4(unittest.TestCase):
         vExp=DataArrayDouble([-1.1,-3.1,5,4,3,2,1,0])
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
+
+    def test29(self):
+        """ This test focused on HEXA27 cell for which the MED numbering is not equal to the VTK numbering. So here the HEXA27 cell is those in MED file documentation (reference element).
+        """
+        fname="ForMEDReader29.med"
+        coo=DataArrayDouble([[0.,2.,2.],[0.,0.,2.],[2.,0.,2.],[2.,2.,2.],[0.,2.,0.],[0.,0.,0.],[2.,0.,0.],[2.,2.,0.], [0.,1.,2.],[1.,0.,2.],[2.,1.,2.],[1.,2.,2.], [0.,1.,0.],[1.,0.,0.],[2.,1.,0.],[1.,2.,0.], [0.,2.,1.],[0.,0.,1.],[2.,0.,1.],[2.,2.,1.], [1.,1.,2.], [0.,1.,1.],[1.,0.,1.],[2.,1.,1.],[1.,2.,1.], [1.,1.,0.], [1.,1.,1.]])
+        m=MEDCouplingUMesh("mesh",3) ; m.setCoords(coo)
+        m.allocateCells()
+        # MED = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
+        # VTK = [0,1,2,3,4,5,6,7, 8,9,10,11,12,13,14,15,16,17,18,19,24,22,21,23,20,25,26]
+        m.insertNextCell(NORM_HEXA27,[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26])
+        fCell=MEDCouplingFieldDouble(ON_CELLS) ; fCell.setName("fCell")
+        arrCell=DataArrayDouble([7.]) ; arrCell.setInfoOnComponent(0,"smth") ; fCell.setArray(arrCell)
+        fCell.setMesh(m)
+        MEDLoader.WriteField(fname,fCell,True)
+        refCoo=[-1.,-1.,-1.,-1.,1.,-1.,1.,1.,-1.,1.,-1.,-1.,-1.,-1.,1.,-1.,1.,1.,1.,1.,1.,1.,-1.,1.,-1.,0.,-1.,0.,1.,-1.,1.,0.,-1.,0.,-1.,-1.,-1.,0.,1.,0.,1.,1.,1.,0.,1.,0.,-1.,1.,-1.,-1.,0.,-1.,1.,0.,1.,1.,0.,1.,-1.,0.,0.,0.,-1.,-1.,0.,0.,0.,1.,0.,1.,0.,0.,0.,-1.,0.,0.,0.,1.,0.,0.,0.]
+        weights=[0.1714677640603571,0.27434842249657115,0.1714677640603571,0.27434842249657115,0.43895747599451346,0.27434842249657115,0.1714677640603571,0.27434842249657115,0.1714677640603571,0.27434842249657115,0.43895747599451346,0.27434842249657115,0.43895747599451346,0.7023319615912209,0.43895747599451346,0.27434842249657115,0.43895747599451346,0.27434842249657115,0.1714677640603571,0.27434842249657115,0.1714677640603571,0.27434842249657115,0.43895747599451346,0.27434842249657115,0.1714677640603571,0.27434842249657115,0.1714677640603571]
+        gCoords=[-0.774596669241483,-0.774596669241483,-0.774596669241483,-0.774596669241483,-0.774596669241483,0.0,-0.774596669241483,-0.774596669241483,0.774596669241483,-0.774596669241483,0.0,-0.774596669241483,-0.774596669241483,0.0,0.0,-0.774596669241483,0.0,0.774596669241483,-0.774596669241483,0.774596669241483,-0.774596669241483,-0.774596669241483,0.774596669241483,0.0,-0.774596669241483,0.774596669241483,0.774596669241483,0.0,-0.774596669241483,-0.774596669241483,0.0,-0.774596669241483,0.0,0.0,-0.774596669241483,0.774596669241483,0.0,0.0,-0.774596669241483,0.0,0.0,0.0,0.0,0.0,0.774596669241483,0.0,0.774596669241483,-0.774596669241483,0.0,0.774596669241483,0.0,0.0,0.774596669241483,0.774596669241483,0.774596669241483,-0.774596669241483,-0.774596669241483,0.774596669241483,-0.774596669241483,0.0,0.774596669241483,-0.774596669241483,0.774596669241483,0.774596669241483,0.0,-0.774596669241483,0.774596669241483,0.0,0.0,0.774596669241483,0.0,0.774596669241483,0.774596669241483,0.774596669241483,-0.774596669241483,0.774596669241483,0.774596669241483,0.0,0.774596669241483,0.774596669241483,0.774596669241483]
+        fGauss=MEDCouplingFieldDouble(ON_GAUSS_PT) ; fGauss.setName("fGauss")
+        fGauss.setMesh(m)
+        fGauss.setGaussLocalizationOnType(NORM_HEXA27,refCoo,gCoords,weights)
+        arrGauss=DataArrayDouble(fGauss.getNumberOfTuplesExpected()) ; arrGauss.setInfoOnComponent(0,"gaussc") ; arrGauss.iota()
+        fGauss.setArray(arrGauss)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,fGauss)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),2)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),2)
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[0][0]),2)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        #
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(a0.isEqual(coo,1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([29])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0])))
+        # the connectivity must be not a iota as declared in m.insertNextCell
+        self.assertTrue(a3.isEqual(DataArrayInt([27,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24,22,21,23,20,25,26])))# the test is on this line to check that connectivity has been processed for HEXA27
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+        ffCell.loadArraysIfNecessary()
+        v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+        self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+        self.assertEqual(ffCell.getName(),"fCell")
+        self.assertTrue(v.isEqual(arrCell,1e-12)) ; self.assertTrue(v.isEqualWithoutConsideringStr(DataArrayDouble([7.]),1e-12)) ; self.assertEqual(v.getInfoOnComponents(),["smth"])
+        del ffCell
+        #
+        ffGauss=allFMTSLeavesPerCommonSupport1[0][0][1][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(ffGauss,mst)
+        ffGauss.loadArraysIfNecessary()
+        v=mml2.buildDataArray(fsst,fields,ffGauss.getUndergroundDataArray())
+        self.assertEqual(v.getHiddenCppPointer(),ffGauss.getUndergroundDataArray().getHiddenCppPointer())
+        self.assertEqual(ffGauss.getName(),"fGauss")
+        self.assertTrue(v.isEqual(arrGauss,1e-12)) ; self.assertTrue(v.isEqualWithoutConsideringStr(DataArrayDouble(range(27)),1e-12)) ; self.assertEqual(v.getInfoOnComponents(),["gaussc"])
+        ffGauss=allFMTSLeavesPerCommonSupport1[0][0][1][0]
+        pass
+
     pass
 
 unittest.main()

@@ -1026,7 +1026,7 @@ namespace ParaMEDMEM
          {
            if(PyInt_Check(obj))
              {
-               MEDFileMesh *ret=self->getMeshAtPos((int)PyInt_AS_LONG(obj));
+               MEDFileMesh *ret=self->getMeshAtPos(InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfMeshes()));
                if(ret)
                  ret->incrRef();
                return ret;
@@ -1226,6 +1226,7 @@ namespace ParaMEDMEM
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
     int getDimension() const throw(INTERP_KERNEL::Exception);
     int getIteration() const throw(INTERP_KERNEL::Exception);
     int getOrder() const throw(INTERP_KERNEL::Exception);
@@ -1642,6 +1643,7 @@ namespace ParaMEDMEM
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
     //
     virtual MEDFileAnyTypeField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
@@ -1808,12 +1810,8 @@ namespace ParaMEDMEM
           {
             Py_ssize_t strt=2,stp=2,step=2;
             PySliceObject *oC=reinterpret_cast<PySliceObject *>(elts);
-            if(PySlice_GetIndices(oC,self->getNumberOfTS(),&strt,&stp,&step)==0)
-              {
-                self->eraseTimeStepIds2(strt,stp,step);
-              }
-            else
-              throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS.__delitem__ : error in input slice !");
+            GetIndicesOfSlice(oC,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__delitem__ : error in input slice !");
+            self->eraseTimeStepIds2(strt,stp,step);
           }
         else
           {
@@ -1878,10 +1876,8 @@ namespace ParaMEDMEM
           {
             Py_ssize_t strt=2,stp=2,step=2;
             PySliceObject *oC=reinterpret_cast<PySliceObject *>(elt0);
-            if(PySlice_GetIndices(oC,self->getNumberOfTS(),&strt,&stp,&step)==0)
-              return convertMEDFileFieldMultiTS(self->buildSubPartSlice(strt,stp,step),SWIG_POINTER_OWN | 0);
-            else
-              throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS.__getitem__ : error in input slice !");
+            GetIndicesOfSlice(oC,self->getNumberOfTS(),&strt,&stp,&step,"MEDFileAnyTypeFieldMultiTS.__getitem__ : error in input slice !");
+            return convertMEDFileFieldMultiTS(self->buildSubPartSlice(strt,stp,step),SWIG_POINTER_OWN | 0);
           }
         else
           return convertMEDFileField1TS(self->getTimeStepAtPos(MEDFileAnyTypeFieldMultiTSgetitemSingleTS__(self,elt0)),SWIG_POINTER_OWN | 0);
@@ -2226,6 +2222,7 @@ namespace ParaMEDMEM
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
     void unloadArrays() throw(INTERP_KERNEL::Exception);
+    void unloadArraysWithoutDataLoss() throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
@@ -2239,6 +2236,7 @@ namespace ParaMEDMEM
     MEDFileAnyTypeFieldMultiTS *getFieldWithName(const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDFileFields *partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
+    bool removeFieldsWithoutAnyTimeStep() throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileFields()
@@ -2374,10 +2372,8 @@ namespace ParaMEDMEM
              {
                Py_ssize_t strt=2,stp=2,step=2;
                PySliceObject *oC=reinterpret_cast<PySliceObject *>(elts);
-               if(PySlice_GetIndices(oC,self->getNumberOfFields(),&strt,&stp,&step)==0)
-                 self->destroyFieldsAtPos2(strt,stp,step);
-               else
-                 throw INTERP_KERNEL::Exception("MEDFileFields.__delitem__ : error in input slice !");
+               GetIndicesOfSlice(oC,self->getNumberOfFields(),&strt,&stp,&step,"MEDFileFields.__delitem__ : error in input slice !");
+               self->destroyFieldsAtPos2(strt,stp,step);
              }
            else
              {
@@ -2494,6 +2490,7 @@ namespace ParaMEDMEM
     double getDoubleValue(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfTS() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDFileParameterMultiTS()
@@ -2564,7 +2561,7 @@ namespace ParaMEDMEM
       {
         if(elt0 && PyInt_Check(elt0))
           {//fmts[3]
-            int pos=PyInt_AS_LONG(elt0);
+            int pos=InterpreteNegativeInt(PyInt_AS_LONG(elt0),self->getNumberOfTS());
             return pos;
           }
         else if(elt0 && PyTuple_Check(elt0))
@@ -2708,7 +2705,7 @@ namespace ParaMEDMEM
       {
         if(PyInt_Check(obj))
           {
-            MEDFileParameterMultiTS *ret=self->getParamAtPos((int)PyInt_AS_LONG(obj));
+            MEDFileParameterMultiTS *ret=self->getParamAtPos(InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfParams()));
             if(ret)
               ret->incrRef();
             return ret;

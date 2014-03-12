@@ -3583,6 +3583,69 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(mm.getMeshAtLevel(0).getName(),"abc")
         pass
 
+    def testMEDFileFieldsUnloadArraysWithoutDataLoss1(self):
+        fileName="Pyfile80.med"
+        m=MEDCouplingCMesh() ; m.setName("cmesh")
+        arr=DataArrayDouble(6) ; arr.iota()
+        m.setCoords(arr,arr)
+        nbCells=m.getNumberOfCells()
+        self.assertEqual(25,nbCells)
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setName("FieldOnCell") ; f.setMesh(m)
+        arr=DataArrayDouble(nbCells) ; arr.iota()
+        mm=MEDFileCMesh()
+        mm.setMesh(m)
+        #
+        fmts=MEDFileFieldMultiTS()
+        #
+        for i in xrange(nbCells):
+            t=(float(i)+0.1,i+1,-i-2)
+            f.setTime(*t)
+            arr2=DataArrayDouble(nbCells)
+            perm=DataArrayInt(nbCells) ; perm.iota(i) ; perm%=nbCells
+            arr2[perm]=arr
+            f.setArray(arr2)
+            f1ts=MEDFileField1TS()
+            f1ts.setFieldNoProfileSBT(f)
+            fmts.pushBackTimeStep(f1ts)
+            pass
+        fmts.unloadArraysWithoutDataLoss()
+        self.assertTrue(fmts[0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        fs=MEDFileFields() ; fs.pushField(fmts)
+        self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        fs.unloadArraysWithoutDataLoss()
+        self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        f1ts=fs[0][0]
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        f1ts.unloadArraysWithoutDataLoss()
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        mm.write(fileName,2)
+        fs.write(fileName,0)
+        del m,fmts,mm,f,f1ts
+        ##
+        mm=MEDFileMesh.New(fileName)
+        fmts=MEDFileFieldMultiTS(fileName)
+        self.assertTrue(fmts[0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        fmts.unloadArraysWithoutDataLoss()
+        self.assertTrue(not fmts[0].getUndergroundDataArray().isAllocated())
+        fmts.loadArraysIfNecessary()
+        self.assertTrue(fmts[0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        del mm,fmts
+        fs=MEDFileFields(fileName)
+        self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        fs.unloadArraysWithoutDataLoss()
+        self.assertTrue(not fs[0][0].getUndergroundDataArray().isAllocated())
+        fs.loadArraysIfNecessary()
+        self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        del fs
+        f1ts=MEDFileField1TS(fileName)
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        f1ts.unloadArraysWithoutDataLoss()
+        self.assertTrue(not f1ts.getUndergroundDataArray().isAllocated())
+        f1ts.loadArraysIfNecessary()
+        self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
+        pass
+
     pass
 
 unittest.main()

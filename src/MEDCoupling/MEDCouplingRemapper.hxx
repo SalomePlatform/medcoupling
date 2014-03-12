@@ -74,6 +74,7 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT const std::vector<std::map<int,double> >& getCrudeMatrix() const;
     MEDCOUPLINGREMAPPER_EXPORT int getNumberOfColsOfMatrix() const;
     MEDCOUPLINGREMAPPER_EXPORT static void PrintMatrix(const std::vector<std::map<int,double> >& m);
+    MEDCOUPLINGREMAPPER_EXPORT static std::string BuildMethodFrom(const std::string& meth1, const std::string& meth2);
   private:
     int prepareInterpKernelOnly();
     int prepareInterpKernelOnlyUU();

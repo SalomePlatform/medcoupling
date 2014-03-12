@@ -31,9 +31,9 @@ namespace INTERP_KERNEL
   PLAN_INTER_TEMPLATE
   PLAN_INTERSECTOR::PlanarIntersectorP1P0Bary(const MyMeshType& meshT, const MyMeshType& meshS,
                                               double dimCaracteristic, double precision,
-                                              double md3DSurf, double medianPlane,
+                                              double md3DSurf, double minDot3DSurf, double medianPlane,
                                               bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,
+    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,minDot3DSurf,
                                            medianPlane,doRotate,orientation,printLevel)
   {
     // SPEC:

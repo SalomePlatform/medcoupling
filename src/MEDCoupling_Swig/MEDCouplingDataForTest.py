@@ -683,6 +683,24 @@ class MEDCouplingDataForTest:
         fff.setGaussLocalizationOnCells([6,7],[-1.,-1.,-1.,-1.,1.,-1.,1.,1.,-1.,1.,-1.,-1.,-1.,-1.,1.,-1.,1.,1.,1.,1.,1.,1.,-1.,1.],[-0.577350269189626,-0.577350269189626,-0.577350269189626,-0.577350269189626,-0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626,-0.577350269189626,-0.577350269189626,0.577350269189626,0.577350269189626,0.577350269189626,-0.577350269189626,-0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626,0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626,0.577350269189626,0.577350269189626],[1.,1.,1.,1.,1.,1.,1.,1.])
         return MEDCouplingFieldTemplate(fff)
 
+    def buildCircle(self, center_X, center_Y, radius):  
+      from cmath import rect
+      from math import pi  
+  
+      c = [rect(radius, i*pi/4.0) for i in range(8)]
+      coords = [c[-1].real,c[-1].imag,  c[3].real,c[3].imag,
+                 c[5].real,c[5].imag,  c[1].real,c[1].imag]
+      connec = range(4) 
+      baseMesh = MEDCouplingUMesh.New("circle", 2)  
+      baseMesh.allocateCells(1)
+      meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
+      meshCoords += (center_X, center_Y)
+      baseMesh.setCoords(meshCoords)
+  
+      baseMesh.insertNextCell(NORM_QPOLYG, connec)  
+      baseMesh.finishInsertingCells()  
+      return baseMesh
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -711,4 +729,8 @@ class MEDCouplingDataForTest:
     buildFieldOnGauss_2=classmethod(buildFieldOnGauss_2)
     buildFieldOnGauss_3=classmethod(buildFieldOnGauss_3)
     buildFieldOnGauss_4=classmethod(buildFieldOnGauss_4)
+    buildCircle=classmethod(buildCircle)
     pass
+
+
+

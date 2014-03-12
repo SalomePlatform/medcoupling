@@ -877,6 +877,49 @@ inline bool eqpair(const std::pair<double,Node *>& p1, const std::pair<double,No
 }
 
 /**
+ * This method takes in input nodes in \a subNodes (using \a coo)
+ *
+ * \param [in,out] subNodes to be sorted
+ * \return true if a reordering was necessary false if not.
+ */
+bool Edge::sortSubNodesAbs(const double *coo, std::vector<int>& subNodes)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  b.aggregate(getBounds());
+  double xBary,yBary;
+  double dimChar(b.getCaracteristicDim());
+  b.getBarycenter(xBary,yBary);
+  applySimilarity(xBary,yBary,dimChar);
+  _start->applySimilarity(xBary,yBary,dimChar);
+  _end->applySimilarity(xBary,yBary,dimChar);
+  //
+  std::size_t sz(subNodes.size()),i(0);
+  std::vector< std::pair<double,Node *> > an2(sz);
+  std::map<Node *, int> m;
+  for(std::vector<int>::const_iterator it=subNodes.begin();it!=subNodes.end();it++,i++)
+    {
+      Node *n(new Node(coo[2*(*it)],coo[2*(*it)+1]));
+      n->applySimilarity(xBary,yBary,dimChar);
+      m[n]=*it;
+      an2[i]=std::pair<double,Node *>(getCharactValueBtw0And1(*n),n);
+    }
+  std::sort(an2.begin(),an2.end());
+  //
+  bool ret(false);
+  for(i=0;i<sz;i++)
+    {
+      int id(m[an2[i].second]);
+      if(id!=subNodes[i])
+        { subNodes[i]=id; ret=true; }
+    }
+  //
+  for(std::map<INTERP_KERNEL::Node *,int>::const_iterator it2=m.begin();it2!=m.end();it2++)
+    (*it2).first->decrRef();
+  return ret;
+}
+
+/**
  * Sort nodes so that they all lie consecutively on the edge that has been cut.
  */
 void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1,

@@ -371,8 +371,10 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcmesh_fillFromAnalytic "Here is a C++ example".<br>
  *  \ref  py_mcmesh_fillFromAnalytic "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const
 {
@@ -421,8 +423,10 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcmesh_fillFromAnalytic2 "Here is a C++ example".<br>
  *  \ref  py_mcmesh_fillFromAnalytic2 "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const
 {
@@ -472,8 +476,10 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nb
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If computing \a func fails.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcmesh_fillFromAnalytic3 "Here is a C++ example".<br>
  *  \ref  py_mcmesh_fillFromAnalytic3 "Here is a Python example".
+ *  \endif
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
 {
@@ -626,8 +632,10 @@ const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCel
  *  \param [in,out] elts - vector returning ids of the found cells. It is cleared
  *         before inserting ids.
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellsContainingPoint "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellsContainingPoint "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
@@ -655,8 +663,10 @@ void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std
  *         Number of cells in contact with the *i*-th point is
  *         \a eltsIndex[ *i*+1 ] - \a eltsIndex[ *i* ].
  *
+ *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_getCellsContainingPoints "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
+ *  \endif
  */
 void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const
 {

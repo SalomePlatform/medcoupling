@@ -60,7 +60,9 @@ namespace INTERP_KERNEL
   protected:
 
     bool isSatisfy();
-
+    
+    void point1Init();
+    
     //1D
     void seg2Init();
     void seg3Init();
@@ -70,6 +72,7 @@ namespace INTERP_KERNEL
     void tria3bInit();
     void tria6aInit();
     void tria6bInit();
+    void tria7aInit();
 
     void quad4aInit();
     static void Quad4aInit(GaussInfo& obj) { obj.quad4aInit(); }
@@ -104,7 +107,9 @@ namespace INTERP_KERNEL
     static void Penta6DegTria3bInit(GaussInfo& obj) { obj.penta6DegTria3bInit(); }
     
     void penta15aInit();
+    static void Penta15aInit(GaussInfo& obj) { obj.penta15aInit(); }
     void penta15bInit();
+    static void Penta15bInit(GaussInfo& obj) { obj.penta15bInit(); }
 
     void hexa8aInit();
     static void Hexa8aInit(GaussInfo& obj) { obj.hexa8aInit(); }
@@ -118,7 +123,7 @@ namespace INTERP_KERNEL
     static void Hexa8DegQuad4cInit(GaussInfo& obj) { obj.hexa8DegQuad4cInit(); }
     void hexa20aInit();
     void hexa20bInit();
-
+    void hexa27aInit();
 
   private:
     //INFORMATION from MEDMEM
