@@ -337,12 +337,18 @@ namespace ParaMEDMEM
     virtual const MEDCouplingStructuredMesh *getStructuredMesh() const = 0;
     static med_geometry_type GetGeoTypeFromMeshDim(int meshDim);
   private:
+    static void LoadStrMeshDAFromFile(med_idt fid, int meshDim, int dt, int it, const std::string& mName, MEDFileMeshReadSelector *mrs,
+                                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& famCells, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& numCells, MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar>& namesCells);
+  private:
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_nodes;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_nodes;
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_nodes;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_cells;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_cells;
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_cells;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_faces;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_faces;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_faces;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_nodes;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_cells;
   };

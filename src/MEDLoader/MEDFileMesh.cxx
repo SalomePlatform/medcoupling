@@ -32,6 +32,8 @@
 #include <limits>
 #include <cmath>
 
+extern med_geometry_type typmai3[34];
+
 using namespace ParaMEDMEM;
 
 const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
@@ -3967,11 +3969,21 @@ std::vector<const BigMemoryObject *> MEDFileStructuredMesh::getDirectChildren() 
     ret.push_back((const DataArrayInt *)_fam_nodes);
   if((const DataArrayInt *)_num_nodes)
     ret.push_back((const DataArrayInt *)_num_nodes);
+  if((const DataArrayAsciiChar *)_names_nodes)
+    ret.push_back((const DataArrayAsciiChar *)_names_nodes);
   if((const DataArrayInt *)_fam_cells)
     ret.push_back((const DataArrayInt *)_fam_cells);
   if((const DataArrayInt *)_num_cells)
-    ret.push_back((const DataArrayInt *)_num_nodes);
+    ret.push_back((const DataArrayInt *)_num_cells);
+  if((const DataArrayAsciiChar *)_names_cells)
+    ret.push_back((const DataArrayAsciiChar *)_names_cells);
+  if((const DataArrayInt *)_fam_faces)
+    ret.push_back((const DataArrayInt *)_fam_faces);
+  if((const DataArrayInt *)_num_faces)
+    ret.push_back((const DataArrayInt *)_num_faces);
   if((const DataArrayInt *)_rev_num_nodes)
+    if((const DataArrayAsciiChar *)_names_faces)
+    ret.push_back((const DataArrayAsciiChar *)_names_faces);
     ret.push_back((const DataArrayInt *)_rev_num_nodes);
   if((const DataArrayInt *)_rev_num_cells)
     ret.push_back((const DataArrayInt *)_rev_num_cells);
@@ -3991,6 +4003,11 @@ int MEDFileStructuredMesh::getMaxAbsFamilyIdInArrays() const
       int val=_fam_cells->getMaxValue(tmp);
       ret=std::max(ret,std::abs(val));
     }
+  if((const DataArrayInt *)_fam_faces)
+    {
+      int val=_fam_faces->getMaxValue(tmp);
+      ret=std::max(ret,std::abs(val));
+    }
   return ret;
 }
 
@@ -4007,6 +4024,11 @@ int MEDFileStructuredMesh::getMaxFamilyIdInArrays() const
       int val=_fam_cells->getMaxValue(tmp);
       ret=std::max(ret,val);
     }
+  if((const DataArrayInt *)_fam_faces)
+    {
+      int val=_fam_faces->getMaxValue(tmp);
+      ret=std::max(ret,val);
+    }
   return ret;
 }
 
@@ -4021,6 +4043,11 @@ int MEDFileStructuredMesh::getMinFamilyIdInArrays() const
   if((const DataArrayInt *)_fam_cells)
     {
       int val=_fam_cells->getMinValue(tmp);
+      ret=std::min(ret,val);
+    }
+  if((const DataArrayInt *)_fam_faces)
+    {
+      int val=_fam_faces->getMinValue(tmp);
       ret=std::min(ret,val);
     }
   return ret;
@@ -4068,6 +4095,22 @@ bool MEDFileStructuredMesh::isEqual(const MEDFileMesh *other, double eps, std::s
           return false;
         }
     }
+  famc1=_fam_faces;
+  famc2=otherC->_fam_faces;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of families arr on faces ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Families arr on faces differ !";
+          return false;
+        }
+    }
   famc1=_num_nodes;
   famc2=otherC->_num_nodes;
   if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
@@ -4100,6 +4143,22 @@ bool MEDFileStructuredMesh::isEqual(const MEDFileMesh *other, double eps, std::s
           return false;
         }
     }
+  famc1=_num_faces;
+  famc2=otherC->_num_faces;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of numbering arr on faces ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Numbering arr on faces differ !";
+          return false;
+        }
+    }
   const DataArrayAsciiChar *d1=_names_cells;
   const DataArrayAsciiChar *d2=otherC->_names_cells;
   if((d1==0 && d2!=0) || (d1!=0 && d2==0))
@@ -4113,6 +4172,22 @@ bool MEDFileStructuredMesh::isEqual(const MEDFileMesh *other, double eps, std::s
       if(!ret)
         {
           what="Naming arr on cells differ !";
+          return false;
+        }
+    }
+  d1=_names_faces;
+  d2=otherC->_names_faces;
+  if((d1==0 && d2!=0) || (d1!=0 && d2==0))
+    {
+      what="Mismatch of naming arr on faces ! One is defined and not other !";
+      return false;
+    }
+  if(d1)
+    {
+      bool ret=d1->isEqual(*d2);
+      if(!ret)
+        {
+          what="Naming arr on faces differ !";
           return false;
         }
     }
@@ -4150,6 +4225,12 @@ void MEDFileStructuredMesh::clearNonDiscrAttributes() const
   tmp=_num_cells;
   if(tmp)
     (const_cast<DataArrayInt *>(tmp))->setName("");
+  tmp=_fam_faces;
+  if(tmp)
+    (const_cast<DataArrayInt *>(tmp))->setName("");
+  tmp=_num_faces;
+  if(tmp)
+    (const_cast<DataArrayInt *>(tmp))->setName("");
 }
 
 /*!
@@ -4166,42 +4247,65 @@ void MEDFileStructuredMesh::clearNonDiscrAttributes() const
  */
 DataArrayInt *MEDFileStructuredMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : Only available for levels 0 or 1 !");
-  std::vector<int> famIds=getFamiliesIds(fams);
-  if(meshDimRelToMaxExt==1)
+  std::vector<int> famIds(getFamiliesIds(fams));
+  switch(meshDimRelToMaxExt)
     {
-      if((const DataArrayInt *)_fam_nodes)
-        {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
-          if(!famIds.empty())
-            da=_fam_nodes->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
-          else
-            da=_fam_nodes->getIdsEqualList(0,0);
-          if(renum)
-            return MEDFileUMeshSplitL1::Renumber(_num_nodes,da);
-          else
-            return da.retn();
-        }
-      else
-        throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : no family array specified on nodes !");
-    }
-  else
-    {
-      if((const DataArrayInt *)_fam_cells)
-        {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
-          if(!famIds.empty())
-            da=_fam_cells->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
-          else
-            da=_fam_cells->getIdsEqualList(0,0);
-          if(renum)
-            return MEDFileUMeshSplitL1::Renumber(_num_cells,da);
-          else
-            return da.retn();
-        }
-      else
-        throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : no family array specified on cells !");
+    case 1:
+      {
+        if((const DataArrayInt *)_fam_nodes)
+          {
+            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
+            if(!famIds.empty())
+              da=_fam_nodes->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
+            else
+              da=_fam_nodes->getIdsEqualList(0,0);
+            if(renum)
+              return MEDFileUMeshSplitL1::Renumber(_num_nodes,da);
+            else
+              return da.retn();
+          }
+        else
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : no family array specified on nodes !");
+        break;
+      }
+    case 0:
+      {
+        if((const DataArrayInt *)_fam_cells)
+          {
+            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
+            if(!famIds.empty())
+              da=_fam_cells->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
+            else
+              da=_fam_cells->getIdsEqualList(0,0);
+            if(renum)
+              return MEDFileUMeshSplitL1::Renumber(_num_cells,da);
+            else
+              return da.retn();
+          }
+        else
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : no family array specified on cells !");
+        break;
+      }
+    case -1:
+      {
+        if((const DataArrayInt *)_fam_faces)
+          {
+            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
+            if(!famIds.empty())
+              da=_fam_faces->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
+            else
+              da=_fam_faces->getIdsEqualList(0,0);
+            if(renum)
+              return MEDFileUMeshSplitL1::Renumber(_num_faces,da);
+            else
+              return da.retn();
+          }
+        else
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : no family array specified on faces !");
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamiliesArr : input meshDimRelative must be in [0,1,-1] !");
     }
 }
 
@@ -4212,26 +4316,38 @@ DataArrayInt *MEDFileStructuredMesh::getFamiliesArr(int meshDimRelToMaxExt, cons
  *  \param [in] famArr - the array of the family field.
  *  \throw If there are no mesh entities of \a meshDimRelToMaxExt dimension in \a this mesh.
  *  \throw If \a famArr has an invalid size.
- *  \throw If \a meshDimRelToMaxExt != 0 and \a meshDimRelToMaxExt != 1.
+ *  \throw If \a meshDimRelToMaxExt != 0 and \a meshDimRelToMaxExt != 1 and \a meshDimRelToMaxExt != -1.
  */
 void MEDFileStructuredMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr)
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setRenumFieldArr : Only available for levels 0 or 1 !");
-  const MEDCouplingStructuredMesh *mesh=getStructuredMesh();
+  const MEDCouplingStructuredMesh *mesh(getStructuredMesh());
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setFamilyFieldArr : no structured mesh specified ! Impossible to set family array !");
-  if(meshDimRelToMaxExt==0)
+  switch(meshDimRelToMaxExt)
     {
-      int nbCells=mesh->getNumberOfCells();
-      famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of cells of mesh !");
-      _fam_cells=famArr;
-    }
-  else
-    {
-      int nbNodes=mesh->getNumberOfNodes();
-      famArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
-      _fam_nodes=famArr;
+    case 0:
+      {
+        int nbCells=mesh->getNumberOfCells();
+        famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of cells of mesh !");
+        _fam_cells=famArr;
+        break;
+      }
+    case 1:
+      {
+        int nbNodes=mesh->getNumberOfNodes();
+        famArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
+        _fam_nodes=famArr;
+        break;
+      }
+    case -1:
+      {
+        int nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
+        famArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setFamilyFieldArr : Problem in size of Family arr ! Mismatch with number of faces of mesh !");
+        _fam_faces=famArr;
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setFamilyFieldArr : Only available for levels 0 or 1 or -1 !");
     }
   if(famArr)
     famArr->incrRef();
@@ -4247,22 +4363,34 @@ void MEDFileStructuredMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayI
  */
 void MEDFileStructuredMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr)
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setRenumFieldArr : Only available for levels 0 or 1 !");
   const MEDCouplingStructuredMesh *mesh=getStructuredMesh();
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setRenumFieldArr : no structured mesh specified ! Impossible to set number array !");
-  if(meshDimRelToMaxExt==0)
+  switch(meshDimRelToMaxExt)
     {
-      int nbCells=mesh->getNumberOfCells();
-      renumArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setRenumFieldArr : Problem in size of Renum arr ! Mismatch with number of cells of mesh !");
-      _num_cells=renumArr;
-    }
-  else
-    {
-      int nbNodes=mesh->getNumberOfNodes();
-      renumArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setRenumFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
-      _num_nodes=renumArr;
+    case 0:
+      {
+        int nbCells=mesh->getNumberOfCells();
+        renumArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setRenumFieldArr : Problem in size of Renum arr ! Mismatch with number of cells of mesh !");
+        _num_cells=renumArr;
+        break;
+      }
+    case 1:
+      {
+        int nbNodes=mesh->getNumberOfNodes();
+        renumArr->checkNbOfTuplesAndComp(nbNodes,1,"MEDFileStructuredMesh::setRenumFieldArr : Problem in size of Family arr ! Mismatch with number of nodes of mesh !");
+        _num_nodes=renumArr;
+        break;
+      }
+    case -1:
+      {
+        int nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
+        renumArr->checkNbOfTuplesAndComp(nbCells,1,"MEDFileStructuredMesh::setRenumFieldArr : Problem in size of Renum arr ! Mismatch with number of faces of mesh !");
+        _num_faces=renumArr;
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setRenumFieldArr : Only available for levels 0 or 1 or -1 !");
     }
   if(renumArr)
     renumArr->incrRef();
@@ -4277,22 +4405,33 @@ void MEDFileStructuredMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayIn
  */
 void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr)
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setNameFieldAtLevel : Only available for levels 0 or 1 !");
-  const MEDCouplingStructuredMesh *mesh=getStructuredMesh();
+  const MEDCouplingStructuredMesh *mesh(getStructuredMesh());
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setNameFieldAtLevel : no structured mesh specified ! Impossible to set names array !");
-  if(meshDimRelToMaxExt==0)
+  switch(meshDimRelToMaxExt)
     {
-      int nbCells=mesh->getNumberOfCells();
-      nameArr->checkNbOfTuplesAndComp(nbCells,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of cells of mesh !");
-      _names_cells=nameArr;
-    }
-  else
-    {
-      int nbNodes=mesh->getNumberOfNodes();
-      nameArr->checkNbOfTuplesAndComp(nbNodes,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of nodes of mesh !");
-      _names_nodes=nameArr;
+    case 0:
+      {
+        int nbCells=mesh->getNumberOfCells();
+        nameArr->checkNbOfTuplesAndComp(nbCells,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of cells of mesh !");
+        _names_cells=nameArr;
+        break;
+      }
+    case 1:
+      {
+        int nbNodes=mesh->getNumberOfNodes();
+        nameArr->checkNbOfTuplesAndComp(nbNodes,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of nodes of mesh !");
+        _names_nodes=nameArr;
+        break;
+      }
+    case -1:
+      {
+        int nbCells=mesh->getNumberOfCellsOfSubLevelMesh();
+        nameArr->checkNbOfTuplesAndComp(nbCells,MED_SNAME_SIZE,"MEDFileStructuredMesh::setNameFieldAtLevel : Problem in size of names arr ! Mismatch with number of faces of mesh !");
+        _names_cells=nameArr;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::setNameFieldAtLevel : Only available for levels 0 or 1 or -1 !");
     }
   if(nameArr)
     nameArr->incrRef();
@@ -4307,12 +4446,17 @@ void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArra
  */
 const DataArrayInt *MEDFileStructuredMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) const
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamilyFieldAtLevel : Only available for levels 0 or 1 !");
-  if(meshDimRelToMaxExt==0)
-    return _fam_cells;
-  else
-    return _fam_nodes;
+  switch(meshDimRelToMaxExt)
+    {
+    case 0:
+      return _fam_cells;
+    case 1:
+      return _fam_nodes;
+    case -1:
+      return _fam_faces;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamilyFieldAtLevel : Only available for levels 0 or 1 or -1 !");
+    }
 }
 
 /*!
@@ -4324,12 +4468,17 @@ const DataArrayInt *MEDFileStructuredMesh::getFamilyFieldAtLevel(int meshDimRelT
  */
 const DataArrayInt *MEDFileStructuredMesh::getNumberFieldAtLevel(int meshDimRelToMaxExt) const
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberFieldAtLevel : Only available for levels 0 or 1 !");
-  if(meshDimRelToMaxExt==0)
-    return _num_cells;
-  else
-    return _num_nodes;
+  switch(meshDimRelToMaxExt)
+    {
+    case 0:
+      return _num_cells;
+    case 1:
+      return _num_nodes;
+    case -1:
+      return _num_faces;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberFieldAtLevel : Only available for levels 0 or 1 or -1 !");
+    }
 }
 
 /*!
@@ -4373,12 +4522,17 @@ const DataArrayInt *MEDFileStructuredMesh::getRevNumberFieldAtLevel(int meshDimR
 
 const DataArrayAsciiChar *MEDFileStructuredMesh::getNameFieldAtLevel(int meshDimRelToMaxExt) const
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNameFieldAtLevel : Only available for levels 0 or 1 !");
-  if(meshDimRelToMaxExt==0)
-    return _names_cells;
-  else
-    return _names_nodes;
+  switch(meshDimRelToMaxExt)
+    {
+    case 0:
+      return _names_cells;
+    case 1:
+      return _names_nodes;
+    case -1:
+      return _names_faces;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNameFieldAtLevel : Only available for levels 0 or 1 or -1 !");
+    }
 }
 
 /*!
@@ -4408,11 +4562,13 @@ std::vector<int> MEDFileStructuredMesh::getNonEmptyLevelsExt() const
 std::vector<int> MEDFileStructuredMesh::getFamArrNonEmptyLevelsExt() const
 {
   std::vector<int> ret;
-  const DataArrayInt *famNodes(_fam_nodes),*famCells(_fam_cells);
+  const DataArrayInt *famNodes(_fam_nodes),*famCells(_fam_cells),*famFaces(_fam_faces);
   if(famNodes)
     ret.push_back(1);
   if(famCells)
     ret.push_back(0);
+  if(famFaces)
+    ret.push_back(-1);
   return ret;
 }
 
@@ -4422,11 +4578,13 @@ std::vector<int> MEDFileStructuredMesh::getFamArrNonEmptyLevelsExt() const
 std::vector<int> MEDFileStructuredMesh::getNumArrNonEmptyLevelsExt() const
 {
   std::vector<int> ret;
-  const DataArrayInt *numNodes(_num_nodes),*numCells(_num_cells);
+  const DataArrayInt *numNodes(_num_nodes),*numCells(_num_cells),*numFaces(_num_faces);
   if(numNodes)
     ret.push_back(1);
   if(numCells)
     ret.push_back(0);
+  if(numFaces)
+    ret.push_back(-1);
   return ret;
 }
 
@@ -4436,9 +4594,13 @@ std::vector<int> MEDFileStructuredMesh::getNumArrNonEmptyLevelsExt() const
 std::vector<int> MEDFileStructuredMesh::getNameArrNonEmptyLevelsExt() const
 {
   std::vector<int> ret;
-  const DataArrayAsciiChar *namesCells(_names_cells);
+  const DataArrayAsciiChar *namesNodes(_names_nodes),*namesCells(_names_cells),*namesFaces(_names_faces);
+  if(namesNodes)
+    ret.push_back(1);
   if(namesCells)
     ret.push_back(0);
+  if(namesFaces)
+    ret.push_back(-1);
   return ret;
 }
 
@@ -4459,6 +4621,9 @@ void MEDFileStructuredMesh::changeFamilyIdArr(int oldId, int newId)
   arr=_fam_cells;
   if(arr)
     arr->changeValue(oldId,newId);
+  arr=_fam_faces;
+  if(arr)
+    arr->changeValue(oldId,newId);
 }
 
 void MEDFileStructuredMesh::deepCpyAttributes()
@@ -4467,10 +4632,20 @@ void MEDFileStructuredMesh::deepCpyAttributes()
     _fam_nodes=_fam_nodes->deepCpy();
   if((const DataArrayInt*)_num_nodes)
     _num_nodes=_num_nodes->deepCpy();
+  if((const DataArrayAsciiChar*)_names_nodes)
+    _names_nodes=_names_nodes->deepCpy();
   if((const DataArrayInt*)_fam_cells)
     _fam_cells=_fam_cells->deepCpy();
   if((const DataArrayInt*)_num_cells)
     _num_cells=_num_cells->deepCpy();
+  if((const DataArrayAsciiChar*)_names_cells)
+    _names_cells=_names_cells->deepCpy();
+  if((const DataArrayInt*)_fam_faces)
+    _fam_faces=_fam_faces->deepCpy();
+  if((const DataArrayInt*)_num_faces)
+    _num_faces=_num_faces->deepCpy();
+  if((const DataArrayAsciiChar*)_names_faces)
+    _names_faces=_names_faces->deepCpy();
   if((const DataArrayInt*)_rev_num_nodes)
     _rev_num_nodes=_rev_num_nodes->deepCpy();
   if((const DataArrayInt*)_rev_num_cells)
@@ -4486,7 +4661,7 @@ void MEDFileStructuredMesh::deepCpyAttributes()
 
 /*!
  * Returns a pointer to MEDCouplingStructuredMesh held by \a this. 
- *  \param [in] meshDimRelToMax - it must be \c 0.
+ *  \param [in] meshDimRelToMax - it must be \c 0 or \c -1.
  *  \param [in] renum - it must be \c false.
  *  \return MEDCouplingMesh * - a pointer to MEDCouplingMesh that the caller is to
  *          delete using decrRef() as it is no more needed. 
@@ -4495,12 +4670,24 @@ MEDCouplingMesh *MEDFileStructuredMesh::getGenMeshAtLevel(int meshDimRelToMax, b
 {
   if(renum)
     throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support renumbering ! To do it perform request of renum array directly !");
-  if(meshDimRelToMax!=0)
-    throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support multi level for mesh 0 expected as input !");
-  const MEDCouplingStructuredMesh *m=getStructuredMesh();
-  if(m)
-    m->incrRef();
-  return const_cast<MEDCouplingStructuredMesh *>(m);
+  const MEDCouplingStructuredMesh *m(getStructuredMesh());
+  switch(meshDimRelToMax)
+    {
+    case 0:
+      {
+        if(m)
+          m->incrRef();
+        return const_cast<MEDCouplingStructuredMesh *>(m);
+      }
+    case -1:
+      {
+        if(!m)
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGenMeshAtLevel : level -1 requested must be non empty to be able to compute unstructured sub mesh !");
+        return m->build1SGTSubLevelMesh();
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support multi level for mesh 0 expected as input !");
+    }
 }
 
 /*!
@@ -4511,15 +4698,20 @@ MEDCouplingMesh *MEDFileStructuredMesh::getGenMeshAtLevel(int meshDimRelToMax, b
  */
 int MEDFileStructuredMesh::getSizeAtLevel(int meshDimRelToMaxExt) const
 {
-  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getSizeAtLevel : Only available for levels 0 or 1 !");
-  const MEDCouplingStructuredMesh *cmesh=getStructuredMesh();
+  const MEDCouplingStructuredMesh *cmesh(getStructuredMesh());
   if(!cmesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getSizeAtLevel : No structured mesh set !");
-  if(meshDimRelToMaxExt==0)
-    return cmesh->getNumberOfCells();
-  else
-    return cmesh->getNumberOfNodes();
+  switch(meshDimRelToMaxExt)
+    {
+    case 0:
+      return cmesh->getNumberOfCells();
+    case 1:
+      return cmesh->getNumberOfNodes();
+    case -1:
+      return cmesh->getNumberOfCellsOfSubLevelMesh();
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getSizeAtLevel : Only available for levels 0 or 1 or -1 !");
+    }
 }
 
 int MEDFileStructuredMesh::getNumberOfNodes() const
@@ -4532,11 +4724,27 @@ int MEDFileStructuredMesh::getNumberOfNodes() const
 
 std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileStructuredMesh::getGeoTypesAtLevel(int meshDimRelToMax) const
 {
-  if(meshDimRelToMax!=0)
-    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGeoTypesAtLevel : only one level available for structured meshes ! Input 0 is mandatory !");
   const MEDCouplingStructuredMesh *cmesh(getStructuredMesh());
-  std::vector<INTERP_KERNEL::NormalizedCellType> ret(1,cmesh->getTypeOfCell(0));
-  return ret;
+  if(!cmesh)
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGeoTypesAtLevel : No structured mesh set !");
+  switch(meshDimRelToMax)
+    {
+    case 0:
+      {
+        std::vector<INTERP_KERNEL::NormalizedCellType> ret(1,cmesh->getTypeOfCell(0));
+        return ret;
+      }
+    case -1:
+      {
+        int mdim(cmesh->getMeshDimension());
+        if(mdim<1)
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGeoTypesAtLevel : only one level available for structured meshes ! Input 0 is mandatory or 0D mesh !");
+        std::vector<INTERP_KERNEL::NormalizedCellType> ret(1,MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(mdim-1));
+        return ret;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGeoTypesAtLevel : only 2 levels available at most : 0 and -1 !");
+    }
 }
 
 void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const
@@ -4569,25 +4777,47 @@ void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem
 
 med_geometry_type MEDFileStructuredMesh::GetGeoTypeFromMeshDim(int meshDim)
 {
-  med_geometry_type geoTypeReq=MED_NONE;
-  switch(meshDim)
+  INTERP_KERNEL::NormalizedCellType ct(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(meshDim));
+  return typmai3[ct];
+}
+
+void MEDFileStructuredMesh::LoadStrMeshDAFromFile(med_idt fid, int meshDim, int dt, int it, const std::string& mName, MEDFileMeshReadSelector *mrs,
+                                                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& famCells, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& numCells, MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar>& namesCells)
+{
+  med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+  med_geometry_type geoTypeReq=MEDFileStructuredMesh::GetGeoTypeFromMeshDim(meshDim);
+  int nbOfElt(0);
+  nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
     {
-    case 3:
-      geoTypeReq=MED_HEXA8;
-      break;
-    case 2:
-      geoTypeReq=MED_QUAD4;
-      break;
-    case 1:
-      geoTypeReq=MED_SEG2;
-      break;
-    case 0:
-      geoTypeReq=MED_POINT1;
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("Invalid meshdim detected for structured mesh ! Must be in (1,2,3) !");
+      if(!mrs || mrs->isCellFamilyFieldReading())
+        {
+          famCells=DataArrayInt::New();
+          famCells->alloc(nbOfElt,1);
+          MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,famCells->getPointer());
+        }
     }
-  return geoTypeReq;
+  nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_NUMBER,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
+    {
+      if(!mrs || mrs->isCellNumFieldReading())
+        {
+          numCells=DataArrayInt::New();
+          numCells->alloc(nbOfElt,1);
+          MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,numCells->getPointer());
+        }
+    }
+  nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_NAME,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
+    {
+      if(!mrs || mrs->isCellNameFieldReading())
+        {
+          namesCells=DataArrayAsciiChar::New();
+          namesCells->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+          MEDmeshEntityNameRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,namesCells->getPointer());
+          namesCells->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
+        }
+    }
 }
 
 void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -4607,9 +4837,11 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
       if(!mrs || mrs->isNodeFamilyFieldReading())
         {
           int nbNodes(getNumberOfNodes());
+          if(nbOfElt>nbNodes)
+            throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::loadStrMeshFromFile : invalid size of family node array regarding number of nodes in this ! File seems to be corrupted !");
           _fam_nodes=DataArrayInt::New();
           _fam_nodes->alloc(nbNodes,1);//yes nbNodes and not nbOfElt see next line.
-          if(nbNodes!=nbOfElt)//yes it appends some times... It explains surely the mdump implementation. Bug revealed by PARAVIS EDF #2475 on structured.med file where only 12 first nodes are !=0 so nbOfElt=12 and nbOfNodes=378...
+          if(nbNodes>nbOfElt)//yes it appends some times... It explains surely the mdump implementation. Bug revealed by PARAVIS EDF #2475 on structured.med file where only 12 first nodes are !=0 so nbOfElt=12 and nbOfNodes=378...
             _fam_nodes->fillWithZero();
           MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer());
         }
@@ -4624,39 +4856,6 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
           MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_num_nodes->getPointer());
         }
     }
-  int meshDim=getStructuredMesh()->getMeshDimension();
-  med_geometry_type geoTypeReq=GetGeoTypeFromMeshDim(meshDim);
-  nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
-  if(nbOfElt>0)
-    {
-      if(!mrs || mrs->isCellFamilyFieldReading())
-        {
-          _fam_cells=DataArrayInt::New();
-          _fam_cells->alloc(nbOfElt,1);
-          MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,_fam_cells->getPointer());
-        }
-    }
-  nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_NUMBER,MED_NODAL,&chgt,&trsf);
-  if(nbOfElt>0)
-    {
-      if(!mrs || mrs->isCellNumFieldReading())
-        {
-          _num_cells=DataArrayInt::New();
-          _num_cells->alloc(nbOfElt,1);
-          MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,_num_cells->getPointer());
-        }
-    }
-  nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_NAME,MED_NODAL,&chgt,&trsf);
-  if(nbOfElt>0)
-    {
-      if(!mrs || mrs->isCellNameFieldReading())
-        {
-          _names_cells=DataArrayAsciiChar::New();
-          _names_cells->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-          MEDmeshEntityNameRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,_names_cells->getPointer());
-          _names_cells->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
-        }
-    }
   nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_NAME,MED_NODAL,&chgt,&trsf);
   if(nbOfElt>0)
     {
@@ -4668,19 +4867,27 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
           _names_nodes->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
         }
     }
+  int meshDim(getStructuredMesh()->getMeshDimension());
+  LoadStrMeshDAFromFile(fid,meshDim,dt,it,mName,mrs,_fam_cells,_num_cells,_names_cells);
+  if(meshDim>=1)
+    LoadStrMeshDAFromFile(fid,meshDim-1,dt,it,mName,mrs,_fam_faces,_num_faces,_names_faces);
 }
 
 void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& maa) const
 {
-  int meshDim=getStructuredMesh()->getMeshDimension();
-  med_geometry_type geoTypeReq=GetGeoTypeFromMeshDim(meshDim);
+  int meshDim(getStructuredMesh()->getMeshDimension());
+  med_geometry_type geoTypeReq(GetGeoTypeFromMeshDim(meshDim)),geoTypeReq2(GetGeoTypeFromMeshDim(meshDim-1));
   //
   if((const DataArrayInt *)_fam_cells)
     MEDmeshEntityFamilyNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_fam_cells->getNumberOfTuples(),_fam_cells->getConstPointer());
+  if((const DataArrayInt *)_fam_faces)
+    MEDmeshEntityFamilyNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_fam_faces->getNumberOfTuples(),_fam_faces->getConstPointer());
   if((const DataArrayInt *)_fam_nodes)
     MEDmeshEntityFamilyNumberWr(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_fam_nodes->getNumberOfTuples(),_fam_nodes->getConstPointer());
   if((const DataArrayInt *)_num_cells)
     MEDmeshEntityNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_num_cells->getNumberOfTuples(),_num_cells->getConstPointer());
+  if((const DataArrayInt *)_num_faces)
+    MEDmeshEntityNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_num_faces->getNumberOfTuples(),_num_faces->getConstPointer());
   if((const DataArrayInt *)_num_nodes)
     MEDmeshEntityNumberWr(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_num_nodes->getNumberOfTuples(),_num_nodes->getConstPointer());
   if((const DataArrayAsciiChar *)_names_cells)
@@ -4692,6 +4899,16 @@ void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& ma
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       MEDmeshEntityNameWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_names_cells->getNumberOfTuples(),_names_cells->getConstPointer());
+    }
+  if((const DataArrayAsciiChar *)_names_faces)
+    {
+      if(_names_faces->getNumberOfComponents()!=MED_SNAME_SIZE)
+        {
+          std::ostringstream oss; oss << "MEDFileStructuredMesh::writeStructuredLL : expected a name field on faces with number of components set to " << MED_SNAME_SIZE;
+          oss << " ! The array has " << _names_faces->getNumberOfComponents() << " components !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      MEDmeshEntityNameWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_names_faces->getNumberOfTuples(),_names_faces->getConstPointer());
     }
   if((const DataArrayAsciiChar *)_names_nodes)
     {
