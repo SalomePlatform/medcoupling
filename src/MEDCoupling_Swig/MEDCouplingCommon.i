@@ -293,8 +293,10 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::buildStructuredSubPart;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::build1SGTUnstructured;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::build1SGTSubLevelMesh;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::BuildExplicitIdsFrom;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivity;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
@@ -2730,10 +2732,12 @@ namespace ParaMEDMEM
   public:
     int getCellIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     int getNodeIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCellsOfSubLevelMesh() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
+    MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       virtual MEDCouplingStructuredMesh *buildStructuredSubPart(PyObject *cellPart) const throw(INTERP_KERNEL::Exception)
@@ -2796,6 +2800,14 @@ namespace ParaMEDMEM
         std::vector<int> stdvecTyyppArr;
         const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         return MEDCouplingStructuredMesh::Build1GTNodalConnectivity(tmp,tmp+szArr);
+      }
+
+      static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *tmp(convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr));
+        return MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh(tmp,tmp+szArr);
       }
 
       static PyObject *IsPartStructured(PyObject *li, PyObject *st) throw(INTERP_KERNEL::Exception)

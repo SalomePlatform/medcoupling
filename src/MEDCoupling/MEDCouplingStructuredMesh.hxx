@@ -56,8 +56,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     //some useful methods
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const;
     MEDCOUPLING_EXPORT int getCellIdFromPos(int i, int j, int k) const;
     MEDCOUPLING_EXPORT int getNodeIdFromPos(int i, int j, int k) const;
+    MEDCOUPLING_EXPORT int getNumberOfCellsOfSubLevelMesh() const;
     MEDCOUPLING_EXPORT virtual void getNodeGridStructure(int *res) const = 0;
     MEDCOUPLING_EXPORT virtual void getSplitCellValues(int *res) const = 0;
     MEDCOUPLING_EXPORT virtual void getSplitNodeValues(int *res) const = 0;
@@ -67,13 +69,17 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
+    MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd);
   private:
+    static int GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim);
     static void GetReverseNodalConnectivity1(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
     static void GetReverseNodalConnectivity2(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
     static void GetReverseNodalConnectivity3(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
     static DataArrayInt *Build1GTNodalConnectivity1D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivity2D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg);
+    static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg);
+    static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh3D(const int *nodeStBg);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh();
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy);

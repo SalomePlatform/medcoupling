@@ -168,6 +168,15 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& c
 }
 
 /*!
+ * This method returns the number of cells of unstructured sub level mesh, without building it.
+ */
+int MEDCouplingStructuredMesh::getNumberOfCellsOfSubLevelMesh() const
+{
+  std::vector<int> cgs(getCellGridStructure());
+  return GetNumberOfCellsOfSubLevelMesh(cgs,getMeshDimension());
+}
+
+/*!
  * See MEDCouplingUMesh::getDistributionOfTypes for more information
  */
 std::vector<int> MEDCouplingStructuredMesh::getDistributionOfTypes() const
@@ -278,7 +287,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
  */
 MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
 {
-  int meshDim=getMeshDimension(); 
+  int meshDim(getMeshDimension());
   if(meshDim<0 || meshDim>3)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTUnstructured : meshdim must be in [1,2,3] !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
@@ -286,6 +295,26 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
   getNodeGridStructure(ns);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+meshDim));
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
+  ret->setNodalConnectivity(conn); ret->setCoords(coords);
+  return ret.retn();
+}
+
+/*!
+ * This method returns the unstructured mesh (having single geometric type) of the sub level mesh of \a this.
+ * This method is equivalent to computing MEDCouplingUMesh::buildDescendingConnectivity on the unstructurized \a this mesh.
+ * 
+ * The caller is to delete the returned mesh using decrRef() as it is no more needed. 
+ */
+MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
+{
+  int meshDim(getMeshDimension());
+  if(meshDim<1 || meshDim>3)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTSubLevelMesh : meshdim must be in [2,3] !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
+  int ns[3];
+  getNodeGridStructure(ns);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivityOfSubLevelMesh(ns,ns+meshDim));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim-1)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   return ret.retn();
 }
@@ -537,7 +566,7 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<i
  */
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd)
 {
-  std::size_t dim=std::distance(nodeStBg,nodeStEnd);
+  std::size_t dim(std::distance(nodeStBg,nodeStEnd));
   switch(dim)
     {
     case 0:
@@ -554,6 +583,20 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
       return Build1GTNodalConnectivity3D(nodeStBg);
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivity : only dimension in [0,1,2,3] supported !");
+    }
+}
+
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd)
+{
+  std::size_t dim(std::distance(nodeStBg,nodeStEnd));
+  switch(dim)
+    {
+    case 3:
+      return Build1GTNodalConnectivityOfSubLevelMesh3D(nodeStBg);
+    case 2:
+      return Build1GTNodalConnectivityOfSubLevelMesh2D(nodeStBg);
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh: only dimension in [2,3] supported !");
     }
 }
 
@@ -613,6 +656,51 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *
           cp[8*pos+6]=i+(j+1)*(n1+1)+(k+1)*tmp;
           cp[8*pos+7]=i+1+(j+1)*(n1+1)+(k+1)*tmp;
         }
+  return conn.retn();
+}
+
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh3D(const int *nodeStBg)
+{
+  std::vector<int> ngs(3);
+  int n0(nodeStBg[0]-1),n1(nodeStBg[1]-1),n2(nodeStBg[2]-1); ngs[0]=n0; ngs[1]=n1; ngs[2]=n2;
+  int off0(nodeStBg[0]),off1(nodeStBg[0]*nodeStBg[1]);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  conn->alloc(4*GetNumberOfCellsOfSubLevelMesh(ngs,3));
+  int *cp(conn->getPointer()),pos(0);
+  //X
+  for(int i=0;i<nodeStBg[0];i++)
+    for(int j=0;j<n1;j++)
+      for(int k=0;k<n2;k++,cp+=4)
+        { cp[0]=k*off1+j*off0+i; cp[1]=(k+1)*off1+j*off0+i; cp[2]=(k+1)*off1+(j+1)*off0+i; cp[3]=k*off1+(j+1)*off0+i; }
+  //Y
+  for(int j=0;j<nodeStBg[1];j++)
+    for(int i=0;i<n0;i++)
+      for(int k=0;k<n2;k++,cp+=4)
+        { cp[0]=k*off1+j*off0+i; cp[1]=(k+1)*off1+j*off0+i; cp[2]=(k+1)*off1+j*off0+(i+1); cp[3]=k*off1+j*off0+(i+1); }
+  //Z
+  for(int k=0;k<nodeStBg[2];k++)
+    for(int i=0;i<n0;i++)
+      for(int j=0;j<n1;j++,cp+=4)
+        { cp[0]=k*off1+j*off0+i; cp[1]=k*off1+j*off0+(i+1); cp[2]=k*off1+(j+1)*off0+(i+1); cp[3]=k*off1+(j+1)*off0+i; }
+  return conn.retn();
+}
+
+DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg)
+{
+  std::vector<int> ngs(2);
+  int n0(nodeStBg[0]-1),n1(nodeStBg[1]-1); ngs[0]=n0; ngs[1]=n1;
+  int off0(nodeStBg[0]);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  conn->alloc(2*GetNumberOfCellsOfSubLevelMesh(ngs,2));
+  int *cp(conn->getPointer()),pos(0);
+  //X
+  for(int i=0;i<nodeStBg[0];i++)
+    for(int j=0;j<n1;j++,cp+=2)
+      { cp[0]=j*off0+i; cp[1]=(j+1)*off0+i; }
+  //Y
+  for(int j=0;j<nodeStBg[1];j++)
+    for(int i=0;i<n0;i++,cp+=2)
+      { cp[0]=j*off0+i; cp[1]=j*off0+(i+1); }
   return conn.retn();
 }
 
@@ -823,4 +911,20 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : Dimension supported are 1,2 or 3 !");
     }
   return ret.retn();
+}
+
+int MEDCouplingStructuredMesh::GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim)
+{
+  int ret(0);
+  for(int i=0;i<mdim;i++)
+    {
+      int locRet(1);
+      for(int j=0;j<mdim;j++)
+        if(j!=i)
+          locRet*=cgs[j];
+        else
+          locRet*=cgs[j]+1;
+      ret+=locRet;
+    }
+  return ret;
 }
