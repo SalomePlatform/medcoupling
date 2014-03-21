@@ -2702,6 +2702,20 @@ int MEDFileUMesh::getNumberOfNodes() const
   return coo->getNumberOfTuples();
 }
 
+bool MEDFileUMesh::hasImplicitPart() const
+{
+  return false;
+}
+
+int MEDFileUMesh::buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  throw INTERP_KERNEL::Exception("MEDFileUMesh::buildImplicitPartIfAny : unstructured meshes do not have implicit part !");
+}
+
+void MEDFileUMesh::releaseImplicitPartIfAny() const
+{
+}
+
 void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const
 {
   std::size_t sz(st.getNumberOfItems());
@@ -4683,7 +4697,7 @@ MEDCouplingMesh *MEDFileStructuredMesh::getGenMeshAtLevel(int meshDimRelToMax, b
       {
         if(!m)
           throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGenMeshAtLevel : level -1 requested must be non empty to be able to compute unstructured sub mesh !");
-        return m->build1SGTSubLevelMesh();
+        return _faces_if_necessary;
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support multi level for mesh 0 expected as input !");
@@ -4720,6 +4734,51 @@ int MEDFileStructuredMesh::getNumberOfNodes() const
   if(!cmesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberOfNodes : no cartesian mesh set !");
   return cmesh->getNumberOfNodes();
+}
+
+bool MEDFileStructuredMesh::hasImplicitPart() const
+{
+  return true;
+}
+
+/*!
+ * \sa MEDFileStructuredMesh::getImplicitFaceMesh
+ */
+int MEDFileStructuredMesh::buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  static const char MSG[]="MEDFileStructuredMesh::buildImplicitPartIfAny : the given geo type is not manageable by a structured mesh !";
+  const MEDCoupling1SGTUMesh *zeFaceMesh(_faces_if_necessary);
+  if(!zeFaceMesh)
+    {
+      const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(getMeshDimension())));
+      if(cm.getReverseExtrudedType()!=gt)
+        throw INTERP_KERNEL::Exception(MSG);
+      const MEDCouplingStructuredMesh *mcmesh(getStructuredMesh());
+      _faces_if_necessary=mcmesh->build1SGTSubLevelMesh();
+      return mcmesh->getNumberOfCellsOfSubLevelMesh();
+    }
+  else
+    {
+      if(gt!=zeFaceMesh->getCellModelEnum())
+        throw INTERP_KERNEL::Exception(MSG);
+      return zeFaceMesh->getNumberOfCells();
+    }
+}
+
+void MEDFileStructuredMesh::releaseImplicitPartIfAny() const
+{
+  _faces_if_necessary=0;
+}
+
+/*!
+ * Retrieves the internal pointer (no decrRef requested) of the implicit face mesh if any.
+ * To force to build it you can invoke MEDFileStructuredMesh::buildImplicitPartIfAny method.
+ * 
+ * \sa MEDFileStructuredMesh::buildImplicitPartIfAny
+ */
+MEDCoupling1SGTUMesh *MEDFileStructuredMesh::getImplicitFaceMesh() const
+{
+  return _faces_if_necessary;
 }
 
 std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileStructuredMesh::getGeoTypesAtLevel(int meshDimRelToMax) const

@@ -54,10 +54,13 @@ namespace ParaMEDMEM
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     const MEDFileMesh *getTheMesh() const { return _mesh; }
     int getNumberOfNodes() const { return _nb_nodes; }
+    bool doesManageGeoType(INTERP_KERNEL::NormalizedCellType t) const;
     int getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const;
     int getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) const;
     int getNumberOfLevs() const;
     int getNumberOfGeoTypesInLev(int relativeLev) const;
+    // non const methods
+    void appendIfImplicitType(INTERP_KERNEL::NormalizedCellType t);
   private:
     MEDFileMeshStruct(const MEDFileMesh *mesh);
   private:
@@ -99,10 +102,11 @@ namespace ParaMEDMEM
     DataArray *constructDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
     virtual void appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr);
   protected:
-    MEDMeshMultiLev();
+    MEDMeshMultiLev(const MEDFileMesh *mesh);
     MEDMeshMultiLev(const MEDMeshMultiLev& other);
-    MEDMeshMultiLev(int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    MEDMeshMultiLev(const MEDFileMesh *mesh, int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   protected:
+    const MEDFileMesh *_mesh;
     std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _pfls;
     std::vector< INTERP_KERNEL::NormalizedCellType > _geo_types;
     std::vector<int> _nb_entities;
@@ -154,10 +158,13 @@ namespace ParaMEDMEM
     void selectPartOfNodes(const DataArrayInt *pflNodes);
     virtual std::vector<int> getNodeGridStructure() const = 0;
   protected:
-    MEDStructuredMeshMultiLev();
+    MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m);
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
+    void dealWithImplicitUnstructuredMesh(const MEDFileMesh *m);
+  protected:
+    bool prepareForImplicitUnstructuredMeshCase(MEDMeshMultiLev *&ret) const;
   protected:
     bool _is_internal;
   };

@@ -93,6 +93,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::getNodeFamiliesArr;
 %newobject ParaMEDMEM::MEDFileMesh::getAllFamiliesIdsReferenced;
 %newobject ParaMEDMEM::MEDFileMesh::computeAllFamilyIdsInUse;
+%newobject ParaMEDMEM::MEDFileStructuredMesh::getImplicitFaceMesh;
 %newobject ParaMEDMEM::MEDFileUMesh::New;
 %newobject ParaMEDMEM::MEDFileUMesh::getCoords;
 %newobject ParaMEDMEM::MEDFileUMesh::getGroup;
@@ -492,6 +493,9 @@ namespace ParaMEDMEM
     void setTimeUnit(const std::string& unit);
     std::string getTimeUnit() const;
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
+    virtual bool hasImplicitPart() const throw(INTERP_KERNEL::Exception);
+    virtual int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
+    virtual void releaseImplicitPartIfAny() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getFamArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNumArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNameArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
@@ -861,6 +865,17 @@ namespace ParaMEDMEM
 
   class MEDFileStructuredMesh : public MEDFileMesh
   {
+  public:
+    %extend
+    {
+      MEDCoupling1SGTUMesh *getImplicitFaceMesh() const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCoupling1SGTUMesh *ret(self->getImplicitFaceMesh());
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+    }
   };
 
   class MEDFileCMesh : public MEDFileStructuredMesh

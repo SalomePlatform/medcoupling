@@ -81,6 +81,9 @@ int MEDFileMeshStruct::getLevelOfGeoType(INTERP_KERNEL::NormalizedCellType t) co
   throw INTERP_KERNEL::Exception("MEDFileMeshStruct::getLevelOfGeoType : The specified geometric type is not present in the mesh structure !");
 }
 
+/*!
+ * \sa MEDFileMeshStruct::doesManageGeoType
+ */
 int MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellType t) const
 {
   for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
@@ -95,6 +98,42 @@ int MEDFileMeshStruct::getNumberOfElemsOfGeoType(INTERP_KERNEL::NormalizedCellTy
     }
   throw INTERP_KERNEL::Exception("The specified geometric type is not present in the mesh structure !");
 }
+
+/*!
+ * \sa MEDFileMeshStruct::getNumberOfElemsOfGeoType
+ */
+bool MEDFileMeshStruct::doesManageGeoType(INTERP_KERNEL::NormalizedCellType t) const
+{
+  for(std::vector< std::vector<int> >::const_iterator it1=_geo_types_distrib.begin();it1!=_geo_types_distrib.end();it1++)
+    {
+      std::size_t sz=(*it1).size();
+      if(sz%3!=0)
+        throw INTERP_KERNEL::Exception("MEDFileMeshStruct::doesManageGeoType : internal error in code !");
+      std::size_t nbGeo=sz/3;
+      for(std::size_t i=0;i<nbGeo;i++)
+        if((*it1)[3*i]==(int)t)
+          return true;
+    }
+  return false;
+}
+
+void MEDFileMeshStruct::appendIfImplicitType(INTERP_KERNEL::NormalizedCellType t)
+{
+  if(!_mesh->hasImplicitPart())
+    throw INTERP_KERNEL::Exception("MEDFileMeshStruct::appendIfImplicitType : by default no implicit geo type can be appended !");
+  static const char MSG[]="MEDFileMeshStruct::appendIfImplicitType : the distribution does not looks like structured standard !";
+  if(_geo_types_distrib.size()!=1)
+    throw INTERP_KERNEL::Exception(MSG);
+  std::size_t sz(_geo_types_distrib[0].size());
+  if(sz%3!=0)
+    throw INTERP_KERNEL::Exception("MEDFileMeshStruct::appendIfImplicitType : internal error in code !");
+  std::size_t nbGeo(sz/3);
+  if(nbGeo!=1)
+    throw INTERP_KERNEL::Exception(MSG);
+  std::vector<int> arr(3); arr[0]=(int)t; arr[1]=_mesh->buildImplicitPartIfAny(t); arr[2]=-1;
+  _geo_types_distrib.push_back(arr);
+}
+
 
 int MEDFileMeshStruct::getNumberOfLevs() const
 {
@@ -600,11 +639,11 @@ void MEDMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArra
     }
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev():_nb_nodes(0),_cell_fam_ids_nocpy(false)
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDFileMesh *mesh):_mesh(mesh),_nb_nodes(0),_cell_fam_ids_nocpy(false)
 {
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev(int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):_geo_types(gts),_nb_entities(nbEntities),_nb_nodes(nbNodes),_cell_fam_ids_nocpy(false),_cell_num_ids_nocpy(false),_node_fam_ids_nocpy(false),_node_num_ids_nocpy(false)
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDFileMesh *mesh, int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):_mesh(mesh),_geo_types(gts),_nb_entities(nbEntities),_nb_nodes(nbNodes),_cell_fam_ids_nocpy(false),_cell_num_ids_nocpy(false),_node_fam_ids_nocpy(false),_node_num_ids_nocpy(false)
 {
   std::size_t sz(_geo_types.size());
   if(sz!=pfls.size() || sz!=nbEntities.size())
@@ -618,7 +657,7 @@ MEDMeshMultiLev::MEDMeshMultiLev(int nbNodes, const std::vector<INTERP_KERNEL::N
     }
 }
 
-MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):RefCountObject(other),_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction),_nb_nodes(other._nb_nodes),_cell_fam_ids(other._cell_fam_ids),_cell_fam_ids_nocpy(other._cell_fam_ids_nocpy),_cell_num_ids(other._cell_num_ids),_cell_num_ids_nocpy(other._cell_num_ids_nocpy),_node_fam_ids(other._node_fam_ids),_node_fam_ids_nocpy(other._node_fam_ids_nocpy),_node_num_ids(other._node_num_ids),_node_num_ids_nocpy(other._node_num_ids_nocpy)
+MEDMeshMultiLev::MEDMeshMultiLev(const MEDMeshMultiLev& other):RefCountObject(other),_mesh(other._mesh),_pfls(other._pfls),_geo_types(other._geo_types),_nb_entities(other._nb_entities),_node_reduction(other._node_reduction),_nb_nodes(other._nb_nodes),_cell_fam_ids(other._cell_fam_ids),_cell_fam_ids_nocpy(other._cell_fam_ids_nocpy),_cell_num_ids(other._cell_num_ids),_cell_num_ids_nocpy(other._cell_num_ids_nocpy),_node_fam_ids(other._node_fam_ids),_node_fam_ids_nocpy(other._node_fam_ids_nocpy),_node_num_ids(other._node_num_ids),_node_num_ids_nocpy(other._node_num_ids_nocpy)
 {
 }
 
@@ -629,7 +668,7 @@ MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector
   return new MEDUMeshMultiLev(m,levs);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs):MEDMeshMultiLev(m)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev constructor : null input pointer !");
@@ -732,7 +771,7 @@ MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector
   return new MEDUMeshMultiLev(m,gts,pfls,nbEntities);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m->getNumberOfNodes(),gts,pfls,nbEntities)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
 {
   std::size_t sz(gts.size());
   if(sz<1)
@@ -1133,11 +1172,11 @@ void MEDUMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArr
 
 //=
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev():_is_internal(true)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m):MEDMeshMultiLev(m),_is_internal(true)
 {
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev):_is_internal(true)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev):MEDMeshMultiLev(m),_is_internal(true)
 {
   // ids fields management
   _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
@@ -1171,7 +1210,7 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh
     }
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(nbOfNodes,gts,pfls,nbEntities),_is_internal(true)
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,nbOfNodes,gts,pfls,nbEntities),_is_internal(true)
 {
   // ids fields management
   _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
@@ -1207,6 +1246,43 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh
 
 MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other):MEDMeshMultiLev(other),_is_internal(true)
 {
+}
+
+bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMultiLev *&ret) const
+{
+  ret=0;
+  MEDCoupling1GTUMesh *facesIfPresent((static_cast<const MEDFileStructuredMesh *>(_mesh))->getImplicitFaceMesh());
+  if(!facesIfPresent)
+    return false;
+  const DataArrayInt *pfl(0),*nr(_node_reduction);
+  if(!_pfls.empty())
+    pfl=_pfls[0];
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> facesIfPresent2(facesIfPresent); facesIfPresent->incrRef();
+  MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret2(new MEDUMeshMultiLev(*this,facesIfPresent2));
+  if(pfl)
+    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for profile on implicit unstructured mesh.");
+  if(nr)
+    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for node reduction on implicit unstructured mesh.");
+  ret=ret2.retn();
+  return true;
+}
+
+void MEDStructuredMeshMultiLev::dealWithImplicitUnstructuredMesh(const MEDFileMesh *m)
+{
+  _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
+  const DataArrayInt *tmp(0);
+  tmp=m->getFamilyFieldAtLevel(-1);
+  if(tmp)
+    {
+      tmp->incrRef();
+      _cell_fam_ids=const_cast<DataArrayInt *>(tmp);
+    }
+  tmp=m->getNumberFieldAtLevel(-1);
+  if(tmp)
+    {
+      tmp->incrRef();
+      _cell_num_ids=const_cast<DataArrayInt *>(tmp);
+    }
 }
 
 void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
@@ -1272,16 +1348,19 @@ MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTE
     throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : lengthes of gts and pfls must be equal to one !");
   int mdim(m->getMeshDimension());
   INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(mdim));
-  if(gt!=gts[0])
-    throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : the unique geo type is invalid regarding meshdim !");
-  _coords.resize(mdim);
-  for(int i=0;i<mdim;i++)
+  if(gt==gts[0])
     {
-      DataArrayDouble *elt(const_cast<DataArrayDouble *>(m->getMesh()->getCoordsAt(i)));
-      if(!elt)
-        throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : presence of null pointer for an vector of double along an axis !");
-      _coords[i]=elt; _coords[i]->incrRef();
+      _coords.resize(mdim);
+      for(int i=0;i<mdim;i++)
+        {
+          DataArrayDouble *elt(const_cast<DataArrayDouble *>(m->getMesh()->getCoordsAt(i)));
+          if(!elt)
+            throw INTERP_KERNEL::Exception("MEDCMeshMultiLev constructor 2 : presence of null pointer for an vector of double along an axis !");
+          _coords[i]=elt; _coords[i]->incrRef();
+        }
     }
+  else
+    dealWithImplicitUnstructuredMesh(m);
 }
 
 MEDCMeshMultiLev::MEDCMeshMultiLev(const MEDCMeshMultiLev& other):MEDStructuredMeshMultiLev(other),_coords(other._coords)
@@ -1298,6 +1377,9 @@ std::vector<int> MEDCMeshMultiLev::getNodeGridStructure() const
 
 MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
 {
+  MEDMeshMultiLev *retSpecific(0);
+  if(prepareForImplicitUnstructuredMeshCase(retSpecific))
+    return retSpecific;
   const DataArrayInt *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
@@ -1406,15 +1488,18 @@ MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearM
     throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : null input pointer !");
   if(gts.size()!=1 || pfls.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : lengthes of gts and pfls must be equal to one !");
-  int mdim(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(m->getMeshDimension()));
-  if(mdim!=gts[0])
-    throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : the unique geo type is invalid regarding meshdim !");
-  DataArrayDouble *coords(const_cast<DataArrayDouble *>(m->getMesh()->getCoords()));
-  if(!coords)
-    throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : no coords set !");
-  coords->incrRef();
-  _coords=coords;
-  _structure=m->getMesh()->getNodeGridStructure();
+  INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(m->getMeshDimension()));
+  if(gt==gts[0])
+    {
+      DataArrayDouble *coords(const_cast<DataArrayDouble *>(m->getMesh()->getCoords()));
+      if(!coords)
+        throw INTERP_KERNEL::Exception("MEDCurveLinearMeshMultiLev constructor 2 : no coords set !");
+      coords->incrRef();
+      _coords=coords;
+      _structure=m->getMesh()->getNodeGridStructure();
+    }
+  else
+    dealWithImplicitUnstructuredMesh(m);
 }
 
 MEDCurveLinearMeshMultiLev::MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other):MEDStructuredMeshMultiLev(other),_coords(other._coords),_structure(other._structure)
@@ -1428,6 +1513,9 @@ std::vector<int> MEDCurveLinearMeshMultiLev::getNodeGridStructure() const
 
 MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
 {
+  MEDMeshMultiLev *retSpecific(0);
+  if(prepareForImplicitUnstructuredMeshCase(retSpecific))
+    return retSpecific;
   const DataArrayInt *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
@@ -1515,6 +1603,11 @@ MEDFileField1TSStructItem2::MEDFileField1TSStructItem2(INTERP_KERNEL::Normalized
 
 void MEDFileField1TSStructItem2::checkWithMeshStructForCells(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
+  if(!mst->doesManageGeoType(_geo_type))
+    {
+      MEDFileMeshStruct *mstUnConstCasted(const_cast<MEDFileMeshStruct *>(mst));
+      mstUnConstCasted->appendIfImplicitType(_geo_type);
+    }
   int nbOfEnt=mst->getNumberOfElemsOfGeoType(_geo_type);
   checkInRange(nbOfEnt,1,globs);
 }

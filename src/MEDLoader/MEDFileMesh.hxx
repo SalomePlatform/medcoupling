@@ -66,6 +66,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDLOADER_EXPORT virtual int getNumberOfNodes() const = 0;
+    MEDLOADER_EXPORT virtual bool hasImplicitPart() const = 0;
+    MEDLOADER_EXPORT virtual int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const = 0;
+    MEDLOADER_EXPORT virtual void releaseImplicitPartIfAny() const = 0;
     MEDLOADER_EXPORT virtual std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getNonEmptyLevels() const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
@@ -220,6 +223,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
+    MEDLOADER_EXPORT bool hasImplicitPart() const;
+    MEDLOADER_EXPORT int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const;
+    MEDLOADER_EXPORT void releaseImplicitPartIfAny() const;
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
@@ -325,8 +331,13 @@ namespace ParaMEDMEM
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
     MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
+    MEDLOADER_EXPORT bool hasImplicitPart() const;
+    MEDLOADER_EXPORT int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const;
+    MEDLOADER_EXPORT void releaseImplicitPartIfAny() const;
+    MEDLOADER_EXPORT MEDCoupling1SGTUMesh *getImplicitFaceMesh() const;
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
+    MEDLOADER_EXPORT virtual const MEDCouplingStructuredMesh *getStructuredMesh() const = 0;
     // tools
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
   protected:
@@ -334,7 +345,6 @@ namespace ParaMEDMEM
     void deepCpyAttributes();
     void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void writeStructuredLL(med_idt fid, const std::string& maa) const;
-    virtual const MEDCouplingStructuredMesh *getStructuredMesh() const = 0;
     static med_geometry_type GetGeoTypeFromMeshDim(int meshDim);
   private:
     static void LoadStrMeshDAFromFile(med_idt fid, int meshDim, int dt, int it, const std::string& mName, MEDFileMeshReadSelector *mrs,
@@ -351,6 +361,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_faces;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_nodes;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_cells;
+    mutable MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> _faces_if_necessary;
   };
 
   class MEDFileCMesh : public MEDFileStructuredMesh
