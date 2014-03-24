@@ -1251,6 +1251,13 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMult
 bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMultiLev *&ret) const
 {
   ret=0;
+  if(_geo_types.empty())
+    return false;
+  if(_geo_types.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase only one geo types supported at most supported for the moment !");
+  INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(_mesh->getMeshDimension()));
+  if(_geo_types[0]==gt)
+     return false;
   MEDCoupling1GTUMesh *facesIfPresent((static_cast<const MEDFileStructuredMesh *>(_mesh))->getImplicitFaceMesh());
   if(!facesIfPresent)
     return false;
