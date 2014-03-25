@@ -181,9 +181,9 @@ namespace ParaMEDMEM
 
   };
 
-  inline void MPIAccess::trace( bool trace )
+  inline void MPIAccess::trace( bool atrace )
   {
-    _trace = trace ;
+    _trace = atrace ;
   }
 
   // Delete the structure Request corresponding to RequestId identifier after
@@ -254,43 +254,43 @@ namespace ParaMEDMEM
   }
   
   // Returns true if the tag MPITag corresponds to a TimeMessage
-  inline bool MPIAccess::isTimeMessage( int MPITag ) const
+  inline bool MPIAccess::isTimeMessage( int aMPITag ) const
   {
-    return ((MPITag%MODULO_TAG) == _message_time) ;
+    return ((aMPITag%MODULO_TAG) == _message_time) ;
   }
 
   // Returns the MPI size of a TimeMessage
   inline MPI_Aint MPIAccess::timeExtent() const
   {
-    MPI_Aint extent ;
-    MPI_Type_extent( _MPI_TIME , &extent ) ;
-    return extent ;
+    MPI_Aint aextent ;
+    MPI_Type_extent( _MPI_TIME , &aextent ) ;
+    return aextent ;
   }
 
   // Returns the MPI size of a MPI_INT
   inline MPI_Aint MPIAccess::intExtent() const
   {
-    MPI_Aint extent ;
-    MPI_Type_extent( MPI_INT , &extent ) ;
-    return extent ;
+    MPI_Aint aextent ;
+    MPI_Type_extent( MPI_INT , &aextent ) ;
+    return aextent ;
   }
 
   // Returns the MPI size of a MPI_DOUBLE
   inline MPI_Aint MPIAccess::doubleExtent() const
   {
-    MPI_Aint extent ;
-    MPI_Type_extent( MPI_DOUBLE , &extent ) ;
-    return extent ;
+    MPI_Aint aextent ;
+    MPI_Type_extent( MPI_DOUBLE , &aextent ) ;
+    return aextent ;
   }
 
   // Returns the MPI size of the MPI_Datatype datatype
-  inline MPI_Aint MPIAccess::extent( MPI_Datatype datatype ) const
+  inline MPI_Aint MPIAccess::extent( MPI_Datatype adatatype ) const
   {
-    if ( datatype == _MPI_TIME )
+    if ( adatatype == _MPI_TIME )
       return timeExtent() ;
-    if ( datatype == MPI_INT )
+    if ( adatatype == MPI_INT )
       return intExtent() ;
-    if ( datatype == MPI_DOUBLE )
+    if ( adatatype == MPI_DOUBLE )
       return doubleExtent() ;
     return 0 ;
   }
@@ -450,14 +450,14 @@ namespace ParaMEDMEM
 
   // Returns the _MessageIdent enum value corresponding to the MPI_Datatype datatype
   // Look at MPIAccess::NewSendTag/NewRecvTag in MPIAccess.cxx
-  inline _MessageIdent MPIAccess::methodId( MPI_Datatype datatype ) const
+  inline _MessageIdent MPIAccess::methodId( MPI_Datatype adatatype ) const
   {
     _MessageIdent aMethodIdent ;
-    if ( datatype == _MPI_TIME )
+    if ( adatatype == _MPI_TIME )
       aMethodIdent = _message_time;
-    else if ( datatype == MPI_INT )
+    else if ( adatatype == MPI_INT )
       aMethodIdent = _message_int ;
-    else if ( datatype == MPI_DOUBLE )
+    else if ( adatatype == MPI_DOUBLE )
       aMethodIdent = _message_double ;
     else
       aMethodIdent = _message_unknown ;
