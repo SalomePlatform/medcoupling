@@ -357,36 +357,38 @@ class CaseReader(CaseIO):
             raise Exception("Error with file %s"%(fname))
         geoName=re.match("model:([\W]*)([\w\.]+)",lines[ind+1]).group(2)
         m1,m2,typeOfFile=self.__convertGeo2MED(geoName)
-        fieldsInfo=[]
-        ind=lines.index("VARIABLE\n")
-        end=len(lines)-1
-        if "TIME\n" in lines:
-            end=lines.index("TIME\n")
-            pass
-        for i in xrange(ind+1,end):
-            m=re.match("^([\w]+)[\s]+\per[\s]+([\w]+)[\s]*\:[\s]*([\w]+)[\s]+([\S]+)$",lines[i])
-            if m:
-                if m.groups()[0]=="constant":
-                    continue
-                spatialDisc=m.groups()[1] ; fieldName=m.groups()[2] ; nbOfCompo=self.dictCompo2[m.groups()[0]] ; fieldFileName=m.groups()[3]
-                fieldsInfo.append((fieldName,spatialDisc,nbOfCompo,fieldFileName))
+        fieldsInfo=[] ; nbOfTimeSteps=0
+        if "VARIABLE\n" in lines:
+            ind=lines.index("VARIABLE\n")
+            end=len(lines)-1
+            if "TIME\n" in lines:
+                end=lines.index("TIME\n")
                 pass
+            for i in xrange(ind+1,end):
+                m=re.match("^([\w]+)[\s]+\per[\s]+([\w]+)[\s]*\:[\s]*([\w]+)[\s]+([\S]+)$",lines[i])
+                if m:
+                    if m.groups()[0]=="constant":
+                        continue
+                    spatialDisc=m.groups()[1] ; fieldName=m.groups()[2] ; nbOfCompo=self.dictCompo2[m.groups()[0]] ; fieldFileName=m.groups()[3]
+                    fieldsInfo.append((fieldName,spatialDisc,nbOfCompo,fieldFileName))
+                    pass
+                pass
+            
+            expr=re.compile("number[\s]+of[\s]+steps[\s]*\:[\s]*([\d]+)")
+            tmp=filter(expr.search,lines)
+            if len(tmp)!=0:
+                nbOfTimeSteps=int(expr.search(filter(expr.search,lines)[0]).group(1))
+                expr=re.compile("filename[\s]+start[\s]+number[\s]*\:[\s]*([\d]+)")
+                startIt=int(expr.search(filter(expr.search,lines)[0]).group(1))
+                expr=re.compile("filename[\s]+increment[\s]*\:[\s]*([\d]+)")
+                incrIt=int(expr.search(filter(expr.search,lines)[0]).group(1))
+            else:
+                nbOfTimeSteps=1
+                startIt=0
+                incrIt=1
+                pass
+            curIt=startIt
             pass
-        
-        expr=re.compile("number[\s]+of[\s]+steps[\s]*\:[\s]*([\d]+)")
-        tmp=filter(expr.search,lines)
-        if len(tmp)!=0:
-            nbOfTimeSteps=int(expr.search(filter(expr.search,lines)[0]).group(1))
-            expr=re.compile("filename[\s]+start[\s]+number[\s]*\:[\s]*([\d]+)")
-            startIt=int(expr.search(filter(expr.search,lines)[0]).group(1))
-            expr=re.compile("filename[\s]+increment[\s]*\:[\s]*([\d]+)")
-            incrIt=int(expr.search(filter(expr.search,lines)[0]).group(1))
-        else:
-            nbOfTimeSteps=1
-            startIt=0
-            incrIt=1
-            pass
-        curIt=startIt
         mlfields=MEDFileFields()
         mlfields.resize(len(fieldsInfo)*len(m1))
         i=0
