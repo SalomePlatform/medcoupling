@@ -208,6 +208,12 @@ namespace INTERP_KERNEL
     void declareOn() const;
     void declareIn() const;
     void declareOut() const;
+    void initHitStatus() const { _hit=false; }
+    bool getHitStatus() const { return _hit; }
+    void hitMeAlone(double xBary, double yBary, double dimChar) { _hit=true; applySimilarity(xBary,yBary,dimChar); }
+    void unHitMeAlone(double xBary, double yBary, double dimChar) { _hit=true; unApplySimilarity(xBary,yBary,dimChar); }
+    void hitMeAfter(double xBary, double yBary, double dimChar) { if(!_hit) hitMeAlone(xBary,yBary,dimChar); }
+    void unHitMeAfter(double xBary, double yBary, double dimChar) { if(!_hit) unHitMeAlone(xBary,yBary,dimChar); }
     const Bounds& getBounds() const { return _bounds; }
     void fillXfigStreamForLoc(std::ostream& stream) const;
     Node *getNode(TypeOfLocInEdge where) const { if(where==START) return _start; else if(where==END) return _end; else return 0; }
@@ -282,6 +288,7 @@ namespace INTERP_KERNEL
     static bool SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
                                      ComposedEdge& outVal1, ComposedEdge& outVal2);
   protected:
+    mutable bool _hit;
     mutable unsigned char _cnt;
     mutable TypeOfEdgeLocInPolygon _loc;
     Bounds _bounds;

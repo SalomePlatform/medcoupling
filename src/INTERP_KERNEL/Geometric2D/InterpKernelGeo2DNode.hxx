@@ -55,6 +55,12 @@ namespace INTERP_KERNEL
     Node(std::istream& stream);
     void incrRef() const { _cnt++; }
     bool decrRef();
+    void initHitStatus() const { _hit=0; }
+    char getHitStatus() const { return _hit; }
+    void hitMeAlone(double xBary, double yBary, double dimChar) { if(_hit==0) { _hit=1; applySimilarity(xBary,yBary,dimChar); } }
+    void unHitMeAlone(double xBary, double yBary, double dimChar) { if(_hit==0) { _hit=1; unApplySimilarity(xBary,yBary,dimChar); } }
+    void hitMeAfter(double xBary, double yBary, double dimChar) { if(_hit==0) { hitMeAlone(xBary,yBary,dimChar); _hit=2; } else if(_hit==1) declareOn(); }
+    void unHitMeAfter(double xBary, double yBary, double dimChar) { if(_hit==0) { unHitMeAlone(xBary,yBary,dimChar); _hit=2; } }
     void initLocs() const { _loc=UNKNOWN; }
     void setLoc(TypeOfLocInPolygon loc) const { _loc=loc; }
     TypeOfLocInPolygon getLoc() const { return _loc; }
@@ -95,6 +101,7 @@ namespace INTERP_KERNEL
   protected:
     ~Node();
   protected:
+    mutable char _hit;
     mutable unsigned char _cnt;
     mutable TypeOfLocInPolygon _loc;
     double _coords[2];

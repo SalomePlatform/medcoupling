@@ -279,20 +279,14 @@ double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary
  */
 void ComposedEdge::unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary, double yBary, double fact)
 {
-  std::set<Node *> allNodes;
-  getAllNodes(allNodes);
-  other.getAllNodes(allNodes);
-  for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
-    (*iter)->unApplySimilarity(xBary,yBary,fact);
-
-  // [Adrien] - same issue as in applyGlobalSimilarity() - see comments there
-  std::set<Edge *> allEdges;
-  for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
-    allEdges.insert((*iter)->getPtr());
-  for(std::list<ElementaryEdge *>::iterator iter=other._sub_edges.begin();iter!=other._sub_edges.end();iter++)
-    allEdges.insert((*iter)->getPtr());
-  for(std::set<Edge *>::iterator iter = allEdges.begin();iter != allEdges.end();iter++)
-    (*iter)->unApplySimilarity(xBary,yBary,fact);
+  initNodeHitStatus();
+  other.initNodeHitStatus();
+  unApplySimilarityOnMyNodes(xBary,yBary,fact);
+  other.unApplySimilarityOnMyNodesIfNotAlreadyHit(xBary,yBary,fact);
+  initEdgeHitStatus();
+   other.initEdgeHitStatus();
+  unApplySimilarityOnMyEdges(xBary,yBary,fact);
+  other.unApplySimilarityOnMyEdgesIfNotAlreadyHit(xBary,yBary,fact);
 }
 
 double ComposedEdge::normalizeExt(ComposedEdge *other, double& xBary, double& yBary)
@@ -368,25 +362,14 @@ void ComposedEdge::applyGlobalSimilarity(double xBary, double yBary, double dimC
  */
 void ComposedEdge::applyGlobalSimilarity2(ComposedEdge *other, double xBary, double yBary, double dimChar)
 {
-  std::set<Node *> allNodes;
-  getAllNodes(allNodes);
-  std::set<Node *> allNodes2;
-  other->getAllNodes(allNodes2);
-  for(std::set<Node *>::const_iterator it=allNodes2.begin();it!=allNodes2.end();it++)
-    if(allNodes.find(*it)!=allNodes.end())
-      (*it)->declareOn();
-  allNodes.insert(allNodes2.begin(),allNodes2.end());
-  for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
-    (*iter)->applySimilarity(xBary,yBary,dimChar);
-  // [Adrien] many ElementaryEdge might reference the same Edge* - ensure we don'y scale twice!
-  std::set<Edge *> allEdges;
-  for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
-    allEdges.insert((*iter)->getPtr());
-  for(std::list<ElementaryEdge *>::iterator iter=other->_sub_edges.begin();iter!=other->_sub_edges.end();iter++)
-    allEdges.insert((*iter)->getPtr());
-  // Similarity only on set of unique underlying edges:
-  for(std::set<Edge *>::iterator iter = allEdges.begin();iter != allEdges.end();iter++)
-      (*iter)->applySimilarity(xBary,yBary,dimChar);
+  initNodeHitStatus();
+  other->initNodeHitStatus();
+  applySimilarityOnMyNodes(xBary,yBary,dimChar);
+  other->applySimilarityOnMyNodesIfNotAlreadyHit(xBary,yBary,dimChar);
+  initEdgeHitStatus();
+   other->initEdgeHitStatus();
+  applySimilarityOnMyEdges(xBary,yBary,dimChar);
+  other->applySimilarityOnMyEdgesIfNotAlreadyHit(xBary,yBary,dimChar);
 }
 
 /*!
@@ -423,6 +406,81 @@ void ComposedEdge::getAllNodes(std::set<Node *>& output) const
   std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();
   for(;iter!=_sub_edges.end();iter++)
     (*iter)->getAllNodes(output);
+}
+
+void ComposedEdge::initNodeHitStatus() const
+  {
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    {
+      (*iter)->getStartNode()->initHitStatus();
+      (*iter)->getEndNode()->initHitStatus();
+    }
+}
+
+void ComposedEdge::applySimilarityOnMyNodes(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    {
+      (*iter)->getStartNode()->hitMeAlone(xBary,yBary,dimChar);
+      (*iter)->getEndNode()->hitMeAlone(xBary,yBary,dimChar);
+    }
+}
+
+void ComposedEdge::unApplySimilarityOnMyNodes(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    {
+      (*iter)->getStartNode()->unHitMeAlone(xBary,yBary,dimChar);
+      (*iter)->getEndNode()->unHitMeAlone(xBary,yBary,dimChar);
+    }
+}
+
+void ComposedEdge::applySimilarityOnMyNodesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    {
+      (*iter)->getStartNode()->hitMeAfter(xBary,yBary,dimChar);
+      (*iter)->getEndNode()->hitMeAfter(xBary,yBary,dimChar);
+    }
+}
+
+void ComposedEdge::unApplySimilarityOnMyNodesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    {
+      (*iter)->getStartNode()->unHitMeAfter(xBary,yBary,dimChar);
+      (*iter)->getEndNode()->unHitMeAfter(xBary,yBary,dimChar);
+    }
+}
+
+void ComposedEdge::initEdgeHitStatus() const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->getPtr()->initHitStatus();
+}
+
+void ComposedEdge::applySimilarityOnMyEdges(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->getPtr()->hitMeAlone(xBary,yBary,dimChar);
+}
+
+void ComposedEdge::unApplySimilarityOnMyEdges(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->getPtr()->unHitMeAlone(xBary,yBary,dimChar);
+}
+
+void ComposedEdge::applySimilarityOnMyEdgesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->getPtr()->hitMeAfter(xBary,yBary,dimChar);
+}
+
+void ComposedEdge::unApplySimilarityOnMyEdgesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const
+{
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->getPtr()->unHitMeAfter(xBary,yBary,dimChar);
 }
 
 void ComposedEdge::getBarycenter(double *bary, double& weigh) const

@@ -71,6 +71,16 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void dispatchPerimeterExcl(double& partConsidered, double& commonPart) const;
     INTERPKERNEL_EXPORT double dispatchPerimeterAdv(const ComposedEdge& father, std::vector<double>& result) const;
     INTERPKERNEL_EXPORT void getAllNodes(std::set<Node *>& output) const;
+    INTERPKERNEL_EXPORT void initNodeHitStatus() const;
+    INTERPKERNEL_EXPORT void applySimilarityOnMyNodes(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void unApplySimilarityOnMyNodes(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void applySimilarityOnMyNodesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void unApplySimilarityOnMyNodesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void initEdgeHitStatus() const;
+    INTERPKERNEL_EXPORT void applySimilarityOnMyEdges(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void unApplySimilarityOnMyEdges(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void applySimilarityOnMyEdgesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const;
+    INTERPKERNEL_EXPORT void unApplySimilarityOnMyEdgesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const;
     INTERPKERNEL_EXPORT void getBarycenter(double *bary, double& weigh) const;
     INTERPKERNEL_EXPORT bool completed() const { return getEndNode()==getStartNode(); }
     INTERPKERNEL_EXPORT void setValueAt(int i, Edge *e, bool direction=true);
