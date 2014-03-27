@@ -19,6 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpolationOptions.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
 #include "InterpKernelException.hxx"
 
 #include <sstream>
@@ -32,6 +33,8 @@ const double INTERP_KERNEL::InterpolationOptions::DFT_MAX_DIST_3DSURF_INTERSECT=
 const double INTERP_KERNEL::InterpolationOptions::DFT_MIN_DOT_BTW_3DSURF_INTERSECT=-1.;
 
 const char INTERP_KERNEL::InterpolationOptions::PRECISION_STR[]="Precision";
+
+const char INTERP_KERNEL::InterpolationOptions::ARC_DETECTION_PRECISION_STR[]="ArcDetectionPrecision";
 
 const char INTERP_KERNEL::InterpolationOptions::MEDIANE_PLANE_STR[]="MedianPlane";
 
@@ -91,6 +94,16 @@ void INTERP_KERNEL::InterpolationOptions::init()
   _splitting_policy=PLANAR_FACE_5;
 }
 
+double INTERP_KERNEL::InterpolationOptions::getArcDetectionPrecision() const
+{
+  return INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision;
+}
+
+void INTERP_KERNEL::InterpolationOptions::setArcDetectionPrecision(double p)
+{
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=p;
+}
+
 std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const
 {
   if(_intersection_type==INTERP_KERNEL::Triangulation)
@@ -114,6 +127,11 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionDouble(const std::string& key
   if(key==PRECISION_STR) 
     {
       setPrecision(value);
+      return true;
+    }
+  if(key==ARC_DETECTION_PRECISION_STR)
+    {
+      setArcDetectionPrecision(value);
       return true;
     }
   else if(key==MEDIANE_PLANE_STR) 
@@ -284,6 +302,7 @@ std::string INTERP_KERNEL::InterpolationOptions::printOptions() const
   oss << "Print level : " << _print_level << std::endl;
   oss << "Intersection type : " << getIntersectionTypeRepr() << std::endl;
   oss << "Precision : " << _precision << std::endl;
+  oss << "Arc Detection Precision : " << getArcDetectionPrecision() << std::endl;
   oss << "Median plane : " << _median_plane << std::endl;
   oss << "Do Rotate status : " << std::boolalpha << _do_rotate << std::endl;
   oss << "Bounding box adj : " << _bounding_box_adjustment << std::endl;
