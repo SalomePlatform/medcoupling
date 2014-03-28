@@ -8554,7 +8554,7 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
           w4=std::copy(c.begin(),c.end(),w4);
         }
     }
-  types->transformWithIndArr(PARAMEDMEM2VTKTYPETRADUCER,PARAMEDMEM2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE);
+  types->transformWithIndArr(PARAMEDMEM2VTKTYPETRADUCER,PARAMEDMEM2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE+1);
   types->writeVTK(ofs,8,"UInt8","types",byteData);
   offsets->writeVTK(ofs,8,"Int32","offsets",byteData);
   if(szFaceOffsets!=0)
