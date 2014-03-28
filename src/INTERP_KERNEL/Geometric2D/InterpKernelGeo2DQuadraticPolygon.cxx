@@ -1120,6 +1120,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
   if(!direction)
     it.previousLoop();
   Node *nodeToTest;
+  int szMax(pol1Splitted.size()+1),ii(0);// here a protection against agressive users of IntersectMeshes of invalid input meshes
   std::list<QuadraticPolygon *>::iterator ret;
   do
     {
@@ -1133,8 +1134,11 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
       ret=CheckInList(nodeToTest,iStart,iEnd);
       if(completed())
         return iEnd;
+      ii++;
     }
-  while(ret==iEnd);
+  while(ret==iEnd && ii<szMax);
+  if(ii==szMax)// here a protection against agressive users of IntersectMeshes of invalid input meshes
+    throw INTERP_KERNEL::Exception("QuadraticPolygon::fillAsMuchAsPossibleWith : Something is invalid with input polygons !");
   return ret;
 }
 
