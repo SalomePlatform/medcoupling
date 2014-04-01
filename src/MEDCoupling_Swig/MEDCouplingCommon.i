@@ -239,6 +239,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::conformize2D;
+%newobject ParaMEDMEM::MEDCouplingUMesh::colinearize2D;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::sortCellsInMEDFileFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForMEDFileFrmt;
@@ -1505,6 +1506,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
     DataArrayInt *conformize2D(double eps) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *colinearize2D(double eps) throw(INTERP_KERNEL::Exception);
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellIdsOnBoundary() const throw(INTERP_KERNEL::Exception);

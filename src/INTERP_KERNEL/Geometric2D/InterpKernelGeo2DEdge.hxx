@@ -148,6 +148,7 @@ namespace INTERP_KERNEL
   public:
     virtual ~EdgeIntersector() { }
     virtual bool keepOrder() const = 0;
+    virtual bool areColinears() const = 0;
     //!to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
     virtual bool haveTheySameDirection() const = 0;
     //!to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called

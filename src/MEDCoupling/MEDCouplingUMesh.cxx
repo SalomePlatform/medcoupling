@@ -4458,6 +4458,7 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells, double eps) 
  * its connectivity will remain unchanged. If the computation leads to a modification of nodal connectivity of a cell its geometric type will be modified to INTERP_KERNEL::NORM_POLYGON.
  *
  * \return a newly allocated array containing cellIds that have been modified if any. If no cells have been impacted by this method NULL is returned.
+ * \sa MEDCouplingUMesh::colinearize2D
  */
 DataArrayInt *MEDCouplingUMesh::convexEnvelop2D()
 {
@@ -8990,6 +8991,62 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
 }
 
 /*!
+ * This non const method works on 2D mesh. This method scans every cell in \a this and look if each edge constituting this cell is not mergeable with neighbors edges of that cell.
+ * If yes, the cell is "repaired" to minimize at most its number of edges. So this method do not change the overall shape of cells in \a this (with eps precision).
+ * This method do not take care of shared edges between cells, so this method can lead to a non conform mesh (\a this). If a conform mesh is required you're expected
+ * to invoke MEDCouplingUMesh::mergeNodes and MEDCouplingUMesh::conformize2D right after this call.
+ * This method works on any 2D geometric types of cell (even static one). If a cell is touched its type becomes dynamic automaticaly. For 2D "repaired" quadratic cells
+ * new nodes for center of merged edges is are systematically created and appended at the end of the previously existing nodes.
+ *
+ * If the returned array is empty it means that nothing has changed in \a this (as if it were a const method). If the array is not empty the connectivity of \a this is modified
+ * using new instance, idem for coordinates.
+ *
+ * If \a this is constituted by only linear 2D cells, this method is close to the computation of the convex hull of each cells in \a this.
+ * 
+ * \return DataArrayInt  * - The list of cellIds in \a this that have at least one edge colinearized.
+ *
+ * \throw If \a this is not coherent.
+ * \throw If \a this has not spaceDim equal to 2.
+ * \throw If \a this has not meshDim equal to 2.
+ * 
+ * \sa MEDCouplingUMesh::conformize2D, MEDCouplingUMesh::mergeNodes, MEDCouplingUMesh::convexEnvelop2D.
+ */
+DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  checkCoherency();
+  if(getSpaceDimension()!=2 || getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::colinearize2D : This method only works for meshes with spaceDim=2 and meshDim=2 !");
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
+  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+  int nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
+  const int *cptr(_nodal_connec->begin()),*ciptr(_nodal_connec_index->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newc(DataArrayInt::New()),newci(DataArrayInt::New()); newci->alloc(nbOfCells+1,1); newc->alloc(0,1); newci->setIJ(0,0,0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> appendedCoords(DataArrayDouble::New()); appendedCoords->alloc(0,1);//1 not 2 it is not a bug.
+  const double *coords(_coords->begin());
+  int *newciptr(newci->getPointer());
+  for(int i=0;i<nbOfCells;i++,newciptr++,ciptr++)
+    {
+      if(Colinearize2DCell(coords,cptr+ciptr[0],cptr+ciptr[1],nbOfNodes,newc,appendedCoords))
+        ret->pushBackSilent(i);
+      newciptr[1]=newc->getNumberOfTuples();
+    }
+  //
+  if(ret->empty())
+    return ret.retn();
+  if(!appendedCoords->empty())
+    {
+      appendedCoords->rearrange(2);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords(DataArrayDouble::Aggregate(getCoords(),appendedCoords));//treat info on components
+      //non const part
+      setCoords(newCoords);
+    }
+  //non const part
+  setConnectivity(newc,newci,true);
+  return ret.retn();
+}
+
+/*!
  * This method is private and is the first step of Partition of 2D mesh (spaceDim==2 and meshDim==2).
  * It builds the descending connectivity of the two meshes, and then using a binary tree
  * it computes the edge intersections. This results in new points being created : they're stored in addCoo.
@@ -10097,7 +10154,7 @@ void MEDCouplingUMesh::split2DCellsLinear(const DataArrayInt *desc, const DataAr
   _nodal_connec=c.retn(); _types.clear(); _types.insert(INTERP_KERNEL::NORM_POLYGON);
 }
 
-int internalAddPoint(const INTERP_KERNEL::Edge *e, int id, const double *coo, int startId, int endId, DataArrayDouble& addCoo, int& nodesCnter)
+int InternalAddPoint(const INTERP_KERNEL::Edge *e, int id, const double *coo, int startId, int endId, DataArrayDouble& addCoo, int& nodesCnter)
 {
   if(id!=-1)
     return id;
@@ -10109,6 +10166,142 @@ int internalAddPoint(const INTERP_KERNEL::Edge *e, int id, const double *coo, in
       addCoo.insertAtTheEnd(newPt,newPt+2);
       return ret;
     }
+}
+
+/// @cond INTERNAL
+
+void EnterTheResultOf2DCellFirst(const INTERP_KERNEL::Edge *e, int start, int stp, int nbOfEdges, bool linOrArc, const double *coords, const int *connBg, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords, std::vector<int>& middles)
+{
+  int tmp[3];
+  int trueStart(start>=0?start:nbOfEdges+start);
+  tmp[0]=linOrArc?(int)INTERP_KERNEL::NORM_QPOLYG:(int)INTERP_KERNEL::NORM_POLYGON; tmp[1]=connBg[trueStart]; tmp[2]=connBg[stp];
+  newConnOfCell->insertAtTheEnd(tmp,tmp+3);
+  if(linOrArc)
+    {
+      if(stp-start>1)
+        {
+          int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
+          InternalAddPoint(e,-1,coords,tmp[1],tmp[2],*appendedCoords,tmp2);
+          middles.push_back(tmp3+offset);
+        }
+      else
+        middles.push_back(connBg[trueStart+nbOfEdges]);
+    }
+}
+
+void EnterTheResultOf2DCellMiddle(const INTERP_KERNEL::Edge *e, int start, int stp, int nbOfEdges, bool linOrArc, const double *coords, const int *connBg, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords, std::vector<int>& middles)
+{
+  int tmpSrt(newConnOfCell->back()),tmpEnd(connBg[stp]);
+  newConnOfCell->pushBackSilent(tmpEnd);
+  if(linOrArc)
+    {
+      if(stp-start>1)
+        {
+          int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
+          InternalAddPoint(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
+          middles.push_back(tmp3+offset);
+        }
+      else
+        middles.push_back(connBg[start+nbOfEdges]);
+    }
+}
+
+void EnterTheResultOf2DCellEnd(const INTERP_KERNEL::Edge *e, int start, int stp, int nbOfEdges, bool linOrArc, const double *coords, const int *connBg, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords, std::vector<int>& middles)
+{
+  if(linOrArc)
+    {
+      if(stp-start>1)
+        {
+          int tmpSrt(connBg[start]),tmpEnd(connBg[stp]);
+          int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
+          InternalAddPoint(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
+          middles.push_back(tmp3+offset);
+        }
+      else
+        middles.push_back(connBg[start+nbOfEdges]);
+    }
+}
+
+/// @cond INTERNAL
+
+/*!
+ * Returns true if a colinearization has been found in the given cell. If false is returned the content pushed in \a newConnOfCell is equal to [ \a connBg , \a connEnd ) .
+ * \a appendedCoords is a DataArrayDouble instance with number of components equal to one (even if the items are pushed by pair).
+ */
+bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords)
+{
+  std::size_t sz(std::distance(connBg,connEnd));
+  if(sz<3)//3 because 2+1(for the cell type) and 2 is the minimal number of edges of 2D cell.
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Colinearize2DCell : the input cell has invalid format !");
+  sz--;
+  INTERP_KERNEL::AutoPtr<int> tmpConn(new int[sz]);
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connBg[0]));
+  unsigned nbs(cm.getNumberOfSons2(connBg+1,sz)),nbOfHit(0);
+  int posBaseElt(0),posEndElt(0),nbOfTurn(0);
+  INTERP_KERNEL::NormalizedCellType typeOfSon;
+  std::vector<int> middles;
+  bool ret(false);
+  for(;nbOfHit<nbs;nbOfTurn++)
+    {
+      cm.fillSonCellNodalConnectivity2(posBaseElt,connBg+1,sz,tmpConn,typeOfSon);
+      std::map<INTERP_KERNEL::Node *,int> m;
+      INTERP_KERNEL::Edge *e(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
+      posEndElt++;
+      nbOfHit++;
+      unsigned endI(nbs-nbOfHit);
+      for(unsigned i=0;i<endI;i++)
+        {
+          cm.fillSonCellNodalConnectivity2(posBaseElt+(int)i+1,connBg+1,sz,tmpConn,typeOfSon);
+          INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
+          INTERP_KERNEL::EdgeIntersector *eint(INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand));
+          bool isColinear(eint->areColinears());
+          if(isColinear)
+            {
+              nbOfHit++;
+              posEndElt++;
+              ret=true;
+            }
+          delete eint;
+          eCand->decrRef();
+          if(!isColinear)
+            {
+              if(nbOfTurn==0)
+                {//look if the first edge of cell is not colinear with last edges in this case the start of nodal connectivity is shifted back
+                  unsigned endII(nbs-nbOfHit-1);//warning nbOfHit can be modified, so put end condition in a variable.
+                  for(unsigned ii=0;ii<endII;ii++)
+                    {
+                      cm.fillSonCellNodalConnectivity2(nbs-ii-1,connBg+1,sz,tmpConn,typeOfSon);
+                      eCand=MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m);
+                      eint=INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand);
+                      isColinear=eint->areColinears();
+                      if(isColinear)
+                        {
+                          nbOfHit++;
+                          posBaseElt--;
+                          ret=true;
+                        }
+                      delete eint;
+                      eCand->decrRef();
+                    }
+                }
+              break;
+            }
+        }
+      //push [posBaseElt,posEndElt) in newConnOfCell using e
+      if(nbOfTurn==0)
+        EnterTheResultOf2DCellFirst(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
+      else if(nbOfHit!=nbs)
+        EnterTheResultOf2DCellMiddle(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
+      else
+        EnterTheResultOf2DCellEnd(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
+      posBaseElt=posEndElt;
+      for(std::map<INTERP_KERNEL::Node *,int>::const_iterator it=m.begin();it!=m.end();it++)
+        (*it).first->decrRef();
+      e->decrRef();
+    }
+  if(!middles.empty())
+    newConnOfCell->insertAtTheEnd(middles.begin(),middles.end());
+  return ret;
 }
 
 /*!
@@ -10152,12 +10345,12 @@ int MEDCouplingUMesh::split2DCellsQuadratic(const DataArrayInt *desc, const Data
           for(int k=0;k<sz2;k++)//loop over subsplit of current subedge
             {
               cPtr[1]=subPtr[offset2+k];
-              cPtr[deltaSz]=internalAddPoint(e,midPtr[offset3+k],oldCoordsPtr,cPtr[0],cPtr[1],*addCoo,nodesCnt); cPtr++;
+              cPtr[deltaSz]=InternalAddPoint(e,midPtr[offset3+k],oldCoordsPtr,cPtr[0],cPtr[1],*addCoo,nodesCnt); cPtr++;
             }
           int tmpEnd(oldConn[prevPosOfCi+1+(j+1)%sz]);
           if(j!=sz-1)
             { cPtr[1]=tmpEnd; }
-          cPtr[deltaSz]=internalAddPoint(e,midPtr[offset3+sz2],oldCoordsPtr,cPtr[0],tmpEnd,*addCoo,nodesCnt); cPtr++;
+          cPtr[deltaSz]=InternalAddPoint(e,midPtr[offset3+sz2],oldCoordsPtr,cPtr[0],tmpEnd,*addCoo,nodesCnt); cPtr++;
         }
       prevPosOfCi=ciPtr[1]; cPtr+=deltaSz;
       ciPtr[1]=ciPtr[0]+1+2*deltaSz;//sz==old nb of nodes because (nb of subedges=nb of nodes for polygons)

@@ -38,6 +38,14 @@ bool ArcCArcCIntersector::haveTheySameDirection() const
   return (getE1().getAngle()>0. &&  getE2().getAngle()>0.) || (getE1().getAngle()<0. &&  getE2().getAngle()<0.);
 }
 
+bool ArcCArcCIntersector::areColinears() const
+{
+  double radiusL,radiusB;
+  double centerL[2],centerB[2];
+  double tmp,cst;
+  return internalAreColinears(getE1(),getE2(),tmp,cst,radiusL,centerL,radiusB,centerB);
+}
+
 /*!
  * Precondition 'start' and 'end' are on the same curve than this.
  */
@@ -108,10 +116,10 @@ double ArcCArcCIntersector::getAngle(Node *node) const
   return EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(((*node)[0]-getE1().getCenter()[0])/getE1().getRadius(),((*node)[1]-getE1().getCenter()[1])/getE1().getRadius());
 }
 
-bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeArcCircle& a2)
+bool ArcCArcCIntersector::internalAreColinears(const EdgeArcCircle& a1, const EdgeArcCircle& a2, double& distBetweenCenters, double& cst,
+                                               double& radiusL, double centerL[2], double& radiusB, double centerB[2])
 {
-  double centerL[2],radiusL,angle0L,angleL;
-  double centerB[2],radiusB;
+  double angle0L,angleL;
   double lgth1=fabs(a1.getAngle()*a1.getRadius());
   double lgth2=fabs(a2.getAngle()*a2.getRadius());
   if(lgth1<lgth2)
@@ -125,24 +133,28 @@ bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeA
       a1.getCenter(centerB); radiusB=a1.getRadius();
     }
   // dividing from the begining by radiusB^2 to keep precision
-  double tmp=Node::distanceBtw2PtSq(centerL,centerB);
-  double cst=tmp/(radiusB*radiusB);
+  distBetweenCenters=Node::distanceBtw2PtSq(centerL,centerB);
+  cst=distBetweenCenters/(radiusB*radiusB);
   cst+=radiusL*radiusL/(radiusB*radiusB);
-  if(!Node::areDoubleEqualsWP(cst,1.,2.))
+  return Node::areDoubleEqualsWP(cst,1.,2.);
+}
+
+bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeArcCircle& a2)
+{
+  double radiusL,radiusB;
+  double centerL[2],centerB[2];
+  double tmp(0.),cst(0.);
+  if(!internalAreColinears(a1,a2,tmp,cst,radiusL,centerL,radiusB,centerB))
     return false;
   //
+  double angle0L,angleL;
   Bounds *merge=a1.getBounds().nearlyAmIIntersectingWith(a2.getBounds());
   merge->getInterceptedArc(centerL,radiusL,angle0L,angleL);
   delete merge;
   //
   tmp=sqrt(tmp);
   if(Node::areDoubleEqualsWP(tmp,0.,1/(10*std::max(radiusL,radiusB))))
-    {
-      if(Node::areDoubleEquals(radiusL,radiusB))
-        return true;
-      else
-        return false;
-    }
+    return Node::areDoubleEquals(radiusL,radiusB);
   double phi=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect((centerL[0]-centerB[0])/tmp,(centerL[1]-centerB[1])/tmp);
   double cst2=2*radiusL*tmp/(radiusB*radiusB);
   double cmpContainer[4];
@@ -321,6 +333,14 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind,
     obviousNoIntersection=false;
   else
     obviousNoIntersection=true;   
+}
+
+/*!
+ * By construction, no chance that an arc of circle and line to be colinear.
+ */
+bool ArcCSegIntersector::areColinears() const
+{
+  return false;
 }
 
 void ArcCSegIntersector::getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const

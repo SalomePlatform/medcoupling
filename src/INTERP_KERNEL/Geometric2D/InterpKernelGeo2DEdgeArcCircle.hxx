@@ -31,12 +31,14 @@ namespace INTERP_KERNEL
   public:
     ArcCArcCIntersector(const EdgeArcCircle& e1, const EdgeArcCircle& e2);
     bool haveTheySameDirection() const;
+    bool areColinears() const;
     void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
     void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
     std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
   private:
     //! return angle in ]-Pi;Pi[ - 'node' must be on curve of '_e1'
     double getAngle(Node *node) const;
+    static bool internalAreColinears(const EdgeArcCircle& a1, const EdgeArcCircle& a2, double& distBetweenCenters, double& cst, double& radiusL, double centerL[2], double& raduisB, double centerB[2]);
     static bool areArcsOverlapped(const EdgeArcCircle& a1, const EdgeArcCircle& a2);
   private:
     const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
@@ -50,6 +52,7 @@ namespace INTERP_KERNEL
   public:
     ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e2, bool reverse=true);
     //virtual overloading
+    bool areColinears() const;
     void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
     void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
     std::list< IntersectElement > getIntersectionsCharacteristicVal() const;

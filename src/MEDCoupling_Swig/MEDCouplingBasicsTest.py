@@ -14530,6 +14530,73 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(MEDCouplingStructuredMesh.Build1GTNodalConnectivityOfSubLevelMesh([3,7]).isEqual(DataArrayInt([0,3,3,6,6,9,9,12,12,15,15,18,1,4,4,7,7,10,10,13,13,16,16,19,2,5,5,8,8,11,11,14,14,17,17,20,0,1,1,2,3,4,4,5,6,7,7,8,9,10,10,11,12,13,13,14,15,16,16,17,18,19,19,20])))
         pass
 
+    def testSwig2Colinearize2D1(self):
+        coo=DataArrayDouble([-5.,0.,-1.,0.,4.,3.,7.,0.,1.,6.,1.,0.,-3.,0.,6.,1.,5.,0.,3.,0.],10,2)
+        #
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_POLYGON,[5,9,8,3,7,2,4,0,6,1])
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,0,3,4])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([])))
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,0,3,4])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
+        #
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_POLYGON,[8,3,7,2,4,0,6,1,5,9])
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,0,3,4])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
+        #
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_POLYGON,[3,7,2,4,0,6,1,5,9,8])
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,3,4,0])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
+        #
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
+        m.insertNextCell(NORM_POLYGON,[4,0,6,1,5,9,8,3,7,2,])
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,4,0,3])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
+        ## false quadratic
+        coo2=DataArrayDouble([(-5,0),(-1,0),(4,3),(7,0),(1,6),(1,0),(-3,0),(6,1),(5,0),(3,0),(2,0),(4,0),(6,0),(6.5,0.5),(5,2),(2.5,4.5),(-2,3),(-4,0),(-2,0),(0,0)])
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo2) ; m.allocateCells()
+        m.insertNextCell(NORM_QPOLYG,[5,9,8,3,7,2,4,0,6,1,10,11,12,13,14,15,16,17,18,19])
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
+        self.assertNotEqual(refPtr,m.getCoords().getHiddenCppPointer())#not same coordinates here
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(coo2.isEqual(m.getCoords()[:20],1e-12))
+        self.assertTrue(m.getCoords()[20:].isEqual(DataArrayDouble([(1.,0.),(4.,3.)]),1e-12))
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,3,4,20,21,16])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7])))
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([])))
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,3,4,20,21,16])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7])))
+        # mix of quadratic and linear inside a QPOLYG cell
+        coo2=DataArrayDouble([(-5,0),(-1,0),(7.,6.),(7,0),(1,6),(1,0),(-3,0),(8.2426406871192839,3),(5,0),(3,0),  (2,0),(4,0),(6,0),(7.9196888946291288,1.3764116995614091),(7.9196888946291288,4.6235883004385911),(4,7.2426406871192848),(-2,3),(-4,0),(-2,0),(0,0)])
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo2) ; m.allocateCells()
+        m.insertNextCell(NORM_QPOLYG,[5,9,8,3,7,2,4,0,6,1,10,11,12,13,14,15,16,17,18,19])
+        refPtr=m.getCoords().getHiddenCppPointer()
+        self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
+        self.assertNotEqual(refPtr,m.getCoords().getHiddenCppPointer())#not same coordinates here
+        self.assertTrue(coo2.isEqual(m.getCoords()[:20],1e-12))
+        self.assertTrue(m.getCoords()[20:].isEqual(DataArrayDouble([(1.,0.),(7.,6.)]),1e-12))
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,3,4,20,21,16])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7])))
+        pass
+
     def setUp(self):
         pass
     pass
