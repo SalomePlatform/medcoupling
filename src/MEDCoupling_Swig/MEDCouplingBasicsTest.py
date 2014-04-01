@@ -14570,14 +14570,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4])))
         ## false quadratic
         coo2=DataArrayDouble([(-5,0),(-1,0),(4,3),(7,0),(1,6),(1,0),(-3,0),(6,1),(5,0),(3,0),(2,0),(4,0),(6,0),(6.5,0.5),(5,2),(2.5,4.5),(-2,3),(-4,0),(-2,0),(0,0)])
+        coo2.setInfoOnComponents(["aa","bbbb"])
         m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo2) ; m.allocateCells()
         m.insertNextCell(NORM_QPOLYG,[5,9,8,3,7,2,4,0,6,1,10,11,12,13,14,15,16,17,18,19])
         refPtr=m.getCoords().getHiddenCppPointer()
         self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([0])))
         self.assertNotEqual(refPtr,m.getCoords().getHiddenCppPointer())#not same coordinates here
+        self.assertEqual(["aa","bbbb"],m.getCoords().getInfoOnComponents())
         refPtr=m.getCoords().getHiddenCppPointer()
         self.assertTrue(coo2.isEqual(m.getCoords()[:20],1e-12))
-        self.assertTrue(m.getCoords()[20:].isEqual(DataArrayDouble([(1.,0.),(4.,3.)]),1e-12))
+        self.assertTrue(m.getCoords()[20:].isEqualWithoutConsideringStr(DataArrayDouble([(1.,0.),(4.,3.)]),1e-12))
         self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,3,4,20,21,16])))
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7])))
         self.assertTrue(m.colinearize2D(1e-12).isEqual(DataArrayInt([])))
@@ -14595,6 +14597,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getCoords()[20:].isEqual(DataArrayDouble([(1.,0.),(7.,6.)]),1e-12))
         self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,3,4,20,21,16])))
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,7])))
+        pass
+
+    def testSwig2BoundingBoxForBBTree1(self):
+        """ This test appears simple but it checks that bounding box are correctly computed for quadratic polygons. It can help a lot to reduce the amount of intersections !
+        """
+        coo=DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,0.45,0.,0.3181980515339464,0.31819805153394637,0.,0.45,-0.31819805153394637,0.3181980515339464,-0.45,0.,-0.3181980515339465,-0.31819805153394637,0.,-0.45,0.3181980515339463,-0.3181980515339465,-0.5,0.0,0.0,0.5,0.5,0.0,0.0,-0.5,-0.4090990257669732,-0.4090990257669732,0.40909902576697316,-0.4090990257669732],18,2)
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QPOLYG,[0,1,2,3,11,5,7,9,12,13,14,17,4,6,8,16])
+        m.insertNextCell(NORM_QPOLYG,[3,0,9,11,15,16,10,17])
+        self.assertTrue(m.getBoundingBoxForBBTree().isEqual(DataArrayDouble([-0.5,0.5,-0.5,0.5,-0.5,0.5,-0.5,-0.31819805153394637],2,4),1e-12))
         pass
 
     def setUp(self):
