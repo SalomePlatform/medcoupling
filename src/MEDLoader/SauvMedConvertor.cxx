@@ -3285,16 +3285,17 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
   int dim = getDim( grp );
 
   int nbElems = 0;
-  CellsByDimIterator dimCells( *this, dim );
-  while ( const std::set<Cell > * cells = dimCells.nextType() )
-    nbElems += cells->size();
-
-  const bool onAll = ( nbElems == grp->size() );
-
   if ( dim == 0 )
-    dimRel = 0;
+    {
+      nbElems = _nbNodes;
+      dimRel  = 0;
+    }
   else
     {
+      CellsByDimIterator dimCells( *this, dim );
+      while ( const std::set<Cell > * cells = dimCells.nextType() )
+        nbElems += cells->size();
+
       int meshDim = 3;
       for ( ; meshDim > 0; --meshDim )
         {
@@ -3304,6 +3305,8 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
         }
       dimRel = dim - meshDim;
     }
+
+  bool onAll = ( nbElems == grp->size() );
   return onAll;
 }
 
@@ -3432,7 +3435,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
       DataArrayDouble * coo = mesh->getCoords();
       MEDCouplingAutoRefCountObjectPtr
         <DataArrayDouble> subCoo = coo->selectByTupleId(support->_medGroup->begin(),
-                                                        support->_medGroup->end()); 
+                                                        support->_medGroup->end());
       MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > nodeSubMesh =
         MEDCouplingUMesh::Build0DMeshFromCoords( subCoo );
       timeStamp->setMesh( nodeSubMesh );
