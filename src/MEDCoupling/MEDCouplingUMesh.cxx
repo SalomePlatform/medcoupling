@@ -6471,7 +6471,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic(double arc
         pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
       else
         pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
-      INTERP_KERNEL::Bounds b; pol->fillBounds(b); delete pol;
+      INTERP_KERNEL::Bounds b; b.prepareForAggregation(); pol->fillBounds(b); delete pol;
       bbox[0]=b.getXMin(); bbox[1]=b.getXMax(); bbox[2]=b.getYMin(); bbox[3]=b.getYMax(); 
     }
   return ret.retn();
