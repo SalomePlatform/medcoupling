@@ -8853,9 +8853,11 @@ int MEDCouplingUMesh::split2DCells(const DataArrayInt *desc, const DataArrayInt 
  * \b WARNING this method is \b potentially \b non \b const (if returned array is empty).
  * \b WARNING this method lead to have a non geometric type sorted mesh (for MED file users) !
  * This method performs a conformization of \b this. So if a edge in \a this can be split into entire edges in \a this this method
- * will suppress such edges to use sub edges in \a this. So this method does not add nodes in \a this if merged edges have same nature each other (Linear,Quadratic).
+ * will suppress such edges to use sub edges in \a this. So this method does not add nodes in \a this if merged edges are both linear (INTERP_KERNEL::NORM_SEG2).
+ * In the other cases new nodes can be created. If any are created, they will be appended at the end of the coordinates object before the invokation of this method.
+ * 
  * Whatever the returned value, this method does not alter the order of cells in \a this neither the orientation of cells.
- * The modified cells if any are systematically declared as NORM_POLYGON or NORM_QPOLYG depending on the 
+ * The modified cells, if any, are systematically declared as NORM_POLYGON or NORM_QPOLYG depending on the initial quadraticness of geometric type.
  *
  * This method expects that \b this has a meshDim equal 2 and spaceDim equal to 2 too.
  * This method expects that all nodes in \a this are not closer than \a eps.
