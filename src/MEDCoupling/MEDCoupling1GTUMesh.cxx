@@ -28,7 +28,7 @@ using namespace ParaMEDMEM;
 
 const int MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS[6]={0,1,2,4,3,5};
 
-MEDCoupling1GTUMesh::MEDCoupling1GTUMesh()
+MEDCoupling1GTUMesh::MEDCoupling1GTUMesh():_cm(0)
 {
 }
 
@@ -826,15 +826,15 @@ std::string MEDCoupling1SGTUMesh::advancedRepr() const
         {
           if(_conn->getNumberOfComponents()==1)
             {
-             int nbOfCells=getNumberOfCells();
-             int sz=getNumberOfNodesPerCell();
-             const int *connPtr=_conn->begin();
-             for(int i=0;i<nbOfCells;i++,connPtr+=sz)
-               {
-                 ret << "Cell #" << i << " : ";
-                 std::copy(connPtr,connPtr+sz,std::ostream_iterator<int>(ret," "));
-                 ret << "\n";
-               }
+              int nbOfCells=getNumberOfCells();
+              int sz=getNumberOfNodesPerCell();
+              const int *connPtr=_conn->begin();
+              for(int i=0;i<nbOfCells;i++,connPtr+=sz)
+                {
+                  ret << "Cell #" << i << " : ";
+                  std::copy(connPtr,connPtr+sz,std::ostream_iterator<int>(ret," "));
+                  ret << "\n";
+                }
             }
           else
             ret << "Nodal connectivity array specified and allocated but with not exactly one component !" << "\n";
@@ -970,18 +970,18 @@ MEDCouplingUMesh *MEDCoupling1SGTUMesh::buildUnstructured() const
 DataArrayInt *MEDCoupling1SGTUMesh::simplexize(int policy)
 {
   switch(policy)
-    {
+  {
     case 0:
       return simplexizePol0();
     case 1:
       return simplexizePol1();
     case (int) INTERP_KERNEL::PLANAR_FACE_5:
-      return simplexizePlanarFace5();
+        return simplexizePlanarFace5();
     case (int) INTERP_KERNEL::PLANAR_FACE_6:
-      return simplexizePlanarFace6();
+        return simplexizePlanarFace6();
     default:
       throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::simplexize : unrecognized policy ! Must be :\n  - 0 or 1 (only available for meshdim=2) \n  - PLANAR_FACE_5, PLANAR_FACE_6  (only for meshdim=3)");
-    }
+  }
 }
 
 /// @cond INTERNAL
@@ -1624,14 +1624,14 @@ MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const
   if(!cm.isSimplex())
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh : this mesh is not a simplex mesh ! Please invoke simplexize of tetrahedrize on this before calling this method !");
   switch(getMeshDimension())
-    {
+  {
     case 3:
       return computeDualMesh3D();
     case 2:
       return computeDualMesh2D();
     default:
       throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh : meshdimension must be in [2,3] !");
-    }
+  }
 }
 
 /*!
@@ -2458,10 +2458,10 @@ std::string MEDCoupling1DGTUMesh::simpleRepr() const
   ret << "Number of cells : ";
   bool isOK=true;
   try { checkCoherency(); } catch(INTERP_KERNEL::Exception& /* e */)
-    {
+  {
       ret << "Nodal connectivity arrays are not set or badly set !\n";
       isOK=false;
-    }
+  }
   if(isOK)
     ret << getNumberOfCells() << "\n";
   ret << "Cell type : " << _cm->getRepr() << "\n";
@@ -2481,10 +2481,10 @@ std::string MEDCoupling1DGTUMesh::advancedRepr() const
   //
   bool isOK=true;
   try { checkCoherency1(); } catch(INTERP_KERNEL::Exception& /* e */)
-    {
+  {
       ret << "Nodal connectivity arrays are not set or badly set !\n";
       isOK=false;
-    }
+  }
   if(!isOK)
     return ret.str();
   int nbOfCells=getNumberOfCells();
@@ -2676,10 +2676,10 @@ void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const
   stream << "Number of nodes : " << _coords->getNumberOfTuples() << ".";
   bool isOK=true;
   try { checkCoherency(); } catch(INTERP_KERNEL::Exception&  /* e */)
-    {
+  {
       stream << std::endl << "Nodal connectivity NOT set properly !\n";
       isOK=false;
-    }
+  }
   if(isOK)
     stream << std::endl << "Number of cells : " << getNumberOfCells() << ".";
 }

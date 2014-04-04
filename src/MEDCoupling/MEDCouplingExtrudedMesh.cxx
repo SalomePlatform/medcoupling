@@ -104,7 +104,7 @@ try:_mesh2D(const_cast<MEDCouplingUMesh *>(mesh2D)),_mesh1D(MEDCouplingUMesh::Ne
   setName(mesh3D->getName());
 }
 catch(INTERP_KERNEL::Exception& e)
-  {
+{
     if(_mesh2D)
       _mesh2D->decrRef();
     if(_mesh1D)
@@ -112,7 +112,7 @@ catch(INTERP_KERNEL::Exception& e)
     if(_mesh3D_ids)
       _mesh3D_ids->decrRef();
     throw e;
-  }
+}
 
 MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh():_mesh2D(0),_mesh1D(0),_mesh3D_ids(0),_cell_2D_id(-1)
 {
@@ -288,7 +288,7 @@ DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfNodesPerCell() const
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret3D=DataArrayInt::New(); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
   int *pt=ret3D->getPointer();
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfCells2D)
-     std::copy(ret2D->begin(),ret2D->end(),pt);
+    std::copy(ret2D->begin(),ret2D->end(),pt);
   ret3D->applyLin(2,0,0);
   return ret3D->renumberR(_mesh3D_ids->begin());
 }
@@ -301,7 +301,7 @@ DataArrayInt *MEDCouplingExtrudedMesh::computeNbOfFacesPerCell() const
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret3D=DataArrayInt::New(); ret3D->alloc(nbOfLevs*nbOfCells2D,1);
   int *pt=ret3D->getPointer();
   for(int i=0;i<nbOfLevs;i++,pt+=nbOfCells2D)
-     std::copy(ret2D->begin(),ret2D->end(),pt);
+    std::copy(ret2D->begin(),ret2D->end(),pt);
   ret3D->applyLin(2,2,0);
   return ret3D->renumberR(_mesh3D_ids->begin());
 }
@@ -390,7 +390,7 @@ std::string MEDCouplingExtrudedMesh::advancedRepr() const
   return ret.str();
 }
 
-void MEDCouplingExtrudedMesh::checkCoherency() const throw (INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::checkCoherency() const
 {
 }
 
@@ -533,7 +533,7 @@ void MEDCouplingExtrudedMesh::computeExtrusion(const MEDCouplingUMesh *mesh3D)
 void MEDCouplingExtrudedMesh::build1DExtrusion(int idIn3DDesc, int newId, int nbOf1DLev, MEDCouplingUMesh *subMesh,
                                                const int *desc3D, const int *descIndx3D,
                                                const int *revDesc3D, const int *revDescIndx3D,
-                                               bool computeMesh1D) throw(INTERP_KERNEL::Exception)
+                                               bool computeMesh1D)
 {
   int nbOf2DCells=_mesh2D->getNumberOfCells();
   int start=revDescIndx3D[idIn3DDesc];
@@ -557,7 +557,7 @@ void MEDCouplingExtrudedMesh::build1DExtrusion(int idIn3DDesc, int newId, int nb
       if(computeMesh1D)
         computeBaryCenterOfFace(conn,i-1);
       current2DCell=findOppositeFaceOf(current2DCell,current3DCell,conn,
-                                       desc3D,descIndx3D,conn2D,conn2DIndx);
+          desc3D,descIndx3D,conn2D,conn2DIndx);
       start=revDescIndx3D[current2DCell];
       end=revDescIndx3D[current2DCell+1];
       if(end-start!=2)
@@ -578,7 +578,7 @@ void MEDCouplingExtrudedMesh::build1DExtrusion(int idIn3DDesc, int newId, int nb
       std::sort(conn.begin(),conn.end());
       computeBaryCenterOfFace(conn,nbOf1DLev-1);
       current2DCell=findOppositeFaceOf(current2DCell,current3DCell,conn,
-                                       desc3D,descIndx3D,conn2D,conn2DIndx);
+          desc3D,descIndx3D,conn2D,conn2DIndx);
       conn.clear();
       conn.insert(conn.end(),conn2D+conn2DIndx[current2DCell]+1,conn2D+conn2DIndx[current2DCell+1]);
       std::sort(conn.begin(),conn.end());
@@ -588,7 +588,7 @@ void MEDCouplingExtrudedMesh::build1DExtrusion(int idIn3DDesc, int newId, int nb
 
 int MEDCouplingExtrudedMesh::findOppositeFaceOf(int current2DCell, int current3DCell, const std::vector<int>& connSorted,
                                                 const int *desc3D, const int *descIndx3D,
-                                                const int *conn2D, const int *conn2DIndx) throw(INTERP_KERNEL::Exception)
+                                                const int *conn2D, const int *conn2DIndx)
 {
   int start=descIndx3D[current3DCell];
   int end=descIndx3D[current3DCell+1];
@@ -621,7 +621,7 @@ void MEDCouplingExtrudedMesh::computeBaryCenterOfFace(const std::vector<int>& no
   std::transform(zoneToUpdate,zoneToUpdate+3,zoneToUpdate,std::bind2nd(std::multiplies<double>(),(double)(1./(int)nodalConnec.size())));
 }
 
-int MEDCouplingExtrudedMesh::FindCorrespCellByNodalConn(const std::vector<int>& nodalConnec, const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception)
+int MEDCouplingExtrudedMesh::FindCorrespCellByNodalConn(const std::vector<int>& nodalConnec, const int *revNodalPtr, const int *revNodalIndxPtr)
 {
   std::vector<int>::const_iterator iter=nodalConnec.begin();
   std::set<int> s1(revNodalPtr+revNodalIndxPtr[*iter],revNodalPtr+revNodalIndxPtr[*iter+1]);
@@ -656,7 +656,7 @@ int MEDCouplingExtrudedMesh::FindCorrespCellByNodalConn(const std::vector<int>& 
  * @throw in case that m1 and m2 are not compatible each other.
  */
 void MEDCouplingExtrudedMesh::Project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
-                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception)
+                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v)
 {
   if(m1->getSpaceDimension()!=3 || m1->getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("Input meshes are expected to have a spaceDim==3 for Projec1D !");
@@ -674,7 +674,6 @@ void MEDCouplingExtrudedMesh::Project1DMeshes(const MEDCouplingUMesh *m1, const 
   std::transform(v,v+3,v,std::bind2nd(std::multiplies<double>(),1/n));
   m1->project1D(&ref[0],v,eps,m1r->getCoords()->getPointer());
   m2->project1D(&ref[0],v,eps,m2r->getCoords()->getPointer());
-  
 }
 
 void MEDCouplingExtrudedMesh::rotate(const double *center, const double *vector, double angle)
@@ -809,18 +808,18 @@ void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D
   for(int i=0;i<nbOf2DCells;i++)
     {
       int idInSubMesh;
-       std::vector<int> nodalConnec(nodal2D+nodal2DIndx[i]+1,nodal2D+nodal2DIndx[i+1]);
-       try
-        {
+      std::vector<int> nodalConnec(nodal2D+nodal2DIndx[i]+1,nodal2D+nodal2DIndx[i+1]);
+      try
+      {
           idInSubMesh=FindCorrespCellByNodalConn(nodalConnec,revNodal2DPtr,revNodalIndx2DPtr);
-        }
-       catch(INTERP_KERNEL::Exception& e)
-         {
-           std::ostringstream ostr; ostr << "mesh2D cell # " << i << " is not part of any cell of 3D mesh !\n";
-           ostr << e.what();
-           throw INTERP_KERNEL::Exception(ostr.str().c_str());
-         }
-       build1DExtrusion(idInSubMesh,i,nbOf1DLev,subMesh,descP,descIndxP,revDescP,revDescIndxP,i==_cell_2D_id);
+      }
+      catch(INTERP_KERNEL::Exception& e)
+      {
+          std::ostringstream ostr; ostr << "mesh2D cell # " << i << " is not part of any cell of 3D mesh !\n";
+          ostr << e.what();
+          throw INTERP_KERNEL::Exception(ostr.str().c_str());
+      }
+      build1DExtrusion(idInSubMesh,i,nbOf1DLev,subMesh,descP,descIndxP,revDescP,revDescIndxP,i==_cell_2D_id);
     }
   //
   revNodal2D->decrRef();

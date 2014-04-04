@@ -65,7 +65,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT void checkCoherency() const throw (INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency() const;
     MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
@@ -81,9 +81,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
     MEDCOUPLING_EXPORT static int FindCorrespCellByNodalConn(const std::vector<int>& nodalConnec,
-                                                             const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception);
+                                                             const int *revNodalPtr, const int *revNodalIndxPtr);
     MEDCOUPLING_EXPORT static void Project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
-                                                   MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception);
+                                                   MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v);
     MEDCOUPLING_EXPORT void rotate(const double *center, const double *vector, double angle);
     MEDCOUPLING_EXPORT void translate(const double *vector);
     MEDCOUPLING_EXPORT void scale(const double *point, double factor);
@@ -114,10 +114,10 @@ namespace ParaMEDMEM
     void build1DExtrusion(int idIn3DDesc, int newId, int nbOf1DLev, MEDCouplingUMesh *subMesh,
                           const int *desc3D, const int *descIndx3D,
                           const int *revDesc3D, const int *revDescIndx3D,
-                          bool computeMesh1D) throw(INTERP_KERNEL::Exception);
+                          bool computeMesh1D);
     int findOppositeFaceOf(int current2DCell, int current3DCell, const std::vector<int>& connSorted,
                            const int *desc3D, const int *descIndx3D,
-                           const int *conn2D, const int *conn2DIndx) throw(INTERP_KERNEL::Exception);
+                           const int *conn2D, const int *conn2DIndx);
     void computeBaryCenterOfFace(const std::vector<int>& nodalConnec, int lev1DId);
     ~MEDCouplingExtrudedMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
