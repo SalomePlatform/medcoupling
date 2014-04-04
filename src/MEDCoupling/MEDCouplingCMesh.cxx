@@ -194,7 +194,7 @@ bool MEDCouplingCMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other
 }
 
 void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                            DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+                                            DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalWith : Meshes are not the same !");
@@ -205,7 +205,7 @@ void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
  * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCMesh, 'this' and 'other' are the same !
  */
 void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                       DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+                                                       DataArrayInt *&cellCor) const
 {
   const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
@@ -243,7 +243,6 @@ void MEDCouplingCMesh::checkCoherency() const
           std::ostringstream os; os << msg0 << 'Y' << msg2;
           throw INTERP_KERNEL::Exception(os.str().c_str());
         }
-      
     }
   if(_z_array)
     {
@@ -475,7 +474,7 @@ std::string MEDCouplingCMesh::advancedRepr() const
 const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const
 {
   switch(i)
-    {
+  {
     case 0:
       return _x_array;
     case 1:
@@ -484,7 +483,7 @@ const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const
       return _z_array;
     default:
       throw INTERP_KERNEL::Exception("Invalid rank specified must be 0 or 1 or 2.");
-    }
+  }
 }
 
 /*!
@@ -503,7 +502,7 @@ const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const
 DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i)
 {
   switch(i)
-    {
+  {
     case 0:
       return _x_array;
     case 1:
@@ -512,7 +511,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i)
       return _z_array;
     default:
       throw INTERP_KERNEL::Exception("Invalid rank specified must be 0 or 1 or 2.");
-    }
+  }
 }
 
 /*!
@@ -985,7 +984,6 @@ void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const
       if(isDef[i])
         stream << std::endl << stream2[i].str();
     }
-    
 }
 
 std::string MEDCouplingCMesh::getVTKDataSetType() const

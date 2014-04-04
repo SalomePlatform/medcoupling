@@ -1447,7 +1447,7 @@ DataArrayInt *MEDCouplingPointSet::zipConnectivityTraducer(int compType, int sta
  *  \endif
  */
 void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                               DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+                                               DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalWith : input is null !");
@@ -1503,7 +1503,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
  * \endif
  */
 void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                       DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+                                                       DataArrayInt *&cellCor) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith : input is null !");

@@ -160,7 +160,7 @@ bool MEDCouplingCurveLinearMesh::isEqualWithoutConsideringStr(const MEDCouplingM
 }
 
 void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                            DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+                                                      DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalWith : Meshes are not the same !");
@@ -171,7 +171,7 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *oth
  * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCurveLinearMesh, 'this' and 'other' are the same !
  */
 void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                       DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+                                                                 DataArrayInt *&cellCor) const
 {
   const MEDCouplingCurveLinearMesh *otherC=dynamic_cast<const MEDCouplingCurveLinearMesh *>(other);
   if(!otherC)
@@ -393,7 +393,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   field->setName(name); field->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(this)); field->synchronizeTimeWithMesh();
   switch(meshDim)
-    {
+  {
     case 3:
       { getMeasureFieldMeshDim3(isAbs,field); return field.retn(); }
     case 2:
@@ -402,7 +402,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) 
       { getMeasureFieldMeshDim1(isAbs,field); return field.retn(); }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getMeasureField : mesh dimension must be in [1,2,3] !");
-    }
+  }
 }
 
 /*!
@@ -550,7 +550,7 @@ int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double
   if(nbOfNodes==1)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCellContainingPoint : No cells in this !");
   switch(getMeshDimension())
-    {
+  {
     case 1:
       if(spaceDim==1)
         {
@@ -662,7 +662,7 @@ int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getCellContainingPoint : mesh dimension managed are 1, 2 or 3 !");
-    }
+  }
 }
 
 void MEDCouplingCurveLinearMesh::rotate(const double *center, const double *vector, double angle)
@@ -740,7 +740,7 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::getBarycenterAndOwner() const
   ret->alloc(nbOfCells,spaceDim);
   ret->copyStringInfoFrom(*getCoords());
   switch(meshDim)
-    {
+  {
     case 3:
       { getBarycenterAndOwnerMeshDim3(ret); return ret.retn(); }
     case 2:
@@ -749,7 +749,7 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::getBarycenterAndOwner() const
       { getBarycenterAndOwnerMeshDim1(ret); return ret.retn(); }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getBarycenterAndOwner : mesh dimension must be in [1,2,3] !");
-    }
+  }
 }
 
 DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell() const

@@ -63,7 +63,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(int c
 INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(int meshDim)
 {
   switch(meshDim)
-    {
+  {
     case 3:
       return INTERP_KERNEL::NORM_HEXA8;
     case 2:
@@ -74,7 +74,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::GetGeoTypeGivenMesh
       return INTERP_KERNEL::NORM_POINT1;
     default:
       throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension !");
-    }
+  }
 }
 
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingStructuredMesh::getAllGeoTypes() const
@@ -148,7 +148,7 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& c
   int tmp2[3];
   GetPosFromId(cellId,meshDim,tmpCell,tmp2);
   switch(meshDim)
-    {
+  {
     case 1:
       conn.push_back(tmp2[0]); conn.push_back(tmp2[0]+1);
       break;
@@ -164,7 +164,7 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& c
       break;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::getNodeIdsOfCell : big problem spacedim must be in 1,2 or 3 !");
-    };
+  };
 }
 
 /*!
@@ -568,7 +568,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
 {
   std::size_t dim(std::distance(nodeStBg,nodeStEnd));
   switch(dim)
-    {
+  {
     case 0:
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
@@ -583,21 +583,21 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
       return Build1GTNodalConnectivity3D(nodeStBg);
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivity : only dimension in [0,1,2,3] supported !");
-    }
+  }
 }
 
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd)
 {
   std::size_t dim(std::distance(nodeStBg,nodeStEnd));
   switch(dim)
-    {
+  {
     case 3:
       return Build1GTNodalConnectivityOfSubLevelMesh3D(nodeStBg);
     case 2:
       return Build1GTNodalConnectivityOfSubLevelMesh2D(nodeStBg);
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh: only dimension in [2,3] supported !");
-    }
+  }
 }
 
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
@@ -629,7 +629,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *
         cp[4*pos+1]=i+j*(n1+1);
         cp[4*pos+2]=i+(j+1)*(n1+1);
         cp[4*pos+3]=i+1+(j+1)*(n1+1);
-    }
+      }
   return conn.retn();
 }
 
@@ -803,7 +803,7 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
     return false;
   const int *w(startIds);
   switch(dim)
-    {
+  {
     case 3:
       {
         for(int i=0;i<tmp4[2];i++)
@@ -845,7 +845,7 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IsPartStructured : internal error !");
-    }
+  }
 }
 
 /*!
@@ -876,7 +876,7 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
   ret->alloc(nbOfItems,1);
   int *pt(ret->getPointer());
   switch(st.size())
-    {
+  {
     case 3:
       {
         for(int i=0;i<dims[2];i++)
@@ -909,7 +909,7 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : Dimension supported are 1,2 or 3 !");
-    }
+  }
   return ret.retn();
 }
 

@@ -224,13 +224,13 @@ bool MEDCouplingExtrudedMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh
 }
 
 void MEDCouplingExtrudedMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                   DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+                                                   DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
 {
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::checkDeepEquivalWith : not implemented yet !");
 }
 
 void MEDCouplingExtrudedMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                              DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+                                                              DataArrayInt *&cellCor) const
 {
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::checkDeepEquivalOnSameNodesWith : not implemented yet !");
 }

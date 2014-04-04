@@ -146,7 +146,7 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
  * to be compared. An interpolation using MEDCouplingRemapper class should be then used.
  */
 void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
-                                          DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+                                          DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const
 {
   cellCor=0;
   nodeCor=0;

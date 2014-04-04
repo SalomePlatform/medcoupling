@@ -73,12 +73,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const = 0;
     MEDCOUPLING_EXPORT virtual void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                         DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception) = 0;
+                                                         DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const = 0;
     MEDCOUPLING_EXPORT virtual void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
-                                                                    DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception) = 0;
+                                                                    DataArrayInt *&cellCor) const = 0;
     MEDCOUPLING_EXPORT virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
-                                                DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+                                                DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
     //
     MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
     MEDCOUPLING_EXPORT virtual void checkCoherency1(double eps=1e-12) const = 0;
