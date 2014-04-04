@@ -122,7 +122,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT void computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const;
     MEDCOUPLING_EXPORT static void ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI,
-                                                              DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) throw(INTERP_KERNEL::Exception);
+                                                              DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords=true) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf2(int start, int end, int step, bool keepCoords=true) const;
@@ -136,7 +136,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *&cellIdsRk0, DataArrayInt *&cellIdsRk1) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *computeSkin() const;
     MEDCOUPLING_EXPORT void findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
-                                                 DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const throw(INTERP_KERNEL::Exception);
+                                                 DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const;
     MEDCOUPLING_EXPORT void duplicateNodes(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void shiftNodeNumbersInConn(int delta);
@@ -208,7 +208,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndex) const;
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *AggregateSortedByTypeMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& ms,
                                                                                         DataArrayInt *&szOfCellGrpOfSameType,
-                                                                                        DataArrayInt *&idInMsOfCellGrpOfSameType) throw(INTERP_KERNEL::Exception);
+                                                                                        DataArrayInt *&idInMsOfCellGrpOfSameType);
     MEDCOUPLING_EXPORT DataArrayInt *keepCellIdsByType(INTERP_KERNEL::NormalizedCellType type, const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const int *idsPerGeoTypeBg, const int *idsPerGeoTypeEnd) const;
@@ -243,23 +243,23 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static bool BuildConvexEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, DataArrayInt *nodalConnecOut);
     MEDCOUPLING_EXPORT static bool RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0);
     MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                            DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);
+                                                            DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                             DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);
+                                                             DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                           const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
-                                                          DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);
+                                                          DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
-                                                                 const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception);
+                                                                 const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArrays2(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                            const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
-                                                           DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception);
+                                                           DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdx2(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
-                                                                  const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception);
+                                                                  const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeSpreadZoneGradually(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeSpreadZoneGraduallyFromSeed(const int *seedBg, const int *seedEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn, int nbOfDepthPeeling, int& nbOfDepthPeelingPerformed);
     MEDCOUPLING_EXPORT static void FindCommonCellsAlg(int compType, int startCellId, const DataArrayInt *nodal, const DataArrayInt *nodalI, const DataArrayInt *revNodal, const DataArrayInt *revNodalI,
-                                                      DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) throw(INTERP_KERNEL::Exception);
+                                                      DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr);
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf2DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf3DMesh() const;
   private:
@@ -310,8 +310,7 @@ namespace ParaMEDMEM
                                             std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2,
                                             MEDCouplingUMesh *& m1Desc, DataArrayInt *&desc1, DataArrayInt *&descIndx1, DataArrayInt *&revDesc1, DataArrayInt *&revDescIndx1,
                                             std::vector<double>& addCoo,
-                                            MEDCouplingUMesh *& m2Desc, DataArrayInt *&desc2, DataArrayInt *&descIndx2, DataArrayInt *&revDesc2, DataArrayInt *&revDescIndx2)
-                                            throw(INTERP_KERNEL::Exception);
+                                            MEDCouplingUMesh *& m2Desc, DataArrayInt *&desc2, DataArrayInt *&descIndx2, DataArrayInt *&revDesc2, DataArrayInt *&revDescIndx2);
     static void BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, const std::vector<double>& addCoo, const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge);
     static void BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const int *desc1, const int *descIndx1, const std::vector<std::vector<int> >& intesctEdges1, const std::vector< std::vector<int> >& colinear2,
                                                   const MEDCouplingUMesh *m2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
@@ -319,9 +318,9 @@ namespace ParaMEDMEM
                                                   std::vector<double>& addCoordsQuadratic, std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2);
     static void AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3DCurve, std::vector<int>& nodesOnPlane, const int *nodal3DSurf, const int *nodalIndx3DSurf,
                                               const int *nodal3DCurve, const int *nodalIndx3DCurve,
-                                              const int *desc, const int *descIndx, std::vector< std::pair<int,int> >& cut3DSurf) throw(INTERP_KERNEL::Exception);
+                                              const int *desc, const int *descIndx, std::vector< std::pair<int,int> >& cut3DSurf);
     void assemblyForSplitFrom3DSurf(const std::vector< std::pair<int,int> >& cut3DSurf,
-                                    const int *desc, const int *descIndx, DataArrayInt *nodalRes, DataArrayInt *nodalResIndx, DataArrayInt *cellIds) const throw(INTERP_KERNEL::Exception);
+                                    const int *desc, const int *descIndx, DataArrayInt *nodalRes, DataArrayInt *nodalResIndx, DataArrayInt *cellIds) const;
     void split2DCellsLinear(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI);
     int split2DCellsQuadratic(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *mid, const DataArrayInt *midI);
     static bool Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords);

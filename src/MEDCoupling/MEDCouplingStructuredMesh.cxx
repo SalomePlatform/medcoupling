@@ -666,7 +666,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
   int off0(nodeStBg[0]),off1(nodeStBg[0]*nodeStBg[1]);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(4*GetNumberOfCellsOfSubLevelMesh(ngs,3));
-  int *cp(conn->getPointer()),pos(0);
+  int *cp(conn->getPointer());
   //X
   for(int i=0;i<nodeStBg[0];i++)
     for(int j=0;j<n1;j++)
@@ -692,7 +692,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
   int off0(nodeStBg[0]);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(2*GetNumberOfCellsOfSubLevelMesh(ngs,2));
-  int *cp(conn->getPointer()),pos(0);
+  int *cp(conn->getPointer());
   //X
   for(int i=0;i<nodeStBg[0];i++)
     for(int j=0;j<n1;j++,cp+=2)

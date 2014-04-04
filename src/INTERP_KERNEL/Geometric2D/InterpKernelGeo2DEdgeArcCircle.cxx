@@ -119,17 +119,16 @@ double ArcCArcCIntersector::getAngle(Node *node) const
 bool ArcCArcCIntersector::internalAreColinears(const EdgeArcCircle& a1, const EdgeArcCircle& a2, double& distBetweenCenters, double& cst,
                                                double& radiusL, double centerL[2], double& radiusB, double centerB[2])
 {
-  double angle0L,angleL;
   double lgth1=fabs(a1.getAngle()*a1.getRadius());
   double lgth2=fabs(a2.getAngle()*a2.getRadius());
   if(lgth1<lgth2)
     {//a1 is the little one ('L') and a2 the big one ('B')
-      a1.getCenter(centerL); radiusL=a1.getRadius(); angle0L=a1.getAngle0(); angleL=a1.getAngle();
+      a1.getCenter(centerL); radiusL=a1.getRadius();
       a2.getCenter(centerB); radiusB=a2.getRadius();
     }
   else
     {
-      a2.getCenter(centerL); radiusL=a2.getRadius(); angle0L=a2.getAngle0(); angleL=a2.getAngle();
+      a2.getCenter(centerL); radiusL=a2.getRadius();
       a1.getCenter(centerB); radiusB=a1.getRadius();
     }
   // dividing from the begining by radiusB^2 to keep precision

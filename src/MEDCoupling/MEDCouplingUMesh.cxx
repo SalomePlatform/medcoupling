@@ -165,7 +165,7 @@ MEDCouplingUMesh::MEDCouplingUMesh():_mesh_dim(-2),_nodal_connec(0),_nodal_conne
 void MEDCouplingUMesh::checkCoherency() const
 {
   if(_mesh_dim<-1)
-   throw INTERP_KERNEL::Exception("No mesh dimension specified !");
+    throw INTERP_KERNEL::Exception("No mesh dimension specified !");
   if(_mesh_dim!=-1)
     MEDCouplingPointSet::checkCoherency();
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
@@ -565,8 +565,8 @@ bool MEDCouplingUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other
  */
 void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
 {
- MEDCouplingPointSet::checkFastEquivalWith(other,prec);
- const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
+  MEDCouplingPointSet::checkFastEquivalWith(other,prec);
+  const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkFastEquivalWith : Two meshes are not not unstructured !"); 
 }
@@ -843,7 +843,7 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
  * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
  */
 void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descIndx, const DataArrayInt *revDesc, const DataArrayInt *revDescIndx,
-                                                  DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx) throw(INTERP_KERNEL::Exception)
+                                                  DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx)
 {
   if(!desc || !descIndx || !revDesc || !revDescIndx)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ComputeNeighborsOfCellsAdv some input array is empty !");
@@ -1252,7 +1252,7 @@ bool MEDCouplingUMesh::unPolyze()
       if(cm.isDynamic())
         {
           switch(cm.getDimension())
-            {
+          {
             case 2:
               {
                 INTERP_KERNEL::AutoPtr<int> tmp=new int[lgthOfCurCell-1];
@@ -1272,7 +1272,7 @@ bool MEDCouplingUMesh::unPolyze()
                 newType=(lgthOfCurCell==3)?INTERP_KERNEL::NORM_SEG2:INTERP_KERNEL::NORM_POLYL;
                 break;
               }
-            }
+          }
           ret=ret || (newType!=type);
           conn[newPos]=newType;
           newPos+=newLgth+1;
@@ -1547,7 +1547,7 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
 int MEDCouplingUMesh::AreCellsEqual(const int *conn, const int *connI, int cell1, int cell2, int compType)
 {
   switch(compType)
-    {
+  {
     case 0:
       return AreCellsEqual0(conn,connI,cell1,cell2);
     case 1:
@@ -1558,7 +1558,7 @@ int MEDCouplingUMesh::AreCellsEqual(const int *conn, const int *connI, int cell1
       return AreCellsEqual3(conn,connI,cell1,cell2);
     case 7:
       return AreCellsEqual7(conn,connI,cell1,cell2);
-    }
+  }
   throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1,2,3 or 7.");
 }
 
@@ -1668,7 +1668,7 @@ int MEDCouplingUMesh::AreCellsEqual7(const int *conn, const int *connI, int cell
                       else
                         return 0;
                     }
-                  
+
                   return work!=tmp+sz1?1:0;
                 }
               else
@@ -1756,7 +1756,7 @@ void MEDCouplingUMesh::findCommonCells(int compType, int startCellId, DataArrayI
 }
 
 void MEDCouplingUMesh::FindCommonCellsAlg(int compType, int startCellId, const DataArrayInt *nodal, const DataArrayInt *nodalI, const DataArrayInt *revNodal, const DataArrayInt *revNodalI,
-                                          DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) throw(INTERP_KERNEL::Exception)
+                                          DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr)
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> commonCells=DataArrayInt::New(),commonCellsI=DataArrayInt::New(); commonCells->alloc(0,1);
   int nbOfCells=nodalI->getNumberOfTuples()-1;
@@ -2385,7 +2385,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
  * \warning This method modifies param \b otherDimM1OnSameCoords (for speed reasons).
  */
 void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
-                                            DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const throw(INTERP_KERNEL::Exception)
+                                            DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const
 {
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
@@ -2747,7 +2747,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
  */
 DataArrayInt *MEDCouplingUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  
+
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(0,1);
   checkConnectivityFullyDefined();
@@ -3011,8 +3011,8 @@ void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connInd
  * If 'deeCpy' is true all arrays (coordinates and connectivities) are deeply copied.
  */
 MEDCouplingUMesh::MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy):MEDCouplingPointSet(other,deepCopy),_mesh_dim(other._mesh_dim),
-                                                                                 _nodal_connec(0),_nodal_connec_index(0),
-                                                                                _types(other._types)
+    _nodal_connec(0),_nodal_connec_index(0),
+    _types(other._types)
 {
   if(other._nodal_connec)
     _nodal_connec=other._nodal_connec->performCpy(deepCopy);
@@ -3575,29 +3575,29 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildPartOrthogonalField(const int *be
  */
 MEDCouplingFieldDouble *MEDCouplingUMesh::buildDirectionVectorField() const
 {
-   if(getMeshDimension()!=1)
+  if(getMeshDimension()!=1)
     throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for buildDirectionVectorField !");
-   if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
-     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for buildDirectionVectorField !");
-   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
-   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array=DataArrayDouble::New();
-   int nbOfCells=getNumberOfCells();
-   int spaceDim=getSpaceDimension();
-   array->alloc(nbOfCells,spaceDim);
-   double *pt=array->getPointer();
-   const double *coo=getCoords()->getConstPointer();
-   std::vector<int> conn;
-   conn.reserve(2);
-   for(int i=0;i<nbOfCells;i++)
-     {
-       conn.resize(0);
-       getNodeIdsOfCell(i,conn);
-       pt=std::transform(coo+conn[1]*spaceDim,coo+(conn[1]+1)*spaceDim,coo+conn[0]*spaceDim,pt,std::minus<double>());
-     }
-   ret->setArray(array);
-   ret->setMesh(this);
-   ret->synchronizeTimeWithSupport();
-   return ret.retn();   
+  if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
+    throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for buildDirectionVectorField !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array=DataArrayDouble::New();
+  int nbOfCells=getNumberOfCells();
+  int spaceDim=getSpaceDimension();
+  array->alloc(nbOfCells,spaceDim);
+  double *pt=array->getPointer();
+  const double *coo=getCoords()->getConstPointer();
+  std::vector<int> conn;
+  conn.reserve(2);
+  for(int i=0;i<nbOfCells;i++)
+    {
+      conn.resize(0);
+      getNodeIdsOfCell(i,conn);
+      pt=std::transform(coo+conn[1]*spaceDim,coo+(conn[1]+1)*spaceDim,coo+conn[0]*spaceDim,pt,std::minus<double>());
+    }
+  ret->setArray(array);
+  ret->setMesh(this);
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
@@ -3840,31 +3840,31 @@ void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, 
 {
   if(getMeshDimension()!=1)
     throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for project1D !");
-   if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
-     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for project1D !");
-   if(getSpaceDimension()!=3)
-     throw INTERP_KERNEL::Exception("Expected a umesh with spaceDim==3 for project1D !");
-   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f=buildDirectionVectorField();
-   const double *fPtr=f->getArray()->getConstPointer();
-   double tmp[3];
-   for(int i=0;i<getNumberOfCells();i++)
-     {
-       const double *tmp1=fPtr+3*i;
-       tmp[0]=tmp1[1]*v[2]-tmp1[2]*v[1];
-       tmp[1]=tmp1[2]*v[0]-tmp1[0]*v[2];
-       tmp[2]=tmp1[0]*v[1]-tmp1[1]*v[0];
-       double n1=INTERP_KERNEL::norm<3>(tmp);
-       n1/=INTERP_KERNEL::norm<3>(tmp1);
-       if(n1>eps)
-         throw INTERP_KERNEL::Exception("UMesh::Projection 1D failed !");
-     }
-   const double *coo=getCoords()->getConstPointer();
-   for(int i=0;i<getNumberOfNodes();i++)
-     {
-       std::transform(coo+i*3,coo+i*3+3,pt,tmp,std::minus<double>());
-       std::transform(tmp,tmp+3,v,tmp,std::multiplies<double>());
-       res[i]=std::accumulate(tmp,tmp+3,0.);
-     }
+  if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
+    throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for project1D !");
+  if(getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Expected a umesh with spaceDim==3 for project1D !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f=buildDirectionVectorField();
+  const double *fPtr=f->getArray()->getConstPointer();
+  double tmp[3];
+  for(int i=0;i<getNumberOfCells();i++)
+    {
+      const double *tmp1=fPtr+3*i;
+      tmp[0]=tmp1[1]*v[2]-tmp1[2]*v[1];
+      tmp[1]=tmp1[2]*v[0]-tmp1[0]*v[2];
+      tmp[2]=tmp1[0]*v[1]-tmp1[1]*v[0];
+      double n1=INTERP_KERNEL::norm<3>(tmp);
+      n1/=INTERP_KERNEL::norm<3>(tmp1);
+      if(n1>eps)
+        throw INTERP_KERNEL::Exception("UMesh::Projection 1D failed !");
+    }
+  const double *coo=getCoords()->getConstPointer();
+  for(int i=0;i<getNumberOfNodes();i++)
+    {
+      std::transform(coo+i*3,coo+i*3+3,pt,tmp,std::minus<double>());
+      std::transform(tmp,tmp+3,v,tmp,std::multiplies<double>());
+      res[i]=std::accumulate(tmp,tmp+3,0.);
+    }
 }
 
 /*!
@@ -3872,7 +3872,7 @@ void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, 
  * \a this is expected to be a mesh so that its space dimension is equal to its
  * mesh dimension + 1. Furthermore only mesh dimension 1 and 2 are supported for the moment.
  * Distance from \a ptBg to \a ptEnd is expected to be equal to the space dimension. \a this is also expected to be fully defined (connectivity and coordinates).
- 
+ *
  * WARNING, if there is some orphan nodes in \a this (nodes not fetched by any cells in \a this ( see MEDCouplingUMesh::zipCoords ) ) these nodes will ** not ** been taken
  * into account in this method. Only cells and nodes lying on them are considered in the algorithm (even if one of these orphan nodes is closer than returned distance).
  * A user that needs to consider orphan nodes should invoke DataArrayDouble::minimalDistanceTo method on the coordinates array of \a this.
@@ -3954,7 +3954,7 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bboxArr(getBoundingBoxForBBTree());
   const double *bbox(bboxArr->begin());
   switch(spaceDim)
-    {
+  {
     case 3:
       {
         BBTreeDst<3> myTree(bbox,0,0,nbCells);
@@ -3983,7 +3983,7 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingUMesh::distanceToPoints : only spacedim 2 and 3 supported !");
-    }
+  }
   cellIds=ret1.retn();
   return ret0.retn();
 }
@@ -4005,7 +4005,7 @@ void MEDCouplingUMesh::DistanceToPoint3DSurfAlg(const double *pt, const int *cel
   for(const int *zeCell=cellIdsBg;zeCell!=cellIdsEnd;zeCell++)
     {
       switch((INTERP_KERNEL::NormalizedCellType)nc[ncI[*zeCell]])
-        {
+      {
         case INTERP_KERNEL::NORM_TRI3:
           {
             double tmp=INTERP_KERNEL::DistanceFromPtToTriInSpaceDim3(pt,coords+3*nc[ncI[*zeCell]+1],coords+3*nc[ncI[*zeCell]+2],coords+3*nc[ncI[*zeCell]+3]);
@@ -4023,7 +4023,7 @@ void MEDCouplingUMesh::DistanceToPoint3DSurfAlg(const double *pt, const int *cel
           }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::distanceToPoint3DSurfAlg : not managed cell type ! Supporting TRI3, QUAD4 and POLYGON !");
-        }
+      }
     }
 }
 
@@ -4043,8 +4043,8 @@ void MEDCouplingUMesh::DistanceToPoint2DCurveAlg(const double *pt, const int *ce
   ret0=std::numeric_limits<double>::max();
   for(const int *zeCell=cellIdsBg;zeCell!=cellIdsEnd;zeCell++)
     {
-       switch((INTERP_KERNEL::NormalizedCellType)nc[ncI[*zeCell]])
-        {
+      switch((INTERP_KERNEL::NormalizedCellType)nc[ncI[*zeCell]])
+      {
         case INTERP_KERNEL::NORM_SEG2:
           {
             std::size_t uselessEntry=0;
@@ -4056,7 +4056,7 @@ void MEDCouplingUMesh::DistanceToPoint2DCurveAlg(const double *pt, const int *ce
           }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::distanceToPoint2DCurveAlg : not managed cell type ! Supporting SEG2 !");
-        }
+      }
     }
 }
 
@@ -4130,7 +4130,7 @@ namespace ParaMEDMEM
     INTERP_KERNEL::NormalizedCellType getTypeOfElement(int) const { return (INTERP_KERNEL::NormalizedCellType)0; }
     // end
   };
-  
+
   /*!
    * Warning the nodes in \a m should be decrRefed ! To avoid that Node * pointer be replaced by another instance.
    */
@@ -4140,7 +4140,7 @@ namespace ParaMEDMEM
     INTERP_KERNEL::Node *n0(new INTERP_KERNEL::Node(coords2D[2*bg[0]],coords2D[2*bg[0]+1])),*n1(new INTERP_KERNEL::Node(coords2D[2*bg[1]],coords2D[2*bg[1]+1]));
     m[n0]=bg[0]; m[n1]=bg[1];
     switch(typ)
-      {
+    {
       case INTERP_KERNEL::NORM_SEG2:
         {
           ret=new INTERP_KERNEL::EdgeLin(n0,n1);
@@ -4162,7 +4162,7 @@ namespace ParaMEDMEM
         }
       default:
         throw INTERP_KERNEL::Exception("MEDCouplingUMeshBuildQPFromEdge2 : Expecting a mesh with spaceDim==2 and meshDim==1 !");
-      } 
+    }
     return ret;
   }
 
@@ -4170,7 +4170,7 @@ namespace ParaMEDMEM
   {
     INTERP_KERNEL::Edge *ret=0;
     switch(typ)
-      {
+    {
       case INTERP_KERNEL::NORM_SEG2:
         {
           ret=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]].first,mapp2[bg[1]].first);
@@ -4193,7 +4193,7 @@ namespace ParaMEDMEM
         }
       default:
         throw INTERP_KERNEL::Exception("MEDCouplingUMeshBuildQPFromEdge : Expecting a mesh with spaceDim==2 and meshDim==1 !");
-      }
+    }
     return ret;
   }
 
@@ -4204,8 +4204,7 @@ namespace ParaMEDMEM
    * 'mapp' returns a mapping between local numbering in submesh (represented by a Node*) and the global node numbering in 'mDesc'.
    */
   INTERP_KERNEL::QuadraticPolygon *MEDCouplingUMeshBuildQPFromMesh(const MEDCouplingUMesh *mDesc, const std::vector<int>& candidates,
-      std::map<INTERP_KERNEL::Node *,int>& mapp)
-      throw(INTERP_KERNEL::Exception)
+                                                                   std::map<INTERP_KERNEL::Node *,int>& mapp)
   {
     mapp.clear();
     std::map<int, std::pair<INTERP_KERNEL::Node *,bool> > mapp2;//bool is for a flag specifying if node is boundary (true) or only a middle for SEG3.
@@ -4380,7 +4379,7 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoint
         }
       /*else if(mDim==2)
         {
-          
+
         }*/
       else
         throw INTERP_KERNEL::Exception("For spaceDim==3 only meshDim==3 implemented for getelementscontainingpoints !");
@@ -4524,7 +4523,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *me
   int oldNbOfNodes=getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords;
   switch(policy)
-    {
+  {
     case 0:
       {
         newCoords=fillExtCoordsUsingTranslation(mesh1D,isQuad);
@@ -4537,7 +4536,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *me
       }
     default:
       throw INTERP_KERNEL::Exception("Not implemented extrusion policy : must be in (0) !");
-    }
+  }
   setCoords(newCoords);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=buildExtrudedMeshFromThisLowLev(oldNbOfNodes,isQuad);
   updateTime();
@@ -4775,7 +4774,6 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
           double cosangle=i+1<nbOfLevsInVec?(p0r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p0r[1]-tmp3[1])*(p1r[1]-tmp3[1]):(p2r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p2r[1]-tmp3[1])*(p1r[1]-tmp3[1]);
           double angle=acos(cosangle/(radius*radius));
           tmp->rotate(end,vecPlane,angle);
-          
         }
       retPtr=std::copy(tmp2->getConstPointer(),tmp2->getConstPointer()+tmp2->getNbOfElems(),retPtr);
     }
@@ -4963,10 +4961,10 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic(int conversionType
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsSafe;
   int meshDim=getMeshDimension();
   switch(conversionType)
-    {
+  {
     case 0:
       switch(meshDim)
-        {
+      {
         case 1:
           ret=convertLinearCellsToQuadratic1D0(conn,connI,coords,types);
           connSafe=conn; connISafe=connI; coordsSafe=coords;
@@ -4981,32 +4979,32 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic(int conversionType
           break;
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion of type 0 mesh dimensions available are [1,2,3] !");
-        }
-      break;
-    case 1:
-      {
-        switch(meshDim)
-        {
-        case 1:
-          ret=convertLinearCellsToQuadratic1D0(conn,connI,coords,types);//it is not a bug. In 1D policy 0 and 1 are equals
-          connSafe=conn; connISafe=connI; coordsSafe=coords;
-          break;
-        case 2:
-          ret=convertLinearCellsToQuadratic2D1(conn,connI,coords,types);
-          connSafe=conn; connISafe=connI; coordsSafe=coords;
-          break;
-        case 3:
-          ret=convertLinearCellsToQuadratic3D1(conn,connI,coords,types);
-          connSafe=conn; connISafe=connI; coordsSafe=coords;
-          break;
-        default:
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion of type 1 mesh dimensions available are [1,2,3] !");
-        }
-        break;
       }
-    default:
-      throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion type available are 0 (default, the simplest) and 1 (the most complex) !");
-    }
+      break;
+        case 1:
+          {
+            switch(meshDim)
+            {
+              case 1:
+                ret=convertLinearCellsToQuadratic1D0(conn,connI,coords,types);//it is not a bug. In 1D policy 0 and 1 are equals
+                connSafe=conn; connISafe=connI; coordsSafe=coords;
+                break;
+              case 2:
+                ret=convertLinearCellsToQuadratic2D1(conn,connI,coords,types);
+                connSafe=conn; connISafe=connI; coordsSafe=coords;
+                break;
+              case 3:
+                ret=convertLinearCellsToQuadratic3D1(conn,connI,coords,types);
+                connSafe=conn; connISafe=connI; coordsSafe=coords;
+                break;
+              default:
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion of type 1 mesh dimensions available are [1,2,3] !");
+            }
+            break;
+          }
+        default:
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertLinearCellsToQuadratic : conversion type available are 0 (default, the simplest) and 1 (the most complex) !");
+  }
   setConnectivity(connSafe,connISafe,false);
   _types=types;
   setCoords(coordsSafe);
@@ -5108,7 +5106,6 @@ DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2DAnd3D0(const MEDC
  */
 DataArrayInt *MEDCouplingUMesh::convertLinearCellsToQuadratic2D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const
 {
-  
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc(DataArrayInt::New()),descI(DataArrayInt::New()),tmp2(DataArrayInt::New()),tmp3(DataArrayInt::New());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1D=buildDescendingConnectivity(desc,descI,tmp2,tmp3); tmp2=0; tmp3=0;
   return convertLinearCellsToQuadratic2DAnd3D0(m1D,desc,descI,conn,connI,coords,types);
@@ -5397,18 +5394,18 @@ void MEDCouplingUMesh::tessellate2DCurve(double eps)
 DataArrayInt *MEDCouplingUMesh::simplexize(int policy)
 {
   switch(policy)
-    {
+  {
     case 0:
       return simplexizePol0();
     case 1:
       return simplexizePol1();
     case (int) INTERP_KERNEL::PLANAR_FACE_5:
-      return simplexizePlanarFace5();
+        return simplexizePlanarFace5();
     case (int) INTERP_KERNEL::PLANAR_FACE_6:
-      return simplexizePlanarFace6();
+        return simplexizePlanarFace6();
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexize : unrecognized policy ! Must be :\n  - 0 or 1 (only available for meshdim=2) \n  - PLANAR_FACE_5, PLANAR_FACE_6  (only for meshdim=3)");
-    }
+  }
 }
 
 /*!
@@ -5471,7 +5468,7 @@ DataArrayInt *MEDCouplingUMesh::simplexizePol0()
       if((INTERP_KERNEL::NormalizedCellType)oldc[ci[0]]==INTERP_KERNEL::NORM_QUAD4)
         {
           const int tmp[8]={(int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+2],oldc[ci[0]+3],
-                            (int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+3],oldc[ci[0]+4]};
+            (int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+3],oldc[ci[0]+4]};
           pt=std::copy(tmp,tmp+8,pt);
           ptI[1]=ptI[0]+4;
           ptI[2]=ptI[0]+8;
@@ -5524,7 +5521,7 @@ DataArrayInt *MEDCouplingUMesh::simplexizePol1()
       if((INTERP_KERNEL::NormalizedCellType)oldc[ci[0]]==INTERP_KERNEL::NORM_QUAD4)
         {
           const int tmp[8]={(int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+2],oldc[ci[0]+4],
-                            (int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+2],oldc[ci[0]+3],oldc[ci[0]+4]};
+            (int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+2],oldc[ci[0]+3],oldc[ci[0]+4]};
           pt=std::copy(tmp,tmp+8,pt);
           ptI[1]=ptI[0]+4;
           ptI[2]=ptI[0]+8;
@@ -5934,15 +5931,15 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
       if(type==INTERP_KERNEL::NORM_POLYHED)
         {
           try
-            {
+          {
               if(!IsPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
                 TryToCorrectPolyhedronOrientation(conn+connI[i]+1,conn+connI[i+1],coordsPtr);
-            }
+          }
           catch(INTERP_KERNEL::Exception& e)
-            {
+          {
               std::ostringstream oss; oss << "Something wrong in polyhedron #" << i << " : " << e.what();
               throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
+          }
         }
     }
   updateTime();
@@ -6017,7 +6014,7 @@ DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DCells()
     {
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
       switch(type)
-        {
+      {
         case INTERP_KERNEL::NORM_TETRA4:
           {
             if(!IsTetra4WellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
@@ -6058,7 +6055,7 @@ DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DCells()
           }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::orientCorrectly3DCells : Your mesh contains type of cell not supported yet ! send mail to anthony.geay@cea.fr to add it !");
-        }
+      }
     }
   updateTime();
   return ret.retn();
@@ -6129,28 +6126,28 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getEdgeRatioField() const
     {
       INTERP_KERNEL::NormalizedCellType t=(INTERP_KERNEL::NormalizedCellType)*conn;
       switch(t)
-        {
-          case INTERP_KERNEL::NORM_TRI3:
-            {
-              FillInCompact3DMode(spaceDim,3,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::triEdgeRatio(tmp);
-              break;
-            }
-          case INTERP_KERNEL::NORM_QUAD4:
-            {
-              FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::quadEdgeRatio(tmp);
-              break;
-            }
-          case INTERP_KERNEL::NORM_TETRA4:
-            {
-              FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::tetraEdgeRatio(tmp);
-              break;
-            }
+      {
+        case INTERP_KERNEL::NORM_TRI3:
+          {
+            FillInCompact3DMode(spaceDim,3,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::triEdgeRatio(tmp);
+            break;
+          }
+        case INTERP_KERNEL::NORM_QUAD4:
+          {
+            FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::quadEdgeRatio(tmp);
+            break;
+          }
+        case INTERP_KERNEL::NORM_TETRA4:
+          {
+            FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::tetraEdgeRatio(tmp);
+            break;
+          }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getEdgeRatioField : A cell with not manged type (NORM_TRI3, NORM_QUAD4 and NORM_TETRA4) has been detected !");
-        }
+      }
       conn+=connI[i+1]-connI[i];
     }
   ret->setName("EdgeRatio");
@@ -6201,28 +6198,28 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getAspectRatioField() const
     {
       INTERP_KERNEL::NormalizedCellType t=(INTERP_KERNEL::NormalizedCellType)*conn;
       switch(t)
-        {
-          case INTERP_KERNEL::NORM_TRI3:
-            {
-              FillInCompact3DMode(spaceDim,3,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::triAspectRatio(tmp);
-              break;
-            }
-          case INTERP_KERNEL::NORM_QUAD4:
-            {
-              FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::quadAspectRatio(tmp);
-              break;
-            }
-          case INTERP_KERNEL::NORM_TETRA4:
-            {
-              FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::tetraAspectRatio(tmp);
-              break;
-            }
+      {
+        case INTERP_KERNEL::NORM_TRI3:
+          {
+            FillInCompact3DMode(spaceDim,3,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::triAspectRatio(tmp);
+            break;
+          }
+        case INTERP_KERNEL::NORM_QUAD4:
+          {
+            FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::quadAspectRatio(tmp);
+            break;
+          }
+        case INTERP_KERNEL::NORM_TETRA4:
+          {
+            FillInCompact3DMode(spaceDim,4,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::tetraAspectRatio(tmp);
+            break;
+          }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getAspectRatioField : A cell with not manged type (NORM_TRI3, NORM_QUAD4 and NORM_TETRA4) has been detected !");
-        }
+      }
       conn+=connI[i+1]-connI[i];
     }
   ret->setName("AspectRatio");
@@ -6272,16 +6269,16 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getWarpField() const
     {
       INTERP_KERNEL::NormalizedCellType t=(INTERP_KERNEL::NormalizedCellType)*conn;
       switch(t)
-        {
-          case INTERP_KERNEL::NORM_QUAD4:
-            {
-              FillInCompact3DMode(3,4,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::quadWarp(tmp);
-              break;
-            }
+      {
+        case INTERP_KERNEL::NORM_QUAD4:
+          {
+            FillInCompact3DMode(3,4,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::quadWarp(tmp);
+            break;
+          }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getWarpField : A cell with not manged type (NORM_QUAD4) has been detected !");
-        }
+      }
       conn+=connI[i+1]-connI[i];
     }
   ret->setName("Warp");
@@ -6332,16 +6329,16 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const
     {
       INTERP_KERNEL::NormalizedCellType t=(INTERP_KERNEL::NormalizedCellType)*conn;
       switch(t)
-        {
-          case INTERP_KERNEL::NORM_QUAD4:
-            {
-              FillInCompact3DMode(3,4,conn+1,coo,tmp);
-              *pt=INTERP_KERNEL::quadSkew(tmp);
-              break;
-            }
+      {
+        case INTERP_KERNEL::NORM_QUAD4:
+          {
+            FillInCompact3DMode(3,4,conn+1,coo,tmp);
+            *pt=INTERP_KERNEL::quadSkew(tmp);
+            break;
+          }
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getSkewField : A cell with not manged type (NORM_QUAD4) has been detected !");
-        }
+      }
       conn+=connI[i+1]-connI[i];
     }
   ret->setName("Skew");
@@ -7052,7 +7049,7 @@ std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
 MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const
 {
   checkConnectivityFullyDefined();
-    if(_types.size()!=1)
+  if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertIntoSingleGeoTypeMesh : current mesh does not contain exactly one geometric type !");
   INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> ret=MEDCoupling1GTUMesh::New(getName(),typ);
@@ -7079,7 +7076,7 @@ MEDCoupling1GTUMesh *MEDCouplingUMesh::convertIntoSingleGeoTypeMesh() const
 DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() const
 {
   checkConnectivityFullyDefined();
-    if(_types.size()!=1)
+  if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh : current mesh does not contain exactly one geometric type !");
   INTERP_KERNEL::NormalizedCellType typ=*_types.begin();
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
@@ -7160,7 +7157,7 @@ void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt
  */
 MEDCouplingUMesh *MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& ms,
                                                                             DataArrayInt *&szOfCellGrpOfSameType,
-                                                                            DataArrayInt *&idInMsOfCellGrpOfSameType) throw(INTERP_KERNEL::Exception)
+                                                                            DataArrayInt *&idInMsOfCellGrpOfSameType)
 {
   std::vector<const MEDCouplingUMesh *> ms2;
   for(std::vector<const MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
@@ -7586,7 +7583,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const MEDCouplingUMesh *mesh1, 
  *  \throw If the coordinates array is not set in none of the meshes.
  *  \throw If \a a[ *i* ]->getMeshDimension() < 0.
  *  \throw If the meshes in \a a are of different dimension (getMeshDimension()).
-*/
+ */
 MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUMesh *>& a)
 {
   std::size_t sz=a.size();
@@ -7932,7 +7929,7 @@ void MEDCouplingUMesh::AppendExtrudedCell(const int *connBg, const int *connEnd,
   ret.push_back(cm.getExtrudedType());
   int deltaz=isQuad?2*nbOfNodesPerLev:nbOfNodesPerLev;
   switch(flatType)
-    {
+  {
     case INTERP_KERNEL::NORM_POINT1:
       {
         ret.push_back(connBg[1]);
@@ -7966,7 +7963,7 @@ void MEDCouplingUMesh::AppendExtrudedCell(const int *connBg, const int *connEnd,
     case INTERP_KERNEL::NORM_TRI6:
       {
         int conn[15]={connBg[1],connBg[2],connBg[3],connBg[1]+deltaz,connBg[2]+deltaz,connBg[3]+deltaz,connBg[4],connBg[5],connBg[6],connBg[4]+deltaz,connBg[5]+deltaz,connBg[6]+deltaz,
-                      connBg[1]+nbOfNodesPerLev,connBg[2]+nbOfNodesPerLev,connBg[3]+nbOfNodesPerLev};
+          connBg[1]+nbOfNodesPerLev,connBg[2]+nbOfNodesPerLev,connBg[3]+nbOfNodesPerLev};
         ret.insert(ret.end(),conn,conn+15);
         break;
       }
@@ -7999,7 +7996,7 @@ void MEDCouplingUMesh::AppendExtrudedCell(const int *connBg, const int *connEnd,
       }
     default:
       throw INTERP_KERNEL::Exception("A flat type has been detected that has not its extruded representation !");
-    }
+  }
 }
 
 /*!
@@ -8658,7 +8655,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
   INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
   IntersectDescending2DMeshes(m1,m2,eps,intersectEdge1,colinear2, subDiv2,
-                                      m1Desc,desc1,descIndx1,revDesc1,revDescIndx1,
+                              m1Desc,desc1,descIndx1,revDesc1,revDescIndx1,
                               addCoo, m2Desc,desc2,descIndx2,revDesc2,revDescIndx2);
   revDesc1->decrRef(); revDescIndx1->decrRef(); revDesc2->decrRef(); revDescIndx2->decrRef();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dd1(desc1),dd2(descIndx1),dd3(desc2),dd4(descIndx2);
@@ -8740,7 +8737,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
       // pol1 is the full cell from mesh2, in QP format, with all the additional intersecting nodes.
       pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
-                                   desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
+          desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
       //
       std::set<INTERP_KERNEL::Edge *> edges1;// store all edges of pol1 that are NOT consumed by intersect cells. If any after iteration over candidates2 -> a part of pol1 should appear in result
       std::set<INTERP_KERNEL::Edge *> edgesBoundary2;// store all edges that are on boundary of (pol2 intersect pol1) minus edges on pol1.
@@ -8759,7 +8756,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
           MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
           // pol2 is the new QP in the final merged result.
           pol2s[ii].buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
-                                             pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2, /* output */ edgesIn2ForShare);
+              pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2, /* output */ edgesIn2ForShare);
         }
       ii=0;
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
@@ -8774,14 +8771,14 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       if(!edges1.empty())
         {
           try
-            {
+          {
               INTERP_KERNEL::QuadraticPolygon::ComputeResidual(pol1,edges1,edgesBoundary2,mapp,offset3,i,addCoordsQuadratic,cr,crI,cNb1,cNb2);
-            }
+          }
           catch(INTERP_KERNEL::Exception& e)
-            {
+          {
               std::ostringstream oss; oss << "Error when computing residual of cell #" << i << " in source/m1 mesh ! Maybe the neighbours of this cell in mesh are not well connected !\n" << "The deep reason is the following : " << e.what();
               throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
+          }
         }
       for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
         (*it).second->decrRef();
@@ -8898,7 +8895,7 @@ DataArrayInt *MEDCouplingUMesh::conformize2D(double eps)
           {
             std::map<INTERP_KERNEL::Node *,int> m;
             INTERP_KERNEL::Edge *e1(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[i]],c+ci[i]+1,coords,m)),
-              *e2(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[*it]],c+ci[*it]+1,coords,m));
+                *e2(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)c[ci[*it]],c+ci[*it]+1,coords,m));
             INTERP_KERNEL::MergePoints merge;
             INTERP_KERNEL::QuadraticPolygon c1,c2;
             e1->intersectWith(e2,merge,c1,c2);
@@ -9059,7 +9056,6 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
                                                    MEDCouplingUMesh *& m1Desc, DataArrayInt *&desc1, DataArrayInt *&descIndx1, DataArrayInt *&revDesc1, DataArrayInt *&revDescIndx1,
                                                    std::vector<double>& addCoo,
                                                    MEDCouplingUMesh *& m2Desc, DataArrayInt *&desc2, DataArrayInt *&descIndx2, DataArrayInt *&revDesc2, DataArrayInt *&revDescIndx2)
-                                                   throw(INTERP_KERNEL::Exception)
 {
   static const int SPACEDIM=2;
   // Build desc connectivity
@@ -9137,8 +9133,8 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
  * \param[out] intersectEdge the same content as subDiv, but correclty oriented.
  */
 void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
-      const std::vector<double>& addCoo,
-      const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge)
+                                           const std::vector<double>& addCoo,
+                                           const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge)
 {
   int offset1=m1->getNumberOfNodes();
   int ncell=m2->getNumberOfCells();
@@ -9203,7 +9199,7 @@ void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MED
 void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3DCurve, std::vector<int>& nodesOnPlane, const int *nodal3DSurf, const int *nodalIndx3DSurf,
                                                    const int *nodal3DCurve, const int *nodalIndx3DCurve,
                                                    const int *desc, const int *descIndx, 
-                                                   std::vector< std::pair<int,int> >& cut3DSurf) throw(INTERP_KERNEL::Exception)
+                                                   std::vector< std::pair<int,int> >& cut3DSurf)
 {
   std::set<int> nodesOnP(nodesOnPlane.begin(),nodesOnPlane.end());
   int nbOf3DSurfCell=(int)cut3DSurf.size();
@@ -9228,7 +9224,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3D
             }
         }
       switch(res.size())
-        {
+      {
         case 2:
           {
             cut3DSurf[i].first=res[0]; cut3DSurf[i].second=res[1];
@@ -9258,7 +9254,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3D
             else
               throw INTERP_KERNEL::Exception("MEDCouplingUMesh::AssemblyPointsFrom3DCurve : unexpected situation !");
           }
-        }
+      }
     }
 }
 
@@ -9273,7 +9269,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3D
  */
 void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<int,int> >& cut3DSurf,
                                                   const int *desc, const int *descIndx,
-                                                  DataArrayInt *nodalRes, DataArrayInt *nodalResIndx, DataArrayInt *cellIds) const throw(INTERP_KERNEL::Exception)
+                                                  DataArrayInt *nodalRes, DataArrayInt *nodalResIndx, DataArrayInt *cellIds) const
 {
   checkFullyDefined();
   if(getMeshDimension()!=3 || getSpaceDimension()!=3)
@@ -9502,7 +9498,7 @@ bool MEDCouplingUMesh::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, cons
  * \sa MEDCouplingUMesh::ExtractFromIndexedArrays2
  */
 void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+                                                DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
 {
   if(!arrIn || !arrIndxIn)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input pointer is NULL !");
@@ -9574,7 +9570,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const 
  * \sa MEDCouplingUMesh::ExtractFromIndexedArrays
  */
 void MEDCouplingUMesh::ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
-                                                 DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+                                                 DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
 {
   if(!arrIn || !arrIndxIn)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays2 : input pointer is NULL !");
@@ -9650,7 +9646,7 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOf
  */
 void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                               const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
-                                              DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+                                              DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
 {
   if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : presence of null pointer in input parameter !");
@@ -9713,7 +9709,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const in
  * \sa MEDCouplingUMesh::SetPartOfIndexedArrays
  */
 void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
-                                                     const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception)
+                                                     const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
 {
   if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : presence of null pointer in input parameter !");
@@ -9855,7 +9851,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg(std::vecto
  */
 void MEDCouplingUMesh::SetPartOfIndexedArrays2(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
-                                               DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+                                               DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut)
 {
   if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays2 : presence of null pointer in input parameter !");
@@ -9917,7 +9913,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays2(int start, int end, int step, con
  * \sa MEDCouplingUMesh::SetPartOfIndexedArrays2 MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx
  */
 void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx2(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
-                                                      const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception)
+                                                      const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex)
 {
   if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx2 : presence of null pointer in input parameter !");
@@ -9976,7 +9972,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf((*it)->begin(),(*it)->end(),true));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cell;
       switch(mdim)
-        {
+      {
         case 2:
           cell=tmp->buildUnionOf2DMesh();
           break;
@@ -9985,8 +9981,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const
           break;
         default:
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSpreadZonesWithPoly : meshdimension supported are [2,3] ! Not implemented yet for others !");
-        }
-      
+      }
+
       ret->insertNextCell((INTERP_KERNEL::NormalizedCellType)cell->getIJSafe(0,0),cell->getNumberOfTuples()-1,cell->getConstPointer()+1);
     }
   //
@@ -10368,7 +10364,7 @@ int MEDCouplingUMesh::split2DCellsQuadratic(const DataArrayInt *desc, const Data
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),
-                                                                                   _own_cell(true),_cell_id(-1),_nb_cell(0)
+    _own_cell(true),_cell_id(-1),_nb_cell(0)
 {
   if(mesh)
     {
@@ -10386,8 +10382,8 @@ MEDCouplingUMeshCellIterator::~MEDCouplingUMeshCellIterator()
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh, MEDCouplingUMeshCell *itc, int bg, int end):_mesh(mesh),_cell(itc),
-                                                                                                                               _own_cell(false),_cell_id(bg-1),
-                                                                                                                               _nb_cell(end)
+    _own_cell(false),_cell_id(bg-1),
+    _nb_cell(end)
 {
   if(mesh)
     mesh->incrRef();
@@ -10423,8 +10419,8 @@ MEDCouplingUMeshCellByTypeEntry::~MEDCouplingUMeshCellByTypeEntry()
 }
 
 MEDCouplingUMeshCellEntry::MEDCouplingUMeshCellEntry(MEDCouplingUMesh *mesh,  INTERP_KERNEL::NormalizedCellType type, MEDCouplingUMeshCell *itc, int bg, int end):_mesh(mesh),_type(type),
-                                                                                                                                                                  _itc(itc),
-                                                                                                                                                                  _bg(bg),_end(end)
+    _itc(itc),
+    _bg(bg),_end(end)
 {
   if(_mesh)
     _mesh->incrRef();

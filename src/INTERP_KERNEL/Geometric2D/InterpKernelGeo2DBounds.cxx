@@ -103,8 +103,8 @@ void Bounds::prepareForAggregation()
  * If diagonal of 'this' is the same order of 2*radius, intrcptArcAngle0 and intrcptArcDelta remains unchanged.
  * @param center IN parameter.
  * @param radius IN parameter.
- * @param intrcptArcAngle0 OUT parameter.
- * @param intrcptArcDelta IN/OUT parameter.
+ * @param [out] intrcptArcAngle0 OUT parameter.
+ * @param [out] intrcptArcDelta OUT parameter.
  */
 void Bounds::getInterceptedArc(const double *center, double radius, double& intrcptArcAngle0, double& intrcptArcDelta) const
 {
