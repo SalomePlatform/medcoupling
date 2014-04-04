@@ -26,7 +26,7 @@
 med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
 {
   switch(medloaderwritemode)
-    {
+  {
     case 2:
       return MED_ACC_CREAT;
     case 1:
@@ -35,7 +35,7 @@ med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
       return MED_ACC_RDWR;
     default:
       throw INTERP_KERNEL::Exception("Invalid write mode specified ! must be 0(write with no question), 1(append) or 2(creation)");
-    }
+  }
 }
 
 const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
@@ -44,7 +44,7 @@ const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
   static const char medInt32[]="MED_INT32";
   static const char medInt64[]="MED_INT64";
   switch(ft)
-    {
+  {
     case MED_FLOAT64:
       return medFloat64;
     case MED_INT32:
@@ -53,7 +53,7 @@ const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
       return medInt64;
     default:
       throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, INT32 or INT64 !");
-    }
+  }
 }
 
 void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const std::string& msg)
@@ -72,7 +72,7 @@ void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
   std::ostringstream oss;
   oss << " File : \"" << fileName << "\"";
   switch(status)
-    {
+  {
     case MEDLoaderBase::DIR_LOCKED:
       {
         oss << " has been detected as unreadable : impossible to read anything !";
@@ -88,7 +88,7 @@ void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
         oss << " has been detected as WRITE ONLY : impossible to read anything !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    }
+  }
   AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   if(fid<0)
     {
@@ -107,11 +107,6 @@ void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
 
 MEDFileUtilities::AutoFid::AutoFid(med_idt fid):_fid(fid)
 {
-}
-
-MEDFileUtilities::AutoFid::operator med_idt() const
-{
-  return _fid;
 }
 
 MEDFileUtilities::AutoFid::~AutoFid()

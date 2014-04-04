@@ -67,7 +67,7 @@ bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, int dt, int
     {
       med_bool changement,transformation;
       int tmp=MEDmeshnEntity(fid,mName,dt,it,entities[i],geoElt,MED_CONNECTIVITY,MED_NODAL,
-                             &changement,&transformation);
+          &changement,&transformation);
       if(tmp>nbOfElt)
         {
           nbOfElt=tmp;
@@ -89,7 +89,7 @@ MEDFileUMeshPerType::MEDFileUMeshPerType(med_idt fid, const char *mName, int dt,
 {
   med_bool changement,transformation;
   int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,
-                                 &changement,&transformation);
+      &changement,&transformation);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(!cm.isDynamic())
     {

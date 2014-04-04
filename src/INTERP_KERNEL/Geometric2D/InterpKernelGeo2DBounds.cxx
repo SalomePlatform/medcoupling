@@ -28,7 +28,7 @@ using namespace INTERP_KERNEL;
 const double& Bounds::operator[](int i) const
 {
   switch(i)
-    {
+  {
     case 0:
       return _x_min;
     case 1:
@@ -37,14 +37,14 @@ const double& Bounds::operator[](int i) const
       return _y_min;
     case 3:
       return _y_max;
-    }
+  }
   throw Exception("internal error occurs !");
 }
 
 double &Bounds::operator[](int i)
 {
   switch(i)
-    {
+  {
     case 0:
       return _x_min;
     case 1:
@@ -53,7 +53,7 @@ double &Bounds::operator[](int i)
       return _y_min;
     case 3:
       return _y_max;
-    }
+  }
   throw Exception("internal error occurs !");
 }
 
@@ -152,10 +152,12 @@ Bounds *Bounds::nearlyAmIIntersectingWith(const Bounds& other) const
       || (other._y_max < _y_min-QUADRATIC_PLANAR::_precision) )
     return 0;
   if( (other._x_min >= _x_max ) || (other._x_max <= _x_min) || (other._y_min >= _y_max) || (other._y_max <= _y_min) )
-    return new Bounds(std::max(_x_min-QUADRATIC_PLANAR::_precision,other._x_min),
-                      std::min(_x_max+QUADRATIC_PLANAR::_precision,other._x_max),
-                      std::max(_y_min-QUADRATIC_PLANAR::_precision,other._y_min),
-                      std::min(_y_max+QUADRATIC_PLANAR::_precision,other._y_max));//In approx cases.
+    {
+      return new Bounds(std::max(_x_min-QUADRATIC_PLANAR::_precision,other._x_min),
+          std::min(_x_max+QUADRATIC_PLANAR::_precision,other._x_max),
+          std::max(_y_min-QUADRATIC_PLANAR::_precision,other._y_min),
+          std::min(_y_max+QUADRATIC_PLANAR::_precision,other._y_max));//In approx cases.
+    }
   else
     return new Bounds(std::max(_x_min,other._x_min),std::min(_x_max,other._x_max),std::max(_y_min,other._y_min),std::min(_y_max,other._y_max));
 }

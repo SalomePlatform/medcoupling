@@ -28,19 +28,19 @@
 #include <algorithm>
 
 ParaMEDMEM::MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                                                       const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception)
+                                                                       const std::vector<double>& gsCoo, const std::vector<double>& w)
 try:_type(type),_ref_coord(refCoo),_gauss_coord(gsCoo),_weight(w)
-  {
-    checkCoherency();
-  }
+{
+  checkCoherency();
+}
 catch(INTERP_KERNEL::Exception& e)
-  {
+{
     _type=INTERP_KERNEL::NORM_ERROR;
     _ref_coord.clear();
     _gauss_coord.clear();
     _weight.clear();
     throw e;
-  }
+}
 
 ParaMEDMEM::MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ)
 try:_type(typ)
@@ -48,10 +48,10 @@ try:_type(typ)
   INTERP_KERNEL::CellModel::GetCellModel(_type);
 }
 catch(INTERP_KERNEL::Exception& e)
-  {
+{
     _type=INTERP_KERNEL::NORM_ERROR;
     throw e;
-  }
+}
 
 void ParaMEDMEM::MEDCouplingGaussLocalization::setType(INTERP_KERNEL::NormalizedCellType typ)
 {
@@ -74,8 +74,8 @@ void ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherency() const
     }
   if(_gauss_coord.size()!=dim*_weight.size())
     {
-       std::ostringstream oss; oss << "Invalid gsCoo size and weight size : gsCoo.size() must be equal to _weight.size() * " << dim << " (dim) !";
-       throw INTERP_KERNEL::Exception(oss.str().c_str());
+      std::ostringstream oss; oss << "Invalid gsCoo size and weight size : gsCoo.size() must be equal to _weight.size() * " << dim << " (dim) !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 

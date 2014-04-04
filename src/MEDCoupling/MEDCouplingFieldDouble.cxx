@@ -347,7 +347,6 @@ void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *othe
     {
       _time_discr->copyTinyAttrFrom(*other->_time_discr);
     }
-  
 }
 
 void MEDCouplingFieldDouble::copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other)
@@ -635,10 +634,10 @@ void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check)
  */
 void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool check)
 {
-   if(!_mesh)
-     throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
-   if(!((const MEDCouplingFieldDiscretization *)_type))
-     throw INTERP_KERNEL::Exception("Expecting a spatial discretization to be able to operate a renumbering !");
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("Expecting a spatial discretization to be able to operate a renumbering !");
   //
   _type->renumberCells(old2NewBg,check);
   std::vector<DataArrayDouble *> arrays;
@@ -888,7 +887,7 @@ TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
 }
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),
-                                                                                              _time_discr(MEDCouplingTimeDiscretization::New(td))
+    _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
@@ -896,12 +895,12 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscr
  * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference) is done for mesh and spatial discretization ! **
  */
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingField(ft,false),
-                                                                                                                _time_discr(MEDCouplingTimeDiscretization::New(td))
+    _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy):MEDCouplingField(other,deepCopy),
-                                                                                                   _time_discr(other._time_discr->performCpy(deepCopy))
+    _time_discr(other._time_discr->performCpy(deepCopy))
 {
 }
 
@@ -1463,7 +1462,7 @@ void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
  * All tuples will have the same value 'value'.
  * An exception is thrown if no underlying mesh is defined.
  */
-MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::operator= : no mesh defined !");
@@ -3007,7 +3006,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingField
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  */
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply += on them !");
@@ -3051,7 +3050,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplin
  *  \throw If the fields are not strictly compatible (areStrictlyCompatible()), i.e. they
  *         differ not only in values.
  */
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply -= on them !");
@@ -3113,7 +3112,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCoupling
  *         (areCompatibleForMul()),
  *         i.e. they differ not only in values and possibly in number of components.
  */
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForMul(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply *= on them !");
@@ -3169,7 +3168,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFi
  *  \throw If the fields are not compatible for division (areCompatibleForDiv()),
  *         i.e. they differ not only in values and possibly in number of components.
  */
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForDiv(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
@@ -3200,12 +3199,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingField
  * 
  * \sa MEDCouplingFieldDouble::PowFields
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::operator^(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::operator^(const MEDCouplingFieldDouble& other) const
 {
   return PowFields(this,&other);
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForDiv(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
@@ -3275,12 +3274,12 @@ void MEDCouplingFieldDouble::reprQuickOverview(std::ostream& stream) const
   stream << "MEDCouplingFieldDouble C++ instance at " << this << ". Name : \"" << _name << "\"." << std::endl;
   const char *nat=0;
   try
-    {
+  {
       nat=MEDCouplingNatureOfField::GetRepr(_nature);
       stream << "Nature of field : " << nat << ".\n";
-    }
+  }
   catch(INTERP_KERNEL::Exception& /*e*/)
-    {  }
+  {  }
   const MEDCouplingFieldDiscretization *fd(_type);
   if(!fd)
     stream << "No spatial discretization set !";

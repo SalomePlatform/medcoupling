@@ -69,9 +69,9 @@ namespace ParaMEDMEM
     int _nb_nodes;
     std::vector< std::vector<int> > _geo_types_distrib;
   }; 
-  
+
   class MEDFileField1TSStructItem;
-  
+
   class MEDMeshMultiLev : public RefCountObject
   {
   public:
@@ -126,9 +126,9 @@ namespace ParaMEDMEM
     static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
     static const unsigned char HEXA27_PERM_ARRAY[27];
   };
-  
+
   class MEDStructuredMeshMultiLev;
-  
+
   class MEDUMeshMultiLev : public MEDMeshMultiLev
   {
   public:
@@ -168,7 +168,7 @@ namespace ParaMEDMEM
   protected:
     bool _is_internal;
   };
-  
+
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
   {
   public:
@@ -223,7 +223,7 @@ namespace ParaMEDMEM
     //! warning this method also set _nb_of_entity attribute !
     void checkInRange(int nbOfEntity, int nip, const MEDFileFieldGlobsReal *globs);
     bool isFastlyEqual(int& startExp, INTERP_KERNEL::NormalizedCellType gt, const std::string& pflName) const;
-    bool operator==(const MEDFileField1TSStructItem2& other) const throw(INTERP_KERNEL::Exception);
+    bool operator==(const MEDFileField1TSStructItem2& other) const;
     bool isCellSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const;
     bool isNodeSupportEqual(const MEDFileField1TSStructItem2& other, const MEDFileFieldGlobsReal *globs) const;
     static MEDFileField1TSStructItem2 BuildAggregationOf(const std::vector<const MEDFileField1TSStructItem2 *>& objs, const MEDFileFieldGlobsReal *globs);
@@ -243,14 +243,14 @@ namespace ParaMEDMEM
     MEDFileField1TSStructItem() { }
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
-    bool operator==(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception);
+    bool operator==(const MEDFileField1TSStructItem& other) const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     bool isEntityCell() const;
     bool isComputed() const { return _computed; }
     TypeOfField getType() const { return _type; }
     std::size_t getNumberOfItems() const { return _items.size(); }
-    const MEDFileField1TSStructItem2& operator[](std::size_t i) const throw(INTERP_KERNEL::Exception);
+    const MEDFileField1TSStructItem2& operator[](std::size_t i) const;
     //
     bool isCellSupportEqual(const MEDFileField1TSStructItem& other, const MEDFileFieldGlobsReal *globs) const;
     bool isNodeSupportEqual(const MEDFileField1TSStructItem& other, const MEDFileFieldGlobsReal *globs) const;

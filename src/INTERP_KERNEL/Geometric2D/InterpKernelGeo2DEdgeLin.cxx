@@ -95,8 +95,8 @@ std::list< IntersectElement > SegSegIntersector::getIntersectionsCharacteristicV
   bool i_2S=_e2.getStartNode()->isEqual(*node);
   bool i_2E=_e2.getEndNode()->isEqual(*node);
   ret.push_back(IntersectElement(_e1.getCharactValue(*node),
-                                 _e2.getCharactValue(*node),
-                                 i_1S,i_1E,i_2S,i_2E,node,_e1,_e2,keepOrder()));
+      _e2.getCharactValue(*node),
+      i_1S,i_1E,i_2S,i_2E,node,_e1,_e2,keepOrder()));
   return ret;
 }
 

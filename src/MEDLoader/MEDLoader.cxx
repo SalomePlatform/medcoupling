@@ -44,89 +44,89 @@
 #include <algorithm>
 
 med_geometry_type typmai[MED_N_CELL_FIXED_GEO] = { MED_POINT1,
-                                                   MED_SEG2,
-                                                   MED_SEG3,
-                                                   MED_SEG4,
-                                                   MED_TRIA3,
-                                                   MED_QUAD4,
-                                                   MED_TRIA6,
-                                                   MED_TRIA7,
-                                                   MED_QUAD8,
-                                                   MED_QUAD9,
-                                                   MED_TETRA4,
-                                                   MED_PYRA5,
-                                                   MED_PENTA6,
-                                                   MED_HEXA8,
-                                                   MED_OCTA12,
-                                                   MED_TETRA10,
-                                                   MED_PYRA13,
-                                                   MED_PENTA15,
-                                                   MED_HEXA20,
-                                                   MED_HEXA27,
-                                                   MED_POLYGON,
-                                                   MED_POLYGON2,
-                                                   MED_POLYHEDRON };
+  MED_SEG2,
+  MED_SEG3,
+  MED_SEG4,
+  MED_TRIA3,
+  MED_QUAD4,
+  MED_TRIA6,
+  MED_TRIA7,
+  MED_QUAD8,
+  MED_QUAD9,
+  MED_TETRA4,
+  MED_PYRA5,
+  MED_PENTA6,
+  MED_HEXA8,
+  MED_OCTA12,
+  MED_TETRA10,
+  MED_PYRA13,
+  MED_PENTA15,
+  MED_HEXA20,
+  MED_HEXA27,
+  MED_POLYGON,
+  MED_POLYGON2,
+  MED_POLYHEDRON };
 
 med_geometry_type typmainoeud[1] = { MED_NONE };
 
 INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO] = { INTERP_KERNEL::NORM_POINT1,
-                                                                    INTERP_KERNEL::NORM_SEG2,
-                                                                    INTERP_KERNEL::NORM_SEG3,
-                                                                    INTERP_KERNEL::NORM_SEG4,
-                                                                    INTERP_KERNEL::NORM_TRI3,
-                                                                    INTERP_KERNEL::NORM_QUAD4,
-                                                                    INTERP_KERNEL::NORM_TRI6,
-                                                                    INTERP_KERNEL::NORM_TRI7,
-                                                                    INTERP_KERNEL::NORM_QUAD8,
-                                                                    INTERP_KERNEL::NORM_QUAD9,
-                                                                    INTERP_KERNEL::NORM_TETRA4,
-                                                                    INTERP_KERNEL::NORM_PYRA5,
-                                                                    INTERP_KERNEL::NORM_PENTA6,
-                                                                    INTERP_KERNEL::NORM_HEXA8,
-                                                                    INTERP_KERNEL::NORM_HEXGP12,
-                                                                    INTERP_KERNEL::NORM_TETRA10,
-                                                                    INTERP_KERNEL::NORM_PYRA13,
-                                                                    INTERP_KERNEL::NORM_PENTA15,
-                                                                    INTERP_KERNEL::NORM_HEXA20,
-                                                                    INTERP_KERNEL::NORM_HEXA27,
-                                                                    INTERP_KERNEL::NORM_POLYGON,
-                                                                    INTERP_KERNEL::NORM_QPOLYG,
-                                                                    INTERP_KERNEL::NORM_POLYHED };
+  INTERP_KERNEL::NORM_SEG2,
+  INTERP_KERNEL::NORM_SEG3,
+  INTERP_KERNEL::NORM_SEG4,
+  INTERP_KERNEL::NORM_TRI3,
+  INTERP_KERNEL::NORM_QUAD4,
+  INTERP_KERNEL::NORM_TRI6,
+  INTERP_KERNEL::NORM_TRI7,
+  INTERP_KERNEL::NORM_QUAD8,
+  INTERP_KERNEL::NORM_QUAD9,
+  INTERP_KERNEL::NORM_TETRA4,
+  INTERP_KERNEL::NORM_PYRA5,
+  INTERP_KERNEL::NORM_PENTA6,
+  INTERP_KERNEL::NORM_HEXA8,
+  INTERP_KERNEL::NORM_HEXGP12,
+  INTERP_KERNEL::NORM_TETRA10,
+  INTERP_KERNEL::NORM_PYRA13,
+  INTERP_KERNEL::NORM_PENTA15,
+  INTERP_KERNEL::NORM_HEXA20,
+  INTERP_KERNEL::NORM_HEXA27,
+  INTERP_KERNEL::NORM_POLYGON,
+  INTERP_KERNEL::NORM_QPOLYG,
+  INTERP_KERNEL::NORM_POLYHED };
 
 med_geometry_type typmai3[34] = { MED_POINT1,//0
-                                  MED_SEG2,//1
-                                  MED_SEG3,//2
-                                  MED_TRIA3,//3
-                                  MED_QUAD4,//4
-                                  MED_POLYGON,//5
-                                  MED_TRIA6,//6
-                                  MED_TRIA7,//7
-                                  MED_QUAD8,//8
-                                  MED_QUAD9,//9
-                                  MED_SEG4,//10
-                                  MED_NONE,//11
-                                  MED_NONE,//12
-                                  MED_NONE,//13
-                                  MED_TETRA4,//14
-                                  MED_PYRA5,//15
-                                  MED_PENTA6,//16
-                                  MED_NONE,//17
-                                  MED_HEXA8,//18
-                                  MED_NONE,//19
-                                  MED_TETRA10,//20
-                                  MED_NONE,//21
-                                  MED_OCTA12,//22
-                                  MED_PYRA13,//23
-                                  MED_NONE,//24
-                                  MED_PENTA15,//25
-                                  MED_NONE,//26
-                                  MED_HEXA27,//27
-                                  MED_NONE,//28
-                                  MED_NONE,//29
-                                  MED_HEXA20,//30
-                                  MED_POLYHEDRON,//31
-                                  MED_POLYGON2,//32
-                                  MED_NONE//33
+  MED_SEG2,//1
+  MED_SEG3,//2
+  MED_TRIA3,//3
+  MED_QUAD4,//4
+  MED_POLYGON,//5
+  MED_TRIA6,//6
+  MED_TRIA7,//7
+  MED_QUAD8,//8
+  MED_QUAD9,//9
+  MED_SEG4,//10
+  MED_NONE,//11
+  MED_NONE,//12
+  MED_NONE,//13
+  MED_TETRA4,//14
+  MED_PYRA5,//15
+  MED_PENTA6,//16
+  MED_NONE,//17
+  MED_HEXA8,//18
+  MED_NONE,//19
+  MED_TETRA10,//20
+  MED_NONE,//21
+  MED_OCTA12,//22
+  MED_PYRA13,//23
+  MED_NONE,//24
+  MED_PENTA15,//25
+  MED_NONE,//26
+  MED_HEXA27,//27
+  MED_NONE,//28
+  MED_NONE,//29
+  MED_HEXA20,//30
+  MED_POLYHEDRON,//31
+  MED_POLYGON2,//32
+  MED_NONE//33
 };
 
 double MEDLoader::_EPS_FOR_NODE_COMP=1.e-12;
@@ -144,7 +144,7 @@ namespace MEDLoaderNS
   int readUMeshDimFromFile(const std::string& fileName, const std::string& meshName, std::vector<int>& possibilities);
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entity_type& whichEntity);
   void writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
-  med_int getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception);
+  med_int getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName);
   std::vector<std::string> getMeshNamesFid(med_idt fid);
 }
 
@@ -214,8 +214,8 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
   return ret;
 }
 
-med_int MEDLoaderNS::getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception)
-{
+med_int MEDLoaderNS::getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName)
+    {
   if(meshName.empty())
     {
       std::vector<std::string> meshes=getMeshNamesFid(fid);
@@ -238,7 +238,7 @@ med_int MEDLoaderNS::getIdFromMeshName(med_idt fid, const std::string& meshName,
     }
   trueMeshName=meshName;
   return iter-meshes.begin()+1;
-}
+    }
 
 std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
 {
@@ -439,7 +439,7 @@ std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesO
           std::vector< std::pair<std::string,std::string> > ret(ncomp);
           for(int j=0;j<ncomp;j++)
             ret[j]=std::pair<std::string,std::string>(MEDLoaderBase::buildStringFromFortran(((char *)comp)+j*MED_SNAME_SIZE,MED_SNAME_SIZE),
-                                                      MEDLoaderBase::buildStringFromFortran(((char *)unit)+j*MED_SNAME_SIZE,MED_SNAME_SIZE));
+                MEDLoaderBase::buildStringFromFortran(((char *)unit)+j*MED_SNAME_SIZE,MED_SNAME_SIZE));
           return ret;
         }
       fields[i]=curFieldName;
@@ -567,7 +567,7 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const std::string
   return ret;
 }
 
-  
+
 std::vector<std::string> MEDLoader::GetMeshGroupsNames(const std::string& fileName, const std::string& meshName)
 {
   CheckFileForRead(fileName);
@@ -633,7 +633,7 @@ std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const std::strin
                     {
                       MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
                       med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-                                                                pflname,&profilesize,locname,&nbi);
+                          pflname,&profilesize,locname,&nbi);
                       if(nbOfVal>0)
                         {
                           ret.push_back(ON_NODES);
@@ -648,7 +648,7 @@ std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const std::strin
                     {
                       MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
                       med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                                                                pflname,&profilesize,locname,&nbi);
+                          pflname,&profilesize,locname,&nbi);
                       if(nbOfVal>0)
                         {
                           found=true;
@@ -722,14 +722,14 @@ std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField 
 {
   CheckFileForRead(fileName);
   switch(type)
-    {
+  {
     case ON_CELLS:
       return GetCellFieldNamesOnMesh(fileName,meshName);
     case ON_NODES:
       return GetNodeFieldNamesOnMesh(fileName,meshName);
     default:
       throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES or ON_CELLS !");
-    } 
+  }
 }
 
 std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
@@ -769,7 +769,7 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const std::string& f
                 {
                   MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
                   med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                                                            pflname,&profilesize,locname,&nbi);
+                      pflname,&profilesize,locname,&nbi);
                   if(nbOfVal>0)
                     {
                       found=true;
@@ -813,7 +813,7 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const std::string& f
           int profilesize,nbi;
           MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
           med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-                                                    pflname,&profilesize,locname,&nbi);
+              pflname,&profilesize,locname,&nbi);
           if(curMeshName==meshName && nbOfVal>0)
             {
               ret.push_back(curFieldName);
@@ -918,14 +918,14 @@ std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::Type
 {
   CheckFileForRead(fileName);
   switch(type)
-    {
+  {
     case ON_CELLS:
       return GetCellFieldIterations(fileName,meshName,fieldName);
     case ON_NODES:
       return GetNodeFieldIterations(fileName,meshName,fieldName);
     default:
       throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES or ON_CELLS !");
-    }
+  }
 }
 
 std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
@@ -966,7 +966,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::s
                   int profilesize,nbi;
                   MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
                   med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                                                            pflname,&profilesize,locname,&nbi);
+                      pflname,&profilesize,locname,&nbi);
                   std::string maa_ass_cpp(maa_ass);
                   if(nbOfVal>0)
                     {
@@ -1035,15 +1035,15 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const std::s
               int profilesize,nbi;
               MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
               med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-                                                        pflname,&profilesize,locname,&nbi);
-               std::string maa_ass_cpp(maa_ass);
-               if(nbOfVal>0)
-                 {
-                   if(meshNameCpp==maa_ass_cpp)
-                     { ret.push_back(std::make_pair(numdt,numo)); }
-                   else
-                     s2.insert(maa_ass_cpp);
-                 }
+                  pflname,&profilesize,locname,&nbi);
+              std::string maa_ass_cpp(maa_ass);
+              if(nbOfVal>0)
+                {
+                  if(meshNameCpp==maa_ass_cpp)
+                    { ret.push_back(std::make_pair(numdt,numo)); }
+                  else
+                    s2.insert(maa_ass_cpp);
+                }
             }
         }
       else
@@ -1124,7 +1124,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fi
       std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromFile : With fileName=\""<< fileName << "\", meshName=\""<< meshName << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
- return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
+  return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax)
@@ -1138,7 +1138,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fi
       std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromFile : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
- return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
+  return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
 int MEDLoader::ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName)
@@ -1159,7 +1159,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const std::string
       std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromFamilies : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-    return mmuPtr->getFamilies(meshDimRelToMax,fams,true);
+  return mmuPtr->getFamilies(meshDimRelToMax,fams,true);
 }
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
@@ -1173,14 +1173,14 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const std::string& 
       std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromGroups : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-    return mmuPtr->getGroups(meshDimRelToMax,grps,true);
+  return mmuPtr->getGroups(meshDimRelToMax,grps,true);
 }
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   CheckFileForRead(fileName);
   switch(type)
-    {
+  {
     case ON_CELLS:
       return ReadFieldCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_NODES:
@@ -1191,11 +1191,11 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField
       return ReadFieldGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     default:
       throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES, ON_CELLS, ON_GAUSS_PT or ON_GAUSS_NE !");
-    } 
+  }
 }
 
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                  const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+                                                                                  const std::vector<std::pair<int,int> >& its)
 {
   if(its.empty())
     return std::vector<ParaMEDMEM::MEDCouplingFieldDouble *>();
@@ -1232,25 +1232,25 @@ std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMes
 }
 
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                            const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+                                                                                      const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_CELLS,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                      const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+                                                                                      const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_NODES,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                       const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+                                                                                       const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_GAUSS_PT,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                         const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+                                                                                         const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
 }

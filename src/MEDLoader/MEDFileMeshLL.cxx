@@ -87,7 +87,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   switch(type_maillage)
-    {
+  {
     case MED_UNSTRUCTURED_MESH:
       meshType=UNSTRUCTURED;
       break;
@@ -96,7 +96,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
         med_grid_type gt;
         MEDmeshGridTypeRd(fid,mname.c_str(),&gt);
         switch(gt)
-          {
+        {
           case MED_CARTESIAN_GRID:
             meshType=CARTESIAN;
             break;
@@ -105,12 +105,12 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
             break;
           default:
             throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
-          }
+        }
         break;
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
-    }
+  }
   med_int numdt,numit;
   med_float dtt;
   MEDmeshComputationStepInfo(fid,mname.c_str(),1,&numdt,&numit,&dtt);
@@ -153,11 +153,11 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> univTmp=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
   if(MEDmeshInfo(fid,mId,nameTmp,&spaceDim,&Mdim,&type_maillage,_description.getPointer(),_dt_unit.getPointer(),
-                 &stype,&nstep,&axistype,axisname,axisunit)!=0)
+      &stype,&nstep,&axistype,axisname,axisunit)!=0)
     throw INTERP_KERNEL::Exception("A problem has been detected when trying to get info on mesh !");
   MEDmeshUniversalNameRd(fid,nameTmp,_univ_name.getPointer());
   switch(type_maillage)
-    {
+  {
     case MED_UNSTRUCTURED_MESH:
       meshType=UNSTRUCTURED;
       break;
@@ -166,7 +166,7 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
         med_grid_type gt;
         MEDmeshGridTypeRd(fid,mName.c_str(),&gt);
         switch(gt)
-          {
+        {
           case MED_CARTESIAN_GRID:
             meshType=CARTESIAN;
             break;
@@ -175,12 +175,12 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
             break;
           default:
             throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getAxisInfoOnMesh : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
-          }
+        }
         break;
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
-    }
+  }
   //
   std::vector<std::string> infosOnComp(naxis);
   for(int i=0;i<naxis;i++)
@@ -428,7 +428,7 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
 med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id)
 {
   switch(id)
-    {
+  {
     case 0:
       return MED_COORDINATE_AXIS1;
     case 1:
@@ -437,7 +437,7 @@ med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id)
       return MED_COORDINATE_AXIS3;
     default:
       throw INTERP_KERNEL::Exception("Invalid meshdim detected in Cartesian Grid !");
-    }
+  }
 }
 
 MEDFileCLMeshL2::MEDFileCLMeshL2()
@@ -862,7 +862,7 @@ void MEDFileUMeshSplitL1::eraseFamilyField()
  * This method ignores _m and _m_by_types.
  */
 void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
-                                               std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception)
+                                               std::map<std::string, std::vector<std::string> >& groups)
 {
   std::vector< DataArrayInt * > corr;
   _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
@@ -1293,7 +1293,6 @@ bool MEDFileUMeshAggregateCompute::empty() const
     return ((const MEDCouplingUMesh *)_m)==0;
   //else _mp_time>=_m_time)
   return _m_parts.empty();
-  
 }
 
 int MEDFileUMeshAggregateCompute::getMeshDimension() const

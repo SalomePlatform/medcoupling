@@ -115,7 +115,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getValueOn(const double *spaceLoc, double time, double *res) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const double *spaceLoc, int nbOfPoints) const;
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const std::string& func);
     MEDCOUPLING_EXPORT void fillFromAnalytic2(int nbOfComp, const std::string& func);
@@ -176,19 +176,19 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const { return MinFields(this,&other); }
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *negate() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return AddFields(this,&other); }
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return SubstractFields(this,&other); }
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return MultiplyFields(this,&other); }
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return DivideFields(this,&other); }
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const;
+    MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT static void WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
   public:

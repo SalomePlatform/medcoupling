@@ -81,7 +81,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnly()
 {
   int meshInterpType=((int)_src_ft->getMesh()->getType()*16)+(int)_target_ft->getMesh()->getType();
   switch(meshInterpType)
-    {
+  {
     case 90:
     case 91:
     case 165:
@@ -106,7 +106,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnly()
       return prepareInterpKernelOnlyEE();
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnly : Not managed type of meshes ! Dealt meshes type are : Unstructured<->Unstructured, Unstructured<->Cartesian, Cartesian<->Cartesian, Extruded<->Extruded !");
-    }
+  }
 }
 
 int MEDCouplingRemapper::prepareNotInterpKernelOnly()
@@ -114,7 +114,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
   std::string srcm,trgm,method;
   method=checkAndGiveInterpolationMethodStr(srcm,trgm);
   switch(CheckInterpolationMethodManageableByNotOnlyInterpKernel(method))
-    {
+  {
     case 0:
       return prepareNotInterpKernelOnlyGaussGauss();
     default:
@@ -122,7 +122,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
         std::ostringstream oss; oss << "MEDCouplingRemapper::prepareNotInterpKernelOnly : INTERNAL ERROR ! the method \"" << method << "\" declared as managed bu not implemented !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    }
+  }
 }
 
 /*!
@@ -281,7 +281,7 @@ int MEDCouplingRemapper::getInterpolationMatrixPolicy() const
 void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol)
 {
   switch(newInterpMatPol)
-    {
+  {
     case 0:
       _interp_matrix_pol=IK_ONLY_PREFERED;
       break;
@@ -296,7 +296,7 @@ void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol)
       break;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::setInterpolationMatrixPolicy : invalid input integer value ! Should be in [0 (IK_PREFERED) , 1 (NOT_IK_PREFERED), 2 (IK_ONLY_FORCED), 3 (NOT_IK_ONLY_FORCED)] ! For information, the default is IK_PREFERED=0 !");
-    }
+  }
 }
 
 int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
@@ -583,7 +583,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUC()
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC : space dim of src unstructured should be equal to mesh dim of src unstructured and should be equal also equal to trg cartesian dimension !");
   std::vector<std::map<int,double> > res;
   switch(srcMeshDim)
-    {
+  {
     case 1:
       {
         MEDCouplingNormalizedCartesianMesh<1> targetWrapper(target_mesh);
@@ -610,7 +610,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUC()
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyUC : only dimension 1 2 or 3 supported !");
-    }
+  }
   ReverseMatrix(res,target_mesh->getNumberOfCells(),_matrix);
   nullifiedTinyCoeffInCrudeMatrixAbs(0.);
   //
@@ -636,7 +636,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCU()
   if(trgMeshDim!=trgSpceDim || trgMeshDim!=srcMeshDim)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCU : space dim of target unstructured should be equal to mesh dim of target unstructured and should be equal also equal to source cartesian dimension !");
   switch(srcMeshDim)
-    {
+  {
     case 1:
       {
         MEDCouplingNormalizedCartesianMesh<1> sourceWrapper(src_mesh);
@@ -663,7 +663,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCU()
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCU : only dimension 1 2 or 3 supported !");
-    }
+  }
   nullifiedTinyCoeffInCrudeMatrixAbs(0.);
   //
   _deno_multiply.clear();
@@ -687,7 +687,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCC()
   if(trgMeshDim!=srcMeshDim)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCC : dim of target cartesian should be equal to dim of source cartesian dimension !");
   switch(srcMeshDim)
-    {
+  {
     case 1:
       {
         MEDCouplingNormalizedCartesianMesh<1> sourceWrapper(src_mesh);
@@ -714,7 +714,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCC()
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyCC : only dimension 1 2 or 3 supported !");
-    }
+  }
   nullifiedTinyCoeffInCrudeMatrixAbs(0.);
   //
   _deno_multiply.clear();
@@ -728,7 +728,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyCC()
 int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
 {
   if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
-      throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : The intersection type is not supported ! Only PointLocator is supported for Gauss->Gauss interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : The intersection type is not supported ! Only PointLocator is supported for Gauss->Gauss interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> trgLoc=_target_ft->getLocalizationOfDiscr();
   const double *trgLocPtr=trgLoc->begin();
   int trgSpaceDim=trgLoc->getNumberOfComponents();
@@ -808,31 +808,31 @@ bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const
   std::string srcm,trgm,method;
   method=checkAndGiveInterpolationMethodStr(srcm,trgm);
   switch(_interp_matrix_pol)
-    {
+  {
     case IK_ONLY_PREFERED:
       {
         try
-          {
+        {
             std::string tmp1,tmp2;
             INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method,tmp1,tmp2);
             return true;
-          }
+        }
         catch(INTERP_KERNEL::Exception& /*e*/)
-          {
+        {
             return false;
-          }
+        }
       }
     case NOT_IK_ONLY_PREFERED:
       {
         try
-          {
+        {
             CheckInterpolationMethodManageableByNotOnlyInterpKernel(method);
             return false;
-          }
+        }
         catch(INTERP_KERNEL::Exception& /*e*/)
-          {
+        {
             return true;
-          }
+        }
       }
     case IK_ONLY_FORCED:
       return true;
@@ -840,7 +840,7 @@ bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const
       return false;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly : internal error ! The interpolation matrix policy is not managed ! Try to change it using MEDCouplingRemapper::setInterpolationMatrixPolicy !");
-    }
+  }
 }
 
 void MEDCouplingRemapper::updateTime() const
@@ -930,7 +930,7 @@ void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldD
   if(nat==NoNature)
     return computeDenoFromScratch(nat,srcField,trgField);
   else if(nat!=_nature_of_deno)
-   return computeDenoFromScratch(nat,srcField,trgField);
+    return computeDenoFromScratch(nat,srcField,trgField);
   else if(nat==_nature_of_deno && _time_deno_update!=getTimeOfThis())
     return computeDenoFromScratch(nat,srcField,trgField);
 }
@@ -940,7 +940,7 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
   _nature_of_deno=nat;
   _time_deno_update=getTimeOfThis();
   switch(_nature_of_deno)
-    {
+  {
     case ConservativeVolumic:
       {
         ComputeRowSumAndColSum(_matrix,_deno_multiply,_deno_reverse_multiply);
@@ -1007,7 +1007,7 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
       }
     case NoNature:
       throw INTERP_KERNEL::Exception("No nature specified ! Select one !");
-    }
+  }
 }
 
 void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNbOfCompo, bool isDftVal, double dftValue, double *resPointer)

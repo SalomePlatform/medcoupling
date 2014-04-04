@@ -31,13 +31,13 @@ namespace INTERP_KERNEL
    * Relative LOC
    */
   typedef enum
-    {
-      IN              = 0,
-      OUT             = 1,
-      ON_BOUNDARY_POS = 2,
-      ON_BOUNDARY_NEG = 3
-    } Position;
-  
+  {
+    IN              = 0,
+    OUT             = 1,
+    ON_BOUNDARY_POS = 2,
+    ON_BOUNDARY_NEG = 3
+  } Position;
+
   class INTERPKERNEL_EXPORT Bounds
   {
   public:

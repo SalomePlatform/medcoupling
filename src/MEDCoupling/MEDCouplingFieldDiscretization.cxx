@@ -128,7 +128,7 @@ MEDCouplingFieldDiscretization::MEDCouplingFieldDiscretization():_precision(DFLT
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField type)
 {
   switch(type)
-    {
+  {
     case MEDCouplingFieldDiscretizationP0::TYPE:
       return new MEDCouplingFieldDiscretizationP0;
     case MEDCouplingFieldDiscretizationP1::TYPE:
@@ -141,7 +141,7 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
       return new MEDCouplingFieldDiscretizationKriging;
     default:
       throw INTERP_KERNEL::Exception("Choosen discretization is not implemented yet.");
-    }
+  }
 }
 
 TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const std::string& repr)
@@ -353,13 +353,13 @@ double MEDCouplingFieldDiscretization::getIJK(const MEDCouplingMesh *mesh, const
 }
 
 void MEDCouplingFieldDiscretization::setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                                                const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                                                const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
 void MEDCouplingFieldDiscretization::setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
-                                                                 const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                                                 const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
@@ -423,7 +423,7 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, cons
       if(newNb>=0)//if newNb<0 the node is considered as out.
         {
           if(std::find_if(ptToFill+newNb*nbOfComp,ptToFill+(newNb+1)*nbOfComp,std::bind2nd(std::not_equal_to<double>(),std::numeric_limits<double>::max()))
-             ==ptToFill+(newNb+1)*nbOfComp)
+          ==ptToFill+(newNb+1)*nbOfComp)
             std::copy(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp);
           else
             {
@@ -563,7 +563,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationP0::getOffsetArr(const MEDCouplingMe
 }
 
 void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                                                             const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+                                                             const int *old2NewBg, bool check)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::renumberArraysForCell : NULL input mesh !");
@@ -587,7 +587,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues(c
 }
 
 void MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                                                          DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception)
+                                                                          DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds : NULL input mesh !");
@@ -799,7 +799,7 @@ int MEDCouplingFieldDiscretizationOnNodes::getNumberOfMeshPlaces(const MEDCoupli
  * Nothing to do here.
  */
 void MEDCouplingFieldDiscretizationOnNodes::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArray *>& arrays,
-                                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+                                                                  const int *old2NewBg, bool check)
 {
 }
 
@@ -822,7 +822,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationOnNodes::getLocalizationOfDiscVal
 }
 
 void MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception)
+                                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds : NULL input mesh !");
@@ -851,7 +851,7 @@ void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCoupl
 
 /*!
  * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
-* @param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
+ * @param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first node id of returned mesh has the (*di)[0] id in 'mesh'
  */
 MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
@@ -1464,7 +1464,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplin
 }
 
 void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                                                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+                                                                const int *old2NewBg, bool check)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::renumberArraysForCell : NULL input mesh !");
@@ -1524,8 +1524,8 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
       INTERP_KERNEL::NormalizedCellType typ=cli.getType();
       const std::vector<double>& wg=cli.getWeights();
       calculator.addGaussInfo(typ,INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension(),
-                                  &cli.getGaussCoords()[0],(int)wg.size(),&cli.getRefCoords()[0],
-                                  INTERP_KERNEL::CellModel::GetCellModel(typ).getNumberOfNodes());
+          &cli.getGaussCoords()[0],(int)wg.size(),&cli.getRefCoords()[0],
+          INTERP_KERNEL::CellModel::GetCellModel(typ).getNumberOfNodes());
       //
       int nbt=parts2[i]->getNumberOfTuples();
       for(const int *w=parts2[i]->getConstPointer();w!=parts2[i]->getConstPointer()+nbt;w++)
@@ -1536,7 +1536,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
 }
 
 void MEDCouplingFieldDiscretizationGauss::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                                                             DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception)
+                                                                             DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeMeshRestrictionFromTupleIds : NULL input mesh !");
@@ -1820,7 +1820,7 @@ void MEDCouplingFieldDiscretizationGauss::renumberValuesOnCellsR(const MEDCoupli
 }
 
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCouplingMesh *mesh, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                                                     const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType : NULL input mesh !");
@@ -1844,7 +1844,7 @@ void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCo
 }
 
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(const MEDCouplingMesh *mesh, const int *begin, const int *end, const std::vector<double>& refCoo,
-                                                                      const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                                                      const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells : NULL input mesh !");
@@ -2179,7 +2179,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGaussNE::getOffsetArr(const MEDCoupl
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArray *>& arrays,
-                                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+                                                                  const int *old2NewBg, bool check)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell : NULL input mesh !");
@@ -2277,7 +2277,7 @@ void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh
 const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth)
 {
   switch(geoType)
-    {
+  {
     case INTERP_KERNEL::NORM_POINT1:
       lgth=(int)sizeof(FGP_POINT1)/sizeof(double);
       return FGP_POINT1;
@@ -2337,13 +2337,13 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometric
       return FGP_PYRA13;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
-    }
+  }
 }
 
 const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth)
 {
   switch(geoType)
-    {
+  {
     case INTERP_KERNEL::NORM_POINT1:
       lgth=0;
       return 0;
@@ -2403,13 +2403,13 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricTy
       return REF_PYRA13;
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
-    }
+  }
 }
 
 const double *MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth)
 {
   switch(geoType)
-    {
+  {
     case INTERP_KERNEL::NORM_POINT1:
       {
         lgth=0;
@@ -2507,11 +2507,11 @@ const double *MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType(IN
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::GetLocsFromGeometricType : only SEG[2,3,4], TRI[3,6,7], QUAD[4,8,9], TETRA[4,10], PENTA[6,15], HEXA[8,20,27], PYRA[5,13] supported !");
-    }
+  }
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
-                                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const throw(INTERP_KERNEL::Exception)
+                                                                               DataArrayInt *&cellRestriction, DataArrayInt *&trueTupleRestriction) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::computeMeshRestrictionFromTupleIds : NULL input mesh !");
@@ -2874,7 +2874,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficie
 void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const
 {
   switch(spaceDimension)
-    {
+  {
     case 1:
       {
         for(int i=0;i<nbOfElems;i++)
@@ -2901,7 +2901,7 @@ void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimens
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : only dimension 1, 2 and 3 implemented !");
-    }
+  }
 }
 
 /*!

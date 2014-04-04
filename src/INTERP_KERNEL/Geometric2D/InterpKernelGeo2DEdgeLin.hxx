@@ -27,23 +27,23 @@
 namespace INTERP_KERNEL
 {
   class INTERPKERNEL_EXPORT SegSegIntersector : SameTypeEdgeIntersector
-    {
-      friend class Edge;
-    public:
-      SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2);
-      bool areColinears() const;
-      bool haveTheySameDirection() const;
-      void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-      void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
-      std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
-    private:
-      void getCurveAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode) const;
-    private:
-      //! index on which all single index op will be performed. Filled in case colinearity is equal to true.
-      int _ind;
-      double _col[2];
-      double _matrix[4];//SPACEDIM*SPACEDIM
-    };
+  {
+    friend class Edge;
+  public:
+    SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2);
+    bool areColinears() const;
+    bool haveTheySameDirection() const;
+    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
+    void areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped);
+    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
+  private:
+    void getCurveAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode) const;
+  private:
+    //! index on which all single index op will be performed. Filled in case colinearity is equal to true.
+    int _ind;
+    double _col[2];
+    double _matrix[4];//SPACEDIM*SPACEDIM
+  };
 
   class INTERPKERNEL_EXPORT EdgeLin : public Edge
   {

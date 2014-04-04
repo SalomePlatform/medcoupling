@@ -82,7 +82,7 @@ namespace ParaMEDMEM
     _ownership=false;
     _dealloc=CPPDeallocator;
   }
-  
+
   template<class T>
   void MemArray<T>::writeOnPlace(std::size_t id, T element0, const T *others, std::size_t sizeOfOthers)
   {
@@ -93,7 +93,7 @@ namespace ParaMEDMEM
     std::copy(others,others+sizeOfOthers,pointer+id+1);
     _nb_of_elem=std::max<std::size_t>(_nb_of_elem,id+sizeOfOthers+1);
   }
-  
+
   template<class T>
   template<class InputIterator>
   void MemArray<T>::insertAtTheEnd(InputIterator first, InputIterator last)
@@ -109,7 +109,7 @@ namespace ParaMEDMEM
         pointer[_nb_of_elem++]=*first++;
       }
   }
-  
+
   template<class T>
   void MemArray<T>::pushBack(T elem)
   {
@@ -118,7 +118,7 @@ namespace ParaMEDMEM
     T *pt=getPointer();
     pt[_nb_of_elem++]=elem;
   }
-  
+
   template<class T>
   T MemArray<T>::popBack()
   {
@@ -129,7 +129,7 @@ namespace ParaMEDMEM
       }
     throw INTERP_KERNEL::Exception("MemArray::popBack : nothing to pop in array !");
   }
-  
+
   template<class T>
   void MemArray<T>::pack() const
   {
@@ -180,7 +180,7 @@ namespace ParaMEDMEM
       {
         if(sl!=0)
           stream << _nb_of_elem/sl << std::endl << "Internal memory facts : " << _nb_of_elem << "/" << _nb_of_elem_alloc;
-       else
+        else
           stream << "Empty Data";
       }
     else
@@ -192,7 +192,7 @@ namespace ParaMEDMEM
       stream << "No data !\n";
     return ret;
   }
-  
+
   /*!
    * \param [in] sl is typically the number of components
    */
@@ -217,7 +217,7 @@ namespace ParaMEDMEM
           stream << "Empty Data\n";
       }
   }
-  
+
   /*!
    * \param [in] sl is typically the number of components
    */
@@ -257,14 +257,14 @@ namespace ParaMEDMEM
     else
       stream << "No data !\n";
   }
-  
+
   template<class T>
   void MemArray<T>::fillWithValue(const T& val)
   {
     T *pt=_pointer.getPointer();
     std::fill(pt,pt+_nb_of_elem,val);
   }
-  
+
   template<class T>
   T *MemArray<T>::fromNoInterlace(int nbOfComp) const
   {
@@ -279,7 +279,7 @@ namespace ParaMEDMEM
         *w=pt[j*nbOfTuples+i];
     return ret;
   }
-  
+
   template<class T>
   T *MemArray<T>::toNoInterlace(int nbOfComp) const
   {
@@ -409,14 +409,14 @@ namespace ParaMEDMEM
   typename MemArray<T>::Deallocator MemArray<T>::BuildFromType(DeallocType type)
   {
     switch(type)
-      {
+    {
       case CPP_DEALLOC:
         return CPPDeallocator;
       case C_DEALLOC:
         return CDeallocator;
       default:
         throw INTERP_KERNEL::Exception("Invalid deallocation requested ! Unrecognized enum DeallocType !");
-      }
+    }
   }
 
   template<class T>
@@ -438,7 +438,7 @@ namespace ParaMEDMEM
     _nb_of_elem=0;
     _nb_of_elem_alloc=0;
   }
-  
+
   template<class T>
   MemArray<T> &MemArray<T>::operator=(const MemArray<T>& other)
   {

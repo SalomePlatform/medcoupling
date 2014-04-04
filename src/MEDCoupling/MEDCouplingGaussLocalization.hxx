@@ -35,7 +35,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                                    const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
+                                                    const std::vector<double>& gsCoo, const std::vector<double>& w);
     MEDCOUPLING_EXPORT MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ);
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
     MEDCOUPLING_EXPORT void setType(INTERP_KERNEL::NormalizedCellType typ);

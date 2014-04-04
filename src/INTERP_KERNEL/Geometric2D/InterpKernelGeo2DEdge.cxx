@@ -31,7 +31,7 @@
 using namespace INTERP_KERNEL;
 
 MergePoints::MergePoints():_ass1Start1(0),_ass1End1(0),_ass1Start2(0),_ass1End2(0),
-                           _ass2Start1(0),_ass2End1(0),_ass2Start2(0),_ass2End2(0)
+    _ass2Start1(0),_ass2End1(0),_ass2Start2(0),_ass2End2(0)
 {
 }
 
@@ -165,20 +165,20 @@ unsigned MergePoints::getNumberOfAssociations() const
 
 IntersectElement::IntersectElement(double val1, double val2, bool start1, bool end1, bool start2, bool end2, Node *node
                                    , const Edge& e1, const Edge& e2, bool keepOrder):_1S(keepOrder?start1:start2),
-                                                                                     _1E(keepOrder?end1:end2),
-                                                                                     _2S(keepOrder?start2:start1),
-                                                                                     _2E(keepOrder?end2:end1),
-                                                                                     _chararct_val_for_e1(keepOrder?val1:val2),
-                                                                                     _chararct_val_for_e2(keepOrder?val2:val1),
-                                                                                     _node(node),_loc_of_node(node->getLoc()),_e1(keepOrder?e1:e2),
-                                                                                     _e2(keepOrder?e2:e1)
+                                       _1E(keepOrder?end1:end2),
+                                       _2S(keepOrder?start2:start1),
+                                       _2E(keepOrder?end2:end1),
+                                       _chararct_val_for_e1(keepOrder?val1:val2),
+                                       _chararct_val_for_e2(keepOrder?val2:val1),
+                                       _node(node),_loc_of_node(node->getLoc()),_e1(keepOrder?e1:e2),
+                                       _e2(keepOrder?e2:e1)
 {
 }
 
 IntersectElement::IntersectElement(const IntersectElement& other):_1S(other._1S),_1E(other._1E),_2S(other._2S),_2E(other._2E),
-                                                                  _chararct_val_for_e1(other._chararct_val_for_e1),
-                                                                  _chararct_val_for_e2(other._chararct_val_for_e2),_node(other._node),
-                                                                  _loc_of_node(other._loc_of_node),_e1(other._e1), _e2(other._e2)
+    _chararct_val_for_e1(other._chararct_val_for_e1),
+    _chararct_val_for_e2(other._chararct_val_for_e2),_node(other._node),
+    _loc_of_node(other._loc_of_node),_e1(other._e1), _e2(other._e2)
 {
   if(_node)
     _node->incrRef();
@@ -302,7 +302,7 @@ bool IntersectElement::isIncludedByBoth() const
 {
   return _e1.isIn(_chararct_val_for_e1) && _e2.isIn(_chararct_val_for_e2);
 }
-  
+
 bool EdgeIntersector::intersect(const Bounds *whereToFind, std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode)
 {
   std::list< IntersectElement > listOfIntesc=getIntersectionsCharacteristicVal();
@@ -358,7 +358,7 @@ bool EdgeIntersector::intersect(const Bounds *whereToFind, std::vector<Node *>& 
  * Locates 'node' regarding edge this->_e1. If node is located close to (with distant lt epsilon) start or end point of _e1,
  * 'node' takes its place. In this case 'obvious' is set to true and 'commonNode' stores information of merge point and finally 'where' is set.
  * Furthermore 'node' is declared as ON LIMIT to indicate in locating process that an absolute location computation will have to be done.
- * If 'node' is not close to start or end point of _e1, 'obvious' is set to false and 'commonNode' and 'where' are let unchanged. 
+ * If 'node' is not close to start or end point of _e1, 'obvious' is set to false and 'commonNode' and 'where' are let unchanged.
  */
 void EdgeIntersector::obviousCaseForCurvAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode, bool& obvious) const
 {
@@ -438,7 +438,7 @@ void Edge::declareOut() const
 void Edge::fillXfigStreamForLoc(std::ostream& stream) const
 {
   switch(_loc)
-    {
+  {
     case FULL_IN_1:
       stream << '2';//Green
       break;
@@ -450,7 +450,7 @@ void Edge::fillXfigStreamForLoc(std::ostream& stream) const
       break;
     default:
       stream << '0';
-    }
+  }
 }
 
 bool Edge::changeStartNodeWith(Node *otherStartNode) const
@@ -662,7 +662,7 @@ EdgeIntersector *Edge::BuildIntersectorWith(const Edge *e1, const Edge *e2)
   e2->dynCastFunction(tmp1,tmp2);
   type1|=type2;
   switch(type1)
-    {
+  {
     case 1:// Intersection seg/seg
       ret=new SegSegIntersector((const EdgeLin &)(*e1),(const EdgeLin &)(*e2));
       break;
@@ -675,7 +675,7 @@ EdgeIntersector *Edge::BuildIntersectorWith(const Edge *e1, const Edge *e2)
     default:
       //Should never happen
       throw Exception("A non managed association of edge has been detected. Go work for intersection computation implementation.");
-    }
+  }
   return ret;
 }
 
@@ -755,48 +755,49 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
 {
   Edge *tmp;
   switch(code)
-    {
+  {
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+START:      // OUT_BEFORE - START
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_BEFORE: // OUT_BEFORE - OUT_BEFORE
     case OUT_AFTER*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:   // OUT_AFTER - OUT_AFTER
     case END*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:         // END - OUT_AFTER
     case END*OFFSET_FOR_TYPEOFLOCINEDGE+START:             // END - START
-      return false;
+    return false;
     case INSIDE*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:      // INSIDE - OUT_AFTER
-      outVal1.pushBack(e1->buildEdgeLyingOnMe(e1->getStartNode(),nS,true));
-      tmp=e1->buildEdgeLyingOnMe(nS,e1->getEndNode()); tmp->incrRef();
-      outVal1.pushBack(tmp);
-      outVal2.resize(2);
-      outVal2.setValueAt(direction?0:1,tmp,direction); tmp->declareOn();
-      outVal2.setValueAt(direction?1:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
-      return true;
+    outVal1.pushBack(e1->buildEdgeLyingOnMe(e1->getStartNode(),nS,true));
+    tmp=e1->buildEdgeLyingOnMe(nS,e1->getEndNode()); tmp->incrRef();
+    outVal1.pushBack(tmp);
+    outVal2.resize(2);
+    outVal2.setValueAt(direction?0:1,tmp,direction); tmp->declareOn();
+    outVal2.setValueAt(direction?1:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
+    return true;
     case INSIDE*OFFSET_FOR_TYPEOFLOCINEDGE+INSIDE:         // INSIDE - INSIDE
-      {
-        if(!e2->isIn(e2->getCharactValue(*(e1->getStartNode()))))
-          {
-            e2->incrRef(); e2->incrRef();
-            outVal1.resize(3);
-            outVal1.setValueAt(0,e1->buildEdgeLyingOnMe(e1->getStartNode(),nS));
-            outVal1.setValueAt(1,const_cast<Edge*>(e2),direction);
-            outVal1.setValueAt(2,e1->buildEdgeLyingOnMe(nE,e1->getEndNode()));
-            outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
-            return true;
-          }
-        else
-          {
-            outVal1.resize(3);
-            outVal2.resize(3);
-            tmp=e1->buildEdgeLyingOnMe(e1->getStartNode(),nE); tmp->incrRef(); tmp->declareOn();
-            outVal1.setValueAt(0,tmp,true); outVal2.setValueAt(direction?2:0,tmp,direction);
-            outVal1.setValueAt(1,e1->buildEdgeLyingOnMe(nE,nS));
-            tmp=e1->buildEdgeLyingOnMe(nS,e1->getEndNode()); tmp->incrRef(); tmp->declareOn();
-            outVal1.setValueAt(2,tmp,true); outVal2.setValueAt(direction?0:2,tmp,direction);
-            tmp=e1->buildEdgeLyingOnMe(e1->getEndNode(),e1->getStartNode());
-            outVal2.setValueAt(1,tmp,direction);
-            return true;
-          }
-      }
+    {
+      if(!e2->isIn(e2->getCharactValue(*(e1->getStartNode()))))
+        {
+          e2->incrRef(); e2->incrRef();
+          outVal1.resize(3);
+          outVal1.setValueAt(0,e1->buildEdgeLyingOnMe(e1->getStartNode(),nS));
+          outVal1.setValueAt(1,const_cast<Edge*>(e2),direction);
+          outVal1.setValueAt(2,e1->buildEdgeLyingOnMe(nE,e1->getEndNode()));
+          outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
+          return true;
+        }
+      else
+        {
+          outVal1.resize(3);
+          outVal2.resize(3);
+          tmp=e1->buildEdgeLyingOnMe(e1->getStartNode(),nE); tmp->incrRef(); tmp->declareOn();
+          outVal1.setValueAt(0,tmp,true); outVal2.setValueAt(direction?2:0,tmp,direction);
+          outVal1.setValueAt(1,e1->buildEdgeLyingOnMe(nE,nS));
+          tmp=e1->buildEdgeLyingOnMe(nS,e1->getEndNode()); tmp->incrRef(); tmp->declareOn();
+          outVal1.setValueAt(2,tmp,true); outVal2.setValueAt(direction?0:2,tmp,direction);
+          tmp=e1->buildEdgeLyingOnMe(e1->getEndNode(),e1->getStartNode());
+          outVal2.setValueAt(1,tmp,direction);
+          return true;
+        }
+    }
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+INSIDE:     // OUT_BEFORE - INSIDE
+    {
       tmp=e1->buildEdgeLyingOnMe(e1->getStartNode(),nE); tmp->incrRef();
       outVal1.pushBack(tmp);
       outVal1.pushBack(e1->buildEdgeLyingOnMe(nE,e1->getEndNode()));
@@ -804,7 +805,9 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
       outVal2.setValueAt(direction?0:1,e1->buildEdgeLyingOnMe(nS,e1->getStartNode(),direction));
       outVal2.setValueAt(direction?1:0,tmp,direction); tmp->declareOn();
       return true;
+    }
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:  // OUT_BEFORE - OUT_AFTER
+    {
       e1->incrRef(); e1->incrRef();
       outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.resize(3);
@@ -812,38 +815,50 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
       outVal2.setValueAt(1,const_cast<Edge*>(e1),direction); e1->declareOn();
       outVal2.setValueAt(direction?2:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
       return true;
+    }
     case START*OFFSET_FOR_TYPEOFLOCINEDGE+END:             // START - END
+    {
       e1->incrRef(); e1->incrRef();
       outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.pushBack(const_cast<Edge*>(e1),direction); e1->declareOn();
       return true;
+    }
     case START*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:       // START - OUT_AFTER
+    {
       e1->incrRef(); e1->incrRef();
       outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.resize(2);
       outVal2.setValueAt(direction?0:1,const_cast<Edge*>(e1),direction); e1->declareOn();
       outVal2.setValueAt(direction?1:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
       return true;
+    }
     case INSIDE*OFFSET_FOR_TYPEOFLOCINEDGE+END:            // INSIDE - END
+    {
       e2->incrRef(); e2->incrRef();
       outVal1.pushBack(e1->buildEdgeLyingOnMe(e1->getStartNode(),nS,true));
       outVal1.pushBack(const_cast<Edge*>(e2),direction);
       outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
       return true;
+    }
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+END:        // OUT_BEFORE - END
+    {
       e1->incrRef(); e1->incrRef();
       outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.resize(2);
       outVal2.setValueAt(direction?0:1,e1->buildEdgeLyingOnMe(nS,e1->getStartNode(),direction));
       outVal2.setValueAt(direction?1:0,const_cast<Edge*>(e1),direction); e1->declareOn();
       return true;
+    }
     case START*OFFSET_FOR_TYPEOFLOCINEDGE+INSIDE:          // START - INSIDE
+    {
       e2->incrRef(); e2->incrRef();
       outVal1.pushBack(const_cast<Edge*>(e2),direction);
       outVal1.pushBack(e1->buildEdgeLyingOnMe(nE,e1->getEndNode()));
       outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
       return true;
+    }
     case INSIDE*OFFSET_FOR_TYPEOFLOCINEDGE+START:          // INSIDE - START
+    {
       outVal1.resize(2);
       outVal2.resize(2);
       tmp=e1->buildEdgeLyingOnMe(nS,e1->getEndNode()); tmp->incrRef(); tmp->declareOn();
@@ -852,7 +867,9 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
       outVal2.setValueAt(direction?0:1,tmp,direction);
       outVal2.setValueAt(direction?1:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
       return true;
+    }
     case END*OFFSET_FOR_TYPEOFLOCINEDGE+INSIDE:            // END - INSIDE
+    {
       outVal1.resize(2);
       outVal2.resize(2);
       tmp=e1->buildEdgeLyingOnMe(e1->getStartNode(),nE); tmp->incrRef(); tmp->declareOn();
@@ -861,9 +878,10 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
       outVal2.setValueAt(direction?0:1,e1->buildEdgeLyingOnMe(e1->getEndNode(),e1->getStartNode(),direction));
       outVal2.setValueAt(direction?1:0,tmp,direction);
       return true;
+    }
     default:
       throw Exception("Unexpected situation of overlapping edges : internal error occurs ! ");
-    }
+  }
 }
 
 bool Edge::isEqual(const Edge& other) const

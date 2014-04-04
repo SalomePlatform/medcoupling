@@ -27,7 +27,7 @@
 using namespace ParaMEDMEM;
 
 const unsigned char MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE[MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE_LGTH]=
-  {1,3,21,5,9,7,22,34,23,28,255,255,255,255,10,14,13,255,12,255,24,255,16,27,255,26,255,29,255,255,25,42,36,4};
+{1,3,21,5,9,7,22,34,23,28,255,255,255,255,10,14,13,255,12,255,24,255,16,27,255,26,255,29,255,255,25,42,36,4};
 
 const unsigned char MEDMeshMultiLev::HEXA27_PERM_ARRAY[27]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24,22,21,23,20,25,26};
 
@@ -438,7 +438,7 @@ int MEDMeshMultiLev::getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const
   std::size_t sz(_nb_entities.size());
   for(std::size_t i=0;i<sz;i++)
     if(_geo_types[i]==t)
-        return _nb_entities[i];
+      return _nb_entities[i];
   throw INTERP_KERNEL::Exception("MEDMeshMultiLev::getNumberOfCells : not existing geometric type in this !");
 }
 
@@ -459,7 +459,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
       if(pflName.empty() && !nr)
         return vals->deepCpy();
       if(pflName.empty() && nr)
-         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 2 !");
+        throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 2 !");
       if(!pflName.empty() && nr)
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
@@ -852,44 +852,44 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
 
 void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
 {
-   if(!pflNodes || !pflNodes->isAllocated())
-     return ;
-   std::size_t sz(_parts.size());
-   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a(sz);
-   std::vector< const DataArrayInt *> aa(sz);
-   for(std::size_t i=0;i<sz;i++)
-     {
-       const DataArrayInt *pfl(_pfls[i]);
-       MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m(_parts[i]);
-       if(pfl)
-         m=dynamic_cast<MEDCoupling1GTUMesh *>(_parts[i]->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
-       DataArrayInt *cellIds=0;
-       m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
-       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
-       MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
-       int tmp=-1;
-       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(m2->getNodeIdsInUse(tmp));
-       a[i]=o2n->invertArrayO2N2N2O(tmp); aa[i]=a[i];
-       if(pfl)
-         _pfls[i]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
-       else
-         _pfls[i]=cellIdsSafe;
-     }
-   if(!aa.empty())
-     _node_reduction=DataArrayInt::Aggregate(aa);//general case
-   else
-     _node_reduction=pflNodes->deepCpy();//case where no cells in read mesh.
-   _node_reduction->sort(true);
-   _node_reduction=_node_reduction->buildUnique();
-   if(_node_reduction->getNumberOfTuples()==pflNodes->getNumberOfTuples())
-     return ;//This is the classical case where the input node profile corresponds perfectly to a subset of cells in _parts
-   if(_node_reduction->getNumberOfTuples()>pflNodes->getNumberOfTuples())
-     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::selectPartOfNodes : internal error in MEDCoupling during cell select from a list of nodes !");
-   // Here the cells available in _parts is not enough to cover all the nodes in pflNodes. So adding vertices cells in _parts...
-   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflNodes2(pflNodes->deepCpy());
-   pflNodes2->sort(true);
-   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
-   appendVertices(diff,pflNodes2);
+  if(!pflNodes || !pflNodes->isAllocated())
+    return ;
+  std::size_t sz(_parts.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a(sz);
+  std::vector< const DataArrayInt *> aa(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const DataArrayInt *pfl(_pfls[i]);
+      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m(_parts[i]);
+      if(pfl)
+        m=dynamic_cast<MEDCoupling1GTUMesh *>(_parts[i]->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+      DataArrayInt *cellIds=0;
+      m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
+      int tmp=-1;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(m2->getNodeIdsInUse(tmp));
+      a[i]=o2n->invertArrayO2N2N2O(tmp); aa[i]=a[i];
+      if(pfl)
+        _pfls[i]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
+      else
+        _pfls[i]=cellIdsSafe;
+    }
+  if(!aa.empty())
+    _node_reduction=DataArrayInt::Aggregate(aa);//general case
+  else
+    _node_reduction=pflNodes->deepCpy();//case where no cells in read mesh.
+  _node_reduction->sort(true);
+  _node_reduction=_node_reduction->buildUnique();
+  if(_node_reduction->getNumberOfTuples()==pflNodes->getNumberOfTuples())
+    return ;//This is the classical case where the input node profile corresponds perfectly to a subset of cells in _parts
+  if(_node_reduction->getNumberOfTuples()>pflNodes->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::selectPartOfNodes : internal error in MEDCoupling during cell select from a list of nodes !");
+  // Here the cells available in _parts is not enough to cover all the nodes in pflNodes. So adding vertices cells in _parts...
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflNodes2(pflNodes->deepCpy());
+  pflNodes2->sort(true);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
+  appendVertices(diff,pflNodes2);
 }
 
 MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const
@@ -1257,7 +1257,7 @@ bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMu
     throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase only one geo types supported at most supported for the moment !");
   INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(_mesh->getMeshDimension()));
   if(_geo_types[0]==gt)
-     return false;
+    return false;
   MEDCoupling1GTUMesh *facesIfPresent((static_cast<const MEDFileStructuredMesh *>(_mesh))->getImplicitFaceMesh());
   if(!facesIfPresent)
     return false;
@@ -1436,7 +1436,7 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
           ret2->setNumberIdsOnCells(tmp,false);
         }
       return ret2.retn();
-      
+
     }
   else
     {
@@ -1707,7 +1707,7 @@ bool MEDFileField1TSStructItem2::isFastlyEqual(int& startExp, INTERP_KERNEL::Nor
   return true;
 }
 
-bool MEDFileField1TSStructItem2::operator==(const MEDFileField1TSStructItem2& other) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem2::operator==(const MEDFileField1TSStructItem2& other) const
 {
   //_nb_of_entity is not taken into account here. It is not a bug, because no mesh consideration needed here to perform fast compare.
   //idem for _loc. It is not an effective attribute for support comparison.
@@ -1807,7 +1807,7 @@ MEDFileField1TSStructItem::MEDFileField1TSStructItem(TypeOfField a, const std::v
 void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs)
 {
   switch(_type)
-    {
+  {
     case ON_NODES:
       {
         int nbOfEnt=mst->getNumberOfNodes();
@@ -1836,10 +1836,10 @@ void MEDFileField1TSStructItem::checkWithMeshStruct(const MEDFileMeshStruct *mst
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::checkWithMeshStruct : not managed field type !");
-    }
+  }
 }
 
-bool MEDFileField1TSStructItem::operator==(const MEDFileField1TSStructItem& other) const throw(INTERP_KERNEL::Exception)
+bool MEDFileField1TSStructItem::operator==(const MEDFileField1TSStructItem& other) const
 {
   if(_type!=other._type)
     return false;
@@ -1992,7 +1992,7 @@ bool MEDFileField1TSStructItem::isFullyOnOneLev(const MEDFileMeshStruct *meshSt,
   return false;
 }
 
-const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::size_t i) const throw(INTERP_KERNEL::Exception)
+const MEDFileField1TSStructItem2& MEDFileField1TSStructItem::operator[](std::size_t i) const
 {
   if(i>=_items.size())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem::operator[] : input is not in valid range !");

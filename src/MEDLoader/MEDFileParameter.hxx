@@ -53,7 +53,7 @@ namespace ParaMEDMEM
     int _order;
     double _time;    
   };
-  
+
   class MEDFileParameterDouble1TSWTI : public MEDFileParameter1TS
   {
   public:

@@ -545,7 +545,7 @@ void DataArray::checkNbOfElems(std::size_t nbOfElems, const std::string& msg) co
 
 void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const
 {
-   if(getNumberOfTuples()!=other.getNumberOfTuples())
+  if(getNumberOfTuples()!=other.getNumberOfTuples())
     {
       std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  other.getNumberOfTuples() << " having " << getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -1978,12 +1978,12 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
   int nbOfCompo=getNumberOfComponents();
   if ((nbOfCompo<1) || (nbOfCompo>4)) //test before work
     throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2, 3 or 4.");
-  
+
   int nbOfTuples=getNumberOfTuples();
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()),cI(DataArrayInt::New()); c->alloc(0,1); cI->pushBackSilent(0);
   switch(nbOfCompo)
-    {
+  {
     case 4:
       findCommonTuplesAlg<4>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
       break;
@@ -1998,7 +1998,7 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
       break;
     default:
       throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : nb of components managed are 1,2,3 and 4 ! not implemented for other number of components !");
-    }
+  }
   comm=c.retn();
   commIndex=cI.retn();
 }
@@ -2086,7 +2086,7 @@ DataArrayInt *DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) 
   double bounds[6];
   getMinMaxPerComponent(bounds);
   switch(nbOfCompo)
-    {
+  {
     case 3:
       {
         double xDelta(fabs(bounds[1]-bounds[0])),yDelta(fabs(bounds[3]-bounds[2])),zDelta(fabs(bounds[5]-bounds[4]));
@@ -2114,7 +2114,7 @@ DataArrayInt *DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) 
       }
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for findClosestTupleId. Must be 1, 2 or 3.");
-    }
+  }
   return ret.retn();
 }
 
@@ -2151,7 +2151,7 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
   const double *thisBBPtr(begin());
   int *retPtr(ret->getPointer());
   switch(nbOfComp/2)
-    {
+  {
     case 3:
       {
         BBTree<3,int> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
@@ -2175,8 +2175,8 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
       }
     default:
       throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : space dimension supported are [1,2,3] !");
-    }
-  
+  }
+
   return ret.retn();
 }
 
@@ -3106,7 +3106,7 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
   int nbOfTuplesOther=other->getNumberOfTuples();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),cIArr(DataArrayInt::New()); cArr->alloc(0,1); cIArr->pushBackSilent(0);
   switch(nbOfCompo)
-    {
+  {
     case 3:
       {
         BBTreePts<3,int> myTree(begin(),0,0,getNumberOfTuples(),eps);
@@ -3127,7 +3127,7 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
       }
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for computeTupleIdsNearTuples. Must be 1, 2 or 3.");
-    }
+  }
   c=cArr.retn(); cI=cIArr.retn();
 }
 
@@ -3637,7 +3637,7 @@ DataArrayDouble *DataArrayDouble::determinant() const
   const double *src=getConstPointer();
   double *dest=ret->getPointer();
   switch(getNumberOfComponents())
-    {
+  {
     case 6:
       for(int i=0;i<nbOfTuple;i++,dest++,src+=6)
         *dest=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
@@ -3653,7 +3653,7 @@ DataArrayDouble *DataArrayDouble::determinant() const
     default:
       ret->decrRef();
       throw INTERP_KERNEL::Exception("DataArrayDouble::determinant : Invalid number of components ! must be in 4,6,9 !");
-    }
+  }
 }
 
 /*!
@@ -3735,7 +3735,7 @@ DataArrayDouble *DataArrayDouble::inverse() const
   ret->alloc(nbOfTuple,nbOfComp);
   const double *src=getConstPointer();
   double *dest=ret->getPointer();
-if(nbOfComp==6)
+  if(nbOfComp==6)
     for(int i=0;i<nbOfTuple;i++,dest+=6,src+=6)
       {
         double det=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
@@ -4324,17 +4324,17 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const std::string& fun
   for(int i=0;i<nbOfTuples;i++)
     {
       try
-        {
+      {
           expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
-        }
+      }
       catch(INTERP_KERNEL::Exception& e)
-        {
+      {
           std::ostringstream oss; oss << "For tuple # " << i << " with value (";
           std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed !" << e.what();
           newArr->decrRef();
           throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+      }
     }
   return newArr;
 }
@@ -4368,17 +4368,17 @@ DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func) const
   for(int i=0;i<nbOfTuples;i++)
     {
       try
-        {
+      {
           expr.evaluateExpr(nbOfComp,ptr+i*nbOfComp,ptrToFill+i*nbOfComp);
-        }
+      }
       catch(INTERP_KERNEL::Exception& e)
-        {
+      {
           std::ostringstream oss; oss << "For tuple # " << i << " with value (";
           std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed ! " << e.what();
           newArr->decrRef();
           throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+      }
     }
   return newArr;
 }
@@ -4423,17 +4423,17 @@ DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& fu
   for(int i=0;i<nbOfTuples;i++)
     {
       try
-        {
+      {
           expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
-        }
+      }
       catch(INTERP_KERNEL::Exception& e)
-        {
+      {
           std::ostringstream oss; oss << "For tuple # " << i << " with value (";
           std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed !" << e.what();
           newArr->decrRef();
           throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+      }
     }
   return newArr;
 }
@@ -4479,17 +4479,17 @@ DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std
   for(int i=0;i<nbOfTuples;i++)
     {
       try
-        {
+      {
           expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
-        }
+      }
       catch(INTERP_KERNEL::Exception& e)
-        {
+      {
           std::ostringstream oss; oss << "For tuple # " << i << " with value (";
           std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed !" << e.what();
           newArr->decrRef();
           throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+      }
     }
   return newArr;
 }
@@ -6271,8 +6271,8 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
  *  \throw If any value of \a this is not less than \a arrEnd[-1].
  */
 void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
-                                     DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const throw(INTERP_KERNEL::Exception)
-{
+                                     DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const
+    {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("Call splitByValueRange  method on DataArrayInt with only one component, you can call 'rearrange' method before !");
@@ -6315,7 +6315,7 @@ void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
   castArr=ret1.retn();
   rankInsideCast=ret2.retn();
   castsPresent=ret3.retn();
-}
+    }
 
 /*!
  * Creates a one-dimensional DataArrayInt (\a res) whose contents are computed from 
@@ -6463,7 +6463,7 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
     {
       int v(new2Old[i]);
       if(v>=0 && v<oldNbOfElem)
-         pt[v]=i;
+        pt[v]=i;
       else
         {
           std::ostringstream oss; oss << "DataArrayInt::invertArrayN2O2O2N : in new id #" << i << " old value is " << v << " expected to be in [0," << oldNbOfElem << ") !";
@@ -9655,26 +9655,26 @@ void DataArrayInt::PutIntoToSkylineFrmt(const std::vector< std::vector<int> >& v
  */
 DataArrayInt *DataArrayInt::buildComplement(int nbOfElement) const
 {
-   checkAllocated();
-   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : only single component allowed !");
-   std::vector<bool> tmp(nbOfElement);
-   const int *pt=getConstPointer();
-   int nbOfTuples=getNumberOfTuples();
-   for(const int *w=pt;w!=pt+nbOfTuples;w++)
-     if(*w>=0 && *w<nbOfElement)
-       tmp[*w]=true;
-     else
-       throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : an element is not in valid range : [0,nbOfElement) !");
-   int nbOfRetVal=(int)std::count(tmp.begin(),tmp.end(),false);
-   DataArrayInt *ret=DataArrayInt::New();
-   ret->alloc(nbOfRetVal,1);
-   int j=0;
-   int *retPtr=ret->getPointer();
-   for(int i=0;i<nbOfElement;i++)
-     if(!tmp[i])
-       retPtr[j++]=i;
-   return ret;
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : only single component allowed !");
+  std::vector<bool> tmp(nbOfElement);
+  const int *pt=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  for(const int *w=pt;w!=pt+nbOfTuples;w++)
+    if(*w>=0 && *w<nbOfElement)
+      tmp[*w]=true;
+    else
+      throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : an element is not in valid range : [0,nbOfElement) !");
+  int nbOfRetVal=(int)std::count(tmp.begin(),tmp.end(),false);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfRetVal,1);
+  int j=0;
+  int *retPtr=ret->getPointer();
+  for(int i=0;i<nbOfElement;i++)
+    if(!tmp[i])
+      retPtr[j++]=i;
+  return ret;
 }
 
 /*!
@@ -9697,9 +9697,9 @@ DataArrayInt *DataArrayInt::buildSubstraction(const DataArrayInt *other) const
   checkAllocated();
   other->checkAllocated();
   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildSubstraction : only single component allowed !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildSubstraction : only single component allowed !");
   if(other->getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildSubstraction : only single component allowed for other type !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildSubstraction : only single component allowed for other type !");
   const int *pt=getConstPointer();
   int nbOfTuples=getNumberOfTuples();
   std::set<int> s1(pt,pt+nbOfTuples);
@@ -9791,7 +9791,7 @@ DataArrayInt *DataArrayInt::buildUnique() const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnique : only single component allowed !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildUnique : only single component allowed !");
   int nbOfTuples=getNumberOfTuples();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=deepCpy();
   int *data=tmp->getPointer();
@@ -9828,7 +9828,7 @@ DataArrayInt *DataArrayInt::deltaShiftIndex() const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : only single component allowed !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : only single component allowed !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<2)
     throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : 1 tuple at least must be present in 'this' !");
@@ -9861,7 +9861,7 @@ void DataArrayInt::computeOffsets()
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets : only single component allowed !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets : only single component allowed !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples==0)
     return ;
@@ -9995,10 +9995,10 @@ DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets
     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : DataArrayInt pointer in input is NULL !");
   checkAllocated();
   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : only single component allowed !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : only single component allowed !");
   offsets->checkAllocated();
   if(offsets->getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : input array should have only single component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : input array should have only single component !");
   int othNbTuples=offsets->getNumberOfTuples()-1;
   int nbOfTuples=getNumberOfTuples();
   int retNbOftuples=0;
@@ -10930,7 +10930,7 @@ void DataArrayInt::divideEqual(const DataArrayInt *other)
  */
 DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *a2)
 {
-    if(!a1 || !a2)
+  if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Modulus : input DataArrayInt instance is NULL !");
   int nbOfTuple1=a1->getNumberOfTuples();
   int nbOfTuple2=a2->getNumberOfTuples();

@@ -31,27 +31,27 @@
 namespace ParaMEDMEM
 {
   typedef enum
-    {
-      C_DEALLOC = 2,
-      CPP_DEALLOC = 3
-    } DeallocType;
+  {
+    C_DEALLOC = 2,
+    CPP_DEALLOC = 3
+  } DeallocType;
 
   typedef enum
-    {
-      ON_CELLS = 0,
-      ON_NODES = 1,
-      ON_GAUSS_PT = 2,
-      ON_GAUSS_NE = 3,
-      ON_NODES_KR = 4
-    } TypeOfField;
+  {
+    ON_CELLS = 0,
+    ON_NODES = 1,
+    ON_GAUSS_PT = 2,
+    ON_GAUSS_NE = 3,
+    ON_NODES_KR = 4
+  } TypeOfField;
 
   typedef enum
-    {
-      NO_TIME = 4,
-      ONE_TIME = 5,
-      LINEAR_TIME = 6,
-      CONST_ON_TIME_INTERVAL = 7
-    } TypeOfTimeDiscretization;
+  {
+    NO_TIME = 4,
+    ONE_TIME = 5,
+    LINEAR_TIME = 6,
+    CONST_ON_TIME_INTERVAL = 7
+  } TypeOfTimeDiscretization;
 
   typedef bool (*FunctionToEvaluate)(const double *pos, double *res);
 
@@ -74,7 +74,7 @@ namespace ParaMEDMEM
   private:
     static std::size_t GetHeapMemoryOfSet(std::set<const BigMemoryObject *>& s1, std::set<const BigMemoryObject *>& s2);
   };
-  
+
   class RefCountObjectOnly
   {
   protected:

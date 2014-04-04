@@ -300,7 +300,7 @@ void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
  *  \throw If size of any vector do not match the \a type.
  */
 void MEDCouplingField::setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
-                                                  const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                                  const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Mesh has to be set before calling setGaussLocalizationOnType method !");
@@ -326,7 +326,7 @@ void MEDCouplingField::setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellT
  *  \throw If the range [_begin_,_end_) is empty.
  */
 void MEDCouplingField::setGaussLocalizationOnCells(const int *begin, const int *end, const std::vector<double>& refCoo,
-                                                   const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+                                                   const std::vector<double>& gsCoo, const std::vector<double>& wg)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Mesh has to be set before calling setGaussLocalizationOnCells method !");
@@ -474,7 +474,7 @@ MEDCouplingField::MEDCouplingField(TypeOfField type):_nature(NoNature),_mesh(0),
 }
 
 MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy):RefCountObject(other),_name(other._name),_desc(other._desc),_nature(other._nature),
-                                                                                 _mesh(0),_type(0)
+    _mesh(0),_type(0)
 {
   if(other._mesh)
     {

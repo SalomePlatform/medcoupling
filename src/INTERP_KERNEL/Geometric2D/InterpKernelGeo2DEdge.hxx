@@ -34,34 +34,34 @@
 namespace INTERP_KERNEL
 {
   typedef enum
-    {
-      SEG         = 1,
-      ARC_CIRCLE  = 4,
-      ARC_PARABOL = 8
-    } TypeOfFunction;
+  {
+    SEG         = 1,
+    ARC_CIRCLE  = 4,
+    ARC_PARABOL = 8
+  } TypeOfFunction;
 
   typedef enum
-    {
-      CIRCLE  = 0 ,
-      PARABOL = 1
-    } TypeOfMod4QuadEdge;
+  {
+    CIRCLE  = 0 ,
+    PARABOL = 1
+  } TypeOfMod4QuadEdge;
 
   typedef enum
-    {
-      START       = 5,
-      END         = 1,
-      INSIDE      = 2,
-      OUT_BEFORE  = 3,
-      OUT_AFTER   = 4
-    } TypeOfLocInEdge; //see Edge::OFFSET_FOR_TYPEOFLOCINEDGE
-  
+  {
+    START       = 5,
+    END         = 1,
+    INSIDE      = 2,
+    OUT_BEFORE  = 3,
+    OUT_AFTER   = 4
+  } TypeOfLocInEdge; //see Edge::OFFSET_FOR_TYPEOFLOCINEDGE
+
   typedef enum
-    {
-      FULL_IN_1    = 1,
-      FULL_ON_1    = 4,
-      FULL_OUT_1   = 2,
-      FULL_UNKNOWN = 3
-    } TypeOfEdgeLocInPolygon;
+  {
+    FULL_IN_1    = 1,
+    FULL_ON_1    = 4,
+    FULL_OUT_1   = 2,
+    FULL_UNKNOWN = 3
+  } TypeOfEdgeLocInPolygon;
 
   class INTERPKERNEL_EXPORT MergePoints
   {

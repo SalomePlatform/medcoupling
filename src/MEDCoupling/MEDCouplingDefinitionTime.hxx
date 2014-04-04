@@ -112,7 +112,7 @@ namespace ParaMEDMEM
     double _start;
     double _end;
   };
-  
+
   class MEDCouplingDefinitionTimeSliceLT : public MEDCouplingDefinitionTimeSlice
   {
   public:

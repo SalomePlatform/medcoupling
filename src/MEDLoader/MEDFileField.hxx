@@ -86,7 +86,7 @@ namespace ParaMEDMEM
     std::vector<double> _w;
   };
 
-/// @cond INTERNAL
+  /// @cond INTERNAL
   class MEDFileAnyTypeField1TSWithoutSDA;
   class MEDFileFieldPerMeshPerType;
   class MEDFileField1TSWithoutSDA;
@@ -149,7 +149,7 @@ namespace ParaMEDMEM
                                MEDFileFieldGlobsReal& glob, DataArrayDouble *arr, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >& result);
     static MEDFileFieldPerMeshPerTypePerDisc *NewObjectOnSameDiscThanPool(TypeOfField typeF, INTERP_KERNEL::NormalizedCellType geoType, DataArrayInt *idsOfMeshElt,
                                                                           bool isPfl, int nbi, int offset, std::list< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
-                                                                          MEDFileFieldGlobsReal& glob, bool &notInExisting) throw(INTERP_KERNEL::Exception);
+                                                                          MEDFileFieldGlobsReal& glob, bool &notInExisting);
   private:
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt);
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt, const std::string& dummy);
@@ -274,14 +274,14 @@ namespace ParaMEDMEM
   private:
     int addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type);
     MEDCouplingFieldDouble *finishField(TypeOfField type, const MEDFileFieldGlobsReal *glob,
-                                        const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs, const MEDCouplingMesh *mesh, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
+                                        const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs, const MEDCouplingMesh *mesh, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
     MEDCouplingFieldDouble *finishField2(TypeOfField type, const MEDFileFieldGlobsReal *glob,
                                          const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs,
                                          const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes,
-                                         const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
+                                         const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
     MEDCouplingFieldDouble *finishFieldNode2(const MEDFileFieldGlobsReal *glob,
                                              const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs,
-                                             const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const throw(INTERP_KERNEL::Exception);
+                                             const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
     DataArray *finishField4(const std::vector< std::pair<int,int> >& dads, const DataArrayInt *pflIn, int nbOfElems, DataArrayInt *&pflOut) const;
     void assignNewLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves);
     static void SortArraysPerType(const MEDFileFieldGlobsReal *glob, TypeOfField type, 
@@ -359,7 +359,7 @@ namespace ParaMEDMEM
     std::string _file_name;
   };
 
-/// @endcond INTERNAL
+  /// @endcond INTERNAL
 
   class MEDFileFieldGlobsReal
   {
@@ -543,7 +543,7 @@ namespace ParaMEDMEM
   };
 
   class MEDFileIntField1TSWithoutSDA;
-  
+
   /*!
    * SDA is for Shared Data Arrays such as profiles.
    */
@@ -654,7 +654,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::vector<std::string>& getInfo();
     MEDLOADER_EXPORT std::vector<TypeOfField> getTypesOfFieldAvailable() const;
     MEDLOADER_EXPORT std::vector< std::vector<std::pair<int,int> > > getFieldSplitedByType(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
-                                                                          std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
+        std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
     MEDLOADER_EXPORT MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId);
     MEDLOADER_EXPORT const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const;
     MEDLOADER_EXPORT int getNonEmptyLevels(const std::string& mname, std::vector<int>& levs) const;
@@ -692,9 +692,9 @@ namespace ParaMEDMEM
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> _content;
   };
-  
+
   class MEDFileIntField1TS;
-  
+
   /*!
    * User class.
    */
@@ -722,9 +722,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *shallowCpy() const;
     MEDLOADER_EXPORT DataArrayDouble *getUndergroundDataArray() const;
     MEDLOADER_EXPORT DataArrayDouble *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
-    
+
     MEDLOADER_EXPORT std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
-                                                                                          std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
+        std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
   public:
     MEDLOADER_EXPORT static void SetDataArrayDoubleInField(MEDCouplingFieldDouble *f, MEDCouplingAutoRefCountObjectPtr<DataArray>& arr);
     MEDLOADER_EXPORT static DataArrayDouble *ReturnSafelyDataArrayDouble(MEDCouplingAutoRefCountObjectPtr<DataArray>& arr);
@@ -774,7 +774,7 @@ namespace ParaMEDMEM
     MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll);
     MEDFileIntField1TS(const MEDFileIntField1TSWithoutSDA& other, bool shallowCopyOfContent);
   };
-  
+
   class MEDFileAnyTypeFieldMultiTSWithoutSDA : public RefCountObject, public MEDFileFieldNameScope
   {
   protected:
@@ -1062,8 +1062,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> _fmts;
-     int _iter_id;
-     int _nb_iter;
+    int _iter_id;
+    int _nb_iter;
   };
 
   class MEDFileFieldsIterator;
@@ -1133,8 +1133,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTS *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fs;
-     int _iter_id;
-     int _nb_iter;
+    int _iter_id;
+    int _nb_iter;
   };
 }
 

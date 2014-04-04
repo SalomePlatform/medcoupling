@@ -33,7 +33,7 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCou
   if(!f)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSlice::New : empty field !");
   switch(f->getTimeDiscretization())
-    {
+  {
     case ONE_TIME:
       {
         if(arrId.size()!=1)
@@ -56,13 +56,13 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCou
       throw INTERP_KERNEL::Exception("Invalide time discretization ! NO_TIME ! Impossible to build a definition time slice !");
     default:
       throw INTERP_KERNEL::Exception("Invalide time discretization : Not recognized !");
-    }
+  }
 }
 
 MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(TypeOfTimeDiscretization type, const std::vector<int>& tiI, const std::vector<double>& tiD)
 {
   switch(type)
-    {
+  {
     case ONE_TIME:
       return MEDCouplingDefinitionTimeSliceInst::New(tiI,tiD);
     case CONST_ON_TIME_INTERVAL:
@@ -71,7 +71,7 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(TypeOfTimeDi
       return MEDCouplingDefinitionTimeSliceLT::New(tiI,tiD);
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSlice::New : unrecognized time discretization type !");
-    }
+  }
 }
 
 bool MEDCouplingDefinitionTimeSlice::isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const

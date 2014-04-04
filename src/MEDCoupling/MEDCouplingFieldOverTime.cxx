@@ -83,19 +83,19 @@ std::string MEDCouplingFieldOverTime::simpleRepr() const
   std::vector<MEDCouplingMesh *> ms;
   std::vector<int> refms;
   try
-    {
+  {
       ms=getDifferentMeshes(refms);
       ret << ms.size() << "\n";
-    }
+  }
   catch(INTERP_KERNEL::Exception& /*e*/)
-    { ret << "Current instance is INVALID !\n"; }
+  { ret << "Current instance is INVALID !\n"; }
   try
-    {
+  {
       MEDCouplingDefinitionTime dt=getDefinitionTimeZone();
       dt.appendRepr(ret);
-    }
+  }
   catch(INTERP_KERNEL::Exception& /*e*/)
-    { ret << "Definition zone is INVALID !\n"; }
+  { ret << "Definition zone is INVALID !\n"; }
   return ret.str();
 }
 

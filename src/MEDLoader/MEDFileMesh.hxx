@@ -33,7 +33,7 @@ namespace ParaMEDMEM
 {
   class MEDFileFieldGlobsReal;
   class MEDFileField1TSStructItem;
-  
+
   class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -492,8 +492,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileMesh *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _ms;
-     int _iter_id;
-     int _nb_iter;
+    int _iter_id;
+    int _nb_iter;
   };
 }
 

@@ -284,7 +284,7 @@ void ComposedEdge::unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary,
   unApplySimilarityOnMyNodes(xBary,yBary,fact);
   other.unApplySimilarityOnMyNodesIfNotAlreadyHit(xBary,yBary,fact);
   initEdgeHitStatus();
-   other.initEdgeHitStatus();
+  other.initEdgeHitStatus();
   unApplySimilarityOnMyEdges(xBary,yBary,fact);
   other.unApplySimilarityOnMyEdgesIfNotAlreadyHit(xBary,yBary,fact);
 }
@@ -367,7 +367,7 @@ void ComposedEdge::applyGlobalSimilarity2(ComposedEdge *other, double xBary, dou
   applySimilarityOnMyNodes(xBary,yBary,dimChar);
   other->applySimilarityOnMyNodesIfNotAlreadyHit(xBary,yBary,dimChar);
   initEdgeHitStatus();
-   other->initEdgeHitStatus();
+  other->initEdgeHitStatus();
   applySimilarityOnMyEdges(xBary,yBary,dimChar);
   other->applySimilarityOnMyEdgesIfNotAlreadyHit(xBary,yBary,dimChar);
 }
@@ -409,7 +409,7 @@ void ComposedEdge::getAllNodes(std::set<Node *>& output) const
 }
 
 void ComposedEdge::initNodeHitStatus() const
-  {
+{
   for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
     {
       (*iter)->getStartNode()->initHitStatus();
@@ -595,7 +595,7 @@ double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >
               for(std::list< IntersectElement >::iterator iter2=listOfIntesc.begin();iter2!=listOfIntesc.end();iter2++)
                 if((*iter2).isIncludedByBoth())
                   inOutSwitch.insert(*iter2);
-              }
+            }
           //if overlapped we can forget
         }
       else
@@ -607,7 +607,7 @@ double ComposedEdge::isInOrOutAlg(Node *nodeToTest, std::set< IntersectElement >
 
 /*bool ComposedEdge::isInOrOut(Node *aNodeOn, Node *nodeToTest) const
 {
-  
+
   EdgeInfLin *e1=new EdgeInfLin(aNodeOn,nodeToTest);
   double ref=e1->getCharactValue(*nodeToTest);
   set< IntersectElement > inOutSwitch;

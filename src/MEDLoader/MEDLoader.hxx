@@ -40,7 +40,7 @@ namespace ParaMEDMEM
 
 class MEDLOADER_EXPORT MEDLoader
 {
- public:
+public:
   static void SetEpsilonForNodeComp(double val);
   static void SetCompPolicyForCell(int val);
   static void SetTooLongStrPolicy(int val);
@@ -76,15 +76,15 @@ class MEDLOADER_EXPORT MEDLoader
   static int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadField(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
   static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
+      const std::vector<std::pair<int,int> >& its);
   static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                    const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
+      const std::vector<std::pair<int,int> >& its);
   static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                    const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
+      const std::vector<std::pair<int,int> >& its);
   static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                     const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
+      const std::vector<std::pair<int,int> >& its);
   static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                       const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception);
+      const std::vector<std::pair<int,int> >& its);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
@@ -98,11 +98,11 @@ class MEDLOADER_EXPORT MEDLoader
   static void WriteField(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
   static void WriteFieldDep(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
   static void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
- public:
+public:
   static void AssignStaticWritePropertiesTo(ParaMEDMEM::MEDFileWritable& obj);
- private:
+private:
   MEDLoader();
- public:
+public:
   static double _EPS_FOR_NODE_COMP;
   static int _COMP_FOR_CELL;
   static int _TOO_LONG_STR;

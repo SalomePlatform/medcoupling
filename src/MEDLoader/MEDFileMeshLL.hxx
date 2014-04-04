@@ -37,7 +37,7 @@
 namespace ParaMEDMEM
 {
   class MEDFileMeshReadSelector;
-  
+
   class MEDFileMeshL2 : public RefCountObject
   {
   public:
@@ -109,7 +109,7 @@ namespace ParaMEDMEM
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
   };
-  
+
   class MEDFileCLMeshL2 : public MEDFileStrMeshL2
   {
   public:
@@ -172,7 +172,7 @@ namespace ParaMEDMEM
     mutable std::size_t _m_time;
     mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
   };
-  
+
   class MEDFileUMeshSplitL1 : public RefCountObject
   {
     friend class MEDFileUMeshPermCompute;
@@ -214,7 +214,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getRevNumberField() const;
     void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
-                              std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception);
+                              std::map<std::string, std::vector<std::string> >& groups);
     void write(med_idt fid, const std::string& mName, int mdim) const;
     //
     void setFamilyArr(DataArrayInt *famArr);

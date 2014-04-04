@@ -465,7 +465,7 @@ void MEDFileParameterMultiTS::finishLoading(med_idt fid, med_parameter_type typ,
       double tim;
       MEDparameterComputationStepInfo(fid,_name.c_str(),i+1,&dt,&it,&tim);
       switch(typ)
-        {
+      {
         case MED_FLOAT64:
           _param_per_ts[i]=MEDFileParameterDouble1TSWTI::New(dt,it,tim);
           _param_per_ts[i]->readValue(fid,_name.c_str());
@@ -475,7 +475,7 @@ void MEDFileParameterMultiTS::finishLoading(med_idt fid, med_parameter_type typ,
          break;*/
         default:
           throw INTERP_KERNEL::Exception("MEDFileParameterMultiTS::finishLoading : supporting only FLOAT64 !");
-        }
+      }
     }
 }
 

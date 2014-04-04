@@ -37,13 +37,13 @@ namespace MEDFileUtilities
   {
   public:
     AutoFid(med_idt fid);
-    operator med_idt() const;
+    operator med_idt() const { return _fid; }
     ~AutoFid();
   private:
     med_idt _fid;
   };
 }
-  
+
 namespace ParaMEDMEM
 {
   class MEDLOADER_EXPORT MEDFileWritable

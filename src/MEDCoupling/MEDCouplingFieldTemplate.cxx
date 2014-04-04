@@ -135,12 +135,12 @@ void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const
   stream << "MEDCouplingFieldTemplate C++ instance at " << this << ". Name : \"" << _name << "\"." << std::endl;
   const char *nat=0;
   try
-    {
+  {
       nat=MEDCouplingNatureOfField::GetRepr(_nature);
       stream << "Nature of field template : " << nat << ".\n";
-    }
+  }
   catch(INTERP_KERNEL::Exception& /*e*/)
-    {  }
+  {  }
   const MEDCouplingFieldDiscretization *fd(_type);
   if(!fd)
     stream << "No spatial discretization set !";

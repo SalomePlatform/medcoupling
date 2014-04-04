@@ -42,12 +42,12 @@ namespace ParaMEDMEM
 namespace ParaMEDMEM
 {
   typedef enum
-    {
-      IK_ONLY_PREFERED = 0,
-      NOT_IK_ONLY_PREFERED = 1,
-      IK_ONLY_FORCED = 2,
-      NOT_IK_ONLY_FORCED =3
-    } InterpolationMatrixPolicy;
+  {
+    IK_ONLY_PREFERED = 0,
+    NOT_IK_ONLY_PREFERED = 1,
+    IK_ONLY_FORCED = 2,
+    NOT_IK_ONLY_FORCED =3
+  } InterpolationMatrixPolicy;
 
   class MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
   {

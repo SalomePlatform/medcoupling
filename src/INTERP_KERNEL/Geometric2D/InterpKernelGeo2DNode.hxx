@@ -32,17 +32,17 @@
 namespace INTERP_KERNEL
 {
   typedef enum
-    {
-      IN_1      =  7,
-      ON_1      =  8,
-      ON_LIM_1  = 12,
-      ON_TANG_1 =  9,
-      OUT_1     = 10,
-      UNKNOWN   = 11
-    } TypeOfLocInPolygon;
+  {
+    IN_1      =  7,
+    ON_1      =  8,
+    ON_LIM_1  = 12,
+    ON_TANG_1 =  9,
+    OUT_1     = 10,
+    UNKNOWN   = 11
+  } TypeOfLocInPolygon;
 
   class Bounds;
-  
+
   /*!
    * Representation of a 2D point, and potentially its location relative to a polygon.
    * As nodes can be shared between edges it is handled with ref counting.

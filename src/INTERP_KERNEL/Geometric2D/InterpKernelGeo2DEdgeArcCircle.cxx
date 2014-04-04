@@ -325,8 +325,8 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind,
   _dy=(*(_e2.getEndNode()))[1]-(*(_e2.getStartNode()))[1];
   _drSq=_dx*_dx+_dy*_dy;
   _cross=
-    ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
-    ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
+      ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
+      ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
   _determinant=getE1().getRadius()*getE1().getRadius()/_drSq-_cross*_cross/(_drSq*_drSq);
   if(_determinant>-2*QUADRATIC_PLANAR::_precision)//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
     obviousNoIntersection=false;
@@ -418,7 +418,7 @@ EdgeArcCircle::EdgeArcCircle(double sX, double sY, double mX, double mY, double 
  * @param deltaAngle in ]-2.*Pi;2.*Pi[
  */
 EdgeArcCircle::EdgeArcCircle(Node *start, Node *end, const double *center, double radius, double angle0, double deltaAngle, bool direction):Edge(start,end,direction),_angle(deltaAngle),
-                                                                                                                                            _angle0(angle0),_radius(radius)
+    _angle0(angle0),_radius(radius)
 {
   _center[0]=center[0];
   _center[1]=center[1];
@@ -562,7 +562,7 @@ void EdgeArcCircle::GetArcOfCirclePassingThru(const double *start, const double 
   angleInRad0=GetAbsoluteAngleOfNormalizedVect((start[0]-center[0])/radius,(start[1]-center[1])/radius);
   double angleInRadM=GetAbsoluteAngleOfNormalizedVect((middle[0]-center[0])/radius,(middle[1]-center[1])/radius);
   angleInRad=GetAbsoluteAngleOfNormalizedVect(((start[0]-center[0])*(end[0]-center[0])+(start[1]-center[1])*(end[1]-center[1]))/(radius*radius),
-                                              ((start[0]-center[0])*(end[1]-center[1])-(start[1]-center[1])*(end[0]-center[0]))/(radius*radius));
+      ((start[0]-center[0])*(end[1]-center[1])-(start[1]-center[1])*(end[0]-center[0]))/(radius*radius));
   if(IsAngleNotIn(angleInRad0,angleInRad,angleInRadM))
     angleInRad=angleInRad<0?2*M_PI+angleInRad:angleInRad-2*M_PI;
 }
@@ -643,10 +643,10 @@ void EdgeArcCircle::getBarycenterOfZone(double *bary) const
   double tmp3=cos(angle1);
   double tmp4=cos(_angle0);
   bary[0]=_radius*x0*y0*(tmp4-tmp3)+_radius*_radius*(y0*(cos(2*_angle0)-cos(2*angle1))/4.+
-                                                     x0*(_angle/2.+(sin(2.*_angle0)-sin(2.*angle1))/4.))
-    +tmp2*(tmp1*tmp1*tmp1-tmp0*tmp0*tmp0)/3.;
+      x0*(_angle/2.+(sin(2.*_angle0)-sin(2.*angle1))/4.))
+      +tmp2*(tmp1*tmp1*tmp1-tmp0*tmp0*tmp0)/3.;
   bary[1]=y0*y0*_radius*(tmp4-tmp3)/2.+_radius*_radius*y0*(_angle/2.+(sin(2.*_angle0)-sin(2.*angle1))/4.)
-    +tmp2*(tmp4-tmp3+(tmp3*tmp3*tmp3-tmp4*tmp4*tmp4)/3.)/2.;
+        +tmp2*(tmp4-tmp3+(tmp3*tmp3*tmp3-tmp4*tmp4*tmp4)/3.)/2.;
 }
 
 void EdgeArcCircle::getMiddleOfPoints(const double *p1, const double *p2, double *mid) const

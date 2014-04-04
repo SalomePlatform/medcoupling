@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
     double _cross;
     double _determinant;
   };
-  
+
   class INTERPKERNEL_EXPORT EdgeArcCircle : public Edge
   {
   public:

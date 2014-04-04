@@ -124,12 +124,12 @@ std::string MEDCouplingMultiFields::simpleRepr() const
   std::vector<MEDCouplingMesh *> ms;
   std::vector<int> refms;
   try
-    {
+  {
       ms=getDifferentMeshes(refms);
       ret << ms.size() << "\n";
-    }
+  }
   catch(INTERP_KERNEL::Exception& /*e*/)
-    { ret << "Current instance is INVALID !\n"; }
+  { ret << "Current instance is INVALID !\n"; }
   return ret.str();
 }
 

@@ -475,7 +475,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArrBg, const int *indArrEnd);
     MEDCOUPLING_EXPORT DataArrayInt *transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const;
     MEDCOUPLING_EXPORT void splitByValueRange(const int *arrBg, const int *arrEnd,
-                                              DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const throw(INTERP_KERNEL::Exception);
+                                              DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const;
@@ -761,7 +761,7 @@ namespace ParaMEDMEM
   protected:
     MemArray<char> _mem;
   };
-  
+
   class DataArrayByteIterator;
 
   class DataArrayByte : public DataArrayChar
@@ -816,9 +816,9 @@ namespace ParaMEDMEM
     char *_pt;
     int _nb_of_compo;
   };
-  
+
   class DataArrayAsciiCharIterator;
-  
+
   class DataArrayAsciiChar : public DataArrayChar
   {
   public:
@@ -890,7 +890,7 @@ namespace ParaMEDMEM
     else
       throw INTERP_KERNEL::Exception("DataArrayDouble::insertAtTheEnd : not available for DataArrayDouble with number of components different than 1 !");
   }
-  
+
   template<class InputIterator>
   void DataArrayInt::insertAtTheEnd(InputIterator first, InputIterator last)
   {

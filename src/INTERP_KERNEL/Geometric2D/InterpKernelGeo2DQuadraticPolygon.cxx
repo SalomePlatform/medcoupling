@@ -47,7 +47,7 @@ QuadraticPolygon::QuadraticPolygon(const char *file)
   std::ifstream stream(file);
   stream.exceptions(std::ios_base::eofbit);
   try
-    {
+  {
       do
         stream.getline(currentLine,MAX_SIZE_OF_LINE_XFIG_FILE);
       while(strcmp(currentLine,"1200 2")!=0);
@@ -59,10 +59,10 @@ QuadraticPolygon::QuadraticPolygon(const char *file)
           pushBack(newEdge);
         }
       while(1);
-    }
+  }
   catch(std::ifstream::failure&)
-    {
-    }
+  {
+  }
   front()->changeStartNodeWith(back()->getEndNode());
 }
 
@@ -269,12 +269,12 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
  * the cell id in global other mesh.
  */
 void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
-        const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther,
-        int offset1, int offset2 ,
-        const std::vector<int>& otherEdgeIds,
-        std::vector<int>& edgesThis, int cellIdThis,
-        std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther,
-        std::vector<double>& addCoo)
+                                const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther,
+                                int offset1, int offset2 ,
+                                const std::vector<int>& otherEdgeIds,
+                                std::vector<int>& edgesThis, int cellIdThis,
+                                std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther,
+                                std::vector<double>& addCoo)
 {
   double xBaryBB, yBaryBB;
   double fact=normalizeExt(&other, xBaryBB, yBaryBB);
@@ -553,8 +553,8 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
  * Method to find edges that are ON.
  */
 void QuadraticPolygon::updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
-      const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1,
-      const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const
+                                                          const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1,
+                                                          const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const
 {
   std::size_t nbOfSeg=std::distance(descBg,descEnd);
   for(std::size_t i=0;i<nbOfSeg;i++)//loop over all edges of pol2
@@ -688,7 +688,7 @@ double QuadraticPolygon::intersectWithAbs1D(QuadraticPolygon& other, bool& isCol
   for(std::list<ElementaryEdge *>::const_iterator it=cpyOfOther._sub_edges.begin();it!=cpyOfOther._sub_edges.end();it++)
     {
       switch((*it)->getLoc())
-        {
+      {
         case FULL_IN_1:
           {
             ret += fabs((*it)->getPtr()->getCurveLength());
@@ -703,7 +703,7 @@ double QuadraticPolygon::intersectWithAbs1D(QuadraticPolygon& other, bool& isCol
         default:
           {
           }
-        }
+      }
     }
   return ret * fact;
 }
@@ -730,7 +730,7 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other, double* baryc
     {
       barycenter[0]=barycenter[0]/ret*fact+xBaryBB;
       barycenter[1]=barycenter[1]/ret*fact+yBaryBB;
-      
+
     }
   return ret*fact*fact;
 }
@@ -899,7 +899,7 @@ void QuadraticPolygon::SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticP
         it1=curE2->getIterator();
       for(;!it1.finished();)
         {
-          
+
           ElementaryEdge* curE1=it1.current();
           merge.clear(); nbOfSplits++;
           if(curE1->getPtr()->intersectWith(curE2->getPtr(),merge,*c1,*c2))

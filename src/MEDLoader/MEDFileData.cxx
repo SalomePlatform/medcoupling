@@ -63,7 +63,7 @@ std::vector<const BigMemoryObject *> MEDFileData::getDirectChildren() const
   if((const MEDFileParameters *)_params)
     ret.push_back((const MEDFileParameters *)_params);
   return ret;
-  
+
 }
 
 MEDFileFields *MEDFileData::getFields() const
@@ -225,15 +225,15 @@ MEDFileData::MEDFileData()
 
 MEDFileData::MEDFileData(const std::string& fileName)
 try
-  {
+{
     _fields=MEDFileFields::New(fileName);
     _meshes=MEDFileMeshes::New(fileName);
     _params=MEDFileParameters::New(fileName);
-  }
+}
 catch(INTERP_KERNEL::Exception& e)
-  {
+{
     throw e;
-  }
+}
 
 void MEDFileData::write(const std::string& fileName, int mode) const
 {
