@@ -215,19 +215,13 @@ void MEDCouplingCurveLinearMesh::checkCoherency2(double eps) const
 int MEDCouplingCurveLinearMesh::getNumberOfCells() const
 {
   checkCoherency();
-  std::size_t nbOfCells=1,i=0;
-  for(std::vector<int>::const_iterator it=_structure.begin();it!=_structure.end();it++,i++)
-    nbOfCells*=(*it)-1;
-  return (int)nbOfCells;
+  return MEDCouplingStructuredMesh::getNumberOfCells();
 }
 
 int MEDCouplingCurveLinearMesh::getNumberOfNodes() const
 {
   checkCoherency();
-  std::size_t nbOfNodes=1;
-  for(std::vector<int>::const_iterator it=_structure.begin();it!=_structure.end();it++)
-    nbOfNodes*=(*it);
-  return (int)nbOfNodes;
+  return MEDCouplingStructuredMesh::getNumberOfNodes();
 }
 
 void MEDCouplingCurveLinearMesh::getSplitCellValues(int *res) const
@@ -259,16 +253,17 @@ void MEDCouplingCurveLinearMesh::getNodeGridStructure(int *res) const
   std::copy(_structure.begin(),_structure.end(),res);
 }
 
+/*!
+ * MEDCouplingCurveLinearMesh has the property to define 2 space dimensions. One coming from its coordinates. The other coming from the node structure.
+ * Normally they should be equal ! This method returns the space dimension from coordinates. If the other one is requested call getSpaceDimensionOnNodeStruct.
+ *
+ * \sa MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct
+ */
 int MEDCouplingCurveLinearMesh::getSpaceDimension() const
 {
   if(!((const DataArrayDouble *)_coords))
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getSpaceDimension : no array set ! impossible to deduce a space dimension !");
   return _coords->getNumberOfComponents();
-}
-
-int MEDCouplingCurveLinearMesh::getMeshDimension() const
-{
-  return (int)_structure.size();
 }
 
 void MEDCouplingCurveLinearMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const

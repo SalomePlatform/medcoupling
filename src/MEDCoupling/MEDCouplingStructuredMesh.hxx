@@ -59,7 +59,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const;
     MEDCOUPLING_EXPORT int getCellIdFromPos(int i, int j, int k) const;
     MEDCOUPLING_EXPORT int getNodeIdFromPos(int i, int j, int k) const;
+    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT int getNumberOfNodes() const;
+    MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsOfSubLevelMesh() const;
+    MEDCOUPLING_EXPORT int getSpaceDimensionOnNodeStruct() const;
     MEDCOUPLING_EXPORT virtual void getNodeGridStructure(int *res) const = 0;
     MEDCOUPLING_EXPORT virtual void getSplitCellValues(int *res) const = 0;
     MEDCOUPLING_EXPORT virtual void getSplitNodeValues(int *res) const = 0;
@@ -80,6 +84,8 @@ namespace ParaMEDMEM
     static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh3D(const int *nodeStBg);
+  protected:
+    static int ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3]);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh();
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy);

@@ -3001,17 +3001,17 @@ namespace ParaMEDMEM
     {
       PyObject *buildVTUArrays() const throw(INTERP_KERNEL::Exception)
       {
-	bool isInternal;
+        bool isInternal;
         std::vector< DataArrayDouble * > objs(self->buildVTUArrays(isInternal));
         std::size_t sz(objs.size());
-	PyObject *ret(PyTuple_New(2));
+        PyObject *ret(PyTuple_New(2));
         PyObject *ret0=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
           PyList_SetItem(ret0,i,SWIG_NewPointerObj(SWIG_as_voidptr(objs[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
-	PyTuple_SetItem(ret,0,ret0);
-	PyObject *ret1Py(isInternal?Py_True:Py_False);
-	Py_XINCREF(ret1Py);
-	PyTuple_SetItem(ret,1,ret1Py);
+        PyTuple_SetItem(ret,0,ret0);
+        PyObject *ret1Py(isInternal?Py_True:Py_False);
+        Py_XINCREF(ret1Py);
+        PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
     }
@@ -3028,7 +3028,7 @@ namespace ParaMEDMEM
       {
         DataArrayDouble *ret0(0);
         std::vector<int> ret1;
-	bool ret2;
+        bool ret2;
         self->buildVTUArrays(ret0,ret1,ret2);
         std::size_t sz(ret1.size());
         PyObject *ret=PyTuple_New(3);
@@ -3037,9 +3037,9 @@ namespace ParaMEDMEM
         for(std::size_t i=0;i<sz;i++)
           PyList_SetItem(ret1Py,i,SWIG_From_int(ret1[i]));
         PyTuple_SetItem(ret,1,ret1Py);
-	PyObject *ret2Py(ret2?Py_True:Py_False);
-	Py_XINCREF(ret2Py);
-	PyTuple_SetItem(ret,2,ret2Py);
+        PyObject *ret2Py(ret2?Py_True:Py_False);
+        Py_XINCREF(ret2Py);
+        PyTuple_SetItem(ret,2,ret2Py);
         return ret;
       }
     }

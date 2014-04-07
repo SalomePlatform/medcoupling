@@ -2735,6 +2735,7 @@ namespace ParaMEDMEM
     int getCellIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     int getNodeIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsOfSubLevelMesh() const throw(INTERP_KERNEL::Exception);
+    int getSpaceDimensionOnNodeStruct() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);

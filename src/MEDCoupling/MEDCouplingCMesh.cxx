@@ -275,30 +275,6 @@ void MEDCouplingCMesh::checkCoherency2(double eps) const
   checkCoherency1(eps);
 }
 
-int MEDCouplingCMesh::getNumberOfCells() const
-{
-  int ret=1;
-  if(_x_array)
-    ret*=_x_array->getNbOfElems()-1;
-  if(_y_array)
-    ret*=_y_array->getNbOfElems()-1;
-  if(_z_array)
-    ret*=_z_array->getNbOfElems()-1;
-  return ret;
-}
-
-int MEDCouplingCMesh::getNumberOfNodes() const
-{
-  int ret=1;
-  if(_x_array)
-    ret*=_x_array->getNbOfElems();
-  if(_y_array)
-    ret*=_y_array->getNbOfElems();
-  if(_z_array)
-    ret*=_z_array->getNbOfElems();
-  return ret;
-}
-
 void MEDCouplingCMesh::getSplitCellValues(int *res) const
 {
   int meshDim(getMeshDimension());
@@ -325,15 +301,41 @@ void MEDCouplingCMesh::getSplitNodeValues(int *res) const
 
 void MEDCouplingCMesh::getNodeGridStructure(int *res) const
 {
-  int spaceDim(getSpaceDimension());
-  for(int i=0;i<spaceDim;i++)
-    res[i]=getCoordsAt(i)->getNbOfElems();
+  std::vector<int> ret(getNodeGridStructure());
+  std::copy(ret.begin(),ret.end(),res);
 }
 
 std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const
 {
-  std::vector<int> ret(getSpaceDimension());
-  getNodeGridStructure(&ret[0]);
+  static const char MSG[]="MEDCouplingCMesh::getNodeGridStructure : mesh is invalid ! null vectors (X, Y or Z) must be put contiguously at the end !";
+  std::vector<int> ret;
+  bool isOK(true);
+  if(_x_array)
+    {
+      if(!_x_array->isAllocated() || _x_array->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getNodeGridStructure : X array exits but it is not allocated or with nb of components equal to one !");
+      ret.push_back(_x_array->getNumberOfTuples());
+    }
+  else
+    isOK=false;
+  if(_y_array)
+    {
+      if(!_y_array->isAllocated() || _y_array->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getNodeGridStructure : Y array exits but it is not allocated or with nb of components equal to one !");
+      if(!isOK)
+        throw INTERP_KERNEL::Exception(MSG);
+      ret.push_back(_y_array->getNumberOfTuples());
+    }
+  else
+    isOK=false;
+  if(_z_array)
+    {
+      if(!_z_array->isAllocated() || _z_array->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getNodeGridStructure : Z array exits but it is not allocated or with nb of components equal to one !");
+      if(!isOK)
+        throw INTERP_KERNEL::Exception(MSG);
+      ret.push_back(_z_array->getNumberOfTuples());
+    }
   return ret;
 }
 
@@ -357,59 +359,11 @@ MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::v
 
 /*!
  * Return the space dimension of \a this. It only considers the arrays along X, Y and Z to deduce that.
- * This method throws exceptions if the not null arrays defining this are not contiguouly at the end. For example X!=0,Y==0,Z!=0 will throw.
+ * This method throws exceptions if the not null arrays defining this are not contiguously at the end. For example X!=0,Y==0,Z!=0 will throw.
  */
 int MEDCouplingCMesh::getSpaceDimension() const
 {
-  static const char MSG[]="MEDCouplingCMesh::getSpaceDimension : mesh is invalid ! null vectors (X, Y or Z) must be put contiguously at the end !";
-  int ret(0);
-  bool isOK(true);
-  if(_x_array)
-    ret++;
-  else
-    isOK=false;
-  if(_y_array)
-    {
-      if(!isOK)
-        throw INTERP_KERNEL::Exception(MSG);
-      ret++;
-    }
-  else
-    isOK=false;
-  if(_z_array)
-    {
-      if(!isOK)
-        throw INTERP_KERNEL::Exception(MSG);
-      ret++;
-    }
-  return ret;
-}
-
-/*!
- * This method returns the mesh dimension of \a this. It can be different from space dimension in case of a not null dimension contains only one node.
- */
-int MEDCouplingCMesh::getMeshDimension() const
-{
-  int ret(getSpaceDimension());
-  if(_x_array)
-    {
-      if(_x_array->isAllocated())
-        if(_x_array->getNumberOfTuples()==1)
-          ret--;
-    }
-  if(_y_array)
-    {
-      if(_y_array->isAllocated())
-        if(_y_array->getNumberOfTuples()==1)
-          ret--;
-    }
-  if(_z_array)
-    {
-      if(_z_array->isAllocated())
-        if(_z_array->getNumberOfTuples()==1)
-          ret--;
-    }
-  return ret;
+  return (int)getNodeGridStructure().size();
 }
 
 void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const

@@ -168,6 +168,48 @@ void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& c
 }
 
 /*!
+ * This method returns the mesh dimension of \a this. It can be different from space dimension in case of a not null dimension contains only one node.
+ */
+int MEDCouplingStructuredMesh::getMeshDimension() const
+{
+  std::vector<int> ngs(getNodeGridStructure());
+  int ret(0),pos(0);
+  for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++,pos++)
+    {
+      if(*it<=0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getMeshDimension : At pos #" << pos << " number of nodes is " << *it << " ! Must be > 0 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(*it>1)
+        ret++;
+    }
+  return ret;
+}
+
+/*!
+ * This method returns the space dimension by only considering the node grid structure.
+ * For cartesian mesh the returned value is equal to those returned by getSpaceDimension.
+ * But for curvelinear is could be different !
+ */
+int MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct() const
+{
+  std::vector<int> nodeStr(getNodeGridStructure());
+  int spd1(0),pos(0);
+  for(std::vector<int>::const_iterator it=nodeStr.begin();it!=nodeStr.end();it++,pos++)
+    {
+      int elt(*it);
+      if(elt<=0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct : At pos #" << pos << " value of node grid structure is " << *it << " ! must be >=1 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      spd1++;
+    }
+  return spd1;
+}
+
+/*!
  * This method returns the number of cells of unstructured sub level mesh, without building it.
  */
 int MEDCouplingStructuredMesh::getNumberOfCellsOfSubLevelMesh() const
@@ -287,13 +329,13 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
  */
 MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
 {
-  int meshDim(getMeshDimension());
-  if(meshDim<0 || meshDim>3)
-    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTUnstructured : meshdim must be in [1,2,3] !");
+  int meshDim(getMeshDimension()),spaceDim(getSpaceDimensionOnNodeStruct());
+  if((meshDim<0 || meshDim>3) || (spaceDim<0 || spaceDim>3))
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTUnstructured : meshdim and spacedim must be in [1,2,3] !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
   int ns[3];
   getNodeGridStructure(ns);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+meshDim));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+spaceDim));
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   return ret.retn();
@@ -566,7 +608,8 @@ void MEDCouplingStructuredMesh::GetReverseNodalConnectivity3(const std::vector<i
  */
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd)
 {
-  std::size_t dim(std::distance(nodeStBg,nodeStEnd));
+  int zippedNodeSt[3];
+  int dim(ZipNodeStructure(nodeStBg,nodeStEnd,zippedNodeSt));
   switch(dim)
   {
     case 0:
@@ -576,11 +619,11 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
         return conn.retn();
       }
     case 1:
-      return Build1GTNodalConnectivity1D(nodeStBg);
+      return Build1GTNodalConnectivity1D(zippedNodeSt);
     case 2:
-      return Build1GTNodalConnectivity2D(nodeStBg);
+      return Build1GTNodalConnectivity2D(zippedNodeSt);
     case 3:
-      return Build1GTNodalConnectivity3D(nodeStBg);
+      return Build1GTNodalConnectivity3D(zippedNodeSt);
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::Build1GTNodalConnectivity : only dimension in [0,1,2,3] supported !");
   }
@@ -685,6 +728,35 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
   return conn.retn();
 }
 
+/*!
+ * This method computes given the nodal structure defined by [ \a nodeStBg , \a nodeStEnd ) the zipped form.
+ * std::distance( \a nodeStBg, \a nodeStEnd ) is equal to the space dimension. The returned value is equal to
+ * the meshDimension (or the zipped spaceDimension).
+ *
+ * \param [out] zipNodeSt - The zipped node strucutre
+ * \return int - the
+ */
+int MEDCouplingStructuredMesh::ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3])
+{
+  int spaceDim((int)std::distance(nodeStBg,nodeStEnd));
+  if(spaceDim>3 || spaceDim<1)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ZipNodeStructure : spaceDim must in [1,2,3] !");
+  zipNodeSt[0]=0; zipNodeSt[1]=0; zipNodeSt[2]=0;
+  int zippedI(0);
+  for(int i=0;i<spaceDim;i++)
+    {
+      int elt(nodeStBg[i]);
+      if(elt<1)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ZipNodeStructure : the input nodal structure at pos#" << i << "(" << nodeStBg[i] << ") is invalid !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(elt>=2)
+        zipNodeSt[zippedI++]=elt;
+    }
+  return zippedI;
+}
+
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg)
 {
   std::vector<int> ngs(2);
@@ -737,6 +809,39 @@ int MEDCouplingStructuredMesh::getNodeIdFromPos(int i, int j, int k) const
   getSplitNodeValues(tmp2);
   std::transform(tmp,tmp+spaceDim,tmp2,tmp,std::multiplies<int>());
   return std::accumulate(tmp,tmp+spaceDim,0);
+}
+
+
+int MEDCouplingStructuredMesh::getNumberOfCells() const
+{
+  std::vector<int> ngs(getNodeGridStructure());
+  int ret(1);
+  bool isCatched(false);
+  std::size_t ii(0);
+  for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++,ii++)
+    {
+      int elt(*it);
+      if(elt<=0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getNumberOfCells : at pos #" << ii << " the number of nodes in nodeStructure is " << *it << " ! Must be > 0 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(elt>1)
+        {
+          ret*=elt-1;
+          isCatched=true;
+        }
+    }
+  return isCatched?ret:0;
+}
+
+int MEDCouplingStructuredMesh::getNumberOfNodes() const
+{
+  std::vector<int> ngs(getNodeGridStructure());
+  int ret(1);
+  for(std::vector<int>::const_iterator it=ngs.begin();it!=ngs.end();it++)
+    ret*=*it;
+  return ret;
 }
 
 void MEDCouplingStructuredMesh::GetPosFromId(int nodeId, int meshDim, const int *split, int *res)

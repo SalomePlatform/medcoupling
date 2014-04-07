@@ -50,10 +50,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkCoherency() const;
     MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT int getNumberOfCells() const;
-    MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
-    MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;

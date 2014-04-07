@@ -2041,6 +2041,8 @@ class MEDLoaderTest(unittest.TestCase):
         m1=MEDFileCurveLinearMesh(fname)
         mm=m1.getMesh()
         self.assertTrue(mm.isEqual(mesh,1e-12))
+        self.assertEqual(mm.getSpaceDimension(),3)
+        self.assertEqual(mm.getSpaceDimensionOnNodeStruct(),2)
         #
         m1=MEDFileMesh.New(fname)
         self.assertTrue(isinstance(m1,MEDFileCurveLinearMesh))
