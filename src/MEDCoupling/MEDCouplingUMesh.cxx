@@ -10280,6 +10280,8 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
                         }
                       delete eint;
                       eCand->decrRef();
+                      if(!isColinear)
+                        break;
                     }
                 }
               break;

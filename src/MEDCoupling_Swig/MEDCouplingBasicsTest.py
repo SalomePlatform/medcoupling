@@ -14709,6 +14709,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(mu.getCoords().isEqual(coo6,1e-12))
         pass
 
+    def testSwig2Colinearize2D2(self):
+        """ simple non regression test but that has revealed a bug"""
+        coo=DataArrayDouble([(0,0),(0,0.5),(0,1),(1,1),(1,0),(0.5,0)])
+        m=MEDCouplingUMesh("mesh",2) ; m.setCoords(coo)
+        m.allocateCells() ; m.insertNextCell(NORM_POLYGON,[0,1,2,3,4,5])
+        m.checkCoherency2()
+        refPtr=m.getCoords().getHiddenCppPointer()
+        #
+        m.colinearize2D(1e-12)
+        m.checkCoherency2()
+        self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,0,2,3,4])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5])))
+        pass
+
     def setUp(self):
         pass
     pass
