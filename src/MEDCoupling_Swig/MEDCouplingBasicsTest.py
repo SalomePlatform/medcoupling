@@ -14724,6 +14724,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5])))
         pass
 
+    def testSwig2CheckAndPreparePermutation2(self):
+        a=DataArrayInt([10003,9999999,5,67])
+        self.assertTrue(DataArrayInt.CheckAndPreparePermutation(a).isEqual(DataArrayInt([2,3,0,1])))
+        a=DataArrayInt([10003,-9999999,5,67])
+        self.assertTrue(DataArrayInt.CheckAndPreparePermutation(a).isEqual(DataArrayInt([3,0,1,2])))
+        a=DataArrayInt([])
+        self.assertTrue(DataArrayInt.checkAndPreparePermutation(a).isEqual(DataArrayInt([])))
+        pass
+
     def setUp(self):
         pass
     pass

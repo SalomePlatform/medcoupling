@@ -102,6 +102,7 @@
 %newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
 %newobject ParaMEDMEM::DataArrayInt::getDifferentValues;
 %newobject ParaMEDMEM::DataArrayInt::FindPermutationFromFirstToSecond;
+%newobject ParaMEDMEM::DataArrayInt::CheckAndPreparePermutation;
 %newobject ParaMEDMEM::DataArrayInt::__neg__;
 %newobject ParaMEDMEM::DataArrayInt::__add__;
 %newobject ParaMEDMEM::DataArrayInt::__radd__;
@@ -2785,6 +2786,17 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
         PyTuple_SetItem(ret,1,PyInt_FromLong(newNbOfTuples));
         return ret;
+      }
+
+      static DataArrayInt *CheckAndPreparePermutation(PyObject *arr) throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+        int szArr,sw,iTypppArr;
+        std::vector<int> stdvecTyyppArr;
+        const int *arrPtr(convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr));
+        int *pt(ParaMEDMEM::DataArrayInt::CheckAndPreparePermutation(arrPtr,arrPtr+szArr));
+        ret->useArray(pt,true,ParaMEDMEM::C_DEALLOC,szArr,1);
+        return ret.retn();
       }
 
       void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
