@@ -2007,7 +2007,7 @@ class MEDLoaderTest(unittest.TestCase):
         pfl=DataArrayInt.Range(0,50,1) ; pfl.setName("pfl")
         fff.appendFieldProfile(f2,mm,0,pfl)
         self.assertIn(fff.getHeapMemorySize(),xrange(2178-130,2178+100+(10+2)*strMulFac))
-        self.assertIn(fff.getProfile("pfl_NORM_QUAD4").getHeapMemorySize(),xrange(215-10,215+10+2*strMulFac))
+        self.assertIn(fff.getProfile("pfl").getHeapMemorySize(),xrange(205-10,205+10+2*strMulFac))
         self.assertIn(fff[1,-1].getHeapMemorySize(),xrange(700-50,700+30+4*strMulFac))
         pass
 

@@ -147,6 +147,8 @@ namespace ParaMEDMEM
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
+    //! this boolean will desappear shortly. It is always equal to true except for the case where a partial cartesian mesh leads to a unstructured mesh.
+    bool _is_holding_a_ref_already_held;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> > _parts;
     //! this attribute is used only for mesh with no cells but having coordinates. For classical umeshes those pointer is equal to pointer of coordinates of instances in this->_parts.
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;

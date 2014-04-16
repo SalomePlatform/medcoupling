@@ -345,6 +345,8 @@ namespace ParaMEDMEM
     void deepCpyAttributes();
     void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void writeStructuredLL(med_idt fid, const std::string& maa) const;
+    void buildImplicitPart() const;
+    void buildMinusOneImplicitPartIfNeeded() const;
     static med_geometry_type GetGeoTypeFromMeshDim(int meshDim);
   private:
     static void LoadStrMeshDAFromFile(med_idt fid, int meshDim, int dt, int it, const std::string& mName, MEDFileMeshReadSelector *mrs,

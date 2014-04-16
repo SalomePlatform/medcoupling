@@ -4698,7 +4698,11 @@ MEDCouplingMesh *MEDFileStructuredMesh::getGenMeshAtLevel(int meshDimRelToMax, b
       {
         if(!m)
           throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGenMeshAtLevel : level -1 requested must be non empty to be able to compute unstructured sub mesh !");
-        return _faces_if_necessary;
+        buildMinusOneImplicitPartIfNeeded();
+        MEDCouplingMesh *ret(_faces_if_necessary);
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
     default:
       throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support multi level for mesh 0 expected as input !");
@@ -4754,9 +4758,8 @@ int MEDFileStructuredMesh::buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellT
       const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(getMeshDimension())));
       if(cm.getReverseExtrudedType()!=gt)
         throw INTERP_KERNEL::Exception(MSG);
-      const MEDCouplingStructuredMesh *mcmesh(getStructuredMesh());
-      _faces_if_necessary=mcmesh->build1SGTSubLevelMesh();
-      return mcmesh->getNumberOfCellsOfSubLevelMesh();
+      buildImplicitPart();
+      return getStructuredMesh()->getNumberOfCellsOfSubLevelMesh();
     }
   else
     {
@@ -4764,6 +4767,21 @@ int MEDFileStructuredMesh::buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellT
         throw INTERP_KERNEL::Exception(MSG);
       return zeFaceMesh->getNumberOfCells();
     }
+}
+
+void MEDFileStructuredMesh::buildMinusOneImplicitPartIfNeeded() const
+{
+  const MEDCoupling1SGTUMesh *zeFaceMesh(_faces_if_necessary);
+  if(!zeFaceMesh)
+    buildImplicitPart();
+}
+
+void MEDFileStructuredMesh::buildImplicitPart() const
+{
+  const MEDCouplingStructuredMesh *mcmesh(getStructuredMesh());
+  if(!mcmesh)
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::buildImplicitPart : Unable to build the implicit part of structured mesh because no structured mesh at level 0 defined !");
+  _faces_if_necessary=mcmesh->build1SGTSubLevelMesh();
 }
 
 void MEDFileStructuredMesh::releaseImplicitPartIfAny() const

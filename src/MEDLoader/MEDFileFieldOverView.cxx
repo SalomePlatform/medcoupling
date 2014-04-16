@@ -668,7 +668,7 @@ MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector
   return new MEDUMeshMultiLev(m,levs);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs):MEDMeshMultiLev(m)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs):MEDMeshMultiLev(m),_is_holding_a_ref_already_held(true)
 {
   if(!m)
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev constructor : null input pointer !");
@@ -771,7 +771,7 @@ MEDUMeshMultiLev *MEDUMeshMultiLev::New(const MEDFileUMesh *m, const std::vector
   return new MEDUMeshMultiLev(m,gts,pfls,nbEntities);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,m->getNumberOfNodes(),gts,pfls,nbEntities),_is_holding_a_ref_already_held(true)
 {
   std::size_t sz(gts.size());
   if(sz<1)
@@ -897,11 +897,11 @@ MEDMeshMultiLev *MEDUMeshMultiLev::prepare() const
   return new MEDUMeshMultiLev(*this);
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDUMeshMultiLev& other):MEDMeshMultiLev(other),_parts(other._parts),_coords(other._coords)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDUMeshMultiLev& other):MEDMeshMultiLev(other),_is_holding_a_ref_already_held(other._is_holding_a_ref_already_held),_parts(other._parts),_coords(other._coords)
 {
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part):MEDMeshMultiLev(other)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part):MEDMeshMultiLev(other),_is_holding_a_ref_already_held(false)
 {
   _parts.resize(1);
   _parts[0]=part;
@@ -911,6 +911,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
 }
 
 /*! 
+ * To be called only once ! Because due to some optimizations (sometimes aggressive) the internal state can be changed...
  * If returned value is false output pointer \a coords is not the internal pointer. If returned value is true output pointer \a coords is directly the internal pointer.
  * If true is returned, the \a coords output parameter should be used with care (non const method call) to avoid to change the internal state of MEDFileUMesh instance.
  */
@@ -1063,12 +1064,26 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
     reorderNodesIfNecessary(a,d,f);
   if(a->getNumberOfComponents()!=3)
     a=a->changeNbOfComponents(3,0.);
-  coords=a.retn(); types=b.retn(); cellLocations=c.retn(); cells=d.retn();
+  coords=a.retn();
+  if(!_is_holding_a_ref_already_held)
+    {
+      if(tmp==((DataArrayDouble *)a))
+        {
+          if(_parts.empty())
+            { const_cast<MEDUMeshMultiLev *>(this)->_coords=0; }
+          else
+            { const_cast<MEDUMeshMultiLev *>(this)->_parts[0]->setCoords(0); }
+        }
+    }
+  types=b.retn(); cellLocations=c.retn(); cells=d.retn();
   if(!isPolyh)
     { faceLocations=0; faces=0; }
   else
     { faceLocations=e.retn(); faces=f.retn(); }
-  return tmp==((DataArrayDouble *)a);
+  if(_is_holding_a_ref_already_held)
+    return tmp==((DataArrayDouble *)a);
+  else
+    return false;
 }
 
 void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
