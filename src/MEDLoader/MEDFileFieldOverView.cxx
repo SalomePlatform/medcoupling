@@ -209,6 +209,15 @@ void MEDMeshMultiLev::setNodeReduction(const DataArrayInt *nr)
   _node_reduction=const_cast<DataArrayInt*>(nr);
 }
 
+void MEDMeshMultiLev::setCellReduction(const DataArrayInt *cr)
+{
+  if(_pfls.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDMeshMultiLev::setCellReduction : can be used only for single geo type mesh !");
+  _pfls[0]=const_cast<DataArrayInt*>(cr);
+  if(cr)
+    cr->incrRef();
+}
+
 bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const
 {
   if(fst.getType()==ON_NODES)
@@ -1268,7 +1277,10 @@ bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMu
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> facesIfPresent2(facesIfPresent); facesIfPresent->incrRef();
   MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret2(new MEDUMeshMultiLev(*this,facesIfPresent2));
   if(pfl)
-    throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for profile on implicit unstructured mesh.");
+    {
+      ret2->setCellReduction(pfl);
+      //throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for profile on implicit unstructured mesh.");
+    }
   if(nr)
     throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for node reduction on implicit unstructured mesh.");
   ret=ret2.retn();

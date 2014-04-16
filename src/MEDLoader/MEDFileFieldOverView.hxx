@@ -82,6 +82,7 @@ namespace ParaMEDMEM
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<int>& levs);
     static MEDMeshMultiLev *NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode);
     void setNodeReduction(const DataArrayInt *nr);
+    void setCellReduction(const DataArrayInt *cr);
     bool isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs) const;
     MEDLOADER_EXPORT DataArray *buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const;
     MEDLOADER_EXPORT void retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isWithoutCopy) const;

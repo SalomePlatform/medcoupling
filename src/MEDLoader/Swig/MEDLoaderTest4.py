@@ -4527,7 +4527,26 @@ class MEDLoaderTest4(unittest.TestCase):
         #
         fcscp=allFMTSLeavesPerCommonSupport1[1][1]
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
-        #mml2=mml.prepare()
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev)) # here UMesh is important
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(ncc)# True because, the coords are computed by the implicit unstructured level -1 structured mesh
+        self.assertTrue(a0.isEqual(DataArrayDouble([0.,0.,0.,1.,0.,0.,2.,0.,0.,0.,1.,0.,1.,1.,0.,2.,1.,0.,0.,2.,0.,1.,2.,0.,2.,2.,0.,0.,3.,0.,1.,3.,0.,2.,3.,0.,0.,0.,1.,1.,0.,1.,2.,0.,1.,0.,1.,1.,1.,1.,1.,2.,1.,1.,0.,2.,1.,1.,2.,1.,2.,2.,1.,0.,3.,1.,1.,3.,1.,2.,3.,1.,0.,0.,2.,1.,0.,2.,2.,0.,2.,0.,1.,2.,1.,1.,2.,2.,1.,2.,0.,2.,2.,1.,2.,2.,2.,2.,2.,0.,3.,2.,1.,3.,2.,2.,3.,2.,0.,0.,3.,1.,0.,3.,2.,0.,3.,0.,1.,3.,1.,1.,3.,2.,1.,3.,0.,2.,3.,1.,2.,3.,2.,2.,3.,0.,3.,3.,1.,3.,3.,2.,3.,3.,0.,0.,4.,1.,0.,4.,2.,0.,4.,0.,1.,4.,1.,1.,4.,2.,1.,4.,0.,2.,4.,1.,2.,4.,2.,2.,4.,0.,3.,4.,1.,3.,4.,2.,3.,4.],60,3),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150])))
+        self.assertTrue(a3.isEqual(DataArrayInt([4,0,12,15,3,4,12,24,27,15,4,24,36,39,27,4,36,48,51,39,4,3,15,18,6,4,15,27,30,18,4,27,39,42,30,4,39,51,54,42,4,6,18,21,9,4,18,30,33,21,4,30,42,45,33,4,42,54,57,45,4,1,13,16,4,4,13,25,28,16,4,25,37,40,28,4,37,49,52,40,4,4,16,19,7,4,16,28,31,19,4,28,40,43,31,4,40,52,55,43,4,7,19,22,10,4,19,31,34,22,4,31,43,46,34,4,43,55,58,46,4,2,14,17,5,4,14,26,29,17,4,26,38,41,29,4,38,50,53,41,4,5,17,20,8,4,17,29,32,20,4,29,41,44,32])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        for i in xrange(30):
+            ffCell=allFMTSLeavesPerCommonSupport1[1][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+            ffCell.loadArraysIfNecessary()
+            v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+            self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+            myarr=DataArrayDouble(31) ; myarr.iota() ; myarr[i]=100.
+            self.assertEqual(ffCell.getName(),"FieldOnFaces")
+            self.assertTrue(v.isEqual(myarr,1e-12))
+            pass
         pass
     
     def test33(self):
