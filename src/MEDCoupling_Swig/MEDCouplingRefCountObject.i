@@ -68,6 +68,7 @@ namespace ParaMEDMEM
   public:
     std::size_t getHeapMemorySize() const throw(INTERP_KERNEL::Exception);
     std::string getHeapMemorySizeStr() const throw(INTERP_KERNEL::Exception);
+    bool isObjectInTheProgeny(const BigMemoryObject *obj) const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getHeapMemorySizeWithoutChildren() const throw(INTERP_KERNEL::Exception);
     virtual ~BigMemoryObject();
     %extend
@@ -75,6 +76,15 @@ namespace ParaMEDMEM
       virtual PyObject *getDirectChildren() const throw(INTERP_KERNEL::Exception)
       {
         std::vector<const BigMemoryObject *> c(self->getDirectChildren());
+        PyObject *ret(PyList_New(c.size()));
+        for(std::size_t i=0;i<c.size();i++)
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));
+        return ret;
+      }
+
+      PyObject *getAllTheProgeny() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const BigMemoryObject *> c(self->getAllTheProgeny());
         PyObject *ret(PyList_New(c.size()));
         for(std::size_t i=0;i<c.size();i++)
           PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));

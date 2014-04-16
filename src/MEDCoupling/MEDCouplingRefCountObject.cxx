@@ -22,6 +22,7 @@
 #include "MED_version.h"
 
 #include <sstream>
+#include <algorithm>
 
 using namespace ParaMEDMEM;
 
@@ -78,6 +79,49 @@ std::size_t BigMemoryObject::getHeapMemorySize() const
   std::vector<const BigMemoryObject *> v(getDirectChildren());
   std::set<const BigMemoryObject *> s1,s2(v.begin(),v.end());
   return ret+GetHeapMemoryOfSet(s1,s2);
+}
+
+/*!
+ * This method returns all the progeny of \a this (this is \b not included in returned vector).
+ * All the progeny means all the subobjects (children), subsubobjects (little children), ... of \a this.
+ * The elements in returned array are reported only once even if they appear several times in the progeny of \a this.
+ */
+std::vector<const BigMemoryObject *> BigMemoryObject::getAllTheProgeny() const
+{
+  std::vector<const BigMemoryObject *> s1(getDirectChildren());
+  std::vector<const BigMemoryObject *> ret;
+  while(!s1.empty())
+    {
+      ret.insert(ret.end(),s1.begin(),s1.end());
+      std::vector<const BigMemoryObject *> s3;
+      for(std::vector<const BigMemoryObject *>::const_iterator it0=s1.begin();it0!=s1.end();it0++)
+        {
+          std::vector<const BigMemoryObject *> s2;
+          if(*it0)
+            s2=(*it0)->getDirectChildren();
+          for(std::vector<const BigMemoryObject *>::const_iterator it1=s2.begin();it1!=s2.end();it1++)
+            {
+              if(*it1)
+                if(std::find(ret.begin(),ret.end(),*it1)==ret.end())
+                  s3.push_back(*it1);
+            }
+        }
+      s1=s3;
+    }
+  return ret;
+}
+
+/*!
+ * This method scan all the progeny of \a this (\a this excluded) to see if \a obj is part of it.
+ * If obj is NULL false is returned.
+ * \sa BigMemoryObject::getAllTheProgeny
+ */
+bool BigMemoryObject::isObjectInTheProgeny(const BigMemoryObject *obj) const
+{
+  if(!obj)
+    return false;
+  std::vector<const BigMemoryObject *> objs(getAllTheProgeny());
+  return std::find(objs.begin(),objs.end(),obj)!=objs.end();
 }
 
 std::size_t BigMemoryObject::GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs)

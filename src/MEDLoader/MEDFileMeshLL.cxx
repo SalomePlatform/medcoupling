@@ -512,6 +512,20 @@ void MEDFileUMeshPermCompute::updateTime() const
   _num_time=_st->_num->getTimeOfThis();
 }
 
+std::vector<const BigMemoryObject *> MEDFileUMeshPermCompute::getDirectChildren() const
+{
+  std::vector<const BigMemoryObject *> ret;
+  const MEDCouplingUMesh *elt(_m);
+  if(elt)
+    ret.push_back(elt);
+  return ret;
+}
+
+std::size_t MEDFileUMeshPermCompute::getHeapMemorySizeWithoutChildren() const
+{
+  return sizeof(MEDFileUMeshPermCompute);
+}
+
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):RefCountObject(other),_m_by_types(other._m_by_types),_fam(other._fam),_num(other._num),_names(other._names),_rev_num(other._rev_num),_m(this)
 {
 }
@@ -597,6 +611,7 @@ std::vector<const BigMemoryObject *> MEDFileUMeshSplitL1::getDirectChildren() co
 {
   std::vector<const BigMemoryObject *> ret;
   ret.push_back(&_m_by_types);
+  ret.push_back(&_m);
   if((const DataArrayInt*)_fam)
     ret.push_back((const DataArrayInt*)_fam);
   if((const DataArrayInt*)_num)

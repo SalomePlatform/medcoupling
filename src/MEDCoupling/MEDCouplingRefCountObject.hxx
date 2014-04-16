@@ -67,6 +67,8 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySize() const;
     MEDCOUPLING_EXPORT std::string getHeapMemorySizeStr() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getAllTheProgeny() const;
+    MEDCOUPLING_EXPORT bool isObjectInTheProgeny(const BigMemoryObject *obj) const;
     MEDCOUPLING_EXPORT static std::size_t GetHeapMemorySizeOfObjs(const std::vector<const BigMemoryObject *>& objs);
     MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const = 0;
     MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildren() const = 0;

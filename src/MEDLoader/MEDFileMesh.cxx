@@ -4001,6 +4001,8 @@ std::vector<const BigMemoryObject *> MEDFileStructuredMesh::getDirectChildren() 
     ret.push_back((const DataArrayAsciiChar *)_names_faces);
   if((const DataArrayInt *)_rev_num_cells)
     ret.push_back((const DataArrayInt *)_rev_num_cells);
+  if((const MEDCoupling1SGTUMesh*)_faces_if_necessary)
+    ret.push_back((const MEDCoupling1SGTUMesh*)_faces_if_necessary);
   return ret;
 }
 

@@ -123,13 +123,15 @@ namespace ParaMEDMEM
   class MEDFileMesh;
   class MEDFileUMeshSplitL1;
 
-  class MEDFileUMeshPermCompute
+  class MEDFileUMeshPermCompute : public BigMemoryObject
   {
   public:
     MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st);
     operator MEDCouplingUMesh *() const;
     void operator=(MEDCouplingUMesh *m);
     void updateTime() const;
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
   private:
     const MEDFileUMeshSplitL1 *_st;
     mutable std::size_t _mpt_time;
