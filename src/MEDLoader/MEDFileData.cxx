@@ -66,16 +66,19 @@ std::vector<const BigMemoryObject *> MEDFileData::getDirectChildren() const
 
 }
 
+/** Return a borrowed reference (caller is not responsible for object destruction) */
 MEDFileFields *MEDFileData::getFields() const
 {
   return const_cast<MEDFileFields *>(static_cast<const MEDFileFields *>(_fields));
 }
 
+/** Return a borrowed reference (caller is not responsible for object destruction) */
 MEDFileMeshes *MEDFileData::getMeshes() const
 {
   return const_cast<MEDFileMeshes *>(static_cast<const MEDFileMeshes *>(_meshes));
 }
 
+/** Return a borrowed reference (caller is not responsible for object destruction) */
 MEDFileParameters *MEDFileData::getParams() const
 {
   return const_cast<MEDFileParameters *>(static_cast<const MEDFileParameters *>(_params));
