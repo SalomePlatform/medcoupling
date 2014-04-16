@@ -1019,7 +1019,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
                 {
                   *dPtr++=connIPtr[1]-connIPtr[0];
                   dPtr=std::copy(connPtr+connIPtr[0],connPtr+connIPtr[1],dPtr);
-                  *cPtr++=k; k+=connIPtr[1]-connIPtr[0];
+                  *cPtr++=k; k+=connIPtr[1]-connIPtr[0]+1;
                 }
             }
           else
