@@ -4529,6 +4529,82 @@ class MEDLoaderTest4(unittest.TestCase):
         mml=fcscp.buildFromScratchDataSetSupport(0,fields)
         #mml2=mml.prepare()
         pass
+    
+    def test33(self):
+        """Non regression test concerning polygons. Thanks Adrien. This bug can't be shown by simply reading an displaying a MED file containing only polygons. A filter must be applied on it to show it. The a2 array was responsible of that bug."""
+        fname="ForMEDReader33.med"
+        fieldName="ACellField"
+        coo=DataArrayDouble([(5.5,0.5),(5.5,-0.5),(6.5,0.5),(6.5,-0.5),(6.5,1.5),(7.5,0.5),(7.5,-0.5),(7.5,1.5),(7.5,2.5),(8.5,0.5),(8.5,-0.5),(8.5,1.5),(8.5,2.5),(8.5,3.5),(8.55,0.5),(8.55,-0.5),(8.55,1.5),(8.55,2.5),(8.55,3.5)])
+        m=MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        for i,c in enumerate([(1,0,2,3),(3,2,5,6),(2,4,7,5),(6,5,9,10),(5,7,11,9),(7,8,12,11),(10,9,14,15),(9,11,16,14),(11,12,17,16),(12,13,18,17)]):
+            if i<6:
+                typ=NORM_QUAD4
+                pass
+            else:
+                typ=NORM_POLYGON
+                pass
+            m.insertNextCell(typ,c)
+            pass
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        mm.write(fname,2)
+        for i in xrange(15):
+            fCell0=MEDCouplingFieldDouble(ON_CELLS) ; fCell0.setTime(float(i)+0.1,i,0)
+            fCell0.setName(fieldName) ; fCell0.setMesh(m)
+            arr=DataArrayDouble(m.getNumberOfCells()) ; arr.iota(0) ; arr[i%10]=100.
+            fCell0.setArray(arr) ; arr.setInfoOnComponents(["Comp1 [m]"])
+            fCell0.checkCoherency()
+            MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,fCell0)
+            pass
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),1)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),1)
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[0][0]),1)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        #
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)# false beacause 2D in MED file
+        self.assertTrue(a0.isEqual(DataArrayDouble([(5.5,0.5,0),(5.5,-0.5,0),(6.5,0.5,0),(6.5,-0.5,0),(6.5,1.5,0),(7.5,0.5,0),(7.5,-0.5,0),(7.5,1.5,0),(7.5,2.5,0),(8.5,0.5,0),(8.5,-0.5,0),(8.5,1.5,0),(8.5,2.5,0),(8.5,3.5,0),(8.55,0.5,0),(8.55,-0.5,0),(8.55,1.5,0),(8.55,2.5,0),(8.55,3.5,0)]),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([9,9,9,9,9,9,7,7,7,7])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45])))# the bug was here.
+        self.assertTrue(a3.isEqual(DataArrayInt([4,1,0,2,3,4,3,2,5,6,4,2,4,7,5,4,6,5,9,10,4,5,7,11,9,4,7,8,12,11,4,10,9,14,15,4,9,11,16,14,4,11,12,17,16,4,12,13,18,17])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        for i in xrange(15):
+            ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+            ffCell.loadArraysIfNecessary()
+            v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+            self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+            myarr=DataArrayDouble(10) ; myarr.iota() ; myarr[i%10]=100. ; myarr.setInfoOnComponent(0,"Comp1 [m]")
+            self.assertEqual(ffCell.getName(),fieldName)
+            self.assertTrue(v.isEqual(myarr,1e-12))
+            pass
+        pass
     pass
 
 unittest.main()
