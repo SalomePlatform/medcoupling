@@ -5673,6 +5673,7 @@ MEDFileMeshesIterator *MEDFileMeshes::iterator()
   return new MEDFileMeshesIterator(this);
 }
 
+/** Return a borrowed reference (caller is not responsible) */
 MEDFileMesh *MEDFileMeshes::getMeshAtPos(int i) const
 {
   if(i<0 || i>=(int)_meshes.size())
@@ -5683,6 +5684,7 @@ MEDFileMesh *MEDFileMeshes::getMeshAtPos(int i) const
   return _meshes[i]->getOneTimeStep();
 }
 
+/** Return a borrowed reference (caller is not responsible) */
 MEDFileMesh *MEDFileMeshes::getMeshWithName(const std::string& mname) const
 {
   std::vector<std::string> ms=getMeshesNames();
