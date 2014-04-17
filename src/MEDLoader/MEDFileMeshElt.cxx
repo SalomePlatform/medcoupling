@@ -166,7 +166,7 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
   med_bool changement,transformation;
   med_int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_INDEX_NODE,MED_NODAL,&changement,&transformation)-1;
   _m=MEDCoupling1DGTUMesh::New(mName,geoElt==MED_POLYGON?INTERP_KERNEL::NORM_POLYGON:INTERP_KERNEL::NORM_QPOLYG);
-  MEDCoupling1DGTUMesh *mc(dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh *)_m));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> mc(DynamicCast<MEDCoupling1GTUMesh,MEDCoupling1DGTUMesh>(_m));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
   conn->alloc(arraySize,1); connI->alloc(curNbOfElem+1,1);
   MEDmeshPolygon2Rd(fid,mName,dt,it,MED_CELL,geoElt,MED_NODAL,connI->getPointer(),conn->getPointer());
@@ -183,7 +183,7 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int 
   med_int indexFaceLgth=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_NODE,MED_NODAL,&changement,&transformation);
   int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_FACE,MED_NODAL,&changement,&transformation)-1;
   _m=MEDCoupling1DGTUMesh::New(mName,INTERP_KERNEL::NORM_POLYHED);
-  MEDCoupling1DGTUMesh *mc(dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh *)_m));
+  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> mc(DynamicCastSafe<MEDCoupling1GTUMesh,MEDCoupling1DGTUMesh>(_m));
   INTERP_KERNEL::AutoPtr<int> index=new int[curNbOfElem+1];
   INTERP_KERNEL::AutoPtr<int> indexFace=new int[indexFaceLgth];
   INTERP_KERNEL::AutoPtr<int> locConn=new int[connFaceLgth];
