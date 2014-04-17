@@ -382,6 +382,7 @@ class SauvLoaderTest(unittest.TestCase):
                 pass
             line=f.readline()
             pass
+        f.close()
         os.remove(sauvFile)
         pass
 
