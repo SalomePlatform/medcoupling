@@ -159,15 +159,21 @@ namespace ParaMEDMEM
     void selectPartOfNodes(const DataArrayInt *pflNodes);
     virtual std::vector<int> getNodeGridStructure() const = 0;
   protected:
-    MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m);
     MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev);
     MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
     void dealWithImplicitUnstructuredMesh(const MEDFileMesh *m);
   protected:
+    void moveFaceToCell() const;
     bool prepareForImplicitUnstructuredMeshCase(MEDMeshMultiLev *&ret) const;
+  private:
+    void initStdFieldOfIntegers(const MEDFileStructuredMesh *m);
   protected:
     bool _is_internal;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _face_fam_ids;
+    bool _face_fam_ids_nocpy;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _face_num_ids;
+    bool _face_num_ids_nocpy;
   };
 
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev

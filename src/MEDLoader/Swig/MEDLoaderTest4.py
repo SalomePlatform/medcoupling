@@ -4537,6 +4537,9 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a3.isEqual(DataArrayInt([4,0,12,15,3,4,12,24,27,15,4,24,36,39,27,4,36,48,51,39,4,3,15,18,6,4,15,27,30,18,4,27,39,42,30,4,39,51,54,42,4,6,18,21,9,4,18,30,33,21,4,30,42,45,33,4,42,54,57,45,4,1,13,16,4,4,13,25,28,16,4,25,37,40,28,4,37,49,52,40,4,4,16,19,7,4,16,28,31,19,4,28,40,43,31,4,40,52,55,43,4,7,19,22,10,4,19,31,34,22,4,31,43,46,34,4,43,55,58,46,4,2,14,17,5,4,14,26,29,17,4,26,38,41,29,4,38,50,53,41,4,5,17,20,8,4,17,29,32,20,4,29,41,44,32])))
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
+        a6,a7=mml2.retrieveFamilyIdsOnCells()
+        self.assertTrue(a6 is None)
+        self.assertTrue(a7)
         for i in xrange(30):
             ffCell=allFMTSLeavesPerCommonSupport1[1][0][0][i]
             fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)

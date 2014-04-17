@@ -1182,46 +1182,22 @@ void MEDUMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArr
 
 //=
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m):MEDMeshMultiLev(m),_is_internal(true)
-{
-}
-
 MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, const std::vector<int>& lev):MEDMeshMultiLev(m),_is_internal(true)
 {
-  // ids fields management
-  _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
-  const DataArrayInt *tmp(0);
-  tmp=m->getFamilyFieldAtLevel(0);
-  if(tmp)
-    {
-      tmp->incrRef();
-      _cell_fam_ids=const_cast<DataArrayInt *>(tmp);
-    }
-  tmp=m->getNumberFieldAtLevel(0);
-  if(tmp)
-    {
-      tmp->incrRef();
-      _cell_num_ids=const_cast<DataArrayInt *>(tmp);
-    }
-  //
-  _node_fam_ids_nocpy=true; _node_num_ids_nocpy=true;
-  tmp=0;
-  tmp=m->getFamilyFieldAtLevel(1);
-  if(tmp)
-    {
-      tmp->incrRef();
-      _node_fam_ids=const_cast<DataArrayInt *>(tmp);
-    }
-  tmp=m->getNumberFieldAtLevel(1);
-  if(tmp)
-    {
-      tmp->incrRef();
-      _node_num_ids=const_cast<DataArrayInt *>(tmp);
-    }
+  initStdFieldOfIntegers(m);
 }
 
 MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh *m, int nbOfNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities):MEDMeshMultiLev(m,nbOfNodes,gts,pfls,nbEntities),_is_internal(true)
 {
+  initStdFieldOfIntegers(m);
+}
+
+MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other):MEDMeshMultiLev(other),_is_internal(true),_face_fam_ids(other._face_fam_ids),_face_fam_ids_nocpy(other._face_fam_ids_nocpy),_face_num_ids(other._face_num_ids),_face_num_ids_nocpy(other._face_num_ids_nocpy)
+{
+}
+
+void MEDStructuredMeshMultiLev::initStdFieldOfIntegers(const MEDFileStructuredMesh *m)
+{
   // ids fields management
   _cell_fam_ids_nocpy=true; _cell_num_ids_nocpy=true;
   const DataArrayInt *tmp(0);
@@ -1252,10 +1228,28 @@ MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDFileStructuredMesh
       tmp->incrRef();
       _node_num_ids=const_cast<DataArrayInt *>(tmp);
     }
+  // faces (if any)
+  _face_fam_ids_nocpy=true; _face_num_ids_nocpy=true;
+  tmp=m->getFamilyFieldAtLevel(-1);
+  if(tmp)
+    {
+      tmp->incrRef();
+      _face_fam_ids=const_cast<DataArrayInt *>(tmp);
+    }
+  tmp=m->getNumberFieldAtLevel(-1);
+  if(tmp)
+    {
+      tmp->incrRef();
+      _face_num_ids=const_cast<DataArrayInt *>(tmp);
+    }
 }
 
-MEDStructuredMeshMultiLev::MEDStructuredMeshMultiLev(const MEDStructuredMeshMultiLev& other):MEDMeshMultiLev(other),_is_internal(true)
+void MEDStructuredMeshMultiLev::moveFaceToCell() const
 {
+  const_cast<MEDStructuredMeshMultiLev *>(this)->_cell_fam_ids_nocpy=_face_fam_ids_nocpy;
+  const_cast<MEDStructuredMeshMultiLev *>(this)->_cell_num_ids_nocpy=_face_num_ids_nocpy;
+  const_cast<MEDStructuredMeshMultiLev *>(this)->_cell_fam_ids=_face_fam_ids; const_cast<MEDStructuredMeshMultiLev *>(this)->_face_fam_ids=0;
+  const_cast<MEDStructuredMeshMultiLev *>(this)->_cell_num_ids=_face_num_ids; const_cast<MEDStructuredMeshMultiLev *>(this)->_face_num_ids=0;
 }
 
 bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMultiLev *&ret) const
@@ -1275,12 +1269,10 @@ bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMu
   if(!_pfls.empty())
     pfl=_pfls[0];
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> facesIfPresent2(facesIfPresent); facesIfPresent->incrRef();
+  moveFaceToCell();
   MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret2(new MEDUMeshMultiLev(*this,facesIfPresent2));
   if(pfl)
-    {
-      ret2->setCellReduction(pfl);
-      //throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for profile on implicit unstructured mesh.");
-    }
+    ret2->setCellReduction(pfl);
   if(nr)
     throw INTERP_KERNEL::Exception("MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase : case is not treated yet for node reduction on implicit unstructured mesh.");
   ret=ret2.retn();
