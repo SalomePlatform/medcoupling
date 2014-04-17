@@ -318,7 +318,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
           ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(eltOwning),NULL);
           typename ParaMEDMEM::MemArray<T>::Deallocator tmp(ParaMEDMEM::MemArray<T>::CDeallocator);
-          void **tmp2(reinterpret_cast<void**>(&tmp));
+          void **tmp2 = reinterpret_cast<void**>(&tmp); // MSVC2010 does not support constructor()
           void **objs=new void *[2]; objs[0]=ref; objs[1]=*tmp2;
           mma.setParameterForDeallocator(objs);
           mma.setSpecificDeallocator(numarrdeal);
@@ -424,7 +424,7 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
         {// case for the first call of toNumPyArray
           PyObject *ref(PyWeakref_NewRef(ret,NULL));
           typename ParaMEDMEM::MemArray<T>::Deallocator tmp(mem.getDeallocator());
-          void **tmp2(reinterpret_cast<void**>(&tmp));
+          void **tmp2 = reinterpret_cast<void**>(&tmp); // MSVC2010 does not support constructor()
           void **objs=new void *[2]; objs[0]=reinterpret_cast<void*>(ref); objs[1]=*tmp2;
           mem.setParameterForDeallocator(objs);
           mem.setSpecificDeallocator(numarrdeal);
