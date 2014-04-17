@@ -22,6 +22,7 @@
 #define __PARAMEDMEM_MEDCOUPLINGAUTOREFCOUNTOBJECTPTR_HXX__
 
 #include "MEDCouplingRefCountObject.hxx"
+#include "InterpKernelException.hxx"
 
 namespace ParaMEDMEM
 {
@@ -48,6 +49,30 @@ namespace ParaMEDMEM
   private:
     T *_ptr;
   };
+
+  template<class T, class U>
+  typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> DynamicCast(typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<T>& autoSubPtr) throw()
+  {
+    T *subPtr(autoSubPtr);
+    U *ptr(dynamic_cast<U *>(subPtr));
+    typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> ret(ptr);
+    if(ptr)
+      ptr->incrRef();
+    return ret;
+  }
+
+  template<class T, class U>
+  typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> DynamicCastSafe(typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<T>& autoSubPtr)
+  {
+    T *subPtr(autoSubPtr);
+    U *ptr(dynamic_cast<U *>(subPtr));
+    if(subPtr && !ptr)
+      throw INTERP_KERNEL::Exception("DynamicCastSafe : U is not a subtype of T !");
+    typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> ret(ptr);
+    if(ptr)
+      ptr->incrRef();
+    return ret;
+  }
 }
 
 #endif
