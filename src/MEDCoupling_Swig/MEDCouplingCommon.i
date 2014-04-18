@@ -2307,6 +2307,16 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      PyObject *computeNeighborsOfNodes() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *neighbors=0,*neighborsIdx=0;
+        self->computeNeighborsOfNodes(neighbors,neighborsIdx);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(neighbors),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(neighborsIdx),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       static PyObject *ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI) throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *neighbors=0,*neighborsIdx=0;

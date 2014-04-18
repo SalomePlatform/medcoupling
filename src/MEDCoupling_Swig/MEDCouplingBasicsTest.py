@@ -14733,6 +14733,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(DataArrayInt.checkAndPreparePermutation(a).isEqual(DataArrayInt([])))
         pass
 
+    def testSwig2ComputeNeighborsOfNodes1(self):
+        arrX=DataArrayDouble(3) ; arrX.iota()
+        arrY=DataArrayDouble(4) ; arrY.iota()
+        arrZ=DataArrayDouble(5) ; arrZ.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY,arrZ) ; m=m.buildUnstructured()
+        # 3D
+        a,b=m.computeNeighborsOfNodes()
+        self.assertTrue(a.isEqual(DataArrayInt([1,3,12,0,4,13,2,1,5,14,0,4,15,6,3,1,16,5,7,4,2,17,8,3,7,18,9,6,4,19,8,10,7,5,20,11,6,10,21,9,7,22,11,10,8,23,13,15,0,24,12,16,1,14,25,13,17,2,26,12,16,3,18,27,15,13,4,17,19,28,16,14,5,20,29,15,19,6,21,30,18,16,7,20,22,31,19,17,8,23,32,18,22,9,33,21,19,10,23,34,22,20,11,35,25,27,12,36,24,28,13,26,37,25,29,14,38,24,28,15,30,39,27,25,16,29,31,40,28,26,17,32,41,27,31,18,33,42,30,28,19,32,34,43,31,29,20,35,44,30,34,21,45,33,31,22,35,46,34,32,23,47,37,39,24,48,36,40,25,38,49,37,41,26,50,36,40,27,42,51,39,37,28,41,43,52,40,38,29,44,53,39,43,30,45,54,42,40,31,44,46,55,43,41,32,47,56,42,46,33,57,45,43,34,47,58,46,44,35,59,49,51,36,48,52,37,50,49,53,38,48,52,39,54,51,49,40,53,55,52,50,41,56,51,55,42,57,54,52,43,56,58,55,53,44,59,54,58,45,57,55,46,59,58,56,47])))
+        self.assertTrue(b.isEqual(DataArrayInt([0,3,7,10,14,19,23,27,32,36,39,43,46,50,55,59,64,70,75,80,86,91,95,100,104,108,113,117,122,128,133,138,144,149,153,158,162,166,171,175,180,186,191,196,202,207,211,216,220,223,227,230,234,239,243,247,252,256,259,263,266])))
+        # 2D
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY) ; m=m.buildUnstructured()
+        a,b=m.computeNeighborsOfNodes()
+        self.assertTrue(a.isEqual(DataArrayInt([1,3,0,4,2,1,5,0,4,6,3,1,5,7,4,2,8,3,7,9,6,4,8,10,7,5,11,6,10,9,7,11,10,8])))
+        self.assertTrue(b.isEqual(DataArrayInt([0,2,5,7,10,14,17,20,24,27,29,32,34])))
+        # 1D
+        m=m.buildDescendingConnectivity()[0]
+        a,b=m.computeNeighborsOfNodes()
+        self.assertTrue(a.isEqual(DataArrayInt([1,3,0,4,2,1,5,0,4,6,3,1,5,7,4,2,8,3,7,9,6,4,8,10,7,5,11,6,10,9,7,11,10,8])))
+        self.assertTrue(b.isEqual(DataArrayInt([0,2,5,7,10,14,17,20,24,27,29,32,34])))
+        pass
+
     def setUp(self):
         pass
     pass

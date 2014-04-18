@@ -809,7 +809,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *d
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
  * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
- * The a cell with id 'cellId' its neighbors are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
+ * The neighbor cells of cell having id 'cellId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  *
  * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
  *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
@@ -832,7 +832,7 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
  * excluding a set of meshdim-1 cells in input descending connectivity.
  * Typically \b desc, \b descIndx, \b revDesc and \b revDescIndx input params are the result of MEDCouplingUMesh::buildDescendingConnectivity.
  * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
- * The a cell with id 'cellId' its neighbors are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
+ * The neighbor cells of cell having id 'cellId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  *
  * \param [in] desc descending connectivity array.
  * \param [in] descIndx descending connectivity index array used to walk through \b desc.
@@ -870,6 +870,60 @@ void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
     }
   neighbors=out0.retn();
   neighborsIndx=out1.retn();
+}
+
+/*!
+ * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
+ * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
+ * This method lists node by node in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * The neighbor nodes of node having id 'nodeId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
+ *
+ * \param [out] neighbors is an array storing all the neighbors of all nodes in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
+ *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
+ * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ */
+void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const
+{
+  checkFullyDefined();
+  int mdim(getMeshDimension()),nbNodes(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc(DataArrayInt::New()),descIndx(DataArrayInt::New()),revDesc(DataArrayInt::New()),revDescIndx(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1D;
+  switch(mdim)
+  {
+    case 3:
+      {
+        mesh1D=explode3DMeshTo1D(desc,descIndx,revDesc,revDescIndx);
+        break;
+      }
+    case 2:
+      {
+        mesh1D=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+        break;
+      }
+    case 1:
+      {
+        mesh1D=const_cast<MEDCouplingUMesh *>(this);
+        mesh1D->incrRef();
+        break;
+      }
+    default:
+      {
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computeNeighborsOfNodes : Mesh dimension supported are [3,2,1] !");
+      }
+  }
+  desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=0; revDescIndx=0;
+  mesh1D->getReverseNodalConnectivity(desc,descIndx);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0(DataArrayInt::New());
+  ret0->alloc(desc->getNumberOfTuples(),1);
+  int *r0Pt(ret0->getPointer());
+  const int *c1DPtr(mesh1D->getNodalConnectivity()->begin()),*rn(desc->begin()),*rni(descIndx->begin());
+  for(int i=0;i<nbNodes;i++,rni++)
+    {
+      for(const int *oneDCellIt=rn+rni[0];oneDCellIt!=rn+rni[1];oneDCellIt++)
+        *r0Pt++=c1DPtr[3*(*oneDCellIt)+1]==i?c1DPtr[3*(*oneDCellIt)+2]:c1DPtr[3*(*oneDCellIt)+1];
+    }
+  neighbors=ret0.retn();
+  neighborsIdx=descIndx.retn();
 }
 
 /// @cond INTERNAL
