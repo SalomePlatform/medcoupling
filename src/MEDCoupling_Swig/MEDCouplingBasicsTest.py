@@ -14754,6 +14754,42 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(b.isEqual(DataArrayInt([0,2,5,7,10,14,17,20,24,27,29,32,34])))
         pass
 
+    def testSwigBugOnUnpackingTuplesInDataArray1(self):
+        inp=DataArrayDouble([(1,2,3),(4,5,6),(7,8,9),(10,11,12)])
+        it=inp.__iter__()
+        r=it.next()
+        self.assertRaises(StopIteration,r.__getitem__,4)
+        self.assertEqual(len(r),3)
+        a,b,c=r
+        r=it.next()
+        self.assertEqual(len(r),3)
+        d,e,f=r
+        r=it.next()
+        self.assertEqual(len(r),3)
+        g,h,i=r
+        r=it.next()
+        self.assertEqual(len(r),3)
+        j,k,l=r
+        assert(inp.isEqual(DataArrayDouble([a,b,c,d,e,f,g,h,i,j,k,l],4,3),1e-12))
+        ########
+        inp=DataArrayInt([(1,2,3),(4,5,6),(7,8,9),(10,11,12)])
+        it=inp.__iter__()
+        r=it.next()
+        self.assertRaises(StopIteration,r.__getitem__,4)
+        self.assertEqual(len(r),3)
+        a,b,c=r
+        r=it.next()
+        self.assertEqual(len(r),3)
+        d,e,f=r
+        r=it.next()
+        self.assertEqual(len(r),3)
+        g,h,i=r
+        r=it.next()
+        self.assertEqual(len(r),3)
+        j,k,l=r
+        assert(inp.isEqual(DataArrayInt([a,b,c,d,e,f,g,h,i,j,k,l],4,3)))
+        pass
+    
     def setUp(self):
         pass
     pass

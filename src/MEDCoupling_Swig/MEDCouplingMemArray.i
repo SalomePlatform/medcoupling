@@ -2250,6 +2250,11 @@ namespace ParaMEDMEM
         return trueSelf;
       }
 
+      PyObject *__len__() throw(INTERP_KERNEL::Exception)
+      {
+        return PyInt_FromLong(self->getNumberOfCompo());
+      }
+
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         const char msg2[]="DataArrayDoubleTuple::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
@@ -2269,7 +2274,8 @@ namespace ParaMEDMEM
                 {
                   std::ostringstream oss;
                   oss << "Requesting for id " << singleVal << " having only " << nbc << " components !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  PyErr_SetString(PyExc_StopIteration,oss.str().c_str());
+                  return 0;
                 }
               if(singleVal>=0)
                 return PyFloat_FromDouble(pt[singleVal]);
@@ -4522,6 +4528,11 @@ namespace ParaMEDMEM
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
+
+      PyObject *__len__() throw(INTERP_KERNEL::Exception)
+      {
+        return PyInt_FromLong(self->getNumberOfCompo());
+      }
   
       PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
@@ -4542,7 +4553,8 @@ namespace ParaMEDMEM
                 {
                   std::ostringstream oss;
                   oss << "Requesting for id " << singleVal << " having only " << nbc << " components !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  PyErr_SetString(PyExc_StopIteration,oss.str().c_str());
+                  return 0;
                 }
               if(singleVal>=0)
                 return PyInt_FromLong(pt[singleVal]);
