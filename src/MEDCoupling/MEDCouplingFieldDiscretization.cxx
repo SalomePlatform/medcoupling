@@ -2877,21 +2877,12 @@ void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimens
   {
     case 1:
       {
-        for(int i=0;i<nbOfElems;i++)
-          {
-            double val=matrixPtr[i];
-            matrixPtr[i]=val*val*val;
-          }
+        OperateOnDenseMatrixH3(nbOfElems,matrixPtr);
         break;
       }
     case 2:
       {
-        for(int i=0;i<nbOfElems;i++)
-          {
-            double val=matrixPtr[i];
-            if(val!=0.)
-              matrixPtr[i]=val*val*log(val);
-          }
+        OperateOnDenseMatrixH2Ln(nbOfElems,matrixPtr);
         break;
       }
     case 3:
@@ -2904,6 +2895,56 @@ void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimens
   }
 }
 
+void MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3(int nbOfElems, double *matrixPtr)
+{
+  for(int i=0;i<nbOfElems;i++)
+    {
+      double val=matrixPtr[i];
+      matrixPtr[i]=val*val*val;
+    }
+}
+
+void MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH2Ln(int nbOfElems, double *matrixPtr)
+{
+  for(int i=0;i<nbOfElems;i++)
+    {
+      double val=matrixPtr[i];
+      if(val!=0.)
+        matrixPtr[i]=val*val*log(val);
+    }
+}
+
+/*!
+ * Performs a drift to the rectangular input matrix \a matr.
+ * This method generate a dense matrix starting from an input dense matrix \a matr and input array \a arr.
+ * \param [in] matr The rectangular dense matrix (with only one component). The number of rows of \a matr must be equal to the number of tuples of \a arr
+ * \param [in] arr The array of coords to be appended in the input dense matrix \a matr. Typically arr is an array of coordinates.
+ * \param [out] delta the delta of number of columns between returned dense matrix and input dense matrix \a matr. \a delta is equal to number of components of \a arr + 1.
+ * \sa performDrift
+ */
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::PerformDriftRect(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta)
+{
+  if(!matr || !matr->isAllocated() || matr->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftRect : invalid input dense matrix ! Must be allocated not NULL and with exactly one component !");
+  if(!arr || !arr->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftRect : invalid input array of coordiantes ! Must be allocated and not NULL !");
+  int spaceDimension(arr->getNumberOfComponents()),nbOfPts(arr->getNumberOfTuples()),nbOfEltInMatrx(matr->getNumberOfTuples());
+  delta=spaceDimension+1;
+  int nbOfCols(nbOfEltInMatrx/nbOfPts);
+  if(nbOfEltInMatrx%nbOfPts!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftRect : size of input dense matrix and input arrays mismatch ! NbOfElems in matrix % nb of tuples in array must be equal to 0 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfPts*(nbOfCols+delta));
+  double *retPtr(ret->getPointer());
+  const double *mPtr(matr->begin()),*aPtr(arr->begin());
+  for(int i=0;i<nbOfPts;i++,aPtr+=spaceDimension,mPtr+=nbOfCols)
+    {
+      retPtr=std::copy(mPtr,mPtr+nbOfCols,retPtr);
+      *retPtr++=1.;
+      retPtr=std::copy(aPtr,aPtr+spaceDimension,retPtr);
+    }
+  return ret.retn();
+}
+
 /*!
  * Starting from a square matrix \a matr, this method returns a newly allocated dense square matrix whose \a matr is included in returned matrix
  * in the top left corner, and in the remaining returned matrix the parameters to take into account about the kriging drift.
@@ -2913,6 +2954,7 @@ void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimens
  * \param [in] matr input matrix whose drift part will be added
  * \param [out] delta the difference between the size of the output matrix and the input matrix \a matr.
  * \return a newly allocated matrix bigger than input matrix \a matr.
+ * \sa MEDCouplingFieldDiscretizationKriging::PerformDriftRect
  */
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const
 {

@@ -413,6 +413,47 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
         return ret;
       }
+
+      void operateOnDenseMatrix(int spaceDimension, DataArrayDouble *myMatrix) const throw(INTERP_KERNEL::Exception)
+      {
+        if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)
+          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");
+        self->operateOnDenseMatrix(spaceDimension,myMatrix->getNumberOfTuples(),myMatrix->getPointer());
+      }
+
+      PyObject *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
+      {
+        int ret1(-1);
+        DataArrayDouble *ret0(self->performDrift(matr,arr,ret1));
+        PyObject *res(PyTuple_New(2));
+        PyTuple_SetItem(res,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,SWIG_POINTER_OWN | 0));
+        PyTuple_SetItem(res,1,PyInt_FromLong(ret1));
+        return res;
+      }
+
+      static PyObject *PerformDriftRect(const DataArrayDouble *matr, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
+      {
+        int ret1(-1);
+        DataArrayDouble *ret0(MEDCouplingFieldDiscretizationKriging::PerformDriftRect(matr,arr,ret1));
+        PyObject *res(PyTuple_New(2));
+        PyTuple_SetItem(res,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,SWIG_POINTER_OWN | 0));
+        PyTuple_SetItem(res,1,PyInt_FromLong(ret1));
+        return res;
+      }
+
+      static void OperateOnDenseMatrixH3(DataArrayDouble *myMatrix) throw(INTERP_KERNEL::Exception)
+      {
+        if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)
+          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3 : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");
+        MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3(myMatrix->getNumberOfTuples(),myMatrix->getPointer());
+      }
+      
+      static void OperateOnDenseMatrixH2Ln(DataArrayDouble *myMatrix) throw(INTERP_KERNEL::Exception)
+      {
+        if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)
+          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH2Ln : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");
+        MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH2Ln(myMatrix->getNumberOfTuples(),myMatrix->getPointer());
+      }
     }
   };
 }
