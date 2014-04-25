@@ -2822,22 +2822,34 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixO
  * \param [out] isDrift return if drift coefficients are present in the returned vector of coefficients. If different from 0 there is presence of drift coefficients.
  * \param [out] matSz the size of returned square matrix
  * \return the new result matrix to be deallocated by the caller.
+ * \sa computeMatrix
  */
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const
 {
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficients : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
-  int nbOfPts=coords->getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix=coords->buildEuclidianDistanceDenseMatrix();
-  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfPts,matrix->getPointer());
-  // Drift
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift=performDrift(matrix,coords,isDrift);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv=DataArrayDouble::New();
-  matSz=nbOfPts+isDrift;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift(computeMatrix(mesh,isDrift,matSz));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(DataArrayDouble::New());
   matrixInv->alloc(matSz*matSz,1);
   INTERP_KERNEL::inverseMatrix(matrixWithDrift->getConstPointer(),matSz,matrixInv->getPointer());
   return matrixInv.retn();
+}
+
+/*!
+ * This method computes the kriging matrix.
+ * \return the new result matrix to be deallocated by the caller.
+ * \sa computeInverseMatrix
+ */
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const
+{
+  if(!mesh)
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::computeMatrix : NULL input mesh !");
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getLocalizationOfDiscValues(mesh));
+    int nbOfPts(coords->getNumberOfTuples());
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix(coords->buildEuclidianDistanceDenseMatrix());
+    operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfPts,matrix->getPointer());
+    // Drift
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift(performDrift(matrix,coords,isDrift));
+    matSz=nbOfPts+isDrift;
+    return matrixWithDrift.retn();
 }
 
 /*!
@@ -2854,13 +2866,10 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficie
 {
   int nbRows(-1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK=DataArrayDouble::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK(DataArrayDouble::New());
   KnewiK->alloc(nbRows*1,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2=DataArrayDouble::New();
-  arr2->alloc(nbRows*1,1);
-  double *work=std::copy(arr->begin(),arr->end(),arr2->getPointer());
-  std::fill(work,work+isDrift,0.);
-  INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbRows,nbRows,arr2->getConstPointer(),nbRows,1,KnewiK->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(PerformDriftOfVec(arr,isDrift));
+  INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbRows,nbRows,arr2->getConstPointer(),arr2->getNumberOfTuples(),1,KnewiK->getPointer());
   return KnewiK.retn();
 }
 
@@ -2943,6 +2952,23 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::PerformDriftRect(const D
       retPtr=std::copy(aPtr,aPtr+spaceDimension,retPtr);
     }
   return ret.retn();
+}
+
+/*!
+ * \return a newly allocated array having \a isDrift more tuples than \a arr.
+ * \sa computeVectorOfCoefficients
+ */
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec(const DataArrayDouble *arr, int isDrift)
+{
+  if(!arr || !arr->isAllocated() || arr->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec : input array must be not NULL allocated and with one component !");
+  if(isDrift<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec : isDrift parameter must be >=0 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(DataArrayDouble::New());
+  arr2->alloc((arr->getNumberOfTuples()+isDrift)*1,1);
+  double *work(std::copy(arr->begin(),arr->end(),arr2->getPointer()));
+  std::fill(work,work+isDrift,0.);
+  return arr2.retn();
 }
 
 /*!

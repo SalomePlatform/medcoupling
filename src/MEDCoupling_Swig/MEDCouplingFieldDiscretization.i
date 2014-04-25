@@ -28,6 +28,7 @@
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::clonePart;
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::computeTupleIdsToSelectFromCellIds;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec;
 
 namespace ParaMEDMEM
 {
@@ -374,6 +375,7 @@ namespace ParaMEDMEM
   class MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes
   {
   public:
+    static DataArrayDouble *PerformDriftOfVec(const DataArrayDouble *arr, int isDrift) throw(INTERP_KERNEL::Exception);
     %extend
     {
       PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception)
@@ -390,6 +392,17 @@ namespace ParaMEDMEM
       {
         int ret1(-1),ret2(-1);
         DataArrayDouble *ret0=self->computeInverseMatrix(mesh,ret1,ret2);
+        PyObject *ret=PyTuple_New(3);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
+        PyTuple_SetItem(ret,2,PyInt_FromLong(ret2));
+        return ret;
+      }
+
+      PyObject *computeMatrix(const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+      {
+        int ret1(-1),ret2(-1);
+        DataArrayDouble *ret0=self->computeMatrix(mesh,ret1,ret2);
         PyObject *ret=PyTuple_New(3);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));

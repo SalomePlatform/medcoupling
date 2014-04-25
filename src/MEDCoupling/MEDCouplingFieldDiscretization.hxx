@@ -405,15 +405,17 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+  public://specific part
+    MEDCOUPLING_EXPORT DataArrayDouble *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const;
     MEDCOUPLING_EXPORT void operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const;
     MEDCOUPLING_EXPORT DataArrayDouble *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const;
     MEDCOUPLING_EXPORT static void OperateOnDenseMatrixH3(int nbOfElems, double *matrixPtr);
     MEDCOUPLING_EXPORT static void OperateOnDenseMatrixH2Ln(int nbOfElems, double *matrixPtr);
     MEDCOUPLING_EXPORT static DataArrayDouble *PerformDriftRect(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta);
-  public://specific part
-    MEDCOUPLING_EXPORT DataArrayDouble *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const;
+    MEDCOUPLING_EXPORT static DataArrayDouble *PerformDriftOfVec(const DataArrayDouble *arr, int isDrift);
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
