@@ -670,15 +670,15 @@ void MEDCouplingIMesh::unserialization(const std::vector<double>& tinyInfoD, con
 void MEDCouplingIMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   checkCoherency();
-  std::ostringstream extent;
+  std::ostringstream extent,origin,spacing;
   for(int i=0;i<3;i++)
     {
       if(i<_space_dim)
-        { extent << "0 " <<  _structure[i]-1 << " "; }
+        { extent << "0 " <<  _structure[i]-1 << " "; origin << _origin[i] << " "; spacing << _dxyz[i] << " "; }
       else
-        { extent << "0 0 "; }
+        { extent << "0 0 "; origin << "0 "; spacing << "0 "; }
     }
-  ofs << "  <" << getVTKDataSetType() << " WholeExtent=\"" << extent.str() << "\">\n";
+  ofs << "  <" << getVTKDataSetType() << " WholeExtent=\"" << extent.str() << "\" Origin=\"" << origin.str() << "\" Spacing=\"" << spacing.str() << "\">\n";
   ofs << "    <Piece Extent=\"" << extent.str() << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;
   ofs << "      </PointData>\n";
