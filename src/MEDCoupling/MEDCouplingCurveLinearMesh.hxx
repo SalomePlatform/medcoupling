@@ -27,9 +27,6 @@
 
 namespace ParaMEDMEM
 {
-  class DataArrayDouble;
-  class MEDCouplingUMesh;
-
   class MEDCouplingCurveLinearMesh : public MEDCouplingStructuredMesh
   {
   public:

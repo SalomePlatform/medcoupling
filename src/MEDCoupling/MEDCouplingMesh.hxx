@@ -41,7 +41,8 @@ namespace ParaMEDMEM
       EXTRUDED = 8,
       CURVE_LINEAR = 9,
       SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED = 10,
-      SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED = 11
+      SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED = 11,
+      IMAGE_GRID = 12
     } MEDCouplingMeshType;
   // -- WARNING this enum must be synchronized with MEDCouplingCommon.i file ! --
 

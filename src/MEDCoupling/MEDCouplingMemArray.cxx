@@ -423,6 +423,18 @@ std::string DataArray::GetUnitFromInfo(const std::string& info)
 }
 
 /*!
+ * This method put in info format the result of the merge of \a var and \a unit.
+ * The standard format for that is "var [unit]".
+ * Inversely you can retrieve the var part or the unit part of info string using resp. GetVarNameFromInfo and GetUnitFromInfo.
+ */
+std::string DataArray::BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit)
+{
+  std::ostringstream oss;
+  oss << var << " [" << unit << "]";
+  return oss.str();
+}
+
+/*!
  * Returns a new DataArray by concatenating all given arrays, so that (1) the number
  * of tuples in the result array is a sum of the number of tuples of given arrays and (2)
  * the number of component in the result array is same as that of each of given arrays.

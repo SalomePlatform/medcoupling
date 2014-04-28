@@ -40,6 +40,8 @@ static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingCurveLinearMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCurveLinearMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingIMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingIMesh,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of mesh on downcast !");
   return ret;

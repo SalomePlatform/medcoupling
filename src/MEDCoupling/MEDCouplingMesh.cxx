@@ -329,10 +329,10 @@ void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
  */
 void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
 {
-  copyTinyStringsFrom(other);
   _time=other->_time;
   _iteration=other->_iteration;
   _order=other->_order;
+  copyTinyStringsFrom(other);
 }
 
 /*!

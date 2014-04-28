@@ -18,25 +18,41 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGCMESH_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGCMESH_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGIMESH_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGIMESH_HXX__
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingStructuredMesh.hxx"
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingCMesh : public MEDCouplingStructuredMesh
+  class MEDCouplingCMesh;
+
+  class MEDCouplingIMesh : public MEDCouplingStructuredMesh
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingCMesh *New();
-    MEDCOUPLING_EXPORT static MEDCouplingCMesh *New(const std::string& meshName);
+    MEDCOUPLING_EXPORT static MEDCouplingIMesh *New();
+    MEDCOUPLING_EXPORT static MEDCouplingIMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                                    const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    //
+    MEDCOUPLING_EXPORT void setSpaceDimension(int spaceDim);
+    MEDCOUPLING_EXPORT void setNodeStruct(const int *nodeStrctStart, const int *nodeStrctStop);
+    MEDCOUPLING_EXPORT std::vector<int> getNodeStruct() const;
+    MEDCOUPLING_EXPORT void setOrigin(const double *originStart, const double *originStop);
+    MEDCOUPLING_EXPORT std::vector<double> getOrigin() const;
+    MEDCOUPLING_EXPORT void setDXYZ(const double *dxyzStart, const double *dxyzStop);
+    MEDCOUPLING_EXPORT std::vector<double> getDXYZ() const;
+    MEDCOUPLING_EXPORT void setAxisUnit(const std::string& unitName);
+    MEDCOUPLING_EXPORT std::string getAxisUnit() const;
+    MEDCOUPLING_EXPORT double getMeasureOfAnyCell() const;
+    MEDCOUPLING_EXPORT MEDCouplingCMesh *convertToCartesian() const;
+    //
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
-    MEDCOUPLING_EXPORT MEDCouplingCMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingIMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return CARTESIAN; }
+    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return IMAGE_GRID; }
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
@@ -51,12 +67,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT const DataArrayDouble *getCoordsAt(int i) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getCoordsAt(int i);
-    MEDCOUPLING_EXPORT void setCoordsAt(int i, const DataArrayDouble *arr);
-    MEDCOUPLING_EXPORT void setCoords(const DataArrayDouble *coordsX,
-                                      const DataArrayDouble *coordsY=0,
-                                      const DataArrayDouble *coordsZ=0);
     // tools
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
@@ -84,15 +94,21 @@ namespace ParaMEDMEM
                                             const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
   private:
-    MEDCouplingCMesh();
-    MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy);
-    ~MEDCouplingCMesh();
+    MEDCouplingIMesh();
+    MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCpy);
+    ~MEDCouplingIMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;
+    bool isEqualWithoutConsideringStrInternal(const MEDCouplingMesh *other, double prec, std::string& reason) const;
+    std::vector<std::string> buildInfoOnComponents() const;
+    void checkSpaceDimension() const;
+    static void CheckSpaceDimension(int spaceDim);
   private:
-    DataArrayDouble *_x_array;
-    DataArrayDouble *_y_array;
-    DataArrayDouble *_z_array;
+    int _space_dim;
+    double _origin[3];
+    double _dxyz[3];
+    int _structure[3];
+    std::string _axis_unit;
   };
 }
 

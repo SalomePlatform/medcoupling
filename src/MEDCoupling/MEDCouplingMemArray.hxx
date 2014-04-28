@@ -167,6 +167,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step);
     MEDCOUPLING_EXPORT static std::string GetVarNameFromInfo(const std::string& info);
     MEDCOUPLING_EXPORT static std::string GetUnitFromInfo(const std::string& info);
+    MEDCOUPLING_EXPORT static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit);
     MEDCOUPLING_EXPORT static DataArray *Aggregate(const std::vector<const DataArray *>& arrs);
     MEDCOUPLING_EXPORT virtual void reprStream(std::ostream& stream) const = 0;
     MEDCOUPLING_EXPORT virtual void reprZipStream(std::ostream& stream) const = 0;

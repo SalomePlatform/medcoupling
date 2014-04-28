@@ -242,6 +242,7 @@ namespace ParaMEDMEM
     static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step) throw(INTERP_KERNEL::Exception);
     static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
+    static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit) throw(INTERP_KERNEL::Exception);
     void updateTime() const;
     %extend
     {

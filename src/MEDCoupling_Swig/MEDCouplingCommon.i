@@ -28,6 +28,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
+#include "MEDCouplingIMesh.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingField.hxx"
@@ -301,6 +302,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
+%newobject ParaMEDMEM::MEDCouplingIMesh::New;
+%newobject ParaMEDMEM::MEDCouplingIMesh::convertToCartesian;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::getCoords;
@@ -2856,19 +2859,19 @@ namespace ParaMEDMEM
   class MEDCouplingCMesh : public ParaMEDMEM::MEDCouplingStructuredMesh
   {
   public:
-    static MEDCouplingCMesh *New();
-    static MEDCouplingCMesh *New(const std::string& meshName);
+    static MEDCouplingCMesh *New() throw(INTERP_KERNEL::Exception);
+    static MEDCouplingCMesh *New(const std::string& meshName) throw(INTERP_KERNEL::Exception);
     MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coordsX,
                    const DataArrayDouble *coordsY=0,
                    const DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
     void setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
     %extend {
-      MEDCouplingCMesh()
+      MEDCouplingCMesh() throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingCMesh::New();
       }
-      MEDCouplingCMesh(const std::string& meshName)
+      MEDCouplingCMesh(const std::string& meshName) throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingCMesh::New(meshName);
       }
@@ -2899,16 +2902,16 @@ namespace ParaMEDMEM
   class MEDCouplingCurveLinearMesh : public ParaMEDMEM::MEDCouplingStructuredMesh
   {
   public:
-    static MEDCouplingCurveLinearMesh *New();
-    static MEDCouplingCurveLinearMesh *New(const std::string& meshName);
+    static MEDCouplingCurveLinearMesh *New() throw(INTERP_KERNEL::Exception);
+    static MEDCouplingCurveLinearMesh *New(const std::string& meshName) throw(INTERP_KERNEL::Exception);
     MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     %extend {
-      MEDCouplingCurveLinearMesh()
+      MEDCouplingCurveLinearMesh() throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingCurveLinearMesh::New();
       }
-      MEDCouplingCurveLinearMesh(const std::string& meshName)
+      MEDCouplingCurveLinearMesh(const std::string& meshName) throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingCurveLinearMesh::New(meshName);
       }
@@ -2940,6 +2943,99 @@ namespace ParaMEDMEM
   };
 
   //== MEDCouplingCurveLinearMesh End
+
+  //== MEDCouplingIMesh
+
+  class MEDCouplingIMesh : public ParaMEDMEM::MEDCouplingStructuredMesh
+  {
+  public:
+    static MEDCouplingIMesh *New() throw(INTERP_KERNEL::Exception);
+    //
+    void setSpaceDimension(int spaceDim) throw(INTERP_KERNEL::Exception);
+    std::vector<int> getNodeStruct() const throw(INTERP_KERNEL::Exception);
+    std::vector<double> getOrigin() const throw(INTERP_KERNEL::Exception);
+    std::vector<double> getDXYZ() const throw(INTERP_KERNEL::Exception);
+    void setAxisUnit(const std::string& unitName) throw(INTERP_KERNEL::Exception);
+    std::string getAxisUnit() const throw(INTERP_KERNEL::Exception);
+    double getMeasureOfAnyCell() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingCMesh *convertToCartesian() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDCouplingIMesh()
+      {
+        return MEDCouplingIMesh::New();
+      }
+      static MEDCouplingIMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
+      {
+        static const char msg0[]="MEDCouplingIMesh::New : error on 'origin' parameter !";
+        static const char msg1[]="MEDCouplingIMesh::New : error on 'dxyz' parameter !";
+        const int *nodeStrctPtr(0);
+        const double *originPtr(0),*dxyzPtr(0);
+        int sw,sz,val0;
+        std::vector<int> bb0;
+        nodeStrctPtr=convertObjToPossibleCpp1_Safe(nodeStrct,sw,sz,val0,bb0);
+        //
+        double val,val2;
+        std::vector<double> bb,bb2;
+        int sz1,sz2;
+        originPtr=convertObjToPossibleCpp5_SingleCompo(origin,sw,val,bb,msg0,false,sz1);
+        dxyzPtr=convertObjToPossibleCpp5_SingleCompo(dxyz,sw,val2,bb2,msg1,false,sz2);
+        //
+        return MEDCouplingIMesh::New(meshName,spaceDim,nodeStrctPtr,nodeStrctPtr+sz,originPtr,originPtr+sz1,dxyzPtr,dxyzPtr+sz2);
+      }
+
+      MEDCouplingIMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM_MEDCouplingIMesh_New__SWIG_1(meshName,spaceDim,nodeStrct,origin,dxyz);
+      }
+
+      void setNodeStruct(PyObject *nodeStrct) throw(INTERP_KERNEL::Exception)
+      {
+        int sw,sz,val0;
+        std::vector<int> bb0;
+        const int *nodeStrctPtr(convertObjToPossibleCpp1_Safe(nodeStrct,sw,sz,val0,bb0));
+        self->setNodeStruct(nodeStrctPtr,nodeStrctPtr+sz);
+      }
+
+      void setOrigin(PyObject *origin) throw(INTERP_KERNEL::Exception)
+      {
+        static const char msg[]="MEDCouplingIMesh::setOrigin : invalid input 'origin' parameter ! integer, float, list/tuple of float, DataArrayDouble or DataArrayDoubleTuple supported !";
+        double val;
+        DataArrayDouble *a;
+        DataArrayDoubleTuple *aa;
+        std::vector<double> bb;
+        int sw,nbTuples;
+        const double *originPtr(convertObjToPossibleCpp5_SingleCompo(origin,sw,val,bb,msg,false,nbTuples));
+        self->setOrigin(originPtr,originPtr+nbTuples);
+      }
+      
+      void setDXYZ(PyObject *dxyz) throw(INTERP_KERNEL::Exception)
+      {
+        static const char msg[]="MEDCouplingIMesh::setDXYZ : invalid input 'dxyz' parameter ! integer, float, list/tuple of float, DataArrayDouble or DataArrayDoubleTuple supported !";
+        double val;
+        DataArrayDouble *a;
+        DataArrayDoubleTuple *aa;
+        std::vector<double> bb;
+        int sw,nbTuples;
+        const double *originPtr(convertObjToPossibleCpp5_SingleCompo(dxyz,sw,val,bb,msg,false,nbTuples));
+        self->setDXYZ(originPtr,originPtr+nbTuples);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss;
+        self->reprQuickOverview(oss);
+        return oss.str();
+      }
+    }
+  };
+
+  //== MEDCouplingIMesh End
+
 }
 
 namespace ParaMEDMEM

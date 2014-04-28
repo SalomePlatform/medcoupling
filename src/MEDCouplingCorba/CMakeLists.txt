@@ -45,6 +45,7 @@ SET(medcouplingcorba_SOURCES
   MEDCoupling1SGTUMeshServant.cxx
   MEDCoupling1GTUMeshServant.cxx
   MEDCouplingCMeshServant.cxx
+  MEDCouplingIMeshServant.cxx
   MEDCouplingUMeshServant.cxx
   MEDCouplingFieldServant.cxx
   MEDCouplingFieldDoubleServant.cxx

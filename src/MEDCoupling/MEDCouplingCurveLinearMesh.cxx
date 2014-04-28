@@ -168,14 +168,13 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *oth
 
 /*!
  * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCurveLinearMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCurveLinearMesh, 'this' and 'other' are the same !
+ * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCurveLinearMesh, \a this and \a other are the same !
  */
 void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                                  DataArrayInt *&cellCor) const
 {
-  const MEDCouplingCurveLinearMesh *otherC=dynamic_cast<const MEDCouplingCurveLinearMesh *>(other);
-  if(!otherC)
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith : other is NOT a cartesian mesh ! Impossible to check equivalence !");
+  if(!isEqualWithoutConsideringStr(other,prec))
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
 }
 
 void MEDCouplingCurveLinearMesh::checkCoherency() const
@@ -345,11 +344,11 @@ std::vector<int> MEDCouplingCurveLinearMesh::getNodeGridStructure() const
 MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
   checkCoherency();
-  int dim(getMeshDimension());
+  int dim(getSpaceDimension());
   std::vector<int> dims(getMeshDimension());
   if(dim!=(int)cellPart.size())
     {
-      std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::buildStructuredSubPart : the mesh dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
+      std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::buildStructuredSubPart : the space dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   std::vector< std::pair<int,int> > nodePartFormat(cellPart);

@@ -128,11 +128,11 @@ std::vector<const BigMemoryObject *> MEDCouplingCMesh::getDirectChildren() const
  * @throw if other and this have not same mesh type.
  */
 void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
-{ 
-  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
+{
+  MEDCouplingStructuredMesh::copyTinyStringsFrom(other);
+  const MEDCouplingCMesh *otherC(dynamic_cast<const MEDCouplingCMesh *>(other));
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::copyTinyStringsFrom : meshes have not same type !");
-  MEDCouplingStructuredMesh::copyTinyStringsFrom(other);
   if(_x_array && otherC->_x_array)
     _x_array->copyStringInfoFrom(*otherC->_x_array);
   if(_y_array && otherC->_y_array)
@@ -151,7 +151,7 @@ bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
       reason="mesh given in input is not castable in MEDCouplingCMesh !";
       return false;
     }
-  if(!MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason))
+  if(!MEDCouplingStructuredMesh::isEqualIfNotWhy(other,prec,reason))
     return false;
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   const DataArrayDouble *otherArr[3]={otherC->_x_array,otherC->_y_array,otherC->_z_array};
@@ -202,14 +202,13 @@ void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
 
 /*!
  * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCMesh, 'this' and 'other' are the same !
+ * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCMesh, \a this and \a other are the same !
  */
 void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayInt *&cellCor) const
 {
-  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
-  if(!otherC)
-    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith : other is NOT a cartesian mesh ! Impossible to check equivalence !");
+  if(!isEqualWithoutConsideringStr(other,prec))
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
 }
 
 void MEDCouplingCMesh::checkCoherency() const
@@ -342,10 +341,10 @@ std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const
 MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
   checkCoherency();
-  int dim(getMeshDimension());
+  int dim(getSpaceDimension());
   if(dim!=(int)cellPart.size())
     {
-      std::ostringstream oss; oss << "MEDCouplingCMesh::buildStructuredSubPart : the mesh dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
+      std::ostringstream oss; oss << "MEDCouplingCMesh::buildStructuredSubPart : the space dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> ret(dynamic_cast<MEDCouplingCMesh *>(deepCpy()));
@@ -388,7 +387,7 @@ std::string MEDCouplingCMesh::simpleRepr() const
   double tt=getTime(tmpp1,tmpp2);
   ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
   ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
-  ret << "Mesh and SpaceDimension dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
+  ret << "Space dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
   if(_x_array)
     {
       ret << "X Array :\n";
@@ -646,7 +645,7 @@ int MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) cons
 
 void MEDCouplingCMesh::rotate(const double *center, const double *vector, double angle)
 {
-  throw INTERP_KERNEL::Exception("No rotation available on CMesh : Traduce it to StructuredMesh to apply it !");
+  throw INTERP_KERNEL::Exception("No rotation available on CMesh : Traduce it to untructured mesh to apply it !");
 }
 
 /*!
