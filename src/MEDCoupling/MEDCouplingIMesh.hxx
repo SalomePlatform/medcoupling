@@ -46,6 +46,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getAxisUnit() const;
     MEDCOUPLING_EXPORT double getMeasureOfAnyCell() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *convertToCartesian() const;
+    MEDCOUPLING_EXPORT void refineWithFactor(int factor);
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *clone(bool recDeepCpy) const;

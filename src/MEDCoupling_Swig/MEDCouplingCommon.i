@@ -40,6 +40,7 @@
 #include "MEDCouplingFieldOverTime.hxx"
 #include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingAHOGMesh.hxx"
 #include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -310,6 +311,14 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::New;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldOverTime::New;
+%newobject ParaMEDMEM::MEDCouplingAHOGPatch::getMesh;
+%newobject ParaMEDMEM::MEDCouplingAHOGPatch::__getitem__;
+%newobject ParaMEDMEM::MEDCouplingAHOGMesh::New;
+%newobject ParaMEDMEM::MEDCouplingAHOGMesh::buildUnstructured;
+%newobject ParaMEDMEM::MEDCouplingAHOGMesh::getGodFather;
+%newobject ParaMEDMEM::MEDCouplingAHOGMesh::getFather;
+%newobject ParaMEDMEM::MEDCouplingAHOGMesh::getPatch;
+%newobject ParaMEDMEM::MEDCouplingAHOGMesh::__getitem__;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -319,6 +328,8 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCoupling1DGTUMesh "$this->decrRef();"
 %feature("unref") MEDCouplingExtrudedMesh "$this->decrRef();"
 %feature("unref") MEDCouplingCMesh "$this->decrRef();"
+%feature("unref") MEDCouplingIMesh "$this->decrRef();"
+%feature("unref") MEDCouplingCurveLinearMesh "$this->decrRef();"
 %feature("unref") MEDCouplingField "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationP0 "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationP1 "$this->decrRef();"
@@ -329,6 +340,8 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 %feature("unref") MEDCouplingFieldTemplate "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
+%feature("unref") MEDCouplingAHOGMesh "$this->decrRef();"
+%feature("unref") MEDCouplingAHOGPatch "$this->decrRef();"
 
 %rename(assign) *::operator=;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
@@ -369,7 +382,8 @@ namespace ParaMEDMEM
       EXTRUDED = 8,
       CURVE_LINEAR = 9,
       SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED = 10,
-      SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED = 11
+      SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED = 11,
+      IMAGE_GRID = 12
     } MEDCouplingMeshType;
 
   class DataArrayInt;
@@ -2754,6 +2768,7 @@ namespace ParaMEDMEM
     MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const throw(INTERP_KERNEL::Exception);
+    static int DeduceNumberOfGivenStructure(const std::vector<int>& st) throw(INTERP_KERNEL::Exception);
     %extend
     {
       virtual MEDCouplingStructuredMesh *buildStructuredSubPart(PyObject *cellPart) const throw(INTERP_KERNEL::Exception)
@@ -2782,25 +2797,8 @@ namespace ParaMEDMEM
 
       static DataArrayInt *BuildExplicitIdsFrom(PyObject *st, PyObject *part) throw(INTERP_KERNEL::Exception)
       {
-        int tmpp1=-1,tmpp2=-1;
-        std::vector<int> tmp=fillArrayWithPyListInt2(part,tmpp1,tmpp2);
         std::vector< std::pair<int,int> > inp;
-        if(tmpp2==2)
-          {
-            inp.resize(tmpp1);
-            for(int i=0;i<tmpp1;i++)
-              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
-          }
-        else if(tmpp2==1)
-          {
-            if(tmpp1%2!=0)
-              throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size ! Must be even size !");
-            inp.resize(tmpp1/2);
-            for(int i=0;i<tmpp1/2;i++)
-              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
-          }
-        else
-          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size !");
+        convertPyToVectorPairInt(part,inp);
         //
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
@@ -2812,25 +2810,8 @@ namespace ParaMEDMEM
 
       static int DeduceNumberOfGivenRangeInCompactFrmt(PyObject *part) throw(INTERP_KERNEL::Exception)
       {
-        int tmpp1=-1,tmpp2=-1;
-        std::vector<int> tmp=fillArrayWithPyListInt2(part,tmpp1,tmpp2);
         std::vector< std::pair<int,int> > inp;
-        if(tmpp2==2)
-          {
-            inp.resize(tmpp1);
-            for(int i=0;i<tmpp1;i++)
-              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
-          }
-        else if(tmpp2==1)
-          {
-            if(tmpp1%2!=0)
-              throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size ! Must be even size !");
-            inp.resize(tmpp1/2);
-            for(int i=0;i<tmpp1/2;i++)
-              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
-          }
-        else
-          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size !");
+        convertPyToVectorPairInt(part,inp);
         return MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(inp);
       }
 
@@ -2983,6 +2964,7 @@ namespace ParaMEDMEM
     std::string getAxisUnit() const throw(INTERP_KERNEL::Exception);
     double getMeasureOfAnyCell() const throw(INTERP_KERNEL::Exception);
     MEDCouplingCMesh *convertToCartesian() const throw(INTERP_KERNEL::Exception);
+    void refineWithFactor(int factor) throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDCouplingIMesh()
@@ -4578,6 +4560,155 @@ namespace ParaMEDMEM
            return MEDCouplingFieldOverTime::New(fs);
          }
       }
+  };
+
+  class MEDCouplingAHOGPatch : public RefCountObject
+  {
+  public:
+    int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
+    int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfOverlapedCellsForFather() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      PyObject *getBLTRRange() const throw(INTERP_KERNEL::Exception)
+      {
+        const std::vector< std::pair<int,int> >& ret(self->getBLTRRange());
+        return convertFromVectorPairInt(ret);
+      }
+
+      const MEDCouplingAHOGMesh *getMesh() const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAHOGMesh *ret(const_cast<MEDCouplingAHOGMesh *>(self->getMesh()));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      void addPatch(PyObject *bottomLeftTopRight, int factor) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(bottomLeftTopRight,inp);
+        self->addPatch(inp,factor);
+      }
+
+      MEDCouplingAHOGPatch *__getitem__(int patchId) const throw(INTERP_KERNEL::Exception)
+      {
+        const MEDCouplingAHOGMesh *mesh(self->getMesh());
+        if(!mesh)
+          throw INTERP_KERNEL::Exception("wrap MEDCouplingAHOGPatch.__getitem__ : no underlying mesh !");
+        if(patchId==mesh->getNumberOfPatches())
+          {
+            std::ostringstream oss;
+            oss << "Requesting for patchId " << patchId << " having only " << mesh->getNumberOfPatches() << " patches !";
+            PyErr_SetString(PyExc_StopIteration,oss.str().c_str());
+            return 0;
+          }
+        MEDCouplingAHOGPatch *ret(const_cast<MEDCouplingAHOGPatch *>(mesh->getPatch(patchId)));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      int __len__() const throw(INTERP_KERNEL::Exception)
+      {
+        const MEDCouplingAHOGMesh *mesh(self->getMesh());
+        if(!mesh)
+          throw INTERP_KERNEL::Exception("wrap MEDCouplingAHOGPatch.__len__ : no underlying mesh !");
+        return mesh->getNumberOfPatches();
+      }
+    }
+  };
+  
+  class MEDCouplingAHOGMesh : public RefCountObject, public TimeLabel
+  {
+  public:
+    
+    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
+    int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCellsAtCurrentLevel() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
+    //
+    int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);    
+    MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      static MEDCouplingAHOGMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
+      {
+        static const char msg0[]="MEDCouplingAHOGMesh::New : error on 'origin' parameter !";
+        static const char msg1[]="MEDCouplingAHOGMesh::New : error on 'dxyz' parameter !";
+        const int *nodeStrctPtr(0);
+        const double *originPtr(0),*dxyzPtr(0);
+        int sw,sz,val0;
+        std::vector<int> bb0;
+        nodeStrctPtr=convertObjToPossibleCpp1_Safe(nodeStrct,sw,sz,val0,bb0);
+        //
+        double val,val2;
+        std::vector<double> bb,bb2;
+        int sz1,sz2;
+        originPtr=convertObjToPossibleCpp5_SingleCompo(origin,sw,val,bb,msg0,false,sz1);
+        dxyzPtr=convertObjToPossibleCpp5_SingleCompo(dxyz,sw,val2,bb2,msg1,false,sz2);
+        //
+        return MEDCouplingAHOGMesh::New(meshName,spaceDim,nodeStrctPtr,nodeStrctPtr+sz,originPtr,originPtr+sz1,dxyzPtr,dxyzPtr+sz2);
+      }
+
+      MEDCouplingAHOGMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM_MEDCouplingAHOGMesh_New(meshName,spaceDim,nodeStrct,origin,dxyz);
+      }
+
+      void addPatch(PyObject *bottomLeftTopRight, int factor) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(bottomLeftTopRight,inp);
+        self->addPatch(inp,factor);
+      }
+
+      MEDCouplingAHOGMesh *getFather() const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAHOGMesh *ret(const_cast<MEDCouplingAHOGMesh *>(self->getFather()));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      
+      MEDCouplingAHOGMesh *getGodFather() const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAHOGMesh *ret(const_cast<MEDCouplingAHOGMesh *>(self->getGodFather()));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      MEDCouplingAHOGPatch *getPatch(int patchId) const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAHOGPatch *ret(const_cast<MEDCouplingAHOGPatch *>(self->getPatch(patchId)));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      MEDCouplingAHOGPatch *__getitem__(int patchId) const throw(INTERP_KERNEL::Exception)
+      {
+        if(patchId==self->getNumberOfPatches())
+          {
+            std::ostringstream oss;
+            oss << "Requesting for patchId " << patchId << " having only " << self->getNumberOfPatches() << " patches !";
+            PyErr_SetString(PyExc_StopIteration,oss.str().c_str());
+            return 0;
+          }
+        MEDCouplingAHOGPatch *ret(const_cast<MEDCouplingAHOGPatch *>(self->getPatch(patchId)));
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      int __len__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->getNumberOfPatches();
+      }
+    }
   };
 }
 

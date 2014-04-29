@@ -55,6 +55,7 @@ SET(medcoupling_SOURCES
   MEDCouplingMultiFields.cxx
   MEDCouplingDefinitionTime.cxx
   MEDCouplingFieldOverTime.cxx
+  MEDCouplingAHOGMesh.cxx
   )
 
 SET(medcouplingremapper_SOURCES

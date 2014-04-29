@@ -574,6 +574,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildUnion(const std::vector<const DataArrayInt *>& arr);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildIntersection(const std::vector<const DataArrayInt *>& arr);
+    MEDCOUPLING_EXPORT static DataArrayInt *BuildListOfSwitchedOn(const std::vector<bool>& v);
+    MEDCOUPLING_EXPORT static DataArrayInt *BuildListOfSwitchedOff(const std::vector<bool>& v);
     MEDCOUPLING_EXPORT static void PutIntoToSkylineFrmt(const std::vector< std::vector<int> >& v, DataArrayInt *& data, DataArrayInt *& dataIndex);
     MEDCOUPLING_EXPORT DataArrayInt *buildComplement(int nbOfElement) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildSubstraction(const DataArrayInt *other) const;

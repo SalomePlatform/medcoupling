@@ -624,6 +624,19 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL
     }
 }
 
+static PyObject *convertFromVectorPairInt(const std::vector< std::pair<int,int> >& arr) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=PyList_New(arr.size());
+  for(std::size_t i=0;i<arr.size();i++)
+    {
+      PyObject *t=PyTuple_New(2);
+      PyTuple_SetItem(t,0,PyInt_FromLong(arr[i].first));
+      PyTuple_SetItem(t,1,PyInt_FromLong(arr[i].second));
+      PyList_SetItem(ret,i,t);
+    }
+  return ret;
+}
+
 static void convertPyToVectorPairInt(PyObject *pyLi, std::vector< std::pair<int,int> >& arr) throw(INTERP_KERNEL::Exception)
 {
   const char msg[]="list must contain tuples of 2 integers only or tuple must contain tuples of 2 integers only !";

@@ -13527,6 +13527,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(12,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt(b))
         self.assertEqual(8,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(1,5),(1,3),(2,2)]))
         self.assertEqual(0,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(5,5),(3,3),(2,2)]))
+        self.assertEqual(36,MEDCouplingStructuredMesh.DeduceNumberOfGivenStructure([3,2,6]))
+        self.assertEqual(126,MEDCouplingStructuredMesh.DeduceNumberOfGivenStructure((3,7,6)))
         d20=DataArrayInt([1,2,3,4,12,11,13,14,21,22,23,24])
         a,b=MEDCouplingStructuredMesh.IsPartStructured(d20,st)
         self.assertTrue(not a)
@@ -14857,6 +14859,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.isEqual(m2,1e-12))
         m2bis=m2.deepCpy()
         self.assertTrue(m2bis.isEqual(m2,1e-12))
+        #
+        self.assertEqual(6,m2bis.getNumberOfCells())#3,2,4
+        m2bis.refineWithFactor(3)
+        self.assertEqual(162,m2bis.getNumberOfCells())
+        self.assertEqual((7,4,10),m2bis.getNodeStruct())
+        self.assertEqual((1.5,3.5,2.5),m2bis.getOrigin())
+        self.assertTrue(DataArrayDouble([0.16666666666666666,0.08333333333333333,0.3333333333333333]).isEqual(DataArrayDouble(m2bis.getDXYZ()),1e-12))
         #
         self.assertEqual(3,m.getMeshDimension())
         self.assertAlmostEqual(0.125,m.getMeasureOfAnyCell(),16);

@@ -176,6 +176,26 @@ MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
   return ret.retn();
 }
 
+/*!
+ * This method refines \a this uniformaly along all of its dimensions. In case of success the space covered by \a this will remain
+ * the same before the invocation except that the number of cells will be multiplied by \a factor ^ this->getMeshDimension().
+ * The origin of \a this will be not touched only spacing and node structure will be changed.
+ * This method can be useful for AMR users.
+ */
+void MEDCouplingIMesh::refineWithFactor(int factor)
+{
+  if(factor==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::refineWithFactor : refinement factor must be != 0 !");
+  checkCoherency();
+  int factAbs(std::abs(factor));
+  double fact2(1./(double)factor);
+  std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::plus<int>(),-1));
+  std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::multiplies<int>(),factAbs));
+  std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::plus<int>(),1));
+  std::transform(_dxyz,_dxyz+_space_dim,_dxyz,std::bind2nd(std::multiplies<double>(),fact2));
+  declareAsNew();
+}
+
 void MEDCouplingIMesh::setSpaceDimension(int spaceDim)
 {
   if(spaceDim==_space_dim)

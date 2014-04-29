@@ -9630,6 +9630,53 @@ DataArrayInt *DataArrayInt::BuildIntersection(const std::vector<const DataArrayI
   return ret;
 }
 
+/// @cond INTERNAL
+namespace ParaMEDMEMImpl
+{
+  class OpSwitchedOn
+  {
+  public:
+    OpSwitchedOn(int *pt):_pt(pt),_cnt(0) { }
+    void operator()(const bool& b) { if(b) *_pt++=_cnt; _cnt++; }
+  private:
+    int *_pt;
+    int _cnt;
+  };
+
+  class OpSwitchedOff
+  {
+  public:
+    OpSwitchedOff(int *pt):_pt(pt),_cnt(0) { }
+    void operator()(const bool& b) { if(!b) *_pt++=_cnt; _cnt++; }
+  private:
+    int *_pt;
+    int _cnt;
+  };
+}
+/// @endcond
+
+/*!
+ * This method returns the list of ids in ascending mode so that v[id]==true.
+ */
+DataArrayInt *DataArrayInt::BuildListOfSwitchedOn(const std::vector<bool>& v)
+{
+  int sz((int)std::count(v.begin(),v.end(),true));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  std::for_each(v.begin(),v.end(),ParaMEDMEMImpl::OpSwitchedOn(ret->getPointer()));
+  return ret.retn();
+}
+
+/*!
+ * This method returns the list of ids in ascending mode so that v[id]==false.
+ */
+DataArrayInt *DataArrayInt::BuildListOfSwitchedOff(const std::vector<bool>& v)
+{
+  int sz((int)std::count(v.begin(),v.end(),false));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  std::for_each(v.begin(),v.end(),ParaMEDMEMImpl::OpSwitchedOff(ret->getPointer()));
+  return ret.retn();
+}
+
 /*!
  * This method allows to put a vector of vector of integer into a more compact data stucture (skyline). 
  * This method is not available into python because no available optimized data structure available to map std::vector< std::vector<int> >.

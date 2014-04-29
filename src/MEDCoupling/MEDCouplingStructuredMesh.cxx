@@ -671,6 +671,20 @@ int MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::
   return isFetched?ret:0;
 }
 
+int MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(const std::vector<int>& st)
+{
+  int ret(1);
+  bool isFetched(false);
+  for(std::size_t i=0;i<st.size();i++)
+    {
+      if(st[i]<0)
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure : presence of a negative value in structure !");
+      ret*=st[i];
+      isFetched=true;
+    }
+  return isFetched?ret:0;
+}
+
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
 {
   int nbOfCells(*nodeStBg-1);
@@ -982,11 +996,68 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
 }
 
 /*!
+ * This method is close to BuildExplicitIdsFrom except that instead of returning a DataArrayInt instance containing explicit ids it
+ * enable elems in the vector of booleans (for performance reasons). As it is method for performance, this method is \b not
+ * available in python.
+ *
+ * \param [in] st The entity structure.
+ * \param [in] partCompactFormat The compact subpart to be enabled.
+ * \param [in,out] vectToSwitchOn Vector which fetched items are enabled.
+ *
+ * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom
+ */
+void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& vectToSwitchOn)
+{
+  if(st.size()!=partCompactFormat.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::SwitchOnIdsFrom : input arrays must have the same size !");
+  if((int)vectToSwitchOn.size()!=DeduceNumberOfGivenStructure(st))
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::SwitchOnIdsFrom : invalid size of input vector of boolean regarding the structure !");
+  std::vector<int> dims(st.size());
+  for(std::size_t i=0;i<st.size();i++)
+    dims[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+  switch(st.size())
+  {
+    case 3:
+      {
+        for(int i=0;i<dims[2];i++)
+          {
+            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(int j=0;j<dims[1];j++)
+              {
+                int b=(partCompactFormat[1].first+j)*st[0];
+                for(int k=0;k<dims[0];k++)
+                  vectToSwitchOn[partCompactFormat[0].first+k+b+a]=true;
+              }
+          }
+        break;
+      }
+    case 2:
+      {
+        for(int j=0;j<dims[1];j++)
+          {
+            int b=(partCompactFormat[1].first+j)*st[0];
+            for(int k=0;k<dims[0];k++)
+              vectToSwitchOn[partCompactFormat[0].first+k+b]=true;
+          }
+        break;
+      }
+    case 1:
+      {
+        for(int k=0;k<dims[0];k++)
+          vectToSwitchOn[partCompactFormat[0].first+k]=true;
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : Dimension supported are 1,2 or 3 !");
+  }
+}
+
+/*!
  * This method builds the explicit entity array from the structure in \a st and the range in \a partCompactFormat.
  * If the range contains invalid values regarding sructure an exception will be thrown.
  *
  * \return DataArrayInt * - a new object.
- * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt
+ * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom
  */
 DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat)
 {
