@@ -21,20 +21,6 @@ ADD_DEFINITIONS(${CAS_DEFINITIONS} ${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS})
 
 INCLUDE(UseQt4Ext)
 
-MACRO (QT4_WRAP_UI_XX outfiles )
-  QT4_EXTRACT_OPTIONS(ui_files ui_options ${ARGN})
-  FOREACH (it ${ui_files})
-    GET_FILENAME_COMPONENT(outfile ${it} NAME_WE)
-    GET_FILENAME_COMPONENT(infile ${it} ABSOLUTE)
-    SET(outfile ${CMAKE_CURRENT_BINARY_DIR}/ui_${outfile}.hxx)
-    ADD_CUSTOM_COMMAND(OUTPUT ${outfile}
-      COMMAND ${QT_UIC_EXECUTABLE}
-      ARGS ${ui_options} -o ${outfile} ${infile}
-      MAIN_DEPENDENCY ${infile})
-    SET(${outfiles} ${${outfiles}} ${outfile})
-  ENDFOREACH (it)
-ENDMACRO (QT4_WRAP_UI_XX)
-
 SET(MEDOPGUI_dialogs_FORMS
   GenericDialog.ui
   DlgAlias.ui
@@ -42,7 +28,7 @@ SET(MEDOPGUI_dialogs_FORMS
   DlgChangeUnderlyingMesh.ui
   DlgImageToMed.ui
 )
-QT4_WRAP_UI_XX(MEDOPGUI_dialogs_FORMS_HEADERS ${MEDOPGUI_dialogs_FORMS})
+QT4_WRAP_UI(MEDOPGUI_dialogs_FORMS_HEADERS ${MEDOPGUI_dialogs_FORMS})
 
 SET(MEDOPGUI_dialogs_FILES
   GenericDialog.hxx
