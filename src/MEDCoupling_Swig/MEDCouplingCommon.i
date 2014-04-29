@@ -2810,6 +2810,30 @@ namespace ParaMEDMEM
         return MEDCouplingStructuredMesh::BuildExplicitIdsFrom(tmp5,inp);
       }
 
+      static int DeduceNumberOfGivenRangeInCompactFrmt(PyObject *part) throw(INTERP_KERNEL::Exception)
+      {
+        int tmpp1=-1,tmpp2=-1;
+        std::vector<int> tmp=fillArrayWithPyListInt2(part,tmpp1,tmpp2);
+        std::vector< std::pair<int,int> > inp;
+        if(tmpp2==2)
+          {
+            inp.resize(tmpp1);
+            for(int i=0;i<tmpp1;i++)
+              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
+          }
+        else if(tmpp2==1)
+          {
+            if(tmpp1%2!=0)
+              throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size ! Must be even size !");
+            inp.resize(tmpp1/2);
+            for(int i=0;i<tmpp1/2;i++)
+              { inp[i].first=tmp[2*i]; inp[i].second=tmp[2*i+1]; }
+          }
+        else
+          throw INTERP_KERNEL::Exception("Wrap of MEDCouplingStructuredMesh.BuildExplicitIdsFrom : invalid input size !");
+        return MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(inp);
+      }
+
       static DataArrayInt *Build1GTNodalConnectivity(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         int szArr,sw,iTypppArr;

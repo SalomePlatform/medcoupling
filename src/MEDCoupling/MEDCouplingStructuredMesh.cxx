@@ -643,6 +643,34 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
   }
 }
 
+/*!
+ * This method retrieves the number of entities (it can be cells or nodes) given a range in compact standard format
+ * used in methods like BuildExplicitIdsFrom,IsPartStructured.
+ *
+ * \sa BuildExplicitIdsFrom,IsPartStructured
+ */
+int MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  int ret(1);
+  bool isFetched(false);
+  std::size_t ii(0);
+  for(std::vector< std::pair<int,int> >::const_iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,ii++)
+    {
+      int a((*it).first),b((*it).second);
+      if(a<0 || b<0 || b-a<0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt : invalid input at dimension " << ii << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(b-a>0)
+        {
+          isFetched=true;
+          ret*=(b-a);
+        }
+    }
+  return isFetched?ret:0;
+}
+
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
 {
   int nbOfCells(*nodeStBg-1);
@@ -866,7 +894,7 @@ std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const
  * This method states if given part ids [ \a startIds, \a stopIds) and a structure \a st returns if it can be considered as a structured dataset.
  * If true is returned \a partCompactFormat will contain the information to build the corresponding part.
  *
- * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom
+ * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt
  */
 bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat)
 {
@@ -955,10 +983,10 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
 
 /*!
  * This method builds the explicit entity array from the structure in \a st and the range in \a partCompactFormat.
- *If the range contains invalid values regarding sructure an exception will be thrown.
+ * If the range contains invalid values regarding sructure an exception will be thrown.
  *
  * \return DataArrayInt * - a new object.
- * \sa MEDCouplingStructuredMesh::IsPartStructured
+ * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt
  */
 DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat)
 {
