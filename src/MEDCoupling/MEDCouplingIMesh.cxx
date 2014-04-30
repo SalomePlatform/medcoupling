@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <sstream>
 #include <numeric>
+#include <cmath>
 
 using namespace ParaMEDMEM;
 
@@ -164,7 +165,7 @@ MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> ret(MEDCouplingCMesh::New());
   try
   { ret->copyTinyInfoFrom(this); }
-  catch(INTERP_KERNEL::Exception& e) { }
+  catch(INTERP_KERNEL::Exception& ) { }
   int spaceDim(getSpaceDimension());
   std::vector<std::string> infos(buildInfoOnComponents());
   for(int i=0;i<spaceDim;i++)
@@ -558,7 +559,7 @@ int MEDCouplingIMesh::getCellContainingPoint(const double *pos, double eps) cons
     {
       int nbOfCells(_structure[i]-1);
       double ref(pos[i]);
-      int tmp((ref-_origin[i])/_dxyz[i]);
+      int tmp((int)((ref-_origin[i])/_dxyz[i]));
       if(tmp>=0 && tmp<nbOfCells)
         {
           ret+=coeff*tmp;
