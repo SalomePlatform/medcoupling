@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <sstream>
 #include <numeric>
-#include <cmath>
 
 using namespace ParaMEDMEM;
 
@@ -834,9 +833,12 @@ int MEDCouplingIMesh::FindIntRoot(int val, int order)
   else//order==3
     {
       double retf(std::pow(val,0.3333333333333333));
-      int ret((int)round(retf));
-      if(ret*ret*ret!=val)
+      int ret((int)retf),ret2(ret+1);
+      if(ret*ret*ret!=val || ret2*ret2*ret2!=val)
         throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the input val is not a perfect cublic root !");
-      return ret;
+      if(ret*ret*ret==val)
+        return ret;
+      else
+        return ret2;
     }
 }
