@@ -274,30 +274,6 @@ void MEDCouplingCMesh::checkCoherency2(double eps) const
   checkCoherency1(eps);
 }
 
-void MEDCouplingCMesh::getSplitCellValues(int *res) const
-{
-  int meshDim(getMeshDimension());
-  for(int l=0;l<meshDim;l++)
-    {
-      int val=1;
-      for(int p=0;p<meshDim-l-1;p++)
-        val*=getCoordsAt(p)->getNbOfElems()-1;
-      res[meshDim-l-1]=val;
-    }
-}
-
-void MEDCouplingCMesh::getSplitNodeValues(int *res) const
-{
-  int spaceDim(getSpaceDimension());
-  for(int l=0;l<spaceDim;l++)
-    {
-      int val=1;
-      for(int p=0;p<spaceDim-l-1;p++)
-        val*=getCoordsAt(p)->getNbOfElems();
-      res[spaceDim-l-1]=val;
-    }
-}
-
 void MEDCouplingCMesh::getNodeGridStructure(int *res) const
 {
   std::vector<int> ret(getNodeGridStructure());

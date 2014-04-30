@@ -223,30 +223,6 @@ int MEDCouplingCurveLinearMesh::getNumberOfNodes() const
   return MEDCouplingStructuredMesh::getNumberOfNodes();
 }
 
-void MEDCouplingCurveLinearMesh::getSplitCellValues(int *res) const
-{
-  int meshDim=getMeshDimension();
-  for(int l=0;l<meshDim;l++)
-    {
-      int val=1;
-      for(int p=0;p<meshDim-l-1;p++)
-        val*=_structure[p]-1;
-      res[meshDim-l-1]=val;
-    }
-}
-
-void MEDCouplingCurveLinearMesh::getSplitNodeValues(int *res) const
-{
-  int meshDim=getMeshDimension();
-  for(int l=0;l<meshDim;l++)
-    {
-      int val=1;
-      for(int p=0;p<meshDim-l-1;p++)
-        val*=_structure[p];
-      res[meshDim-l-1]=val;
-    }
-}
-
 void MEDCouplingCurveLinearMesh::getNodeGridStructure(int *res) const
 {
   std::copy(_structure.begin(),_structure.end(),res);
