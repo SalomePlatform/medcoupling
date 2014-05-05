@@ -123,9 +123,9 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_num_ids;
     bool _node_num_ids_nocpy;
   public:
-    static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
-    static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
-    static const unsigned char HEXA27_PERM_ARRAY[27];
+    MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
+    MEDLOADER_EXPORT static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
+    MEDLOADER_EXPORT static const unsigned char HEXA27_PERM_ARRAY[27];
   };
 
   class MEDStructuredMeshMultiLev;
