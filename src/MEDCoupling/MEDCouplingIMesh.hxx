@@ -47,6 +47,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getMeasureOfAnyCell() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *convertToCartesian() const;
     MEDCOUPLING_EXPORT void refineWithFactor(int factor);
+    MEDCOUPLING_EXPORT static void CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse);
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *clone(bool recDeepCpy) const;
@@ -82,8 +83,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     //some useful methods
-    MEDCOUPLING_EXPORT void getSplitCellValues(int *res) const;
-    MEDCOUPLING_EXPORT void getSplitNodeValues(int *res) const;
     MEDCOUPLING_EXPORT void getNodeGridStructure(int *res) const;
     MEDCOUPLING_EXPORT std::vector<int> getNodeGridStructure() const;
     MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const;
@@ -104,6 +103,7 @@ namespace ParaMEDMEM
     std::vector<std::string> buildInfoOnComponents() const;
     void checkSpaceDimension() const;
     static void CheckSpaceDimension(int spaceDim);
+    static int FindIntRoot(int val, int order);
   private:
     int _space_dim;
     double _origin[3];

@@ -75,8 +75,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     //some useful methods
-    MEDCOUPLING_EXPORT void getSplitCellValues(int *res) const;
-    MEDCOUPLING_EXPORT void getSplitNodeValues(int *res) const;
     MEDCOUPLING_EXPORT void getNodeGridStructure(int *res) const;
     //serialisation-unserialization
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;

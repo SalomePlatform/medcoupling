@@ -164,7 +164,7 @@ MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> ret(MEDCouplingCMesh::New());
   try
   { ret->copyTinyInfoFrom(this); }
-  catch(INTERP_KERNEL::Exception& e) { }
+  catch(INTERP_KERNEL::Exception& ) { }
   int spaceDim(getSpaceDimension());
   std::vector<std::string> infos(buildInfoOnComponents());
   for(int i=0;i<spaceDim;i++)
@@ -194,6 +194,68 @@ void MEDCouplingIMesh::refineWithFactor(int factor)
   std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::plus<int>(),1));
   std::transform(_dxyz,_dxyz+_space_dim,_dxyz,std::bind2nd(std::multiplies<double>(),fact2));
   declareAsNew();
+}
+
+/*!
+ * This static method is useful to condense field on cells of a MEDCouplingIMesh instance coming from a refinement ( MEDCouplingIMesh::refineWithFactor for example)
+ * to a coarse MEDCouplingIMesh instance. So this method can be seen as a specialization in P0P0 conservative interpolation non overlaping from fine image mesh
+ * to a coarse image mesh. Only tuples ( deduced from \a fineLocInCoarse ) of \a coarseDA will be modified. Other tuples of \a coarseDA will be let unchanged.
+ *
+ * \param [in,out] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
+ * \param [in] coarseSt The cell structure of coarse mesh.
+ * \param [in] fineDA The DataArray containing the cell field on uniformly refined mesh
+ * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
+ */
+void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse)
+{
+  if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the parameters 1 or 3 are NULL or not allocated !");
+  int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
+  int nbCompo(fineDA->getNumberOfComponents());
+  if(coarseDA->getNumberOfComponents()!=nbCompo)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the number of components of fine DA and coarse one mismatches !");
+  if(meshDim!=(int)fineLocInCoarse.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the size of fineLocInCoarse (4th param) must be equal to the sier of coarseSt (2nd param) !");
+  if(coarseDA->getNumberOfTuples()!=nbOfTuplesInCoarseExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarse : Expecting " << nbOfTuplesInCoarseExp << " having " << coarseDA->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nbTuplesFine(fineDA->getNumberOfTuples());
+  if(nbTuplesFine%nbOfTuplesInCoarseExp!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Invalid nb of tuples in fine DataArray regarding its structure !");
+  int factN(nbTuplesFine/nbOfTuplesInFineExp);
+  int fact(FindIntRoot(factN,meshDim));
+  // to improve use jump-iterator. Factorizes with SwitchOnIdsFrom BuildExplicitIdsFrom
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(BuildExplicitIdsFrom(coarseSt,fineLocInCoarse));
+  const int *idsPtr(ids->begin());
+  double *outPtr(coarseDA->getPointer());
+  const double *inPtr(fineDA->begin());
+  coarseDA->setPartOfValuesSimple3(0.,ids->begin(),ids->end(),0,nbCompo,1);
+  //
+  switch(meshDim)
+  {
+    case 2:
+      {
+        int kk(0);
+        std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+        for(int it=0;it<dims[1];it++)
+          {
+            for(int i=0;i<fact;i++)
+              {
+                for(int j=0;j<dims[0];j++,inPtr+=fact)
+                  {
+                    double *loc(outPtr+idsPtr[kk+j]*nbCompo);
+                    std::transform(inPtr,inPtr+fact,loc,loc,std::plus<double>());
+                  }
+              }
+            kk+=it;
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : only dimensions 2 supported !");
+  }
 }
 
 void MEDCouplingIMesh::setSpaceDimension(int spaceDim)
@@ -347,30 +409,6 @@ void MEDCouplingIMesh::checkCoherency2(double eps) const
   checkCoherency1(eps);
 }
 
-void MEDCouplingIMesh::getSplitCellValues(int *res) const
-{
-  int meshDim(getMeshDimension());
-  for(int l=0;l<meshDim;l++)
-    {
-      int val=1;
-      for(int p=0;p<meshDim-l-1;p++)
-        val*=_structure[p]-1;
-      res[meshDim-l-1]=val;
-    }
-}
-
-void MEDCouplingIMesh::getSplitNodeValues(int *res) const
-{
-  int spaceDim(getSpaceDimension());
-  for(int l=0;l<spaceDim;l++)
-    {
-      int val=1;
-      for(int p=0;p<spaceDim-l-1;p++)
-        val*=_structure[p];
-      res[spaceDim-l-1]=val;
-    }
-}
-
 void MEDCouplingIMesh::getNodeGridStructure(int *res) const
 {
   checkSpaceDimension();
@@ -520,7 +558,7 @@ int MEDCouplingIMesh::getCellContainingPoint(const double *pos, double eps) cons
     {
       int nbOfCells(_structure[i]-1);
       double ref(pos[i]);
-      int tmp((ref-_origin[i])/_dxyz[i]);
+      int tmp((int)((ref-_origin[i])/_dxyz[i]));
       if(tmp>=0 && tmp<nbOfCells)
         {
           ret+=coeff*tmp;
@@ -773,3 +811,34 @@ void MEDCouplingIMesh::CheckSpaceDimension(int spaceDim)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CheckSpaceDimension : input spaceDim must be in [0,1,2,3] !");
 }
 
+int MEDCouplingIMesh::FindIntRoot(int val, int order)
+{
+  if(order==0)
+    return 1;
+  if(val<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : input val is < 0 ! Not possible to compute a root !");
+  if(order==1)
+    return val;
+  if(order!=2 && order!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the order available are 0,1,2 or 3 !");
+  double valf((double)val);
+  if(order==2)
+    {
+      double retf(sqrt(valf));
+      int ret((int)retf);
+      if(ret*ret!=val)
+        throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the input val is not a perfect square root !");
+      return ret;
+    }
+  else//order==3
+    {
+      double retf(std::pow(val,0.3333333333333333));
+      int ret((int)retf),ret2(ret+1);
+      if(ret*ret*ret!=val || ret2*ret2*ret2!=val)
+        throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the input val is not a perfect cublic root !");
+      if(ret*ret*ret==val)
+        return ret;
+      else
+        return ret2;
+    }
+}

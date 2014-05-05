@@ -14934,6 +14934,49 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(mu.getCoords().isEqual(coordsExp,1e-12))
         self.assertTrue(mu.getNodalConnectivity().isEqual(DataArrayInt([1,0,3,4,2,1,4,5,4,3,6,7,5,4,7,8,7,6,9,10,8,7,10,11])))
         pass
+
+    def testSwig2AMR1(self):
+        self.assertEqual((1,3,12),MEDCouplingStructuredMesh.GetSplitVectFromStruct([3,4,5]))
+        self.assertEqual((3,2),MEDCouplingStructuredMesh.GetDimensionsFromCompactFrmt([(1,4),(2,4)]))
+        #
+        amr=MEDCouplingCartesianAMRMesh("",2,[3,3],[0,0],[1,1])
+        self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
+        self.assertEqual(4,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(4,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(0,amr.getNumberOfPatches())
+        self.assertEqual(1,amr.getMaxNumberOfLevelsRelativeToThis())
+        self.assertEqual(2,amr.getSpaceDimension())
+        amr.addPatch([(1,2),(0,1)],4)
+        self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
+        self.assertEqual(20,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(19,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(1,amr.getNumberOfPatches())
+        self.assertEqual(2,amr.getMaxNumberOfLevelsRelativeToThis())
+        self.assertEqual(2,amr.getSpaceDimension())
+        amr[0].addPatch([(2,3),(1,3)],2)
+        self.assertEqual(amr[0].getBLTRRange(),[(1,2),(0,1)])
+        self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
+        self.assertEqual(28,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(25,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(1,amr.getNumberOfPatches())
+        self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
+        self.assertEqual(2,amr.getSpaceDimension())
+        amr[0].addPatch([(0,2),(3,4)],3)
+        self.assertEqual(16,amr[0].getMesh().getNumberOfCellsAtCurrentLevel())
+        self.assertEqual(46,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(41,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(2,amr[0].getMesh().getNumberOfPatches())
+        self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
+        self.assertEqual(2,amr.getSpaceDimension())
+        del amr[0][1]
+        self.assertEqual(amr[0].getBLTRRange(),[(1,2),(0,1)])
+        self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
+        self.assertEqual(28,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(25,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(1,amr.getNumberOfPatches())
+        self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
+        self.assertEqual(2,amr.getSpaceDimension())
+        pass
     
     def setUp(self):
         pass

@@ -209,6 +209,20 @@ int MEDCouplingStructuredMesh::getSpaceDimensionOnNodeStruct() const
   return spd1;
 }
 
+void MEDCouplingStructuredMesh::getSplitCellValues(int *res) const
+{
+  std::vector<int> strct(getCellGridStructure());
+  std::vector<int> ret(MEDCouplingStructuredMesh::GetSplitVectFromStruct(strct));
+  std::copy(ret.begin(),ret.end(),res);
+}
+
+void MEDCouplingStructuredMesh::getSplitNodeValues(int *res) const
+{
+  std::vector<int> strct(getNodeGridStructure());
+  std::vector<int> ret(MEDCouplingStructuredMesh::GetSplitVectFromStruct(strct));
+  std::copy(ret.begin(),ret.end(),res);
+}
+
 /*!
  * This method returns the number of cells of unstructured sub level mesh, without building it.
  */
@@ -905,6 +919,24 @@ std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const
 }
 
 /*!
+ * Given a struct \a strct it returns a split vector [1,strct[0],strct[0]*strct[1]...]
+ * This decomposition allows to quickly find i,j,k given a global id.
+ */
+std::vector<int> MEDCouplingStructuredMesh::GetSplitVectFromStruct(const std::vector<int>& strct)
+{
+  int spaceDim((int)strct.size());
+  std::vector<int> res(spaceDim);
+  for(int l=0;l<spaceDim;l++)
+    {
+      int val=1;
+      for(int p=0;p<spaceDim-l-1;p++)
+        val*=strct[p];
+      res[spaceDim-l-1]=val;
+    }
+  return res;
+}
+
+/*!
  * This method states if given part ids [ \a startIds, \a stopIds) and a structure \a st returns if it can be considered as a structured dataset.
  * If true is returned \a partCompactFormat will contain the information to build the corresponding part.
  *
@@ -995,6 +1027,14 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
   }
 }
 
+std::vector<int> MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  std::vector<int> ret(partCompactFormat.size());
+  for(std::size_t i=0;i<partCompactFormat.size();i++)
+    ret[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+  return ret;
+}
+
 /*!
  * This method is close to BuildExplicitIdsFrom except that instead of returning a DataArrayInt instance containing explicit ids it
  * enable elems in the vector of booleans (for performance reasons). As it is method for performance, this method is \b not
@@ -1012,9 +1052,7 @@ void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<int>& st, cons
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::SwitchOnIdsFrom : input arrays must have the same size !");
   if((int)vectToSwitchOn.size()!=DeduceNumberOfGivenStructure(st))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::SwitchOnIdsFrom : invalid size of input vector of boolean regarding the structure !");
-  std::vector<int> dims(st.size());
-  for(std::size_t i=0;i<st.size();i++)
-    dims[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
   switch(st.size())
   {
     case 3:

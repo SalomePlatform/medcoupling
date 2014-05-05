@@ -65,12 +65,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfCellsOfSubLevelMesh() const;
     MEDCOUPLING_EXPORT int getSpaceDimensionOnNodeStruct() const;
     MEDCOUPLING_EXPORT virtual void getNodeGridStructure(int *res) const = 0;
-    MEDCOUPLING_EXPORT virtual void getSplitCellValues(int *res) const = 0;
-    MEDCOUPLING_EXPORT virtual void getSplitNodeValues(int *res) const = 0;
+    MEDCOUPLING_EXPORT virtual void getSplitCellValues(int *res) const;
+    MEDCOUPLING_EXPORT virtual void getSplitNodeValues(int *res) const;
     MEDCOUPLING_EXPORT virtual std::vector<int> getNodeGridStructure() const = 0;
     MEDCOUPLING_EXPORT std::vector<int> getCellGridStructure() const;
     MEDCOUPLING_EXPORT virtual MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const = 0;
+    MEDCOUPLING_EXPORT static std::vector<int> GetSplitVectFromStruct(const std::vector<int>& strct);
     MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static std::vector<int> GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static void SwitchOnIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& vectToSwitchOn);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
