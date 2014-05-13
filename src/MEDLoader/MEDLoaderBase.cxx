@@ -89,7 +89,7 @@ std::string MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const 
 {
   std::string ret(buildStringFromFortran(name,nameLgth));
   std::string unitCpp(buildStringFromFortran(unit,unitLgth));
-  if(unitCpp[0]=='\0')
+  if(unitCpp.empty() || unitCpp[0]=='\0')
     return ret;
   ret+=" [";
   ret+=unitCpp;
