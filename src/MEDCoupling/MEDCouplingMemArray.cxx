@@ -4113,14 +4113,18 @@ DataArrayDouble *DataArrayDouble::computeAbs() const
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.
  *  \param [in] compoId - the index of component to modify.
- *  \throw If \a this is not allocated.
+ *  \throw If \a this is not allocated, or \a compoId is not in [0,\c this->getNumberOfComponents() ).
  */
 void DataArrayDouble::applyLin(double a, double b, int compoId)
 {
   checkAllocated();
-  double *ptr=getPointer()+compoId;
-  int nbOfComp=getNumberOfComponents();
-  int nbOfTuple=getNumberOfTuples();
+  double *ptr(getPointer()+compoId);
+  int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
+  if(compoId<0 || compoId>=nbOfComp)
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::applyLin : The compoId requested (" << compoId << ") is not valid ! Must be in [0," << nbOfComp << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
     *ptr=a*(*ptr)+b;
   declareAsNew();

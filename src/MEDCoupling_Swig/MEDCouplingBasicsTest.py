@@ -14977,6 +14977,24 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
         pass
+
+    def testSwig2NonRegressionTestPAL1164(self):
+        """ Test PAL1164 Protection of applyLin against error in compoId ( #CEA22584 ) """
+        xarr=DataArrayDouble(3,1)
+        xarr.iota(0.)
+        cmesh=MEDCouplingCMesh()
+        cmesh.setCoords(xarr,xarr,xarr)
+        mesh=cmesh.buildUnstructured()
+        f=mesh.fillFromAnalytic(ON_CELLS,1,"(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")
+        f.setName("MyField")
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([60.75,52.75,52.75,44.75,52.75,44.75,44.75,36.75]),1e-12))
+        self.assertRaises(InterpKernelException,f.applyLin,2.,0.,1)# compoId 1 whereas f has only one component !
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([60.75,52.75,52.75,44.75,52.75,44.75,44.75,36.75]),1e-12))
+        f.applyLin(2.,0.,0)# here it is OK !
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([121.5,105.5,105.5,89.5,105.5,89.5,89.5,73.5]),1e-12))
+        #f.applyLin(2.,0.)
+        #self.assertTrue(f.getArray().isEqual(DataArrayDouble([243.,211.,211.,179.,211.,179.,179.,127.]),1e-12))
+        pass
     
     def setUp(self):
         pass
