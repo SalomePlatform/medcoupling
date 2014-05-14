@@ -14995,7 +14995,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #f.applyLin(2.,0.)
         #self.assertTrue(f.getArray().isEqual(DataArrayDouble([243.,211.,211.,179.,211.,179.,179.,127.]),1e-12))
         pass
-    
+
+    def testSwig2StructurizeMe1(self):
+        arrx=DataArrayDouble(3) ; arrx.iota() ; arrx*=2.
+        arry=DataArrayDouble(4) ; arry.iota() ; arry+=3.
+        arrz=DataArrayDouble(5) ; arrz.iota() ; arrz*=0.5 ; arrz+=2.
+        c=MEDCouplingCMesh() ; c.setCoords(arrx,arry,arrz)
+        c.setName("mesh") ; c.setDescription("mesh descr") ; c.setTimeUnit("us") ; c.setTime(1.2,3,4)
+        u=c.buildUnstructured()
+        cp=DataArrayInt([3,5,6,1,0,9,8,7,12,11,16,10,17,23,22,21,19,20,18,14,13,2,4,15])
+        np=DataArrayInt([3,33,5,35,6,36,1,31,0,30,9,39,8,38,7,37,12,42,11,41,16,46,10,40,17,47,23,53,22,52,21,51,19,49,20,50,18,48,14,44,13,43,2,32,4,34,15,45,29,59,28,58,27,57,26,56,25,55,24,54])
+        u.renumberCells(cp)
+        u.renumberNodes(np,len(np))
+        u=MEDCoupling1SGTUMesh(u)
+        #
+        e,d,f=u.structurizeMe()
+        self.assertTrue(c.isEqual(e,1e-12))
+        self.assertTrue(d.isEqual(cp))
+        self.assertTrue(f.isEqual(np))
+        pass
+
     def setUp(self):
         pass
     pass

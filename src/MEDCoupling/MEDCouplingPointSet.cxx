@@ -124,10 +124,10 @@ DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
  */
 void MEDCouplingPointSet::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
+  MEDCouplingMesh::copyTinyStringsFrom(other);
   const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::copyTinyStringsFrom : meshes have not same type !");
-  MEDCouplingMesh::copyTinyStringsFrom(other);
   if(_coords && otherC->_coords)
     _coords->copyStringInfoFrom(*otherC->_coords);
 }

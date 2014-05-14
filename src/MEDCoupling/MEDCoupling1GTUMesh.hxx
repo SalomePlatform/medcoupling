@@ -81,6 +81,7 @@ namespace ParaMEDMEM
   };
 
   class MEDCoupling1DGTUMesh;
+  class MEDCouplingCMesh;
 
   class MEDCoupling1SGTUMesh : public MEDCoupling1GTUMesh
   {
@@ -146,6 +147,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCoupling1GTUMesh *computeDualMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *sortHexa8EachOther();
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *explodeEachHexa8To6Quad4() const;
+    MEDCOUPLING_EXPORT MEDCouplingCMesh *structurizeMe(DataArrayInt *& cellPerm, DataArrayInt *& nodePerm, double eps=1e-12) const;
   public://serialization
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;

@@ -2648,6 +2648,17 @@ namespace ParaMEDMEM
         return oss.str();
       }
 
+      PyObject *structurizeMe(double eps=1e-12) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *cellPerm(0),*nodePerm(0);
+        MEDCouplingCMesh *retCpp(self->structurizeMe(cellPerm,nodePerm,eps));
+        PyObject *ret(PyTuple_New(3));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(retCpp),SWIGTYPE_p_ParaMEDMEM__MEDCouplingCMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellPerm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(nodePerm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       static MEDCoupling1SGTUMesh *Merge1SGTUMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::MEDCoupling1SGTUMesh *> tmp;

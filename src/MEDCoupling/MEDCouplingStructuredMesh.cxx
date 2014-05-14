@@ -352,6 +352,9 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+spaceDim));
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
+  try
+    { ret->copyTinyInfoFrom(this); }
+  catch(INTERP_KERNEL::Exception&) { }
   return ret.retn();
 }
 

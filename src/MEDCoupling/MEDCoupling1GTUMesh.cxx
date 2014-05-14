@@ -21,6 +21,7 @@
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingCMesh.hxx"
 
 #include "SplitterTetra.hxx"
 
@@ -527,6 +528,9 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m)
         }
     }
   ret->setNodalConnectivity(conn);
+  try
+  { ret->copyTinyInfoFrom(m); }
+  catch(INTERP_KERNEL::Exception&) { }
   return ret.retn();
 }
 
@@ -964,6 +968,9 @@ MEDCouplingUMesh *MEDCoupling1SGTUMesh::buildUnstructured() const
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cI=DataArrayInt::Range(0,(nbCells+1)*(nbNodesPerCell+1),nbNodesPerCell+1);
   ret->setConnectivity(c,cI,true);
+  try
+  { ret->copyTinyInfoFrom(this); }
+  catch(INTERP_KERNEL::Exception&) { }
   return ret.retn();
 }
 
@@ -1659,6 +1666,41 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
   ret->setCoords(getCoords());
   ret->setNodalConnectivity(c);
   return ret.retn();
+}
+
+/*!
+ * This method starts from an unstructured mesh that hides in reality a cartesian mesh.
+ * If it is not the case, an exception will be thrown.
+ * This method returns three objects : The cartesian mesh geometrically equivalent to \a this (within a precision of \a eps) and a permutation of cells
+ * and a permutation of nodes.
+ *
+ * \param [out] cellPerm the permutation array of size \c this->getNumberOfCells()
+ * \param [out] nodePerm the permutation array of size \c this->getNumberOfNodes()
+ * \return MEDCouplingCMesh * - a newly allocated mesh that is the result of the structurization of \a this.
+ */
+MEDCouplingCMesh *MEDCoupling1SGTUMesh::structurizeMe(DataArrayInt *& cellPerm, DataArrayInt *& nodePerm, double eps) const
+{
+  checkCoherency();
+  int spaceDim(getSpaceDimension()),meshDim(getMeshDimension()),nbNodes(getNumberOfNodes());
+  if(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(meshDim)!=getCellModelEnum())
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::structurizeMe : the unique geo type in this is not compatible with the geometric type regarding mesh dimension !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> cm(MEDCouplingCMesh::New());
+  for(int i=0;i<spaceDim;i++)
+    {
+      std::vector<int> tmp(1,i);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> elt(static_cast<DataArrayDouble*>(getCoords()->keepSelectedComponents(tmp)));
+      elt=elt->getDifferentValues(eps);
+      elt->sort(true);
+      cm->setCoordsAt(i,elt);
+    }
+  if(nbNodes!=cm->getNumberOfNodes())
+    throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::structurizeMe : considering the number of nodes after split per components in space this can't be a cartesian mesh ! Maybe your epsilon parameter is invalid ?");
+  try
+  { cm->copyTinyInfoFrom(this); }
+  catch(INTERP_KERNEL::Exception&) { }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> um(cm->buildUnstructured()),self(buildUnstructured());
+  self->checkGeoEquivalWith(um,12,eps,cellPerm,nodePerm);
+  return cm.retn();
 }
 
 /// @cond INTERNAL
@@ -2649,6 +2691,9 @@ MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const
         }
     }
   ret->setConnectivity(c,cI,true);
+  try
+  { ret->copyTinyInfoFrom(this); }
+  catch(INTERP_KERNEL::Exception&) { }
   return ret.retn();
 }
 
