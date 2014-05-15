@@ -1674,6 +1674,8 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
  * This method returns three objects : The cartesian mesh geometrically equivalent to \a this (within a precision of \a eps) and a permutation of cells
  * and a permutation of nodes.
  *
+ * - this[cellPerm[i]]=ret[i]
+ *
  * \param [out] cellPerm the permutation array of size \c this->getNumberOfCells()
  * \param [out] nodePerm the permutation array of size \c this->getNumberOfNodes()
  * \return MEDCouplingCMesh * - a newly allocated mesh that is the result of the structurization of \a this.
