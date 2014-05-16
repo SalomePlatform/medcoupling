@@ -89,7 +89,7 @@ std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRPatch::getDirectChil
 
 
 MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                              const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop)
+                                                              const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop)
 {
   return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
 }
@@ -210,7 +210,7 @@ MEDCouplingUMesh *MEDCouplingCartesianAMRMesh::buildUnstructured() const
 }
 
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                         const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
+                                                         const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
 {
   _mesh=MEDCouplingIMesh::New(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
 }

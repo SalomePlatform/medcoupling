@@ -15076,6 +15076,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m2.getData().isEqual(DataArrayDouble([29,37,37,62]),1e-12))
         pass
 
+    def testAMR2(self):
+        """ Test condensation of fine IMesh instance into a coarse one, with a factor. See testRemapperAMR1 in MEDCouplingRemapperTest.py file to see how the expected value is obtained."""
+        coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
+        fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
+        MEDCouplingIMesh.CondenseFineToCoarse(coarse,[5,7],fine,[(1,4),(2,4)])
+        self.assertTrue(coarse.isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,312,376,440,14,15,1080,1144,1208,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]),1e-12))
+        pass
+
     def setUp(self):
         pass
     pass

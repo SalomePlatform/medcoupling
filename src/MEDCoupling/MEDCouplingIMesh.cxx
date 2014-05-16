@@ -222,34 +222,37 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   int nbTuplesFine(fineDA->getNumberOfTuples());
-  if(nbTuplesFine%nbOfTuplesInCoarseExp!=0)
+  if(nbTuplesFine%nbOfTuplesInFineExp!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Invalid nb of tuples in fine DataArray regarding its structure !");
   int factN(nbTuplesFine/nbOfTuplesInFineExp);
   int fact(FindIntRoot(factN,meshDim));
   // to improve use jump-iterator. Factorizes with SwitchOnIdsFrom BuildExplicitIdsFrom
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(BuildExplicitIdsFrom(coarseSt,fineLocInCoarse));
-  const int *idsPtr(ids->begin());
   double *outPtr(coarseDA->getPointer());
   const double *inPtr(fineDA->begin());
-  coarseDA->setPartOfValuesSimple3(0.,ids->begin(),ids->end(),0,nbCompo,1);
   //
   switch(meshDim)
   {
     case 2:
       {
-        int kk(0);
         std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
-        for(int it=0;it<dims[1];it++)
+        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first);
+        for(int j=0;j<dims[1];j++)
           {
-            for(int i=0;i<fact;i++)
+            for(int jfact=0;jfact<fact;jfact++)
               {
-                for(int j=0;j<dims[0];j++,inPtr+=fact)
+                for(int i=0;i<dims[0];i++)
                   {
-                    double *loc(outPtr+idsPtr[kk+j]*nbCompo);
-                    std::transform(inPtr,inPtr+fact,loc,loc,std::plus<double>());
+                    double *loc(outPtr+(kk+i)*nbCompo);
+                    for(int ifact=0;ifact<fact;ifact++,inPtr+=nbCompo)
+                      {
+                        if(jfact!=0 || ifact!=0)
+                          std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
+                        else
+                          std::copy(inPtr,inPtr+nbCompo,loc);
+                      }
                   }
               }
-            kk+=it;
+            kk+=coarseSt[0];
           }
         break;
       }

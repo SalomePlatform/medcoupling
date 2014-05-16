@@ -68,7 +68,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                                       const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+                                                               const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT int getMaxNumberOfLevelsRelativeToThis() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsAtCurrentLevel() const;
@@ -86,7 +86,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                        const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCouplingCartesianAMRMesh(MEDCouplingCartesianAMRMesh *father, MEDCouplingIMesh *mesh);
     void checkPatchId(int patchId) const;
   protected:
