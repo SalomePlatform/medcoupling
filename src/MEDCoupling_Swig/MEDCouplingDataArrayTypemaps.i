@@ -399,7 +399,7 @@ int NumpyArrSetBaseObjectExt(PyArrayObject *arr, PyObject *obj)
 }
 
 template<class MCData, class T>
-PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
+PyObject *ToNumPyArrayUnderground(MCData *self, int npyObjectType, const char *MCDataStr, int nbTuples, int nbComp)
 {
   if(!self->isAllocated())
     {
@@ -407,7 +407,6 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   ParaMEDMEM::MemArray<T>& mem=self->accessToMemArray();
-  int nbComp=self->getNumberOfComponents();
   if(nbComp==0)
     {
       std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is 0 ! Should be > 0 !"; 
@@ -415,7 +414,7 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
     }
   int nbDims=nbComp==1?1:2;
   npy_intp dim[2];
-  dim[0]=(npy_intp)self->getNumberOfTuples(); dim[1]=nbComp;
+  dim[0]=(npy_intp)nbTuples; dim[1]=nbComp;
   const T *bg=self->getConstPointer();
   PyObject *ret(PyArray_SimpleNewFromData(nbDims,dim,npyObjectType,const_cast<T *>(bg)));
   if(mem.isDeallocatorCalled())
@@ -449,6 +448,12 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
         }
     }
   return ret;
+}
+
+template<class MCData, class T>
+PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
+{
+  return ToNumPyArrayUnderground<MCData,T>(self,npyObjectType,MCDataStr,self->getNumberOfTuples(),self->getNumberOfComponents());
 }
 
 SWIGINTERN PyObject *ParaMEDMEM_DataArrayInt_toNumPyArray(ParaMEDMEM::DataArrayInt *self);

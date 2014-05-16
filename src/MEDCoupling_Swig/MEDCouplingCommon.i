@@ -4849,6 +4849,13 @@ namespace ParaMEDMEM
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
+#ifdef WITH_NUMPY
+      PyObject *toNumPyMatrix() throw(INTERP_KERNEL::Exception) // not const. It is not a bug !
+      {
+        PyObject *obj(ToNumPyArrayUnderground<DataArrayDouble,double>(self->getData(),NPY_DOUBLE,"DataArrayDouble",self->getNumberOfRows(),self->getNumberOfCols()));
+        return obj;
+      }
+#endif
     }
   };
 }

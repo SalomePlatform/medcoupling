@@ -656,6 +656,14 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(a2.tolist(),[[0.,1.,2.],[3.,4.,5.],[6.,7.,8.],[9.,10.,11.],[12.,13.,14.]])
         pass
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def test27(self):
+        m0=DenseMatrix(DataArrayDouble([2,3,4,5,1,6]),2,3)
+        m0np=m0.toNumPyMatrix()
+        self.assertEqual(m0np.shape,(2,3))
+        self.assertEqual(m0np.tolist(),[[2.0,3.0,4.0],[5.0,1.0,6.0]])
+        pass
+
     def setUp(self):
         pass
     pass
