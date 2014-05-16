@@ -115,6 +115,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getValueOn(const double *spaceLoc, double time, double *res) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const double *spaceLoc, int nbOfPoints) const;
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
+    MEDCOUPLING_EXPORT void applyLin(double a, double b);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const std::string& func);

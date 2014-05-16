@@ -4108,7 +4108,7 @@ DataArrayDouble *DataArrayDouble::computeAbs() const
 }
 
 /*!
- * Apply a liner function to a given component of \a this array, so that
+ * Apply a linear function to a given component of \a this array, so that
  * an array element <em>(x)</em> becomes \f$ a * x + b \f$.
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.
@@ -4131,7 +4131,7 @@ void DataArrayDouble::applyLin(double a, double b, int compoId)
 }
 
 /*!
- * Apply a liner function to all elements of \a this array, so that
+ * Apply a linear function to all elements of \a this array, so that
  * an element _x_ becomes \f$ a * x + b \f$.
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.

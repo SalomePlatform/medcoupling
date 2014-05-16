@@ -14992,8 +14992,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f.getArray().isEqual(DataArrayDouble([60.75,52.75,52.75,44.75,52.75,44.75,44.75,36.75]),1e-12))
         f.applyLin(2.,0.,0)# here it is OK !
         self.assertTrue(f.getArray().isEqual(DataArrayDouble([121.5,105.5,105.5,89.5,105.5,89.5,89.5,73.5]),1e-12))
-        #f.applyLin(2.,0.)
-        #self.assertTrue(f.getArray().isEqual(DataArrayDouble([243.,211.,211.,179.,211.,179.,179.,127.]),1e-12))
+        f.applyLin(2.,0.)
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([243.,211.,211.,179.,211.,179.,179.,147.]),1e-12))
         pass
 
     def testSwig2StructurizeMe1(self):
@@ -15013,6 +15013,67 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(c.isEqual(e,1e-12))
         self.assertTrue(d.isEqual(cp))
         self.assertTrue(f.isEqual(np))
+        pass
+
+    def testSwig2DenseMatrix1(self):
+        m0=DenseMatrix(DataArrayDouble([2,3,4,5,1,6]),2,3)
+        self.assertEqual(m0.getNumberOfRows(),2)
+        self.assertEqual(m0.getNumberOfCols(),3)
+        self.assertEqual(m0.getNbOfElems(),6)
+        ref=m0.getData().getHiddenCppPointer()
+        m00=m0.deepCpy()
+        self.assertTrue(m0.isEqual(m00,1e-12))
+        m00.getData().setIJ(0,0,2.1)
+        self.assertTrue(not m0.isEqual(m00,1e-12))
+        m00.getData().setIJ(0,0,2.)
+        self.assertTrue(m0.isEqual(m00,1e-12))
+        self.assertTrue(m0.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        #
+        m000=m0*DataArrayDouble([5,9,3])
+        self.assertTrue(m000.getData().isEqual(DataArrayDouble([49.,52.]),1e-12))
+        #
+        m0.reShape(3,2)
+        self.assertTrue(not m0.isEqual(m00,1e-12))
+        self.assertEqual(m0.getNumberOfRows(),3)
+        self.assertEqual(m0.getNumberOfCols(),2)
+        self.assertEqual(ref,m0.getData().getHiddenCppPointer())
+        self.assertTrue(m0.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        m0.reShape(2,3)
+        self.assertTrue(m0.isEqual(m00,1e-12))
+        self.assertEqual(ref,m0.getData().getHiddenCppPointer())
+        self.assertEqual(m0.getNumberOfRows(),2)
+        self.assertEqual(m0.getNumberOfCols(),3)
+        self.assertTrue(m0.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        #m0np=m0.getData().toNumPyArray() ; m0np=matrix(m0np.reshape(m0.getNumberOfRows(),m0.getNumberOfCols()))
+        m1=m0.deepCpy()
+        self.assertEqual(m1.getNumberOfRows(),2)
+        self.assertEqual(m1.getNumberOfCols(),3)
+        self.assertTrue(m1.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        m11=m0.deepCpy() ; m11+=m1
+        self.assertEqual(m11.getNumberOfRows(),2)
+        self.assertEqual(m11.getNumberOfCols(),3)
+        self.assertTrue(m11.getData().isEqual(DataArrayDouble([4,6,8,10,2,12]),1e-12))
+        m11=m11+m1
+        self.assertEqual(m11.getNumberOfRows(),2)
+        self.assertEqual(m11.getNumberOfCols(),3)
+        self.assertTrue(m11.getData().isEqual(DataArrayDouble([6,9,12,15,3,18]),1e-12))
+        m11=m11-m1
+        self.assertEqual(m11.getNumberOfRows(),2)
+        self.assertEqual(m11.getNumberOfCols(),3)
+        self.assertTrue(m11.getData().isEqual(DataArrayDouble([4,6,8,10,2,12]),1e-12))
+        m11-=m1
+        self.assertEqual(m1.getNumberOfRows(),2)
+        self.assertEqual(m1.getNumberOfCols(),3)
+        self.assertTrue(m1.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        m1.transpose()
+        self.assertEqual(m1.getNumberOfRows(),3)
+        self.assertEqual(m1.getNumberOfCols(),2)
+        self.assertTrue(m1.getData().isEqual(DataArrayDouble([2,5,3,1,4,6]),1e-12))
+        #m1np=m0np.transpose()
+        m2=m0*m1
+        self.assertEqual(m2.getNumberOfRows(),2)
+        self.assertEqual(m2.getNumberOfCols(),2)
+        self.assertTrue(m2.getData().isEqual(DataArrayDouble([29,37,37,62]),1e-12))
         pass
 
     def setUp(self):

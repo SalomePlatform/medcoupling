@@ -41,6 +41,7 @@
 #include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingCartesianAMRMesh.hxx"
+#include "MEDCouplingMatrix.hxx"
 #include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -319,6 +320,15 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getPatch;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::__getitem__;
+%newobject ParaMEDMEM::DenseMatrix::New;
+%newobject ParaMEDMEM::DenseMatrix::deepCpy;
+%newobject ParaMEDMEM::DenseMatrix::shallowCpy;
+%newobject ParaMEDMEM::DenseMatrix::getData;
+%newobject ParaMEDMEM::DenseMatrix::matVecMult;
+%newobject ParaMEDMEM::DenseMatrix::MatVecMult;
+%newobject ParaMEDMEM::DenseMatrix::__add__;
+%newobject ParaMEDMEM::DenseMatrix::__sub__;
+%newobject ParaMEDMEM::DenseMatrix::__mul__;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -342,6 +352,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 %feature("unref") MEDCouplingCartesianAMRMesh "$this->decrRef();"
 %feature("unref") MEDCouplingCartesianAMRPatch "$this->decrRef();"
+%feature("unref") DenseMatrix "$this->decrRef();"
 
 %rename(assign) *::operator=;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
@@ -3291,6 +3302,7 @@ namespace ParaMEDMEM
     void setStartTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void setEndTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
+    void applyLin(double a, double b) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
@@ -4750,6 +4762,92 @@ namespace ParaMEDMEM
       int __len__() const throw(INTERP_KERNEL::Exception)
       {
         return self->getNumberOfPatches();
+      }
+    }
+  };
+
+  class DenseMatrix : public RefCountObject, public TimeLabel
+  {
+  public:
+    static DenseMatrix *New(int nbRows, int nbCols) throw(INTERP_KERNEL::Exception);
+    static DenseMatrix *New(DataArrayDouble *array, int nbRows, int nbCols) throw(INTERP_KERNEL::Exception);
+    DenseMatrix *deepCpy() const throw(INTERP_KERNEL::Exception);
+    DenseMatrix *shallowCpy() const throw(INTERP_KERNEL::Exception);
+    //
+    int getNumberOfRows() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCols() const throw(INTERP_KERNEL::Exception);
+    int getNbOfElems() const throw(INTERP_KERNEL::Exception);
+    void reBuild(DataArrayDouble *array, int nbRows=-1, int nbCols=-1) throw(INTERP_KERNEL::Exception);
+    void reShape(int nbRows, int nbCols) throw(INTERP_KERNEL::Exception);
+    void transpose() throw(INTERP_KERNEL::Exception);
+    //
+    bool isEqual(const DenseMatrix& other, double eps) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *matVecMult(const DataArrayDouble *vec) const throw(INTERP_KERNEL::Exception);
+    static DataArrayDouble *MatVecMult(const DenseMatrix *mat, const DataArrayDouble *vec) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      DenseMatrix(int nbRows, int nbCols) throw(INTERP_KERNEL::Exception)
+      {
+        return DenseMatrix::New(nbRows,nbCols);
+      }
+
+      DenseMatrix(DataArrayDouble *array, int nbRows, int nbCols) throw(INTERP_KERNEL::Exception)
+      {
+        return DenseMatrix::New(array,nbRows,nbCols);
+      }
+
+      PyObject *isEqualIfNotWhy(const DenseMatrix& other, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,eps,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
+      }
+
+      DataArrayDouble *getData() throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayDouble *ret(self->getData());
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      DenseMatrix *__add__(const DenseMatrix *other) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM::DenseMatrix::Add(self,other);
+      }
+
+      DenseMatrix *__sub__(const DenseMatrix *other) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM::DenseMatrix::Substract(self,other);
+      }
+
+      DenseMatrix *__mul__(const DenseMatrix *other) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM::DenseMatrix::Multiply(self,other);
+      }
+
+      DenseMatrix *__mul__(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM::DenseMatrix::Multiply(self,other);
+      }
+
+      PyObject *___iadd___(PyObject *trueSelf, const DenseMatrix *other) throw(INTERP_KERNEL::Exception)
+      {
+        self->addEqual(other);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+
+      PyObject *___isub___(PyObject *trueSelf, const DenseMatrix *other) throw(INTERP_KERNEL::Exception)
+      {
+        self->substractEqual(other);
+        Py_XINCREF(trueSelf);
+        return trueSelf;
       }
     }
   };

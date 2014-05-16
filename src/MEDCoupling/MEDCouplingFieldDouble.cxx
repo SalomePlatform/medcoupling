@@ -1445,7 +1445,7 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
 }
 
 /*!
- * Apply a liner function to a given component of \a this field, so that
+ * Apply a linear function to a given component of \a this field, so that
  * a component value <em>(x)</em> becomes \f$ a * x + b \f$.
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.
@@ -1455,6 +1455,18 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
 void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
 {
   _time_discr->applyLin(a,b,compoId);
+}
+
+/*!
+ * Apply a linear function to all components of \a this field, so that
+ * values <em>(x)</em> becomes \f$ a * x + b \f$.
+ *  \param [in] a - the first coefficient of the function.
+ *  \param [in] b - the second coefficient of the function.
+ *  \throw If the data array(s) is(are) not set.
+ */
+void MEDCouplingFieldDouble::applyLin(double a, double b)
+{
+  _time_discr->applyLin(a,b);
 }
 
 /*!
