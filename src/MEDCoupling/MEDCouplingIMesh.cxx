@@ -230,11 +230,27 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
   double *outPtr(coarseDA->getPointer());
   const double *inPtr(fineDA->begin());
   //
+  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
   switch(meshDim)
   {
+    case 1:
+      {
+        int offset(fineLocInCoarse[0].first);
+        for(int i=0;i<dims[0];i++)
+          {
+            double *loc(outPtr+(offset+i)*nbCompo);
+            for(int ifact=0;ifact<fact;ifact++,inPtr+=nbCompo)
+              {
+                if(ifact!=0)
+                  std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
+                else
+                  std::copy(inPtr,inPtr+nbCompo,loc);
+              }
+          }
+        break;
+      }
     case 2:
       {
-        std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
         int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first);
         for(int j=0;j<dims[1];j++)
           {
@@ -256,8 +272,37 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
           }
         break;
       }
+    case 3:
+      {
+        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first+coarseSt[0]*coarseSt[1]*fineLocInCoarse[2].first);
+        for(int k=0;k<dims[2];k++)
+          {
+            for(int kfact=0;kfact<fact;kfact++)
+              {
+                for(int j=0;j<dims[1];j++)
+                  {
+                    for(int jfact=0;jfact<fact;jfact++)
+                      {
+                        for(int i=0;i<dims[0];i++)
+                          {
+                            double *loc(outPtr+(kk+i+j*coarseSt[0])*nbCompo);
+                            for(int ifact=0;ifact<fact;ifact++,inPtr+=nbCompo)
+                              {
+                                if(kfact!=0 || jfact!=0 || ifact!=0)
+                                  std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
+                                else
+                                  std::copy(inPtr,inPtr+nbCompo,loc);
+                              }
+                          }
+                      }
+                  }
+              }
+            kk+=coarseSt[0]*coarseSt[1];
+          }
+        break;
+      }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : only dimensions 2 supported !");
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : only dimensions 1, 2 and 3 supported !");
   }
 }
 
@@ -837,7 +882,7 @@ int MEDCouplingIMesh::FindIntRoot(int val, int order)
     {
       double retf(std::pow(val,0.3333333333333333));
       int ret((int)retf),ret2(ret+1);
-      if(ret*ret*ret!=val || ret2*ret2*ret2!=val)
+      if(ret*ret*ret!=val && ret2*ret2*ret2!=val)
         throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the input val is not a perfect cublic root !");
       if(ret*ret*ret==val)
         return ret;
