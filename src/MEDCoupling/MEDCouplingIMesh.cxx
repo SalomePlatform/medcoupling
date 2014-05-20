@@ -205,8 +205,10 @@ void MEDCouplingIMesh::refineWithFactor(int factor)
  * \param [in] coarseSt The cell structure of coarse mesh.
  * \param [in] fineDA The DataArray containing the cell field on uniformly refined mesh
  * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
+ * \param [in] facts The refinement coefficient per axis.
+ * \sa SpreadCoarseToFine
  */
-void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse)
+void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts)
 {
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the parameters 1 or 3 are NULL or not allocated !");
@@ -214,18 +216,22 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
   int nbCompo(fineDA->getNumberOfComponents());
   if(coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the number of components of fine DA and coarse one mismatches !");
-  if(meshDim!=(int)fineLocInCoarse.size())
-    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the size of fineLocInCoarse (4th param) must be equal to the sier of coarseSt (2nd param) !");
+  if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
   if(coarseDA->getNumberOfTuples()!=nbOfTuplesInCoarseExp)
     {
-      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarse : Expecting " << nbOfTuplesInCoarseExp << " having " << coarseDA->getNumberOfTuples() << " !";
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarse : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   int nbTuplesFine(fineDA->getNumberOfTuples());
   if(nbTuplesFine%nbOfTuplesInFineExp!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Invalid nb of tuples in fine DataArray regarding its structure !");
-  int factN(nbTuplesFine/nbOfTuplesInFineExp);
-  int fact(FindIntRoot(factN,meshDim));
+  int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
+  if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarse : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   // to improve use jump-iterator. Factorizes with SwitchOnIdsFrom BuildExplicitIdsFrom
   double *outPtr(coarseDA->getPointer());
   const double *inPtr(fineDA->begin());
@@ -235,11 +241,11 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
   {
     case 1:
       {
-        int offset(fineLocInCoarse[0].first);
+        int offset(fineLocInCoarse[0].first),fact0(facts[0]);
         for(int i=0;i<dims[0];i++)
           {
             double *loc(outPtr+(offset+i)*nbCompo);
-            for(int ifact=0;ifact<fact;ifact++,inPtr+=nbCompo)
+            for(int ifact=0;ifact<fact0;ifact++,inPtr+=nbCompo)
               {
                 if(ifact!=0)
                   std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
@@ -251,15 +257,15 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
       }
     case 2:
       {
-        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first);
+        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first),fact1(facts[1]),fact0(facts[0]);
         for(int j=0;j<dims[1];j++)
           {
-            for(int jfact=0;jfact<fact;jfact++)
+            for(int jfact=0;jfact<fact1;jfact++)
               {
                 for(int i=0;i<dims[0];i++)
                   {
                     double *loc(outPtr+(kk+i)*nbCompo);
-                    for(int ifact=0;ifact<fact;ifact++,inPtr+=nbCompo)
+                    for(int ifact=0;ifact<fact0;ifact++,inPtr+=nbCompo)
                       {
                         if(jfact!=0 || ifact!=0)
                           std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
@@ -274,19 +280,19 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
       }
     case 3:
       {
-        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first+coarseSt[0]*coarseSt[1]*fineLocInCoarse[2].first);
+        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first+coarseSt[0]*coarseSt[1]*fineLocInCoarse[2].first),fact2(facts[2]),fact1(facts[1]),fact0(facts[0]);
         for(int k=0;k<dims[2];k++)
           {
-            for(int kfact=0;kfact<fact;kfact++)
+            for(int kfact=0;kfact<fact2;kfact++)
               {
                 for(int j=0;j<dims[1];j++)
                   {
-                    for(int jfact=0;jfact<fact;jfact++)
+                    for(int jfact=0;jfact<fact1;jfact++)
                       {
                         for(int i=0;i<dims[0];i++)
                           {
                             double *loc(outPtr+(kk+i+j*coarseSt[0])*nbCompo);
-                            for(int ifact=0;ifact<fact;ifact++,inPtr+=nbCompo)
+                            for(int ifact=0;ifact<fact0;ifact++,inPtr+=nbCompo)
                               {
                                 if(kfact!=0 || jfact!=0 || ifact!=0)
                                   std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
@@ -303,6 +309,105 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : only dimensions 1, 2 and 3 supported !");
+  }
+}
+
+/*!
+ * This method spreads the values of coarse data \a coarseDA into \a fineDA.
+ *
+ * \param [in] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
+ * \param [in] coarseSt The cell structure of coarse mesh.
+ * \param [in,out] fineDA The DataArray containing the cell field on uniformly refined mesh
+ * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
+ * \param [in] facts The refinement coefficient per axis.
+ * \sa CondenseFineToCoarse
+ */
+void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts)
+{
+  if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the parameters 1 or 3 are NULL or not allocated !");
+  int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
+  int nbCompo(fineDA->getNumberOfComponents());
+  if(coarseDA->getNumberOfComponents()!=nbCompo)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the number of components of fine DA and coarse one mismatches !");
+  if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
+  if(coarseDA->getNumberOfTuples()!=nbOfTuplesInCoarseExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFine : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nbTuplesFine(fineDA->getNumberOfTuples());
+  if(nbTuplesFine%nbOfTuplesInFineExp!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : Invalid nb of tuples in fine DataArray regarding its structure !");
+  int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
+  if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFine : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  // to improve use jump-iterator. Factorizes with SwitchOnIdsFrom BuildExplicitIdsFrom
+  double *outPtr(fineDA->getPointer());
+  const double *inPtr(coarseDA->begin());
+  //
+  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  switch(meshDim)
+  {
+    case 1:
+      {
+        int offset(fineLocInCoarse[0].first),fact0(facts[0]);
+        for(int i=0;i<dims[0];i++)
+          {
+            const double *loc(inPtr+(offset+i)*nbCompo);
+            for(int ifact=0;ifact<fact0;ifact++)
+              outPtr=std::copy(loc,loc+nbCompo,outPtr);
+          }
+        break;
+      }
+    case 2:
+      {
+        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first),fact0(facts[0]),fact1(facts[1]);
+        for(int j=0;j<dims[1];j++)
+          {
+            for(int jfact=0;jfact<fact1;jfact++)
+              {
+                for(int i=0;i<dims[0];i++)
+                  {
+                    const double *loc(inPtr+(kk+i)*nbCompo);
+                    for(int ifact=0;ifact<fact0;ifact++)
+                      outPtr=std::copy(loc,loc+nbCompo,outPtr);
+                  }
+              }
+            kk+=coarseSt[0];
+          }
+        break;
+      }
+    case 3:
+      {
+        int kk(fineLocInCoarse[0].first+coarseSt[0]*fineLocInCoarse[1].first+coarseSt[0]*coarseSt[1]*fineLocInCoarse[2].first),fact0(facts[0]),fact1(facts[2]),fact2(facts[2]);
+        for(int k=0;k<dims[2];k++)
+          {
+            for(int kfact=0;kfact<fact2;kfact++)
+              {
+                for(int j=0;j<dims[1];j++)
+                  {
+                    for(int jfact=0;jfact<fact1;jfact++)
+                      {
+                        for(int i=0;i<dims[0];i++)
+                          {
+                            const double *loc(inPtr+(kk+i+j*coarseSt[0])*nbCompo);
+                            for(int ifact=0;ifact<fact0;ifact++)
+                              outPtr=std::copy(loc,loc+nbCompo,outPtr);
+                          }
+                      }
+                  }
+              }
+            kk+=coarseSt[0]*coarseSt[1];
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : only dimensions 1, 2 and 3 supported !");
   }
 }
 

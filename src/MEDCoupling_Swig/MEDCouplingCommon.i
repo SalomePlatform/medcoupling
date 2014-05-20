@@ -3057,11 +3057,18 @@ namespace ParaMEDMEM
         self->setDXYZ(originPtr,originPtr+nbTuples);
       }
 
-      static void CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, PyObject *fineLocInCoarse) throw(INTERP_KERNEL::Exception)
+      static void CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
         convertPyToVectorPairInt(fineLocInCoarse,inp);
-        MEDCouplingIMesh::CondenseFineToCoarse(coarseDA,coarseSt,fineDA,inp);
+        MEDCouplingIMesh::CondenseFineToCoarse(coarseDA,coarseSt,fineDA,inp,facts);
+      }
+
+      static void SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(fineLocInCoarse,inp);
+        MEDCouplingIMesh::SpreadCoarseToFine(coarseDA,coarseSt,fineDA,inp,facts);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
