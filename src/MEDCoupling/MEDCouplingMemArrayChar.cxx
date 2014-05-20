@@ -2169,6 +2169,25 @@ bool DataArrayByte::isEqualIfNotWhy(const DataArrayChar& other, std::string& rea
   return DataArrayChar::isEqualIfNotWhy(other,reason);
 }
 
+/*!
+ * This method is \b NOT wrapped into python because it can be useful only for performance reasons in C++ context.
+ * \throw if \a this is not allocated.
+ * \throw if \a this has not exactly one component.
+ */
+std::vector<bool> DataArrayByte::toVectorOfBool() const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayByte::toVectorOfBool : this method can be used only if this has one component !");
+  int nbt(getNumberOfTuples());
+  std::vector<bool> ret(nbt,false);
+  const char *pt(begin());
+  for(int i=0;i<nbt;i++,pt++)
+    if(*pt!=0)
+      ret[i]=true;
+  return ret;
+}
+
 DataArrayByteIterator::DataArrayByteIterator(DataArrayByte *da):_da(da),_pt(0),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
 {
   if(_da)

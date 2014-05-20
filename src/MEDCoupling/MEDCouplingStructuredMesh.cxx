@@ -702,6 +702,65 @@ int MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(const std::vector<in
   return isFetched?ret:0;
 }
 
+void MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat, int& axisId, int& sizeOfRange)
+{
+    int dim((int)partCompactFormat.size());
+    int ret(-1);
+    for(int i=0;i<dim;i++)
+      {
+        int curDelta(partCompactFormat[i].second-partCompactFormat[i].first);
+        if(curDelta<0)
+          {
+            std::ostringstream oss; oss << "MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt : at axis #" << i << " the range is invalid (first value < second value) !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+        if(curDelta>ret)
+          {
+            axisId=i; sizeOfRange=curDelta;
+            ret=curDelta;
+          }
+      }
+}
+
+/*!
+ * This method is \b NOT wrapped in python because it has no sense in python (for performance reasons).
+ * This method starts from a structured mesh with structure \a st on which a boolean field \a crit is set.
+ * This method find for such minimalist information of mesh and field which is the part of the mesh, given by the range per axis in output parameter
+ * \a partCompactFormat that contains all the True in \a crit. The returned vector of boolean is the field reduced to that part.
+ * So the number of True is equal in \a st and in returned vector of boolean.
+ *
+ * \param [in] st - The structure per axis of the structured mesh considered.
+ * \param [in] crit - The field of boolean (for performance reasons) lying on the mesh defined by \a st.
+ * \param [out] partCompactFormat - The minimal part of \a st containing all the true of \a crit.
+ * \param [out] reducedCrit - The reduction of \a criterion on \a partCompactFormat.
+ * \return - The number of True in \a st (that is equal to those in \a reducedCrit)
+ */
+int MEDCouplingStructuredMesh::FindMinimalPartOf(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  if((int)crit.size()!=DeduceNumberOfGivenStructure(st))
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : size of vector of boolean is invalid regarding the declared structure !");
+  switch((int)st.size())
+  {
+    case 1:
+      {
+        return FindMinimalPartOf1D(st,crit,reducedCrit,partCompactFormat);
+        break;
+      }
+    case 2:
+      {
+        return FindMinimalPartOf2D(st,crit,reducedCrit,partCompactFormat);
+        break;
+      }
+    case 3:
+      {
+        return FindMinimalPartOf3D(st,crit,reducedCrit,partCompactFormat);
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : only dimension 1, 2 and 3 are supported actually !");
+  }
+}
+
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
 {
   int nbOfCells(*nodeStBg-1);
@@ -785,6 +844,134 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
       for(int j=0;j<n1;j++,cp+=4)
         { cp[0]=k*off1+j*off0+i; cp[1]=k*off1+j*off0+(i+1); cp[2]=k*off1+(j+1)*off0+(i+1); cp[3]=k*off1+(j+1)*off0+i; }
   return conn.retn();
+}
+
+/*!
+ * \sa MEDCouplingStructuredMesh::FindMinimalPartOf
+ */
+int MEDCouplingStructuredMesh::FindMinimalPartOf1D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  if(st.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf1D : the input size of st must be equal to 1 !");
+  int nxMin(std::numeric_limits<int>::max()),nxMax(-std::numeric_limits<int>::max());
+  int nx(st[0]),ret(0);
+  for(int i=0;i<nx;i++)
+    {
+      if(crit[i])
+        {
+          nxMin=std::min(nxMin,i); nxMax=std::max(nxMax,i);
+          ret++;
+        }
+    }
+  if(ret==0)
+    return ret;
+  partCompactFormat.resize(1);
+  partCompactFormat[0].first=nxMin; partCompactFormat[0].second=nxMax+1;
+  ExtractVecOfBool(st,crit,partCompactFormat,reducedCrit);
+  return ret;
+}
+
+/*!
+ * \sa MEDCouplingStructuredMesh::FindMinimalPartOf
+ */
+int MEDCouplingStructuredMesh::FindMinimalPartOf2D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  if(st.size()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf2D : the input size of st must be equal to 2 !");
+  int nxMin(std::numeric_limits<int>::max()),nxMax(-std::numeric_limits<int>::max()),nyMin(std::numeric_limits<int>::max()),nyMax(-std::numeric_limits<int>::max());
+  int it(0),nx(st[0]),ny(st[1]);
+  int ret(0);
+  for(int i=0;i<ny;i++)
+    for(int j=0;j<nx;j++,it++)
+      {
+        if(crit[it])
+          {
+            nxMin=std::min(nxMin,j); nxMax=std::max(nxMax,j);
+            nyMin=std::min(nyMin,i); nyMax=std::max(nyMax,i);
+            ret++;
+          }
+      }
+  if(ret==0)
+    return ret;
+  partCompactFormat.resize(2);
+  partCompactFormat[0].first=nxMin; partCompactFormat[0].second=nxMax+1;
+  partCompactFormat[1].first=nyMin; partCompactFormat[1].second=nyMax+1;
+  ExtractVecOfBool(st,crit,partCompactFormat,reducedCrit);
+  return ret;
+}
+
+/*!
+ * \sa MEDCouplingStructuredMesh::FindMinimalPartOf
+ */
+int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  if(st.size()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf3D : the input size of st must be equal to 3 !");
+  int nxMin(std::numeric_limits<int>::max()),nxMax(-std::numeric_limits<int>::max()),nyMin(std::numeric_limits<int>::max()),nyMax(-std::numeric_limits<int>::max()),nzMin(std::numeric_limits<int>::max()),nzMax(-std::numeric_limits<int>::max());
+  int it(0),nx(st[0]),ny(st[1]),nz(st[2]);
+  int ret(0);
+  for(int i=0;i<nz;i++)
+    for(int j=0;j<ny;j++)
+      for(int k=0;k<nx;k++,it++)
+        {
+          if(crit[it])
+            {
+              nxMin=std::min(nxMin,k); nxMax=std::max(nxMax,k);
+              nyMin=std::min(nyMin,j); nyMax=std::max(nyMax,j);
+              nzMin=std::min(nyMin,i); nzMax=std::max(nyMax,i);
+              ret++;
+            }
+        }
+  if(ret==0)
+    return ret;
+  partCompactFormat.resize(3);
+  partCompactFormat[0].first=nxMin; partCompactFormat[0].second=nxMax+1;
+  partCompactFormat[1].first=nyMin; partCompactFormat[1].second=nyMax+1;
+  partCompactFormat[2].first=nzMin; partCompactFormat[2].second=nzMax+1;
+  ExtractVecOfBool(st,crit,partCompactFormat,reducedCrit);
+  return ret;
+}
+
+void MEDCouplingStructuredMesh::ExtractVecOfBool(const std::vector<int>& st, const std::vector<bool>& crit, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& reducedCrit)
+{
+  int nbt(DeduceNumberOfGivenRangeInCompactFrmt(partCompactFormat));
+  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
+  reducedCrit.resize(nbt);
+  switch((int)st.size())
+  {
+    case 1:
+      {
+        int nx(dims[0]);
+        int kk(partCompactFormat[0].first);
+        for(int i=0;i<nx;i++)
+          reducedCrit[i]=crit[kk+i];
+        break;
+      }
+    case 2:
+      {
+        int nx(dims[0]),ny(dims[1]);
+        int kk(partCompactFormat[0].first+partCompactFormat[1].first*nx),it(0);
+        for(int j=0;j<ny;j++,kk+=nx)
+          for(int i=0;i<nx;i++,it++)
+            reducedCrit[it]=crit[kk+i];
+        break;
+      }
+    case 3:
+      {
+        int nx(dims[0]),ny(dims[1]),nz(dims[2]);
+        int kk(partCompactFormat[0].first+partCompactFormat[1].first*nx+partCompactFormat[2].first*nx*ny),it(0);
+        for(int k=0;k<nz;k++,kk+=nx*ny)
+          for(int j=0;j<ny;j++)
+            {
+              int kk2(j*nx);
+              for(int i=0;i<nx;i++,it++)
+                reducedCrit[it]=crit[kk+kk2+i];
+            }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractVecOfBool : Only dimension 1, 2 and 3 are supported actually !");
+  }
 }
 
 /*!

@@ -79,6 +79,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd);
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenStructure(const std::vector<int>& st);
+    MEDCOUPLING_EXPORT static void FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat, int& axisId, int& sizeOfRange);
+    MEDCOUPLING_EXPORT static int FindMinimalPartOf(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
   private:
     static int GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim);
     static void GetReverseNodalConnectivity1(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
@@ -89,6 +91,10 @@ namespace ParaMEDMEM
     static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh3D(const int *nodeStBg);
+    static int FindMinimalPartOf1D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
+    static int FindMinimalPartOf2D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
+    static int FindMinimalPartOf3D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
+    static void ExtractVecOfBool(const std::vector<int>& st, const std::vector<bool>& crit, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& reducedCrit);
   protected:
     static int ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3]);
   protected:

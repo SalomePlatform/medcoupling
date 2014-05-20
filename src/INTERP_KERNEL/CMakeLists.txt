@@ -28,6 +28,7 @@ SET(interpkernel_SOURCES
   CellModel.cxx
   UnitTetraIntersectionBary.cxx
   InterpolationOptions.cxx
+  BoxSplittingOptions.cxx
   DirectedBoundingBox.cxx
   Interpolation2DCurve.cxx
   Interpolation3DSurf.cxx

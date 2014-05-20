@@ -45,6 +45,7 @@
 #include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
+#include "BoxSplittingOptions.hxx"
 
 using namespace ParaMEDMEM;
 using namespace INTERP_KERNEL;
@@ -366,6 +367,30 @@ using namespace INTERP_KERNEL;
 
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"
+
+namespace INTERP_KERNEL
+{ 
+  /*!
+   * \class BoxSplittingOptions
+   * Class defining the options for box splitting used for AMR algorithm like creation of patches following a criterion.
+   */
+  class BoxSplittingOptions
+  {
+  public:
+    BoxSplittingOptions();
+    void init() throw(INTERP_KERNEL::Exception);
+    double getEffeciency() const throw(INTERP_KERNEL::Exception);
+    void setEffeciency(double effeciency) throw(INTERP_KERNEL::Exception);
+    double getEffeciencySnd() const throw(INTERP_KERNEL::Exception);
+    void setEffeciencySnd(double effeciencySnd) throw(INTERP_KERNEL::Exception);
+    int getMinCellDirection() const throw(INTERP_KERNEL::Exception);
+    void setMinCellDirection(int minCellDirection) throw(INTERP_KERNEL::Exception);
+    int getMaxCells() const throw(INTERP_KERNEL::Exception);
+    void setMaxCells(int maxCells) throw(INTERP_KERNEL::Exception);
+    void copyOptions(const BoxSplittingOptions & other) throw(INTERP_KERNEL::Exception);
+    std::string printOptions() const throw(INTERP_KERNEL::Exception);
+  };
+}
 
 namespace ParaMEDMEM
 {
@@ -2994,7 +3019,7 @@ namespace ParaMEDMEM
     std::string getAxisUnit() const throw(INTERP_KERNEL::Exception);
     double getMeasureOfAnyCell() const throw(INTERP_KERNEL::Exception);
     MEDCouplingCMesh *convertToCartesian() const throw(INTERP_KERNEL::Exception);
-    void refineWithFactor(int factor) throw(INTERP_KERNEL::Exception);
+    void refineWithFactor(const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDCouplingIMesh()
@@ -4632,11 +4657,11 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      void addPatch(PyObject *bottomLeftTopRight, int factor) throw(INTERP_KERNEL::Exception)
+      void addPatch(PyObject *bottomLeftTopRight, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
         convertPyToVectorPairInt(bottomLeftTopRight,inp);
-        self->addPatch(inp,factor);
+        self->addPatch(inp,factors);
       }
 
       MEDCouplingCartesianAMRPatch *__getitem__(int patchId) const throw(INTERP_KERNEL::Exception)
@@ -4715,11 +4740,11 @@ namespace ParaMEDMEM
         return ParaMEDMEM_MEDCouplingCartesianAMRMesh_New(meshName,spaceDim,nodeStrct,origin,dxyz);
       }
 
-      void addPatch(PyObject *bottomLeftTopRight, int factor) throw(INTERP_KERNEL::Exception)
+      void addPatch(PyObject *bottomLeftTopRight, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
         convertPyToVectorPairInt(bottomLeftTopRight,inp);
-        self->addPatch(inp,factor);
+        self->addPatch(inp,factors);
       }
 
       MEDCouplingCartesianAMRMesh *getFather() const throw(INTERP_KERNEL::Exception)

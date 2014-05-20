@@ -182,17 +182,27 @@ MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
  * The origin of \a this will be not touched only spacing and node structure will be changed.
  * This method can be useful for AMR users.
  */
-void MEDCouplingIMesh::refineWithFactor(int factor)
+void MEDCouplingIMesh::refineWithFactor(const std::vector<int>& factors)
 {
-  if(factor==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::refineWithFactor : refinement factor must be != 0 !");
+  if((int)factors.size()!=_space_dim)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::refineWithFactor : refinement factors must have size equal to spaceDim !");
   checkCoherency();
-  int factAbs(std::abs(factor));
-  double fact2(1./(double)factor);
-  std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::plus<int>(),-1));
-  std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::multiplies<int>(),factAbs));
-  std::transform(_structure,_structure+_space_dim,_structure,std::bind2nd(std::plus<int>(),1));
-  std::transform(_dxyz,_dxyz+_space_dim,_dxyz,std::bind2nd(std::multiplies<double>(),fact2));
+  std::vector<int> structure(_structure,_structure+3);
+  std::vector<double> dxyz(_dxyz,_dxyz+3);
+  for(int i=0;i<_space_dim;i++)
+    {
+      if(factors[i]<=0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingIMesh::refineWithFactor : factor for axis #" << i << " (" << factors[i] << ")is invalid ! Must be > 0 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      int factAbs(std::abs(factors[i]));
+      double fact2(1./(double)factors[i]);
+      structure[i]=(_structure[i]-1)*factAbs+1;
+      dxyz[i]=fact2*_dxyz[i];
+    }
+  std::copy(structure.begin(),structure.end(),_structure);
+  std::copy(dxyz.begin(),dxyz.end(),_dxyz);
   declareAsNew();
 }
 

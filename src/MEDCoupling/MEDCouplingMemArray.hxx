@@ -784,6 +784,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
+    MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool() const;
   private:
     ~DataArrayByte() { }
     DataArrayByte() { }

@@ -33,16 +33,20 @@ using namespace ParaMEDMEM;
  * \param [in] mesh not null pointer of refined mesh replacing the cell range of \a father defined by the bottom left and top right just after.
  * \param [in] bottomLeftTopRight a vector equal to the space dimension of \a mesh that specifies for each dimension, the included cell start of the range for the first element of the pair,
  *                                a the end cell (\b excluded) of the range for the second element of the pair.
+ * \param [in] factors The refinement per axis relative to the father of \a this.
  */
-MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight)
+MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("EDCouplingCartesianAMRPatch constructor : input mesh is NULL !");
   _mesh=mesh; _mesh->incrRef();
-  int dim((int)bottomLeftTopRight.size());
-  if(dim!=_mesh->getSpaceDimension())
+  int dim((int)bottomLeftTopRight.size()),dimExp(_mesh->getSpaceDimension());
+  if(dim!=dimExp)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input bottomLeft/topRight size mismatches !");
   _bl_tr=bottomLeftTopRight;
+  if((int)factors.size()!=dimExp)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input factors per axis size mismatches !");
+  _factors=factors;
 }
 
 int MEDCouplingCartesianAMRPatch::getNumberOfCellsRecursiveWithOverlap() const
@@ -60,9 +64,9 @@ int MEDCouplingCartesianAMRPatch::getMaxNumberOfLevelsRelativeToThis() const
   return _mesh->getMaxNumberOfLevelsRelativeToThis();
 }
 
-void MEDCouplingCartesianAMRPatch::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, int factor)
+void MEDCouplingCartesianAMRPatch::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
 {
-  return _mesh->addPatch(bottomLeftTopRight,factor);
+  return _mesh->addPatch(bottomLeftTopRight,factors);
 }
 
 int MEDCouplingCartesianAMRPatch::getNumberOfOverlapedCellsForFather() const
@@ -154,15 +158,140 @@ void MEDCouplingCartesianAMRMesh::detachFromFather()
 /*!
  * \param [in] bottomLeftTopRight a vector equal to the space dimension of \a mesh that specifies for each dimension, the included cell start of the range for the first element of the pair,
  *                                a the end cell (\b excluded) of the range for the second element of the pair.
- * \param [in] factor The != 0 factor of refinement.
+ * \param [in] factors The != 0 factor of refinement per axis.
  */
-void MEDCouplingCartesianAMRMesh::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, int factor)
+void MEDCouplingCartesianAMRMesh::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> mesh(static_cast<MEDCouplingIMesh *>(_mesh->buildStructuredSubPart(bottomLeftTopRight)));
-  mesh->refineWithFactor(factor);
+  mesh->refineWithFactor(factors);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> zeMesh(new MEDCouplingCartesianAMRMesh(this,mesh));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight,factors));
   _patches.push_back(elt);
+}
+
+/// @cond INTERNAL
+
+class InternalPatch : public RefCountObjectOnly
+{
+public:
+  InternalPatch():_nb_of_true(0) { }
+  double getEfficiency() const { return (double)_nb_of_true/(double)_crit.size(); }
+  int getNumberOfCells() const { return (int)_crit.size(); }
+  void setNumberOfTrue(int nboft) { _nb_of_true=nboft; }
+  std::vector<bool>& getCriterion() { return _crit; }
+  std::vector< std::pair<int,int> >& getPart() { return _part; }
+  const std::vector< std::pair<int,int> >& getConstPart() const { return _part; }
+  bool presenceOfTrue() const { return _nb_of_true>0; }
+protected:
+  ~InternalPatch() { }
+private:
+  int _nb_of_true;
+  std::vector<bool> _crit;
+  std::vector< std::pair<int,int> > _part;
+};
+
+#if 0
+void dissectBigPatch (const Mesh& mesh, const Field& fieldFlag, const unsigned int minCellDirection,
+                      const unsigned int big_dims, const int dissect_direction, int cut[3] ) const
+{
+  int cut_found = 0 ;
+  int cut_place = -1 ;
+  float * ratio = NULL ;
+  float * ratio_inner = NULL ;
+
+  ratio = new float [big_dims-1];
+  for(unsigned int id=0; id<big_dims-1; id++)
+    {
+      float efficiency[2] ;
+      for(int h=0; h<2; h++)
+        {
+          int rect_h[4] ;
+          copy(getIndexCorners(),getIndexCorners()+4,rect_h) ;
+          if (h == 0 )
+            rect_h[dissect_direction+2] = _indexCorners[dissect_direction]+id ;
+          else if ( h == 1)
+            rect_h[dissect_direction] =  _indexCorners[dissect_direction]+id+1;
+
+          Patch patch_h(rect_h);
+          patch_h.computeMesh(mesh);
+          patch_h.computeFieldFlag(fieldFlag);
+
+          int nb_cells_h ;
+          if ( dissect_direction == 0 )
+            nb_cells_h = patch_h.getNx() ;
+          else
+            nb_cells_h = patch_h.getNy() ;
+
+          int nb_cells_flag_h = patch_h.getNumberOfCellsFlags();
+          efficiency[h] = float (nb_cells_flag_h) / float(nb_cells_h) ;
+        }
+      ratio[id] = max(efficiency[0],efficiency[1])/
+          min(efficiency[0],efficiency[1]) ;
+    }
+
+  int dim_ratio_inner = big_dims-1-2*(minCellDirection-1) ;
+  ratio_inner = new float [dim_ratio_inner];
+  float min_ratio = 1.E10 ;
+  int index_min = -1 ;
+  for(int i=0; i<dim_ratio_inner; i++)
+    {
+      if ( ratio[minCellDirection-1+i] < min_ratio )
+        {
+          min_ratio = ratio[minCellDirection-1+i] ;
+          index_min = i+minCellDirection ;
+        }
+    }
+  cut_found = 1 ;
+  cut_place = index_min + _indexCorners[dissect_direction] - 1 ;
+  cut[0] = cut_found ;
+  cut[1] = cut_place ;
+  cut[2] = dissect_direction ;
+  delete [] ratio ;
+  delete [] ratio_inner ;
+}
+#endif
+/// @endcond
+
+/*!
+ * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion
+ */
+void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors)
+{
+  if(!criterion || !criterion->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the criterion DataArrayByte instance must be allocated and not NULL !");
+  int nbCells(getNumberOfCellsAtCurrentLevel());
+  if(nbCells!=criterion->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the number of tuples of criterion array must be equal to the number of cells at the current level !");
+  _patches.clear();
+  //
+  std::vector<int> cgs(_mesh->getCellGridStructure());
+  std::vector<bool> crit(criterion->toVectorOfBool());//check that criterion has one component.
+  std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> > listOfPatches,listOfPatchesOK;
+  //
+  MEDCouplingAutoRefCountObjectPtr<InternalPatch> p(new InternalPatch);
+  p->setNumberOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(cgs,crit,p->getCriterion(),p->getPart()));
+  if(p->presenceOfTrue())
+    listOfPatches.push_back(p);
+  while(!listOfPatches.empty())
+    {
+      std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> > listOfPatchesTmp;
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> >::iterator it=listOfPatches.begin();it!=listOfPatches.end();it++)
+        {
+          //
+          if((*it)->getEfficiency()>=bso.getEffeciency())
+            {
+              if((*it)->getNumberOfCells()>=bso.getMaxCells())
+                {
+
+                }
+            }
+        }
+      listOfPatches=listOfPatchesTmp;
+    }
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> >::const_iterator it=listOfPatchesOK.begin();it!=listOfPatchesOK.end();it++)
+    {
+      addPatch((*it)->getConstPart(),factors);
+    }
 }
 
 void MEDCouplingCartesianAMRMesh::removePatch(int patchId)

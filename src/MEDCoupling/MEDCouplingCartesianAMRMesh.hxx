@@ -26,24 +26,26 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
+#include "BoxSplittingOptions.hxx"
 #include "InterpKernelException.hxx"
 
 namespace ParaMEDMEM
 {
   class MEDCouplingIMesh;
   class MEDCouplingUMesh;
+  class DataArrayByte;
   class MEDCouplingCartesianAMRMesh;
 
   /// @cond INTERNAL
   class MEDCouplingCartesianAMRPatch : public RefCountObject
   {
   public:
-    MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight);
+    MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     // direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
     MEDCOUPLING_EXPORT int getMaxNumberOfLevelsRelativeToThis() const;
-    MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, int factor);
+    MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     // end of direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfOverlapedCellsForFather() const;
     // basic set/get
@@ -55,6 +57,7 @@ namespace ParaMEDMEM
   private:
     //! bottom left/top right cell range relative to \a _father
     std::vector< std::pair<int,int> > _bl_tr;
+    std::vector<int> _factors;
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> _mesh;
   };
   /// @endcond
@@ -78,7 +81,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getGodFather() const;
     MEDCOUPLING_EXPORT void detachFromFather();
-    MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, int factor);
+    MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
+    MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatch(int patchId) const;
