@@ -47,6 +47,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getMeasureOfAnyCell() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *convertToCartesian() const;
     MEDCOUPLING_EXPORT void refineWithFactor(const std::vector<int>& factors);
+    MEDCOUPLING_EXPORT MEDCouplingIMesh *asSingleCell() const;
     MEDCOUPLING_EXPORT static void CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts);
     MEDCOUPLING_EXPORT static void SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts);
     //

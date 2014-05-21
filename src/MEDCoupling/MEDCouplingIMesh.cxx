@@ -207,6 +207,36 @@ void MEDCouplingIMesh::refineWithFactor(const std::vector<int>& factors)
 }
 
 /*!
+ * This method returns a newly created mesh containing a single cell in it. This returned cell covers exactly the space covered by \a this.
+ *
+ * \return MEDCouplingIMesh * - A newly created object (to be managed by the caller with decrRef) containing simply one cell.
+ *
+ * \throw if \a this does not pass the \c checkCoherency test.
+ */
+MEDCouplingIMesh *MEDCouplingIMesh::asSingleCell() const
+{
+  checkCoherency();
+  int spaceDim(getSpaceDimension()),nodeSt[3];
+  double dxyz[3];
+  for(int i=0;i<spaceDim;i++)
+    {
+      if(_structure[i]>=2)
+        {
+          nodeSt[i]=2;
+          dxyz[i]=(_structure[i]-1)*_dxyz[i];
+        }
+      else
+        {
+          nodeSt[i]=_structure[i];
+          dxyz[i]=_dxyz[i];
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> ret(MEDCouplingIMesh::New(getName(),getSpaceDimension(),nodeSt,nodeSt+spaceDim,_origin,_origin+spaceDim,dxyz,dxyz+spaceDim));
+  ret->copyTinyInfoFrom(this);
+  return ret.retn();
+}
+
+/*!
  * This static method is useful to condense field on cells of a MEDCouplingIMesh instance coming from a refinement ( MEDCouplingIMesh::refineWithFactor for example)
  * to a coarse MEDCouplingIMesh instance. So this method can be seen as a specialization in P0P0 conservative interpolation non overlaping from fine image mesh
  * to a coarse image mesh. Only tuples ( deduced from \a fineLocInCoarse ) of \a coarseDA will be modified. Other tuples of \a coarseDA will be let unchanged.

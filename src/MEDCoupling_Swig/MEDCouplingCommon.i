@@ -306,6 +306,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
 %newobject ParaMEDMEM::MEDCouplingIMesh::New;
+%newobject ParaMEDMEM::MEDCouplingIMesh::asSingleCell;
 %newobject ParaMEDMEM::MEDCouplingIMesh::convertToCartesian;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::clone;
@@ -317,6 +318,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatch::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::buildUnstructured;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::buildMeshFromPatchEnvelop;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getImageMesh;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getGodFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getPatch;
@@ -389,6 +392,13 @@ namespace INTERP_KERNEL
     void setMaxCells(int maxCells) throw(INTERP_KERNEL::Exception);
     void copyOptions(const BoxSplittingOptions & other) throw(INTERP_KERNEL::Exception);
     std::string printOptions() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->printOptions();
+      }
+    }
   };
 }
 
@@ -2911,6 +2921,40 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
       }
+
+      static PyObject *ChangeReferenceFromGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigInAbs) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > param0,param1,ret;
+        convertPyToVectorPairInt(bigInAbs,param0);
+        convertPyToVectorPairInt(partOfBigInAbs,param1);
+        MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(param0,param1,ret);
+        PyObject *retPy(PyList_New(ret.size()));
+        for(std::size_t i=0;i<ret.size();i++)
+          {
+            PyObject *tmp(PyTuple_New(2));
+            PyTuple_SetItem(tmp,0,PyInt_FromLong(ret[i].first));
+            PyTuple_SetItem(tmp,1,PyInt_FromLong(ret[i].second));
+            PyList_SetItem(retPy,i,tmp);
+          }
+        return retPy;
+      }
+
+      static PyObject *ChangeReferenceToGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigRelativeToBig) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > param0,param1,ret;
+        convertPyToVectorPairInt(bigInAbs,param0);
+        convertPyToVectorPairInt(partOfBigRelativeToBig,param1);
+        MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(param0,param1,ret);
+        PyObject *retPy(PyList_New(ret.size()));
+        for(std::size_t i=0;i<ret.size();i++)
+          {
+            PyObject *tmp(PyTuple_New(2));
+            PyTuple_SetItem(tmp,0,PyInt_FromLong(ret[i].first));
+            PyTuple_SetItem(tmp,1,PyInt_FromLong(ret[i].second));
+            PyList_SetItem(retPy,i,tmp);
+          }
+        return retPy;
+      }
     }
   };
 
@@ -3020,6 +3064,7 @@ namespace ParaMEDMEM
     double getMeasureOfAnyCell() const throw(INTERP_KERNEL::Exception);
     MEDCouplingCMesh *convertToCartesian() const throw(INTERP_KERNEL::Exception);
     void refineWithFactor(const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
+    MEDCouplingIMesh *asSingleCell() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDCouplingIMesh()
@@ -4712,8 +4757,10 @@ namespace ParaMEDMEM
     //
     int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);    
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const throw(INTERP_KERNEL::Exception);
     void removePatch(int patchId) throw(INTERP_KERNEL::Exception);
     void detachFromFather() throw(INTERP_KERNEL::Exception);
+    void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
@@ -4769,6 +4816,14 @@ namespace ParaMEDMEM
         if(ret)
           ret->incrRef();
         return ret;
+      }
+
+      MEDCouplingIMesh *getImageMesh() const throw(INTERP_KERNEL::Exception)
+      {
+        const MEDCouplingIMesh *ret(self->getImageMesh());
+        if(ret)
+          ret->incrRef();
+        return const_cast<MEDCouplingIMesh *>(ret);
       }
 
       MEDCouplingCartesianAMRPatch *__getitem__(int patchId) const throw(INTERP_KERNEL::Exception)

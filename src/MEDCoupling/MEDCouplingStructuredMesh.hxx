@@ -74,6 +74,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static std::vector<int> GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static void SwitchOnIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& vectToSwitchOn);
+    MEDCOUPLING_EXPORT static void ExtractFieldOfBoolFrom(const std::vector<int>& st, const std::vector<bool>& fieldOfBool, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& fieldOut);
+    MEDCOUPLING_EXPORT static void ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigInAbs, std::vector< std::pair<int,int> >& partOfBigRelativeToBig);
+    MEDCOUPLING_EXPORT static void ChangeReferenceToGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigRelativeToBig, std::vector< std::pair<int,int> >& partOfBigInAbs);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd);
@@ -81,6 +84,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenStructure(const std::vector<int>& st);
     MEDCOUPLING_EXPORT static void FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat, int& axisId, int& sizeOfRange);
     MEDCOUPLING_EXPORT static int FindMinimalPartOf(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static std::vector< std::vector<int> > ComputeSignaturePerAxisOf(const std::vector<int>& st, const std::vector<bool>& crit);
   private:
     static int GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim);
     static void GetReverseNodalConnectivity1(const std::vector<int>& ngs, DataArrayInt *revNodal, DataArrayInt *revNodalIndx);
@@ -91,9 +95,9 @@ namespace ParaMEDMEM
     static DataArrayInt *Build1GTNodalConnectivity3D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh2D(const int *nodeStBg);
     static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh3D(const int *nodeStBg);
-    static int FindMinimalPartOf1D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
-    static int FindMinimalPartOf2D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
-    static int FindMinimalPartOf3D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
+    static int FindMinimalPartOf1D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat);
+    static int FindMinimalPartOf2D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat);
+    static int FindMinimalPartOf3D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat);
     static void ExtractVecOfBool(const std::vector<int>& st, const std::vector<bool>& crit, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& reducedCrit);
   protected:
     static int ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3]);

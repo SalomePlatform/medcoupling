@@ -34,6 +34,7 @@ namespace ParaMEDMEM
   class MEDCouplingIMesh;
   class MEDCouplingUMesh;
   class DataArrayByte;
+  class MEDCoupling1SGTUMesh;
   class MEDCouplingCartesianAMRMesh;
 
   /// @cond INTERNAL
@@ -77,6 +78,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfCellsAtCurrentLevel() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
+    MEDCOUPLING_EXPORT const MEDCouplingIMesh *getImageMesh() const { return _mesh; }
     //
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getGodFather() const;
@@ -88,6 +90,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatch(int patchId) const;
     //
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const;
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
