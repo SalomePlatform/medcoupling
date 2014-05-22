@@ -808,8 +808,53 @@ std::vector< std::vector<int> > MEDCouplingStructuredMesh::ComputeSignaturePerAx
           }
         break;
       }
+    case 3:
+      {
+        int nx(st[0]),ny(st[1]),nz(st[2]);
+        ret[0].resize(nx); ret[1].resize(ny); ret[2].resize(nz);
+        std::vector<int>& retX(ret[0]);
+        for(int i=0;i<nx;i++)
+          {
+            int cnt(0);
+            for(int k=0;k<nz;k++)
+              {
+                int offz(k*nx*ny+i);
+                for(int j=0;j<ny;j++)
+                  if(crit[offz+j*nx])
+                    cnt++;
+              }
+            retX[i]=cnt;
+          }
+        std::vector<int>& retY(ret[1]);
+        for(int j=0;j<ny;j++)
+          {
+            int cnt(0),offy(j*nx);
+            for(int k=0;k<nz;k++)
+              {
+                int offz(k*nx*ny+offy);
+                for(int i=0;i<nx;i++)
+                  if(crit[offz+i])
+                    cnt++;
+              }
+            retY[j]=cnt;
+          }
+        std::vector<int>& retZ(ret[2]);
+        for(int k=0;k<nz;k++)
+          {
+            int cnt(0),offz(k*nx*ny);
+            for(int j=0;j<ny;j++)
+              {
+                int offy(offz+j*nx);
+                for(int i=0;i<nx;i++)
+                  if(crit[offy+i])
+                    cnt++;
+              }
+            retZ[k]=cnt;
+          }
+        break;
+      }
     default:
-       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeSignatureOf : only dimensions 1, 2 are supported !");
+       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeSignatureOf : only dimensions 1, 2 and 3 are supported !");
   }
   return ret;
 }
@@ -980,48 +1025,6 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, c
   partCompactFormat[1].first=nyMin; partCompactFormat[1].second=nyMax+1;
   partCompactFormat[2].first=nzMin; partCompactFormat[2].second=nzMax+1;
   return ret;
-}
-
-void MEDCouplingStructuredMesh::ExtractVecOfBool(const std::vector<int>& st, const std::vector<bool>& crit, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& reducedCrit)
-{
-  int nbt(DeduceNumberOfGivenRangeInCompactFrmt(partCompactFormat));
-  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
-  reducedCrit.resize(nbt);
-  switch((int)st.size())
-  {
-    case 1:
-      {
-        int nx(dims[0]);
-        int kk(partCompactFormat[0].first);
-        for(int i=0;i<nx;i++)
-          reducedCrit[i]=crit[kk+i];
-        break;
-      }
-    case 2:
-      {
-        int nx(dims[0]),ny(dims[1]);
-        int kk(partCompactFormat[0].first+partCompactFormat[1].first*nx),it(0);
-        for(int j=0;j<ny;j++,kk+=nx)
-          for(int i=0;i<nx;i++,it++)
-            reducedCrit[it]=crit[kk+i];
-        break;
-      }
-    case 3:
-      {
-        int nx(dims[0]),ny(dims[1]),nz(dims[2]);
-        int kk(partCompactFormat[0].first+partCompactFormat[1].first*nx+partCompactFormat[2].first*nx*ny),it(0);
-        for(int k=0;k<nz;k++,kk+=nx*ny)
-          for(int j=0;j<ny;j++)
-            {
-              int kk2(j*nx);
-              for(int i=0;i<nx;i++,it++)
-                reducedCrit[it]=crit[kk+kk2+i];
-            }
-        break;
-      }
-    default:
-      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractVecOfBool : Only dimension 1, 2 and 3 are supported actually !");
-  }
 }
 
 /*!

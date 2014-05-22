@@ -98,7 +98,6 @@ namespace ParaMEDMEM
     static int FindMinimalPartOf1D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat);
     static int FindMinimalPartOf2D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat);
     static int FindMinimalPartOf3D(const std::vector<int>& st, const std::vector<bool>& crit, std::vector< std::pair<int,int> >& partCompactFormat);
-    static void ExtractVecOfBool(const std::vector<int>& st, const std::vector<bool>& crit, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& reducedCrit);
   protected:
     static int ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3]);
   protected:

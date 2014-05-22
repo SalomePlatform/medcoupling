@@ -15136,6 +15136,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         self.assertEqual(MEDCouplingStructuredMesh.ChangeReferenceToGlobalOfCompactFrmt([(8,32),(4,17)],[(0,24),(2,12)]),[(8,32),(6,16)])
         self.assertEqual(MEDCouplingStructuredMesh.ChangeReferenceFromGlobalOfCompactFrmt([(8,32),(4,17)],[(8,32),(6,16)]),[(0,24),(2,12)])
+        self.assertTrue(amr.getImageMesh().isEqual(im,1e-12))
+        m=amr.getImageMesh().asSingleCell().build1SGTUnstructured()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3])))
+        self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([(0,0),(2,0),(0,2),(2,2)]),1e-12))
         pass
 
     def setUp(self):
