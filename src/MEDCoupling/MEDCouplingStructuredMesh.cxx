@@ -1014,7 +1014,7 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, c
             {
               nxMin=std::min(nxMin,k); nxMax=std::max(nxMax,k);
               nyMin=std::min(nyMin,j); nyMax=std::max(nyMax,j);
-              nzMin=std::min(nyMin,i); nzMax=std::max(nyMax,i);
+              nzMin=std::min(nzMin,i); nzMax=std::max(nzMax,i);
               ret++;
             }
         }

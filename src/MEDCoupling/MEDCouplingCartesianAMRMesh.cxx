@@ -291,14 +291,13 @@ void FindHole(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch
         if(signature[i]==0)
           if(len>= 2*minCellDirection && i >= minCellDirection-1 && i <= len-minCellDirection-1)
             hole.push_back(i);
-      if (hole.size()>0)
+      if(!hole.empty())
         {
           double center(((double)len/2.));
           for(std::size_t i=0;i<hole.size();i++)
             distance.push_back(fabs(hole[i]+1.-center));
 
-          double distanceMin=*std::min_element(distance.begin(),distance.end());
-          int posDistanceMin=std::find(distance.begin(),distance.end(),distanceMin)-distance.begin()-1;
+          std::size_t posDistanceMin(std::distance(distance.begin(),std::min_element(distance.begin(),distance.end())));
           cutFound=true;
           axisId=id;
           cutPlace=hole[posDistanceMin]+patchToBeSplit->getConstPart()[axisId].first+1;
@@ -331,6 +330,8 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
       // Gradient absolute value
       for ( unsigned int i=1;i<derivate_second_order.size();i++)
         gradient_absolute.push_back(fabs(derivate_second_order[i]-derivate_second_order[i-1])) ;
+      if(derivate_second_order.empty())//tony -> si empty le reste plante !
+        continue;
       for (unsigned int i=0;i<derivate_second_order.size()-1;i++)
         {
           if (derivate_second_order[i]*derivate_second_order[i+1] < 0 )
@@ -478,7 +479,6 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL
           if(cutFound)
             { DealWithCut(*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 3
           TryAction4(bso,*it,axisId,rangeOfAxisId,cutFound,cutPlace);
-          std::cerr << axisId << std::endl;
           if(cutFound)
             { DealWithCut(*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 4
           listOfPatchesOK.push_back(DealWithNoCut(*it));
