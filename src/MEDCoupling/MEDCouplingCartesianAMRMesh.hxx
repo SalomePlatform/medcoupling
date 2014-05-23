@@ -34,6 +34,7 @@ namespace ParaMEDMEM
   class MEDCouplingIMesh;
   class MEDCouplingUMesh;
   class DataArrayByte;
+  class DataArrayDouble;
   class MEDCoupling1SGTUMesh;
   class MEDCouplingCartesianAMRMesh;
 
@@ -41,7 +42,7 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRPatch : public RefCountObject
   {
   public:
-    MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
+    MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight);
     // direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
@@ -58,7 +59,6 @@ namespace ParaMEDMEM
   private:
     //! bottom left/top right cell range relative to \a _father
     std::vector< std::pair<int,int> > _bl_tr;
-    std::vector<int> _factors;
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> _mesh;
   };
   /// @endcond
@@ -74,6 +74,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
+    MEDCOUPLING_EXPORT const std::vector<int>& getFactors() const { return _factors; }
+    MEDCOUPLING_EXPORT void setFactors(const std::vector<int>& newFactors);
     MEDCOUPLING_EXPORT int getMaxNumberOfLevelsRelativeToThis() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsAtCurrentLevel() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
@@ -84,10 +86,15 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getGodFather() const;
     MEDCOUPLING_EXPORT void detachFromFather();
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
+    MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors);
+    MEDCOUPLING_EXPORT void removeAllPatches();
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatch(int patchId) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const;
+    MEDCOUPLING_EXPORT void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const;
+    MEDCOUPLING_EXPORT void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const;
     //
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const;
@@ -96,6 +103,7 @@ namespace ParaMEDMEM
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCouplingCartesianAMRMesh(MEDCouplingCartesianAMRMesh *father, MEDCouplingIMesh *mesh);
     void checkPatchId(int patchId) const;
+    void checkFactorsAndIfNotSetAssign(const std::vector<int>& factors);
   protected:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
@@ -104,6 +112,7 @@ namespace ParaMEDMEM
     MEDCouplingCartesianAMRMesh *_father;
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> _mesh;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> > _patches;
+    std::vector<int> _factors;
   };
 }
 

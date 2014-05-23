@@ -5585,6 +5585,37 @@ void DataArrayDouble::powEqual(const DataArrayDouble *other)
 }
 
 /*!
+ * This method is \b NOT wrapped into python because it can be useful only for performance reasons in C++ context.
+ * All values in \a this must be 0. or 1. within eps error. 0 means false, 1 means true.
+ * If an another value than 0 or 1 appear (within eps precision) an INTERP_KERNEL::Exception will be thrown.
+ *
+ * \throw if \a this is not allocated.
+ * \throw if \a this has not exactly one component.
+ */
+std::vector<bool> DataArrayDouble::toVectorOfBool(double eps) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::toVectorOfBool : must be applied on single component array !");
+  int nbt(getNumberOfTuples());
+  std::vector<bool> ret(nbt);
+  const double *pt(begin());
+  for(int i=0;i<nbt;i++)
+    {
+      if(fabs(pt[i])<eps)
+        ret[i]=false;
+      else if(fabs(pt[i]-1.)<eps)
+        ret[i]=true;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::toVectorOfBool : the tuple #" << i << " has value " << pt[i] << " is invalid ! must be 0. or 1. !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return ret;
+}
+
+/*!
  * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
  * Server side.
  */

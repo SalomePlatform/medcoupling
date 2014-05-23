@@ -35,9 +35,8 @@ using namespace ParaMEDMEM;
  * \param [in] mesh not null pointer of refined mesh replacing the cell range of \a father defined by the bottom left and top right just after.
  * \param [in] bottomLeftTopRight a vector equal to the space dimension of \a mesh that specifies for each dimension, the included cell start of the range for the first element of the pair,
  *                                a the end cell (\b excluded) of the range for the second element of the pair.
- * \param [in] factors The refinement per axis relative to the father of \a this.
  */
-MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
+MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("EDCouplingCartesianAMRPatch constructor : input mesh is NULL !");
@@ -46,9 +45,6 @@ MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianA
   if(dim!=dimExp)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input bottomLeft/topRight size mismatches !");
   _bl_tr=bottomLeftTopRight;
-  if((int)factors.size()!=dimExp)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input factors per axis size mismatches !");
-  _factors=factors;
 }
 
 int MEDCouplingCartesianAMRPatch::getNumberOfCellsRecursiveWithOverlap() const
@@ -103,6 +99,22 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string&
 int MEDCouplingCartesianAMRMesh::getSpaceDimension() const
 {
   return _mesh->getSpaceDimension();
+}
+
+void MEDCouplingCartesianAMRMesh::setFactors(const std::vector<int>& newFactors)
+{
+  if(getSpaceDimension()!=(int)newFactors.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::setFactors : size of input factors is not equal to the space dimension !");
+  if(_factors.empty())
+    {
+      _factors=newFactors;
+      return ;
+    }
+  if(_factors==newFactors)
+    return ;
+  if(!_patches.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::setFactors : modification of factors is not allowed when presence of patches !");
+  _factors=newFactors;
 }
 
 int MEDCouplingCartesianAMRMesh::getMaxNumberOfLevelsRelativeToThis() const
@@ -160,14 +172,15 @@ void MEDCouplingCartesianAMRMesh::detachFromFather()
 /*!
  * \param [in] bottomLeftTopRight a vector equal to the space dimension of \a mesh that specifies for each dimension, the included cell start of the range for the first element of the pair,
  *                                a the end cell (\b excluded) of the range for the second element of the pair.
- * \param [in] factors The != 0 factor of refinement per axis.
+ * \param [in] factors The factor of refinement per axis (different from 0).
  */
 void MEDCouplingCartesianAMRMesh::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
 {
+  checkFactorsAndIfNotSetAssign(factors);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> mesh(static_cast<MEDCouplingIMesh *>(_mesh->buildStructuredSubPart(bottomLeftTopRight)));
   mesh->refineWithFactor(factors);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> zeMesh(new MEDCouplingCartesianAMRMesh(this,mesh));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight,factors));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
   _patches.push_back(elt);
 }
 
@@ -330,7 +343,7 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
       // Gradient absolute value
       for ( unsigned int i=1;i<derivate_second_order.size();i++)
         gradient_absolute.push_back(fabs(derivate_second_order[i]-derivate_second_order[i-1])) ;
-      if(derivate_second_order.empty())//tony -> si empty le reste plante !
+      if(derivate_second_order.empty())
         continue;
       for (unsigned int i=0;i<derivate_second_order.size()-1;i++)
         {
@@ -444,21 +457,17 @@ void DealWithCut(const InternalPatch *patchToBeSplit, int axisId, int cutPlace, 
 /*!
  * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
  */
-void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors)
+void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors)
 {
-  if(!criterion || !criterion->isAllocated())
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the criterion DataArrayByte instance must be allocated and not NULL !");
   int nbCells(getNumberOfCellsAtCurrentLevel());
-  if(nbCells!=criterion->getNumberOfTuples())
+  if(nbCells!=(int)criterion.size())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the number of tuples of criterion array must be equal to the number of cells at the current level !");
   _patches.clear();
-  //
   std::vector<int> cgs(_mesh->getCellGridStructure());
-  std::vector<bool> crit(criterion->toVectorOfBool());//check that criterion has one component.
   std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> > listOfPatches,listOfPatchesOK;
   //
   MEDCouplingAutoRefCountObjectPtr<InternalPatch> p(new InternalPatch);
-  p->setNumberOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(cgs,crit,p->getCriterion(),p->getPart()));
+  p->setNumberOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(cgs,criterion,p->getCriterion(),p->getPart()));
   if(p->presenceOfTrue())
     listOfPatches.push_back(p);
   while(!listOfPatches.empty())
@@ -489,6 +498,23 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL
     addPatch((*it)->getConstPart(),factors);
 }
 
+/*!
+ * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
+ */
+void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors)
+{
+  if(!criterion || !criterion->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the criterion DataArrayByte instance must be allocated and not NULL !");
+  std::vector<bool> crit(criterion->toVectorOfBool());//check that criterion has one component.
+  createPatchesFromCriterion(bso,crit,factors);
+}
+
+void MEDCouplingCartesianAMRMesh::removeAllPatches()
+{
+  _patches.clear();
+  declareAsNew();
+}
+
 void MEDCouplingCartesianAMRMesh::removePatch(int patchId)
 {
   checkPatchId(patchId);
@@ -511,6 +537,67 @@ const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMesh::getPatch(int pa
 {
   checkPatchId(patchId);
   return _patches[patchId];
+}
+
+/*!
+ * This method creates a new cell field array on given \a patchId patch in \a this starting from a coarse cell field on \a this \a cellFieldOnThis.
+ * This method can be seen as a fast projection from the cell field \a cellFieldOnThis on \c this->getImageMesh() to a refined part of \a this
+ * defined by the patch with id \a patchId.
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
+ * \return DataArrayDouble * - The array of the cell field on the requested patch
+ *
+ * \throw if \a patchId is not in [ 0 , \c this->getNumberOfPatches() )
+ * \throw if \a cellFieldOnThis is NULL or not allocated
+ * \sa fillCellFieldOnPatch, MEDCouplingIMesh::SpreadCoarseToFine
+ */
+DataArrayDouble *MEDCouplingCartesianAMRMesh::createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const
+{
+  if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatch : the input cell field array is NULL or not allocated !");
+  const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
+  const MEDCouplingIMesh *fine(patch->getMesh()->getImageMesh());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(fine->getNumberOfCells(),cellFieldOnThis->getNumberOfComponents());
+  ret->copyStringInfoFrom(*cellFieldOnThis);
+  MEDCouplingIMesh::SpreadCoarseToFine(cellFieldOnThis,_mesh->getCellGridStructure(),ret,patch->getBLTRRange(),getFactors());
+  return ret.retn();
+}
+
+/*!
+ * This method is equivalent to MEDCouplingCartesianAMRMesh::createCellFieldOnPatch except that here instead of
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
+ * \param [in,out] cellFieldOnPatch - The array of the cell field on the requested patch to be filled.
+ *
+ * \sa createCellFieldOnPatch, fillCellFieldComingFromPatch
+ */
+void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const
+{
+  if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatch : the input cell field array is NULL or not allocated !");
+  const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
+  MEDCouplingIMesh::SpreadCoarseToFine(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors());
+}
+
+/*!
+ * This method updates \a cellFieldOnThis part of values coming from the cell field \a cellFieldOnPatch lying on patch having id \a patchId.
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnPatch - The array of the cell field on patch with id \a patchId.
+ * \param [in,out] cellFieldOnThis The array of the cell field on \a this to be updated only on the part concerning the patch with id \a patchId.
+ *
+ * \throw if \a patchId is not in [ 0 , \c this->getNumberOfPatches() )
+ * \throw if \a cellFieldOnPatch is NULL or not allocated
+ * \sa createCellFieldOnPatch, MEDCouplingIMesh::CondenseFineToCoarse
+ */
+void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const
+{
+  if(!cellFieldOnPatch || !cellFieldOnPatch->isAllocated())
+      throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch : the input cell field array is NULL or not allocated !");
+  const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
+  MEDCouplingIMesh::CondenseFineToCoarse(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis);
 }
 
 MEDCouplingUMesh *MEDCouplingCartesianAMRMesh::buildUnstructured() const
@@ -579,6 +666,21 @@ void MEDCouplingCartesianAMRMesh::checkPatchId(int patchId) const
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::checkPatchId : invalid patchId (" << patchId << ") ! Must be in [0," << sz << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign(const std::vector<int>& factors)
+{
+  if(getSpaceDimension()!=(int)factors.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign : invalid size of factors ! size must be equal to the spaceDimension !");
+  if(_factors.empty())
+    {
+      _factors=factors;
+    }
+  else
+    {
+      if(_factors!=factors)
+        throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign : the factors ");
     }
 }
 

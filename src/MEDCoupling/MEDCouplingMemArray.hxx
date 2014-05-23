@@ -370,6 +370,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void updateTime() const { }
     MEDCOUPLING_EXPORT MemArray<double>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<double>& accessToMemArray() const { return _mem; }
+    MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool(double eps) const;
   public:
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;

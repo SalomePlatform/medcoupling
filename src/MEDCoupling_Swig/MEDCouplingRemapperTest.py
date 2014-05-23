@@ -765,7 +765,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         """ This test is the origin of the ref values for MEDCouplingBasicsTest.testAMR2"""
         coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
         fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
-        MEDCouplingIMesh.CondenseFineToCoarse(coarse,[5,7],fine,[(1,4),(2,4)],[4,4])
+        MEDCouplingIMesh.CondenseFineToCoarse([5,7],fine,[(1,4),(2,4)],[4,4],coarse)
         #
         m=MEDCouplingCartesianAMRMesh("mesh",2,[6,8],[0.,0.],[1.,1.])
         trgMesh=m.buildUnstructured()

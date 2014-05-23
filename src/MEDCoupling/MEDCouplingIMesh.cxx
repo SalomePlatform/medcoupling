@@ -75,6 +75,33 @@ MEDCouplingIMesh *MEDCouplingIMesh::clone(bool recDeepCpy) const
   return new MEDCouplingIMesh(*this,recDeepCpy);
 }
 
+/*!
+ * This method creates a copy of \a this enlarged by \a ghostLev cells on each axis.
+ * If \a ghostLev equal to 0 this method behaves as MEDCouplingIMesh::clone.
+ *
+ * \param [in] ghostLev - the ghost level expected
+ * \return MEDCouplingIMesh * - a newly alloacted object to be managed by the caller.
+ * \throw if \a ghostLev < 0.
+ */
+MEDCouplingIMesh *MEDCouplingIMesh::buildWithGhost(int ghostLev) const
+{
+  if(ghostLev<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::buildWithGhost : the ghostLev must be >= 0 !");
+  checkCoherency();
+  int spaceDim(getSpaceDimension());
+  double origin[3],dxyz[3];
+  int structure[3];
+  for(int i=0;i<spaceDim;i++)
+    {
+      origin[i]=_origin[i]-ghostLev*_dxyz[i];
+      dxyz[i]=_dxyz[i];
+      structure[i]=_structure[i]+2*ghostLev;
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> ret(MEDCouplingIMesh::New(getName(),spaceDim,structure,structure+spaceDim,origin,origin+spaceDim,dxyz,dxyz+spaceDim));
+  ret->copyTinyInfoFrom(this);
+  return ret.retn();
+}
+
 void MEDCouplingIMesh::setNodeStruct(const int *nodeStrctStart, const int *nodeStrctStop)
 {
   checkSpaceDimension();
@@ -241,14 +268,15 @@ MEDCouplingIMesh *MEDCouplingIMesh::asSingleCell() const
  * to a coarse MEDCouplingIMesh instance. So this method can be seen as a specialization in P0P0 conservative interpolation non overlaping from fine image mesh
  * to a coarse image mesh. Only tuples ( deduced from \a fineLocInCoarse ) of \a coarseDA will be modified. Other tuples of \a coarseDA will be let unchanged.
  *
- * \param [in,out] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
  * \param [in] coarseSt The cell structure of coarse mesh.
  * \param [in] fineDA The DataArray containing the cell field on uniformly refined mesh
  * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
  * \param [in] facts The refinement coefficient per axis.
- * \sa SpreadCoarseToFine
+ * \param [in,out] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
+ *
+ * \sa CondenseFineToCoarseGhost,SpreadCoarseToFine
  */
-void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts)
+void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA)
 {
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the parameters 1 or 3 are NULL or not allocated !");
@@ -353,6 +381,102 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
 }
 
 /*!
+ * This static method is useful to condense field on cells of a MEDCouplingIMesh instance coming from a refinement ( MEDCouplingIMesh::refineWithFactor for example)
+ * to a coarse MEDCouplingIMesh instance. So this method can be seen as a specialization in P0P0 conservative interpolation non overlaping from fine image mesh
+ * to a coarse image mesh. Only tuples ( deduced from \a fineLocInCoarse ) of \a coarseDA will be modified. Other tuples of \a coarseDA will be let unchanged.
+ *
+ * \param [in] coarseSt The cell structure of coarse mesh.
+ * \param [in] fineDA The DataArray containing the cell field on uniformly refined mesh
+ * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
+ * \param [in] facts The refinement coefficient per axis.
+ * \param [in,out] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
+ * \param [in] ghostSize - The size of the ghost zone. The ghost zone is expected to be the same for all axis and both for coarse and fine meshes.
+ *
+ * \sa CondenseFineToCoarse,SpreadCoarseToFineGhost
+ */
+void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA, int ghostSize)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : ghost level >= 0 !");
+  if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the parameters 1 or 3 are NULL or not allocated !");
+  std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  //std::vector<int> fineStG(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  //std::transform(fineStG.begin(),fineStG.end(),fineStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
+  int nbCompo(fineDA->getNumberOfComponents());
+  if(coarseDA->getNumberOfComponents()!=nbCompo)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the number of components of fine DA and coarse one mismatches !");
+  if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
+  if(coarseDA->getNumberOfTuples()!=nbOfTuplesInCoarseExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarseGhost : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  //int nbTuplesFine(fineDA->getNumberOfTuples());
+  //int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
+  /*if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarseGhost : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }*/
+  double *outPtr(coarseDA->getPointer());
+  const double *inPtr(fineDA->begin());
+  //
+  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  switch(meshDim)
+  {
+    case 1:
+      {
+        int offset(fineLocInCoarse[0].first+ghostSize),fact0(facts[0]);
+        inPtr+=ghostSize*nbCompo;
+        for(int i=0;i<dims[0];i++)
+          {
+            double *loc(outPtr+(offset+i)*nbCompo);
+            for(int ifact=0;ifact<fact0;ifact++,inPtr+=nbCompo)
+              {
+                if(ifact!=0)
+                  std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
+                else
+                  std::copy(inPtr,inPtr+nbCompo,loc);
+              }
+          }
+        break;
+      }
+    case 2:
+      {
+        int nxwg(coarseSt[0]+2*ghostSize);
+        int kk(fineLocInCoarse[0].first+ghostSize+nxwg*(fineLocInCoarse[1].first+ghostSize)),fact1(facts[1]),fact0(facts[0]);
+        inPtr+=(dims[0]*fact0+2*ghostSize)*nbCompo;
+        for(int j=0;j<dims[1];j++)
+          {
+             for(int jfact=0;jfact<fact1;jfact++)
+              {
+                inPtr+=ghostSize*nbCompo;
+                for(int i=0;i<dims[0];i++)
+                  {
+                    double *loc(outPtr+(kk+i)*nbCompo);
+                    for(int ifact=0;ifact<fact0;ifact++,inPtr+=nbCompo)
+                      {
+                        if(jfact!=0 || ifact!=0)
+                          std::transform(inPtr,inPtr+nbCompo,loc,loc,std::plus<double>());
+                        else
+                          std::copy(inPtr,inPtr+nbCompo,loc);
+                      }
+                  }
+                inPtr+=ghostSize*nbCompo;
+              }
+            kk+=nxwg;
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : only dimensions 1, 2 supported !");
+  }
+}
+
+/*!
  * This method spreads the values of coarse data \a coarseDA into \a fineDA.
  *
  * \param [in] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
@@ -360,7 +484,7 @@ void MEDCouplingIMesh::CondenseFineToCoarse(DataArrayDouble *coarseDA, const std
  * \param [in,out] fineDA The DataArray containing the cell field on uniformly refined mesh
  * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
  * \param [in] facts The refinement coefficient per axis.
- * \sa CondenseFineToCoarse
+ * \sa SpreadCoarseToFineGhost, CondenseFineToCoarse
  */
 void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts)
 {
@@ -448,6 +572,121 @@ void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const
       }
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : only dimensions 1, 2 and 3 supported !");
+  }
+}
+
+/*!
+ * This method spreads the values of coarse data \a coarseDA into \a fineDA.
+ *
+ * \param [in] coarseDA The DataArrayDouble corresponding to the a cell field of a coarse mesh whose cell structure is defined by \a coarseSt.
+ * \param [in] coarseSt The cell structure of coarse mesh.
+ * \param [in,out] fineDA The DataArray containing the cell field on uniformly refined mesh
+ * \param [in] fineLocInCoarse The cell localization of refined mesh into the coarse one.
+ * \param [in] facts The refinement coefficient per axis.
+ * \param [in] ghostSize - The size of the ghost zone. The ghost zone is expected to be the same for all axis and both for coarse and fine meshes.
+ * \sa CondenseFineToCoarse
+ */
+void MEDCouplingIMesh::SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : ghost level >= 0 !");
+  if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the parameters 1 or 3 are NULL or not allocated !");
+  std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  //std::vector<int> fineStG(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse)); std::transform(fineStG.begin(),fineStG.end(),fineStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
+  int nbCompo(fineDA->getNumberOfComponents());
+  if(coarseDA->getNumberOfComponents()!=nbCompo)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the number of components of fine DA and coarse one mismatches !");
+  if(meshDim!=(int)fineLocInCoarse.size() || meshDim!=(int)facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
+  if(coarseDA->getNumberOfTuples()!=nbOfTuplesInCoarseExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFineGhost : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  /*int nbTuplesFine(fineDA->getNumberOfTuples());
+  if(nbTuplesFine%nbOfTuplesInFineExp!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : Invalid nb of tuples in fine DataArray regarding its structure !");
+  int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
+  if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFineGhost : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }*/
+  //
+  double *outPtr(fineDA->getPointer());
+  const double *inPtr(coarseDA->begin());
+  //
+  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  switch(meshDim)
+  {
+    case 1:
+      {
+        int offset(fineLocInCoarse[0].first+ghostSize-1),fact0(facts[0]);//offset is always >=0 thanks to the fact that ghostSize>=1 !
+        for(int i=0;i<ghostSize;i++)
+          outPtr=std::copy(inPtr+offset*nbCompo,inPtr+(offset+1)*nbCompo,outPtr);
+        offset=fineLocInCoarse[0].first+ghostSize;
+        for(int i=0;i<dims[0];i++)
+          {
+            const double *loc(inPtr+(offset+i)*nbCompo);
+            for(int ifact=0;ifact<fact0;ifact++)
+              outPtr=std::copy(loc,loc+nbCompo,outPtr);
+          }
+        offset=fineLocInCoarse[0].second+ghostSize;
+        for(int i=0;i<ghostSize;i++)
+          outPtr=std::copy(inPtr+offset*nbCompo,inPtr+(offset+1)*nbCompo,outPtr);
+        break;
+      }
+    case 2:
+      {
+        int nxwg(coarseSt[0]+2*ghostSize),fact0(facts[0]),fact1(facts[1]);
+        int kk(fineLocInCoarse[0].first+ghostSize-1+nxwg*(fineLocInCoarse[1].first+ghostSize-1));//kk is always >=0 thanks to the fact that ghostSize>=1 !
+        for(int jg=0;jg<ghostSize;jg++)
+          {
+            for(int ig=0;ig<ghostSize;ig++)
+              outPtr=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr);
+            int kk0(kk+1);
+            for(int ig=0;ig<dims[0];ig++,kk0++)
+              for(int ifact=0;ifact<fact0;ifact++)
+                outPtr=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
+            for(int ik=0;ik<ghostSize;ik++)
+              outPtr=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
+          }
+        for(int j=0;j<dims[1];j++)
+          {
+            kk=fineLocInCoarse[0].first-1+ghostSize+nxwg*(fineLocInCoarse[1].first+ghostSize+j);
+            for(int jfact=0;jfact<fact1;jfact++)
+              {
+                for(int ig=0;ig<ghostSize;ig++)
+                  outPtr=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr);
+                int kk0(kk+1);
+                for(int i=0;i<dims[0];i++,kk0++)
+                  {
+                    const double *loc(inPtr+kk0*nbCompo);
+                    for(int ifact=0;ifact<fact0;ifact++)
+                      outPtr=std::copy(loc,loc+nbCompo,outPtr);
+                  }
+                for(int ig=0;ig<ghostSize;ig++)
+                  outPtr=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
+              }
+          }
+        kk=fineLocInCoarse[0].first+ghostSize-1+nxwg*(fineLocInCoarse[1].second+ghostSize);
+        for(int jg=0;jg<ghostSize;jg++)
+          {
+            for(int ig=0;ig<ghostSize;ig++)
+              outPtr=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr);
+            int kk0(kk+1);
+            for(int ig=0;ig<dims[0];ig++,kk0++)
+              for(int ifact=0;ifact<fact0;ifact++)
+                outPtr=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
+            for(int ik=0;ik<ghostSize;ik++)
+              outPtr=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : only dimensions 1, 2 supported !");
   }
 }
 

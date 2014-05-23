@@ -307,6 +307,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
 %newobject ParaMEDMEM::MEDCouplingIMesh::New;
 %newobject ParaMEDMEM::MEDCouplingIMesh::asSingleCell;
+%newobject ParaMEDMEM::MEDCouplingIMesh::buildWithGhost;
 %newobject ParaMEDMEM::MEDCouplingIMesh::convertToCartesian;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::clone;
@@ -323,6 +324,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getGodFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getPatch;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::createCellFieldOnPatch;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::__getitem__;
 %newobject ParaMEDMEM::DenseMatrix::New;
 %newobject ParaMEDMEM::DenseMatrix::deepCpy;
@@ -3065,6 +3067,7 @@ namespace ParaMEDMEM
     MEDCouplingCMesh *convertToCartesian() const throw(INTERP_KERNEL::Exception);
     void refineWithFactor(const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
     MEDCouplingIMesh *asSingleCell() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingIMesh *buildWithGhost(int ghostLev) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       MEDCouplingIMesh()
@@ -3127,11 +3130,18 @@ namespace ParaMEDMEM
         self->setDXYZ(originPtr,originPtr+nbTuples);
       }
 
-      static void CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts) throw(INTERP_KERNEL::Exception)
+      static void CondenseFineToCoarse(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
         convertPyToVectorPairInt(fineLocInCoarse,inp);
-        MEDCouplingIMesh::CondenseFineToCoarse(coarseDA,coarseSt,fineDA,inp,facts);
+        MEDCouplingIMesh::CondenseFineToCoarse(coarseSt,fineDA,inp,facts,coarseDA);
+      }
+
+      static void CondenseFineToCoarseGhost(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA, int ghostSize) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(fineLocInCoarse,inp);
+        MEDCouplingIMesh::CondenseFineToCoarseGhost(coarseSt,fineDA,inp,facts,coarseDA,ghostSize);
       }
 
       static void SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts) throw(INTERP_KERNEL::Exception)
@@ -3139,6 +3149,13 @@ namespace ParaMEDMEM
         std::vector< std::pair<int,int> > inp;
         convertPyToVectorPairInt(fineLocInCoarse,inp);
         MEDCouplingIMesh::SpreadCoarseToFine(coarseDA,coarseSt,fineDA,inp,facts);
+      }
+
+      static void SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts, int ghostSize) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(fineLocInCoarse,inp);
+        MEDCouplingIMesh::SpreadCoarseToFineGhost(coarseDA,coarseSt,fineDA,inp,facts,ghostSize);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -4750,6 +4767,8 @@ namespace ParaMEDMEM
   public:
     
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
+    const std::vector<int>& getFactors() const throw(INTERP_KERNEL::Exception);
+    void setFactors(const std::vector<int>& newFactors) throw(INTERP_KERNEL::Exception);
     int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsAtCurrentLevel() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
@@ -4758,9 +4777,13 @@ namespace ParaMEDMEM
     int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);    
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const throw(INTERP_KERNEL::Exception);
+    void removeAllPatches() throw(INTERP_KERNEL::Exception);
     void removePatch(int patchId) throw(INTERP_KERNEL::Exception);
     void detachFromFather() throw(INTERP_KERNEL::Exception);
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)

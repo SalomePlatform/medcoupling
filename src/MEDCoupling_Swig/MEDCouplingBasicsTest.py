@@ -14953,26 +14953,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1,amr.getNumberOfPatches())
         self.assertEqual(2,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
-        amr[0].addPatch([(2,3),(1,3)],[2,2])
+        amr[0].addPatch([(2,3),(1,3)],[3,2])
         self.assertEqual(amr[0].getBLTRRange(),[(1,2),(0,1)])
         self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
-        self.assertEqual(28,amr.getNumberOfCellsRecursiveWithOverlap())
-        self.assertEqual(25,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(32,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(29,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(1,amr.getNumberOfPatches())
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
-        amr[0].addPatch([(0,2),(3,4)],[3,3])
+        amr[0].addPatch([(0,2),(3,4)],[3,2])
         self.assertEqual(16,amr[0].getMesh().getNumberOfCellsAtCurrentLevel())
-        self.assertEqual(46,amr.getNumberOfCellsRecursiveWithOverlap())
-        self.assertEqual(41,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(44,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(39,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(2,amr[0].getMesh().getNumberOfPatches())
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
         del amr[0][1]
         self.assertEqual(amr[0].getBLTRRange(),[(1,2),(0,1)])
         self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
-        self.assertEqual(28,amr.getNumberOfCellsRecursiveWithOverlap())
-        self.assertEqual(25,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(32,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(29,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(1,amr.getNumberOfPatches())
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
@@ -15080,17 +15080,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         """ Test condensation of fine IMesh instance into a coarse one, with a factor. See testRemapperAMR1 in MEDCouplingRemapperTest.py file to see how the expected value is obtained."""
         coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
         fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
-        MEDCouplingIMesh.CondenseFineToCoarse(coarse,[5,7],fine,[(1,4),(2,4)],[4,4])
+        MEDCouplingIMesh.CondenseFineToCoarse([5,7],fine,[(1,4),(2,4)],[4,4],coarse)
         self.assertTrue(coarse.isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,312,376,440,14,15,1080,1144,1208,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]),1e-12))
         # 3D
         coarse=DataArrayDouble(175) ; coarse.iota(0) #X=5,Y=7,Z=5
         fine=DataArrayDouble(3*2*3*4*4*4) ; fine.iota(0) #X=3,Y=2,Z=3 refined by 4
-        MEDCouplingIMesh.CondenseFineToCoarse(coarse,[5,7,5],fine,[(1,4),(2,4),(1,4)],[4,4,4])
+        MEDCouplingIMesh.CondenseFineToCoarse([5,7,5],fine,[(1,4),(2,4),(1,4)],[4,4,4],coarse)
         self.assertTrue(coarse.isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.,41.,42.,43.,44.,45.,10464.,10720.,10976.,49.,50.,13536.,13792.,14048.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,71.,72.,73.,74.,75.,76.,77.,78.,79.,80.,35040.,35296.,35552.,84.,85.,38112.,38368.,38624.,89.,90.,91.,92.,93.,94.,95.,96.,97.,98.,99.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.,111.,112.,113.,114.,115.,59616.,59872.,60128.,119.,120.,62688.,62944.,63200.,124.,125.,126.,127.,128.,129.,130.,131.,132.,133.,134.,135.,136.,137.,138.,139.,140.,141.,142.,143.,144.,145.,146.,147.,148.,149.,150.,151.,152.,153.,154.,155.,156.,157.,158.,159.,160.,161.,162.,163.,164.,165.,166.,167.,168.,169.,170.,171.,172.,173.,174.]),1e-12))
         # 1D
         coarse=DataArrayDouble(5) ; coarse.iota(0) #X=5
         fine=DataArrayDouble(3*4) ; fine.iota(0) #X=3 refined by 4
-        MEDCouplingIMesh.CondenseFineToCoarse(coarse,[5],fine,[(1,4)],[4])
+        MEDCouplingIMesh.CondenseFineToCoarse([5],fine,[(1,4)],[4],coarse)
         self.assertTrue(coarse.isEqual(DataArrayDouble([0,6,22,38,4]),1e-12))
         pass
 
@@ -15140,6 +15140,28 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=amr.getImageMesh().asSingleCell().build1SGTUnstructured()
         self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3])))
         self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([(0,0),(2,0),(0,2),(2,2)]),1e-12))
+        pass
+
+    def testAMR5(self):
+        """ Idem testAMR3, test spread of coarse IMesh instance into a fine one, with a factor, but here ghost is used !"""
+        # 1D
+        coarse=DataArrayDouble(5+2) ; coarse.iota(-1) #X=5 with ghostLev=1
+        fine=DataArrayDouble(3*4+2) ; fine.iota(1000) #X=3 refined by 4 with ghostLev=1
+        MEDCouplingIMesh.SpreadCoarseToFineGhost(coarse,[5],fine,[(1,4)],[4],1)
+        self.assertTrue(fine.isEqual(DataArrayDouble([0,1,1,1,1,2,2,2,2,3,3,3,3,4]),1e-12))
+        coarse.iota(-1000)
+        MEDCouplingIMesh.CondenseFineToCoarseGhost([5],fine,[(1,4)],[4],coarse,1)
+        self.assertTrue(coarse.isEqual(DataArrayDouble([-1000.,-999.,4.,8.,12.,-995.,-994.]),1e-12))
+        # 2D
+        coarse=DataArrayDouble((5+2*1)*(7+2*1)) ; coarse.iota(0) #X=5,Y=7 with ghostLev=1
+        fine=DataArrayDouble((3*4+2*1)*(2*4+2*1)) ; fine.iota(1000) #X=3,Y=2 refined by 4
+        MEDCouplingIMesh.SpreadCoarseToFineGhost(coarse,[5,7],fine,[(1,4),(2,4)],[4,4],1)
+        self.assertTrue(fine.isEqual(DataArrayDouble([15.,16.,16.,16.,16.,17.,17.,17.,17.,18.,18.,18.,18.,19.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,36.,37.,37.,37.,37.,38.,38.,38.,38.,39.,39.,39.,39.,40.]),1e-12))
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(MEDCouplingIMesh("",2,DataArrayInt([8,10]),[0.,0.],DataArrayDouble((1.,1.)))) ; f.setArray(coarse) ; f.setName("tutu") ; f.checkCoherency() ; f.writeVTK("coarse.vti")
+        coarse.iota(-1000)
+        MEDCouplingIMesh.CondenseFineToCoarseGhost([5,7],fine,[(1,4),(2,4)],[4,4],coarse,1)
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(MEDCouplingIMesh("",2,DataArrayInt([8,10]),[0.,0.],DataArrayDouble((1.,1.)))) ; f.setArray(coarse) ; f.setName("tutu") ; f.checkCoherency() ; f.writeVTK("coarse.vti")
+        self.assertTrue(coarse.isEqual(DataArrayDouble([-1000.,-999.,-998.,-997.,-996.,-995.,-994.,-993.,-992.,-991.,-990.,-989.,-988.,-987.,-986.,-985.,-984.,-983.,-982.,-981.,-980.,-979.,-978.,368.,384.,400.,-974.,-973.,-972.,-971.,480.,496.,512.,-967.,-966.,-965.,-964.,-963.,-962.,-961.,-960.,-959.,-958.,-957.,-956.,-955.,-954.,-953.,-952.,-951.,-950.,-949.,-948.,-947.,-946.,-945.,-944.,-943.,-942.,-941.,-940.,-939.,-938.]),1e-12))
         pass
 
     def setUp(self):
