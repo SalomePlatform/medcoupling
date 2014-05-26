@@ -483,6 +483,9 @@ void MEDLoaderTest::testFieldGaussNERW1()
   const char fileName[]="file14.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGaussNE_1();
   MEDLoader::WriteField(fileName,f1,true);
+  std::vector<ParaMEDMEM::TypeOfField> tof(MEDLoader::GetTypesOfField(fileName,"2DMesh_2","MyFieldOnGaussNE"));
+  CPPUNIT_ASSERT_EQUAL(1,(int)tof.size());
+  CPPUNIT_ASSERT(ON_GAUSS_NE==tof[0]);
   MEDCouplingFieldDouble *f2=MEDLoader::ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
