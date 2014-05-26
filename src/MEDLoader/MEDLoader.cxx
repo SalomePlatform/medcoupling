@@ -594,74 +594,38 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNames(const std::string& fileNa
     }
   return ret;
 }
+
 std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
   std::vector<ParaMEDMEM::TypeOfField> ret;
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  med_int nbFields=MEDnField(fid);
-  //
-  med_field_type typcha;
-  //med_int nbpdtnor=0,pflsize,*pflval,lnsize;
-  med_int numdt=0,numo=0;
-  med_float dt=0.0;
-  char pflname[MED_NAME_SIZE+1]="";
-  char locname[MED_NAME_SIZE+1]="";
-  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  char *nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  med_bool localmesh;
-  //
-  for(int i=0;i<nbFields;i++)
+  MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> fs(MEDFileAnyTypeFieldMultiTS::New(fileName,fieldName,false));
+  if(fs->getMeshName()!=meshName)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
-      INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
-      INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
-      INTERP_KERNEL::AutoPtr<char> dt_unit=new char[MED_LNAME_SIZE+1];
-      med_int nbPdt;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
-      std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
-      std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
-      if(curMeshName==meshName)
-        {
-          if(curFieldName==fieldName)
-            {
-              int profilesize,nbi;
-              if(nbPdt>0)
-                {
-                  bool found=false;
-                  for(int ii=0;ii<nbPdt && !found;ii++)
-                    {
-                      MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
-                      med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-                          pflname,&profilesize,locname,&nbi);
-                      if(nbOfVal>0)
-                        {
-                          ret.push_back(ON_NODES);
-                          found=true;
-                        }
-                    }
-                }
-              bool found=false;
-              for(int j=0;j<MED_N_CELL_FIXED_GEO && !found;j++)
-                {
-                  if(nbPdt>0)
-                    {
-                      MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
-                      med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                          pflname,&profilesize,locname,&nbi);
-                      if(nbOfVal>0)
-                        {
-                          found=true;
-                          ret.push_back(ON_CELLS);
-                        }
-                    }
-                }
-            }
-        }
+      std::ostringstream oss; oss << "MEDLoader::GetTypesOfField : The field \"" << fieldName << "\" in file \"" << fileName << "\" is not lying on mesh \"" << meshName << "\"";
+      oss << " The name of the mesh in file is \"" << fs->getMeshName() << "\"!";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  delete [] maa_ass;
-  delete [] nomcha;
-  return ret;
+  int nbTS(fs->getNumberOfTS());
+  if(nbTS==0)
+    return ret;
+  for(int i=0;i<nbTS;i++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> f1ts(fs->getTimeStepAtPos(i));
+      std::vector<ParaMEDMEM::TypeOfField> tof(f1ts->getTypesOfFieldAvailable());
+      for(std::vector<ParaMEDMEM::TypeOfField>::const_iterator it=tof.begin();it!=tof.end();it++)
+        if(std::find(ret.begin(),ret.end(),*it)==ret.end())
+          ret.push_back(*it);
+     }
+  // sort ret to put before ON_NODES then ON_CELLS then the remaining.
+  std::vector<ParaMEDMEM::TypeOfField> ret2;
+  if(std::find(ret.begin(),ret.end(),ON_NODES)!=ret.end())
+    ret2.push_back(ON_NODES);
+  if(std::find(ret.begin(),ret.end(),ON_CELLS)!=ret.end())
+    ret2.push_back(ON_CELLS);
+  for(std::vector<ParaMEDMEM::TypeOfField>::const_iterator it=ret.begin();it!=ret.end();it++)
+    if(*it!=ON_NODES && *it!=ON_CELLS)
+      ret2.push_back(*it);
+  return ret2;
 }
 
 std::vector<std::string> MEDLoader::GetAllFieldNames(const std::string& fileName)
