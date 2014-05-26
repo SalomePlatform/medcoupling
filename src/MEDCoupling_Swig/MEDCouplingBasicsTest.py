@@ -15076,7 +15076,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m2.getData().isEqual(DataArrayDouble([29,37,37,62]),1e-12))
         pass
 
-    def testAMR2(self):
+    def testSwig2AMR2(self):
         """ Test condensation of fine IMesh instance into a coarse one, with a factor. See testRemapperAMR1 in MEDCouplingRemapperTest.py file to see how the expected value is obtained."""
         coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
         fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
@@ -15094,7 +15094,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(coarse.isEqual(DataArrayDouble([0,6,22,38,4]),1e-12))
         pass
 
-    def testAMR3(self):
+    def testSwig2AMR3(self):
         """ Test spread of coarse IMesh instance into a fine one, with a factor."""
         coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
         fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
@@ -15114,7 +15114,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(fine.isEqual(DataArrayDouble([1.,1.,1.,1.,2.,2.,2.,2.,3.,3.,3.,3.]),1e-12))
         pass
 
-    def testAMR4(self):
+    def testSwig2AMR4(self):
         """This test focuses on MEDCouplingCartesianAMRMesh.createPatchesFromCriterion method. To test it a field containing 0 everywhere except in the annulus (centered on the center of the mesh) value is 1."""
         im=MEDCouplingIMesh("mesh",2,[51,51],[0.,0.],[0.04,0.04])
         b=im.getBarycenterAndOwner() ; b-=[1.,1.] ; b=b.magnitude()
@@ -15142,7 +15142,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([(0,0),(2,0),(0,2),(2,2)]),1e-12))
         pass
 
-    def testAMR5(self):
+    def testSwig2AMR5(self):
         """ Idem testAMR3, test spread of coarse IMesh instance into a fine one, with a factor, but here ghost is used !"""
         # 1D
         coarse=DataArrayDouble(5+2) ; coarse.iota(-1) #X=5 with ghostLev=1
