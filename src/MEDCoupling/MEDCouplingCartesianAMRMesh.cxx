@@ -72,6 +72,45 @@ int MEDCouplingCartesianAMRPatch::getNumberOfOverlapedCellsForFather() const
   return MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(_bl_tr);
 }
 
+/*!
+ * This method states if \a other patch is in the neighborhood of \a this. The neighborhood zone is defined by \a ghostLev parameter
+ * the must be >= 0.
+ *
+ * \param [in] other - The other patch
+ * \param [in] ghostLev - The size of the neighborhood zone.
+ *
+ * \throw if \a this or \a other are invalid (end before start).
+ * \throw if \a ghostLev is \b not >= 0 .
+ * \throw if \a this and \a other have not the same space dimension.
+ */
+bool MEDCouplingCartesianAMRPatch::isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const
+{
+  if(ghostLev<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : the size of the neighborhood must be >= 0 !");
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : the input patch is NULL !");
+  const std::vector< std::pair<int,int> >& thisp(getBLTRRange());
+  const std::vector< std::pair<int,int> >& otherp(other->getBLTRRange());
+  std::size_t thispsize(thisp.size());
+  if(thispsize!=otherp.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : the dimensions must be the same !");
+  for(std::size_t i=0;i<thispsize;i++)
+    {
+      const std::pair<int,int>& thispp(thisp[i]);
+      const std::pair<int,int>& otherpp(otherp[i]);
+      if(thispp.second<thispp.first)
+        throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : this patch is invalid !");
+      if(otherpp.second<otherpp.first)
+        throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : this patch is invalid !");
+      if(otherpp.first==thispp.second+ghostLev-1)
+        continue;
+      if(otherpp.second+ghostLev-1==thispp.first)
+        continue;
+      return false;
+    }
+  return true;
+}
+
 std::size_t MEDCouplingCartesianAMRPatch::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingCartesianAMRPatch));
@@ -540,6 +579,29 @@ const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMesh::getPatch(int pa
 }
 
 /*!
+ * This method states if patch2 (with id \a patchId2) is in the neighborhood of patch1 (with id \a patchId1).
+ * The neighborhood size is defined by \a ghostLev in the reference of \a this ( \b not in the reference of patches !).
+ */
+bool MEDCouplingCartesianAMRMesh::isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const
+{
+  if(ghostLev<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::isPatchInNeighborhoodOf : the ghost size must be >=0 !");
+  const MEDCouplingCartesianAMRPatch *p1(getPatch(patchId1)),*p2(getPatch(patchId2));
+  if(_factors.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::isPatchInNeighborhoodOf : no factors defined !");
+  int ghostLevInPatchRef;
+  if(ghostLev==0)
+    ghostLevInPatchRef=0;
+  else
+    {
+      ghostLevInPatchRef=(ghostLev-1)/_factors[0]+1;
+      for(std::size_t i=0;i<_factors.size();i++)
+        ghostLevInPatchRef=std::max(ghostLevInPatchRef,_factors[i]/ghostLev+1);
+    }
+  return p1->isInMyNeighborhood(p2,ghostLevInPatchRef);
+}
+
+/*!
  * This method creates a new cell field array on given \a patchId patch in \a this starting from a coarse cell field on \a this \a cellFieldOnThis.
  * This method can be seen as a fast projection from the cell field \a cellFieldOnThis on \c this->getImageMesh() to a refined part of \a this
  * defined by the patch with id \a patchId.
@@ -565,7 +627,8 @@ DataArrayDouble *MEDCouplingCartesianAMRMesh::createCellFieldOnPatch(int patchId
 }
 
 /*!
- * This method is equivalent to MEDCouplingCartesianAMRMesh::createCellFieldOnPatch except that here instead of
+ * This method is equivalent to MEDCouplingCartesianAMRMesh::createCellFieldOnPatch except that here instead of creating a new instance
+ * it fills the value into the \a cellFieldOnPatch data.
  *
  * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
  * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
@@ -582,6 +645,64 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatch(int patchId, const DataAr
 }
 
 /*!
+ * This method is the generalization of fillCellFieldOnPatch method. This method only projects coarse to fine without considering the
+ * potential neighbor patches covered by the ghost cells of patch with id \a patchId.
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
+ * \param [in,out] cellFieldOnPatch - The array of the cell field on the requested patch to be filled.
+ * \param [in] ghostLev - The size of the ghost zone (must be >=0 !)
+ *
+ * \sa fillCellFieldOnPatch, fillCellFieldOnPatchGhostAdv
+ */
+void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const
+{
+  if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatchGhost : the input cell field array is NULL or not allocated !");
+  const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
+  MEDCouplingIMesh::SpreadCoarseToFineGhost(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),ghostLev);
+}
+
+/*!
+ * This method is a refinement of fillCellFieldOnPatchGhost. fillCellFieldOnPatchGhost is first called.
+ * Then for all other patches than those pointed by \a patchId that overlap the ghost zone of the patch impact the ghost zone adequately.
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
+ * \param [in,out] cellFieldOnPatch - The array of the cell field on the requested patch to be filled.
+ * \param [in] ghostLev - The size of the ghost zone (must be >=0 !)
+ * \param [in] arrsOnPatches - \b WARNING arrsOnPatches[patchId] is \b NOT \b const. All others are const.
+ */
+void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
+{
+  int nbp(getNumberOfPatches());
+  if(nbp!=(int)arrsOnPatches.size())
+    {
+      std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  // first, do as usual
+  fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,const_cast<DataArrayDouble *>(arrsOnPatches[patchId]),ghostLev);
+  //
+  const MEDCouplingCartesianAMRPatch *refP(getPatch(patchId));
+  const std::vector< std::pair<int,int> >& refBLTR(refP->getBLTRRange());
+  for(int i=0;i<nbp;i++)
+    {
+      if(i!=patchId)
+        if(isPatchInNeighborhoodOf(i,patchId,ghostLev))
+          {
+            const MEDCouplingCartesianAMRPatch *otherP(getPatch(i));
+            const std::vector< std::pair<int,int> >& otherBLTR(otherP->getBLTRRange());
+            std::vector< std::pair<int,int> > tmp0;
+            MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(refBLTR,otherBLTR,tmp0);
+            ApplyFactorsOnCompactFrmt(tmp0,_factors);
+            ApplyGhostOnCompactFrmt(tmp0,ghostLev);
+            //std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+          }
+    }
+}
+
+/*!
  * This method updates \a cellFieldOnThis part of values coming from the cell field \a cellFieldOnPatch lying on patch having id \a patchId.
  *
  * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
@@ -590,7 +711,7 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatch(int patchId, const DataAr
  *
  * \throw if \a patchId is not in [ 0 , \c this->getNumberOfPatches() )
  * \throw if \a cellFieldOnPatch is NULL or not allocated
- * \sa createCellFieldOnPatch, MEDCouplingIMesh::CondenseFineToCoarse
+ * \sa createCellFieldOnPatch, MEDCouplingIMesh::CondenseFineToCoarse,fillCellFieldComingFromPatchGhost
  */
 void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const
 {
@@ -598,6 +719,48 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch(int patchId, cons
       throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch : the input cell field array is NULL or not allocated !");
   const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
   MEDCouplingIMesh::CondenseFineToCoarse(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis);
+}
+
+/*!
+ * This method is the extension of MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch managing the ghost cells. If this
+ * method is called with \a ghostLev equal to 0 it behaves exactly as MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch.
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnPatch - The array of the cell field on patch with id \a patchId.
+ * \param [in,out] cellFieldOnThis The array of the cell field on \a this to be updated only on the part concerning the patch with id \a patchId.
+ * \param [in] ghostLev The size of ghost zone (must be >= 0 !)
+ *
+ * \throw if \a patchId is not in [ 0 , \c this->getNumberOfPatches() )
+ * \throw if \a cellFieldOnPatch is NULL or not allocated
+ * \sa fillCellFieldComingFromPatch
+ */
+void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const
+{
+  if(!cellFieldOnPatch || !cellFieldOnPatch->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatchGhost : the input cell field array is NULL or not allocated !");
+  const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
+  MEDCouplingIMesh::CondenseFineToCoarseGhost(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis,ghostLev);
+}
+
+/*!
+ * This method finds all patches (located by their ids) that are in the neighborhood of patch with id \a patchId. The neighborhood size is
+ * defined by ghostLev.
+ *
+ * \param [in] patchId - the id of the considered patch.
+ * \param [in] ghostLev - the size of the neighborhood.
+ * \return DataArrayInt * - the newly allocated array containing the list of patches in the neighborhood of the considered patch. This array is to be deallocated by the caller.
+ */
+DataArrayInt *MEDCouplingCartesianAMRMesh::findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const
+{
+  int nbp(getNumberOfPatches());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  for(int i=0;i<nbp;i++)
+    {
+      if(i!=patchId)
+        if(isPatchInNeighborhoodOf(i,patchId,ghostLev))
+          ret->pushBackSilent(i);
+    }
+  return ret.retn();
 }
 
 MEDCouplingUMesh *MEDCouplingCartesianAMRMesh::buildUnstructured() const
@@ -681,6 +844,38 @@ void MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign(const std::vecto
     {
       if(_factors!=factors)
         throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign : the factors ");
+    }
+}
+
+/*!
+ * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in refined reference.
+ * \param [in] factors - the factors per axis.
+ */
+void MEDCouplingCartesianAMRMesh::ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors)
+{
+  std::size_t sz(factors.size());
+  if(sz!=partBeforeFact.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::ApplyFactorsOnCompactFrmt : size of input vectors must be the same !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      partBeforeFact[i].first*=factors[i];
+      partBeforeFact[i].second*=factors[i];
+    }
+}
+
+/*!
+ * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
+ * \param [in] ghostSize - the ghost size of zone for all axis.
+ */
+void MEDCouplingCartesianAMRMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
+  std::size_t sz(partBeforeFact.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      partBeforeFact[i].first+=ghostSize;
+      partBeforeFact[i].second+=ghostSize;
     }
 }
 

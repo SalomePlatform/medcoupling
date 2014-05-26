@@ -1343,7 +1343,7 @@ void MEDCouplingStructuredMesh::SwitchOnIdsFrom(const std::vector<int>& st, cons
  * \param [in] partCompactFormat The compact subpart to be enabled.
  * \param [out] fieldOut the result of the extraction.
  *
- * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, SwitchOnIdsFrom
+ * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfDoubleFrom
  */
 void MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(const std::vector<int>& st, const std::vector<bool>& fieldOfBool, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& fieldOut)
 {
@@ -1393,12 +1393,75 @@ void MEDCouplingStructuredMesh::ExtractFieldOfBoolFrom(const std::vector<int>& s
 }
 
 /*!
+ * This method is close to SwitchOnIdsFrom except that here, a sub field \a fieldOut is built starting from the input field \a fieldOfDbl having the structure \a st.
+ * The extraction is defined by \a partCompactFormat.
+ *
+ * \param [in] st The entity structure.
+ * \param [in] fieldOfDbl field of doubles having a number of tuples equal to \c MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(st).
+ * \param [in] partCompactFormat The compact subpart to be enabled.
+ * \return DataArrayDouble * -the result of the extraction.
+ *
+ * \sa MEDCouplingStructuredMesh::BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfBoolFrom
+ */
+DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::vector<int>& st, const DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat)
+{
+  if(!fieldOfDbl || !fieldOfDbl->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : input array of double is NULL or not allocated!");
+  if(st.size()!=partCompactFormat.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : input arrays must have the same size !");
+  if(fieldOfDbl->getNumberOfTuples()!=DeduceNumberOfGivenStructure(st))
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : invalid size of input array of double regarding the structure !");
+  std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
+  int nbOfTuplesOfOutField(DeduceNumberOfGivenStructure(dims)),nbComp(fieldOfDbl->getNumberOfComponents());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfTuplesOfOutField,nbComp);
+  ret->copyStringInfoFrom(*fieldOfDbl);
+  double *ptRet(ret->getPointer());
+  const double *fieldOfDblPtr(fieldOfDbl->begin());
+  switch(st.size())
+  {
+    case 3:
+      {
+        for(int i=0;i<dims[2];i++)
+          {
+            int a=(partCompactFormat[2].first+i)*st[0]*st[1];
+            for(int j=0;j<dims[1];j++)
+              {
+                int b=(partCompactFormat[1].first+j)*st[0];
+                for(int k=0;k<dims[0];k++)
+                  ptRet=std::copy(fieldOfDblPtr+(partCompactFormat[0].first+k+b+a)*nbComp,fieldOfDblPtr+(partCompactFormat[0].first+k+b+a+1)*nbComp,ptRet);
+              }
+          }
+        break;
+      }
+    case 2:
+      {
+        for(int j=0;j<dims[1];j++)
+          {
+            int b=(partCompactFormat[1].first+j)*st[0];
+            for(int k=0;k<dims[0];k++)
+              ptRet=std::copy(fieldOfDblPtr+(partCompactFormat[0].first+k+b)*nbComp,fieldOfDblPtr+(partCompactFormat[0].first+k+b+1)*nbComp,ptRet);
+          }
+        break;
+      }
+    case 1:
+      {
+        for(int k=0;k<dims[0];k++)
+          ptRet=std::copy(fieldOfDblPtr+(partCompactFormat[0].first+k)*nbComp,fieldOfDblPtr+(partCompactFormat[0].first+k+1)*nbComp,ptRet);
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : Dimension supported are 1,2 or 3 !");
+  }
+  return ret.retn();
+}
+
+/*!
  * This method changes the reference of a part of structured mesh \a partOfBigInAbs define in absolute reference to a new reference \a bigInAbs.
  * So this method only performs a translation by doing \a partOfBigRelativeToBig = \a partOfBigInAbs - \a bigInAbs
  * This method also checks that \a partOfBigInAbs is included in \a bigInAbs.
  * This method is useful to extract a part from a field lying on a big mesh.
  *
- * \sa ChangeReferenceToGlobalOfCompactFrmt, BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfBoolFrom
+ * \sa ChangeReferenceToGlobalOfCompactFrmt, BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom
  */
 void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigInAbs, std::vector< std::pair<int,int> >& partOfBigRelativeToBig)
 {
@@ -1466,7 +1529,7 @@ void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::
  * If the range contains invalid values regarding sructure an exception will be thrown.
  *
  * \return DataArrayInt * - a new object.
- * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom, ExtractFieldOfBoolFrom
+ * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom
  */
 DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat)
 {

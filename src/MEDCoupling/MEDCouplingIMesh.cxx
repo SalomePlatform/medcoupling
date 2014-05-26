@@ -278,6 +278,8 @@ MEDCouplingIMesh *MEDCouplingIMesh::asSingleCell() const
  */
 void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA)
 {
+  if(coarseSt.size()!=fineLocInCoarse.size() || coarseSt.size()!=facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : All input vectors (dimension) must have the same size !");
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the parameters 1 or 3 are NULL or not allocated !");
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
@@ -397,12 +399,12 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<int>& coarseSt, co
 void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA, int ghostSize)
 {
   if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : ghost level >= 0 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : ghost level has to be >= 0 !");
+  if(coarseSt.size()!=fineLocInCoarse.size() || coarseSt.size()!=facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : All input vectors (dimension) must have the same size !");
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the parameters 1 or 3 are NULL or not allocated !");
   std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
-  //std::vector<int> fineStG(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
-  //std::transform(fineStG.begin(),fineStG.end(),fineStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
   int nbCompo(fineDA->getNumberOfComponents());
   if(coarseDA->getNumberOfComponents()!=nbCompo)
@@ -411,16 +413,20 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<int>& coarseS
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the size of fineLocInCoarse (4th param) and facts (5th param) must be equal to the sier of coarseSt (2nd param) !");
   if(coarseDA->getNumberOfTuples()!=nbOfTuplesInCoarseExp)
     {
-      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarseGhost : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarseGhost : Expecting " << nbOfTuplesInCoarseExp << " tuples in coarse DataArray having " << coarseDA->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  //int nbTuplesFine(fineDA->getNumberOfTuples());
-  //int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
-  /*if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
+  //
+  std::vector<int> fineStG(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  std::transform(fineStG.begin(),fineStG.end(),facts.begin(),fineStG.begin(),std::multiplies<int>());
+  std::transform(fineStG.begin(),fineStG.end(),fineStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  int nbTuplesFine(fineDA->getNumberOfTuples()),nbTuplesFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(fineStG));
+  if(fineDA->getNumberOfTuples()!=nbTuplesFineExp)
     {
-      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarseGhost : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
+      std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarseGhost : Expecting " << nbTuplesFineExp << " tuples in fine DataArray having " << nbTuplesFine << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }*/
+    }
+  //
   double *outPtr(coarseDA->getPointer());
   const double *inPtr(fineDA->begin());
   //
@@ -488,6 +494,8 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<int>& coarseS
  */
 void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts)
 {
+  if(coarseSt.size()!=fineLocInCoarse.size() || coarseSt.size()!=facts.size())
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : All input vectors (dimension) must have the same size !");
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the parameters 1 or 3 are NULL or not allocated !");
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
@@ -589,11 +597,12 @@ void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const
 void MEDCouplingIMesh::SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize)
 {
   if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : ghost level >= 0 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : ghost level has to be >= 0 !");
+  if(coarseSt.size()!=fineLocInCoarse.size() || coarseSt.size()!=facts.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : All input vectors (dimension) must have the same size !");
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the parameters 1 or 3 are NULL or not allocated !");
   std::vector<int> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
-  //std::vector<int> fineStG(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse)); std::transform(fineStG.begin(),fineStG.end(),fineStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
   int meshDim((int)coarseSt.size()),nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
   int nbCompo(fineDA->getNumberOfComponents());
   if(coarseDA->getNumberOfComponents()!=nbCompo)
@@ -605,15 +614,16 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, 
       std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFineGhost : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  /*int nbTuplesFine(fineDA->getNumberOfTuples());
-  if(nbTuplesFine%nbOfTuplesInFineExp!=0)
-    throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : Invalid nb of tuples in fine DataArray regarding its structure !");
-  int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
-  if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
+  //
+  std::vector<int> fineStG(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  std::transform(fineStG.begin(),fineStG.end(),facts.begin(),fineStG.begin(),std::multiplies<int>());
+  std::transform(fineStG.begin(),fineStG.end(),fineStG.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  int nbTuplesFine(fineDA->getNumberOfTuples()),nbTuplesFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(fineStG));
+  if(fineDA->getNumberOfTuples()!=nbTuplesFineExp)
     {
-      std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFineGhost : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
+      std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFineGhost : Expecting " << nbTuplesFineExp << " tuples in fine DataArray having " << nbTuplesFine << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }*/
+    }
   //
   double *outPtr(fineDA->getPointer());
   const double *inPtr(coarseDA->begin());

@@ -33,6 +33,7 @@ namespace ParaMEDMEM
 {
   class MEDCouplingIMesh;
   class MEDCouplingUMesh;
+  class DataArrayInt;
   class DataArrayByte;
   class DataArrayDouble;
   class MEDCoupling1SGTUMesh;
@@ -50,6 +51,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     // end of direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfOverlapedCellsForFather() const;
+    MEDCOUPLING_EXPORT bool isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const;
     // basic set/get
     MEDCOUPLING_EXPORT const std::vector< std::pair<int,int> >& getBLTRRange() const { return _bl_tr; }
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getMesh() const { return _mesh; }
@@ -92,9 +94,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatch(int patchId) const;
+    MEDCOUPLING_EXPORT bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const;
     MEDCOUPLING_EXPORT DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const;
     MEDCOUPLING_EXPORT void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const;
+    MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const;
+    MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const;
+    MEDCOUPLING_EXPORT void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const;
     //
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const;
@@ -104,6 +111,8 @@ namespace ParaMEDMEM
     MEDCouplingCartesianAMRMesh(MEDCouplingCartesianAMRMesh *father, MEDCouplingIMesh *mesh);
     void checkPatchId(int patchId) const;
     void checkFactorsAndIfNotSetAssign(const std::vector<int>& factors);
+    static void ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors);
+    static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
   protected:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;

@@ -300,6 +300,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::build1SGTUnstructured;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::build1SGTSubLevelMesh;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::BuildExplicitIdsFrom;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -325,6 +326,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getPatch;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::createCellFieldOnPatch;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::findPatchesInTheNeighborhoodOf;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::__getitem__;
 %newobject ParaMEDMEM::DenseMatrix::New;
 %newobject ParaMEDMEM::DenseMatrix::deepCpy;
@@ -2868,6 +2870,13 @@ namespace ParaMEDMEM
         return MEDCouplingStructuredMesh::BuildExplicitIdsFrom(tmp5,inp);
       }
 
+      static DataArrayDouble *ExtractFieldOfDoubleFrom(const std::vector<int>& st, const DataArrayDouble *fieldOfDbl, PyObject *partCompactFormat) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(partCompactFormat,inp);
+        return MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,fieldOfDbl,inp);
+      }
+
       static int DeduceNumberOfGivenRangeInCompactFrmt(PyObject *part) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
@@ -4703,6 +4712,7 @@ namespace ParaMEDMEM
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
     int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
     int getNumberOfOverlapedCellsForFather() const throw(INTERP_KERNEL::Exception);
+    bool isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       PyObject *getBLTRRange() const throw(INTERP_KERNEL::Exception)
@@ -4773,6 +4783,7 @@ namespace ParaMEDMEM
     int getNumberOfCellsAtCurrentLevel() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
+    bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const throw(INTERP_KERNEL::Exception);
     //
     int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);    
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
@@ -4783,7 +4794,10 @@ namespace ParaMEDMEM
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
