@@ -15165,6 +15165,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(coarse.isEqual(DataArrayDouble([-1000.,-999.,-998.,-997.,-996.,-995.,-994.,-993.,-992.,-991.,-990.,-989.,-988.,-987.,-986.,-985.,-984.,-983.,-982.,-981.,-980.,-979.,-978.,368.,384.,400.,-974.,-973.,-972.,-971.,480.,496.,512.,-967.,-966.,-965.,-964.,-963.,-962.,-961.,-960.,-959.,-958.,-957.,-956.,-955.,-954.,-953.,-952.,-951.,-950.,-949.,-948.,-947.,-946.,-945.,-944.,-943.,-942.,-941.,-940.,-939.,-938.]),1e-12))
         pass
 
+    def testSwig2AMR6(self):
+        amr=MEDCouplingCartesianAMRMesh("",2,[6,6],[0,0],[1,1])
+        da=DataArrayDouble((5+2)*(5+2)) ; da.iota() ; da+=0.9
+        amr.addPatch([(1,4),(2,4)],[4,4])
+        amr.addPatch([(0,1),(0,1)],[4,4])
+        amr.addPatch([(4,5),(3,4)],[4,4])
+        amr.addPatch([(4,5),(1,3)],[4,4])
+        amr.addPatch([(0,1),(1,4)],[4,4])
+        da0=DataArrayDouble((3*4+2)*(2*4+2)) ; da0.iota() ; da0[:]+=0.2
+        da1=DataArrayDouble((1*4+2)*(1*4+2)) ; da1.iota() ; da1[:]+=0.4
+        da2=DataArrayDouble((1*4+2)*(1*4+2)) ; da2.iota() ; da2[:]+=0.6
+        da3=DataArrayDouble((1*4+2)*(2*4+2)) ; da3.iota() ; da3[:]+=0.7
+        da4=DataArrayDouble((1*4+2)*(3*4+2)) ; da4.iota() ; da4[:]+=0.8
+        self.assertEqual(5,amr.getNumberOfPatches())
+        amr.fillCellFieldOnPatchGhostAdv(0,da,1,[da0,da1,da2,da3,da4])
+        #
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(amr.getImageMesh().buildWithGhost(1)) ; f.setArray(da) ; f.setName("all")
+        f0=MEDCouplingFieldDouble(ON_CELLS) ; f0.setMesh(amr[0].getMesh().getImageMesh().buildWithGhost(1)) ; f0.setArray(da0) ; f0.setName("p0") ; f0.checkCoherency()
+        f1=MEDCouplingFieldDouble(ON_CELLS) ; f1.setMesh(amr[1].getMesh().getImageMesh().buildWithGhost(1)) ; f1.setArray(da1) ; f1.setName("p1") ; f1.checkCoherency()
+        f2=MEDCouplingFieldDouble(ON_CELLS) ; f2.setMesh(amr[2].getMesh().getImageMesh().buildWithGhost(1)) ; f2.setArray(da2) ; f2.setName("p2") ; f2.checkCoherency()
+        f3=MEDCouplingFieldDouble(ON_CELLS) ; f3.setMesh(amr[3].getMesh().getImageMesh().buildWithGhost(1)) ; f3.setArray(da3) ; f3.setName("p3") ; f3.checkCoherency()
+        f4=MEDCouplingFieldDouble(ON_CELLS) ; f4.setMesh(amr[4].getMesh().getImageMesh().buildWithGhost(1)) ; f4.setArray(da4) ; f4.setName("p4") ; f4.checkCoherency()
+        #
+        self.assertTrue(da0.isEqual(DataArrayDouble([28.8,16.9,16.9,16.9,16.9,17.9,17.9,17.9,17.9,18.9,18.9,18.9,18.9,25.7,34.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,31.7,40.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,37.7,46.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,43.7,52.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,49.7,58.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,7.6,64.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,13.6,70.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,19.6,76.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,25.6,36.9,37.9,37.9,37.9,37.9,38.9,38.9,38.9,38.9,39.9,39.9,39.9,39.9,40.9]),1e-12))
+        pass
+
     def setUp(self):
         pass
     pass
