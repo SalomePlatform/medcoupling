@@ -1528,12 +1528,12 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
 /*!
  * This method changes the reference of a part of structured mesh \a partOfBigInAbs define in absolute reference to a new reference \a bigInAbs.
  * So this method only performs a translation by doing \a partOfBigRelativeToBig = \a partOfBigInAbs - \a bigInAbs
- * This method also checks that \a partOfBigInAbs is included in \a bigInAbs.
+ * This method also checks (if \a check=true) that \a partOfBigInAbs is included in \a bigInAbs.
  * This method is useful to extract a part from a field lying on a big mesh.
  *
  * \sa ChangeReferenceToGlobalOfCompactFrmt, BuildExplicitIdsFrom, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom
  */
-void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigInAbs, std::vector< std::pair<int,int> >& partOfBigRelativeToBig)
+void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigInAbs, std::vector< std::pair<int,int> >& partOfBigRelativeToBig, bool check)
 {
   std::size_t dim(bigInAbs.size());
   if(dim!=partOfBigInAbs.size())
@@ -1541,21 +1541,27 @@ void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std
   partOfBigRelativeToBig.resize(dim);
   for(std::size_t i=0;i<dim;i++)
     {
-      if(bigInAbs[i].first>bigInAbs[i].second)
+      if(check)
         {
-          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt : Error at axis #" << i << " the input big part invalid, end before start !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      if(partOfBigInAbs[i].first<bigInAbs[i].first || partOfBigInAbs[i].first>=bigInAbs[i].second)
-        {
-          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt : Error at axis #" << i << " the part is not included in the big one (start) !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          if(bigInAbs[i].first>bigInAbs[i].second)
+            {
+              std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt : Error at axis #" << i << " the input big part invalid, end before start !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          if(partOfBigInAbs[i].first<bigInAbs[i].first || partOfBigInAbs[i].first>=bigInAbs[i].second)
+            {
+              std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt : Error at axis #" << i << " the part is not included in the big one (start) !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
       partOfBigRelativeToBig[i].first=partOfBigInAbs[i].first-bigInAbs[i].first;
-      if(partOfBigInAbs[i].second<partOfBigInAbs[i].first || partOfBigInAbs[i].second>bigInAbs[i].second)
+      if(check)
         {
-          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt : Error at axis #" << i << " the part is not included in the big one (end) !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          if(partOfBigInAbs[i].second<partOfBigInAbs[i].first || partOfBigInAbs[i].second>bigInAbs[i].second)
+            {
+              std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt : Error at axis #" << i << " the part is not included in the big one (end) !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
       partOfBigRelativeToBig[i].second=partOfBigInAbs[i].second-bigInAbs[i].first;
     }
@@ -1566,7 +1572,7 @@ void MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(const std
  *
  * \sa ChangeReferenceFromGlobalOfCompactFrmt
  */
-void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigRelativeToBig, std::vector< std::pair<int,int> >& partOfBigInAbs)
+void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigRelativeToBig, std::vector< std::pair<int,int> >& partOfBigInAbs, bool check)
 {
   std::size_t dim(bigInAbs.size());
   if(dim!=partOfBigRelativeToBig.size())
@@ -1574,21 +1580,27 @@ void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::
   partOfBigInAbs.resize(dim);
   for(std::size_t i=0;i<dim;i++)
     {
-      if(bigInAbs[i].first>bigInAbs[i].second)
+      if(check)
         {
-          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt : Error at axis #" << i << " the input big part invalid, end before start !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      if(partOfBigRelativeToBig[i].first<0 || partOfBigRelativeToBig[i].first>=bigInAbs[i].second-bigInAbs[i].first)
-        {
-          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt : Error at axis #" << i << " the start of part is not in the big one !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          if(bigInAbs[i].first>bigInAbs[i].second)
+            {
+              std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt : Error at axis #" << i << " the input big part invalid, end before start !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          if(partOfBigRelativeToBig[i].first<0 || partOfBigRelativeToBig[i].first>=bigInAbs[i].second-bigInAbs[i].first)
+            {
+              std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt : Error at axis #" << i << " the start of part is not in the big one !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
       partOfBigInAbs[i].first=partOfBigRelativeToBig[i].first+bigInAbs[i].first;
-      if(partOfBigRelativeToBig[i].second<partOfBigRelativeToBig[i].first || partOfBigRelativeToBig[i].second>bigInAbs[i].second-bigInAbs[i].first)
+      if(check)
         {
-          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt : Error at axis #" << i << " the end of part is not in the big one !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          if(partOfBigRelativeToBig[i].second<partOfBigRelativeToBig[i].first || partOfBigRelativeToBig[i].second>bigInAbs[i].second-bigInAbs[i].first)
+            {
+              std::ostringstream oss; oss << "MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt : Error at axis #" << i << " the end of part is not in the big one !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
       partOfBigInAbs[i].second=partOfBigRelativeToBig[i].second+bigInAbs[i].first;
     }

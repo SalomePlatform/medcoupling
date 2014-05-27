@@ -951,7 +951,15 @@ void MEDCouplingIMesh::getBoundingBox(double *bbox) const
   for(int idim=0; idim<dim; idim++)
     {
       bbox[2*idim]=_origin[idim];
-      bbox[2*idim+1]=_origin[idim]+_dxyz[idim]*_structure[idim];
+      int coeff(_structure[idim]);
+      if(_structure[idim]<0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingIMesh::getBoundingBox : on axis #" << idim << " number of nodes in structure is < 0 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(_structure[idim]>1)
+        coeff=_structure[idim]-1;
+      bbox[2*idim+1]=_origin[idim]+_dxyz[idim]*coeff;
     }
 }
 

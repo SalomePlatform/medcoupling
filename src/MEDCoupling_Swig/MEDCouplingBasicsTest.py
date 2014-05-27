@@ -14922,6 +14922,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual((1.,0.5,2.),m3.getDXYZ())
         # now playing with 3D surf
         m4=MEDCouplingIMesh("",3,DataArrayInt([3,1,4]),DataArrayDouble([1.5,2.5,3.5]),DataArrayDouble((0.5,1.,0.25))) ; m4.setAxisUnit("km")
+        self.assertEqual([(1.5,2.5),(2.5,3.5),(3.5,4.25)],m4.getBoundingBox())
         self.assertEqual(3,m4.getSpaceDimension())
         self.assertEqual(2,m4.getMeshDimension())
         self.assertEqual(12,m4.getNumberOfNodes())

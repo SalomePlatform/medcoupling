@@ -321,6 +321,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::buildUnstructured;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::buildMeshFromPatchEnvelop;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::buildMeshOfDirectChildrenOnly;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getImageMesh;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getGodFather;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getFather;
@@ -2964,12 +2965,12 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      static PyObject *ChangeReferenceFromGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigInAbs) throw(INTERP_KERNEL::Exception)
+      static PyObject *ChangeReferenceFromGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigInAbs, bool check=true) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > param0,param1,ret;
         convertPyToVectorPairInt(bigInAbs,param0);
         convertPyToVectorPairInt(partOfBigInAbs,param1);
-        MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(param0,param1,ret);
+        MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(param0,param1,ret,check);
         PyObject *retPy(PyList_New(ret.size()));
         for(std::size_t i=0;i<ret.size();i++)
           {
@@ -2981,12 +2982,12 @@ namespace ParaMEDMEM
         return retPy;
       }
 
-      static PyObject *ChangeReferenceToGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigRelativeToBig) throw(INTERP_KERNEL::Exception)
+      static PyObject *ChangeReferenceToGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigRelativeToBig, bool check=true) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > param0,param1,ret;
         convertPyToVectorPairInt(bigInAbs,param0);
         convertPyToVectorPairInt(partOfBigRelativeToBig,param1);
-        MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(param0,param1,ret);
+        MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(param0,param1,ret,check);
         PyObject *retPy(PyList_New(ret.size()));
         for(std::size_t i=0;i<ret.size();i++)
           {
@@ -4819,6 +4820,7 @@ namespace ParaMEDMEM
     int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);    
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const throw(INTERP_KERNEL::Exception);
+    MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const throw(INTERP_KERNEL::Exception);
     void removeAllPatches() throw(INTERP_KERNEL::Exception);
     void removePatch(int patchId) throw(INTERP_KERNEL::Exception);
     void detachFromFather() throw(INTERP_KERNEL::Exception);
@@ -4907,6 +4909,13 @@ namespace ParaMEDMEM
         if(ret)
           ret->incrRef();
         return ret;
+      }
+
+      void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, PyObject *arrsOnPatches) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const ParaMEDMEM::DataArrayDouble *> arrsOnPatches2;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayDouble *>(arrsOnPatches,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",arrsOnPatches2);
+        self->fillCellFieldOnPatchGhostAdv(patchId,cellFieldOnThis,ghostLev,arrsOnPatches2);
       }
 
       void __delitem__(int patchId) throw(INTERP_KERNEL::Exception)
