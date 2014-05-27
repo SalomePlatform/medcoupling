@@ -1270,11 +1270,81 @@ bool MEDCouplingStructuredMesh::IsPartStructured(const int *startIds, const int 
   }
 }
 
+/*!
+ * This method takes in input a compact format [[Xmax,Xmin),[Ymin,Ymax)] and returns the corresponding dimensions for each axis that is to say
+ * [Xmax-Xmin,Ymax-Ymin].
+ *
+ * \throw if an axis range is so that max<min
+ * \sa GetCompactFrmtFromDimensions
+ */
 std::vector<int> MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat)
 {
   std::vector<int> ret(partCompactFormat.size());
   for(std::size_t i=0;i<partCompactFormat.size();i++)
-    ret[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+    {
+      if(partCompactFormat[i].first>partCompactFormat[i].second)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt : For axis #" << i << " end is before start !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      ret[i]=partCompactFormat[i].second-partCompactFormat[i].first;
+    }
+  return ret;
+}
+
+/*!
+ * This method takes in input a vector giving the number of entity per axis and returns for each axis a range starting from [0,0...]
+ *
+ * \throw if there is an axis in \a dims that is < 0.
+ * \sa GetDimensionsFromCompactFrmt, ChangeReferenceFromGlobalOfCompactFrmt, ChangeReferenceToGlobalOfCompactFrmt
+ */
+std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(const std::vector<int>& dims)
+{
+  std::size_t sz(dims.size());
+  std::vector< std::pair<int,int> > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(dims[i]<0)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt : For axis #" << i << " dimension < 0 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      ret[i].first=0;
+      ret[i].second=dims[i];
+    }
+  return ret;
+}
+
+/*!
+ * This method returns the intersection zone of two ranges (in compact format) \a r1 and \a r2.
+ * This method will throw exception if on one axis the intersection is empty.
+ */
+std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::IntersectRanges(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2)
+{
+  std::size_t sz(r1.size());
+  if(sz!=r2.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::IntersectRanges : the two ranges must have the same dimension !");
+  std::vector< std::pair<int,int> > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(r1[i].first>r1[i].second)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::IntersectRanges : On axis " << i << " of range r1, end is before start !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(r2[i].first>r2[i].second)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::IntersectRanges : On axis " << i << " of range r2, end is before start !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      ret[i].first=std::max(r1[i].first,r2[i].first);
+      ret[i].second=std::min(r1[i].second,r2[i].second);
+      if(ret[i].first>ret[i].second)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::IntersectRanges : On axis " << i << " the intersection of r1 and r2 is empty !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   return ret;
 }
 

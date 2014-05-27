@@ -675,17 +675,24 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhost(int patchId, const D
  */
 void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
 {
-  int nbp(getNumberOfPatches());
+  int nbp(getNumberOfPatches()),dim(getSpaceDimension());
   if(nbp!=(int)arrsOnPatches.size())
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+  DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
   // first, do as usual
-  fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,const_cast<DataArrayDouble *>(arrsOnPatches[patchId]),ghostLev);
-  //
+  fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,theFieldToFill,ghostLev);
+  // all reference patch stuff
   const MEDCouplingCartesianAMRPatch *refP(getPatch(patchId));
   const std::vector< std::pair<int,int> >& refBLTR(refP->getBLTRRange());
+  std::vector<int> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(refBLTR));
+  std::transform(dimsCoarse.begin(),dimsCoarse.end(),_factors.begin(),dimsCoarse.begin(),std::multiplies<int>());
+  std::transform(dimsCoarse.begin(),dimsCoarse.end(),dimsCoarse.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
+  std::vector< std::pair<int,int> > rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));
+  std::vector<int> fakeFactors(dim,1);
+  //
   for(int i=0;i<nbp;i++)
     {
       if(i!=patchId)
@@ -697,7 +704,10 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv(int patchId, cons
             MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(refBLTR,otherBLTR,tmp0);
             ApplyFactorsOnCompactFrmt(tmp0,_factors);
             ApplyGhostOnCompactFrmt(tmp0,ghostLev);
-            //std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+            std::vector<int> dimsFine(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(otherBLTR));
+            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ghostVals;//(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(dimsFine,arrsOnPatches[i],));
+            std::vector< std::pair<int,int> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));
+            MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,theFieldToFill);
           }
     }
 }

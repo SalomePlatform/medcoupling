@@ -73,6 +73,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static std::vector<int> GetSplitVectFromStruct(const std::vector<int>& strct);
     MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static std::vector<int> GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static std::vector< std::pair<int,int> > GetCompactFrmtFromDimensions(const std::vector<int>& dims);
+    MEDCOUPLING_EXPORT static std::vector< std::pair<int,int> > IntersectRanges(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2);
     MEDCOUPLING_EXPORT static void SwitchOnIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& vectToSwitchOn);
     MEDCOUPLING_EXPORT static void ExtractFieldOfBoolFrom(const std::vector<int>& st, const std::vector<bool>& fieldOfBool, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& fieldOut);
     MEDCOUPLING_EXPORT static DataArrayDouble *ExtractFieldOfDoubleFrom(const std::vector<int>& st, const DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat);

@@ -2907,6 +2907,37 @@ namespace ParaMEDMEM
         return MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(inp);
       }
 
+      static PyObject *GetCompactFrmtFromDimensions(const std::vector<int>& dims) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > ret(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dims));
+        PyObject *retPy=PyList_New(ret.size());
+        for(std::size_t i=0;i<ret.size();i++)
+          {
+            PyObject *tmp=PyTuple_New(2);
+            PyTuple_SetItem(tmp,0,PyInt_FromLong(ret[i].first));
+            PyTuple_SetItem(tmp,1,PyInt_FromLong(ret[i].second));
+            PyList_SetItem(retPy,i,tmp);
+          }
+        return retPy;
+      }
+
+      static PyObject *IntersectRanges(PyObject *r1, PyObject *r2) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > r1Cpp,r2Cpp;
+        convertPyToVectorPairInt(r1,r1Cpp);
+        convertPyToVectorPairInt(r2,r2Cpp);
+        std::vector< std::pair<int,int> > ret(MEDCouplingStructuredMesh::IntersectRanges(r1Cpp,r2Cpp));
+        PyObject *retPy=PyList_New(ret.size());
+        for(std::size_t i=0;i<ret.size();i++)
+          {
+            PyObject *tmp=PyTuple_New(2);
+            PyTuple_SetItem(tmp,0,PyInt_FromLong(ret[i].first));
+            PyTuple_SetItem(tmp,1,PyInt_FromLong(ret[i].second));
+            PyList_SetItem(retPy,i,tmp);
+          }
+        return retPy;
+      }
+
       static PyObject *IsPartStructured(PyObject *li, PyObject *st) throw(INTERP_KERNEL::Exception)
       {
         int szArr,sw,iTypppArr;
