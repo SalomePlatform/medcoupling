@@ -31,40 +31,46 @@ using namespace ParaMEDMEM;
 
 /// @cond INTERNAL
 
+int MEDCouplingCartesianAMRPatchGen::getNumberOfCellsRecursiveWithOverlap() const
+{
+  return _mesh->getNumberOfCellsRecursiveWithOverlap();
+}
+
+int MEDCouplingCartesianAMRPatchGen::getNumberOfCellsRecursiveWithoutOverlap() const
+{
+  return _mesh->getNumberOfCellsRecursiveWithoutOverlap();
+}
+
+int MEDCouplingCartesianAMRPatchGen::getMaxNumberOfLevelsRelativeToThis() const
+{
+  return _mesh->getMaxNumberOfLevelsRelativeToThis();
+}
+
+MEDCouplingCartesianAMRPatchGen::MEDCouplingCartesianAMRPatchGen(MEDCouplingCartesianAMRMeshGen *mesh)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatchGen constructor : input mesh is NULL !");
+  _mesh=mesh; _mesh->incrRef();
+}
+
+std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRPatchGen::getDirectChildren() const
+{
+  std::vector<const BigMemoryObject *> ret;
+  if((const MEDCouplingCartesianAMRMeshGen *)_mesh)
+    ret.push_back((const MEDCouplingCartesianAMRMeshGen *)_mesh);
+  return ret;
+}
+
 /*!
  * \param [in] mesh not null pointer of refined mesh replacing the cell range of \a father defined by the bottom left and top right just after.
  * \param [in] bottomLeftTopRight a vector equal to the space dimension of \a mesh that specifies for each dimension, the included cell start of the range for the first element of the pair,
  *                                a the end cell (\b excluded) of the range for the second element of the pair.
  */
-MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight)
+MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMeshGen *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight):MEDCouplingCartesianAMRPatchGen(mesh),_bl_tr(bottomLeftTopRight)
 {
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("EDCouplingCartesianAMRPatch constructor : input mesh is NULL !");
-  _mesh=mesh; _mesh->incrRef();
   int dim((int)bottomLeftTopRight.size()),dimExp(_mesh->getSpaceDimension());
   if(dim!=dimExp)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input bottomLeft/topRight size mismatches !");
-  _bl_tr=bottomLeftTopRight;
-}
-
-int MEDCouplingCartesianAMRPatch::getNumberOfCellsRecursiveWithOverlap() const
-{
-  return _mesh->getNumberOfCellsRecursiveWithOverlap();
-}
-
-int MEDCouplingCartesianAMRPatch::getNumberOfCellsRecursiveWithoutOverlap() const
-{
-  return _mesh->getNumberOfCellsRecursiveWithoutOverlap();
-}
-
-int MEDCouplingCartesianAMRPatch::getMaxNumberOfLevelsRelativeToThis() const
-{
-  return _mesh->getMaxNumberOfLevelsRelativeToThis();
-}
-
-void MEDCouplingCartesianAMRPatch::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
-{
-  return _mesh->addPatch(bottomLeftTopRight,factors);
 }
 
 int MEDCouplingCartesianAMRPatch::getNumberOfOverlapedCellsForFather() const
@@ -120,32 +126,26 @@ std::size_t MEDCouplingCartesianAMRPatch::getHeapMemorySizeWithoutChildren() con
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRPatch::getDirectChildren() const
+MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh):MEDCouplingCartesianAMRPatchGen(mesh)
 {
-  std::vector<const BigMemoryObject *> ret;
-  if((const MEDCouplingCartesianAMRMesh *)_mesh)
-    ret.push_back((const MEDCouplingCartesianAMRMesh *)_mesh);
-  return ret;
+}
+
+std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() const
+{
+  return sizeof(MEDCouplingCartesianAMRPatchGF);
 }
 
 /// @endcond
 
-
-MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                                              const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop)
-{
-  return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
-}
-
-int MEDCouplingCartesianAMRMesh::getSpaceDimension() const
+int MEDCouplingCartesianAMRMeshGen::getSpaceDimension() const
 {
   return _mesh->getSpaceDimension();
 }
 
-void MEDCouplingCartesianAMRMesh::setFactors(const std::vector<int>& newFactors)
+void MEDCouplingCartesianAMRMeshGen::setFactors(const std::vector<int>& newFactors)
 {
   if(getSpaceDimension()!=(int)newFactors.size())
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::setFactors : size of input factors is not equal to the space dimension !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::setFactors : size of input factors is not equal to the space dimension !");
   if(_factors.empty())
     {
       _factors=newFactors;
@@ -154,11 +154,11 @@ void MEDCouplingCartesianAMRMesh::setFactors(const std::vector<int>& newFactors)
   if(_factors==newFactors)
     return ;
   if(!_patches.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::setFactors : modification of factors is not allowed when presence of patches !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::setFactors : modification of factors is not allowed when presence of patches !");
   _factors=newFactors;
 }
 
-int MEDCouplingCartesianAMRMesh::getMaxNumberOfLevelsRelativeToThis() const
+int MEDCouplingCartesianAMRMeshGen::getMaxNumberOfLevelsRelativeToThis() const
 {
   int ret(1);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
@@ -166,12 +166,12 @@ int MEDCouplingCartesianAMRMesh::getMaxNumberOfLevelsRelativeToThis() const
   return ret;
 }
 
-int MEDCouplingCartesianAMRMesh::getNumberOfCellsAtCurrentLevel() const
+int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevel() const
 {
   return _mesh->getNumberOfCells();
 }
 
-int MEDCouplingCartesianAMRMesh::getNumberOfCellsRecursiveWithOverlap() const
+int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
 {
   int ret(_mesh->getNumberOfCells());
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
@@ -181,7 +181,7 @@ int MEDCouplingCartesianAMRMesh::getNumberOfCellsRecursiveWithOverlap() const
   return ret;
 }
 
-int MEDCouplingCartesianAMRMesh::getNumberOfCellsRecursiveWithoutOverlap() const
+int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithoutOverlap() const
 {
   int ret(_mesh->getNumberOfCells());
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
@@ -192,12 +192,12 @@ int MEDCouplingCartesianAMRMesh::getNumberOfCellsRecursiveWithoutOverlap() const
   return ret;
 }
 
-const MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::getFather() const
+const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMeshGen::getFather() const
 {
   return _father;
 }
 
-const MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::getGodFather() const
+const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMeshGen::getGodFather() const
 {
   if(_father==0)
     return this;
@@ -205,7 +205,40 @@ const MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::getGodFather() c
     return _father->getGodFather();
 }
 
-void MEDCouplingCartesianAMRMesh::detachFromFather()
+/*!
+ * This method returns the level of \a this. 0 for god father. -1 for children of god father ...
+ */
+int MEDCouplingCartesianAMRMeshGen::getAbsoluteLevel() const
+{
+  if(_father==0)
+    return 0;
+  else
+    return _father->getAbsoluteLevel()-1;
+}
+
+/*!
+ * This method returns grids relative to god father to specified level \a absoluteLev.
+ *
+ * \return std::vector<MEDCouplingCartesianAMRPatchGen *> - objects in vector are to be managed (decrRef) by the caller.
+ */
+std::vector<MEDCouplingCartesianAMRPatchGen *> MEDCouplingCartesianAMRMeshGen::retrieveGridsAt(int absoluteLev) const
+{
+  if(absoluteLev<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::retrieveGridsAt : absolute level must be >=0 !");
+  if(_father)
+    return getGodFather()->retrieveGridsAt(absoluteLev);
+  //
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > rets;
+  retrieveGridsAtInternal(absoluteLev,rets);
+  std::vector< MEDCouplingCartesianAMRPatchGen * > ret(rets.size());
+  for(std::size_t i=0;i<rets.size();i++)
+    {
+      ret[i]=rets[i].retn();
+    }
+  return ret;
+}
+
+void MEDCouplingCartesianAMRMeshGen::detachFromFather()
 {
   _father=0;
 }
@@ -215,12 +248,12 @@ void MEDCouplingCartesianAMRMesh::detachFromFather()
  *                                a the end cell (\b excluded) of the range for the second element of the pair.
  * \param [in] factors The factor of refinement per axis (different from 0).
  */
-void MEDCouplingCartesianAMRMesh::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
+void MEDCouplingCartesianAMRMeshGen::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
 {
   checkFactorsAndIfNotSetAssign(factors);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> mesh(static_cast<MEDCouplingIMesh *>(_mesh->buildStructuredSubPart(bottomLeftTopRight)));
   mesh->refineWithFactor(factors);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> zeMesh(new MEDCouplingCartesianAMRMesh(this,mesh));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshSub> zeMesh(new MEDCouplingCartesianAMRMeshSub(this,mesh));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
   _patches.push_back(elt);
 }
@@ -498,7 +531,7 @@ void DealWithCut(const InternalPatch *patchToBeSplit, int axisId, int cutPlace, 
 /*!
  * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
  */
-void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors)
+void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors)
 {
   int nbCells(getNumberOfCellsAtCurrentLevel());
   if(nbCells!=(int)criterion.size())
@@ -542,7 +575,7 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL
 /*!
  * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
  */
-void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors)
+void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors)
 {
   if(!criterion || !criterion->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the criterion DataArrayByte instance must be allocated and not NULL !");
@@ -550,13 +583,13 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterion(const INTERP_KERNEL
   createPatchesFromCriterion(bso,crit,factors);
 }
 
-void MEDCouplingCartesianAMRMesh::removeAllPatches()
+void MEDCouplingCartesianAMRMeshGen::removeAllPatches()
 {
   _patches.clear();
   declareAsNew();
 }
 
-void MEDCouplingCartesianAMRMesh::removePatch(int patchId)
+void MEDCouplingCartesianAMRMeshGen::removePatch(int patchId)
 {
   checkPatchId(patchId);
   int sz((int)_patches.size()),j(0);
@@ -564,17 +597,17 @@ void MEDCouplingCartesianAMRMesh::removePatch(int patchId)
   for(int i=0;i<sz;i++)
     if(i!=patchId)
       patches[j++]=_patches[i];
-  (const_cast<MEDCouplingCartesianAMRMesh *>(_patches[patchId]->getMesh()))->detachFromFather();
+  (const_cast<MEDCouplingCartesianAMRMeshGen *>(_patches[patchId]->getMesh()))->detachFromFather();
   _patches=patches;
   declareAsNew();
 }
 
-int MEDCouplingCartesianAMRMesh::getNumberOfPatches() const
+int MEDCouplingCartesianAMRMeshGen::getNumberOfPatches() const
 {
   return (int)_patches.size();
 }
 
-const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMesh::getPatch(int patchId) const
+const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMeshGen::getPatch(int patchId) const
 {
   checkPatchId(patchId);
   return _patches[patchId];
@@ -584,7 +617,7 @@ const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMesh::getPatch(int pa
  * This method states if patch2 (with id \a patchId2) is in the neighborhood of patch1 (with id \a patchId1).
  * The neighborhood size is defined by \a ghostLev in the reference of \a this ( \b not in the reference of patches !).
  */
-bool MEDCouplingCartesianAMRMesh::isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const
+bool MEDCouplingCartesianAMRMeshGen::isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const
 {
   if(ghostLev<0)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::isPatchInNeighborhoodOf : the ghost size must be >=0 !");
@@ -616,7 +649,7 @@ bool MEDCouplingCartesianAMRMesh::isPatchInNeighborhoodOf(int patchId1, int patc
  * \throw if \a cellFieldOnThis is NULL or not allocated
  * \sa fillCellFieldOnPatch, MEDCouplingIMesh::SpreadCoarseToFine
  */
-DataArrayDouble *MEDCouplingCartesianAMRMesh::createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const
+DataArrayDouble *MEDCouplingCartesianAMRMeshGen::createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const
 {
   if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatch : the input cell field array is NULL or not allocated !");
@@ -638,7 +671,7 @@ DataArrayDouble *MEDCouplingCartesianAMRMesh::createCellFieldOnPatch(int patchId
  *
  * \sa createCellFieldOnPatch, fillCellFieldComingFromPatch
  */
-void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const
 {
   if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatch : the input cell field array is NULL or not allocated !");
@@ -657,7 +690,7 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatch(int patchId, const DataAr
  *
  * \sa fillCellFieldOnPatch, fillCellFieldOnPatchGhostAdv
  */
-void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const
 {
   if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatchGhost : the input cell field array is NULL or not allocated !");
@@ -675,7 +708,7 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhost(int patchId, const D
  * \param [in] ghostLev - The size of the ghost zone (must be >=0 !)
  * \param [in] arrsOnPatches - \b WARNING arrsOnPatches[patchId] is \b NOT \b const. All others are const.
  */
-void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
 {
   int nbp(getNumberOfPatches()),dim(getSpaceDimension());
   if(nbp!=(int)arrsOnPatches.size())
@@ -732,7 +765,7 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv(int patchId, cons
  * \throw if \a cellFieldOnPatch is NULL or not allocated
  * \sa createCellFieldOnPatch, MEDCouplingIMesh::CondenseFineToCoarse,fillCellFieldComingFromPatchGhost
  */
-void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const
 {
   if(!cellFieldOnPatch || !cellFieldOnPatch->isAllocated())
       throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch : the input cell field array is NULL or not allocated !");
@@ -753,7 +786,7 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch(int patchId, cons
  * \throw if \a cellFieldOnPatch is NULL or not allocated
  * \sa fillCellFieldComingFromPatch
  */
-void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const
 {
   if(!cellFieldOnPatch || !cellFieldOnPatch->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatchGhost : the input cell field array is NULL or not allocated !");
@@ -769,7 +802,7 @@ void MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatchGhost(int patchId,
  * \param [in] ghostLev - the size of the neighborhood.
  * \return DataArrayInt * - the newly allocated array containing the list of patches in the neighborhood of the considered patch. This array is to be deallocated by the caller.
  */
-DataArrayInt *MEDCouplingCartesianAMRMesh::findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const
+DataArrayInt *MEDCouplingCartesianAMRMeshGen::findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const
 {
   int nbp(getNumberOfPatches());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
@@ -782,7 +815,7 @@ DataArrayInt *MEDCouplingCartesianAMRMesh::findPatchesInTheNeighborhoodOf(int pa
   return ret.retn();
 }
 
-MEDCouplingUMesh *MEDCouplingCartesianAMRMesh::buildUnstructured() const
+MEDCouplingUMesh *MEDCouplingCartesianAMRMeshGen::buildUnstructured() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> part(_mesh->buildUnstructured());
   std::vector<bool> bs(_mesh->getNumberOfCells(),false);
@@ -808,7 +841,7 @@ MEDCouplingUMesh *MEDCouplingCartesianAMRMesh::buildUnstructured() const
  *
  * \return MEDCoupling1SGTUMesh * - A new object to be managed by the caller containing as cells as there are patches in \a this.
  */
-MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMesh::buildMeshFromPatchEnvelop() const
+MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop() const
 {
   std::vector<const MEDCoupling1SGTUMesh *> cells;
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> > cellsSafe;
@@ -825,7 +858,7 @@ MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMesh::buildMeshFromPatchEnvelop() c
   return MEDCoupling1SGTUMesh::Merge1SGTUMeshes(cells);
 }
 
-MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMesh::buildMeshOfDirectChildrenOnly() const
+MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshOfDirectChildrenOnly() const
 {
   std::vector<const MEDCoupling1SGTUMesh *> patches;
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> > patchesSafe;
@@ -841,36 +874,36 @@ MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMesh::buildMeshOfDirectChildrenOnly
     return MEDCoupling1SGTUMesh::Merge1SGTUMeshes(patches);
 }
 
-MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                                         const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
+MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                                               const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
 {
   _mesh=MEDCouplingIMesh::New(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
 }
 
-MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(MEDCouplingCartesianAMRMesh *father, MEDCouplingIMesh *mesh):_father(father)
+MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh):_father(father)
 {
   if(!_father)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh) constructor : empty father !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen(MEDCouplingIMesh *mesh) constructor : empty father !");
   if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh) constructor : The input mesh is null !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen(MEDCouplingIMesh *mesh) constructor : The input mesh is null !");
   mesh->checkCoherency();
   _mesh=mesh; _mesh->incrRef();
 }
 
-void MEDCouplingCartesianAMRMesh::checkPatchId(int patchId) const
+void MEDCouplingCartesianAMRMeshGen::checkPatchId(int patchId) const
 {
   int sz(getNumberOfPatches());
   if(patchId<0 || patchId>=sz)
     {
-      std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::checkPatchId : invalid patchId (" << patchId << ") ! Must be in [0," << sz << ") !";
+      std::ostringstream oss; oss << "MEDCouplingCartesianAMRMeshGen::checkPatchId : invalid patchId (" << patchId << ") ! Must be in [0," << sz << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign(const std::vector<int>& factors)
+void MEDCouplingCartesianAMRMeshGen::checkFactorsAndIfNotSetAssign(const std::vector<int>& factors)
 {
   if(getSpaceDimension()!=(int)factors.size())
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign : invalid size of factors ! size must be equal to the spaceDimension !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::checkFactorsAndIfNotSetAssign : invalid size of factors ! size must be equal to the spaceDimension !");
   if(_factors.empty())
     {
       _factors=factors;
@@ -882,15 +915,46 @@ void MEDCouplingCartesianAMRMesh::checkFactorsAndIfNotSetAssign(const std::vecto
     }
 }
 
+void MEDCouplingCartesianAMRMeshGen::retrieveGridsAtInternal(int lev, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> >& grids) const
+{
+  if(lev==0)
+    {
+      const MEDCouplingCartesianAMRMesh *thisc(dynamic_cast<const MEDCouplingCartesianAMRMesh *>(this));//tony
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGF> elt(new MEDCouplingCartesianAMRPatchGF(const_cast<MEDCouplingCartesianAMRMesh *>(thisc)));
+      grids.push_back(DynamicCastSafe<MEDCouplingCartesianAMRPatchGF,MEDCouplingCartesianAMRPatchGen>(elt));
+    }
+  else if(lev==1)
+    {
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+        {
+          const MEDCouplingCartesianAMRPatch *pt(*it);
+          if(pt)
+            {
+              MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> tmp1(*it);
+              grids.push_back(DynamicCastSafe<MEDCouplingCartesianAMRPatch,MEDCouplingCartesianAMRPatchGen>(tmp1));
+            }
+        }
+    }
+  else
+    {
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+        {
+          const MEDCouplingCartesianAMRPatch *pt(*it);
+          if(pt)
+            pt->getMesh()->retrieveGridsAtInternal(lev-1,grids);
+        }
+    }
+}
+
 /*!
  * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in refined reference.
  * \param [in] factors - the factors per axis.
  */
-void MEDCouplingCartesianAMRMesh::ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors)
+void MEDCouplingCartesianAMRMeshGen::ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors)
 {
   std::size_t sz(factors.size());
   if(sz!=partBeforeFact.size())
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::ApplyFactorsOnCompactFrmt : size of input vectors must be the same !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::ApplyFactorsOnCompactFrmt : size of input vectors must be the same !");
   for(std::size_t i=0;i<sz;i++)
     {
       partBeforeFact[i].first*=factors[i];
@@ -902,10 +966,10 @@ void MEDCouplingCartesianAMRMesh::ApplyFactorsOnCompactFrmt(std::vector< std::pa
  * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
  * \param [in] ghostSize - the ghost size of zone for all axis.
  */
-void MEDCouplingCartesianAMRMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+void MEDCouplingCartesianAMRMeshGen::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
 {
   if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
   std::size_t sz(partBeforeFact.size());
   for(std::size_t i=0;i<sz;i++)
     {
@@ -920,10 +984,10 @@ void MEDCouplingCartesianAMRMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair
  * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
  * \param [in] ghostSize - the ghost size of zone for all axis.
  */
-void MEDCouplingCartesianAMRMesh::ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+void MEDCouplingCartesianAMRMeshGen::ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
 {
   if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::ApplyAllGhostOnCompactFrmt : ghost size must be >= 0 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::ApplyAllGhostOnCompactFrmt : ghost size must be >= 0 !");
   std::size_t sz(partBeforeFact.size());
   for(std::size_t i=0;i<sz;i++)
     {
@@ -932,12 +996,12 @@ void MEDCouplingCartesianAMRMesh::ApplyAllGhostOnCompactFrmt(std::vector< std::p
     }
 }
 
-std::size_t MEDCouplingCartesianAMRMesh::getHeapMemorySizeWithoutChildren() const
+std::size_t MEDCouplingCartesianAMRMeshGen::getHeapMemorySizeWithoutChildren() const
 {
-  return sizeof(MEDCouplingCartesianAMRMesh);
+  return sizeof(MEDCouplingCartesianAMRMeshGen);
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMeshGen::getDirectChildren() const
 {
   std::vector<const BigMemoryObject *> ret;
   if((const MEDCouplingIMesh *)_mesh)
@@ -950,7 +1014,7 @@ std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChild
   return ret;
 }
 
-void MEDCouplingCartesianAMRMesh::updateTime() const
+void MEDCouplingCartesianAMRMeshGen::updateTime() const
 {
   if((const MEDCouplingIMesh *)_mesh)
     updateTimeWith(*_mesh);
@@ -959,8 +1023,23 @@ void MEDCouplingCartesianAMRMesh::updateTime() const
       const MEDCouplingCartesianAMRPatch *elt(*it);
       if(!elt)
         continue;
-      const MEDCouplingCartesianAMRMesh *mesh(elt->getMesh());
+      const MEDCouplingCartesianAMRMeshGen *mesh(elt->getMesh());
       if(mesh)
         updateTimeWith(*mesh);
     }
+}
+
+MEDCouplingCartesianAMRMeshSub::MEDCouplingCartesianAMRMeshSub(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh):MEDCouplingCartesianAMRMeshGen(father,mesh)
+{
+}
+
+MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                                              const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop)
+{
+  return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
+}
+
+MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                                         const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):MEDCouplingCartesianAMRMeshGen(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop)
+{
 }

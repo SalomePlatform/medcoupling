@@ -4745,6 +4745,7 @@ namespace ParaMEDMEM
     int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
     int getNumberOfOverlapedCellsForFather() const throw(INTERP_KERNEL::Exception);
     bool isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    bool isGodFatherPatch() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       PyObject *getBLTRRange() const throw(INTERP_KERNEL::Exception)
@@ -4807,7 +4808,7 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRMesh : public RefCountObject, public TimeLabel
   {
   public:
-    
+    int getAbsoluteLevel() const throw(INTERP_KERNEL::Exception);
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     const std::vector<int>& getFactors() const throw(INTERP_KERNEL::Exception);
     void setFactors(const std::vector<int>& newFactors) throw(INTERP_KERNEL::Exception);

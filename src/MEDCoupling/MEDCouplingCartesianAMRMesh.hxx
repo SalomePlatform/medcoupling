@@ -38,30 +38,53 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class MEDCoupling1SGTUMesh;
   class MEDCouplingCartesianAMRMesh;
+  class MEDCouplingCartesianAMRMeshGen;
 
   /// @cond INTERNAL
-  class MEDCouplingCartesianAMRPatch : public RefCountObject
+
+  class MEDCouplingCartesianAMRPatchGen : public RefCountObject
   {
   public:
-    MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMesh *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight);
-    // direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
     MEDCOUPLING_EXPORT int getMaxNumberOfLevelsRelativeToThis() const;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getMesh() const { return _mesh; }
+  protected:
+    MEDCouplingCartesianAMRPatchGen(MEDCouplingCartesianAMRMeshGen *mesh);
+  private:
+    std::vector<const BigMemoryObject *> getDirectChildren() const;
+  protected:
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _mesh;
+  };
+
+  class MEDCouplingCartesianAMRPatch : public MEDCouplingCartesianAMRPatchGen
+  {
+  public:
+    MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMeshGen *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight);
+    // direct forward to _mesh
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     // end of direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfOverlapedCellsForFather() const;
     MEDCOUPLING_EXPORT bool isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const;
     // basic set/get
     MEDCOUPLING_EXPORT const std::vector< std::pair<int,int> >& getBLTRRange() const { return _bl_tr; }
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getMesh() const { return _mesh; }
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
   private:
     //! bottom left/top right cell range relative to \a _father
     std::vector< std::pair<int,int> > _bl_tr;
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> _mesh;
+  };
+
+  class MEDCouplingCartesianAMRPatchGF : public MEDCouplingCartesianAMRPatchGen
+  {
+  public:
+    MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh);
+  private:
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+  };
+
+  class MEDCouplingGodFatherData : public RefCountObject
+  {
   };
   /// @endcond
 
@@ -70,11 +93,9 @@ namespace ParaMEDMEM
    * This class does \b NOT inherit from MEDCouplingMesh because this class overlaps image grid structured meshes to perform adaptative mesh refinement.
    * But this class aggregates MEDCouplingMesh instances !
    */
-  class MEDCouplingCartesianAMRMesh : public RefCountObject, public TimeLabel
+  class MEDCouplingCartesianAMRMeshGen : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                                               const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT const std::vector<int>& getFactors() const { return _factors; }
     MEDCOUPLING_EXPORT void setFactors(const std::vector<int>& newFactors);
@@ -84,8 +105,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
     MEDCOUPLING_EXPORT const MEDCouplingIMesh *getImageMesh() const { return _mesh; }
     //
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getFather() const;
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getGodFather() const;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
+    MEDCOUPLING_EXPORT int getAbsoluteLevel() const;
+    MEDCOUPLING_EXPORT std::vector<MEDCouplingCartesianAMRPatchGen *> retrieveGridsAt(int absoluteLev) const;
     MEDCOUPLING_EXPORT void detachFromFather();
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors);
@@ -106,12 +129,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const;
-  private:
-    MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
-                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
-    MEDCouplingCartesianAMRMesh(MEDCouplingCartesianAMRMesh *father, MEDCouplingIMesh *mesh);
+  protected:
+    MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                   const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    MEDCouplingCartesianAMRMeshGen(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh);
     void checkPatchId(int patchId) const;
     void checkFactorsAndIfNotSetAssign(const std::vector<int>& factors);
+    void retrieveGridsAtInternal(int lev, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> >& grids) const;
     static void ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors);
     static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
     static void ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
@@ -120,10 +144,26 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDCOUPLING_EXPORT void updateTime() const;
   private:
-    MEDCouplingCartesianAMRMesh *_father;
+    MEDCouplingCartesianAMRMeshGen *_father;
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> _mesh;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> > _patches;
     std::vector<int> _factors;
+  };
+
+  class MEDCouplingCartesianAMRMeshSub : public MEDCouplingCartesianAMRMeshGen
+  {
+  public:
+    MEDCouplingCartesianAMRMeshSub(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh);
+  };
+
+  class MEDCouplingCartesianAMRMesh : public MEDCouplingCartesianAMRMeshGen
+  {
+  public:
+    MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                                               const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+  private:
+    MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
+                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
   };
 }
 
