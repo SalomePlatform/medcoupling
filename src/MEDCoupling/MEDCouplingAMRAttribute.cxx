@@ -42,6 +42,18 @@ void DataArrayDoubleCollection::dellocTuples()
     _arrs[i]->reAlloc(0);
 }
 
+void DataArrayDoubleCollection::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
+{
+  std::size_t sz(_arrs.size());
+  if(sz!=compNames.size())
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::spillInfoOnComponents : first size of compNames has to be equal to the number of fields defined !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const std::vector<std::string>& names(compNames[i]);
+      _arrs[i]->setInfoOnComponents(names);
+    }
+}
+
 DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pair<std::string,int> >& fieldNames):_arrs(fieldNames.size())
 {
   std::size_t sz(fieldNames.size());
@@ -76,6 +88,16 @@ std::vector<const BigMemoryObject *> DataArrayDoubleCollection::getDirectChildre
   return ret;
 }
 
+void DataArrayDoubleCollection::updateTime() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+    {
+      const DataArrayDouble *pt(*it);
+      if(pt)
+        updateTimeWith(*pt);
+    }
+}
+
 void DataArrayDoubleCollection::CheckDiscriminantNames(const std::vector<std::string>& names)
 {
   std::set<std::string> s(names.begin(),names.end());
@@ -83,17 +105,65 @@ void DataArrayDoubleCollection::CheckDiscriminantNames(const std::vector<std::st
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::CheckDiscriminantNames : The names of fields must be different each other ! It is not the case !");
 }
 
+MEDCouplingGridCollection *MEDCouplingGridCollection::New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames)
+{
+  return new MEDCouplingGridCollection(ms,fieldNames);
+}
+
+void MEDCouplingGridCollection::alloc(int ghostLev)
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    {
+      int nbTuples((*it).first->getNumberOfCellsAtCurrentLevelGhost(ghostLev));
+      DataArrayDoubleCollection *dadc((*it).second);
+      if(dadc)
+        dadc->allocTuples(nbTuples);
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::alloc : internal error !");
+    }
+}
+
+void MEDCouplingGridCollection::dealloc()
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    {
+      DataArrayDoubleCollection *dadc((*it).second);
+      if(dadc)
+        dadc->dellocTuples();
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::dealloc : internal error !");
+    }
+}
+
+void MEDCouplingGridCollection::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    (*it).second->spillInfoOnComponents(compNames);
+}
+
+MEDCouplingGridCollection::MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames):_map_of_dadc(ms.size())
+{
+  std::size_t sz(ms.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(!ms[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection constructor : presence of NULL MEDCouplingCartesianAMRMeshGen instance !");
+      _map_of_dadc[i].first=ms[i];
+      _map_of_dadc[i].second=DataArrayDoubleCollection::New(fieldNames);
+    }
+}
+
 std::size_t MEDCouplingGridCollection::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingGridCollection));
-  ret+=_map_of_dadc.capacity()*sizeof(std::pair<MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> >);
+  ret+=_map_of_dadc.capacity()*sizeof(std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> >);
   return ret;
 }
 
 std::vector<const BigMemoryObject *> MEDCouplingGridCollection::getDirectChildren() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< std::pair<MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       const DataArrayDoubleCollection *col((*it).second);
       if(col)
@@ -102,18 +172,75 @@ std::vector<const BigMemoryObject *> MEDCouplingGridCollection::getDirectChildre
   return ret;
 }
 
+void MEDCouplingGridCollection::updateTime() const
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    {
+      const MEDCouplingCartesianAMRMeshGen *a((*it).first);
+      if(a)
+        updateTimeWith(*a);
+      const DataArrayDoubleCollection *b((*it).second);
+      if(b)
+        updateTimeWith(*b);
+    }
+}
+
+/*!
+ * This method creates, attach to a main AMR mesh \a gf ( called god father :-) ) and returns a data linked to \a gf ready for the computation.
+ */
 MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames)
 {
   return new MEDCouplingAMRAttribute(gf,fieldNames);
 }
 
-void MEDCouplingAMRAttribute::alloc()
+/*!
+ * Assign the info on components for all DataArrayDouble instance recursively stored in \a this.
+ * The first dim of input \a compNames is the field id in the same order than those implicitely specified in \a fieldNames parameter of MEDCouplingAMRAttribute::New.
+ * The second dim of \a compNames represent the component names component per component corresponding to the field. The size of this 2nd dimension has
+ * to perfectly fit with those specified in MEDCouplingAMRAttribute::New.
+ */
+void MEDCouplingAMRAttribute::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
 {
-  _tlc.resetState();
+  _tlc.checkConst();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+    (*it)->spillInfoOnComponents(compNames);
 }
 
+/*!
+ * This method allocates all DataArrayDouble instances stored recursively in \a this.
+ *
+ * \param [in] ghostLev - The size of ghost zone.
+ *
+ * \sa dealloc
+ */
+void MEDCouplingAMRAttribute::alloc(int ghostLev)
+{
+  _tlc.resetState();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      MEDCouplingGridCollection *elt(*it);
+      if(elt)
+        elt->alloc(ghostLev);
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::alloc : internal error !");
+    }
+}
+
+/*!
+ * This method deallocates all DataArrayDouble instances stored recursively in \a this.
+ * \sa alloc
+ */
 void MEDCouplingAMRAttribute::dealloc()
-{//tony
+{
+  _tlc.checkConst();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      MEDCouplingGridCollection *elt(*it);
+      if(elt)
+        elt->dealloc();
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::dealloc : internal error !");
+    }
 }
 
 bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
@@ -125,12 +252,20 @@ bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
 std::size_t MEDCouplingAMRAttribute::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingAMRAttribute));
+  ret+=_levs.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection>);
   return ret;
 }
 
 std::vector<const BigMemoryObject *> MEDCouplingAMRAttribute::getDirectChildren() const
-{//tony
-  return std::vector<const BigMemoryObject *>();
+{
+  std::vector<const BigMemoryObject *> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      const MEDCouplingGridCollection *elt(*it);
+      if(elt)
+        ret.push_back(elt);
+    }
+  return ret;
 }
 
 void MEDCouplingAMRAttribute::updateTime() const
@@ -139,4 +274,21 @@ void MEDCouplingAMRAttribute::updateTime() const
 
 MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames):MEDCouplingDataForGodFather(gf)
 {
+  //gf non empty, checked by constructor
+  int maxLev(gf->getMaxNumberOfLevelsRelativeToThis()+1);
+  _levs.resize(maxLev+1);
+  for(int i=0;i<maxLev;i++)
+    {
+      std::vector<MEDCouplingCartesianAMRPatchGen *> patches(gf->retrieveGridsAt(i));
+      std::size_t sz(patches.size());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > patchesSafe(patches.size());
+      for(std::size_t j=0;j<sz;j++)
+        patchesSafe[j]=patches[j];
+      std::vector<const MEDCouplingCartesianAMRMeshGen *> ms(sz);
+      for(std::size_t j=0;j<sz;j++)
+        {
+          ms[j]=patches[j]->getMesh();
+        }
+      _levs[i]=MEDCouplingGridCollection::New(ms,fieldNames);
+    }
 }

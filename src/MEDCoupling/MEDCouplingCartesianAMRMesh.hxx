@@ -98,7 +98,7 @@ namespace ParaMEDMEM
   {
     friend class MEDCouplingCartesianAMRMesh;
   public:
-    MEDCOUPLING_EXPORT virtual void alloc() = 0;
+    MEDCOUPLING_EXPORT virtual void alloc(int ghostLev) = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
     MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf);
@@ -124,6 +124,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setFactors(const std::vector<int>& newFactors);
     MEDCOUPLING_EXPORT int getMaxNumberOfLevelsRelativeToThis() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsAtCurrentLevel() const;
+    MEDCOUPLING_EXPORT int getNumberOfCellsAtCurrentLevelGhost(int ghostLev) const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
     MEDCOUPLING_EXPORT const MEDCouplingIMesh *getImageMesh() const { return _mesh; }
@@ -188,7 +189,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingDataForGodFather *getDataConst() const { return _data; }
     MEDCOUPLING_EXPORT MEDCouplingDataForGodFather *getData() { return _data; }
     MEDCOUPLING_EXPORT void setData(MEDCouplingDataForGodFather *data);
-    MEDCOUPLING_EXPORT void allocData() const;
+    MEDCOUPLING_EXPORT void allocData(int ghostLev) const;
     MEDCOUPLING_EXPORT void deallocData() const;
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,

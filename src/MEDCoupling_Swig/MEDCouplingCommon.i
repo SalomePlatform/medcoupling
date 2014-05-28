@@ -4851,6 +4851,7 @@ namespace ParaMEDMEM
     void setFactors(const std::vector<int>& newFactors) throw(INTERP_KERNEL::Exception);
     int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsAtCurrentLevel() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfCellsAtCurrentLevelGhost(int ghostLev) const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
     bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const throw(INTERP_KERNEL::Exception);

@@ -210,11 +210,33 @@ int MEDCouplingCartesianAMRMeshGen::getMaxNumberOfLevelsRelativeToThis() const
   return ret;
 }
 
+/*!
+ * This method returns the number of cells of \a this with the help of the MEDCouplingIMesh instance representing \a this.
+ * The patches in \a this are ignored here.
+ * \sa getNumberOfCellsAtCurrentLevelGhost, getNumberOfCellsRecursiveWithOverlap
+ */
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevel() const
 {
   return _mesh->getNumberOfCells();
 }
 
+/*!
+ * This method returns the number of cells of \a this with the help of the MEDCouplingIMesh instance representing \a this enlarged by \a ghostLev size
+ * to take into account of the ghost cells for future computation.
+ * The patches in \a this are ignored here.
+ *
+ * \sa getNumberOfCellsAtCurrentLevel
+ */
+int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevelGhost(int ghostLev) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> tmp(_mesh->buildWithGhost(ghostLev));
+  return tmp->getNumberOfCells();
+}
+
+/*!
+ * This method returns the number of cells including the current level but \b also \b including recursively all cells of other levels
+ * starting from this. The set of cells which size is returned here are generally overlapping each other.
+ */
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
 {
   int ret(_mesh->getNumberOfCells());
@@ -225,6 +247,9 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
   return ret;
 }
 
+/*!
+ * This method returns the max number of cells covering all the space without overlapping.
+ */
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithoutOverlap() const
 {
   int ret(_mesh->getNumberOfCells());
@@ -1112,10 +1137,10 @@ void MEDCouplingCartesianAMRMesh::setData(MEDCouplingDataForGodFather *data)
     data->incrRef();
 }
 
-void MEDCouplingCartesianAMRMesh::allocData() const
+void MEDCouplingCartesianAMRMesh::allocData(int ghostLev) const
 {
   checkData();
-  _data->alloc();
+  _data->alloc(ghostLev);
 }
 
 void MEDCouplingCartesianAMRMesh::deallocData() const
