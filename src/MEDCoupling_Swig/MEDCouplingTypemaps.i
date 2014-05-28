@@ -85,6 +85,42 @@ static PyObject* convertMultiFields(ParaMEDMEM::MEDCouplingMultiFields *mfs, int
   return ret;
 }
 
+static PyObject *convertCartesianAMRMesh(ParaMEDMEM::MEDCouplingCartesianAMRMeshGen *mesh, int owner) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingCartesianAMRMeshSub *>(mesh))
+    {
+      return SWIG_NewPointerObj(reinterpret_cast<void*>(mesh),SWIGTYPE_p_ParaMEDMEM__MEDCouplingCartesianAMRMeshSub,owner);
+    }
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingCartesianAMRMesh *>(mesh))
+    {
+      return SWIG_NewPointerObj(reinterpret_cast<void*>(mesh),SWIGTYPE_p_ParaMEDMEM__MEDCouplingCartesianAMRMesh,owner);
+    }
+  throw INTERP_KERNEL::Exception("convertCartesianAMRMesh wrap : unrecognized type of cartesian AMR mesh !");
+}
+
+static PyObject *convertCartesianAMRPatch(ParaMEDMEM::MEDCouplingCartesianAMRPatchGen *patch, int owner) throw(INTERP_KERNEL::Exception)
+{
+  if(!patch)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingCartesianAMRPatchGF *>(patch))
+    {
+      return SWIG_NewPointerObj(reinterpret_cast<void*>(patch),SWIGTYPE_p_ParaMEDMEM__MEDCouplingCartesianAMRPatchGF,owner);
+    }
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingCartesianAMRPatch *>(patch))
+    {
+      return SWIG_NewPointerObj(reinterpret_cast<void*>(patch),SWIGTYPE_p_ParaMEDMEM__MEDCouplingCartesianAMRPatch,owner);
+    }
+  throw INTERP_KERNEL::Exception("convertCartesianAMRPatch wrap : unrecognized type of cartesian AMR patch !");
+}
+
 static ParaMEDMEM::MEDCouplingFieldDouble *ParaMEDMEM_MEDCouplingFieldDouble___add__Impl(ParaMEDMEM::MEDCouplingFieldDouble *self, PyObject *obj) throw(INTERP_KERNEL::Exception)
 {
   const char msg[]="Unexpected situation in MEDCouplingFieldDouble.__add__ ! Expecting a not null MEDCouplingFieldDouble or DataArrayDouble or DataArrayDoubleTuple instance, or a list of double, or a double.";

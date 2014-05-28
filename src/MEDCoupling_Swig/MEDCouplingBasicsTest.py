@@ -15189,6 +15189,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f4=MEDCouplingFieldDouble(ON_CELLS) ; f4.setMesh(amr[4].getMesh().getImageMesh().buildWithGhost(1)) ; f4.setArray(da4) ; f4.setName("p4") ; f4.checkCoherency()
         #
         self.assertTrue(da0.isEqual(DataArrayDouble([28.8,16.9,16.9,16.9,16.9,17.9,17.9,17.9,17.9,18.9,18.9,18.9,18.9,25.7,34.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,31.7,40.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,37.7,46.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,43.7,52.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,49.7,58.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,7.6,64.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,13.6,70.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,19.6,76.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,25.6,36.9,37.9,37.9,37.9,37.9,38.9,38.9,38.9,38.9,39.9,39.9,39.9,39.9,40.9]),1e-12))
+        #
+        g0=amr.retrieveGridsAt(0)
+        self.assertEqual(1,len(g0))
+        self.assertTrue(isinstance(g0[0],MEDCouplingCartesianAMRPatchGF))
+        g1=amr.retrieveGridsAt(1)
+        self.assertEqual(5,len(g1))
+        for i in xrange(5):
+            self.assertTrue(isinstance(g1[i],MEDCouplingCartesianAMRPatch))
+            pass
         pass
 
     def setUp(self):

@@ -53,6 +53,22 @@ MEDCouplingCartesianAMRPatchGen::MEDCouplingCartesianAMRPatchGen(MEDCouplingCart
   _mesh=mesh; _mesh->incrRef();
 }
 
+const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatchGen::getMeshSafe() const
+{
+  const MEDCouplingCartesianAMRMeshGen *mesh(_mesh);
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatchGen::getMeshSafe const : the mesh is NULL !");
+  return mesh;
+}
+
+MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatchGen::getMeshSafe()
+{
+  MEDCouplingCartesianAMRMeshGen *mesh(_mesh);
+    if(!mesh)
+      throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatchGen::getMeshSafe : the mesh is NULL !");
+    return mesh;
+}
+
 std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRPatchGen::getDirectChildren() const
 {
   std::vector<const BigMemoryObject *> ret;
@@ -71,6 +87,11 @@ MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianA
   int dim((int)bottomLeftTopRight.size()),dimExp(_mesh->getSpaceDimension());
   if(dim!=dimExp)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input bottomLeft/topRight size mismatches !");
+}
+
+void MEDCouplingCartesianAMRPatch::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
+{
+  return getMeshSafe()->addPatch(bottomLeftTopRight,factors);
 }
 
 int MEDCouplingCartesianAMRPatch::getNumberOfOverlapedCellsForFather() const
@@ -1039,7 +1060,21 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string&
   return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
 }
 
+void MEDCouplingCartesianAMRMesh::setData(MEDCouplingDataForGodFather *data)
+{
+  _data=data;
+}
+
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                          const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):MEDCouplingCartesianAMRMeshGen(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop)
 {
+}
+
+std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChildren() const
+{
+  std::vector<const BigMemoryObject *> ret(MEDCouplingCartesianAMRMeshGen::getDirectChildren());
+  const MEDCouplingDataForGodFather *pt(_data);
+  if(pt)
+    ret.push_back(pt);
+  return ret;
 }

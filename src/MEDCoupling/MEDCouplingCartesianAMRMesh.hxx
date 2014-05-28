@@ -51,6 +51,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getMesh() const { return _mesh; }
   protected:
     MEDCouplingCartesianAMRPatchGen(MEDCouplingCartesianAMRMeshGen *mesh);
+    const MEDCouplingCartesianAMRMeshGen *getMeshSafe() const;
+    MEDCouplingCartesianAMRMeshGen *getMeshSafe();
   private:
     std::vector<const BigMemoryObject *> getDirectChildren() const;
   protected:
@@ -83,7 +85,7 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySizeWithoutChildren() const;
   };
 
-  class MEDCouplingGodFatherData : public RefCountObject
+  class MEDCouplingDataForGodFather : public RefCountObject
   {
   };
   /// @endcond
@@ -161,9 +163,15 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    MEDCOUPLING_EXPORT const MEDCouplingDataForGodFather *getDataConst() const { return _data; }
+    MEDCOUPLING_EXPORT MEDCouplingDataForGodFather *getData() { return _data; }
+    MEDCOUPLING_EXPORT void setData(MEDCouplingDataForGodFather *data);
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+  private:
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingDataForGodFather> _data;
   };
 }
 
