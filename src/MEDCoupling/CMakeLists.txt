@@ -56,6 +56,7 @@ SET(medcoupling_SOURCES
   MEDCouplingDefinitionTime.cxx
   MEDCouplingFieldOverTime.cxx
   MEDCouplingCartesianAMRMesh.cxx
+  MEDCouplingAMRAttribute.cxx
   MEDCouplingMatrix.cxx
   )
 

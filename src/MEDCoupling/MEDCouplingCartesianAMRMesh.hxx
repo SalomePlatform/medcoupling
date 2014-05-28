@@ -42,6 +42,9 @@ namespace ParaMEDMEM
 
   /// @cond INTERNAL
 
+  /*!
+   * This class does not inherit from TimeLabel so only const method should exist.
+   */
   class MEDCouplingCartesianAMRPatchGen : public RefCountObject
   {
   public:
@@ -59,6 +62,9 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _mesh;
   };
 
+  /*!
+   * This class does not inherit from TimeLabel so only const method should exist.
+   */
   class MEDCouplingCartesianAMRPatch : public MEDCouplingCartesianAMRPatchGen
   {
   public:
@@ -77,6 +83,9 @@ namespace ParaMEDMEM
     std::vector< std::pair<int,int> > _bl_tr;
   };
 
+  /*!
+   * This class does not inherit from TimeLabel so only const method should exist.
+   */
   class MEDCouplingCartesianAMRPatchGF : public MEDCouplingCartesianAMRPatchGen
   {
   public:
@@ -87,6 +96,18 @@ namespace ParaMEDMEM
 
   class MEDCouplingDataForGodFather : public RefCountObject
   {
+    friend class MEDCouplingCartesianAMRMesh;
+  public:
+    MEDCOUPLING_EXPORT virtual void alloc() = 0;
+    MEDCOUPLING_EXPORT virtual void dealloc() = 0;
+  protected:
+    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf);
+    void checkGodFatherFrozen() const;
+  protected:
+    virtual bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
+  protected:
+    MEDCouplingCartesianAMRMesh *_gf;
+    TimeLabelConstOverseer _tlc;
   };
   /// @endcond
 
@@ -124,6 +145,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const;
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const;
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
+    MEDCOUPLING_EXPORT void fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const;
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const;
     MEDCOUPLING_EXPORT DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const;
@@ -166,12 +188,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingDataForGodFather *getDataConst() const { return _data; }
     MEDCOUPLING_EXPORT MEDCouplingDataForGodFather *getData() { return _data; }
     MEDCOUPLING_EXPORT void setData(MEDCouplingDataForGodFather *data);
+    MEDCOUPLING_EXPORT void allocData() const;
+    MEDCOUPLING_EXPORT void deallocData() const;
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    void checkData() const;
+    ~MEDCouplingCartesianAMRMesh();
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingDataForGodFather> _data;
+    mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingDataForGodFather> _data;
   };
 }
 

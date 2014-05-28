@@ -156,6 +156,28 @@ std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() c
   return sizeof(MEDCouplingCartesianAMRPatchGF);
 }
 
+MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf):_gf(gf),_tlc(gf)
+{
+  if(!_gf)
+    throw INTERP_KERNEL::Exception("MEDCouplingDataForGodFather constructor : A data has to be attached to a AMR Mesh instance !");
+  _gf->setData(this);
+}
+
+void MEDCouplingDataForGodFather::checkGodFatherFrozen() const
+{
+  _tlc.checkConst();
+}
+
+bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
+{
+  bool ret(_tlc.keepTrackOfNewTL(gf));
+  if(ret)
+    {
+      _gf=gf;
+    }
+  return ret;
+}
+
 /// @endcond
 
 int MEDCouplingCartesianAMRMeshGen::getSpaceDimension() const
@@ -177,6 +199,7 @@ void MEDCouplingCartesianAMRMeshGen::setFactors(const std::vector<int>& newFacto
   if(!_patches.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::setFactors : modification of factors is not allowed when presence of patches !");
   _factors=newFactors;
+  declareAsNew();
 }
 
 int MEDCouplingCartesianAMRMeshGen::getMaxNumberOfLevelsRelativeToThis() const
@@ -262,6 +285,7 @@ std::vector<MEDCouplingCartesianAMRPatchGen *> MEDCouplingCartesianAMRMeshGen::r
 void MEDCouplingCartesianAMRMeshGen::detachFromFather()
 {
   _father=0;
+  declareAsNew();
 }
 
 /*!
@@ -277,6 +301,7 @@ void MEDCouplingCartesianAMRMeshGen::addPatch(const std::vector< std::pair<int,i
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshSub> zeMesh(new MEDCouplingCartesianAMRMeshSub(this,mesh));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
   _patches.push_back(elt);
+  declareAsNew();
 }
 
 /// @cond INTERNAL
@@ -591,6 +616,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
     }
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> >::const_iterator it=listOfPatchesOK.begin();it!=listOfPatchesOK.end();it++)
     addPatch((*it)->getConstPart(),factors);
+  declareAsNew();
 }
 
 /*!
@@ -602,6 +628,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createPatchesFromCriterion : the criterion DataArrayByte instance must be allocated and not NULL !");
   std::vector<bool> crit(criterion->toVectorOfBool());//check that criterion has one component.
   createPatchesFromCriterion(bso,crit,factors);
+  declareAsNew();
 }
 
 void MEDCouplingCartesianAMRMeshGen::removeAllPatches()
@@ -728,10 +755,12 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhost(int patchId, cons
  * \param [in,out] cellFieldOnPatch - The array of the cell field on the requested patch to be filled.
  * \param [in] ghostLev - The size of the ghost zone (must be >=0 !)
  * \param [in] arrsOnPatches - \b WARNING arrsOnPatches[patchId] is \b NOT \b const. All others are const.
+ *
+ * \sa fillCellFieldOnPatchOnlyGhostAdv
  */
 void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
 {
-  int nbp(getNumberOfPatches()),dim(getSpaceDimension());
+  int nbp(getNumberOfPatches());
   if(nbp!=(int)arrsOnPatches.size())
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
@@ -740,7 +769,18 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, c
   DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
   // first, do as usual
   fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,theFieldToFill,ghostLev);
-  // all reference patch stuff
+  fillCellFieldOnPatchOnlyGhostAdv(patchId,ghostLev,arrsOnPatches);
+}
+
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
+{
+  int nbp(getNumberOfPatches()),dim(getSpaceDimension());
+  if(nbp!=(int)arrsOnPatches.size())
+    {
+      std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchOnlyGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
   const MEDCouplingCartesianAMRPatch *refP(getPatch(patchId));
   const std::vector< std::pair<int,int> >& refBLTR(refP->getBLTRRange());//[(1,4),(2,4)]
   std::vector<int> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(refBLTR));//[3,2]
@@ -1062,7 +1102,26 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string&
 
 void MEDCouplingCartesianAMRMesh::setData(MEDCouplingDataForGodFather *data)
 {
+  MEDCouplingDataForGodFather *myData(_data);
+  if(myData==data)
+    return ;
+  if(myData)
+    myData->changeGodFather(0);
   _data=data;
+  if(data)
+    data->incrRef();
+}
+
+void MEDCouplingCartesianAMRMesh::allocData() const
+{
+  checkData();
+  _data->alloc();
+}
+
+void MEDCouplingCartesianAMRMesh::deallocData() const
+{
+  checkData();
+  _data->dealloc();
 }
 
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
@@ -1077,4 +1136,18 @@ std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChild
   if(pt)
     ret.push_back(pt);
   return ret;
+}
+
+void MEDCouplingCartesianAMRMesh::checkData() const
+{
+  const MEDCouplingDataForGodFather *data(_data);
+  if(!data)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::checkData : no data set !");
+}
+
+MEDCouplingCartesianAMRMesh::~MEDCouplingCartesianAMRMesh()
+{
+  MEDCouplingDataForGodFather *data(_data);
+  if(!data)
+    data->changeGodFather(0);
 }

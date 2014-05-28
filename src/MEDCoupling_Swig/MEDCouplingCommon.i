@@ -4837,6 +4837,9 @@ namespace ParaMEDMEM
 
   class MEDCouplingDataForGodFather : public RefCountObject
   {
+  public:
+    virtual void alloc() throw(INTERP_KERNEL::Exception);
+    virtual void dealloc() throw(INTERP_KERNEL::Exception);
   };
   
   class MEDCouplingCartesianAMRMeshGen : public RefCountObject, public TimeLabel
@@ -4939,6 +4942,13 @@ namespace ParaMEDMEM
         self->fillCellFieldOnPatchGhostAdv(patchId,cellFieldOnThis,ghostLev,arrsOnPatches2);
       }
 
+      void fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, PyObject *arrsOnPatches) const
+      {
+        std::vector<const ParaMEDMEM::DataArrayDouble *> arrsOnPatches2;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayDouble *>(arrsOnPatches,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",arrsOnPatches2);
+        self->fillCellFieldOnPatchOnlyGhostAdv(patchId,ghostLev,arrsOnPatches2);
+      }
+
       void __delitem__(int patchId) throw(INTERP_KERNEL::Exception)
       {
         self->removePatch(patchId);
@@ -4959,6 +4969,8 @@ namespace ParaMEDMEM
   {
   public:
     void setData(MEDCouplingDataForGodFather *data) throw(INTERP_KERNEL::Exception);
+    void allocData() const throw(INTERP_KERNEL::Exception);
+    void deallocData() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
