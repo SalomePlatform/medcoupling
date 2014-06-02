@@ -98,6 +98,10 @@ namespace ParaMEDMEM
   {
     friend class MEDCouplingCartesianAMRMesh;
   public:
+    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse(int ghostLev) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine(int ghostLev) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineOnlyInGhostZone(int ghostLev) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeFineEachOtherInGhostZone(int ghostLev) = 0;
     MEDCOUPLING_EXPORT virtual void alloc(int ghostLev) = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
@@ -140,15 +144,22 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void removeAllPatches();
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;
+    MEDCOUPLING_EXPORT int getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatch(int patchId) const;
     MEDCOUPLING_EXPORT bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const;
     MEDCOUPLING_EXPORT DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const;
+    // coarse to fine
     MEDCOUPLING_EXPORT void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const;
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const;
+    MEDCOUPLING_EXPORT void fillCellFieldOnPatchOnlyOnGhostZone(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const;
+    // coarse to fine + fine to fine
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
+    // fine to fine
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
+    // fine to coarse
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const;
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const;
+    //
     MEDCOUPLING_EXPORT DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const;
     //
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;

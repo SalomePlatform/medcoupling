@@ -699,6 +699,63 @@ static void convertPyToVectorPairInt(PyObject *pyLi, std::vector< std::pair<int,
     throw INTERP_KERNEL::Exception(msg);
 }
 
+static void convertPyToVectorPairStringInt(PyObject *pyLi, std::vector< std::pair<std::string,int> >& arr) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="convertPyToVectorPairStringInt : list must contain tuples of 2 integers only or tuple must contain tuples of 1 string and 1 integer only !";
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      arr.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              int sz2=PyTuple_Size(o);
+              if(sz2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_0=PyTuple_GetItem(o,0);
+              if(!PyString_Check(o_0))
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_1=PyTuple_GetItem(o,1);
+              if(!PyInt_Check(o_1))
+                throw INTERP_KERNEL::Exception(msg);
+              arr[i].first=PyString_AsString(o_0);
+              arr[i].second=(int)PyInt_AS_LONG(o_1);
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      arr.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              int sz2=PyTuple_Size(o);
+              if(sz2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_0=PyTuple_GetItem(o,0);
+              if(!PyString_Check(o_0))
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_1=PyTuple_GetItem(o,1);
+              if(!PyInt_Check(o_1))
+                throw INTERP_KERNEL::Exception(msg);
+              arr[i].first=PyString_AsString(o_0);
+              arr[i].second=(int)PyInt_AS_LONG(o_1);
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
+}
+
 static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
@@ -956,6 +1013,93 @@ static bool fillStringVector(PyObject *pyLi, std::vector<std::string>& vec) thro
     }
   else
     return false;
+}
+static void convertPyToVectorOfVectorOfString(PyObject *pyLi, std::vector< std::vector<std::string> >& arr) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="convertPyToVectorOfVectorOfString : expecting list of list of strings !";
+  if(PyList_Check(pyLi))
+    {
+      Py_ssize_t sz=PyList_Size(pyLi);
+      arr.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(!fillStringVector(o,arr[i]))
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      Py_ssize_t sz=PyTuple_Size(pyLi);
+      arr.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(!fillStringVector(o,arr[i]))
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
+}
+
+static void convertPyToVectorPairStringVecString(PyObject *pyLi, std::vector< std::pair<std::string, std::vector<std::string> > >& arr) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="convertPyToVectorPairStringVecString : expecting list of tuples containing each exactly 2 items : one string and one vector of string !";
+  if(PyList_Check(pyLi))
+    {
+      Py_ssize_t sz=PyList_Size(pyLi);
+      arr.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              int sz2=PyTuple_Size(o);
+              if(sz2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              std::pair<std::string, std::vector<std::string> > item;
+              PyObject *o_0=PyTuple_GetItem(o,0);
+              if(!PyString_Check(o_0))
+                throw INTERP_KERNEL::Exception(msg);
+              item.first=PyString_AsString(o_0);
+              PyObject *o_1=PyTuple_GetItem(o,1);
+              if(!fillStringVector(o_1,item.second))
+                throw INTERP_KERNEL::Exception(msg);
+              arr[i]=item;
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      Py_ssize_t sz=PyTuple_Size(pyLi);
+      arr.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              int sz2=PyTuple_Size(o);
+              if(sz2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              std::pair<std::string, std::vector<std::string> > item;
+              PyObject *o_0=PyTuple_GetItem(o,0);
+              if(!PyString_Check(o_0))
+                throw INTERP_KERNEL::Exception(msg);
+              item.first=PyString_AsString(o_0);
+              PyObject *o_1=PyTuple_GetItem(o,1);
+              if(!fillStringVector(o_1,item.second))
+                throw INTERP_KERNEL::Exception(msg);
+              arr[i]=item;
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
 }
 
 static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP_KERNEL::Exception)

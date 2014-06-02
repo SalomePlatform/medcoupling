@@ -34,6 +34,12 @@ namespace ParaMEDMEM
     void allocTuples(int nbOfTuples);
     void dellocTuples();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
+    std::vector<DataArrayDouble *> retrieveFields() const;
+    DataArrayDouble *retrieveFieldWithName(const std::string& name) const;
+    static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse);
+    static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
+    static void SynchronizeFineEachOther(int patchId, int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, const std::vector<const MEDCouplingCartesianAMRMeshGen *>& children, const std::vector<DataArrayDoubleCollection *>& fieldsOnFine);
+    static void SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
   private:
     DataArrayDoubleCollection(const std::vector< std::pair<std::string,int> >& fieldNames);
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -51,6 +57,12 @@ namespace ParaMEDMEM
     void alloc(int ghostLev);
     void dealloc();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
+    bool presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const;
+    const DataArrayDoubleCollection& retrieveFieldsAt(int pos) const;
+    static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingGridCollection *fine, const MEDCouplingGridCollection *coarse);
+    static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
+    void synchronizeFineEachOther(int ghostLev) const;
+    static void SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
   private:
     MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -65,8 +77,15 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
+    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *retrieveFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     //
+    MEDCOUPLING_EXPORT void synchronizeFineToCoarse(int ghostLev);
+    MEDCOUPLING_EXPORT void synchronizeCoarseToFine(int ghostLev);
+    MEDCOUPLING_EXPORT void synchronizeCoarseToFineOnlyInGhostZone(int ghostLev);
+    MEDCOUPLING_EXPORT void synchronizeFineEachOtherInGhostZone(int ghostLev);
     MEDCOUPLING_EXPORT void alloc(int ghostLev);
     MEDCOUPLING_EXPORT void dealloc();
     MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);

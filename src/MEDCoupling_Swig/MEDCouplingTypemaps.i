@@ -103,6 +103,20 @@ static PyObject *convertCartesianAMRMesh(ParaMEDMEM::MEDCouplingCartesianAMRMesh
   throw INTERP_KERNEL::Exception("convertCartesianAMRMesh wrap : unrecognized type of cartesian AMR mesh !");
 }
 
+static PyObject *convertDataForGodFather(ParaMEDMEM::MEDCouplingDataForGodFather *data, int owner) throw(INTERP_KERNEL::Exception)
+{
+  if(!data)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingAMRAttribute *>(data))
+    {
+      return SWIG_NewPointerObj(reinterpret_cast<void*>(data),SWIGTYPE_p_ParaMEDMEM__MEDCouplingAMRAttribute,owner);
+    }
+  throw INTERP_KERNEL::Exception("convertDataForGodFather wrap : unrecognized data type for AMR !");
+}
+
 static PyObject *convertCartesianAMRPatch(ParaMEDMEM::MEDCouplingCartesianAMRPatchGen *patch, int owner) throw(INTERP_KERNEL::Exception)
 {
   if(!patch)

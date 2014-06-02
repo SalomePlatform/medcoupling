@@ -41,6 +41,7 @@
 #include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingCartesianAMRMesh.hxx"
+#include "MEDCouplingAMRAttribute.hxx"
 #include "MEDCouplingMatrix.hxx"
 #include "MEDCouplingTypemaps.i"
 
@@ -91,6 +92,13 @@ using namespace INTERP_KERNEL;
 %typemap(out) MEDCouplingCartesianAMRMeshGen*
 {
   $result=convertCartesianAMRMesh($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
+%typemap(out) MEDCouplingDataForGodFather*
+{
+  $result=convertDataForGodFather($1,$owner);
 }
 //$$$$$$$$$$$$$$$$$$
 
@@ -344,6 +352,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getDataConst;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getData;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::New;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::retrieveFieldOn;
 %newobject ParaMEDMEM::DenseMatrix::New;
 %newobject ParaMEDMEM::DenseMatrix::deepCpy;
 %newobject ParaMEDMEM::DenseMatrix::shallowCpy;
@@ -381,6 +391,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingCartesianAMRPatchGF "$this->decrRef();"
 %feature("unref") MEDCouplingCartesianAMRPatch "$this->decrRef();"
 %feature("unref") MEDCouplingDataForGodFather "$this->decrRef();"
+%feature("unref") MEDCouplingAMRAttribute "$this->decrRef();"
 %feature("unref") DenseMatrix "$this->decrRef();"
 
 %rename(assign) *::operator=;
@@ -3219,6 +3230,13 @@ namespace ParaMEDMEM
         MEDCouplingIMesh::SpreadCoarseToFineGhost(coarseDA,coarseSt,fineDA,inp,facts,ghostSize);
       }
 
+      static void SpreadCoarseToFineGhostZone(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, PyObject *fineLocInCoarse, const std::vector<int>& facts, int ghostSize) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(fineLocInCoarse,inp);
+        MEDCouplingIMesh::SpreadCoarseToFineGhostZone(coarseDA,coarseSt,fineDA,inp,facts,ghostSize);
+      }
+
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -4838,7 +4856,11 @@ namespace ParaMEDMEM
   class MEDCouplingDataForGodFather : public RefCountObject
   {
   public:
-    virtual void alloc() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeFineToCoarse(int ghostLev) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFine(int ghostLev) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFineOnlyInGhostZone(int ghostLev) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeFineEachOtherInGhostZone(int ghostLev) throw(INTERP_KERNEL::Exception);
+    virtual void alloc(int ghostLev) throw(INTERP_KERNEL::Exception);
     virtual void dealloc() throw(INTERP_KERNEL::Exception);
   };
   
@@ -4856,7 +4878,8 @@ namespace ParaMEDMEM
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
     bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const throw(INTERP_KERNEL::Exception);
     //
-    int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);    
+    int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);
+    int getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const throw(INTERP_KERNEL::Exception);
@@ -4867,6 +4890,7 @@ namespace ParaMEDMEM
     DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldOnPatchOnlyOnGhostZone(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const throw(INTERP_KERNEL::Exception);
@@ -4970,7 +4994,7 @@ namespace ParaMEDMEM
   {
   public:
     void setData(MEDCouplingDataForGodFather *data) throw(INTERP_KERNEL::Exception);
-    void allocData() const throw(INTERP_KERNEL::Exception);
+    void allocData(int ghostLev) const throw(INTERP_KERNEL::Exception);
     void deallocData() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5012,6 +5036,55 @@ namespace ParaMEDMEM
         if(ret)
           ret->incrRef();
         return ret;
+      }
+    }
+  };
+  
+  class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
+  {
+  public:
+    DataArrayDouble *retrieveFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
+    bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<std::string,int> > fieldNamesCpp0;
+        std::vector< std::pair<std::string, std::vector<std::string> > > fieldNamesCpp1;
+        MEDCouplingAMRAttribute *ret(0);
+        try
+          {
+            convertPyToVectorPairStringInt(fieldNames,fieldNamesCpp0);
+            ret=MEDCouplingAMRAttribute::New(gf,fieldNamesCpp0);
+          }
+        catch(INTERP_KERNEL::Exception&)
+          {
+            convertPyToVectorPairStringVecString(fieldNames,fieldNamesCpp1);
+            ret=MEDCouplingAMRAttribute::New(gf,fieldNamesCpp1);
+          }
+        return ret;
+      }
+
+      MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames) throw(INTERP_KERNEL::Exception)
+      {
+        return ParaMEDMEM_MEDCouplingAMRAttribute_New(gf,fieldNames);
+      }
+      
+      void spillInfoOnComponents(PyObject *compNames) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::vector<std::string> > compNamesCpp;
+        convertPyToVectorOfVectorOfString(compNames,compNamesCpp);
+        self->spillInfoOnComponents(compNamesCpp);
+      }
+      
+      PyObject *retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<DataArrayDouble *> ret(self->retrieveFieldsOn(mesh));
+        int sz((int)ret.size());
+        PyObject *retPy(PyList_New(sz));
+        for(int i=0;i<sz;i++)
+          PyList_SetItem(retPy,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        return retPy;
       }
     }
   };

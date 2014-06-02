@@ -249,6 +249,10 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
 
 /*!
  * This method returns the max number of cells covering all the space without overlapping.
+ * It returns the number of cells of the mesh with the highest resolution.
+ * The returned value is equal to the number of cells of mesh returned by buildUnstructured.
+ *
+ * \sa buildUnstructured
  */
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithoutOverlap() const
 {
@@ -680,6 +684,17 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfPatches() const
   return (int)_patches.size();
 }
 
+int MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const
+{
+  int ret(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ret++)
+    {
+      if((*it)->getMesh()==mesh)
+        return ret;
+    }
+  throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh : no such a mesh in my direct progeny !");
+}
+
 const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMeshGen::getPatch(int patchId) const
 {
   checkPatchId(patchId);
@@ -772,6 +787,23 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhost(int patchId, cons
 }
 
 /*!
+ * This method is equivalent to  fillCellFieldOnPatchGhost except that here \b ONLY \b the \b ghost \b zone will be updated
+ * in \a cellFieldOnPatch.
+ *
+ * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
+ * \param [in] cellFieldOnThis - The array of the cell field on \c this->getImageMesh() to be projected to patch having id \a patchId.
+ * \param [in,out] cellFieldOnPatch - The array of the cell field on the requested patch to be filled \b only \b in \b the \b ghost \b zone.
+ * \param [in] ghostLev - The size of the ghost zone (must be >=0 !)
+ */
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyOnGhostZone(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const
+{
+  if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchOnlyOnGhostZone : the input cell field array is NULL or not allocated !");
+  const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
+  MEDCouplingIMesh::SpreadCoarseToFineGhostZone(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),ghostLev);
+}
+
+/*!
  * This method is a refinement of fillCellFieldOnPatchGhost. fillCellFieldOnPatchGhost is first called.
  * Then for all other patches than those pointed by \a patchId that overlap the ghost zone of the patch impact the ghost zone adequately.
  *
@@ -797,6 +829,10 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, c
   fillCellFieldOnPatchOnlyGhostAdv(patchId,ghostLev,arrsOnPatches);
 }
 
+/*!
+ * This method updates the patch with id \a patchId considering the only the all the patches in \a this to fill ghost zone.
+ * So \b warning, the DataArrayDouble instance \a arrsOnPatches[patchId] is non const.
+ */
 void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
 {
   int nbp(getNumberOfPatches()),dim(getSpaceDimension());
@@ -1173,6 +1209,6 @@ void MEDCouplingCartesianAMRMesh::checkData() const
 MEDCouplingCartesianAMRMesh::~MEDCouplingCartesianAMRMesh()
 {
   MEDCouplingDataForGodFather *data(_data);
-  if(!data)
+  if(data)
     data->changeGodFather(0);
 }
