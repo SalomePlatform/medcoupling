@@ -2770,6 +2770,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],nodeCor.getIJ(i,0));
             pass
         pass
+      
+    def testSwig2CheckDeepEquivalWith1(self):
+        eps = 1.0e-8
+        mcart = MEDCouplingCMesh()
+        mcart.setCoordsAt(0, DataArrayDouble([0.0,1.5,2.0]))
+        mcart.setCoordsAt(1, DataArrayDouble([1.0,2.5,3.0,4.0]))
+        m = mcart.buildUnstructured()
+        m2 = m[1:m.getNumberOfCells()]
+        self.assertRaises(InterpKernelException, m.checkDeepEquivalWith, m2, 0, eps)
+        self.assertRaises(InterpKernelException, m.checkDeepEquivalWith, m2, 1, eps)
+        self.assertRaises(InterpKernelException, m.checkDeepEquivalWith, m2, 2, eps)
+        pass
 
     def testCopyTinyStringsFromOnFields(self):
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
