@@ -19,7 +19,9 @@
 // Author : Anthony Geay
 
 #include "MEDCouplingAMRAttribute.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingIMesh.hxx"
 
 #include <sstream>
 
@@ -527,22 +529,31 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
 
 /*!
  * This method builds a newly created field on cell just lying on mesh \a mesh without its eventual refinement.
+ * The output field also displays ghost cells.
  *
  * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
  *
  */
 MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
+  const DataArrayDouble *arr(0);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
         {
           const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
-          const DataArrayDouble *arr(ddc.getFieldWithName(fieldName));
+          arr=ddc.getFieldWithName(fieldName);
         }
     }
-  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithGhost : the mesh specified is not in the progeny of this !");
+  if(!arr)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithGhost : the mesh specified is not in the progeny of this !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(ghostLev));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+  ret->setMesh(im);
+  ret->setArray(const_cast<DataArrayDouble *>(arr));
+  ret->setName(arr->getName());
+  return ret.retn();
 }
 
 /*!
@@ -575,7 +586,7 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFine(int ghostLev)
   //
   for(std::size_t i=1;i<sz;i++)
     {
-      const MEDCouplingGridCollection *fine(_levs[sz]),*coarse(_levs[sz-1]);
+      const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
       MEDCouplingGridCollection::SynchronizeCoarseToFine(ghostLev,coarse,fine);
     }
 }
@@ -593,7 +604,7 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone(int ghostLe
   //
   for(std::size_t i=1;i<sz;i++)
     {
-      const MEDCouplingGridCollection *fine(_levs[sz]),*coarse(_levs[sz-1]);
+      const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
       MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(ghostLev,coarse,fine);
     }
 }
@@ -609,7 +620,7 @@ void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone(int ghostLev)
   //
   for(std::size_t i=1;i<sz;i++)
     {
-      const MEDCouplingGridCollection *fine(_levs[sz]);
+      const MEDCouplingGridCollection *fine(_levs[i]);
       if(!fine)
         throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone : presence of a NULL element !");
       fine->synchronizeFineEachOther(ghostLev);

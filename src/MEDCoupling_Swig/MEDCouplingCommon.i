@@ -4885,6 +4885,7 @@ namespace ParaMEDMEM
     int getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *extractGhostFrom(int ghostSz, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getPatchIdsInTheNeighborhoodOf(int patchId, int ghostLev) const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const throw(INTERP_KERNEL::Exception);
     void removeAllPatches() throw(INTERP_KERNEL::Exception);
@@ -4930,6 +4931,13 @@ namespace ParaMEDMEM
         for(int i=0;i<sz;i++)
           PyList_SetItem(ret,i,convertCartesianAMRPatch(ps[i], SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+
+      MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostSz, PyObject *recurseArrs) const
+      {
+        std::vector<const DataArrayDouble *> inp;
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayDouble *>(recurseArrs,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",inp);
+        return self->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostSz,inp);
       }
 
       MEDCouplingCartesianAMRMeshGen *getFather() const throw(INTERP_KERNEL::Exception)

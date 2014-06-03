@@ -75,10 +75,14 @@ namespace ParaMEDMEM
     // end of direct forward to _mesh
     MEDCOUPLING_EXPORT int getNumberOfOverlapedCellsForFather() const;
     MEDCOUPLING_EXPORT bool isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const;
+    MEDCOUPLING_EXPORT bool isInMyNeighborhoodExt(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const;
     // basic set/get
     MEDCOUPLING_EXPORT const std::vector< std::pair<int,int> >& getBLTRRange() const { return _bl_tr; }
+    MEDCOUPLING_EXPORT static bool IsInMyNeighborhood(int ghostLev, const std::vector< std::pair<int,int> >& p1, const std::vector< std::pair<int,int> >& p2);
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;
+    static const MEDCouplingCartesianAMRMeshGen *FindCommonAncestor(const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, int& lev);
+    static std::vector<int> ComputeOffsetFromTwoToOne(const MEDCouplingCartesianAMRMeshGen *comAncestor, int lev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2);
   private:
     //! bottom left/top right cell range relative to \a _father
     std::vector< std::pair<int,int> > _bl_tr;
@@ -169,6 +173,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostSz, const std::vector<const DataArrayDouble *>& recurseArrs) const;
     MEDCOUPLING_EXPORT DataArrayDouble *extractGhostFrom(int ghostSz, const DataArrayDouble *arr) const;
+    MEDCOUPLING_EXPORT std::vector<int> getPatchIdsInTheNeighborhoodOf(int patchId, int ghostLev) const;
   protected:
     MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                    const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
@@ -179,6 +184,7 @@ namespace ParaMEDMEM
     static void ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors);
     static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
     static void ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
+    static int GetGhostLevelInFineRef(int ghostLev, const std::vector<int>& factors);
     std::vector<const DataArrayDouble *> extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const;
   protected:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
