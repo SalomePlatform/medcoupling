@@ -37,6 +37,7 @@ namespace ParaMEDMEM
   class DataArrayByte;
   class DataArrayDouble;
   class MEDCoupling1SGTUMesh;
+  class MEDCouplingFieldDouble;
   class MEDCouplingCartesianAMRMesh;
   class MEDCouplingCartesianAMRMeshGen;
 
@@ -145,6 +146,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;
     MEDCOUPLING_EXPORT int getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const;
+    MEDCOUPLING_EXPORT std::vector< const MEDCouplingCartesianAMRPatch *> getPatches() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatch(int patchId) const;
     MEDCOUPLING_EXPORT bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const;
     MEDCOUPLING_EXPORT DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const;
@@ -165,6 +167,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostSz, const std::vector<const DataArrayDouble *>& recurseArrs) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *extractGhostFrom(int ghostSz, const DataArrayDouble *arr) const;
   protected:
     MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                    const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
@@ -175,6 +179,7 @@ namespace ParaMEDMEM
     static void ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors);
     static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
     static void ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
+    std::vector<const DataArrayDouble *> extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const;
   protected:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;

@@ -35,7 +35,7 @@ namespace ParaMEDMEM
     void dellocTuples();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     std::vector<DataArrayDouble *> retrieveFields() const;
-    DataArrayDouble *retrieveFieldWithName(const std::string& name) const;
+    const DataArrayDouble *getFieldWithName(const std::string& name) const;
     static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse);
     static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
     static void SynchronizeFineEachOther(int patchId, int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, const std::vector<const MEDCouplingCartesianAMRMeshGen *>& children, const std::vector<DataArrayDoubleCollection *>& fieldsOnFine);
@@ -63,6 +63,7 @@ namespace ParaMEDMEM
     static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
     void synchronizeFineEachOther(int ghostLev) const;
     static void SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
+    void fillIfInTheProgenyOf(const std::string& fieldName, const MEDCouplingCartesianAMRMeshGen *head, std::vector<const DataArrayDouble *>& recurseArrs) const;
   private:
     MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -71,6 +72,7 @@ namespace ParaMEDMEM
   private:
     std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > > _map_of_dadc;
   };
+
   /// @endcond
 
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
@@ -80,7 +82,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *retrieveFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
+    MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     //
     MEDCOUPLING_EXPORT void synchronizeFineToCoarse(int ghostLev);
     MEDCOUPLING_EXPORT void synchronizeCoarseToFine(int ghostLev);

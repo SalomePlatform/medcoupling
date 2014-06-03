@@ -70,7 +70,7 @@ std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
   return ret;
 }
 
-DataArrayDouble *DataArrayDoubleCollection::retrieveFieldWithName(const std::string& name) const
+const DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::string& name) const
 {
   std::vector<std::string> vec;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
@@ -79,19 +79,12 @@ DataArrayDouble *DataArrayDoubleCollection::retrieveFieldWithName(const std::str
       if(obj)
         {
           if(obj->getName()==name)
-            {
-              DataArrayDouble *ret(const_cast<DataArrayDouble *>(obj));
-              if(ret)
-                ret->incrRef();
-              return ret;
-            }
+            return obj;
           else
-            {
-              vec.push_back(obj->getName());
-            }
+            vec.push_back(obj->getName());
         }
     }
-  std::ostringstream oss; oss << "DataArrayDoubleCollection::retrieveFieldWithName : fieldName \"" << name << "\" does not exist in this ! Possibilities are :";
+  std::ostringstream oss; oss << "DataArrayDoubleCollection::getFieldWithName : fieldName \"" << name << "\" does not exist in this ! Possibilities are :";
   std::copy(vec.begin(),vec.end(),std::ostream_iterator<std::string>(oss," "));
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
@@ -371,6 +364,19 @@ void MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghost
     }
 }
 
+void MEDCouplingGridCollection::fillIfInTheProgenyOf(const std::string& fieldName, const MEDCouplingCartesianAMRMeshGen *head, std::vector<const DataArrayDouble *>& recurseArrs) const
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    {
+      const MEDCouplingCartesianAMRMeshGen *a((*it).first);
+      if(head==a || head->isObjectInTheProgeny(a))
+        {
+          const DataArrayDoubleCollection *gc((*it).second);
+          recurseArrs.push_back(gc->getFieldWithName(fieldName));
+        }
+    }
+}
+
 MEDCouplingGridCollection::MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames):_map_of_dadc(ms.size())
 {
   std::size_t sz(ms.size());
@@ -476,18 +482,67 @@ std::vector<DataArrayDouble *> MEDCouplingAMRAttribute::retrieveFieldsOn(MEDCoup
 /*!
  * \sa retrieveFieldsOn
  */
-DataArrayDouble *MEDCouplingAMRAttribute::retrieveFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
+const DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
-      {
-        int tmp(-1);
-        if((*it)->presenceOf(mesh,tmp))
-          {
-            const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
-            return ddc.retrieveFieldWithName(fieldName);
-          }
-      }
-    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::retrieveFieldOn : the mesh specified is not in the progeny of this !");
+    {
+      int tmp(-1);
+      if((*it)->presenceOf(mesh,tmp))
+        {
+          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          return ddc.getFieldWithName(fieldName);
+        }
+    }
+  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::retrieveFieldOn : the mesh specified is not in the progeny of this !");
+}
+
+/*!
+ * This method returns a field on an unstructured mesh the most refined as possible without overlap.
+ * Ghost part are not visible here.
+ *
+ * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
+ */
+MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
+{
+  std::vector<const DataArrayDouble *> recurseArrs;
+  std::size_t lev(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++,lev++)
+    {
+      int tmp(-1);
+      if((*it)->presenceOf(mesh,tmp))
+        {
+          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          recurseArrs.push_back(ddc.getFieldWithName(fieldName));
+          break;
+        }
+    }
+  lev++;
+  for(std::size_t i=lev;i<_levs.size();i++)
+    {
+      const MEDCouplingGridCollection *gc(_levs[i]);
+      gc->fillIfInTheProgenyOf(fieldName,mesh,recurseArrs);
+    }
+  return mesh->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostLev,recurseArrs);
+}
+
+/*!
+ * This method builds a newly created field on cell just lying on mesh \a mesh without its eventual refinement.
+ *
+ * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
+ *
+ */
+MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      int tmp(-1);
+      if((*it)->presenceOf(mesh,tmp))
+        {
+          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          const DataArrayDouble *arr(ddc.getFieldWithName(fieldName));
+        }
+    }
+  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithGhost : the mesh specified is not in the progeny of this !");
 }
 
 /*!
@@ -630,8 +685,8 @@ void MEDCouplingAMRAttribute::updateTime() const
 MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames):MEDCouplingDataForGodFather(gf)
 {
   //gf non empty, checked by constructor
-  int maxLev(gf->getMaxNumberOfLevelsRelativeToThis()+1);
-  _levs.resize(maxLev+1);
+  int maxLev(gf->getMaxNumberOfLevelsRelativeToThis());
+  _levs.resize(maxLev);
   for(int i=0;i<maxLev;i++)
     {
       std::vector<MEDCouplingCartesianAMRPatchGen *> patches(gf->retrieveGridsAt(i));

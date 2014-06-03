@@ -19,6 +19,7 @@
 // Author : Anthony Geay
 
 #include "MEDCouplingCartesianAMRMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingIMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
@@ -695,6 +696,15 @@ int MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh(const MEDCouplingCar
   throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh : no such a mesh in my direct progeny !");
 }
 
+std::vector< const MEDCouplingCartesianAMRPatch *> MEDCouplingCartesianAMRMeshGen::getPatches() const
+{
+  std::size_t sz(_patches.size());
+  std::vector< const MEDCouplingCartesianAMRPatch *> ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    ret[i]=_patches[i];
+  return ret;
+}
+
 const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMeshGen::getPatch(int patchId) const
 {
   checkPatchId(patchId);
@@ -996,6 +1006,59 @@ MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshOfDirectChildrenO
     return MEDCoupling1SGTUMesh::Merge1SGTUMeshes(patches);
 }
 
+/*!
+ * This method works same as buildUnstructured except that arrays are given in input to build a field on cell in output.
+ * \return MEDCouplingFieldDouble * - a newly created instance the caller has reponsability to deal with.
+ * \sa buildUnstructured
+ */
+MEDCouplingFieldDouble *MEDCouplingCartesianAMRMeshGen::buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostSz, const std::vector<const DataArrayDouble *>& recurseArrs) const
+{
+  if(recurseArrs.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::buildCellFieldOnRecurseWithoutOverlapWithoutGhost : array is empty ! Should never happen !");
+  //
+  std::vector<bool> bs(_mesh->getNumberOfCells(),false);
+  std::vector<int> cgs(_mesh->getCellGridStructure());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > msSafe(_patches.size()+1);
+  std::size_t ii(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
+    {
+      MEDCouplingStructuredMesh::SwitchOnIdsFrom(cgs,(*it)->getBLTRRange(),bs);
+      std::vector<const DataArrayDouble *> tmpArrs(extractSubTreeFromGlobalFlatten((*it)->getMesh(),recurseArrs));
+      msSafe[ii+1]=(*it)->getMesh()->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostSz,tmpArrs);
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsOff(DataArrayInt::BuildListOfSwitchedOff(bs));
+  //
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(extractGhostFrom(ghostSz,recurseArrs[0]));
+  arr2=arr2->selectByTupleIdSafe(eltsOff->begin(),eltsOff->end());
+  ret->setArray(arr2);
+  ret->setName(arr2->getName());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> part(_mesh->buildUnstructured());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mesh(part->buildPartOfMySelf(eltsOff->begin(),eltsOff->end(),false));
+  ret->setMesh(mesh);
+  msSafe[0]=ret;
+  //
+  std::vector< const MEDCouplingFieldDouble * > ms(msSafe.size());
+  for(std::size_t i=0;i<msSafe.size();i++)
+    ms[i]=msSafe[i];
+  //
+  return MEDCouplingFieldDouble::MergeFields(ms);
+}
+
+/*!
+ * This method extracts from \arr arr the part inside \a arr by cutting the \a ghostSz external part.
+ * \arr is expected to be an array having a number of tuples equal to \c getImageMesh()->buildWithGhost(ghostSz).
+ */
+DataArrayDouble *MEDCouplingCartesianAMRMeshGen::extractGhostFrom(int ghostSz, const DataArrayDouble *arr) const
+{
+  std::vector<int> st(_mesh->getCellGridStructure());
+  std::vector< std::pair<int,int> > p(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(st));
+  std::transform(st.begin(),st.end(),st.begin(),std::bind2nd(std::plus<int>(),2*ghostSz));
+  ApplyGhostOnCompactFrmt(p,ghostSz);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,arr,p));
+  return ret.retn();
+}
+
 MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
 {
@@ -1101,7 +1164,7 @@ void MEDCouplingCartesianAMRMeshGen::ApplyGhostOnCompactFrmt(std::vector< std::p
 }
 
 /*!
- * This method is different than ApplyGhostOnCompactFrmt
+ * This method is different than ApplyGhostOnCompactFrmt. The \a partBeforeFact parameter is enlarger contrary to ApplyGhostOnCompactFrmt.
  *
  * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
  * \param [in] ghostSize - the ghost size of zone for all axis.
@@ -1116,6 +1179,38 @@ void MEDCouplingCartesianAMRMeshGen::ApplyAllGhostOnCompactFrmt(std::vector< std
       partBeforeFact[i].first-=ghostSize;
       partBeforeFact[i].second+=ghostSize;
     }
+}
+
+/*!
+ * This method returns a sub set of \a all. The subset is defined by the \a head in the tree defined by \a this.
+ * Elements in \a all are expected to be sorted from god father to most refined structure.
+ */
+std::vector<const DataArrayDouble *> MEDCouplingCartesianAMRMeshGen::extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const
+{
+  int maxLev(getMaxNumberOfLevelsRelativeToThis());
+  std::vector<const DataArrayDouble *> ret;
+  std::vector<const MEDCouplingCartesianAMRMeshGen *> meshes(1,this);
+  std::size_t kk(0);
+  for(int i=0;i<maxLev;i++)
+    {
+      std::vector<const MEDCouplingCartesianAMRMeshGen *> meshesTmp;
+      for(std::vector<const MEDCouplingCartesianAMRMeshGen *>::const_iterator it=meshes.begin();it!=meshes.end();it++)
+        {
+          if((*it)==head || head->isObjectInTheProgeny(*it))
+            ret.push_back(all[kk]);
+          kk++;
+          std::vector< const MEDCouplingCartesianAMRPatch *> ps((*it)->getPatches());
+          for(std::vector< const MEDCouplingCartesianAMRPatch *>::const_iterator it0=ps.begin();it0!=ps.end();it0++)
+            {
+              const MEDCouplingCartesianAMRMeshGen *mesh((*it0)->getMesh());
+              meshesTmp.push_back(mesh);
+            }
+        }
+      meshes=meshesTmp;
+    }
+  if(kk!=all.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::extractSubTreeFromGlobalFlatten : the size of input vector is not compatible with number of leaves in this !");
+  return ret;
 }
 
 std::size_t MEDCouplingCartesianAMRMeshGen::getHeapMemorySizeWithoutChildren() const

@@ -340,6 +340,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::getMesh;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::buildUnstructured;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::extractGhostFrom;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::buildMeshOfDirectChildrenOnly;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::getImageMesh;
@@ -353,7 +354,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getDataConst;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getData;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::New;
-%newobject ParaMEDMEM::MEDCouplingAMRAttribute::retrieveFieldOn;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::getFieldOn;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithGhost;
 %newobject ParaMEDMEM::DenseMatrix::New;
 %newobject ParaMEDMEM::DenseMatrix::deepCpy;
 %newobject ParaMEDMEM::DenseMatrix::shallowCpy;
@@ -4881,6 +4884,7 @@ namespace ParaMEDMEM
     int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);
     int getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *extractGhostFrom(int ghostSz, const DataArrayDouble *arr) const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshFromPatchEnvelop() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const throw(INTERP_KERNEL::Exception);
     void removeAllPatches() throw(INTERP_KERNEL::Exception);
@@ -4901,6 +4905,21 @@ namespace ParaMEDMEM
         std::vector< std::pair<int,int> > inp;
         convertPyToVectorPairInt(bottomLeftTopRight,inp);
         self->addPatch(inp,factors);
+      }
+
+      PyObject *getPatches() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< const MEDCouplingCartesianAMRPatch *> ps(self->getPatches());
+        int sz(ps.size());
+        PyObject *ret = PyList_New(sz);
+        for(int i=0;i<sz;i++)
+          {
+            MEDCouplingCartesianAMRPatch *elt(const_cast<MEDCouplingCartesianAMRPatch *>(ps[i]));
+            if(elt)
+              elt->incrRef();
+            PyList_SetItem(ret,i,convertCartesianAMRPatch(elt, SWIG_POINTER_OWN | 0 ));
+          }
+        return ret;
       }
 
       PyObject *retrieveGridsAt(int absoluteLev) const throw(INTERP_KERNEL::Exception)
@@ -5043,7 +5062,8 @@ namespace ParaMEDMEM
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
-    DataArrayDouble *retrieveFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildCellFieldOnWithGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5070,6 +5090,15 @@ namespace ParaMEDMEM
         return ParaMEDMEM_MEDCouplingAMRAttribute_New(gf,fieldNames);
       }
       
+      DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception)
+      {
+        const DataArrayDouble *ret(self->getFieldOn(mesh,fieldName));
+        DataArrayDouble *ret2(const_cast<DataArrayDouble *>(ret));
+        if(ret2)
+          ret2->incrRef();
+        return ret2;
+      }
+
       void spillInfoOnComponents(PyObject *compNames) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::vector<std::string> > compNamesCpp;
