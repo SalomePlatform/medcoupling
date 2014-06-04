@@ -3032,6 +3032,14 @@ namespace ParaMEDMEM
         return retPy;
       }
 
+      static std::vector<int> FindTranslationFrom(PyObject *startingFrom, PyObject *goingTo) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > param0,param1;
+        convertPyToVectorPairInt(startingFrom,param0);
+        convertPyToVectorPairInt(goingTo,param1);
+        return  MEDCouplingStructuredMesh::FindTranslationFrom(param0,param1);
+      }
+
       static PyObject *ChangeReferenceToGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigRelativeToBig, bool check=true) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > param0,param1,ret;

@@ -1608,17 +1608,35 @@ void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::
 
 /*!
  * This method performs a translation (defined by \a translation) of \a part and returns the result of translated part.
+ *
+ * \sa FindTranslationFrom
  */
 std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::TranslateCompactFrmt(const std::vector< std::pair<int,int> >& part, const std::vector<int>& translation)
 {
   std::size_t sz(part.size());
   if(translation.size()!=sz)
-    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::TranslateCompactFrmt : the size are not equal !");
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::TranslateCompactFrmt : the sizes are not equal !");
   std::vector< std::pair<int,int> > ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       ret[i].first=part[i].first+translation[i];
       ret[i].second=part[i].second+translation[i];
+    }
+  return ret;
+}
+
+/*!
+ * \sa TranslateCompactFrmt
+ */
+std::vector<int> MEDCouplingStructuredMesh::FindTranslationFrom(const std::vector< std::pair<int,int> >& startingFrom, const std::vector< std::pair<int,int> >& goingTo)
+{
+  std::size_t sz(startingFrom.size());
+  if(goingTo.size()!=sz)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindTranslationFrom : the sizes are not equal !");
+  std::vector< int > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      ret[i]=goingTo[i].first-startingFrom[i].first;
     }
   return ret;
 }

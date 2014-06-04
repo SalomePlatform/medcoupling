@@ -138,6 +138,23 @@ void DataArrayDoubleCollection::SynchronizeFineEachOther(int patchId, int ghostL
     }
 }
 
+/*!
+ * This method updates \a p1dac ghost zone parts using \a p2dac (which is really const). \a p2 is in the neighborhood of \a p1 (which size is defined by \a ghostLev).
+ */
+void DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const DataArrayDoubleCollection *p1dac, const MEDCouplingCartesianAMRPatch *p2, const DataArrayDoubleCollection *p2dac)
+{
+  if(!p1 || !p1dac || !p2 || !p2dac)
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo : input pointer must be not NULL !");
+  std::size_t sz(p1dac->_arrs.size());
+  if(p2dac->_arrs.size()!=sz)
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo : size of DataArrayDouble Collection must be the same !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const DataArrayDouble *zeArrWhichGhostsWillBeUpdated(p1dac->_arrs[i]);
+      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(ghostLev,p1,p2,const_cast<DataArrayDouble *>(zeArrWhichGhostsWillBeUpdated),p2dac->_arrs[i]);
+    }
+}
+
 void DataArrayDoubleCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine)
 {
   if(!fine || !coarse)
@@ -681,7 +698,7 @@ void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone()
   if(_levs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOther : not any levels in this !");
   std::size_t sz(_levs.size());
-  //
+  // 1st - classical direct sublevel inside common patch
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]);
@@ -689,7 +706,13 @@ void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone()
         throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone : presence of a NULL element !");
       fine->synchronizeFineEachOther(_ghost_lev,_neighbors[i]);
     }
-  // cross lev
+  // 2nd - mixed level
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=_mixed_lev_neighbors.begin();it!=_mixed_lev_neighbors.end();it++)
+    {
+      const DataArrayDoubleCollection *firstDAC(&findCollectionAttachedTo((*it).first->getMesh())),*secondDAC(&findCollectionAttachedTo((*it).second->getMesh()));
+      DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo(_ghost_lev,(*it).first,firstDAC,(*it).second,secondDAC);
+    }
+  // 3td - same level but with far ancestor.
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]);
@@ -796,7 +819,8 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf
         {
           for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=_neighbors[i].begin();it!=_neighbors[i].end();it++)
             {
-              std::vector< std::vector < std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > neighs2(MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOf(_ghost_lev,(*it).first,(*it).second));
+              MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOf(_ghost_lev,(*it).first,(*it).second,_mixed_lev_neighbors);
+              std::vector< std::vector < std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > neighs2(MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOfSameLev(_ghost_lev,(*it).first,(*it).second));
               std::size_t fullLev(i+neighs2.size());
               if(fullLev>=sz)
                 throw INTERP_KERNEL::Exception("constructor of MEDCouplingAMRAttribute : internal error ! something is wrong in computation of cross level neighbors !");
@@ -806,4 +830,21 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf
             }
         }
     }
+}
+
+const DataArrayDoubleCollection& MEDCouplingAMRAttribute::findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      const MEDCouplingGridCollection *elt(*it);
+      if(elt)
+        {
+          int tmp(-1);
+          if(elt->presenceOf(m,tmp))
+            {
+              return elt->getFieldsAt(tmp);
+            }
+        }
+    }
+  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::findCollectionAttachedTo : unable to find such part of mesh in this !");
 }
