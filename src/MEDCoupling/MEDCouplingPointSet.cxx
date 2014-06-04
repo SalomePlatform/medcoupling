@@ -1472,25 +1472,19 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   //
   da=m->zipConnectivityTraducer(cellCompPol);
   int nbCells=getNumberOfCells();
+  if (nbCells != other->getNumberOfCells())
+    throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
   int maxId=-1;
   int dan = da->getNumberOfTuples();
   if (dan)
     {
-      if (dan & 1)
-        throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da1 = DataArrayInt::New(), da2 = DataArrayInt::New();
       da1->alloc(dan/2,1); da2->alloc(dan/2,1);
       std::copy(da->getConstPointer(), da->getConstPointer()+dan/2, da1->getPointer());
       std::copy(da->getConstPointer()+dan/2, da->getConstPointer()+dan, da2->getPointer());
       da1->sort(); da2->sort();
-      if (*da1->getConstPointer() != *da2->getConstPointer())
+      if (!da1->isEqualWithoutConsideringStr(*da2))
         throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
-      if (dan > 2)
-        {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dsi1 = da1->deltaShiftIndex(), dsi2 = da2->deltaShiftIndex();
-          if (!(dsi1->isUniform(1) && dsi2->isUniform(1)))
-            throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
-        }
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(nbCells,da->getNbOfElems(),1);
   nodeCor=nodeCor2->isIdentity()?0:nodeCor2.retn();
