@@ -185,6 +185,92 @@ bool MEDCouplingCartesianAMRPatch::IsInMyNeighborhood(int ghostLev, const std::v
   return true;
 }
 
+std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOf(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2)
+{
+  if(!p1 || !p2)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOf : the input pointers must be not NULL !");
+  std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > ret;
+  std::vector< const MEDCouplingCartesianAMRPatch *> p1Work(p1->getMesh()->getPatches()),p2Work(p2->getMesh()->getPatches());
+  while(!p1Work.empty())
+    {
+      std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > retTmp;
+      std::vector<const MEDCouplingCartesianAMRPatch *> p1Work2,p2Work2;
+      for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it1=p1Work.begin();it1!=p1Work.end();it1++)
+        {
+          for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it2=p2Work.begin();it2!=p2Work.end();it2++)
+            {
+              if((*it1)->isInMyNeighborhoodExt(*it2,ghostLev))
+                retTmp.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(*it1,*it2));
+            }
+          std::vector<const MEDCouplingCartesianAMRPatch *> tmp1((*it1)->getMesh()->getPatches());
+          p1Work2.insert(p1Work2.end(),tmp1.begin(),tmp1.end());
+        }
+      for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it2=p2Work.begin();it2!=p2Work.end();it2++)
+        {
+          std::vector<const MEDCouplingCartesianAMRPatch *> tmp2((*it2)->getMesh()->getPatches());
+          p2Work2.insert(p2Work2.end(),tmp2.begin(),tmp2.end());
+        }
+      ret.push_back(retTmp);
+      p1Work=p1Work2;
+      p2Work=p2Work2;
+    }
+  return ret;
+}
+
+/*!
+ * \a p1 and \a p2 are expected to be neighbors (inside the \a ghostLev zone). This method updates \a dataOnP1 only in the ghost part using a part of \a dataOnP2.
+ *
+ * \saUpdateNeighborsOfOneWithTwoExt
+ */
+void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwo(int ghostLev, const std::vector<int>& factors, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
+{
+  const std::vector< std::pair<int,int> >& p1BLTR(p1->getBLTRRange());
+  const std::vector< std::pair<int,int> >& p2BLTR(p2->getBLTRRange());
+  UpdateNeighborsOfOneWithTwoInternal(ghostLev,factors,p1BLTR,p2BLTR,dataOnP1,dataOnP2);
+}
+
+void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(int ghostLev, const std::vector<int>& factors, const std::vector< std::pair<int,int> >&p1 ,const std::vector< std::pair<int,int> >&p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
+{//p1=[(1,4),(2,4)] p2=[(4,5),(3,4)]
+  int dim((int)factors.size());
+  std::vector<int> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(p1));//[3,2]
+  std::transform(dimsCoarse.begin(),dimsCoarse.end(),factors.begin(),dimsCoarse.begin(),std::multiplies<int>());//[12,8]
+  std::transform(dimsCoarse.begin(),dimsCoarse.end(),dimsCoarse.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));//[14,10]
+  std::vector< std::pair<int,int> > rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));//[(0,14),(0,10)]
+  std::vector<int> fakeFactors(dim,1);
+  //
+  std::vector< std::pair<int,int> > tmp0,tmp1,tmp2;
+  MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p1,p2,tmp0,false);//tmp0=[(3,4),(1,2)]
+  ApplyFactorsOnCompactFrmt(tmp0,factors);//tmp0=[(12,16),(4,8)]
+  ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
+  std::vector< std::pair<int,int> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
+  MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p2,p1,tmp1,false);//tmp1=[(-3,0),(-1,1)]
+  ApplyFactorsOnCompactFrmt(tmp1,factors);//tmp1=[(-12,-4),(-4,0)]
+  MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(tmp1,interstRange,tmp2,false);//tmp2=[(1,2),(1,5)]
+  //
+  std::vector< std::pair<int,int> > dimsFine(p2);
+  ApplyFactorsOnCompactFrmt(dimsFine,factors);
+  ApplyAllGhostOnCompactFrmt(dimsFine,ghostLev);
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ghostVals(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(dimsFine),dataOnP2,tmp2));
+  MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,dataOnP1);
+}
+
+/*!
+ * Idem than UpdateNeighborsOfOneWithTwo, except that here \a p1 and \a p2 are not sharing the same direct father.
+ *
+ * \sa UpdateNeighborsOfOneWithTwo
+ */
+void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
+{
+  const std::vector< std::pair<int,int> >& p1BLTR(p1->getBLTRRange());//p1BLTR=[(10,12),(5,8)]
+  std::vector< std::pair<int,int> > p2BLTR(p2->getBLTRRange());//p2BLTR=[(0,1),(0,5)]
+  int lev(0);
+  const MEDCouplingCartesianAMRMeshGen *ca(FindCommonAncestor(p1,p2,lev));
+  std::vector<int> offset(ComputeOffsetFromTwoToOne(ca,lev,p1,p2));//[12,4]
+  p2BLTR=MEDCouplingStructuredMesh::TranslateCompactFrmt(p2BLTR,offset);//p2BLTR=[(12,13),(4,9)]
+  UpdateNeighborsOfOneWithTwoInternal(ghostLev,p1->getMesh()->getFather()->getFactors(),p1BLTR,p2BLTR,dataOnP1,dataOnP2);
+}
+
 std::size_t MEDCouplingCartesianAMRPatch::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingCartesianAMRPatch));
@@ -212,12 +298,13 @@ std::vector<int> MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne(const M
 {
   if(lev<=0)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne : this method is useful only for lev > 0 !");
+  int zeLev(lev-1);
   int dim(p1->getMesh()->getSpaceDimension());
   if(p2->getMesh()->getSpaceDimension()!=dim)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne : dimension must be the same !");
   std::vector< int > ret(dim,0);
 
-  for(int i=0;i<lev;i++)
+  for(int i=0;i<zeLev;i++)
     {
       const MEDCouplingCartesianAMRMeshGen *f1(p1->_mesh),*f2(p2->_mesh);
       const MEDCouplingCartesianAMRPatch *p1h(0),*p2h(0);
@@ -241,6 +328,56 @@ std::vector<int> MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne(const M
         }
     }
   return ret;
+}
+
+/*!
+ * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in refined reference.
+ * \param [in] factors - the factors per axis.
+ */
+void MEDCouplingCartesianAMRPatch::ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors)
+{
+  std::size_t sz(factors.size());
+  if(sz!=partBeforeFact.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ApplyFactorsOnCompactFrmt : size of input vectors must be the same !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      partBeforeFact[i].first*=factors[i];
+      partBeforeFact[i].second*=factors[i];
+    }
+}
+
+/*!
+ * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
+ * \param [in] ghostSize - the ghost size of zone for all axis.
+ */
+void MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
+  std::size_t sz(partBeforeFact.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      partBeforeFact[i].first+=ghostSize;
+      partBeforeFact[i].second+=ghostSize;
+    }
+}
+
+/*!
+ * This method is different than ApplyGhostOnCompactFrmt. The \a partBeforeFact parameter is enlarger contrary to ApplyGhostOnCompactFrmt.
+ *
+ * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
+ * \param [in] ghostSize - the ghost size of zone for all axis.
+ */
+void MEDCouplingCartesianAMRPatch::ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ApplyAllGhostOnCompactFrmt : ghost size must be >= 0 !");
+  std::size_t sz(partBeforeFact.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      partBeforeFact[i].first-=ghostSize;
+      partBeforeFact[i].second+=ghostSize;
+    }
 }
 
 MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh):MEDCouplingCartesianAMRPatchGen(mesh)
@@ -929,41 +1066,25 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, c
  */
 void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
 {
-  int nbp(getNumberOfPatches()),dim(getSpaceDimension());
+  int nbp(getNumberOfPatches());
   if(nbp!=(int)arrsOnPatches.size())
     {
       std::ostringstream oss; oss << "MEDCouplingCartesianAMRMesh::fillCellFieldOnPatchOnlyGhostAdv : there are " << nbp << " patches in this and " << arrsOnPatches.size() << " arrays in the last parameter !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
   const MEDCouplingCartesianAMRPatch *refP(getPatch(patchId));
-  const std::vector< std::pair<int,int> >& refBLTR(refP->getBLTRRange());//[(1,4),(2,4)]
-  std::vector<int> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(refBLTR));//[3,2]
-  std::transform(dimsCoarse.begin(),dimsCoarse.end(),_factors.begin(),dimsCoarse.begin(),std::multiplies<int>());//[12,8]
-  std::transform(dimsCoarse.begin(),dimsCoarse.end(),dimsCoarse.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));//[14,10]
-  std::vector< std::pair<int,int> > rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));//[(0,14),(0,10)]
-  std::vector<int> fakeFactors(dim,1),ids(getPatchIdsInTheNeighborhoodOf(patchId,ghostLev));
-  //
+  DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
+  std::vector<int> ids(getPatchIdsInTheNeighborhoodOf(patchId,ghostLev));
   for(std::vector<int>::const_iterator it=ids.begin();it!=ids.end();it++)
     {
       const MEDCouplingCartesianAMRPatch *otherP(getPatch(*it));
-      const std::vector< std::pair<int,int> >& otherBLTR(otherP->getBLTRRange());//[(4,5),(3,4)]
-      std::vector< std::pair<int,int> > tmp0,tmp1,tmp2;
-      MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(refBLTR,otherBLTR,tmp0,false);//tmp0=[(3,4),(1,2)]
-      ApplyFactorsOnCompactFrmt(tmp0,_factors);//tmp0=[(12,16),(4,8)]
-      ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
-      std::vector< std::pair<int,int> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
-      MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(otherBLTR,refBLTR,tmp1,false);//tmp1=[(-3,0),(-1,1)]
-      ApplyFactorsOnCompactFrmt(tmp1,_factors);//tmp1=[(-12,-4),(-4,0)]
-      MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(tmp1,interstRange,tmp2,false);//tmp2=[(1,2),(1,5)]
-      //
-      std::vector< std::pair<int,int> > dimsFine(otherBLTR);
-      ApplyFactorsOnCompactFrmt(dimsFine,_factors);
-      ApplyAllGhostOnCompactFrmt(dimsFine,ghostLev);
-      //
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ghostVals(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(dimsFine),arrsOnPatches[*it],tmp2));
-      MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,theFieldToFill);
+      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwo(ghostLev,_factors,refP,otherP,theFieldToFill,arrsOnPatches[*it]);
     }
+}
+
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyOnGhostZoneWith(int ghostLev, const MEDCouplingCartesianAMRPatch *patchToBeModified, const MEDCouplingCartesianAMRPatch *neighborPatch, DataArrayDouble *cellFieldOnPatch, const DataArrayDouble *cellFieldNeighbor) const
+{
+  MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwo(ghostLev,_factors,patchToBeModified,neighborPatch,cellFieldOnPatch,cellFieldNeighbor);
 }
 
 /*!
@@ -1134,7 +1255,7 @@ DataArrayDouble *MEDCouplingCartesianAMRMeshGen::extractGhostFrom(int ghostSz, c
   std::vector<int> st(_mesh->getCellGridStructure());
   std::vector< std::pair<int,int> > p(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(st));
   std::transform(st.begin(),st.end(),st.begin(),std::bind2nd(std::plus<int>(),2*ghostSz));
-  ApplyGhostOnCompactFrmt(p,ghostSz);
+  MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt(p,ghostSz);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,arr,p));
   return ret.retn();
 }
@@ -1227,56 +1348,6 @@ void MEDCouplingCartesianAMRMeshGen::retrieveGridsAtInternal(int lev, std::vecto
           if(pt)
             pt->getMesh()->retrieveGridsAtInternal(lev-1,grids);
         }
-    }
-}
-
-/*!
- * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in refined reference.
- * \param [in] factors - the factors per axis.
- */
-void MEDCouplingCartesianAMRMeshGen::ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors)
-{
-  std::size_t sz(factors.size());
-  if(sz!=partBeforeFact.size())
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::ApplyFactorsOnCompactFrmt : size of input vectors must be the same !");
-  for(std::size_t i=0;i<sz;i++)
-    {
-      partBeforeFact[i].first*=factors[i];
-      partBeforeFact[i].second*=factors[i];
-    }
-}
-
-/*!
- * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
- * \param [in] ghostSize - the ghost size of zone for all axis.
- */
-void MEDCouplingCartesianAMRMeshGen::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
-{
-  if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
-  std::size_t sz(partBeforeFact.size());
-  for(std::size_t i=0;i<sz;i++)
-    {
-      partBeforeFact[i].first+=ghostSize;
-      partBeforeFact[i].second+=ghostSize;
-    }
-}
-
-/*!
- * This method is different than ApplyGhostOnCompactFrmt. The \a partBeforeFact parameter is enlarger contrary to ApplyGhostOnCompactFrmt.
- *
- * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
- * \param [in] ghostSize - the ghost size of zone for all axis.
- */
-void MEDCouplingCartesianAMRMeshGen::ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
-{
-  if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::ApplyAllGhostOnCompactFrmt : ghost size must be >= 0 !");
-  std::size_t sz(partBeforeFact.size());
-  for(std::size_t i=0;i<sz;i++)
-    {
-      partBeforeFact[i].first-=ghostSize;
-      partBeforeFact[i].second+=ghostSize;
     }
 }
 
@@ -1385,10 +1456,10 @@ void MEDCouplingCartesianAMRMesh::setData(MEDCouplingDataForGodFather *data)
     data->incrRef();
 }
 
-void MEDCouplingCartesianAMRMesh::allocData(int ghostLev) const
+void MEDCouplingCartesianAMRMesh::allocData() const
 {
   checkData();
-  _data->alloc(ghostLev);
+  _data->alloc();
 }
 
 void MEDCouplingCartesianAMRMesh::deallocData() const

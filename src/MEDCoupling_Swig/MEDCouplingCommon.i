@@ -3016,6 +3016,22 @@ namespace ParaMEDMEM
         return retPy;
       }
 
+      static PyObject *TranslateCompactFrmt(PyObject *part, const std::vector<int>& translation) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > param0;
+        convertPyToVectorPairInt(part,param0);
+        std::vector< std::pair<int,int> > ret(MEDCouplingStructuredMesh::TranslateCompactFrmt(param0,translation));
+        PyObject *retPy(PyList_New(ret.size()));
+        for(std::size_t i=0;i<ret.size();i++)
+          {
+            PyObject *tmp(PyTuple_New(2));
+            PyTuple_SetItem(tmp,0,PyInt_FromLong(ret[i].first));
+            PyTuple_SetItem(tmp,1,PyInt_FromLong(ret[i].second));
+            PyList_SetItem(retPy,i,tmp);
+          }
+        return retPy;
+      }
+
       static PyObject *ChangeReferenceToGlobalOfCompactFrmt(PyObject *bigInAbs, PyObject *partOfBigRelativeToBig, bool check=true) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > param0,param1,ret;
@@ -4859,11 +4875,11 @@ namespace ParaMEDMEM
   class MEDCouplingDataForGodFather : public RefCountObject
   {
   public:
-    virtual void synchronizeFineToCoarse(int ghostLev) throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeCoarseToFine(int ghostLev) throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeCoarseToFineOnlyInGhostZone(int ghostLev) throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeFineEachOtherInGhostZone(int ghostLev) throw(INTERP_KERNEL::Exception);
-    virtual void alloc(int ghostLev) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeFineToCoarse() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFine() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFineOnlyInGhostZone() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeFineEachOtherInGhostZone() throw(INTERP_KERNEL::Exception);
+    virtual void alloc() throw(INTERP_KERNEL::Exception);
     virtual void dealloc() throw(INTERP_KERNEL::Exception);
   };
   
@@ -4896,6 +4912,7 @@ namespace ParaMEDMEM
     void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatchOnlyOnGhostZone(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldOnPatchOnlyOnGhostZoneWith(int ghostLev, const MEDCouplingCartesianAMRPatch *patchToBeModified, const MEDCouplingCartesianAMRPatch *neighborPatch, DataArrayDouble *cellFieldOnPatch, const DataArrayDouble *cellFieldNeighbor) const;
     void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const throw(INTERP_KERNEL::Exception);
@@ -5021,7 +5038,7 @@ namespace ParaMEDMEM
   {
   public:
     void setData(MEDCouplingDataForGodFather *data) throw(INTERP_KERNEL::Exception);
-    void allocData(int ghostLev) const throw(INTERP_KERNEL::Exception);
+    void allocData() const throw(INTERP_KERNEL::Exception);
     void deallocData() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5070,12 +5087,12 @@ namespace ParaMEDMEM
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
-    MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *buildCellFieldOnWithGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) throw(INTERP_KERNEL::Exception);
     %extend
     {
-      static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames) throw(INTERP_KERNEL::Exception)
+      static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames, int ghostLev) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<std::string,int> > fieldNamesCpp0;
         std::vector< std::pair<std::string, std::vector<std::string> > > fieldNamesCpp1;
@@ -5083,19 +5100,19 @@ namespace ParaMEDMEM
         try
           {
             convertPyToVectorPairStringInt(fieldNames,fieldNamesCpp0);
-            ret=MEDCouplingAMRAttribute::New(gf,fieldNamesCpp0);
+            ret=MEDCouplingAMRAttribute::New(gf,fieldNamesCpp0,ghostLev);
           }
         catch(INTERP_KERNEL::Exception&)
           {
             convertPyToVectorPairStringVecString(fieldNames,fieldNamesCpp1);
-            ret=MEDCouplingAMRAttribute::New(gf,fieldNamesCpp1);
+            ret=MEDCouplingAMRAttribute::New(gf,fieldNamesCpp1,ghostLev);
           }
         return ret;
       }
 
-      MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames) throw(INTERP_KERNEL::Exception)
+      MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames, int ghostLev) throw(INTERP_KERNEL::Exception)
       {
-        return ParaMEDMEM_MEDCouplingAMRAttribute_New(gf,fieldNames);
+        return ParaMEDMEM_MEDCouplingAMRAttribute_New(gf,fieldNames,ghostLev);
       }
       
       DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception)

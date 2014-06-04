@@ -1607,6 +1607,23 @@ void MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(const std::
 }
 
 /*!
+ * This method performs a translation (defined by \a translation) of \a part and returns the result of translated part.
+ */
+std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::TranslateCompactFrmt(const std::vector< std::pair<int,int> >& part, const std::vector<int>& translation)
+{
+  std::size_t sz(part.size());
+  if(translation.size()!=sz)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::TranslateCompactFrmt : the size are not equal !");
+  std::vector< std::pair<int,int> > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      ret[i].first=part[i].first+translation[i];
+      ret[i].second=part[i].second+translation[i];
+    }
+  return ret;
+}
+
+/*!
  * This method builds the explicit entity array from the structure in \a st and the range in \a partCompactFormat.
  * If the range contains invalid values regarding sructure an exception will be thrown.
  *

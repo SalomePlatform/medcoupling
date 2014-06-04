@@ -79,10 +79,19 @@ namespace ParaMEDMEM
     // basic set/get
     MEDCOUPLING_EXPORT const std::vector< std::pair<int,int> >& getBLTRRange() const { return _bl_tr; }
     MEDCOUPLING_EXPORT static bool IsInMyNeighborhood(int ghostLev, const std::vector< std::pair<int,int> >& p1, const std::vector< std::pair<int,int> >& p2);
+    //
+    static std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > FindNeighborsOfSubPatchesOf(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2);
+    static void UpdateNeighborsOfOneWithTwo(int ghostLev, const std::vector<int>& factors, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
+    static void UpdateNeighborsOfOneWithTwoInternal(int ghostLev, const std::vector<int>& factors, const std::vector< std::pair<int,int> >&p1 ,const std::vector< std::pair<int,int> >&p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
+    static void UpdateNeighborsOfOneWithTwoExt(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;
     static const MEDCouplingCartesianAMRMeshGen *FindCommonAncestor(const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, int& lev);
     static std::vector<int> ComputeOffsetFromTwoToOne(const MEDCouplingCartesianAMRMeshGen *comAncestor, int lev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2);
+  public:
+    static void ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors);
+    static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
+    static void ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
   private:
     //! bottom left/top right cell range relative to \a _father
     std::vector< std::pair<int,int> > _bl_tr;
@@ -103,11 +112,11 @@ namespace ParaMEDMEM
   {
     friend class MEDCouplingCartesianAMRMesh;
   public:
-    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse(int ghostLev) = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine(int ghostLev) = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineOnlyInGhostZone(int ghostLev) = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeFineEachOtherInGhostZone(int ghostLev) = 0;
-    MEDCOUPLING_EXPORT virtual void alloc(int ghostLev) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineOnlyInGhostZone() = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeFineEachOtherInGhostZone() = 0;
+    MEDCOUPLING_EXPORT virtual void alloc() = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
     MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf);
@@ -162,6 +171,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
     // fine to fine
     MEDCOUPLING_EXPORT void fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const;
+    MEDCOUPLING_EXPORT void fillCellFieldOnPatchOnlyOnGhostZoneWith(int ghostLev, const MEDCouplingCartesianAMRPatch *patchToBeModified, const MEDCouplingCartesianAMRPatch *neighborPatch, DataArrayDouble *cellFieldOnPatch, const DataArrayDouble *cellFieldNeighbor) const;
     // fine to coarse
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const;
     MEDCOUPLING_EXPORT void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const;
@@ -181,9 +191,6 @@ namespace ParaMEDMEM
     void checkPatchId(int patchId) const;
     void checkFactorsAndIfNotSetAssign(const std::vector<int>& factors);
     void retrieveGridsAtInternal(int lev, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> >& grids) const;
-    static void ApplyFactorsOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, const std::vector<int>& factors);
-    static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
-    static void ApplyAllGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
     static int GetGhostLevelInFineRef(int ghostLev, const std::vector<int>& factors);
     std::vector<const DataArrayDouble *> extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const;
   protected:
@@ -211,7 +218,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingDataForGodFather *getDataConst() const { return _data; }
     MEDCOUPLING_EXPORT MEDCouplingDataForGodFather *getData() { return _data; }
     MEDCOUPLING_EXPORT void setData(MEDCouplingDataForGodFather *data);
-    MEDCOUPLING_EXPORT void allocData(int ghostLev) const;
+    MEDCOUPLING_EXPORT void allocData() const;
     MEDCOUPLING_EXPORT void deallocData() const;
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,

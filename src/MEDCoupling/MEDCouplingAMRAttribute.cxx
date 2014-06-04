@@ -149,6 +149,26 @@ void DataArrayDoubleCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghost
     fatherOfFineMesh->fillCellFieldOnPatchOnlyOnGhostZone(patchId,coarse->_arrs[i],fine->_arrs[i],ghostLev);
 }
 
+void DataArrayDoubleCollection::synchronizeMyGhostZoneUsing(int ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp, const MEDCouplingCartesianAMRMeshGen *father) const
+{
+  DataArrayDoubleCollection *thisNC(const_cast<DataArrayDoubleCollection *>(this));
+  std::size_t sz(_arrs.size());
+  if(other._arrs.size()!=sz)
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::synchronizeMyGhostZoneUsing : sizes of collections must match !");
+  for(std::size_t i=0;i<sz;i++)
+    father->fillCellFieldOnPatchOnlyOnGhostZoneWith(ghostLev,thisp,otherp,thisNC->_arrs[i],other._arrs[i]);
+}
+
+void DataArrayDoubleCollection::synchronizeMyGhostZoneUsingExt(int ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp) const
+{
+  DataArrayDoubleCollection *thisNC(const_cast<DataArrayDoubleCollection *>(this));
+  std::size_t sz(_arrs.size());
+  if(other._arrs.size()!=sz)
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::synchronizeMyGhostZoneUsingExt : sizes of collections must match !");
+  for(std::size_t i=0;i<sz;i++)
+    MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(ghostLev,thisp,otherp,thisNC->_arrs[i],other._arrs[i]);
+}
+
 DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pair<std::string,int> >& fieldNames):_arrs(fieldNames.size())
 {
   std::size_t sz(fieldNames.size());
@@ -250,10 +270,10 @@ bool MEDCouplingGridCollection::presenceOf(const MEDCouplingCartesianAMRMeshGen 
   return false;
 }
 
-const DataArrayDoubleCollection& MEDCouplingGridCollection::retrieveFieldsAt(int pos) const
+const DataArrayDoubleCollection& MEDCouplingGridCollection::getFieldsAt(int pos) const
 {
   if(pos<0 || pos>(int)_map_of_dadc.size())
-    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::retrieveFieldsAt : invalid pos given in input ! Must be in [0,size) !");
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getFieldsAt : invalid pos given in input ! Must be in [0,size) !");
   return *_map_of_dadc[pos].second;
 }
 
@@ -311,32 +331,76 @@ void MEDCouplingGridCollection::SynchronizeCoarseToFine(int ghostLev, const MEDC
     }
 }
 
-void MEDCouplingGridCollection::synchronizeFineEachOther(int ghostLev) const
+/*!
+ * All the pairs in \a ps must share the same father. If not call synchronizeFineEachOtherExt instead.
+ *
+ * \sa synchronizeFineEachOtherExt
+ */
+void MEDCouplingGridCollection::synchronizeFineEachOther(int ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const
 {
-  std::map<const MEDCouplingCartesianAMRMeshGen *,std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *, const DataArrayDoubleCollection *> > > m;
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=ps.begin();it!=ps.end();it++)
+    {
+      int p1,p2;
+      if(!presenceOf((*it).first->getMesh(),p1))
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::synchronizeFineEachOther : internal error #1 !");
+      if(!presenceOf((*it).second->getMesh(),p2))
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::synchronizeFineEachOther : internal error #2 !");
+      const DataArrayDoubleCollection& col1(getFieldsAt(p1));
+      const DataArrayDoubleCollection& col2(getFieldsAt(p2));
+      col1.synchronizeMyGhostZoneUsing(ghostLev,col2,(*it).first,(*it).second,(*it).first->getMesh()->getFather());
+    }
+}
+
+/*!
+ * This method is a generalization of synchronizeFineEachOther because elements in pairs are \b not sharing the same father but are neighbors nevertheless.
+ *
+ * \sa synchronizeFineEachOther
+ */
+void MEDCouplingGridCollection::synchronizeFineEachOtherExt(int ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=ps.begin();it!=ps.end();it++)
+    {
+      int p1,p2;
+      if(!presenceOf((*it).first->getMesh(),p1))
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::synchronizeFineEachOtherExt : internal error #1 !");
+      if(!presenceOf((*it).second->getMesh(),p2))
+        throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::synchronizeFineEachOtherExt : internal error #2 !");
+      const DataArrayDoubleCollection& col1(getFieldsAt(p1));
+      const DataArrayDoubleCollection& col2(getFieldsAt(p2));
+      col1.synchronizeMyGhostZoneUsingExt(ghostLev,col2,(*it).first,(*it).second);
+    }
+}
+
+/*!
+ * The pairs returned share the same direct father. The number of returned elements must be even.
+ */
+std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > MEDCouplingGridCollection::findNeighbors(int ghostLev) const
+{
+  std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > ret;
+  std::map<const MEDCouplingCartesianAMRMeshGen *,std::vector< const MEDCouplingCartesianAMRMeshGen * > > m;
   for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *fineMesh((*it).first);
       const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh(fineMesh->getFather());
-      m[fatherOfFineMesh].push_back(std::pair<const MEDCouplingCartesianAMRMeshGen *, const DataArrayDoubleCollection *>(fineMesh,(*it).second));
+      m[fatherOfFineMesh].push_back(fineMesh);
     }
-  for(std::map<const MEDCouplingCartesianAMRMeshGen *,std::vector<std::pair<const MEDCouplingCartesianAMRMeshGen *, const DataArrayDoubleCollection *> > >::const_iterator it0=m.begin();it0!=m.end();it0++)
+  for(std::map<const MEDCouplingCartesianAMRMeshGen *,std::vector< const MEDCouplingCartesianAMRMeshGen * > >::const_iterator it0=m.begin();it0!=m.end();it0++)
     {
-      std::size_t sz((*it0).second.size());
-      std::vector<const MEDCouplingCartesianAMRMeshGen *> v0(sz);
-      std::vector<DataArrayDoubleCollection *> v1(sz);
-      for(std::size_t i=0;i<sz;i++)
+      for(std::vector<const MEDCouplingCartesianAMRMeshGen *>::const_iterator it1=(*it0).second.begin();it1!=(*it0).second.end();it1++)
         {
-          v0[i]=(*it0).second[i].first;
-          const DataArrayDoubleCollection *tmp((*it0).second[i].second);
-          v1[i]=const_cast<DataArrayDoubleCollection *>(tmp);
-        }
-      for(std::vector<std::pair<const MEDCouplingCartesianAMRMeshGen *, const DataArrayDoubleCollection *> >::const_iterator it1=(*it0).second.begin();it1!=(*it0).second.end();it1++)
-        {
-          int patchId((*it0).first->getPatchIdFromChildMesh((*it1).first));
-          DataArrayDoubleCollection::SynchronizeFineEachOther(patchId,ghostLev,(*it0).first,v0,v1);
+          int patchId((*it0).first->getPatchIdFromChildMesh(*it1));
+          std::vector<int> neighs((*it0).first->getPatchIdsInTheNeighborhoodOf(patchId,ghostLev));
+          const MEDCouplingCartesianAMRPatch *pRef((*it0).first->getPatch(patchId));
+          for(std::vector<int>::const_iterator it2=neighs.begin();it2!=neighs.end();it2++)
+            {
+              const MEDCouplingCartesianAMRPatch *pLoc((*it0).first->getPatch(*it2));
+              ret.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(pRef,pLoc));
+            }
         }
     }
+  if(ret.size()%2!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::findNeighbors : something is wrong ! The number of neighbor pairs must be %2 ==0 !");
+  return ret;
 }
 
 void MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine)
@@ -426,12 +490,12 @@ void MEDCouplingGridCollection::updateTime() const
 /*!
  * This method creates, attach to a main AMR mesh \a gf ( called god father :-) ) and returns a data linked to \a gf ready for the computation.
  */
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames)
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev)
 {
-  return new MEDCouplingAMRAttribute(gf,fieldNames);
+  return new MEDCouplingAMRAttribute(gf,fieldNames,ghostLev);
 }
 
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames)
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev)
 {
   std::size_t sz(fieldNames.size());
   std::vector< std::pair<std::string,int> > fieldNames2(sz);
@@ -442,7 +506,7 @@ MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMes
       fieldNames2[i].second=(int)fieldNames[i].second.size();
       compNames[i]=fieldNames[i].second;
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> ret(New(gf,fieldNames2));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> ret(New(gf,fieldNames2,ghostLev));
   ret->spillInfoOnComponents(compNames);
   return ret.retn();
 }
@@ -474,7 +538,7 @@ std::vector<DataArrayDouble *> MEDCouplingAMRAttribute::retrieveFieldsOn(MEDCoup
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
         {
-          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          const DataArrayDoubleCollection& ddc((*it)->getFieldsAt(tmp));
           return ddc.retrieveFields();
         }
     }
@@ -491,7 +555,7 @@ const DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianA
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
         {
-          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          const DataArrayDoubleCollection& ddc((*it)->getFieldsAt(tmp));
           return ddc.getFieldWithName(fieldName);
         }
     }
@@ -504,7 +568,7 @@ const DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianA
  *
  * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
  */
-MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
+MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
   std::vector<const DataArrayDouble *> recurseArrs;
   std::size_t lev(0);
@@ -513,7 +577,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
         {
-          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          const DataArrayDoubleCollection& ddc((*it)->getFieldsAt(tmp));
           recurseArrs.push_back(ddc.getFieldWithName(fieldName));
           break;
         }
@@ -524,7 +588,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
       const MEDCouplingGridCollection *gc(_levs[i]);
       gc->fillIfInTheProgenyOf(fieldName,mesh,recurseArrs);
     }
-  return mesh->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostLev,recurseArrs);
+  return mesh->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(_ghost_lev,recurseArrs);
 }
 
 /*!
@@ -534,7 +598,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
  * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
  *
  */
-MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(int ghostLev, MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
+MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
   const DataArrayDouble *arr(0);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
@@ -542,13 +606,13 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(int g
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
         {
-          const DataArrayDoubleCollection& ddc((*it)->retrieveFieldsAt(tmp));
+          const DataArrayDoubleCollection& ddc((*it)->getFieldsAt(tmp));
           arr=ddc.getFieldWithName(fieldName);
         }
     }
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithGhost : the mesh specified is not in the progeny of this !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(ghostLev));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
   ret->setMesh(im);
   ret->setArray(const_cast<DataArrayDouble *>(arr));
@@ -560,7 +624,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(int g
  * This method synchronizes from fine to coarse direction arrays. This method makes the hypothesis that \a this has been allocated before using
  * MEDCouplingAMRAttribute::alloc method.
  */
-void MEDCouplingAMRAttribute::synchronizeFineToCoarse(int ghostLev)
+void MEDCouplingAMRAttribute::synchronizeFineToCoarse()
 {
   if(_levs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineToCoarse : not any levels in this !");
@@ -570,15 +634,15 @@ void MEDCouplingAMRAttribute::synchronizeFineToCoarse(int ghostLev)
     {
       sz--;
       const MEDCouplingGridCollection *fine(_levs[sz]),*coarse(_levs[sz-1]);
-      MEDCouplingGridCollection::SynchronizeFineToCoarse(ghostLev,fine,coarse);
+      MEDCouplingGridCollection::SynchronizeFineToCoarse(_ghost_lev,fine,coarse);
     }
 }
 
 /*!
- * This method synchronizes from coarse to fine arrays and fine to fine each other (if ghostLev is >0). This method makes the hypothesis that \a this has been allocated before using
+ * This method synchronizes from coarse to fine arrays and fine to fine each other (if _ghost_lev is >0). This method makes the hypothesis that \a this has been allocated before using
  * MEDCouplingAMRAttribute::alloc method.
  */
-void MEDCouplingAMRAttribute::synchronizeCoarseToFine(int ghostLev)
+void MEDCouplingAMRAttribute::synchronizeCoarseToFine()
 {
   if(_levs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeCoarseToFine : not any levels in this !");
@@ -587,16 +651,16 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFine(int ghostLev)
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
-      MEDCouplingGridCollection::SynchronizeCoarseToFine(ghostLev,coarse,fine);
+      MEDCouplingGridCollection::SynchronizeCoarseToFine(_ghost_lev,coarse,fine);
     }
 }
 
 /*!
  * This method performs coarse to fine spread only in the ghost zone.
  * This method makes the hypothesis that \a this has been allocated before using MEDCouplingAMRAttribute::alloc method.
- * So if \a ghostLev == 0 this method has no effect.
+ * So if \a _ghost_lev == 0 this method has no effect.
  */
-void MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone(int ghostLev)
+void MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone()
 {
   if(_levs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone : not any levels in this !");
@@ -605,14 +669,14 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone(int ghostLe
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
-      MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(ghostLev,coarse,fine);
+      MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(_ghost_lev,coarse,fine);
     }
 }
 
 /*!
  * This method synchronizes fine each other only in the ghost zone.
  */
-void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone(int ghostLev)
+void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone()
 {
   if(_levs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOther : not any levels in this !");
@@ -623,25 +687,29 @@ void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone(int ghostLev)
       const MEDCouplingGridCollection *fine(_levs[i]);
       if(!fine)
         throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone : presence of a NULL element !");
-      fine->synchronizeFineEachOther(ghostLev);
+      fine->synchronizeFineEachOther(_ghost_lev,_neighbors[i]);
+    }
+  // cross lev
+  for(std::size_t i=1;i<sz;i++)
+    {
+      const MEDCouplingGridCollection *fine(_levs[i]);
+      fine->synchronizeFineEachOtherExt(_ghost_lev,_cross_lev_neighbors[i]);
     }
 }
 
 /*!
  * This method allocates all DataArrayDouble instances stored recursively in \a this.
  *
- * \param [in] ghostLev - The size of ghost zone.
- *
  * \sa dealloc
  */
-void MEDCouplingAMRAttribute::alloc(int ghostLev)
+void MEDCouplingAMRAttribute::alloc()
 {
   _tlc.resetState();
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     {
       MEDCouplingGridCollection *elt(*it);
       if(elt)
-        elt->alloc(ghostLev);
+        elt->alloc(_ghost_lev);
       else
         throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::alloc : internal error !");
     }
@@ -693,7 +761,7 @@ void MEDCouplingAMRAttribute::updateTime() const
 {//tony
 }
 
-MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames):MEDCouplingDataForGodFather(gf)
+MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev):MEDCouplingDataForGodFather(gf),_ghost_lev(ghostLev)
 {
   //gf non empty, checked by constructor
   int maxLev(gf->getMaxNumberOfLevelsRelativeToThis());
@@ -711,5 +779,31 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf
           ms[j]=patches[j]->getMesh();
         }
       _levs[i]=MEDCouplingGridCollection::New(ms,fieldNames);
+    }
+  // updates cross levels neighbors
+  _neighbors.resize(_levs.size());
+  _cross_lev_neighbors.resize(_levs.size());
+  if(_levs.empty())
+    throw INTERP_KERNEL::Exception("constructor of MEDCouplingAMRAttribute : not any levels in this !");
+  std::size_t sz(_levs.size());
+  for(std::size_t i=1;i<sz;i++)
+    {
+      const MEDCouplingGridCollection *fine(_levs[i]);
+      if(!fine)
+        throw INTERP_KERNEL::Exception("constructor of MEDCouplingAMRAttribute : presence of a NULL element !");
+      _neighbors[i]=fine->findNeighbors(_ghost_lev);
+      if(i!=sz-1)
+        {
+          for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=_neighbors[i].begin();it!=_neighbors[i].end();it++)
+            {
+              std::vector< std::vector < std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > neighs2(MEDCouplingCartesianAMRPatch::FindNeighborsOfSubPatchesOf(_ghost_lev,(*it).first,(*it).second));
+              std::size_t fullLev(i+neighs2.size());
+              if(fullLev>=sz)
+                throw INTERP_KERNEL::Exception("constructor of MEDCouplingAMRAttribute : internal error ! something is wrong in computation of cross level neighbors !");
+              std::size_t ii(i+1);
+              for(std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > >::const_iterator it0=neighs2.begin();it0!=neighs2.end();it0++,ii++)
+                _cross_lev_neighbors[ii].insert(_cross_lev_neighbors[ii].end(),(*it0).begin(),(*it0).end());
+            }
+        }
     }
 }
