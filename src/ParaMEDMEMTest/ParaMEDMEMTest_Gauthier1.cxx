@@ -27,9 +27,11 @@
 #include "InterpKernelDEC.hxx"
 #include "ICoCoTrioField.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
+#include "BlockTopology.hxx"
 
 #include <set>
 #include <time.h>
@@ -42,136 +44,58 @@ using namespace std;
 using namespace ParaMEDMEM;
 using namespace ICoCo;
 
-void afficheGauthier1( const TrioField&   field, const double *vals, int lgth)
+void afficheGauthier1(const ParaFIELD& field, const double *vals, int lgth)
 {
-  CPPUNIT_ASSERT_EQUAL(lgth,field._nb_elems);
-  for (int ele=0;ele<field._nb_elems;ele++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(vals[ele],field._field[ele],1e-12);
+  const DataArrayDouble *valsOfField(field.getField()->getArray());
+  CPPUNIT_ASSERT_EQUAL(lgth,valsOfField->getNumberOfTuples());
+  for (int ele=0;ele<valsOfField->getNumberOfTuples();ele++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(vals[ele],valsOfField->getIJ(ele,0),1e-12);
 }
 
-void remplit_coordGauthier1(double* coords)
+MEDCouplingUMesh *init_quadGauthier1(int is_master)
 {
-  double angle,epaisseur;
-  angle=0*45*(asin(1.)/90);
-  epaisseur=1e-0;
-  coords[0*3+0]=0.;
-  coords[0*3+1]=0.;
-  coords[0*3+2]=0.;
-  
-  coords[1*3+0]=cos(angle);
-  coords[1*3+1]=0.;
-  coords[1*3+2]=sin(angle);
-  
-    
-  coords[2*3+0]=-sin(angle);
-  coords[2*3+1]=0.;
-  coords[2*3+2]=cos(angle);
-  
-  for (int d=0;d<3;d++)
-    coords[3*3+d]=coords[1*3+d]+ coords[2*3+d];
-  
-  for (int i=4;i<8;i++)
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_quad",2));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::New());
+  if(is_master)
     {
-      for (int d=0;d<3;d++)
-        coords[i*3+d]=coords[(i-4)*3+d];
-      coords[i*3+1]+=epaisseur;
-    }
-
-}
-
-void init_quadGauthier1(TrioField& champ_quad,int is_master)
-{
-  
-  champ_quad.setName("champ_quad");
-  champ_quad._space_dim=3;
-  champ_quad._mesh_dim=2;
-  champ_quad._nodes_per_elem=4;
-  champ_quad._itnumber=0;
-  champ_quad._time1=0;
-  champ_quad._time2=1;
-  champ_quad._nb_field_components=1;
-
-  if (is_master)
-    {
-      champ_quad._nbnodes=8;
-      champ_quad._nb_elems=2;
-      
-      champ_quad._coords=new double[champ_quad._nbnodes*champ_quad._space_dim];
-      //memcpy(afield._coords,sommets.addr(),champ_quad._nbnodes*champ_quad._space_dim*sizeof(double));
-      
-      remplit_coordGauthier1(champ_quad._coords);
-  
-  
-      champ_quad._connectivity=new int[champ_quad._nb_elems*champ_quad._nodes_per_elem];
-      champ_quad._connectivity[0*champ_quad._nodes_per_elem+0]=0;
-      champ_quad._connectivity[0*champ_quad._nodes_per_elem+1]=1;
-      champ_quad._connectivity[0*champ_quad._nodes_per_elem+2]=3;
-      champ_quad._connectivity[0*champ_quad._nodes_per_elem+3]=2;
-      champ_quad._connectivity[1*champ_quad._nodes_per_elem+0]=4;
-      champ_quad._connectivity[1*champ_quad._nodes_per_elem+1]=5;
-      champ_quad._connectivity[1*champ_quad._nodes_per_elem+2]=7;
-      champ_quad._connectivity[1*champ_quad._nodes_per_elem+3]=6;
-      
+      const double dataCoo[24]={0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1,1,1,1,1};
+      coo->alloc(8,3);
+      std::copy(dataCoo,dataCoo+24,coo->getPointer());
+      const int conn[8]={0,1,3,2,4,5,7,6};
+      m->allocateCells(2);
+      m->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+      m->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
     }
   else
     {
-      champ_quad._nbnodes=0;
-      champ_quad._nb_elems=0;
-      champ_quad._coords=new double[champ_quad._nbnodes*champ_quad._space_dim];
-    
+      coo->alloc(0,3);
+      m->allocateCells(0);
     }
-  champ_quad._has_field_ownership=false;
-  champ_quad._field=0;
-  //champ_quad._field=new double[champ_quad._nb_elems];
-  //  assert(champ_quad._nb_field_components==1);
+  m->setCoords(coo);
+  return m.retn();
 }
-void init_triangleGauthier1(TrioField& champ_triangle,int is_master)
-{
-   
-  champ_triangle.setName("champ_triangle");
-  champ_triangle._space_dim=3;
-  champ_triangle._mesh_dim=2;
-  champ_triangle._nodes_per_elem=3;
-  champ_triangle._itnumber=0;
-  champ_triangle._time1=0;
-  champ_triangle._time2=1;
-  champ_triangle._nb_field_components=1;
 
-  if (is_master)
+MEDCouplingUMesh *init_triangleGauthier1(int is_master)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_triangle",2));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::New());
+  if(is_master)
     {
-      champ_triangle._nb_elems=4;
-      champ_triangle._nbnodes=8;
-    
-      champ_triangle._coords=new double[champ_triangle._nbnodes*champ_triangle._space_dim];
-      //memcpy(afield._coords,sommets.addr(),champ_triangle._nbnodes*champ_triangle._space_dim*sizeof(double));
-      remplit_coordGauthier1(champ_triangle._coords);
-      
-      champ_triangle._connectivity=new int[champ_triangle._nb_elems*champ_triangle._nodes_per_elem];
-      champ_triangle._connectivity[0*champ_triangle._nodes_per_elem+0]=0;
-      champ_triangle._connectivity[0*champ_triangle._nodes_per_elem+1]=1;
-      champ_triangle._connectivity[0*champ_triangle._nodes_per_elem+2]=2;
-      champ_triangle._connectivity[1*champ_triangle._nodes_per_elem+0]=1;
-      champ_triangle._connectivity[1*champ_triangle._nodes_per_elem+1]=2;
-      champ_triangle._connectivity[1*champ_triangle._nodes_per_elem+2]=3;
-      
-      champ_triangle._connectivity[2*champ_triangle._nodes_per_elem+0]=4;
-      champ_triangle._connectivity[2*champ_triangle._nodes_per_elem+1]=5;
-      champ_triangle._connectivity[2*champ_triangle._nodes_per_elem+2]=7;
-      champ_triangle._connectivity[3*champ_triangle._nodes_per_elem+0]=4;
-      champ_triangle._connectivity[3*champ_triangle._nodes_per_elem+1]=6;
-      champ_triangle._connectivity[3*champ_triangle._nodes_per_elem+2]=7;
+      const double dataCoo[24]={0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1,1,1,1,1};
+      coo->alloc(8,3);
+      std::copy(dataCoo,dataCoo+24,coo->getPointer());
+      const int conn[12]={0,1,2,1,2,3,4,5,7,4,6,7};
+      m->allocateCells(2);
+      for(int i=0;i<4;i++)
+        m->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+3*i);
     }
   else
     {
-      champ_triangle._nb_elems=0;
-      champ_triangle._nbnodes=0;
-      champ_triangle._coords=new double[champ_triangle._nbnodes*champ_triangle._space_dim];
-    
+      coo->alloc(0,3);
+      m->allocateCells(0);
     }
-  champ_triangle._has_field_ownership=false;
-  // champ_triangle._field=new double[champ_triangle._nb_elems];
-  champ_triangle._field=0;
-  
+  m->setCoords(coo);
+  return m.retn();
 }
 
 
@@ -201,14 +125,12 @@ void ParaMEDMEMTest::testGauthier1()
   MPIProcessorGroup recepteur_group(comm,recepteur_ids);
   MPIProcessorGroup emetteur_group(comm,emetteur_ids);
 
-
   string cas;
   if (recepteur_group.containsMyRank())
     {
       cas="recepteur";
       //freopen("recpeteur.out","w",stdout);
       //freopen("recepteur.err","w",stderr);
-      
     }
   else
     {
@@ -226,32 +148,44 @@ void ParaMEDMEMTest::testGauthier1()
     {1.,1.,1e200,1e200},
     {20.5,1.,1e200,1e200}
   };
-
   int expectedLgth[8]={4,4,2,2,4,4,2,2};
   
   for (int send=0;send<2;send++)
     for (int rec=0;rec<2;rec++)
       {
         InterpKernelDEC dec_emetteur(emetteur_group, recepteur_group);
+        ParaMEDMEM::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
+        ParaMEDMEM::ParaMESH *paramesh(0);
+        MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh;
         dec_emetteur.setOrientation(2);
-        TrioField champ_emetteur, champ_recepteur;
-   
         if (send==0)
-          init_quadGauthier1(champ_emetteur,is_master);
+          {
+            mesh=init_quadGauthier1(is_master);
+          }
         else
-          init_triangleGauthier1(champ_emetteur,is_master);
+          {
+            mesh=init_triangleGauthier1(is_master);
+          }
+        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
+        ParaMEDMEM::ComponentTopology comptopo;
+        champ_emetteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        champ_emetteur->getField()->setNature(ConservativeVolumic);
+        champ_emetteur->setOwnSupport(true);
         if (rec==0)
-          init_triangleGauthier1(champ_recepteur,is_master);
+          {
+            mesh=init_triangleGauthier1(is_master);
+          }
         else
-          init_quadGauthier1(champ_recepteur,is_master);
-  
+          {
+            mesh=init_quadGauthier1(is_master);
+          }
+        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
+        champ_recepteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        champ_recepteur->getField()->setNature(ConservativeVolumic);
+        champ_recepteur->setOwnSupport(true);
         if (cas=="emetteur") 
           {
-            champ_emetteur._field=new double[champ_emetteur._nb_elems];
-            for (int ele=0;ele<champ_emetteur._nb_elems;ele++)
-              champ_emetteur._field[ele]=1;
-      
-            champ_emetteur._has_field_ownership=true;
+            champ_emetteur->getField()->getArray()->fillWithValue(1.);
           }
   
   
@@ -270,18 +204,11 @@ void ParaMEDMEMTest::testGauthier1()
           //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
           for (int non_unif=0;non_unif<2;non_unif++)
             {
-              // if (champ_recepteur._field)
-              //   delete [] champ_recepteur._field;
-              champ_recepteur._field=0;
-              // champ_recepteur._has_field_ownership=false;
-  
-
-  
               if (cas=="emetteur") 
                 {
                   if (non_unif)
                     if(rank!=3)
-                      champ_emetteur._field[0]=40;
+                      champ_emetteur->getField()->getArray()->setIJ(0,0,40);
                 }
               //bool ok=false; // Is the time interval successfully solved ?
     
@@ -290,9 +217,9 @@ void ParaMEDMEMTest::testGauthier1()
       
 
                 if (cas=="emetteur")
-                  dec_emetteur.attachLocalField((ICoCo::Field*) &champ_emetteur);
+                  dec_emetteur.attachLocalField(champ_emetteur);
                 else
-                  dec_emetteur.attachLocalField((ICoCo::Field*) &champ_recepteur);
+                  dec_emetteur.attachLocalField(champ_recepteur);
 
 
                 if(init) dec_emetteur.synchronize();
@@ -306,7 +233,7 @@ void ParaMEDMEMTest::testGauthier1()
                   {
                     dec_emetteur.recvData();
                     if (is_master)
-                      afficheGauthier1(champ_recepteur,expected[num_cas],expectedLgth[num_cas]);
+                      afficheGauthier1(*champ_recepteur,expected[num_cas],expectedLgth[num_cas]);
                   }
                 else
                   throw 0;
@@ -315,8 +242,9 @@ void ParaMEDMEMTest::testGauthier1()
               stop=true;
               num_cas++;
             }
-          // destruction des champs, des DEC, et des tableaux associés
         }
+        delete champ_emetteur;
+        delete champ_recepteur;
       }
 }
 
@@ -467,14 +395,12 @@ void ParaMEDMEMTest::testGauthier3()
   MPIProcessorGroup recepteur_group(comm,recepteur_ids);
   MPIProcessorGroup emetteur_group(comm,emetteur_ids);
 
-
   string cas;
   if (recepteur_group.containsMyRank())
     {
       cas="recepteur";
       //freopen("recpeteur.out","w",stdout);
       //freopen("recepteur.err","w",stderr);
-      
     }
   else
     {
@@ -492,37 +418,46 @@ void ParaMEDMEMTest::testGauthier3()
     {1.,1.,1e200,1e200},
     {20.5,1.,1e200,1e200}
   };
-
   int expectedLgth[8]={4,4,2,2,4,4,2,2};
   
   for (int send=0;send<2;send++)
     for (int rec=0;rec<2;rec++)
       {
-        
         std::vector<InterpKernelDEC> decu(1);
-        decu[0]=InterpKernelDEC(emetteur_group, recepteur_group);
+        decu[0]=InterpKernelDEC(emetteur_group,recepteur_group);
         InterpKernelDEC& dec_emetteur=decu[0];
-
-        //InterpKernelDEC dec_emetteur(emetteur_group, recepteur_group);
+        ParaMEDMEM::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
+        ParaMEDMEM::ParaMESH *paramesh(0);
+        MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh;
         dec_emetteur.setOrientation(2);
-        TrioField champ_emetteur, champ_recepteur;
-   
         if (send==0)
-          init_quadGauthier1(champ_emetteur,is_master);
+          {
+            mesh=init_quadGauthier1(is_master);
+          }
         else
-          init_triangleGauthier1(champ_emetteur,is_master);
+          {
+            mesh=init_triangleGauthier1(is_master);
+          }
+        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
+        ParaMEDMEM::ComponentTopology comptopo;
+        champ_emetteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        champ_emetteur->getField()->setNature(ConservativeVolumic);
+        champ_emetteur->setOwnSupport(true);
         if (rec==0)
-          init_triangleGauthier1(champ_recepteur,is_master);
+          {
+            mesh=init_triangleGauthier1(is_master);
+          }
         else
-          init_quadGauthier1(champ_recepteur,is_master);
-  
+          {
+            mesh=init_quadGauthier1(is_master);
+          }
+        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
+        champ_recepteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        champ_recepteur->getField()->setNature(ConservativeVolumic);
+        champ_recepteur->setOwnSupport(true);
         if (cas=="emetteur") 
           {
-            champ_emetteur._field=new double[champ_emetteur._nb_elems];
-            for (int ele=0;ele<champ_emetteur._nb_elems;ele++)
-              champ_emetteur._field[ele]=1;
-      
-            champ_emetteur._has_field_ownership=true;
+            champ_emetteur->getField()->getArray()->fillWithValue(1.);
           }
   
   
@@ -541,18 +476,11 @@ void ParaMEDMEMTest::testGauthier3()
           //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
           for (int non_unif=0;non_unif<2;non_unif++)
             {
-              // if (champ_recepteur._field)
-              //   delete [] champ_recepteur._field;
-              champ_recepteur._field=0;
-              // champ_recepteur._has_field_ownership=false;
-  
-
-  
               if (cas=="emetteur") 
                 {
                   if (non_unif)
                     if(rank!=3)
-                      champ_emetteur._field[0]=40;
+                      champ_emetteur->getField()->getArray()->setIJ(0,0,40);
                 }
               //bool ok=false; // Is the time interval successfully solved ?
     
@@ -561,9 +489,9 @@ void ParaMEDMEMTest::testGauthier3()
       
 
                 if (cas=="emetteur")
-                  dec_emetteur.attachLocalField((ICoCo::Field*) &champ_emetteur);
+                  dec_emetteur.attachLocalField(champ_emetteur);
                 else
-                  dec_emetteur.attachLocalField((ICoCo::Field*) &champ_recepteur);
+                  dec_emetteur.attachLocalField(champ_recepteur);
 
 
                 if(init) dec_emetteur.synchronize();
@@ -577,7 +505,7 @@ void ParaMEDMEMTest::testGauthier3()
                   {
                     dec_emetteur.recvData();
                     if (is_master)
-                      afficheGauthier1(champ_recepteur,expected[num_cas],expectedLgth[num_cas]);
+                      afficheGauthier1(*champ_recepteur,expected[num_cas],expectedLgth[num_cas]);
                   }
                 else
                   throw 0;
@@ -586,8 +514,9 @@ void ParaMEDMEMTest::testGauthier3()
               stop=true;
               num_cas++;
             }
-          // destruction des champs, des DEC, et des tableaux associés
         }
+        delete champ_emetteur;
+        delete champ_recepteur;
       }
 }
 
