@@ -673,32 +673,29 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFine()
 }
 
 /*!
- * This method performs coarse to fine spread only in the ghost zone.
+ * This method synchronizes the ghost zone of all patches (excepted the god father one).
+ * This method operates in 4 steps. Larger is the number of steps more accurate is the information in the ghost zone.
+ *
+ * - firstly coarse to fine with no interactions between brother patches.
+ * - secondly connected brother patches in a same master patch are updated.
+ * - thirdly connected nephew patches are updated each other.
+ * - forthly nth generation cousin patches are updated each other.
+ *
  * This method makes the hypothesis that \a this has been allocated before using MEDCouplingAMRAttribute::alloc method.
  * So if \a _ghost_lev == 0 this method has no effect.
  */
-void MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone()
+void MEDCouplingAMRAttribute::synchronizeAllGhostZones()
 {
   if(_levs.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeCoarseToFineOnlyInGhostZone : not any levels in this !");
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOther : not any levels in this !");
+  // 1st - synchronize from coarse to the finest all the patches (excepted the god father one)
   std::size_t sz(_levs.size());
-  //
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
       MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(_ghost_lev,coarse,fine);
     }
-}
-
-/*!
- * This method synchronizes fine each other only in the ghost zone.
- */
-void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone()
-{
-  if(_levs.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOther : not any levels in this !");
-  std::size_t sz(_levs.size());
-  // 1st - classical direct sublevel inside common patch
+  // 2nd - classical direct sublevel inside common patch
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]);
@@ -706,13 +703,13 @@ void MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone()
         throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone : presence of a NULL element !");
       fine->synchronizeFineEachOther(_ghost_lev,_neighbors[i]);
     }
-  // 2nd - mixed level
+  // 3rd - mixed level
   for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=_mixed_lev_neighbors.begin();it!=_mixed_lev_neighbors.end();it++)
     {
       const DataArrayDoubleCollection *firstDAC(&findCollectionAttachedTo((*it).first->getMesh())),*secondDAC(&findCollectionAttachedTo((*it).second->getMesh()));
       DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo(_ghost_lev,(*it).first,firstDAC,(*it).second,secondDAC);
     }
-  // 3td - same level but with far ancestor.
+  // 4th - same level but with far ancestor.
   for(std::size_t i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]);

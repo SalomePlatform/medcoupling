@@ -593,7 +593,7 @@ void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const
  * \param [in] facts The refinement coefficient per axis.
  * \param [in] ghostSize - The size of the ghost zone. The ghost zone is expected to be the same for all axis and both for coarse and fine meshes.
  *
- * \sa CondenseFineToCoarse,SpreadCoarseToFineGhostZone
+ * \sa CondenseFineToCoarse, SpreadCoarseToFineGhostZone
  */
 void MEDCouplingIMesh::SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize)
 {

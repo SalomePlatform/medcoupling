@@ -174,58 +174,25 @@ bool MEDCouplingCartesianAMRPatch::isInMyNeighborhoodExt(const MEDCouplingCartes
  */
 bool MEDCouplingCartesianAMRPatch::isInMyNeighborhoodDiffLev(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const
 {
-  std::vector<const MEDCouplingCartesianAMRMeshGen *> ancestorsOfThis;
-  const MEDCouplingCartesianAMRMeshGen *work(getMesh()),*work2(0);
-  ancestorsOfThis.push_back(work);
-  while(work)
-    {
-      work=work->getFather();
-      if(work)
-        ancestorsOfThis.push_back(work);
-    }
-  //
-  work=other->getMesh();
-  bool found(false);
-  std::size_t levThis(0),levOther(0);
-  while(work && !found)
-    {
-      work2=work;
-      work=work->getFather();
-      if(work)
-        {
-          levOther++;
-          std::vector<const MEDCouplingCartesianAMRMeshGen *>::iterator it(std::find(ancestorsOfThis.begin(),ancestorsOfThis.end(),work));
-          if(it!=ancestorsOfThis.end())
-            {
-              levThis=std::distance(ancestorsOfThis.begin(),it);
-              found=true;
-            }
-        }
-    }
-  if(!found)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhoodDiffLev : no common ancestor found !");
-  if(levThis<=levOther)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhoodDiffLev : this method is not called correctly !");
-  //
-  const MEDCouplingCartesianAMRMeshGen *comAncestor(ancestorsOfThis[levThis]);
-  int idThis(comAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-1])),idOther(comAncestor->getPatchIdFromChildMesh(work2));
-  const MEDCouplingCartesianAMRPatch *thisp(comAncestor->getPatch(idThis)),*otherp(comAncestor->getPatch(idOther));
-  std::vector<int> offset(ComputeOffsetFromTwoToOne(comAncestor,levOther,thisp,otherp));
-  std::vector< std::pair<int,int> > thispp(thisp->getBLTRRange()),otherpp(MEDCouplingStructuredMesh::TranslateCompactFrmt(otherp->getBLTRRange(),offset));
-  //
-  std::size_t nbOfTurn(levThis-levOther);
-  for(std::size_t i=0;i<nbOfTurn;i++)
-    {
-      std::vector< std::pair<int,int> > tmp0;
-      MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(thispp,otherpp,tmp0,false);
-      otherpp=tmp0;
-      const MEDCouplingCartesianAMRMeshGen *curAncestor(ancestorsOfThis[levThis-i]);
-      ApplyFactorsOnCompactFrmt(otherpp,curAncestor->getFactors());
-      curAncestor=ancestorsOfThis[levThis-1-i];
-      int tmpId(curAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-2-i]));
-      thispp=curAncestor->getPatch(tmpId)->getBLTRRange();
-    }
+  std::vector< std::pair<int,int> > thispp,otherpp;
+  std::vector<int> factors;
+  ComputeZonesOfTwoRelativeToOneDiffLev(ghostLev,this,other,thispp,otherpp,factors);
   return IsInMyNeighborhood(ghostLev,thispp,otherpp);
+}
+
+std::vector<int> MEDCouplingCartesianAMRPatch::computeCellGridSt() const
+{
+  const MEDCouplingCartesianAMRMeshGen *m(getMesh());
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::computeCellGridSt : no mesh held by this !");
+  const MEDCouplingCartesianAMRMeshGen *father(m->getFather());
+  if(!father)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::computeCellGridSt : no father help by underlying mesh !");
+  const std::vector< std::pair<int,int> >& bltr(getBLTRRange());
+  const std::vector<int>& factors(father->getFactors());
+  std::vector<int> ret(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(bltr));
+  std::transform(ret.begin(),ret.end(),factors.begin(),ret.begin(),std::multiplies<int>());
+  return ret;
 }
 
 bool MEDCouplingCartesianAMRPatch::IsInMyNeighborhood(int ghostLev, const std::vector< std::pair<int,int> >& p1, const std::vector< std::pair<int,int> >& p2)
@@ -325,32 +292,6 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwo(int ghostLev, con
   UpdateNeighborsOfOneWithTwoInternal(ghostLev,factors,p1BLTR,p2BLTR,dataOnP1,dataOnP2);
 }
 
-void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(int ghostLev, const std::vector<int>& factors, const std::vector< std::pair<int,int> >&p1 ,const std::vector< std::pair<int,int> >&p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
-{//p1=[(1,4),(2,4)] p2=[(4,5),(3,4)]
-  int dim((int)factors.size());
-  std::vector<int> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(p1));//[3,2]
-  std::transform(dimsCoarse.begin(),dimsCoarse.end(),factors.begin(),dimsCoarse.begin(),std::multiplies<int>());//[12,8]
-  std::transform(dimsCoarse.begin(),dimsCoarse.end(),dimsCoarse.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));//[14,10]
-  std::vector< std::pair<int,int> > rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));//[(0,14),(0,10)]
-  std::vector<int> fakeFactors(dim,1);
-  //
-  std::vector< std::pair<int,int> > tmp0,tmp1,tmp2;
-  MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p1,p2,tmp0,false);//tmp0=[(3,4),(1,2)]
-  ApplyFactorsOnCompactFrmt(tmp0,factors);//tmp0=[(12,16),(4,8)]
-  ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
-  std::vector< std::pair<int,int> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
-  MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p2,p1,tmp1,false);//tmp1=[(-3,0),(-1,1)]
-  ApplyFactorsOnCompactFrmt(tmp1,factors);//tmp1=[(-12,-4),(-4,0)]
-  MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(tmp1,interstRange,tmp2,false);//tmp2=[(1,2),(1,5)]
-  //
-  std::vector< std::pair<int,int> > dimsFine(p2);
-  ApplyFactorsOnCompactFrmt(dimsFine,factors);
-  ApplyAllGhostOnCompactFrmt(dimsFine,ghostLev);
-  //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ghostVals(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(dimsFine),dataOnP2,tmp2));
-  MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,dataOnP1);
-}
-
 /*!
  * Idem than UpdateNeighborsOfOneWithTwo, except that here \a p1 and \a p2 are not sharing the same direct father.
  *
@@ -367,8 +308,88 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(int ghostLev, 
   UpdateNeighborsOfOneWithTwoInternal(ghostLev,p1->getMesh()->getFather()->getFactors(),p1BLTR,p2BLTR,dataOnP1,dataOnP2);
 }
 
+/*!
+ * \a p1 is expected to be more refined than \a p2. \a p1 and \a p2 have to share a common ancestor. Compared to UpdateNeighborsOfOneWithTwoExt here \a p1 and \a p2 are \b not at the same level !
+ */
 void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
 {
+  std::vector< std::pair<int,int> > p1pp,p2pp;
+  std::vector<int> factors;
+  ComputeZonesOfTwoRelativeToOneDiffLev(ghostLev,p1,p2,p1pp,p2pp,factors);
+  //
+  std::vector<int> dimsP2NotRefined(p2->computeCellGridSt());
+  std::vector<int> dimsP2Refined(dimsP2NotRefined);
+  std::transform(dimsP2NotRefined.begin(),dimsP2NotRefined.end(),factors.begin(),dimsP2Refined.begin(),std::multiplies<int>());
+  std::vector< std::pair<int,int> > p2RefinedAbs(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsP2NotRefined));
+  std::vector<int> dimsP2RefinedGhost(dimsP2Refined.size());
+  std::transform(dimsP2Refined.begin(),dimsP2Refined.end(),dimsP2RefinedGhost.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> fineP2(DataArrayDouble::New()); fineP2->alloc(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(dimsP2RefinedGhost),dataOnP2->getNumberOfComponents());
+  MEDCouplingIMesh::SpreadCoarseToFineGhost(dataOnP2,dimsP2NotRefined,fineP2,p2RefinedAbs,factors,ghostLev);
+  //
+  UpdateNeighborsOfOneWithTwoInternal(ghostLev,p1->getMesh()->getFather()->getFactors(),p1pp,p2pp,dataOnP1,fineP2);
+}
+
+/*!
+ * \a p1 is expected to be more refined than \a p2. \a p1 and \a p2 have to share a common ancestor. Compared to UpdateNeighborsOfOneWithTwoExt here \a p1 and \a p2 are \b not at the same level !
+ * This method has 3 outputs. 2 two first are the resp the position of \a p1 and \a p2 relative to \a p1. And \a factToApplyOn2 is the coeff of refinement to be applied on \a p2 to be virtualy
+ * on the same level as \a p1.
+ */
+void MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<int,int> >& p1Zone, std::vector< std::pair<int,int> >& p2Zone, std::vector<int>& factToApplyOn2)
+{
+  std::vector<const MEDCouplingCartesianAMRMeshGen *> ancestorsOfThis;
+  const MEDCouplingCartesianAMRMeshGen *work(p1->getMesh()),*work2(0);
+  ancestorsOfThis.push_back(work);
+  while(work)
+    {
+      work=work->getFather();
+      if(work)
+        ancestorsOfThis.push_back(work);
+    }
+  //
+  work=p2->getMesh();
+  bool found(false);
+  std::size_t levThis(0),levOther(0);
+  while(work && !found)
+    {
+      work2=work;
+      work=work->getFather();
+      if(work)
+        {
+          levOther++;
+          std::vector<const MEDCouplingCartesianAMRMeshGen *>::iterator it(std::find(ancestorsOfThis.begin(),ancestorsOfThis.end(),work));
+          if(it!=ancestorsOfThis.end())
+            {
+              levThis=std::distance(ancestorsOfThis.begin(),it);
+              found=true;
+            }
+        }
+    }
+  if(!found)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev : no common ancestor found !");
+  if(levThis<=levOther)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ComputeZonesOfTwoRelativeToOneDiffLev : this method is not called correctly !");
+  //
+  const MEDCouplingCartesianAMRMeshGen *comAncestor(ancestorsOfThis[levThis]);
+  int idThis(comAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-1])),idOther(comAncestor->getPatchIdFromChildMesh(work2));
+  const MEDCouplingCartesianAMRPatch *thisp(comAncestor->getPatch(idThis)),*otherp(comAncestor->getPatch(idOther));
+  std::vector<int> offset(ComputeOffsetFromTwoToOne(comAncestor,levOther,thisp,otherp));
+  p1Zone=thisp->getBLTRRange(); p2Zone=MEDCouplingStructuredMesh::TranslateCompactFrmt(otherp->getBLTRRange(),offset);
+  factToApplyOn2.resize(p1Zone.size()); std::fill(factToApplyOn2.begin(),factToApplyOn2.end(),1);
+  //
+  std::size_t nbOfTurn(levThis-levOther);
+  for(std::size_t i=0;i<nbOfTurn;i++)
+    {
+      std::vector< std::pair<int,int> > tmp0;
+      MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p1Zone,p2Zone,tmp0,false);
+      p2Zone=tmp0;
+      const MEDCouplingCartesianAMRMeshGen *curAncestor(ancestorsOfThis[levThis-i]);
+      ApplyFactorsOnCompactFrmt(p2Zone,curAncestor->getFactors());
+      curAncestor=ancestorsOfThis[levThis-1-i];
+      const std::vector<int>& factors(curAncestor->getFactors());
+      std::transform(factToApplyOn2.begin(),factToApplyOn2.end(),factors.begin(),factToApplyOn2.begin(),std::multiplies<int>());
+      int tmpId(curAncestor->getPatchIdFromChildMesh(ancestorsOfThis[levThis-2-i]));
+      p1Zone=curAncestor->getPatch(tmpId)->getBLTRRange();
+    }
 }
 
 std::size_t MEDCouplingCartesianAMRPatch::getHeapMemorySizeWithoutChildren() const
@@ -427,6 +448,32 @@ std::vector<int> MEDCouplingCartesianAMRPatch::ComputeOffsetFromTwoToOne(const M
         }
     }
   return ret;
+}
+
+void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(int ghostLev, const std::vector<int>& factors, const std::vector< std::pair<int,int> >&p1 ,const std::vector< std::pair<int,int> >&p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
+{//p1=[(1,4),(2,4)] p2=[(4,5),(3,4)]
+  int dim((int)factors.size());
+  std::vector<int> dimsCoarse(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(p1));//[3,2]
+  std::transform(dimsCoarse.begin(),dimsCoarse.end(),factors.begin(),dimsCoarse.begin(),std::multiplies<int>());//[12,8]
+  std::transform(dimsCoarse.begin(),dimsCoarse.end(),dimsCoarse.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));//[14,10]
+  std::vector< std::pair<int,int> > rangeCoarse(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsCoarse));//[(0,14),(0,10)]
+  std::vector<int> fakeFactors(dim,1);
+  //
+  std::vector< std::pair<int,int> > tmp0,tmp1,tmp2;
+  MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p1,p2,tmp0,false);//tmp0=[(3,4),(1,2)]
+  ApplyFactorsOnCompactFrmt(tmp0,factors);//tmp0=[(12,16),(4,8)]
+  ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
+  std::vector< std::pair<int,int> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
+  MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p2,p1,tmp1,false);//tmp1=[(-3,0),(-1,1)]
+  ApplyFactorsOnCompactFrmt(tmp1,factors);//tmp1=[(-12,-4),(-4,0)]
+  MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(tmp1,interstRange,tmp2,false);//tmp2=[(1,2),(1,5)]
+  //
+  std::vector< std::pair<int,int> > dimsFine(p2);
+  ApplyFactorsOnCompactFrmt(dimsFine,factors);
+  ApplyAllGhostOnCompactFrmt(dimsFine,ghostLev);
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ghostVals(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(dimsFine),dataOnP2,tmp2));
+  MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,dataOnP1);
 }
 
 /*!

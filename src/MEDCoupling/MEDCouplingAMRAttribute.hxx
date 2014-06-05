@@ -93,8 +93,7 @@ namespace ParaMEDMEM
     //
     MEDCOUPLING_EXPORT void synchronizeFineToCoarse();
     MEDCOUPLING_EXPORT void synchronizeCoarseToFine();
-    MEDCOUPLING_EXPORT void synchronizeCoarseToFineOnlyInGhostZone();
-    MEDCOUPLING_EXPORT void synchronizeFineEachOtherInGhostZone();
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZones();
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
     MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);

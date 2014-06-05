@@ -4825,6 +4825,7 @@ namespace ParaMEDMEM
   public:
     int getNumberOfOverlapedCellsForFather() const throw(INTERP_KERNEL::Exception);
     bool isInMyNeighborhood(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> computeCellGridSt() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       PyObject *getBLTRRange() const throw(INTERP_KERNEL::Exception)
@@ -4885,8 +4886,7 @@ namespace ParaMEDMEM
   public:
     virtual void synchronizeFineToCoarse() throw(INTERP_KERNEL::Exception);
     virtual void synchronizeCoarseToFine() throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeCoarseToFineOnlyInGhostZone() throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeFineEachOtherInGhostZone() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeAllGhostZones() throw(INTERP_KERNEL::Exception);
     virtual void alloc() throw(INTERP_KERNEL::Exception);
     virtual void dealloc() throw(INTERP_KERNEL::Exception);
   };
