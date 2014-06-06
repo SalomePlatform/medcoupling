@@ -25,7 +25,6 @@
 #include "MPIProcessorGroup.hxx"
 #include "DEC.hxx"
 #include "InterpKernelDEC.hxx"
-#include "ICoCoTrioField.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "ParaMESH.hxx"
@@ -250,17 +249,6 @@ void ParaMEDMEMTest::testGauthier1()
 
 void ParaMEDMEMTest::testGauthier2()
 {
-  const char save_vit_in_2[]="VITESSE_P1_OUT\n1\n2\n3\n63\n3\n80\n0\n 0 1 2\n 3 4 5\n 6 7 8\n 9 10 11\n 12 13 14\n 15 16 17\n 18 19 20\n 21 22 23\n 24 25 26\n 27 28 29\n 30 2 1\n 31 5 4\n 32 8 7\n 33 11 10\n 34 14 13\n 35 17 16\n 36 20 19\n 37 23 22\n 38 26 25\n 39 29 28\n 30 40 2\n 31 41 5\n 32 42 8\n 33 43 11\n 34 44 14\n 35 45 17\n 36 46 20\n 37 47 23\n 38 48 26\n 39 49 29\n 31 2 40\n 32 5 41\n 33 8 42\n 34 11 43\n 35 14 44\n 36 17 45\n 37 20 46\n 38 23 47\n 39 26 48\n 50 29 49\n 3 2 4\n 6 5 7\n 9 8 10\n 12 11 13\n 15 14 16\n 18 17 19\n 21 20 22\n 24 23 25\n 27 26 28\n 51 29 52\n 31 4 2\n 32 7 5\n 33 10 8\n 34 13 11\n 35 16 14\n 36 19 17\n 37 22 20\n 38 25 23\n 39 28 26\n 50 52 29\n 0 2 53\n 3 5 54\n 6 8 55\n 9 11 56\n 12 14 57\n 15 17 58\n 18 20 59\n 21 23 60\n 24 26 61\n 27 29 62\n 3 53 2\n 6 54 5\n 9 55 8\n 12 56 11\n 15 57 14\n 18 58 17\n 21 59 20\n 24 60 23\n 27 61 26\n 51 62 29\n 0 0 0\n 0.5 0 0\n 0.5 0.05 0\n 0 0.1 0\n 0.5 0.1 0\n 0.5 0.15 0\n 0 0.2 0\n 0.5 0.2 0\n 0.5 0.25 0\n 0 0.3 0\n 0.5 0.3 0\n 0.5 0.35 0\n 0 0.4 0\n 0.5 0.4 0\n 0.5 0.45 0\n 0 0.5 0\n 0.5 0.5 0\n 0.5 0.55 0\n 0 0.6 0\n 0.5 0.6 0\n 0.5 0.65 0\n 0 0.7 0\n 0.5 0.7 0\n 0.5 0.75 0\n 0 0.8 0\n 0.5 0.8 0\n 0.5 0.85 0\n 0 0.9 0\n 0.5 0.9 0\n 0.5 0.95 0\n 1 0 0\n 1 0.1 0\n 1 0.2 0\n 1 0.3 0\n 1 0.4 0\n 1 0.5 0\n 1 0.6 0\n 1 0.7 0\n 1 0.8 0\n 1 0.9 0\n 1 0.05 0\n 1 0.15 0\n 1 0.25 0\n 1 0.35 0\n 1 0.45 0\n 1 0.55 0\n 1 0.65 0\n 1 0.75 0\n 1 0.85 0\n 1 0.95 0\n 1 1 0\n 0 1 0\n 0.5 1 0\n 0 0.05 0\n 0 0.15 0\n 0 0.25 0\n 0 0.35 0\n 0 0.45 0\n 0 0.55 0\n 0 0.65 0\n 0 0.75 0\n 0 0.85 0\n 0 0.95 0\n2.9268\n3.1707\n3\n1\n 0 0 0\n 0 0 0\n 0 0 0.05\n 0 0 0.1\n 0 0 0.1\n 0 0 0.15\n 0 0 0.2\n 0 0 0.2\n 0 0 0.25\n 0 0 0.3\n 0 0 0.3\n 0 0 0.35\n 0 0 0.4\n 0 0 0.4\n 0 0 0.45\n 0 0 0.5\n 0 0 0.5\n 0 0 0.55\n 0 0 0.6\n 0 0 0.6\n 0 0 0.65\n 0 0 0.7\n 0 0 0.7\n 0 0 0.75\n 0 0 0.8\n 0 0 0.8\n 0 0 0.85\n 0 0 0.9\n 0 0 0.9\n 0 0 0.95\n 0 0 0\n 0 0 0.1\n 0 0 0.2\n 0 0 0.3\n 0 0 0.4\n 0 0 0.5\n 0 0 0.6\n 0 0 0.7\n 0 0 0.8\n 0 0 0.9\n 0 0 0.05\n 0 0 0.15\n 0 0 0.25\n 0 0 0.35\n 0 0 0.45\n 0 0 0.55\n 0 0 0.65\n 0 0 0.75\n 0 0 0.85\n 0 0 0.95\n 0 0 1\n 0 0 1\n 0 0 1\n 0 0 0.05\n 0 0 0.15\n 0 0 0.25\n 0 0 0.35\n 0 0 0.45\n 0 0 0.55\n 0 0 0.65\n 0 0 0.75\n 0 0 0.85\n 0 0 0.95\n1\n";
-
-  const char save_vit_out_0_2[]="vitesse_in_chaude\n0\n2\n3\n22\n4\n10\n-1081737852\n 0 1 3 2\n 2 3 5 4\n 4 5 7 6\n 6 7 9 8\n 8 9 11 10\n 10 11 13 12\n 12 13 15 14\n 14 15 17 16\n 16 17 19 18\n 18 19 21 20\n 0 0 0\n 1 0 0\n 0 0.1 0\n 1 0.1 0\n 0 0.2 0\n 1 0.2 0\n 0 0.3 0\n 1 0.3 0\n 0 0.4 0\n 1 0.4 0\n 0 0.5 0\n 1 0.5 0\n 0 0.6 0\n 1 0.6 0\n 0 0.7 0\n 1 0.7 0\n 0 0.8 0\n 1 0.8 0\n 0 0.9 0\n 1 0.9 0\n 0 1 0\n 1 1 0\n2.9268\n3.1707\n3\n1\n 0 0 0.05\n 0 0 0.15\n 0 0 0.25\n 0 0 0.35\n 0 0 0.45\n 0 0 0.55\n 0 0 0.65\n 0 0 0.75\n 0 0 0.85\n 0 0 0.95\n0\n";
-  const char save_vit_out_1_2[]="vitesse_in_chaude\n1\n2\n3\n22\n4\n10\n-1081737852\n 0 1 3 2\n 2 3 5 4\n 4 5 7 6\n 6 7 9 8\n 8 9 11 10\n 10 11 13 12\n 12 13 15 14\n 14 15 17 16\n 16 17 19 18\n 18 19 21 20\n 0 0 0\n 1 0 0\n 0 0.1 0\n 1 0.1 0\n 0 0.2 0\n 1 0.2 0\n 0 0.3 0\n 1 0.3 0\n 0 0.4 0\n 1 0.4 0\n 0 0.5 0\n 1 0.5 0\n 0 0.6 0\n 1 0.6 0\n 0 0.7 0\n 1 0.7 0\n 0 0.8 0\n 1 0.8 0\n 0 0.9 0\n 1 0.9 0\n 0 1 0\n 1 1 0\n2.9268\n3.1707\n3\n1\n 0 0 0.029375\n 0 0 0.029375\n 0 0 0.1\n 0 0 0.1\n 0 0 0.2\n 0 0 0.2\n 0 0 0.3\n 0 0 0.3\n 0 0 0.4\n 0 0 0.4\n 0 0 0.5\n 0 0 0.5\n 0 0 0.6\n 0 0 0.6\n 0 0 0.7\n 0 0 0.7\n 0 0 0.8\n 0 0 0.8\n 0 0 0.9\n 0 0 0.9\n 0 0 0.970625\n 0 0 0.970625\n0\n";
-
-  const char *save_vit_outs[2]={save_vit_out_1_2,save_vit_out_0_2};
-
-  const char save_vit_out_1_0[]="vitesse_in_chaude\n1\n2\n3\n22\n4\n10\n-1081737852\n 0 1 3 2\n 2 3 5 4\n 4 5 7 6\n 6 7 9 8\n 8 9 11 10\n 10 11 13 12\n 12 13 15 14\n 14 15 17 16\n 16 17 19 18\n 18 19 21 20\n 0 0 0\n 1 0 0\n 0 0.1 0\n 1 0.1 0\n 0 0.2 0\n 1 0.2 0\n 0 0.3 0\n 1 0.3 0\n 0 0.4 0\n 1 0.4 0\n 0 0.5 0\n 1 0.5 0\n 0 0.6 0\n 1 0.6 0\n 0 0.7 0\n 1 0.7 0\n 0 0.8 0\n 1 0.8 0\n 0 0.9 0\n 1 0.9 0\n 0 1 0\n 1 1 0\n2.9268\n3.1707\n3\n1\n 0 0 0.029375\n 0 0 0.029375\n 0 0 0.1\n 0 0 0.1\n 0 0 0.2\n 0 0 0.2\n 0 0 0.3\n 0 0 0.3\n 0 0 0.4\n 0 0 0.4\n 0 0 0.5\n 0 0 0.5\n 0 0 0.6\n 0 0 0.6\n 0 0 0.7\n 0 0 0.7\n 0 0 0.8\n 0 0 0.8\n 0 0 0.9\n 0 0 0.9\n 0 0 0.970625\n 0 0 0.970625\n0\n";
-  
-  const char save_vit_in[]="VITESSE_P1_OUT\n1\n2\n3\n63\n3\n80\n0\n 0 1 2\n 3 4 5\n 6 7 8\n 9 10 11\n 12 13 14\n 15 16 17\n 18 19 20\n 21 22 23\n 24 25 26\n 27 28 29\n 30 2 1\n 31 5 4\n 32 8 7\n 33 11 10\n 34 14 13\n 35 17 16\n 36 20 19\n 37 23 22\n 38 26 25\n 39 29 28\n 30 40 2\n 31 41 5\n 32 42 8\n 33 43 11\n 34 44 14\n 35 45 17\n 36 46 20\n 37 47 23\n 38 48 26\n 39 49 29\n 31 2 40\n 32 5 41\n 33 8 42\n 34 11 43\n 35 14 44\n 36 17 45\n 37 20 46\n 38 23 47\n 39 26 48\n 50 29 49\n 3 2 4\n 6 5 7\n 9 8 10\n 12 11 13\n 15 14 16\n 18 17 19\n 21 20 22\n 24 23 25\n 27 26 28\n 51 29 52\n 31 4 2\n 32 7 5\n 33 10 8\n 34 13 11\n 35 16 14\n 36 19 17\n 37 22 20\n 38 25 23\n 39 28 26\n 50 52 29\n 0 2 53\n 3 5 54\n 6 8 55\n 9 11 56\n 12 14 57\n 15 17 58\n 18 20 59\n 21 23 60\n 24 26 61\n 27 29 62\n 3 53 2\n 6 54 5\n 9 55 8\n 12 56 11\n 15 57 14\n 18 58 17\n 21 59 20\n 24 60 23\n 27 61 26\n 51 62 29\n 0 0 0\n 0.5 0 0\n 0.5 0.05 0\n 0 0.1 0\n 0.5 0.1 0\n 0.5 0.15 0\n 0 0.2 0\n 0.5 0.2 0\n 0.5 0.25 0\n 0 0.3 0\n 0.5 0.3 0\n 0.5 0.35 0\n 0 0.4 0\n 0.5 0.4 0\n 0.5 0.45 0\n 0 0.5 0\n 0.5 0.5 0\n 0.5 0.55 0\n 0 0.6 0\n 0.5 0.6 0\n 0.5 0.65 0\n 0 0.7 0\n 0.5 0.7 0\n 0.5 0.75 0\n 0 0.8 0\n 0.5 0.8 0\n 0.5 0.85 0\n 0 0.9 0\n 0.5 0.9 0\n 0.5 0.95 0\n 1 0 0\n 1 0.1 0\n 1 0.2 0\n 1 0.3 0\n 1 0.4 0\n 1 0.5 0\n 1 0.6 0\n 1 0.7 0\n 1 0.8 0\n 1 0.9 0\n 1 0.05 0\n 1 0.15 0\n 1 0.25 0\n 1 0.35 0\n 1 0.45 0\n 1 0.55 0\n 1 0.65 0\n 1 0.75 0\n 1 0.85 0\n 1 0.95 0\n 1 1 0\n 0 1 0\n 0.5 1 0\n 0 0.05 0\n 0 0.15 0\n 0 0.25 0\n 0 0.35 0\n 0 0.45 0\n 0 0.55 0\n 0 0.65 0\n 0 0.75 0\n 0 0.85 0\n 0 0.95 0\n2.9268\n3.1707\n3\n1\n 0 0 0\n 0 0 0\n 0 0 0.05\n 0 0 0.1\n 0 0 0.1\n 0 0 0.15\n 0 0 0.2\n 0 0 0.2\n 0 0 0.25\n 0 0 0.3\n 0 0 0.3\n 0 0 0.35\n 0 0 0.4\n 0 0 0.4\n 0 0 0.45\n 0 0 0.5\n 0 0 0.5\n 0 0 0.55\n 0 0 0.6\n 0 0 0.6\n 0 0 0.65\n 0 0 0.7\n 0 0 0.7\n 0 0 0.75\n 0 0 0.8\n 0 0 0.8\n 0 0 0.85\n 0 0 0.9\n 0 0 0.9\n 0 0 0.95\n 0 0 0\n 0 0 0.1\n 0 0 0.2\n 0 0 0.3\n 0 0 0.4\n 0 0 0.5\n 0 0 0.6\n 0 0 0.7\n 0 0 0.8\n 0 0 0.9\n 0 0 0.05\n 0 0 0.15\n 0 0 0.25\n 0 0 0.35\n 0 0 0.45\n 0 0 0.55\n 0 0 0.65\n 0 0 0.75\n 0 0 0.85\n 0 0 0.95\n 0 0 1\n 0 0 1\n 0 0 1\n 0 0 0.05\n 0 0 0.15\n 0 0 0.25\n 0 0 0.35\n 0 0 0.45\n 0 0 0.55\n 0 0 0.65\n 0 0 0.75\n 0 0 0.85\n 0 0 0.95\n1\n";
-
   double valuesExpected1[2]={0.,0.};
   double valuesExpected2[2]={0.95,0.970625};
   
@@ -285,36 +273,53 @@ void ParaMEDMEMTest::testGauthier2()
       MPIProcessorGroup entree_chaude_group(comm,entree_chaude_ids);
       MPIProcessorGroup Genepi_group(comm,Genepi_ids);
 
-      TrioField vitesse;
+      ParaMEDMEM::ParaFIELD *vitesse(0);
       InterpKernelDEC dec_vit_in_chaude(entree_chaude_group, Genepi_group);
 
       if ( entree_chaude_group.containsMyRank())
         {
-          istringstream save_vit(save_vit_in);
-          vitesse.restore(save_vit);
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("mesh",2));
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(63,3);
+          const double cooData[189]={0.,0.,0.,0.5,0.,0.,0.5,0.05,0.,0.,0.1,0.,0.5,0.1,0.,0.5,0.15,0.,0.,0.2,0.,0.5,0.2,0.,0.5,0.25,0.,0.,0.3,0.,0.5,0.3,0.,0.5,0.35,0.,0.,0.4,0.,0.5,0.4,0.,0.5,0.45,0.,0.,0.5,0.,0.5,0.5,0.,0.5,0.55,0.,0.,0.6,0.,0.5,0.6,0.,0.5,0.65,0.,0.,0.7,0.,0.5,0.7,0.,0.5,0.75,0.,0.,0.8,0.,0.5,0.8,0.,0.5,0.85,0.,0.,0.9,0.,0.5,0.9,0.,0.5,0.95,0.,1.,0.,0.,1.,0.1,0.,1.,0.2,0.,1.,0.3,0.,1.,0.4,0.,1.,0.5,0.,1.,0.6,0.,1.,0.7,0.,1.,0.8,0.,1.,0.9,0.,1.,0.05,0.,1.,0.15,0.,1.,0.25,0.,1.,0.35,0.,1.,0.45,0.,1.,0.55,0.,1.,0.65,0.,1.,0.75,0.,1.,0.85,0.,1.,0.95,0.,1.,1.,0.,0.,1.,0.,0.5,1.,0.,0.,0.05,0.,0.,0.15,0.,0.,0.25,0.,0.,0.35,0.,0.,0.45,0.,0.,0.55,0.,0.,0.65,0.,0.,0.75,0.,0.,0.85,0.,0.,0.95,0.};
+          std::copy(cooData,cooData+189,arr->getPointer());
+          mesh->setCoords(arr);
+          mesh->allocateCells(80);
+          const int conn[240]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,2,1,31,5,4,32,8,7,33,11,10,34,14,13,35,17,16,36,20,19,37,23,22,38,26,25,39,29,28,30,40,2,31,41,5,32,42,8,33,43,11,34,44,14,35,45,17,36,46,20,37,47,23,38,48,26,39,49,29,31,2,40,32,5,41,33,8,42,34,11,43,35,14,44,36,17,45,37,20,46,38,23,47,39,26,48,50,29,49,3,2,4,6,5,7,9,8,10,12,11,13,15,14,16,18,17,19,21,20,22,24,23,25,27,26,28,51,29,52,31,4,2,32,7,5,33,10,8,34,13,11,35,16,14,36,19,17,37,22,20,38,25,23,39,28,26,50,52,29,0,2,53,3,5,54,6,8,55,9,11,56,12,14,57,15,17,58,18,20,59,21,23,60,24,26,61,27,29,62,3,53,2,6,54,5,9,55,8,12,56,11,15,57,14,18,58,17,21,59,20,24,60,23,27,61,26,51,62,29};
+          for(int i=0;i<80;i++)
+            mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+3*i);
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f(MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME));
+          const double valsOfField[189]={0.,0.,0.,0.,0.,0.,0.,0.,0.05,0.,0.,0.1,0.,0.,0.1,0.,0.,0.15,0.,0.,0.2,0.,0.,0.2,0.,0.,0.25,0.,0.,0.3,0.,0.,0.3,0.,0.,0.35,0.,0.,0.4,0.,0.,0.4,0.,0.,0.45,0.,0.,0.5,0.,0.,0.5,0.,0.,0.55,0.,0.,0.6,0.,0.,0.6,0.,0.,0.65,0.,0.,0.7,0.,0.,0.7,0.,0.,0.75,0.,0.,0.8,0.,0.,0.8,0.,0.,0.85,0.,0.,0.9,0.,0.,0.9,0.,0.,0.95,0.,0.,0.,0.,0.,0.1,0.,0.,0.2,0.,0.,0.3,0.,0.,0.4,0.,0.,0.5,0.,0.,0.6,0.,0.,0.7,0.,0.,0.8,0.,0.,0.9,0.,0.,0.05,0.,0.,0.15,0.,0.,0.25,0.,0.,0.35,0.,0.,0.45,0.,0.,0.55,0.,0.,0.65,0.,0.,0.75,0.,0.,0.85,0.,0.,0.95,0.,0.,1.,0.,0.,1.,0.,0.,1.,0.,0.,0.05,0.,0.,0.15,0.,0.,0.25,0.,0.,0.35,0.,0.,0.45,0.,0.,0.55,0.,0.,0.65,0.,0.,0.75,0.,0.,0.85,0.,0.,0.95};
+          f->setMesh(mesh); f->setName("VITESSE_P1_OUT");
+          arr=DataArrayDouble::New(); arr->alloc(63,3);
+          std::copy(valsOfField,valsOfField+189,arr->getPointer());
+          f->setArray(arr); f->setNature(ConservativeVolumic);
+          ParaMEDMEM::ParaMESH *paramesh(new ParaMEDMEM::ParaMESH(mesh,entree_chaude_group,"emetteur mesh"));
+          vitesse=new ParaMEDMEM::ParaFIELD(f,paramesh,entree_chaude_group);
+          vitesse->setOwnSupport(true);
+          dec_vit_in_chaude.setMethod("P1");
         }
       else
         {
-          istringstream save_vit(save_vit_out_1_0);
-          vitesse.restore(save_vit);
-          vitesse._has_field_ownership=false;
-      
-          if (vitesse._field)
-            {
-              delete [] vitesse._field;
-              // cette ligne est super importante sinon c'est tout faux !!!!!!!
-              vitesse._field=0;
-            }
-          // pour tester P1->P0
-          vitesse._type=type;  
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("mesh",2));
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(22,3);
+          const double cooData[66]={0,0,0,1,0,0,0,0.1,0,1,0.1,0,0,0.2,0,1,0.2,0,0,0.3,0,1,0.3,0,0,0.4,0,1,0.4,0,0,0.5,0,1,0.5,0,0,0.6,0,1,0.6,0,0,0.7,0,1,0.7,0,0,0.8,0,1,0.8,0,0,0.9,0,1,0.9,0,0,1,0,1,1,0};
+          std::copy(cooData,cooData+66,arr->getPointer());
+          mesh->setCoords(arr);
+          mesh->allocateCells(10);
+          const int conn[40]={0,1,3,2,2,3,5,4,4,5,7,6,6,7,9,8,8,9,11,10,10,11,13,12,12,13,15,14,14,15,17,16,16,17,19,18,18,19,21,20};
+          for(int i=0;i<10;i++)
+            mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4*i);
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f(MEDCouplingFieldDouble::New(type==0?ON_CELLS:ON_NODES,ONE_TIME));
+          f->setMesh(mesh); f->setName("vitesse_in_chaude");
+          arr=DataArrayDouble::New(); arr->alloc(f->getNumberOfTuplesExpected()*3); arr->fillWithZero(); arr->rearrange(3);
+          f->setArray(arr); f->setNature(ConservativeVolumic);
+          ParaMEDMEM::ParaMESH *paramesh(new ParaMEDMEM::ParaMESH(mesh,Genepi_group,"recepteur mesh"));
+          vitesse=new ParaMEDMEM::ParaFIELD(f,paramesh,Genepi_group);
+          vitesse->setOwnSupport(true);
+          dec_vit_in_chaude.setMethod(f->getDiscretization()->getRepr());
         }
-  
-      if (vitesse._type==1)
-        dec_vit_in_chaude.setMethod("P1");
-  
-  
 
-      dec_vit_in_chaude.attachLocalField((ICoCo::Field*) &vitesse);
+      dec_vit_in_chaude.attachLocalField(vitesse);
       
       dec_vit_in_chaude.synchronize();
   
@@ -328,41 +333,25 @@ void ParaMEDMEMTest::testGauthier2()
         {
           dec_vit_in_chaude.recvData(); 
         }
-      if (entree_chaude_group.containsMyRank() )
+      if ( !entree_chaude_group.containsMyRank() )
         {
-          if (1)
-            {
-              ostringstream save_vit(save_vit_in_2);
-              vitesse.save(save_vit);
-            }
-        }
-      else
-        {
-      
           double pmin=1e38, pmax=-1e38;
-      
-          for(int i=0;i<vitesse.nb_values()*vitesse._nb_field_components;i++)
+          const double *p(vitesse->getField()->getArray()->begin());
+          for(std::size_t i=0;i<vitesse->getField()->getArray()->getNbOfElems();i++,p++)
             {
-              double p=*(vitesse._field+i);
-              if (p<pmin) pmin=p;
-              if (p>pmax) pmax=p;
+              if (*p<pmin) pmin=*p;
+              if (*p>pmax) pmax=*p;
             }
           CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected1[type],pmin,1e-12);
           CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[type],pmax,1e-12);
       
-          ostringstream save_vit(save_vit_outs[type]);
-          vitesse.save(save_vit);
-
-          for(int i=0;i<vitesse.nb_values();i++)
-            {
-              for(int c=0;c<vitesse._nb_field_components;c++)
-                {
-                  double p=vitesse._field[i*vitesse._nb_field_components+c];
-                  CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[type][i*vitesse._nb_field_components+c],p,1e-12);
-                }
-            }
-      
+          int nbCompo(vitesse->getField()->getNumberOfComponents());
+          p=vitesse->getField()->getArray()->begin();
+          for(int i=0;i<vitesse->getField()->getNumberOfTuples();i++)
+            for(int c=0;c<nbCompo;c++,p++)
+              CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[type][i*nbCompo+c],*p,1e-12);
         }
+      delete vitesse;
     }
 }
 
