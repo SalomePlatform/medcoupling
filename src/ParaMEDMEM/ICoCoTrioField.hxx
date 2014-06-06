@@ -26,7 +26,7 @@
 
 #include <ICoCoField.hxx>
 namespace ICoCo {
-
+  class MEDField;
   //////////////////////////////////////////////////////////////////////////////
   //
   // .DESCRIPTION 
@@ -52,7 +52,7 @@ namespace ICoCo {
     void save(std::ostream& os) const;
     void restore(std::istream& in);
     int nb_values() const ;
-
+    MEDField *build_medfield();
   public:
     int _type ; // 0 elem 1 nodes
     int _mesh_dim;

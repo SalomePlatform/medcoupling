@@ -22,6 +22,12 @@
 // version 1.2 10/05/2010
 
 #include <ICoCoTrioField.hxx>
+
+#include "ICoCoMEDField.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+
 #include <string.h>
 #include <iostream>
 #include <iomanip>
@@ -270,6 +276,119 @@ TrioField& TrioField::operator=(const TrioField& NewField){
 
   return(*this);
 
+}
+
+/*!
+ * This method is non const only due to this->_field that can be modified (to point to the same zone than returned object).
+ * So \b warning, to access to \a this->_field only when the returned object is alive.
+ */
+MEDField *TrioField::build_medfield()
+{
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::MEDCouplingUMesh> mesh(ParaMEDMEM::MEDCouplingUMesh::New("",_mesh_dim));
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayDouble> coo(ParaMEDMEM::DataArrayDouble::New()); coo->alloc(_nbnodes,_space_dim);
+  mesh->setCoords(coo);
+  double *ptr(coo->getPointer());
+  std::copy(_coords,_coords+_space_dim*_nbnodes,ptr);
+  mesh->allocateCells(_nb_elems);
+  INTERP_KERNEL::NormalizedCellType elemtype;
+  switch(_mesh_dim)
+  {
+    case 1:
+      {
+        switch (_nodes_per_elem)
+        {
+          case 2:
+            elemtype=INTERP_KERNEL::NORM_SEG2;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("incompatible Trio field - wrong nb of nodes per elem");
+        }
+        break;
+      }
+    case 2:
+      {
+        switch (_nodes_per_elem)
+        {
+          case 3:
+            elemtype=INTERP_KERNEL::NORM_TRI3;
+            break;
+          case 4 :
+            elemtype=INTERP_KERNEL::NORM_QUAD4;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("incompatible Trio field - wrong nb of nodes per elem");
+        }
+        break;
+      }
+    case 3:
+      {
+        switch (_nodes_per_elem)
+        {
+          case 4:
+            elemtype=INTERP_KERNEL::NORM_TETRA4;
+            break;
+          case 8 :
+            elemtype=INTERP_KERNEL::NORM_HEXA8;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("incompatible Trio field - wrong nb of nodes per elem");
+        }
+        break;
+          default:
+            throw INTERP_KERNEL::Exception("incompatible Trio field - wrong mesh dimension");
+      }
+  }
+  //creating a connectivity table that complies to MED (1 indexing)
+  //and passing it to _mesh
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::MEDCouplingFieldDouble> field;
+  int *conn(new int[_nodes_per_elem]);
+  for (int i=0; i<_nb_elems;i++)
+    {
+      for(int j=0;j<_nodes_per_elem;j++)
+        {
+          conn[j]=_connectivity[i*_nodes_per_elem+j];
+        }
+      mesh->insertNextCell(elemtype,_nodes_per_elem,conn);
+    }
+  delete [] conn;
+  mesh->finishInsertingCells();
+  //
+  //field on the sending end
+  int nb_case=nb_values();
+  if (_type==0)
+    {
+      field =  ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME);
+    }
+  else
+    {
+      field =  ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_NODES,ParaMEDMEM::ONE_TIME );
+    }
+  field->setMesh(mesh);
+  field->setNature(ParaMEDMEM::ConservativeVolumic);
+  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayDouble> fieldArr(ParaMEDMEM::DataArrayDouble::New());
+  fieldArr->alloc(field->getNumberOfTuplesExpected(),_nb_field_components);
+  field->setName(getName().c_str());
+  std::string meshName("SupportOf_"); meshName+=getName();
+  mesh->setName(meshName.c_str());
+  field->setTime(_time1,0,_itnumber);
+  if (_field!=0)
+    {
+      for (int i =0; i<nb_case; i++)
+        for (int j=0; j<_nb_field_components; j++)
+          {
+            fieldArr->setIJ(i,j,_field[i*_nb_field_components+j]);
+          }
+    }
+  //field on the receiving end
+  else
+    {
+      // the trio field points to the pointer inside the MED field
+      _field=fieldArr->getPointer();
+      for (int i=0; i<_nb_field_components*nb_case;i++)
+        _field[i]=0.0;
+    }
+  field->setArray(fieldArr);
+  return new MEDField(field);
 }
 
 

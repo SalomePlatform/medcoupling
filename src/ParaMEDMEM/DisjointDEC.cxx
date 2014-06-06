@@ -26,7 +26,6 @@
 #include "ParaMESH.hxx"
 #include "ICoCoField.hxx"
 #include "ICoCoMEDField.hxx"
-#include "ICoCoTrioField.hxx"
 #include "MPIProcessorGroup.hxx"
 
 #include <cmath>
@@ -80,13 +79,12 @@ namespace ParaMEDMEM
                                                                                        _source_group(&source_group),
                                                                                        _target_group(&target_group),
                                                                                        _owns_field(false),
-                                                                                       _owns_groups(false),
-                                                                                       _icoco_field(0)
+                                                                                       _owns_groups(false)
   {
     _union_group = source_group.fuse(target_group);  
   }
   
-  DisjointDEC::DisjointDEC(const DisjointDEC& s):DEC(s),_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false),_icoco_field(0)
+  DisjointDEC::DisjointDEC(const DisjointDEC& s):DEC(s),_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false)
   {
     copyInstance(s);
   }
@@ -118,8 +116,7 @@ namespace ParaMEDMEM
 
   DisjointDEC::DisjointDEC(const std::set<int>& source_ids, const std::set<int>& target_ids, const MPI_Comm& world_comm):_local_field(0), 
                                                                                                                          _owns_field(false),
-                                                                                                                         _owns_groups(true),
-                                                                                                                         _icoco_field(0)
+                                                                                                                         _owns_groups(true)
   {
     ParaMEDMEM::CommInterface comm;
     // Create the list of procs including source and target
@@ -195,8 +192,6 @@ namespace ParaMEDMEM
     _owns_groups=false;
     _source_group=0;
     _target_group=0;
-    delete _icoco_field;
-    _icoco_field=0;
     delete _union_group;
     _union_group=0;
   }
@@ -212,7 +207,7 @@ namespace ParaMEDMEM
     will be updated by a recvData() call.
     Reversely, if the processor is on the sending end, the field will be read, possibly transformed, and sent appropriately to the other side.
   */
-  void DisjointDEC::attachLocalField(const ParaFIELD* field, bool ownPt) 
+  void DisjointDEC::attachLocalField(const ParaFIELD *field, bool ownPt)
   {
     if(!isInUnion())
       return ;
@@ -234,7 +229,7 @@ namespace ParaMEDMEM
     and sent appropriately to the other side.
   */
 
-  void DisjointDEC::attachLocalField(MEDCouplingFieldDouble* field) 
+  void DisjointDEC::attachLocalField(MEDCouplingFieldDouble *field)
   {
     if(!isInUnion())
       return ;
@@ -262,32 +257,13 @@ namespace ParaMEDMEM
     - a ICOCo::TrioField, that is created from tables extracted from a TRIO-U structure.
     
   */
-  void DisjointDEC::attachLocalField(const ICoCo::Field* field)
+  void DisjointDEC::attachLocalField(const ICoCo::MEDField *field)
   {
     if(!isInUnion())
       return ;
-    const ICoCo::MEDField* medfield=dynamic_cast<const ICoCo::MEDField*> (field);
-    if(medfield !=0)
-      {
-        attachLocalField(medfield->getField());
-        return;
-      }
-    const ICoCo::TrioField* triofield=dynamic_cast<const ICoCo::TrioField*> (field);
-    if (triofield !=0)
-      {
-        /* Strange part of code localgroup not used !
-        ProcessorGroup* localgroup;
-        if (_source_group->containsMyRank())
-          localgroup=_source_group;
-        else
-        localgroup=_target_group;*/
-        delete _icoco_field;
-        
-        _icoco_field=new ICoCo::MEDField(*const_cast<ICoCo::TrioField* >(triofield));
-        attachLocalField(_icoco_field);
-        return;
-      }
-    throw INTERP_KERNEL::Exception("incompatible field type");
+    if(!field)
+      throw INTERP_KERNEL::Exception("DisjointDEC::attachLocalField : ICoCo::MEDField pointer is NULL !");
+    attachLocalField(field->getField());
   }
   
   /*!

@@ -1877,25 +1877,32 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
 }
 
 /*!
+ * Use MEDCouplingField::getNumberOfTuplesExpected instead of this method. This method will be removed soon, because it is
+ * confusing compared to getNumberOfComponents() and getNumberOfValues() behaviour.
+ *
  * Returns number of tuples in \a this field, that depends on 
  * - the number of entities in the underlying mesh
  * - \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field (e.g. number
  * of Gauss points if \a this->getTypeOfField() == 
  * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT").
  *
- * The returned value does **not depend** on the number of tuples in the data array
+ * The returned value does \b not \b depend on the number of tuples in the data array
  * (which has to be equal to the returned value), \b contrary to
  * getNumberOfComponents() and getNumberOfValues() that retrieve information from the
- * data array.
+ * data array (Sorry, it is confusing !).
+ * So \b this \b method \b behaves \b exactly \b as MEDCouplingField::getNumberOfTuplesExpected \b method.
+ *
  * \warning No checkCoherency() is done here.
  * For more info on the data arrays, see \ref MEDCouplingArrayPage.
  *  \return int - the number of tuples.
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the spatial discretization is not fully defined.
+ *  \sa MEDCouplingField::getNumberOfTuplesExpected
  */
 int MEDCouplingFieldDouble::getNumberOfTuples() const
 {
+  //std::cerr << " ******* MEDCouplingFieldDouble::getNumberOfTuples is deprecated : use MEDCouplingField::getNumberOfTuplesExpected instead ! ******" << std::endl;
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Impossible to retrieve number of tuples because no mesh specified !");
   if(!((const MEDCouplingFieldDiscretization *)_type))

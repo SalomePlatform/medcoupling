@@ -218,7 +218,7 @@ namespace ParaMEDMEM
       }
     else
       {
-        vector <int> size (group->size());
+        vector <int> size2(group->size());
         int myworldrank=group->myRank();
         for (int iproc=0; iproc<group->size();iproc++)
           {
@@ -240,7 +240,7 @@ namespace ParaMEDMEM
                     int sendlocal=topotemp->globalToLocal(global);
                     if (sendlocal!=-1)
                       {
-                        size[iproc]++;
+                        size2[iproc]++;
                         _explicit_mapping.pushBackElem(make_pair(iproc,sendlocal));
                       }
                   }
