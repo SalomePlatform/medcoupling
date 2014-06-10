@@ -1039,6 +1039,14 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
   declareAsNew();
 }
 
+void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayDouble *criterion, const std::vector<int>& factors, double eps)
+{
+  if(!criterion)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion : null criterion pointer !");
+  std::vector<bool> inp(criterion->toVectorOfBool(eps));
+  createPatchesFromCriterion(bso,inp,factors);
+}
+
 void MEDCouplingCartesianAMRMeshGen::removeAllPatches()
 {
   _patches.clear();

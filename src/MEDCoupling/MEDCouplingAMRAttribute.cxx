@@ -614,6 +614,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
  *
  * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
  *
+ * \sa buildCellFieldOnWithoutGhost
  */
 MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
@@ -633,6 +634,44 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCo
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
   ret->setMesh(im);
   ret->setArray(const_cast<DataArrayDouble *>(arr));
+  ret->setName(arr->getName());
+  return ret.retn();
+}
+
+/*!
+ * This method builds a newly created field on cell just lying on mesh \a mesh without its eventual refinement.
+ * The output field does not display ghost cells.
+ *
+ * \return MEDCouplingFieldDouble * - a field on cells that the caller has to deal with (deallocate it).
+ *
+ * \sa buildCellFieldOnWithGhost
+ */
+MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
+{
+  //tony
+  const DataArrayDouble *arr(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      int tmp(-1);
+      if((*it)->presenceOf(mesh,tmp))
+        {
+          const DataArrayDoubleCollection& ddc((*it)->getFieldsAt(tmp));
+          arr=ddc.getFieldWithName(fieldName);
+        }
+    }
+  if(!arr)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost : the mesh specified is not in the progeny of this !");
+  //
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
+  std::vector<int> cgs(mesh->getImageMesh()->getCellGridStructure()),cgsWG(im->getCellGridStructure());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(DataArrayDouble::New());
+  arr2->alloc(mesh->getImageMesh()->getNumberOfCells(),arr->getNumberOfComponents());
+  //tmp=[(numberOfCellsGhost,elt+numberOfCellsGhost) for elt in cgs]
+  //MEDCouplingIMesh::SpreadCoarseToFine(arr,cgsWG,ret,tmp,mesh->getImageMesh()->getSpaceDimension()*[1]);
+  //
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+  ret->setMesh(mesh->getImageMesh());
+  ret->setArray(arr2);
   ret->setName(arr->getName());
   return ret.retn();
 }

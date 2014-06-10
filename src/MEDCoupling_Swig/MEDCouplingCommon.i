@@ -357,6 +357,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::getFieldOn;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithGhost;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost;
 %newobject ParaMEDMEM::DenseMatrix::New;
 %newobject ParaMEDMEM::DenseMatrix::deepCpy;
 %newobject ParaMEDMEM::DenseMatrix::shallowCpy;
@@ -4916,6 +4917,7 @@ namespace ParaMEDMEM
     void removePatch(int patchId) throw(INTERP_KERNEL::Exception);
     void detachFromFather() throw(INTERP_KERNEL::Exception);
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
+    void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayDouble *criterion, const std::vector<int>& factors, double eps) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
@@ -5097,6 +5099,7 @@ namespace ParaMEDMEM
   public:
     MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) throw(INTERP_KERNEL::Exception);
     %extend
     {

@@ -160,6 +160,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors);
+    MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayDouble *criterion, const std::vector<int>& factors, double eps);
     MEDCOUPLING_EXPORT void removeAllPatches();
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;

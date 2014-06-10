@@ -90,6 +90,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     //
     MEDCOUPLING_EXPORT void synchronizeFineToCoarse();
     MEDCOUPLING_EXPORT void synchronizeCoarseToFine();
