@@ -324,6 +324,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh;
+%newobject ParaMEDMEM::MEDCouplingStructuredMesh::ComputeCornersGhost;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
@@ -2864,6 +2865,7 @@ namespace ParaMEDMEM
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const throw(INTERP_KERNEL::Exception);
     static int DeduceNumberOfGivenStructure(const std::vector<int>& st) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *ComputeCornersGhost(const std::vector<int>& st, int ghostLev) throw(INTERP_KERNEL::Exception);
     static std::vector<int> GetSplitVectFromStruct(const std::vector<int>& strct) throw(INTERP_KERNEL::Exception);
     %extend
     {

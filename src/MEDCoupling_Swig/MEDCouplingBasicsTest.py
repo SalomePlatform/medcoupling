@@ -15311,8 +15311,70 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f20.getArray().isEqualWithoutConsideringStr(DataArrayDouble([29.1,29.1,29.1,113.2,9.4,5.7,6.7,37.1,9.4,9.7,10.7,37.1,15.4,13.7,14.7,37.1,15.4,17.7,18.7,37.1,21.4,21.7,22.7,37.1,21.4,25.7,26.7,37.1,27.4,28.4,28.4,37.1]),1e-12))
         pass
 
-    def setUp(self):
+    def testSwig2AMR9(self):
+        """ Equivalent to testSwig2AMR8 except that here the ghost level is 2 !"""
+        ghostSz=2
+        amr=MEDCouplingCartesianAMRMesh("",2,[6,7],[0,0],[1,1])
+        amr.addPatch([(1,4),(2,4)],[4,4])
+        amr.addPatch([(4,5),(3,5)],[4,4])
+        amr.addPatch([(0,1),(4,6)],[4,4])
+        amr[0].addPatch([(10,12),(5,8)],[2,2])
+        amr[1].addPatch([(0,1),(0,5)],[2,2])
+        amr[2].addPatch([(3,4),(0,3)],[2,2])
+        self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
+        att=MEDCouplingAMRAttribute(amr,[("Field",["X"])],ghostSz)
+        att.alloc()
+        d=att.getFieldOn(amr,"Field")
+        self.assertEqual(90,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        d.iota() ; d+=0.1
+        d0=att.getFieldOn(amr[0].getMesh(),"Field")
+        self.assertEqual(192,d0.getNumberOfTuples())
+        self.assertEqual(1,d0.getNumberOfComponents())
+        d0.iota() ; d0+=0.2
+        d1=att.getFieldOn(amr[1].getMesh(),"Field")
+        self.assertEqual(96,d1.getNumberOfTuples())
+        self.assertEqual(1,d1.getNumberOfComponents())
+        d1.iota() ; d1+=0.3
+        d2=att.getFieldOn(amr[2].getMesh(),"Field")
+        self.assertEqual(96,d2.getNumberOfTuples())
+        self.assertEqual(1,d2.getNumberOfComponents())
+        d2.iota() ; d2+=0.4
+        d00=att.getFieldOn(amr[0][0].getMesh(),"Field")
+        self.assertEqual(80,d00.getNumberOfTuples())
+        self.assertEqual(1,d00.getNumberOfComponents())
+        d00.iota() ; d00+=0.5
+        d10=att.getFieldOn(amr[1][0].getMesh(),"Field")
+        self.assertEqual(84,d10.getNumberOfTuples())
+        self.assertEqual(1,d10.getNumberOfComponents())
+        d10.iota() ; d10+=0.6
+        d20=att.getFieldOn(amr[2][0].getMesh(),"Field")
+        self.assertEqual(60,d20.getNumberOfTuples())
+        self.assertEqual(1,d20.getNumberOfComponents())
+        d20.iota() ; d20+=0.7
+        # the test is here ! To be called after iteration with no remesh
+        att.synchronizeAllGhostZones()
+        f=att.buildCellFieldOnWithGhost(amr,"Field") ; f.writeVTK("ff.vti")
+        f0=att.buildCellFieldOnWithGhost(amr[0].getMesh(),"Field") ; f0.writeVTK("f0.vti")
+        f1=att.buildCellFieldOnWithGhost(amr[1].getMesh(),"Field") ; f1.writeVTK("f1.vti")
+        f2=att.buildCellFieldOnWithGhost(amr[2].getMesh(),"Field") ; f2.writeVTK("f2.vti")
+        f00=att.buildCellFieldOnWithGhost(amr[0][0].getMesh(),"Field") ; f00.writeVTK("f00.vti")
+        f10=att.buildCellFieldOnWithGhost(amr[1][0].getMesh(),"Field") ; f10.writeVTK("f10.vti")
+        f20=att.buildCellFieldOnWithGhost(amr[2][0].getMesh(),"Field") ; f20.writeVTK("f20.vti")
+        self.assertTrue(f0.getArray().isEqualWithoutConsideringStr(DataArrayDouble([29.1,29.1,30.1,30.1,30.1,30.1,31.1,31.1,31.1,31.1,32.1,32.1,32.1,32.1,33.1,33.1,29.1,29.1,30.1,30.1,30.1,30.1,31.1,31.1,31.1,31.1,32.1,32.1,32.1,32.1,33.1,33.1,38.1,38.1,34.2,35.2,36.2,37.2,38.2,39.2,40.2,41.2,42.2,43.2,44.2,45.2,42.1,42.1,38.1,38.1,50.2,51.2,52.2,53.2,54.2,55.2,56.2,57.2,58.2,59.2,60.2,61.2,42.1,42.1,38.1,38.1,66.2,67.2,68.2,69.2,70.2,71.2,72.2,73.2,74.2,75.2,76.2,77.2,42.1,42.1,38.1,38.1,82.2,83.2,84.2,85.2,86.2,87.2,88.2,89.2,90.2,91.2,92.2,93.2,42.1,42.1,47.1,47.1,98.2,99.2,100.2,101.2,102.2,103.2,104.2,105.2,106.2,107.2,108.2,109.2,18.3,19.3,47.1,47.1,114.2,115.2,116.2,117.2,118.2,119.2,120.2,121.2,122.2,123.2,124.2,125.2,26.3,27.3,47.1,47.1,130.2,131.2,132.2,133.2,134.2,135.2,136.2,137.2,138.2,139.2,140.2,141.2,34.3,35.3,47.1,47.1,146.2,147.2,148.2,149.2,150.2,151.2,152.2,153.2,154.2,155.2,156.2,157.2,42.3,43.3,20.4,21.4,57.1,57.1,57.1,57.1,58.1,58.1,58.1,58.1,59.1,59.1,59.1,59.1,50.3,51.3,28.4,29.4,57.1,57.1,57.1,57.1,58.1,58.1,58.1,58.1,59.1,59.1,59.1,59.1,58.3,59.3]),1e-12))
+        self.assertTrue(f1.getArray().isEqualWithoutConsideringStr(DataArrayDouble([76.2,77.2,42.1,42.1,42.1,42.1,43.1,43.1,92.2,93.2,42.1,42.1,42.1,42.1,43.1,43.1,108.2,109.2,18.3,19.3,20.3,21.3,52.1,52.1,124.2,125.2,26.3,27.3,28.3,29.3,52.1,52.1,140.2,141.2,34.3,35.3,36.3,37.3,52.1,52.1,156.2,157.2,42.3,43.3,44.3,45.3,52.1,52.1,59.1,59.1,50.3,51.3,52.3,53.3,61.1,61.1,59.1,59.1,58.3,59.3,60.3,61.3,61.1,61.1,59.1,59.1,66.3,67.3,68.3,69.3,61.1,61.1,59.1,59.1,74.3,75.3,76.3,77.3,61.1,61.1,68.1,68.1,69.1,69.1,69.1,69.1,70.1,70.1,68.1,68.1,69.1,69.1,69.1,69.1,70.1,70.1]),1e-12))
+        self.assertTrue(f2.getArray().isEqualWithoutConsideringStr(DataArrayDouble([46.1,46.1,47.1,47.1,47.1,47.1,130.2,131.2,46.1,46.1,47.1,47.1,47.1,47.1,146.2,147.2,55.1,55.1,18.4,19.4,20.4,21.4,57.1,57.1,55.1,55.1,26.4,27.4,28.4,29.4,57.1,57.1,55.1,55.1,34.4,35.4,36.4,37.4,57.1,57.1,55.1,55.1,42.4,43.4,44.4,45.4,57.1,57.1,64.1,64.1,50.4,51.4,52.4,53.4,66.1,66.1,64.1,64.1,58.4,59.4,60.4,61.4,66.1,66.1,64.1,64.1,66.4,67.4,68.4,69.4,66.1,66.1,64.1,64.1,74.4,75.4,76.4,77.4,66.1,66.1,73.1,73.1,74.1,74.1,74.1,74.1,75.1,75.1,73.1,73.1,74.1,74.1,74.1,74.1,75.1,75.1]),1e-12))
+        self.assertTrue(f00.getArray().isEqualWithoutConsideringStr(DataArrayDouble([107.2,107.2,108.2,108.2,109.2,109.2,14.6,15.6,107.2,107.2,108.2,108.2,109.2,109.2,20.6,21.6,123.2,123.2,18.5,19.5,20.5,21.5,26.6,27.6,123.2,123.2,26.5,27.5,28.5,29.5,32.6,33.6,139.2,139.2,34.5,35.5,36.5,37.5,38.6,39.6,139.2,139.2,42.5,43.5,44.5,45.5,44.6,45.6,155.2,155.2,50.5,51.5,52.5,53.5,50.6,51.6,155.2,155.2,58.5,59.5,60.5,61.5,56.6,57.6,59.1,59.1,59.1,59.1,59.1,59.1,62.6,63.6,59.1,59.1,59.1,59.1,59.1,59.1,68.6,69.6]),1e-12))
+        self.assertTrue(f10.getArray().isEqualWithoutConsideringStr(DataArrayDouble([93.2,93.2,42.1,42.1,42.1,42.1,93.2,93.2,42.1,42.1,42.1,42.1,109.2,109.2,14.6,15.6,19.3,19.3,109.2,109.2,20.6,21.6,19.3,19.3,20.5,21.5,26.6,27.6,27.3,27.3,28.5,29.5,32.6,33.6,27.3,27.3,36.5,37.5,38.6,39.6,35.3,35.3,44.5,45.5,44.6,45.6,35.3,35.3,52.5,53.5,50.6,51.6,43.3,43.3,60.5,61.5,56.6,57.6,43.3,43.3,59.1,59.1,62.6,63.6,51.3,51.3,59.1,59.1,68.6,69.6,51.3,51.3,59.1,59.1,58.3,58.3,59.3,59.3,59.1,59.1,58.3,58.3,59.3,59.3]),1e-12))
+        self.assertTrue(f20.getArray().isEqualWithoutConsideringStr(DataArrayDouble([47.1,47.1,47.1,47.1,146.2,146.2,47.1,47.1,47.1,47.1,146.2,146.2,20.4,20.4,14.7,15.7,57.1,57.1,20.4,20.4,20.7,21.7,57.1,57.1,28.4,28.4,26.7,27.7,57.1,57.1,28.4,28.4,32.7,33.7,57.1,57.1,36.4,36.4,38.7,39.7,57.1,57.1,36.4,36.4,44.7,45.7,57.1,57.1,44.4,44.4,45.4,45.4,57.1,57.1,44.4,44.4,45.4,45.4,57.1,57.1]),1e-12))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([3],1).isEqual(DataArrayInt([0,4])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([3],2).isEqual(DataArrayInt([0,1,5,6])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6],1).isEqual(DataArrayInt([0,6,49,55])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6],2).isEqual(DataArrayInt([0,8,10,16,73,79,81,89])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6,3],1).isEqual(DataArrayInt([0,6,49,55,224,230,273,279])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6,3],2).isEqual(DataArrayInt([0,8,81,89,100,106,163,169,460,466,523,529,540,548,621,629])))
         pass
+
     pass
 
 if __name__ == '__main__':

@@ -661,6 +661,85 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
 }
 
 /*!
+ * This method returns the list of ids sorted ascendingly of entities that are in the corner in ghost zone.
+ * The ids are returned in a newly created DataArrayInt having a single component.
+ *
+ * \param [in] st - The structure \b without ghost cells.
+ * \param [in] ghostLev - The size of the ghost zone (>=0)
+ * \return DataArrayInt * - The DataArray containing all the ids the caller is to deallocate.
+ */
+DataArrayInt *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<int>& st, int ghostLev)
+{
+  if(ghostLev<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : ghost lev must be >= 0 !");
+  std::size_t dim(st.size());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  switch(dim)
+  {
+    case 1:
+      {
+        ret->alloc(2*ghostLev,1);
+        int *ptr(ret->getPointer());
+        for(int i=0;i<ghostLev;i++,ptr++)
+          *ptr=i;
+        int offset(st[0]);
+        if(offset<0)
+          throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : element in 1D structure must be >= 0 !");
+        for(int i=0;i<ghostLev;i++,ptr++)
+          *ptr=offset+ghostLev+i;
+        break;
+      }
+    case 2:
+      {
+        int offsetX(st[0]),offsetY(st[1]);
+        if(offsetX<0 || offsetY<0)
+          throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : elements in 2D structure must be >= 0 !");
+        ret->alloc(4*ghostLev,1);
+        int *ptr(ret->getPointer());
+        for(int i=0;i<ghostLev;i++)
+          {
+            *ptr++=i*(2*ghostLev+offsetX+1);
+            *ptr++=offsetX+2*ghostLev-1+i*(2*ghostLev+offsetX-1);
+          }
+        for(int i=0;i<ghostLev;i++)
+          {
+            *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+ghostLev-1+i*(2*ghostLev+offsetX-1);
+            *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+offsetX+ghostLev+i*(2*ghostLev+offsetX+1);
+          }
+        break;
+      }
+    case 3:
+      {
+        int offsetX(st[0]),offsetY(st[1]),offsetZ(st[2]);
+        if(offsetX<0 || offsetY<0 || offsetZ<0)
+          throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : elements in 3D structure must be >= 0 !");
+        ret->alloc(8*ghostLev,1);
+        int *ptr(ret->getPointer());
+        int zeOffsetZ((offsetX+2*ghostLev)*(offsetY+2*ghostLev));
+        for(int i=0;i<ghostLev;i++)
+          {
+            *ptr++=i*(2*ghostLev+offsetX+1)+i*zeOffsetZ;
+            *ptr++=offsetX+2*ghostLev-1+i*(2*ghostLev+offsetX-1)+i*zeOffsetZ;
+            *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+ghostLev-1+(ghostLev-i-1)*(2*ghostLev+offsetX-1)+i*zeOffsetZ;
+            *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+offsetX+ghostLev+(ghostLev-i-1)*(2*ghostLev+offsetX+1)+i*zeOffsetZ;
+          }
+        int j(0),zeOffsetZ2(zeOffsetZ*(offsetZ+ghostLev));
+        for(int i=ghostLev-1;i>=0;i--,j++)
+          {
+            *ptr++=i*(2*ghostLev+offsetX+1)+j*zeOffsetZ+zeOffsetZ2;
+            *ptr++=offsetX+2*ghostLev-1+i*(2*ghostLev+offsetX-1)+j*zeOffsetZ+zeOffsetZ2;
+            *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+ghostLev-1+(ghostLev-i-1)*(2*ghostLev+offsetX-1)+j*zeOffsetZ+zeOffsetZ2;
+            *ptr++=(2*ghostLev+offsetX)*(offsetY+ghostLev)+offsetX+ghostLev+(ghostLev-i-1)*(2*ghostLev+offsetX+1)+j*zeOffsetZ+zeOffsetZ2;
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : Only dimensions 1, 2 and 3 are supported actually !");
+  }
+  return ret.retn();
+}
+
+/*!
  * This method retrieves the number of entities (it can be cells or nodes) given a range in compact standard format
  * used in methods like BuildExplicitIdsFrom,IsPartStructured.
  *

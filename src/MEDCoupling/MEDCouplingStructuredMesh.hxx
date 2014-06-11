@@ -85,6 +85,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd);
+    MEDCOUPLING_EXPORT static DataArrayInt *ComputeCornersGhost(const std::vector<int>& st, int ghostLev);
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenStructure(const std::vector<int>& st);
     MEDCOUPLING_EXPORT static void FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat, int& axisId, int& sizeOfRange);
