@@ -748,7 +748,6 @@ DataArrayInt *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<i
 int MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat)
 {
   int ret(1);
-  bool isFetched(false);
   std::size_t ii(0);
   for(std::vector< std::pair<int,int> >::const_iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,ii++)
     {
@@ -758,13 +757,9 @@ int MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(const std::
           std::ostringstream oss; oss << "MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt : invalid input at dimension " << ii << " !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      if(b-a>0)
-        {
-          isFetched=true;
-          ret*=(b-a);
-        }
+      ret*=(b-a);
     }
-  return isFetched?ret:0;
+  return ret;
 }
 
 int MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(const std::vector<int>& st)

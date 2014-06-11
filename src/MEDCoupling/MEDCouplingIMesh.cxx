@@ -294,6 +294,8 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<int>& coarseSt, co
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   int nbTuplesFine(fineDA->getNumberOfTuples());
+  if(nbOfTuplesInFineExp==0)
+    return ;
   if(nbTuplesFine%nbOfTuplesInFineExp!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Invalid nb of tuples in fine DataArray regarding its structure !");
   int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));

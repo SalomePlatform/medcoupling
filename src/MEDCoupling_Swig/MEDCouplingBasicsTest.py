@@ -13525,7 +13525,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         a,b=MEDCouplingStructuredMesh.IsPartStructured(d20,st)
         self.assertTrue(a) ; self.assertEqual(b,[(1,5),(0,3)])
         self.assertEqual(12,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt(b))
-        self.assertEqual(8,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(1,5),(1,3),(2,2)]))
+        self.assertEqual(0,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(1,5),(1,3),(2,2)]))
         self.assertEqual(0,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(5,5),(3,3),(2,2)]))
         self.assertEqual(36,MEDCouplingStructuredMesh.DeduceNumberOfGivenStructure([3,2,6]))
         self.assertEqual(126,MEDCouplingStructuredMesh.DeduceNumberOfGivenStructure((3,7,6)))
