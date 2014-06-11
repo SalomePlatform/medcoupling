@@ -1043,6 +1043,69 @@ static void convertPyToVectorOfVectorOfString(PyObject *pyLi, std::vector< std::
     throw INTERP_KERNEL::Exception(msg);
 }
 
+static bool fillIntVector(PyObject *pyLi, std::vector<int>& vec) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(pyLi))
+    {
+      Py_ssize_t sz=PyList_Size(pyLi);
+      vec.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            vec[i]=PyInt_AS_LONG(o);
+          else
+            return false;
+        }
+      return true;
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      Py_ssize_t sz=PyTuple_Size(pyLi);
+      vec.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            vec[i]=PyInt_AS_LONG(o);
+          else
+            return false;
+        }
+      return true;
+    }
+  else
+    return false;
+}
+
+static void convertPyToVectorOfVectorOfInt(PyObject *pyLi, std::vector< std::vector<int> >& arr) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="convertPyToVectorOfVectorOfInt : expecting list of list of strings !";
+  if(PyList_Check(pyLi))
+    {
+      Py_ssize_t sz=PyList_Size(pyLi);
+      arr.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(!fillIntVector(o,arr[i]))
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      Py_ssize_t sz=PyTuple_Size(pyLi);
+      arr.resize(sz);
+      for(int i=0;i<sz;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(!fillIntVector(o,arr[i]))
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
+}
+
 static void convertPyToVectorPairStringVecString(PyObject *pyLi, std::vector< std::pair<std::string, std::vector<std::string> > >& arr) throw(INTERP_KERNEL::Exception)
 {
   const char msg[]="convertPyToVectorPairStringVecString : expecting list of tuples containing each exactly 2 items : one string and one vector of string !";

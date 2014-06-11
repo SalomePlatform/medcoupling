@@ -19,6 +19,7 @@
 // Author : Anthony Geay
 
 #include "MEDCouplingCartesianAMRMesh.hxx"
+#include "MEDCouplingAMRAttribute.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingIMesh.hxx"
@@ -535,11 +536,11 @@ std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() c
   return sizeof(MEDCouplingCartesianAMRPatchGF);
 }
 
-MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf):_gf(gf),_tlc(gf)
+MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf):_gf(gf),_tlc(gf)
 {
-  if(!_gf)
+  if(!gf)
     throw INTERP_KERNEL::Exception("MEDCouplingDataForGodFather constructor : A data has to be attached to a AMR Mesh instance !");
-  _gf->setData(this);
+  gf->incrRef();
 }
 
 void MEDCouplingDataForGodFather::checkGodFatherFrozen() const
@@ -547,12 +548,14 @@ void MEDCouplingDataForGodFather::checkGodFatherFrozen() const
   _tlc.checkConst();
 }
 
-bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
+bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMeshGen *gf)
 {
   bool ret(_tlc.keepTrackOfNewTL(gf));
   if(ret)
     {
       _gf=gf;
+      if(gf)
+        gf->incrRef();
     }
   return ret;
 }
@@ -984,6 +987,7 @@ void DealWithCut(const InternalPatch *patchToBeSplit, int axisId, int cutPlace, 
 
 /*!
  * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
+ * This method only create patches at level 0 relative to \a this.
  */
 void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors)
 {
@@ -1029,6 +1033,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
 
 /*!
  * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
+ * This method only create patches at level 0 relative to \a this.
  */
 void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors)
 {
@@ -1045,6 +1050,57 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion : null criterion pointer !");
   std::vector<bool> inp(criterion->toVectorOfBool(eps));
   createPatchesFromCriterion(bso,inp,factors);
+}
+
+/*!
+ * This method creates a multi level patches split at once.
+ * This method calls as times as size of \a bso createPatchesFromCriterion. Size of \a bso and size of \a factors must be the same !
+ *
+ * \param [in] bso
+ * \param [in] criterion
+ * \param [in] factors
+ * \param [in] eps - See DataArrayDouble::toVectorOfBool for more information about the semantic of eps.
+ *
+ * \sa createPatchesFromCriterion
+ */
+void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterionML(const std::vector<const INTERP_KERNEL::BoxSplittingOptions *>& bso, const DataArrayDouble *criterion, const std::vector< std::vector<int> >& factors, double eps)
+{
+  std::size_t nbOfLevs(bso.size());
+  if(nbOfLevs!=factors.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterionML : size of vectors must be the same !");
+  if(nbOfLevs==0)
+    return ;
+  if(!bso[0])
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterionML : pointers in 1st arg must be not NULL !");
+  createPatchesFromCriterion(*bso[0],criterion,factors[0],eps);
+  for(std::size_t i=1;i<nbOfLevs;i++)
+    {
+      if(!bso[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterionML : presence of a NULL BoxSplittingOptions in input vector !");
+      //
+      std::vector<MEDCouplingCartesianAMRPatchGen *> elts(retrieveGridsAt((int)(nbOfLevs-1)));
+      std::size_t sz(elts.size());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > elts2(sz);
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > elts3(sz);
+      for(std::size_t ii=0;ii<sz;ii++)
+        elts2[ii]=elts[ii];
+      //
+      static const char TMP_STR[]="TMP";
+      std::vector< std::pair<std::string,int> > fieldNames(1); fieldNames[0].first=TMP_STR; fieldNames[0].second=1;
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> att(MEDCouplingAMRAttribute::New(this,fieldNames,0));
+      att->alloc();
+      DataArrayDouble *tmpDa(const_cast<DataArrayDouble *>(att->getFieldOn(this,TMP_STR)));
+      tmpDa->cpyFrom(*criterion);
+      att->synchronizeCoarseToFine();
+      for(std::size_t ii=0;ii<sz;ii++)
+        {
+          const DataArrayDouble *critOnLeaf(att->getFieldOn(const_cast<MEDCouplingCartesianAMRMeshGen *>(elts[ii]->getMesh()),TMP_STR));
+          elts3[ii]=const_cast<DataArrayDouble *>(critOnLeaf); elts3[ii]->incrRef();
+        }
+      att=0;
+      for(std::size_t ii=0;ii<sz;ii++)
+        const_cast<MEDCouplingCartesianAMRMeshGen *>(elts[ii]->getMesh())->createPatchesFromCriterion(*bso[i],elts3[ii],factors[i],eps);
+    }
 }
 
 void MEDCouplingCartesianAMRMeshGen::removeAllPatches()
@@ -1598,30 +1654,6 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string&
   return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
 }
 
-void MEDCouplingCartesianAMRMesh::setData(MEDCouplingDataForGodFather *data)
-{
-  MEDCouplingDataForGodFather *myData(_data);
-  if(myData==data)
-    return ;
-  if(myData)
-    myData->changeGodFather(0);
-  _data=data;
-  if(data)
-    data->incrRef();
-}
-
-void MEDCouplingCartesianAMRMesh::allocData() const
-{
-  checkData();
-  _data->alloc();
-}
-
-void MEDCouplingCartesianAMRMesh::deallocData() const
-{
-  checkData();
-  _data->dealloc();
-}
-
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                          const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):MEDCouplingCartesianAMRMeshGen(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop)
 {
@@ -1630,22 +1662,9 @@ MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& mesh
 std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChildren() const
 {
   std::vector<const BigMemoryObject *> ret(MEDCouplingCartesianAMRMeshGen::getDirectChildren());
-  const MEDCouplingDataForGodFather *pt(_data);
-  if(pt)
-    ret.push_back(pt);
   return ret;
-}
-
-void MEDCouplingCartesianAMRMesh::checkData() const
-{
-  const MEDCouplingDataForGodFather *data(_data);
-  if(!data)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::checkData : no data set !");
 }
 
 MEDCouplingCartesianAMRMesh::~MEDCouplingCartesianAMRMesh()
 {
-  MEDCouplingDataForGodFather *data(_data);
-  if(data)
-    data->changeGodFather(0);
 }

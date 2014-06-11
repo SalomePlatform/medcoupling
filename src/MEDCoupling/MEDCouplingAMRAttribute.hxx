@@ -83,8 +83,8 @@ namespace ParaMEDMEM
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
-    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
@@ -97,13 +97,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void synchronizeAllGhostZones();
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
-    MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
+    MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
     //
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDCOUPLING_EXPORT void updateTime() const;
   private:
-    MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
+    MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
     const DataArrayDoubleCollection& findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const;
   private:
     int _ghost_lev;

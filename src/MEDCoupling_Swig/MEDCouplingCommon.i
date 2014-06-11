@@ -351,8 +351,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::findPatchesInTheNeighborhoodOf;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::New;
-%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getDataConst;
-%newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::getData;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::New;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::getFieldOn;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost;
@@ -4950,6 +4948,15 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      void createPatchesFromCriterionML(PyObject *bso, const DataArrayDouble *criterion, PyObject *factors, double eps) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const INTERP_KERNEL::BoxSplittingOptions *> inp0;
+        convertFromPyObjVectorOfObj<const INTERP_KERNEL::BoxSplittingOptions *>(bso,SWIGTYPE_p_INTERP_KERNEL__BoxSplittingOptions,"BoxSplittingOptions",inp0);
+        std::vector< std::vector<int> > inp2;
+        convertPyToVectorOfVectorOfInt(factors,inp2);
+        self->createPatchesFromCriterionML(inp0,criterion,inp2,eps);
+      }
+
       PyObject *retrieveGridsAt(int absoluteLev) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<MEDCouplingCartesianAMRPatchGen *> ps(self->retrieveGridsAt(absoluteLev));
@@ -5047,9 +5054,6 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRMesh : public MEDCouplingCartesianAMRMeshGen
   {
   public:
-    void setData(MEDCouplingDataForGodFather *data) throw(INTERP_KERNEL::Exception);
-    void allocData() const throw(INTERP_KERNEL::Exception);
-    void deallocData() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
@@ -5074,22 +5078,6 @@ namespace ParaMEDMEM
       MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
       {
         return ParaMEDMEM_MEDCouplingCartesianAMRMesh_New(meshName,spaceDim,nodeStrct,origin,dxyz);
-      }
-
-      MEDCouplingDataForGodFather *getDataConst() const throw(INTERP_KERNEL::Exception)
-      {
-        const MEDCouplingDataForGodFather *ret(self->getDataConst());
-        if(ret)
-          ret->incrRef();
-        return const_cast<MEDCouplingDataForGodFather *>(ret);
-      }
-
-      MEDCouplingDataForGodFather *getData() throw(INTERP_KERNEL::Exception)
-      {
-        MEDCouplingDataForGodFather *ret(self->getData());
-        if(ret)
-          ret->incrRef();
-        return ret;
       }
     }
   };

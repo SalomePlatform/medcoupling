@@ -507,12 +507,12 @@ void MEDCouplingGridCollection::updateTime() const
 /*!
  * This method creates, attach to a main AMR mesh \a gf ( called god father :-) ) and returns a data linked to \a gf ready for the computation.
  */
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev)
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev)
 {
   return new MEDCouplingAMRAttribute(gf,fieldNames,ghostLev);
 }
 
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev)
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev)
 {
   std::size_t sz(fieldNames.size());
   std::vector< std::pair<std::string,int> > fieldNames2(sz);
@@ -666,8 +666,11 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
   std::vector<int> cgs(mesh->getImageMesh()->getCellGridStructure()),cgsWG(im->getCellGridStructure());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(DataArrayDouble::New());
   arr2->alloc(mesh->getImageMesh()->getNumberOfCells(),arr->getNumberOfComponents());
-  //tmp=[(numberOfCellsGhost,elt+numberOfCellsGhost) for elt in cgs]
-  //MEDCouplingIMesh::SpreadCoarseToFine(arr,cgsWG,ret,tmp,mesh->getImageMesh()->getSpaceDimension()*[1]);
+  std::vector< std::pair<int,int> > cgs2(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(cgs));
+  MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt(cgs2,_ghost_lev);
+  std::vector<int> fakeFactors(mesh->getImageMesh()->getSpaceDimension(),1);
+  MEDCouplingIMesh::SpreadCoarseToFine(arr,cgsWG,arr2,cgs2,fakeFactors);
+  arr2->copyStringInfoFrom(*arr);
   //
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
   ret->setMesh(mesh->getImageMesh());
@@ -791,7 +794,7 @@ void MEDCouplingAMRAttribute::dealloc()
     }
 }
 
-bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
+bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMeshGen *gf)
 {
   bool ret(MEDCouplingDataForGodFather::changeGodFather(gf));
   return ret;
@@ -820,7 +823,7 @@ void MEDCouplingAMRAttribute::updateTime() const
 {//tony
 }
 
-MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev):MEDCouplingDataForGodFather(gf),_ghost_lev(ghostLev)
+MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev):MEDCouplingDataForGodFather(gf),_ghost_lev(ghostLev)
 {
   //gf non empty, checked by constructor
   int maxLev(gf->getMaxNumberOfLevelsRelativeToThis());

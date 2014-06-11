@@ -124,12 +124,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void alloc() = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
-    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf);
+    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf);
     void checkGodFatherFrozen() const;
   protected:
-    virtual bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
+    virtual bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
   protected:
-    MEDCouplingCartesianAMRMesh *_gf;
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _gf;
     TimeLabelConstOverseer _tlc;
   };
   /// @endcond
@@ -161,6 +161,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors);
     MEDCOUPLING_EXPORT void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayDouble *criterion, const std::vector<int>& factors, double eps);
+    MEDCOUPLING_EXPORT void createPatchesFromCriterionML(const std::vector<const INTERP_KERNEL::BoxSplittingOptions *>& bso, const DataArrayDouble *criterion, const std::vector< std::vector<int> >& factors, double eps);
     MEDCOUPLING_EXPORT void removeAllPatches();
     MEDCOUPLING_EXPORT void removePatch(int patchId);
     MEDCOUPLING_EXPORT int getNumberOfPatches() const;
@@ -221,19 +222,11 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
-    MEDCOUPLING_EXPORT const MEDCouplingDataForGodFather *getDataConst() const { return _data; }
-    MEDCOUPLING_EXPORT MEDCouplingDataForGodFather *getData() { return _data; }
-    MEDCOUPLING_EXPORT void setData(MEDCouplingDataForGodFather *data);
-    MEDCOUPLING_EXPORT void allocData() const;
-    MEDCOUPLING_EXPORT void deallocData() const;
   private:
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
-    void checkData() const;
     ~MEDCouplingCartesianAMRMesh();
-  private:
-    mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingDataForGodFather> _data;
   };
 }
 
