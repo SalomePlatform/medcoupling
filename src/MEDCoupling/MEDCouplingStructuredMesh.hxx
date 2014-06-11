@@ -83,6 +83,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static std::vector< std::pair<int,int> > TranslateCompactFrmt(const std::vector< std::pair<int,int> >& part, const std::vector<int>& translation);
     MEDCOUPLING_EXPORT static std::vector<int> FindTranslationFrom(const std::vector< std::pair<int,int> >& startingFrom, const std::vector< std::pair<int,int> >& goingTo);
     MEDCOUPLING_EXPORT static DataArrayInt *BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static void MultiplyPartOf(const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, double factor, DataArrayDouble *da);
+    MEDCOUPLING_EXPORT static void MultiplyPartOfByGhost(const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, int ghostSize, double factor, DataArrayDouble *da);
+    MEDCOUPLING_EXPORT static void PutInGhostFormat(int ghostSize, const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, std::vector<int>& stWithGhost, std::vector< std::pair<int,int> >&partWithGhost);
+    MEDCOUPLING_EXPORT static void ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivity(const int *nodeStBg, const int *nodeStEnd);
     MEDCOUPLING_EXPORT static DataArrayInt *Build1GTNodalConnectivityOfSubLevelMesh(const int *nodeStBg, const int *nodeStEnd);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeCornersGhost(const std::vector<int>& st, int ghostLev);

@@ -15188,8 +15188,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         l=[da0,da1,da2,da3,da4]
         lCpy=[elt.deepCpy() for elt in l]
         l2=[DataArrayDouble.Meld(elt,3*elt) for elt in l]
-        amr.fillCellFieldOnPatchGhostAdv(0,da,1,l)
-        amr.fillCellFieldOnPatchGhostAdv(0,DataArrayDouble.Meld(da,3*da),1,l2)
+        amr.fillCellFieldOnPatchGhostAdv(0,da,1,l,False)
+        amr.fillCellFieldOnPatchGhostAdv(0,DataArrayDouble.Meld(da,3*da),1,l2,False)
         amr.fillCellFieldOnPatchOnlyOnGhostZone(0,da,lCpy[0],1)
         #
         f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(amr.getImageMesh().buildWithGhost(1)) ; f.setArray(da) ; f.setName("all")
@@ -15228,8 +15228,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         l=[da0,da1]
         lCpy=[elt.deepCpy() for elt in l]
         l2=[DataArrayDouble.Meld(elt,3*elt) for elt in l]
-        amr.fillCellFieldOnPatchGhostAdv(0,da,1,l)
-        amr.fillCellFieldOnPatchGhostAdv(0,DataArrayDouble.Meld(da,3*da),1,l2)
+        amr.fillCellFieldOnPatchGhostAdv(0,da,1,l,False)
+        amr.fillCellFieldOnPatchGhostAdv(0,DataArrayDouble.Meld(da,3*da),1,l2,False)
         amr.fillCellFieldOnPatchOnlyOnGhostZone(0,da,lCpy[0],1)
         #
         f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(amr.getImageMesh().buildWithGhost(1)) ; f.setArray(da) ; f.setName("all")

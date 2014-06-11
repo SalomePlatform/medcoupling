@@ -2906,6 +2906,33 @@ namespace ParaMEDMEM
         return MEDCouplingStructuredMesh::BuildExplicitIdsFrom(tmp5,inp);
       }
 
+      static void MultiplyPartOf(const std::vector<int>& st, PyObject *part, double factor, DataArrayDouble *da) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(part,inp);
+        MEDCouplingStructuredMesh::MultiplyPartOf(st,inp,factor,da);
+      }
+
+      static void MultiplyPartOfByGhost(const std::vector<int>& st, PyObject *part, int ghostSize, double factor, DataArrayDouble *da) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(part,inp);
+        MEDCouplingStructuredMesh::MultiplyPartOfByGhost(st,inp,ghostSize,factor,da);
+      }
+
+      static PyObject *PutInGhostFormat(int ghostSize, const std::vector<int>& st, PyObject *part) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(part,inp);
+        std::vector<int> stWithGhost;
+        std::vector< std::pair<int,int> > partWithGhost;
+        MEDCouplingStructuredMesh::PutInGhostFormat(ghostSize,st,inp,stWithGhost,partWithGhost);
+        PyObject *ret(PyTuple_New(2));
+        PyTuple_SetItem(ret,0,convertIntArrToPyList2(stWithGhost));
+        PyTuple_SetItem(ret,1,convertFromVectorPairInt(partWithGhost));
+        return ret;
+      }
+
       static DataArrayDouble *ExtractFieldOfDoubleFrom(const std::vector<int>& st, const DataArrayDouble *fieldOfDbl, PyObject *partCompactFormat) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
@@ -4919,12 +4946,12 @@ namespace ParaMEDMEM
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayDouble *criterion, const std::vector<int>& factors, double eps) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
-    void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const throw(INTERP_KERNEL::Exception);
-    void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, bool isConservative=true) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev, bool isConservative=true) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatchOnlyOnGhostZone(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldOnPatchOnlyOnGhostZoneWith(int ghostLev, const MEDCouplingCartesianAMRPatch *patchToBeModified, const MEDCouplingCartesianAMRPatch *neighborPatch, DataArrayDouble *cellFieldOnPatch, const DataArrayDouble *cellFieldNeighbor) const;
-    void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
-    void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, bool isConservative=true) const throw(INTERP_KERNEL::Exception);
+    void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev, bool isConservative=true) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5023,11 +5050,11 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, PyObject *arrsOnPatches) const throw(INTERP_KERNEL::Exception)
+      void fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, PyObject *arrsOnPatches, bool isConservative=true) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::DataArrayDouble *> arrsOnPatches2;
         convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayDouble *>(arrsOnPatches,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",arrsOnPatches2);
-        self->fillCellFieldOnPatchGhostAdv(patchId,cellFieldOnThis,ghostLev,arrsOnPatches2);
+        self->fillCellFieldOnPatchGhostAdv(patchId,cellFieldOnThis,ghostLev,arrsOnPatches2,isConservative);
       }
 
       void fillCellFieldOnPatchOnlyGhostAdv(int patchId, int ghostLev, PyObject *arrsOnPatches) const
@@ -5130,6 +5157,18 @@ namespace ParaMEDMEM
         std::vector< std::vector<std::string> > compNamesCpp;
         convertPyToVectorOfVectorOfString(compNames,compNamesCpp);
         self->spillInfoOnComponents(compNamesCpp);
+      }
+
+      void spillNatures(PyObject *nfs) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> inp0;
+        if(!fillIntVector(nfs,inp0))
+          throw INTERP_KERNEL::Exception("wrap of MEDCouplingAMRAttribute::spillNatures : vector of NatureOfField enum expected !");
+        std::size_t sz(inp0.size());
+        std::vector<NatureOfField> inp00(sz);
+        for(std::size_t i=0;i<sz;i++)
+          inp00[i]=(NatureOfField)inp0[i];
+        self->spillNatures(inp00);
       }
       
       PyObject *retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const throw(INTERP_KERNEL::Exception)

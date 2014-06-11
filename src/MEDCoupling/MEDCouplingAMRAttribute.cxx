@@ -36,14 +36,14 @@ void DataArrayDoubleCollection::allocTuples(int nbOfTuples)
 {
   std::size_t sz(_arrs.size());
   for(std::size_t i=0;i<sz;i++)
-    _arrs[i]->reAlloc(nbOfTuples);
+    _arrs[i].first->reAlloc(nbOfTuples);
 }
 
 void DataArrayDoubleCollection::dellocTuples()
 {
   std::size_t sz(_arrs.size());
   for(std::size_t i=0;i<sz;i++)
-    _arrs[i]->reAlloc(0);
+    _arrs[i].first->reAlloc(0);
 }
 
 void DataArrayDoubleCollection::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
@@ -54,8 +54,17 @@ void DataArrayDoubleCollection::spillInfoOnComponents(const std::vector< std::ve
   for(std::size_t i=0;i<sz;i++)
     {
       const std::vector<std::string>& names(compNames[i]);
-      _arrs[i]->setInfoOnComponents(names);
+      _arrs[i].first->setInfoOnComponents(names);
     }
+}
+
+void DataArrayDoubleCollection::spillNatures(const std::vector<NatureOfField>& nfs)
+{
+  std::size_t sz(_arrs.size());
+  if(sz!=nfs.size())
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::spillNatures : first size of vector of NatureOfField has to be equal to the number of fields defined !");
+  for(std::size_t i=0;i<sz;i++)
+    _arrs[i].second=nfs[i];
 }
 
 std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
@@ -64,7 +73,7 @@ std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
   std::vector<DataArrayDouble *> ret(sz);
   for(std::size_t i=0;i<sz;i++)
     {
-      const DataArrayDouble *tmp(_arrs[i]);
+      const DataArrayDouble *tmp(_arrs[i].first);
       ret[i]=const_cast<DataArrayDouble *>(tmp);
       if(ret[i])
         ret[i]->incrRef();
@@ -75,9 +84,9 @@ std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
 const DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::string& name) const
 {
   std::vector<std::string> vec;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
     {
-      const DataArrayDouble *obj(*it);
+      const DataArrayDouble *obj((*it).first);
       if(obj)
         {
           if(obj->getName()==name)
@@ -99,7 +108,10 @@ void DataArrayDoubleCollection::SynchronizeFineToCoarse(int ghostLev, const MEDC
   if(fine->_arrs.size()!=sz)
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::SynchronizeFineToCoarse : the input DataArrayDouble collection must have the same size !");
   for(std::size_t i=0;i<sz;i++)
-    fatherOfFineMesh->fillCellFieldComingFromPatchGhost(patchId,fine->_arrs[i],coarse->_arrs[i],ghostLev);
+    {
+      CheckSameNatures(fine->_arrs[i].second,coarse->_arrs[i].second);
+      fatherOfFineMesh->fillCellFieldComingFromPatchGhost(patchId,fine->_arrs[i].first,coarse->_arrs[i].first,ghostLev,IsConservativeNature(coarse->_arrs[i].second));
+    }
 }
 
 void DataArrayDoubleCollection::SynchronizeCoarseToFine(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine)
@@ -110,7 +122,10 @@ void DataArrayDoubleCollection::SynchronizeCoarseToFine(int ghostLev, const MEDC
   if(fine->_arrs.size()!=sz)
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::SynchronizeCoarseToFine : the input DataArrayDouble collection must have the same size !");
   for(std::size_t i=0;i<sz;i++)
-    fatherOfFineMesh->fillCellFieldOnPatchGhost(patchId,coarse->_arrs[i],fine->_arrs[i],ghostLev);
+    {
+      CheckSameNatures(fine->_arrs[i].second,coarse->_arrs[i].second);
+      fatherOfFineMesh->fillCellFieldOnPatchGhost(patchId,coarse->_arrs[i].first,fine->_arrs[i].first,ghostLev,IsConservativeNature(coarse->_arrs[i].second));
+    }
 }
 
 void DataArrayDoubleCollection::SynchronizeFineEachOther(int patchId, int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, const std::vector<const MEDCouplingCartesianAMRMeshGen *>& children, const std::vector<DataArrayDoubleCollection *>& fieldsOnFine)
@@ -133,7 +148,7 @@ void DataArrayDoubleCollection::SynchronizeFineEachOther(int patchId, int ghostL
     {
       std::vector<const DataArrayDouble *> arrs(sz);
       for(std::size_t j=0;j<sz;j++)
-        arrs[j]=fieldsOnFine[j]->_arrs[i];
+        arrs[j]=fieldsOnFine[j]->_arrs[i].first;
       fatherOfFineMesh->fillCellFieldOnPatchOnlyGhostAdv(patchId,ghostLev,arrs);
     }
 }
@@ -150,8 +165,8 @@ void DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo(int ghostLev, 
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo : size of DataArrayDouble Collection must be the same !");
   for(std::size_t i=0;i<sz;i++)
     {
-      const DataArrayDouble *zeArrWhichGhostsWillBeUpdated(p1dac->_arrs[i]);
-      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(ghostLev,p1,p2,const_cast<DataArrayDouble *>(zeArrWhichGhostsWillBeUpdated),p2dac->_arrs[i]);
+      const DataArrayDouble *zeArrWhichGhostsWillBeUpdated(p1dac->_arrs[i].first);
+      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(ghostLev,p1,p2,const_cast<DataArrayDouble *>(zeArrWhichGhostsWillBeUpdated),p2dac->_arrs[i].first);
     }
 }
 
@@ -163,7 +178,7 @@ void DataArrayDoubleCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghost
   if(fine->_arrs.size()!=sz)
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::SynchronizeCoarseToFineOnlyInGhostZone : the input DataArrayDouble collection must have the same size !");
   for(std::size_t i=0;i<sz;i++)
-    fatherOfFineMesh->fillCellFieldOnPatchOnlyOnGhostZone(patchId,coarse->_arrs[i],fine->_arrs[i],ghostLev);
+    fatherOfFineMesh->fillCellFieldOnPatchOnlyOnGhostZone(patchId,coarse->_arrs[i].first,fine->_arrs[i].first,ghostLev);
 }
 
 void DataArrayDoubleCollection::synchronizeMyGhostZoneUsing(int ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp, const MEDCouplingCartesianAMRMeshGen *father) const
@@ -173,7 +188,7 @@ void DataArrayDoubleCollection::synchronizeMyGhostZoneUsing(int ghostLev, const 
   if(other._arrs.size()!=sz)
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::synchronizeMyGhostZoneUsing : sizes of collections must match !");
   for(std::size_t i=0;i<sz;i++)
-    father->fillCellFieldOnPatchOnlyOnGhostZoneWith(ghostLev,thisp,otherp,thisNC->_arrs[i],other._arrs[i]);
+    father->fillCellFieldOnPatchOnlyOnGhostZoneWith(ghostLev,thisp,otherp,thisNC->_arrs[i].first,other._arrs[i].first);
 }
 
 void DataArrayDoubleCollection::synchronizeMyGhostZoneUsingExt(int ghostLev, const DataArrayDoubleCollection& other, const MEDCouplingCartesianAMRPatch *thisp, const MEDCouplingCartesianAMRPatch *otherp) const
@@ -183,7 +198,7 @@ void DataArrayDoubleCollection::synchronizeMyGhostZoneUsingExt(int ghostLev, con
   if(other._arrs.size()!=sz)
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::synchronizeMyGhostZoneUsingExt : sizes of collections must match !");
   for(std::size_t i=0;i<sz;i++)
-    MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(ghostLev,thisp,otherp,thisNC->_arrs[i],other._arrs[i]);
+    MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(ghostLev,thisp,otherp,thisNC->_arrs[i].first,other._arrs[i].first);
 }
 
 DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pair<std::string,int> >& fieldNames):_arrs(fieldNames.size())
@@ -193,10 +208,11 @@ DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pai
   for(std::size_t i=0;i<sz;i++)
     {
       const std::pair<std::string,int>& info(fieldNames[i]);
-      _arrs[i]=DataArrayDouble::New();
-      _arrs[i]->alloc(0,info.second);
-      _arrs[i]->setName(info.first);
+      _arrs[i].first=DataArrayDouble::New();
+      _arrs[i].first->alloc(0,info.second);
+      _arrs[i].first->setName(info.first);
       names[i]=info.second;
+      _arrs[i].second=ConservativeVolumic;
     }
   CheckDiscriminantNames(names);
 }
@@ -211,9 +227,9 @@ std::size_t DataArrayDoubleCollection::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> DataArrayDoubleCollection::getDirectChildren() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
     {
-      const DataArrayDouble *pt(*it);
+      const DataArrayDouble *pt((*it).first);
       if(pt)
         ret.push_back(pt);
     }
@@ -222,9 +238,9 @@ std::vector<const BigMemoryObject *> DataArrayDoubleCollection::getDirectChildre
 
 void DataArrayDoubleCollection::updateTime() const
 {
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
     {
-      const DataArrayDouble *pt(*it);
+      const DataArrayDouble *pt((*it).first);
       if(pt)
         updateTimeWith(*pt);
     }
@@ -235,6 +251,26 @@ void DataArrayDoubleCollection::CheckDiscriminantNames(const std::vector<std::st
   std::set<std::string> s(names.begin(),names.end());
   if(s.size()!=names.size())
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::CheckDiscriminantNames : The names of fields must be different each other ! It is not the case !");
+}
+
+bool DataArrayDoubleCollection::IsConservativeNature(NatureOfField n)
+{
+  CheckValidNature(n);
+  return n==RevIntegral || n==IntegralGlobConstraint;
+}
+
+void DataArrayDoubleCollection::CheckSameNatures(NatureOfField n1, NatureOfField n2)
+{
+  CheckValidNature(n1);
+  CheckValidNature(n2);
+  if(n1!=n2)
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::CheckSameNatures : natures are not the same !");
+}
+
+void DataArrayDoubleCollection::CheckValidNature(NatureOfField n)
+{
+  if(n!=ConservativeVolumic && n!=Integral && n!=IntegralGlobConstraint && n!=RevIntegral)
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::CheckValidNature : unrecognized nature !");
 }
 
 MEDCouplingGridCollection *MEDCouplingGridCollection::New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames)
@@ -271,6 +307,12 @@ void MEDCouplingGridCollection::spillInfoOnComponents(const std::vector< std::ve
 {
   for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     (*it).second->spillInfoOnComponents(compNames);
+}
+
+void MEDCouplingGridCollection::spillNatures(const std::vector<NatureOfField>& nfs)
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    (*it).second->spillNatures(nfs);
 }
 
 bool MEDCouplingGridCollection::presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const
@@ -542,6 +584,17 @@ void MEDCouplingAMRAttribute::spillInfoOnComponents(const std::vector< std::vect
 }
 
 /*!
+ * Assign nature for each fields in \a this.
+ * \param [in] nfs
+ */
+void MEDCouplingAMRAttribute::spillNatures(const std::vector<NatureOfField>& nfs)
+{
+  _tlc.checkConst();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+    (*it)->spillNatures(nfs);
+}
+
+/*!
  * This method returns all DataArrayDouble instances lying on the specified mesh \a mesh.
  * If \a mesh is not part of the progeny of god father object given at construction of \a this an exception will be thrown.
  *
@@ -667,7 +720,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(DataArrayDouble::New());
   arr2->alloc(mesh->getImageMesh()->getNumberOfCells(),arr->getNumberOfComponents());
   std::vector< std::pair<int,int> > cgs2(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(cgs));
-  MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt(cgs2,_ghost_lev);
+  MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(cgs2,_ghost_lev);
   std::vector<int> fakeFactors(mesh->getImageMesh()->getSpaceDimension(),1);
   MEDCouplingIMesh::SpreadCoarseToFine(arr,cgsWG,arr2,cgs2,fakeFactors);
   arr2->copyStringInfoFrom(*arr);

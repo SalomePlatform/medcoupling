@@ -463,7 +463,7 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(int ghost
   std::vector< std::pair<int,int> > tmp0,tmp1,tmp2;
   MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p1,p2,tmp0,false);//tmp0=[(3,4),(1,2)]
   ApplyFactorsOnCompactFrmt(tmp0,factors);//tmp0=[(12,16),(4,8)]
-  ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
+  MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(tmp0,ghostLev);//tmp0=[(13,17),(5,9)]
   std::vector< std::pair<int,int> > interstRange(MEDCouplingStructuredMesh::IntersectRanges(tmp0,rangeCoarse));//interstRange=[(13,14),(5,9)]
   MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(p2,p1,tmp1,false);//tmp1=[(-3,0),(-1,1)]
   ApplyFactorsOnCompactFrmt(tmp1,factors);//tmp1=[(-12,-4),(-4,0)]
@@ -490,22 +490,6 @@ void MEDCouplingCartesianAMRPatch::ApplyFactorsOnCompactFrmt(std::vector< std::p
     {
       partBeforeFact[i].first*=factors[i];
       partBeforeFact[i].second*=factors[i];
-    }
-}
-
-/*!
- * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
- * \param [in] ghostSize - the ghost size of zone for all axis.
- */
-void MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
-{
-  if(ghostSize<0)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
-  std::size_t sz(partBeforeFact.size());
-  for(std::size_t i=0;i<sz;i++)
-    {
-      partBeforeFact[i].first+=ghostSize;
-      partBeforeFact[i].second+=ghostSize;
     }
 }
 
@@ -1078,7 +1062,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterionML(const std::vec
       if(!bso[i])
         throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterionML : presence of a NULL BoxSplittingOptions in input vector !");
       //
-      std::vector<MEDCouplingCartesianAMRPatchGen *> elts(retrieveGridsAt((int)(nbOfLevs-1)));
+      std::vector<MEDCouplingCartesianAMRPatchGen *> elts(retrieveGridsAt((int)(i)));
       std::size_t sz(elts.size());
       std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > elts2(sz);
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > elts3(sz);
@@ -1198,12 +1182,17 @@ DataArrayDouble *MEDCouplingCartesianAMRMeshGen::createCellFieldOnPatch(int patc
  *
  * \sa createCellFieldOnPatch, fillCellFieldComingFromPatch
  */
-void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, bool isConservative) const
 {
   if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatch : the input cell field array is NULL or not allocated !");
   const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
   MEDCouplingIMesh::SpreadCoarseToFine(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors());
+  if(isConservative)
+    {
+      int fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      std::transform(cellFieldOnPatch->begin(),cellFieldOnPatch->end(),cellFieldOnPatch->getPointer(),std::bind2nd(std::multiplies<double>(),1./((double)fact)));
+    }
 }
 
 /*!
@@ -1217,12 +1206,17 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatch(int patchId, const Dat
  *
  * \sa fillCellFieldOnPatch, fillCellFieldOnPatchGhostAdv
  */
-void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhost(int patchId, const DataArrayDouble *cellFieldOnThis, DataArrayDouble *cellFieldOnPatch, int ghostLev, bool isConservative) const
 {
   if(!cellFieldOnThis || !cellFieldOnThis->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatchGhost : the input cell field array is NULL or not allocated !");
   const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
   MEDCouplingIMesh::SpreadCoarseToFineGhost(cellFieldOnThis,_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),ghostLev);
+  if(isConservative)
+    {
+      int fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      std::transform(cellFieldOnPatch->begin(),cellFieldOnPatch->end(),cellFieldOnPatch->getPointer(),std::bind2nd(std::multiplies<double>(),1./((double)fact)));
+    }
 }
 
 /*!
@@ -1254,7 +1248,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyOnGhostZone(int pat
  *
  * \sa fillCellFieldOnPatchOnlyGhostAdv
  */
-void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, const DataArrayDouble *cellFieldOnThis, int ghostLev, const std::vector<const DataArrayDouble *>& arrsOnPatches, bool isConservative) const
 {
   int nbp(getNumberOfPatches());
   if(nbp!=(int)arrsOnPatches.size())
@@ -1264,7 +1258,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchGhostAdv(int patchId, c
     }
   DataArrayDouble *theFieldToFill(const_cast<DataArrayDouble *>(arrsOnPatches[patchId]));
   // first, do as usual
-  fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,theFieldToFill,ghostLev);
+  fillCellFieldOnPatchGhost(patchId,cellFieldOnThis,theFieldToFill,ghostLev,isConservative);
   fillCellFieldOnPatchOnlyGhostAdv(patchId,ghostLev,arrsOnPatches);
 }
 
@@ -1303,17 +1297,23 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldOnPatchOnlyOnGhostZoneWith(int
  * \param [in] patchId - The id of the patch \a cellFieldOnThis has to be put on.
  * \param [in] cellFieldOnPatch - The array of the cell field on patch with id \a patchId.
  * \param [in,out] cellFieldOnThis The array of the cell field on \a this to be updated only on the part concerning the patch with id \a patchId.
+ * \param [in] isConservative - true if the field needs to be conserved. false if maximum principle has to be applied.
  *
  * \throw if \a patchId is not in [ 0 , \c this->getNumberOfPatches() )
  * \throw if \a cellFieldOnPatch is NULL or not allocated
  * \sa createCellFieldOnPatch, MEDCouplingIMesh::CondenseFineToCoarse,fillCellFieldComingFromPatchGhost
  */
-void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, bool isConservative) const
 {
   if(!cellFieldOnPatch || !cellFieldOnPatch->isAllocated())
       throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatch : the input cell field array is NULL or not allocated !");
   const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
   MEDCouplingIMesh::CondenseFineToCoarse(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis);
+  if(!isConservative)
+    {
+      int fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      MEDCouplingStructuredMesh::MultiplyPartOf(_mesh->getCellGridStructure(),patch->getBLTRRange(),1./((double)fact),cellFieldOnThis);
+    }
 }
 
 /*!
@@ -1324,17 +1324,23 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatch(int patchId, c
  * \param [in] cellFieldOnPatch - The array of the cell field on patch with id \a patchId.
  * \param [in,out] cellFieldOnThis The array of the cell field on \a this to be updated only on the part concerning the patch with id \a patchId.
  * \param [in] ghostLev The size of ghost zone (must be >= 0 !)
+ * \param [in] isConservative - true if the field needs to be conserved. false if maximum principle has to be applied.
  *
  * \throw if \a patchId is not in [ 0 , \c this->getNumberOfPatches() )
  * \throw if \a cellFieldOnPatch is NULL or not allocated
  * \sa fillCellFieldComingFromPatch
  */
-void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev) const
+void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev, bool isConservative) const
 {
   if(!cellFieldOnPatch || !cellFieldOnPatch->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::fillCellFieldComingFromPatchGhost : the input cell field array is NULL or not allocated !");
   const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
   MEDCouplingIMesh::CondenseFineToCoarseGhost(_mesh->getCellGridStructure(),cellFieldOnPatch,patch->getBLTRRange(),getFactors(),cellFieldOnThis,ghostLev);
+  if(!isConservative)
+    {
+      int fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(getFactors()));
+      MEDCouplingStructuredMesh::MultiplyPartOfByGhost(_mesh->getCellGridStructure(),patch->getBLTRRange(),ghostLev,1./((double)fact),cellFieldOnThis);
+    }
 }
 
 /*!
@@ -1465,7 +1471,7 @@ DataArrayDouble *MEDCouplingCartesianAMRMeshGen::extractGhostFrom(int ghostSz, c
   std::vector<int> st(_mesh->getCellGridStructure());
   std::vector< std::pair<int,int> > p(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(st));
   std::transform(st.begin(),st.end(),st.begin(),std::bind2nd(std::plus<int>(),2*ghostSz));
-  MEDCouplingCartesianAMRPatch::ApplyGhostOnCompactFrmt(p,ghostSz);
+  MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(p,ghostSz);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,arr,p));
   return ret.retn();
 }

@@ -22,6 +22,7 @@
 #define __MEDCOUPLINGAMRATTRIBUTE_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MEDCouplingNatureOfFieldEnum"
 #include "MEDCouplingCartesianAMRMesh.hxx"
 
 namespace ParaMEDMEM
@@ -34,6 +35,7 @@ namespace ParaMEDMEM
     void allocTuples(int nbOfTuples);
     void dellocTuples();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
+    void spillNatures(const std::vector<NatureOfField>& nfs);
     std::vector<DataArrayDouble *> retrieveFields() const;
     const DataArrayDouble *getFieldWithName(const std::string& name) const;
     static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse);
@@ -49,8 +51,11 @@ namespace ParaMEDMEM
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     void updateTime() const;
     static void CheckDiscriminantNames(const std::vector<std::string>& names);
+    static bool IsConservativeNature(NatureOfField n);
+    static void CheckSameNatures(NatureOfField n1, NatureOfField n2);
+    static void CheckValidNature(NatureOfField n);
   private:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > _arrs;
+    std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > > _arrs;
   };
 
   class MEDCouplingGridCollection : public RefCountObject, public TimeLabel
@@ -60,6 +65,7 @@ namespace ParaMEDMEM
     void alloc(int ghostLev);
     void dealloc();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
+    void spillNatures(const std::vector<NatureOfField>& nfs);
     bool presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const;
     const DataArrayDoubleCollection& getFieldsAt(int pos) const;
     static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingGridCollection *fine, const MEDCouplingGridCollection *coarse);
@@ -86,6 +92,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
+    MEDCOUPLING_EXPORT void spillNatures(const std::vector<NatureOfField>& nfs);
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;

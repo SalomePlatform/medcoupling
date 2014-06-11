@@ -1725,7 +1725,7 @@ std::vector<int> MEDCouplingStructuredMesh::FindTranslationFrom(const std::vecto
  * If the range contains invalid values regarding sructure an exception will be thrown.
  *
  * \return DataArrayInt * - a new object.
- * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom
+ * \sa MEDCouplingStructuredMesh::IsPartStructured, MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt, SwitchOnIdsFrom, ExtractFieldOfBoolFrom, ExtractFieldOfDoubleFrom, MultiplyPartOf
  */
 DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat)
 {
@@ -1739,7 +1739,7 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
         throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : invalid input range 1 !");
       if(partCompactFormat[i].second<0 || partCompactFormat[i].second>st[i])
         throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : invalid input range 2 !");
-      if(partCompactFormat[i].second<=partCompactFormat[i].first)
+      if(partCompactFormat[i].second<partCompactFormat[i].first)
         throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : invalid input range 3 !");
       dims[i]=partCompactFormat[i].second-partCompactFormat[i].first;
       nbOfItems*=dims[i];
@@ -1783,6 +1783,148 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::BuildExplicitIdsFrom : Dimension supported are 1,2 or 3 !");
   }
   return ret.retn();
+}
+
+/*!
+ * This method multiplies by \a factor values in tuples located by \a part in \a da.
+ *
+ * \param [in] st - the structure of grid ( \b without considering ghost cells).
+ * \param [in] part - the part in the structure ( \b without considering ghost cells) contained in grid whose structure is defined by \a st.
+ * \param [in] factor - the factor, the tuples in \a da will be multiply by.
+ * \param [in,out] da - The DataArray in wich only tuples specified by \a part will be modified.
+ *
+ * \sa BuildExplicitIdsFrom
+ */
+void MEDCouplingStructuredMesh::MultiplyPartOf(const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, double factor, DataArrayDouble *da)
+{
+  if(!da || !da->isAllocated())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : DataArrayDouble instance must be not NULL and allocated !");
+  if(st.size()!=part.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : input arrays must have the same size !");
+  std::vector<int> dims(st.size());
+  for(std::size_t i=0;i<st.size();i++)
+    {
+      if(part[i].first<0 || part[i].first>st[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : invalid input range 1 !");
+      if(part[i].second<0 || part[i].second>st[i])
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : invalid input range 2 !");
+      if(part[i].second<part[i].first)
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : invalid input range 3 !");
+      dims[i]=part[i].second-part[i].first;
+    }
+  int nbOfTuplesExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(st)),nbCompo(da->getNumberOfComponents());
+  if(da->getNumberOfTuples()!=nbOfTuplesExp)
+    {
+      std::ostringstream oss; oss << "MEDCouplingStructuredMesh::MultiplyPartOf : invalid nb of tuples ! Expected " << nbOfTuplesExp << " having " << da->getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  double *pt(da->getPointer());
+  switch(st.size())
+  {
+    case 3:
+      {
+        for(int i=0;i<dims[2];i++)
+          {
+            int a=(part[2].first+i)*st[0]*st[1];
+            for(int j=0;j<dims[1];j++)
+              {
+                int b=(part[1].first+j)*st[0];
+                for(int k=0;k<dims[0];k++)
+                  {
+                    int offset(part[0].first+k+b+a);
+                    std::transform(pt+nbCompo*offset,pt+nbCompo*(offset+1),pt+nbCompo*offset,std::bind2nd(std::multiplies<double>(),factor));
+                  }
+              }
+          }
+        break;
+      }
+    case 2:
+      {
+        for(int j=0;j<dims[1];j++)
+          {
+            int b=(part[1].first+j)*st[0];
+            for(int k=0;k<dims[0];k++)
+              {
+                int offset(part[0].first+k+b);
+                std::transform(pt+nbCompo*offset,pt+nbCompo*(offset+1),pt+nbCompo*offset,std::bind2nd(std::multiplies<double>(),factor));
+              }
+          }
+        break;
+      }
+    case 1:
+      {
+        for(int k=0;k<dims[0];k++)
+          {
+            int offset(part[0].first+k);
+            std::transform(pt+nbCompo*offset,pt+nbCompo*(offset+1),pt+nbCompo*offset,std::bind2nd(std::multiplies<double>(),factor));
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::MultiplyPartOf : Dimension supported are 1,2 or 3 !");
+  }
+}
+
+/*!
+ * This method multiplies by \a factor values in tuples located by \a part in \a da.
+ *
+ * \param [in] st - the structure of grid ( \b without considering ghost cells).
+ * \param [in] part - the part in the structure ( \b without considering ghost cells) contained in grid whose structure is defined by \a st.
+ * \param [in] ghostSize - \a ghostSize must be >= 0.
+ * \param [in] factor - the factor, the tuples in \a da will be multiply by.
+ * \param [in,out] da - The DataArray in wich only tuples specified by \a part will be modified.
+ *
+ * \sa MultiplyPartOf, PutInGhostFormat
+ */
+void MEDCouplingStructuredMesh::MultiplyPartOfByGhost(const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, int ghostSize, double factor, DataArrayDouble *da)
+{
+  std::vector<int> stWG;
+  std::vector< std::pair<int,int> > partWG;
+  PutInGhostFormat(ghostSize,st,part,stWG,partWG);
+  MultiplyPartOf(stWG,partWG,factor,da);
+}
+
+/*!
+ * This method multiplies by \a factor values in tuples located by \a part in \a da.
+ *
+ * \param [in] st - the structure of grid ( \b without considering ghost cells).
+ * \param [in] part - the part in the structure ( \b without considering ghost cells) contained in grid whose structure is defined by \a st.
+ * \param [in] ghostSize - \a ghostSize must be >= 0.
+ * \param [out] stWithGhost - the structure considering ghost cells.
+ * \param [out] partWithGhost - the part considering the ghost cells.
+ *
+ * \sa MultiplyPartOf, PutInGhostFormat
+ */
+void MEDCouplingStructuredMesh::PutInGhostFormat(int ghostSize, const std::vector<int>& st, const std::vector< std::pair<int,int> >& part, std::vector<int>& stWithGhost, std::vector< std::pair<int,int> >&partWithGhost)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::PutInGhostFormat : ghost size must be >= 0 !");
+  std::size_t dim(part.size());
+  if(st.size()!=dim)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::PutInGhostFormat : the dimension of input vectors must be the same !");
+  for(std::size_t i=0;i<dim;i++)
+    if(part[i].first<0 || part[i].first>part[i].second || part[i].second>st[i])
+      throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::PutInGhostFormat : the specified part is invalid ! The begin must be >= 0 and <= end ! The end must be <= to the size at considered dimension !");
+  stWithGhost.resize(st.size());
+  std::transform(st.begin(),st.end(),stWithGhost.begin(),std::bind2nd(std::plus<int>(),2*ghostSize));
+  partWithGhost=part;
+  ApplyGhostOnCompactFrmt(partWithGhost,ghostSize);
+}
+
+/*!
+ * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in ghost reference.
+ * \param [in] ghostSize - the ghost size of zone for all axis.
+ */
+void MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(std::vector< std::pair<int,int> >& partBeforeFact, int ghostSize)
+{
+  if(ghostSize<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt : ghost size must be >= 0 !");
+  std::size_t sz(partBeforeFact.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      partBeforeFact[i].first+=ghostSize;
+      partBeforeFact[i].second+=ghostSize;
+    }
 }
 
 int MEDCouplingStructuredMesh::GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim)
