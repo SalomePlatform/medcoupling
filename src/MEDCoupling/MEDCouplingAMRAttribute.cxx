@@ -32,6 +32,11 @@ DataArrayDoubleCollection *DataArrayDoubleCollection::New(const std::vector< std
   return new DataArrayDoubleCollection(fieldNames);
 }
 
+DataArrayDoubleCollection *DataArrayDoubleCollection::deepCpy() const
+{
+  return new DataArrayDoubleCollection(*this);
+}
+
 void DataArrayDoubleCollection::allocTuples(int nbOfTuples)
 {
   std::size_t sz(_arrs.size());
@@ -64,7 +69,10 @@ void DataArrayDoubleCollection::spillNatures(const std::vector<NatureOfField>& n
   if(sz!=nfs.size())
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::spillNatures : first size of vector of NatureOfField has to be equal to the number of fields defined !");
   for(std::size_t i=0;i<sz;i++)
-    _arrs[i].second=nfs[i];
+    {
+      CheckValidNature(nfs[i]);
+      _arrs[i].second=nfs[i];
+    }
 }
 
 std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
@@ -217,6 +225,18 @@ DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pai
   CheckDiscriminantNames(names);
 }
 
+DataArrayDoubleCollection::DataArrayDoubleCollection(const DataArrayDoubleCollection& other):RefCountObject(other),_arrs(other._arrs.size())
+{
+  std::size_t sz(other._arrs.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      _arrs[i].second=other._arrs[i].second;
+      const DataArrayDouble *da(other._arrs[i].first);
+      if(da)
+        _arrs[i].first=da->deepCpy();
+    }
+}
+
 std::size_t DataArrayDoubleCollection::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(DataArrayDoubleCollection));
@@ -276,6 +296,11 @@ void DataArrayDoubleCollection::CheckValidNature(NatureOfField n)
 MEDCouplingGridCollection *MEDCouplingGridCollection::New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames)
 {
   return new MEDCouplingGridCollection(ms,fieldNames);
+}
+
+MEDCouplingGridCollection *MEDCouplingGridCollection::deepCpy() const
+{
+  return new MEDCouplingGridCollection(*this);
 }
 
 void MEDCouplingGridCollection::alloc(int ghostLev)
@@ -514,6 +539,18 @@ MEDCouplingGridCollection::MEDCouplingGridCollection(const std::vector<const MED
     }
 }
 
+MEDCouplingGridCollection::MEDCouplingGridCollection(const MEDCouplingGridCollection& other):RefCountObject(other),_map_of_dadc(other._map_of_dadc.size())
+{
+  std::size_t sz(other._map_of_dadc.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      _map_of_dadc[i].first=other._map_of_dadc[i].first;
+      const DataArrayDoubleCollection *dac(other._map_of_dadc[i].second);
+      if(dac)
+        _map_of_dadc[i].second=dac->deepCpy();
+    }
+}
+
 std::size_t MEDCouplingGridCollection::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingGridCollection));
@@ -579,6 +616,11 @@ bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMeshGen
   return ret;
 }
 
+MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other):RefCountObject(other),_gf(other._gf),_tlc(other._gf)
+{
+  other._tlc.checkConst();
+}
+
 /*!
  * This method creates, attach to a main AMR mesh \a gf ( called god father :-) ) and returns a data linked to \a gf ready for the computation.
  */
@@ -625,6 +667,21 @@ void MEDCouplingAMRAttribute::spillNatures(const std::vector<NatureOfField>& nfs
   _tlc.checkConst();
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     (*it)->spillNatures(nfs);
+}
+
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::deepCpy() const
+{
+  return new MEDCouplingAMRAttribute(*this);
+}
+
+/*!
+ * Returns the number of levels by \b only \b considering \a this (god father instance is considered only to see if it has not changed still last update of \a this).
+ *
+ */
+int MEDCouplingAMRAttribute::getNumberOfLevels() const
+{
+  checkGodFatherFrozen();
+  return (int)_levs.size();
 }
 
 /*!
@@ -768,6 +825,8 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
 /*!
  * This method synchronizes from fine to coarse direction arrays. This method makes the hypothesis that \a this has been allocated before using
  * MEDCouplingAMRAttribute::alloc method.
+ *
+ * \sa synchronizeFineToCoarseBetween
  */
 void MEDCouplingAMRAttribute::synchronizeFineToCoarse()
 {
@@ -778,9 +837,30 @@ void MEDCouplingAMRAttribute::synchronizeFineToCoarse()
   while(sz>1)
     {
       sz--;
-      const MEDCouplingGridCollection *fine(_levs[sz]),*coarse(_levs[sz-1]);
-      MEDCouplingGridCollection::SynchronizeFineToCoarse(_ghost_lev,fine,coarse);
+      synchronizeFineToCoarseByOneLevel((int)sz);
     }
+}
+
+/*!
+ * This method allows to synchronizes fields on fine patches on level \a fromLev to coarser patches at \a toLev level.
+ * This method operates step by step performing the synchronization the \a fromLev to \a fromLev - 1, then \a fromLev -1 to \a fromLev - 2 ...
+ * until reaching \a toLev level.
+ *
+ * \param [in] fromLev - an existing level considered as fine so bigger than \a toLev
+ * \param [in] toLev - an existing level considered as the target level to reach.
+ *
+ */
+void MEDCouplingAMRAttribute::synchronizeFineToCoarseBetween(int fromLev, int toLev)
+{
+  int nbl(getNumberOfLevels());
+  if(fromLev<0 || toLev<0 || fromLev>=nbl || toLev>=nbl)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineToCoarseBetween : fromLev and toLev must be >= 0 and lower than number of levels in this !");
+  if(fromLev==toLev)
+    return ;//nothing to do
+  if(fromLev<toLev)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineToCoarseBetween : the fromLev level is lower than toLev level ! Call synchronizeFineToCoarseBetween ");
+  for(int i=fromLev;i>toLev;i--)
+    synchronizeFineToCoarseByOneLevel(i);
 }
 
 /*!
@@ -793,11 +873,29 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFine()
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeCoarseToFine : not any levels in this !");
   std::size_t sz(_levs.size());
   //
-  for(std::size_t i=1;i<sz;i++)
-    {
-      const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
-      MEDCouplingGridCollection::SynchronizeCoarseToFine(_ghost_lev,coarse,fine);
-    }
+  for(std::size_t i=0;i<sz-1;i++)
+    synchronizeCoarseToFineByOneLevel((int)i);
+}
+
+/*!
+ * This method allows to synchronizes fields on coarse patches on level \a fromLev to their respective refined patches at \a toLev level.
+ * This method operates step by step performing the synchronization the \a fromLev to \a fromLev + 1, then \a fromLev + 1 to \a fromLev + 2 ...
+ * until reaching \a toLev level.
+ *
+ * \param [in] fromLev - an existing level considered as coarse so lower than \a toLev
+ * \param [in] toLev - an existing level considered as the target level to reach.
+ */
+void MEDCouplingAMRAttribute::synchronizeCoarseToFineBetween(int fromLev, int toLev)
+{
+  int nbl(getNumberOfLevels());
+  if(fromLev<0 || toLev<0 || fromLev>=nbl || toLev>=nbl)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeCoarseToFineBetween : fromLev and toLev must be >= 0 and lower than number of levels in this !");
+  if(fromLev==toLev)
+    return ;//nothing to do
+  if(fromLev>toLev)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeCoarseToFineBetween : the fromLev level is greater than toLev level ! Call synchronizeFineToCoarseBetween instead !");
+  for(int i=fromLev;i<toLev;i++)
+    synchronizeCoarseToFineByOneLevel(i);
 }
 
 /*!
@@ -957,6 +1055,19 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen 
     }
 }
 
+MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other):MEDCouplingDataForGodFather(other),_ghost_lev(other._ghost_lev),_levs(other._levs.size()),_neighbors(other._neighbors),_mixed_lev_neighbors(other._mixed_lev_neighbors),_cross_lev_neighbors(other._cross_lev_neighbors)
+{
+  std::size_t sz(other._levs.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCouplingGridCollection *elt(other._levs[i]);
+      if(elt)
+        {
+          _levs[i]=other._levs[i]->deepCpy();
+        }
+    }
+}
+
 const DataArrayDoubleCollection& MEDCouplingAMRAttribute::findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
@@ -972,4 +1083,22 @@ const DataArrayDoubleCollection& MEDCouplingAMRAttribute::findCollectionAttached
         }
     }
   throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::findCollectionAttachedTo : unable to find such part of mesh in this !");
+}
+
+void MEDCouplingAMRAttribute::synchronizeFineToCoarseByOneLevel(int level)
+{
+  int nbl(getNumberOfLevels());
+  if(level<=0 || level>=nbl)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineToCoarseByOneLevel : the input level must be in ]0,nb_of_levels[ !");
+  const MEDCouplingGridCollection *fine(_levs[level]),*coarse(_levs[level-1]);
+  MEDCouplingGridCollection::SynchronizeFineToCoarse(_ghost_lev,fine,coarse);
+}
+
+void MEDCouplingAMRAttribute::synchronizeCoarseToFineByOneLevel(int level)
+{
+  int nbl(getNumberOfLevels());
+  if(level<0 || level>=nbl-1)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineToCoarseByOneLevel : the input level must be in [0,nb_of_levels[ !");
+  const MEDCouplingGridCollection *fine(_levs[level+1]),*coarse(_levs[level]);
+  MEDCouplingGridCollection::SynchronizeCoarseToFine(_ghost_lev,coarse,fine);
 }

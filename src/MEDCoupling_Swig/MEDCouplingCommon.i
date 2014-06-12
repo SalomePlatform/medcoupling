@@ -353,6 +353,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::New;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::New;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::getFieldOn;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithGhost;
@@ -4913,7 +4914,9 @@ namespace ParaMEDMEM
   {
   public:
     virtual void synchronizeFineToCoarse() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeCoarseToFine() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeAllGhostZones() throw(INTERP_KERNEL::Exception);
     virtual void alloc() throw(INTERP_KERNEL::Exception);
     virtual void dealloc() throw(INTERP_KERNEL::Exception);
@@ -5115,6 +5118,8 @@ namespace ParaMEDMEM
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
+    int getNumberOfLevels() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingAMRAttribute *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
@@ -5143,7 +5148,7 @@ namespace ParaMEDMEM
       {
         return ParaMEDMEM_MEDCouplingAMRAttribute_New(gf,fieldNames,ghostLev);
       }
-      
+
       DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception)
       {
         const DataArrayDouble *ret(self->getFieldOn(mesh,fieldName));
