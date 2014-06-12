@@ -161,7 +161,7 @@ bool MEDCouplingCartesianAMRPatch::isInMyNeighborhoodExt(const MEDCouplingCartes
 /*!
  * This method states if \a other patch is in the neighborhood of \a this. The neighborhood zone is defined by \a ghostLev parameter
  * the must be >= 0. This method works even if \a this and \a other does not share the same father.
- * This is expected to be more refined than \a other. That is to say lev of \a this is greater than level of \a other.
+ * \a this is expected to be more refined than \a other. That is to say lev of \a this is greater than level of \a other.
  *
  * \param [in] other - The other patch
  * \param [in] ghostLev - The size of the neighborhood zone.
@@ -178,7 +178,7 @@ bool MEDCouplingCartesianAMRPatch::isInMyNeighborhoodDiffLev(const MEDCouplingCa
   std::vector< std::pair<int,int> > thispp,otherpp;
   std::vector<int> factors;
   ComputeZonesOfTwoRelativeToOneDiffLev(ghostLev,this,other,thispp,otherpp,factors);
-  return IsInMyNeighborhood(ghostLev,thispp,otherpp);
+  return IsInMyNeighborhood(ghostLev>0?1:0,thispp,otherpp);//1 not ghostLev ! It is not a bug ( I hope :) ) ! Because as \a this is a refinement of \a other ghostLev is supposed to be <= factors
 }
 
 std::vector<int> MEDCouplingCartesianAMRPatch::computeCellGridSt() const
@@ -237,7 +237,7 @@ std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const M
         {
           for(std::vector<const MEDCouplingCartesianAMRPatch *>::const_iterator it2=p2Work.begin();it2!=p2Work.end();it2++)
             {
-              if((*it1)->isInMyNeighborhoodExt(*it2,ghostLev))
+              if((*it1)->isInMyNeighborhoodExt(*it2,ghostLev>0?1:0))//1 not ghostLev ! It is not a bug ( I hope :) ) ! Because as \a this is a refinement of \a other ghostLev is supposed to be <= factors
                 retTmp.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>(*it1,*it2));
             }
           std::vector<const MEDCouplingCartesianAMRPatch *> tmp1((*it1)->getMesh()->getPatches());
@@ -509,39 +509,6 @@ void MEDCouplingCartesianAMRPatch::ApplyAllGhostOnCompactFrmt(std::vector< std::
       partBeforeFact[i].first-=ghostSize;
       partBeforeFact[i].second+=ghostSize;
     }
-}
-
-MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh):MEDCouplingCartesianAMRPatchGen(mesh)
-{
-}
-
-std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() const
-{
-  return sizeof(MEDCouplingCartesianAMRPatchGF);
-}
-
-MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf):_gf(gf),_tlc(gf)
-{
-  if(!gf)
-    throw INTERP_KERNEL::Exception("MEDCouplingDataForGodFather constructor : A data has to be attached to a AMR Mesh instance !");
-  gf->incrRef();
-}
-
-void MEDCouplingDataForGodFather::checkGodFatherFrozen() const
-{
-  _tlc.checkConst();
-}
-
-bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMeshGen *gf)
-{
-  bool ret(_tlc.keepTrackOfNewTL(gf));
-  if(ret)
-    {
-      _gf=gf;
-      if(gf)
-        gf->incrRef();
-    }
-  return ret;
 }
 
 /// @endcond
@@ -1495,6 +1462,27 @@ std::vector<int> MEDCouplingCartesianAMRMeshGen::getPatchIdsInTheNeighborhoodOf(
   return ret;
 }
 
+/*!
+ * This method returns a dump python of \a this. It is useful for users of createPatchesFromCriterion method for debugging.
+ *
+ * \sa dumpPatchesOf, createPatchesFromCriterion, createPatchesFromCriterionML
+ */
+std::string MEDCouplingCartesianAMRMeshGen::buildPythonDumpOfThis() const
+{
+  std::ostringstream oss;
+  oss << "amr=MEDCouplingCartesianAMRMesh(\""<< getImageMesh()->getName() << "\"," << getSpaceDimension() << ",[";
+  std::vector<int> ngs(getImageMesh()->getNodeGridStructure());
+  std::vector<double> orig(getImageMesh()->getOrigin()),dxyz(getImageMesh()->getDXYZ());
+  std::copy(ngs.begin(),ngs.end(),std::ostream_iterator<int>(oss,","));
+  oss <<  "],[";
+  std::copy(orig.begin(),orig.end(),std::ostream_iterator<double>(oss,","));
+  oss << "],[";
+  std::copy(dxyz.begin(),dxyz.end(),std::ostream_iterator<double>(oss,","));
+  oss << "])\n";
+  dumpPatchesOf("amr",oss);
+  return oss.str();
+}
+
 MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
 {
@@ -1615,6 +1603,33 @@ std::vector<const DataArrayDouble *> MEDCouplingCartesianAMRMeshGen::extractSubT
   if(kk!=all.size())
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::extractSubTreeFromGlobalFlatten : the size of input vector is not compatible with number of leaves in this !");
   return ret;
+}
+
+void MEDCouplingCartesianAMRMeshGen::dumpPatchesOf(const std::string& varName, std::ostream& oss) const
+{
+  std::size_t j(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+    {
+      const MEDCouplingCartesianAMRPatch *patch(*it);
+      if(patch)
+        {
+          std::ostringstream oss2; oss2 << varName << ".addPatch([";
+          const std::vector< std::pair<int,int> >& bltr(patch->getBLTRRange());
+          std::size_t sz(bltr.size());
+          for(std::size_t i=0;i<sz;i++)
+            {
+              oss2 << "(" << bltr[i].first << "," << bltr[i].second << ")";
+              if(i!=sz-1)
+                oss2 << ",";
+            }
+          oss2 << "],[";
+          std::copy(_factors.begin(),_factors.end(),std::ostream_iterator<int>(oss2,","));
+          oss2 << "])\n";
+          oss << oss2.str();
+          std::ostringstream oss3; oss3 << varName << "[" << j++ << "]";
+          patch->getMesh()->dumpPatchesOf(oss3.str(),oss);
+        }
+    }
 }
 
 std::size_t MEDCouplingCartesianAMRMeshGen::getHeapMemorySizeWithoutChildren() const

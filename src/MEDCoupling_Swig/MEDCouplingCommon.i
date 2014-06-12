@@ -4953,6 +4953,7 @@ namespace ParaMEDMEM
     void fillCellFieldComingFromPatch(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, bool isConservative=true) const throw(INTERP_KERNEL::Exception);
     void fillCellFieldComingFromPatchGhost(int patchId, const DataArrayDouble *cellFieldOnPatch, DataArrayDouble *cellFieldOnThis, int ghostLev, bool isConservative=true) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const throw(INTERP_KERNEL::Exception);
+    std::string buildPythonDumpOfThis() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       void addPatch(PyObject *bottomLeftTopRight, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception)

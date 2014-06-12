@@ -86,6 +86,25 @@ namespace ParaMEDMEM
 
   /// @endcond
 
+  class MEDCouplingDataForGodFather : public RefCountObject
+  {
+    friend class MEDCouplingCartesianAMRMesh;
+  public:
+    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZones() = 0;
+    MEDCOUPLING_EXPORT virtual void alloc() = 0;
+    MEDCOUPLING_EXPORT virtual void dealloc() = 0;
+  protected:
+    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf);
+    void checkGodFatherFrozen() const;
+  protected:
+    virtual bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
+  protected:
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _gf;
+    TimeLabelConstOverseer _tlc;
+  };
+
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:

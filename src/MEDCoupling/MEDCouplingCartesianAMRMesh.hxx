@@ -113,24 +113,6 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySizeWithoutChildren() const;
   };
 
-  class MEDCouplingDataForGodFather : public RefCountObject
-  {
-    friend class MEDCouplingCartesianAMRMesh;
-  public:
-    MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
-    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZones() = 0;
-    MEDCOUPLING_EXPORT virtual void alloc() = 0;
-    MEDCOUPLING_EXPORT virtual void dealloc() = 0;
-  protected:
-    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf);
-    void checkGodFatherFrozen() const;
-  protected:
-    virtual bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
-  protected:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _gf;
-    TimeLabelConstOverseer _tlc;
-  };
   /// @endcond
 
   /*!
@@ -190,6 +172,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(int ghostSz, const std::vector<const DataArrayDouble *>& recurseArrs) const;
     MEDCOUPLING_EXPORT DataArrayDouble *extractGhostFrom(int ghostSz, const DataArrayDouble *arr) const;
     MEDCOUPLING_EXPORT std::vector<int> getPatchIdsInTheNeighborhoodOf(int patchId, int ghostLev) const;
+    MEDCOUPLING_EXPORT std::string buildPythonDumpOfThis() const;
   protected:
     MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                    const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
@@ -199,6 +182,7 @@ namespace ParaMEDMEM
     void retrieveGridsAtInternal(int lev, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> >& grids) const;
     static int GetGhostLevelInFineRef(int ghostLev, const std::vector<int>& factors);
     std::vector<const DataArrayDouble *> extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const;
+    void dumpPatchesOf(const std::string& varName, std::ostream& oss) const;
   protected:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;

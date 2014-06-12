@@ -546,6 +546,39 @@ void MEDCouplingGridCollection::updateTime() const
     }
 }
 
+MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh):MEDCouplingCartesianAMRPatchGen(mesh)
+{
+}
+
+std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() const
+{
+  return sizeof(MEDCouplingCartesianAMRPatchGF);
+}
+
+MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf):_gf(gf),_tlc(gf)
+{
+  if(!gf)
+    throw INTERP_KERNEL::Exception("MEDCouplingDataForGodFather constructor : A data has to be attached to a AMR Mesh instance !");
+  gf->incrRef();
+}
+
+void MEDCouplingDataForGodFather::checkGodFatherFrozen() const
+{
+  _tlc.checkConst();
+}
+
+bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMeshGen *gf)
+{
+  bool ret(_tlc.keepTrackOfNewTL(gf));
+  if(ret)
+    {
+      _gf=gf;
+      if(gf)
+        gf->incrRef();
+    }
+  return ret;
+}
+
 /*!
  * This method creates, attach to a main AMR mesh \a gf ( called god father :-) ) and returns a data linked to \a gf ready for the computation.
  */

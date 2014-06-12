@@ -295,7 +295,12 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<int>& coarseSt, co
     }
   int nbTuplesFine(fineDA->getNumberOfTuples());
   if(nbOfTuplesInFineExp==0)
-    return ;
+    {
+      if(nbTuplesFine==0)
+        return ;
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Nothing to condense considering the range specified ! But DataArray is not empty !");
+    }
   if(nbTuplesFine%nbOfTuplesInFineExp!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Invalid nb of tuples in fine DataArray regarding its structure !");
   int fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<int>()));
