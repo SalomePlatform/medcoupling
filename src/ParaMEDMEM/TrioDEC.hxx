@@ -26,7 +26,7 @@ namespace ParaMEDMEM
   private:
     void releaseInternalPointer();
   private :
-    ICoCo::MEDField *_traduced_field;
+    ICoCo::MEDField *_my_traduced_field;
   };
 }
 
