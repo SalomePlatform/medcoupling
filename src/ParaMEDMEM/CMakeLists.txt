@@ -58,8 +58,6 @@ SET(paramedmem_SOURCES
   ParaFIELD.cxx
   ParaGRID.cxx
   BlockTopology.cxx
-  ICoCoTrioField.cxx
-  TrioDEC.cxx
   )
 
 ADD_LIBRARY(paramedmem SHARED ${paramedmem_SOURCES})
