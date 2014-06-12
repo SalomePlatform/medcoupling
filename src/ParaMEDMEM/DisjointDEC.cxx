@@ -42,8 +42,7 @@
  * On top of attaching a \c ParaMEDMEM::FIELD, it is possible to
  * attach a ICoCo::Field. This class is an abstract class that enables 
  * coupling of codes that respect the ICoCo interface \ref icoco. It has two implementations:
- * one for codes that express their fields as \ref medoupling fields (ICoCo::MEDField) and one
- * for codes that express their fields as Trio/U fields.
+ * one for codes that express their fields as \ref medoupling fields (ICoCo::MEDField).
  * 
  * \section dec_options DEC Options
  * Options supported by \c DEC objects are
@@ -254,7 +253,6 @@ namespace ParaMEDMEM
     Reversely, if the processor is on the sending end, the field will be read, possibly transformed, and sent appropriately to the other side.
     The field type is a generic ICoCo Field, so that the DEC can couple a number of different fields :
     - a ICoCo::MEDField, that is created from a MEDCoupling structure
-    - a ICOCo::TrioField, that is created from tables extracted from a TRIO-U structure.
     
   */
   void DisjointDEC::attachLocalField(const ICoCo::MEDField *field)

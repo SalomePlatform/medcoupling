@@ -28,8 +28,6 @@
 
 namespace ICoCo
 {
-  class TrioField;
-  
   class MEDField : public ICoCo::Field
   {
   public:
