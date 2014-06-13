@@ -338,8 +338,10 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::New;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldOverTime::New;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::getMesh;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::__getitem__;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::buildUnstructured;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::extractGhostFrom;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop;
@@ -350,10 +352,14 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::getPatch;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::createCellFieldOnPatch;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::findPatchesInTheNeighborhoodOf;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::getPatchAtPosition;
+%newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::getMeshAtPosition;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMesh::New;
+%newobject ParaMEDMEM::MEDCouplingDataForGodFather::getMyGodFather;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::New;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::deepCpy;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::deepCpyWithoutGodFather;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::getFieldOn;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithGhost;
@@ -4834,6 +4840,7 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRPatchGen : public RefCountObject
   {
   public:
+    virtual MEDCouplingCartesianAMRPatchGen *deepCpy() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
     int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
@@ -4909,23 +4916,14 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRPatchGF : public MEDCouplingCartesianAMRPatchGen
   {
   };
-
-  class MEDCouplingDataForGodFather : public RefCountObject
-  {
-  public:
-    virtual void synchronizeFineToCoarse() throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeCoarseToFine() throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
-    virtual void synchronizeAllGhostZones() throw(INTERP_KERNEL::Exception);
-    virtual void alloc() throw(INTERP_KERNEL::Exception);
-    virtual void dealloc() throw(INTERP_KERNEL::Exception);
-  };
   
   class MEDCouplingCartesianAMRMeshGen : public RefCountObject, public TimeLabel
   {
   public:
+    virtual MEDCouplingCartesianAMRMeshGen *deepCpy() const throw(INTERP_KERNEL::Exception);
     int getAbsoluteLevel() const throw(INTERP_KERNEL::Exception);
+    int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getPositionRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const throw(INTERP_KERNEL::Exception);
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     const std::vector<int>& getFactors() const throw(INTERP_KERNEL::Exception);
     void setFactors(const std::vector<int>& newFactors) throw(INTERP_KERNEL::Exception);
@@ -4979,6 +4977,24 @@ namespace ParaMEDMEM
             PyList_SetItem(ret,i,convertCartesianAMRPatch(elt, SWIG_POINTER_OWN | 0 ));
           }
         return ret;
+      }
+
+      MEDCouplingCartesianAMRPatch *getPatchAtPosition(const std::vector<int>& pos) const throw(INTERP_KERNEL::Exception)
+      {
+        const MEDCouplingCartesianAMRPatch *ret(self->getPatchAtPosition(pos));
+        MEDCouplingCartesianAMRPatch *ret2(const_cast<MEDCouplingCartesianAMRPatch *>(ret));
+        if(ret2)
+          ret2->incrRef();
+        return ret2;
+      }
+
+      MEDCouplingCartesianAMRMeshGen *getMeshAtPosition(const std::vector<int>& pos) const throw(INTERP_KERNEL::Exception)
+      {
+        const MEDCouplingCartesianAMRMeshGen *ret(self->getMeshAtPosition(pos));
+        MEDCouplingCartesianAMRMeshGen *ret2(const_cast<MEDCouplingCartesianAMRMeshGen *>(ret));
+        if(ret2)
+          ret2->incrRef();
+        return ret2;
       }
 
       void createPatchesFromCriterionML(PyObject *bso, const DataArrayDouble *criterion, PyObject *factors, double eps) throw(INTERP_KERNEL::Exception)
@@ -5114,12 +5130,36 @@ namespace ParaMEDMEM
       }
     }
   };
+
+  class MEDCouplingDataForGodFather : public RefCountObject
+  {
+  public:
+    virtual void synchronizeFineToCoarse() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFine() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeAllGhostZones() throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh) throw(INTERP_KERNEL::Exception);
+    virtual void alloc() throw(INTERP_KERNEL::Exception);
+    virtual void dealloc() throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDCouplingCartesianAMRMeshGen *getMyGodFather() throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingCartesianAMRMeshGen *ret(self->getMyGodFather());
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+    }
+  };
   
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
     int getNumberOfLevels() const throw(INTERP_KERNEL::Exception);
     MEDCouplingAMRAttribute *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingAMRAttribute *deepCpyWithoutGodFather() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);

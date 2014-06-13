@@ -64,7 +64,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingGridCollection *New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
-    MEDCouplingGridCollection *deepCpy() const;
+    MEDCouplingGridCollection *deepCpy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const;
     void alloc(int ghostLev);
     void dealloc();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
@@ -80,7 +80,7 @@ namespace ParaMEDMEM
     void fillIfInTheProgenyOf(const std::string& fieldName, const MEDCouplingCartesianAMRMeshGen *head, std::vector<const DataArrayDouble *>& recurseArrs) const;
   private:
     MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
-    MEDCouplingGridCollection(const MEDCouplingGridCollection& other);
+    MEDCouplingGridCollection(const MEDCouplingGridCollection& other, const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildren() const;
     void updateTime() const;
@@ -94,11 +94,13 @@ namespace ParaMEDMEM
   {
     friend class MEDCouplingCartesianAMRMesh;
   public:
+    MEDCOUPLING_EXPORT MEDCouplingCartesianAMRMeshGen *getMyGodFather();
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZones() = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh) = 0;
     MEDCOUPLING_EXPORT virtual void alloc() = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
@@ -106,7 +108,7 @@ namespace ParaMEDMEM
     void checkGodFatherFrozen() const;
   protected:
     virtual bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
-    MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other);
+    MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other, bool deepCpyGF);
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _gf;
     TimeLabelConstOverseer _tlc;
@@ -120,6 +122,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT void spillNatures(const std::vector<NatureOfField>& nfs);
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCpyWithoutGodFather() const;
     MEDCOUPLING_EXPORT int getNumberOfLevels() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
@@ -132,6 +135,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void synchronizeCoarseToFine();
     MEDCOUPLING_EXPORT void synchronizeCoarseToFineBetween(int fromLev, int toLev);
     MEDCOUPLING_EXPORT void synchronizeAllGhostZones();
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh);
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
     MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
@@ -141,7 +145,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void updateTime() const;
   private:
     MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
-    MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other);
+    MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other, bool deepCpyGF);
     const DataArrayDoubleCollection& findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const;
     void synchronizeFineToCoarseByOneLevel(int level);
     void synchronizeCoarseToFineByOneLevel(int level);

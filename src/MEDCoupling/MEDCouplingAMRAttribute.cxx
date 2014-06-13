@@ -298,9 +298,9 @@ MEDCouplingGridCollection *MEDCouplingGridCollection::New(const std::vector<cons
   return new MEDCouplingGridCollection(ms,fieldNames);
 }
 
-MEDCouplingGridCollection *MEDCouplingGridCollection::deepCpy() const
+MEDCouplingGridCollection *MEDCouplingGridCollection::deepCpy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const
 {
-  return new MEDCouplingGridCollection(*this);
+  return new MEDCouplingGridCollection(*this,newGf,oldGf);
 }
 
 void MEDCouplingGridCollection::alloc(int ghostLev)
@@ -539,12 +539,13 @@ MEDCouplingGridCollection::MEDCouplingGridCollection(const std::vector<const MED
     }
 }
 
-MEDCouplingGridCollection::MEDCouplingGridCollection(const MEDCouplingGridCollection& other):RefCountObject(other),_map_of_dadc(other._map_of_dadc.size())
+MEDCouplingGridCollection::MEDCouplingGridCollection(const MEDCouplingGridCollection& other, const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf):RefCountObject(other),_map_of_dadc(other._map_of_dadc.size())
 {
   std::size_t sz(other._map_of_dadc.size());
   for(std::size_t i=0;i<sz;i++)
     {
-      _map_of_dadc[i].first=other._map_of_dadc[i].first;
+      std::vector<int> pos(other._map_of_dadc[i].first->getPositionRelativeTo(oldGf));
+      _map_of_dadc[i].first=newGf->getMeshAtPosition(pos);
       const DataArrayDoubleCollection *dac(other._map_of_dadc[i].second);
       if(dac)
         _map_of_dadc[i].second=dac->deepCpy();
@@ -583,13 +584,9 @@ void MEDCouplingGridCollection::updateTime() const
     }
 }
 
-MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh):MEDCouplingCartesianAMRPatchGen(mesh)
+MEDCouplingCartesianAMRMeshGen *MEDCouplingDataForGodFather::getMyGodFather()
 {
-}
-
-std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() const
-{
-  return sizeof(MEDCouplingCartesianAMRPatchGF);
+  return _gf;
 }
 
 MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf):_gf(gf),_tlc(gf)
@@ -616,9 +613,16 @@ bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMeshGen
   return ret;
 }
 
-MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other):RefCountObject(other),_gf(other._gf),_tlc(other._gf)
+MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other, bool deepCpyGF):RefCountObject(other),_gf(other._gf),_tlc(other._gf)
 {
   other._tlc.checkConst();
+  if(deepCpyGF)
+    {
+      const MEDCouplingCartesianAMRMeshGen *gf(other._gf);
+      if(gf)
+        _gf=gf->deepCpy();
+      _tlc.keepTrackOfNewTL(_gf);
+    }
 }
 
 /*!
@@ -671,7 +675,12 @@ void MEDCouplingAMRAttribute::spillNatures(const std::vector<NatureOfField>& nfs
 
 MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::deepCpy() const
 {
-  return new MEDCouplingAMRAttribute(*this);
+  return new MEDCouplingAMRAttribute(*this,true);
+}
+
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::deepCpyWithoutGodFather() const
+{
+  return new MEDCouplingAMRAttribute(*this,false);
 }
 
 /*!
@@ -912,17 +921,17 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFineBetween(int fromLev, int to
  */
 void MEDCouplingAMRAttribute::synchronizeAllGhostZones()
 {
-  if(_levs.empty())
+  int sz(getNumberOfLevels());
+  if(sz==0)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOther : not any levels in this !");
   // 1st - synchronize from coarse to the finest all the patches (excepted the god father one)
-  std::size_t sz(_levs.size());
-  for(std::size_t i=1;i<sz;i++)
+  for(int i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]),*coarse(_levs[i-1]);
       MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(_ghost_lev,coarse,fine);
     }
   // 2nd - classical direct sublevel inside common patch
-  for(std::size_t i=1;i<sz;i++)
+  for(int i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]);
       if(!fine)
@@ -936,10 +945,31 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZones()
       DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo(_ghost_lev,(*it).first,firstDAC,(*it).second,secondDAC);
     }
   // 4th - same level but with far ancestor.
-  for(std::size_t i=1;i<sz;i++)
+  for(int i=1;i<sz;i++)
     {
       const MEDCouplingGridCollection *fine(_levs[i]);
       fine->synchronizeFineEachOtherExt(_ghost_lev,_cross_lev_neighbors[i]);
+    }
+}
+
+/*!
+ * This method
+ */
+void MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf : input mesh is NULL !");
+  int level(mesh->getAbsoluteLevelRelativeTo(_gf)),sz(getNumberOfLevels());
+  if(level<0 || level>=sz-1)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf : the specified level does not exist ! Must be in [0,nbOfLevelsOfThis-1) !");
+  const DataArrayDoubleCollection& colCoarse(findCollectionAttachedTo(mesh));
+  std::vector< const MEDCouplingCartesianAMRPatch *> directChildren(mesh->getPatches());
+  std::size_t nbOfDirChildren(directChildren.size());
+  for(std::size_t patchId=0;patchId<nbOfDirChildren;patchId++)
+    {
+      const DataArrayDoubleCollection& colFine(findCollectionAttachedTo(directChildren[patchId]->getMesh()));
+      DataArrayDoubleCollection *colFine2(const_cast<DataArrayDoubleCollection *>(&colFine));
+      DataArrayDoubleCollection::SynchronizeCoarseToFineOnlyInGhostZone(_ghost_lev,mesh,(int)patchId,&colCoarse,colFine2);
     }
 }
 
@@ -1055,7 +1085,7 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen 
     }
 }
 
-MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other):MEDCouplingDataForGodFather(other),_ghost_lev(other._ghost_lev),_levs(other._levs.size()),_neighbors(other._neighbors),_mixed_lev_neighbors(other._mixed_lev_neighbors),_cross_lev_neighbors(other._cross_lev_neighbors)
+MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other, bool deepCpyGF):MEDCouplingDataForGodFather(other,deepCpyGF),_ghost_lev(other._ghost_lev),_levs(other._levs.size()),_neighbors(other._neighbors),_mixed_lev_neighbors(other._mixed_lev_neighbors),_cross_lev_neighbors(other._cross_lev_neighbors)
 {
   std::size_t sz(other._levs.size());
   for(std::size_t i=0;i<sz;i++)
@@ -1063,7 +1093,7 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& 
       const MEDCouplingGridCollection *elt(other._levs[i]);
       if(elt)
         {
-          _levs[i]=other._levs[i]->deepCpy();
+          _levs[i]=other._levs[i]->deepCpy(_gf,other._gf);
         }
     }
 }

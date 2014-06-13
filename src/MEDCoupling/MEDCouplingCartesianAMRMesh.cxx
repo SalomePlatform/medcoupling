@@ -55,6 +55,13 @@ MEDCouplingCartesianAMRPatchGen::MEDCouplingCartesianAMRPatchGen(MEDCouplingCart
   _mesh=mesh; _mesh->incrRef();
 }
 
+MEDCouplingCartesianAMRPatchGen::MEDCouplingCartesianAMRPatchGen(const MEDCouplingCartesianAMRPatchGen& other):RefCountObject(other),_mesh(other._mesh)
+{
+  const MEDCouplingCartesianAMRMeshGen *mesh(other._mesh);
+  if(mesh)
+    _mesh=mesh->deepCpy();
+}
+
 const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatchGen::getMeshSafe() const
 {
   const MEDCouplingCartesianAMRMeshGen *mesh(_mesh);
@@ -89,6 +96,11 @@ MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianA
   int dim((int)bottomLeftTopRight.size()),dimExp(_mesh->getSpaceDimension());
   if(dim!=dimExp)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input bottomLeft/topRight size mismatches !");
+}
+
+MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRPatch::deepCpy() const
+{
+  return new MEDCouplingCartesianAMRPatch(*this);
 }
 
 void MEDCouplingCartesianAMRPatch::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
@@ -477,6 +489,10 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(int ghost
   MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,dataOnP1);
 }
 
+MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(const MEDCouplingCartesianAMRPatch& other):MEDCouplingCartesianAMRPatchGen(other),_bl_tr(other._bl_tr)
+{
+}
+
 /*!
  * \param [in,out] partBeforeFact - the part of a image mesh in compact format that will be put in refined reference.
  * \param [in] factors - the factors per axis.
@@ -509,6 +525,24 @@ void MEDCouplingCartesianAMRPatch::ApplyAllGhostOnCompactFrmt(std::vector< std::
       partBeforeFact[i].first-=ghostSize;
       partBeforeFact[i].second+=ghostSize;
     }
+}
+
+MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh):MEDCouplingCartesianAMRPatchGen(mesh)
+{
+}
+
+MEDCouplingCartesianAMRPatchGF *MEDCouplingCartesianAMRPatchGF::deepCpy() const
+{
+  return new MEDCouplingCartesianAMRPatchGF(*this);
+}
+
+std::size_t MEDCouplingCartesianAMRPatchGF::getHeapMemorySizeWithoutChildren() const
+{
+  return sizeof(MEDCouplingCartesianAMRPatchGF);
+}
+
+MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(const MEDCouplingCartesianAMRPatchGF& other):MEDCouplingCartesianAMRPatchGen(other)
+{
 }
 
 /// @endcond
@@ -612,14 +646,82 @@ const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMeshGen::getGodFath
 }
 
 /*!
- * This method returns the level of \a this. 0 for god father. -1 for children of god father ...
+ * This method returns the level of \a this. 0 for god father. 1 for children of god father ...
  */
 int MEDCouplingCartesianAMRMeshGen::getAbsoluteLevel() const
 {
   if(_father==0)
     return 0;
   else
-    return _father->getAbsoluteLevel()-1;
+    return _father->getAbsoluteLevel()+1;
+}
+
+int MEDCouplingCartesianAMRMeshGen::getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const
+{
+  if(this==ref)
+    return 0;
+  if(_father==0)
+    {
+      if(ref==0)
+        return 0;
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getAbsoluteLevelRelativeTo : ref is not in the progeny of this !");
+    }
+  else
+    return _father->getAbsoluteLevelRelativeTo(ref)+1;
+}
+
+/*!
+ * This method returns a vector of size equal to getAbsoluteLevelRelativeTo. It allows to find position an absolute position of \a this
+ * relative to \a ref (that is typically the god father).
+ *
+ * \sa getPatchAtPosition
+ */
+std::vector<int> MEDCouplingCartesianAMRMeshGen::getPositionRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const
+{
+  if(!ref)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPositionRelativeTo : input pointer is NULL !");
+  std::vector<int> ret;
+  getPositionRelativeToInternal(ref,ret);
+  std::reverse(ret.begin(),ret.end());
+  return ret;
+}
+
+/*!
+ * \sa getPositionRelativeTo, getMeshAtPosition
+ */
+const MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRMeshGen::getPatchAtPosition(const std::vector<int>& pos) const
+{
+  std::size_t sz(pos.size());
+  if(sz==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchAtPosition : empty input -> no patch by definition !");
+  int patchId(pos[0]);
+  const MEDCouplingCartesianAMRPatch *elt(getPatch(patchId));
+  if(sz==1)
+    return elt;
+  if(!elt || !elt->getMesh())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchAtPosition : NULL element found during walk !");
+  std::vector<int> pos2(pos.begin()+1,pos.end());
+  return elt->getMesh()->getPatchAtPosition(pos2);
+}
+
+const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMeshGen::getMeshAtPosition(const std::vector<int>& pos) const
+{
+  std::size_t sz(pos.size());
+  if(sz==0)
+    return this;
+  int patchId(pos[0]);
+  const MEDCouplingCartesianAMRPatch *elt(getPatch(patchId));
+  if(sz==1)
+    {
+      if(!elt)
+        throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getMeshAtPosition : NULL patch !");
+      return elt->getMesh();
+    }
+  if(!elt || !elt->getMesh())
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPatchAtPosition : NULL element found during walk !");
+  std::vector<int> pos2(pos.begin()+1,pos.end());
+  return elt->getMesh()->getMeshAtPosition(pos2);
 }
 
 /*!
@@ -1006,6 +1108,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
 /*!
  * This method creates a multi level patches split at once.
  * This method calls as times as size of \a bso createPatchesFromCriterion. Size of \a bso and size of \a factors must be the same !
+ * \b WARNING, after the call the number of levels in \a this is equal to bso.size() + 1 !
  *
  * \param [in] bso
  * \param [in] criterion
@@ -1483,6 +1586,20 @@ std::string MEDCouplingCartesianAMRMeshGen::buildPythonDumpOfThis() const
   return oss.str();
 }
 
+MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const MEDCouplingCartesianAMRMeshGen& other, MEDCouplingCartesianAMRMeshGen *father):_father(father),_mesh(other._mesh),_patches(other._patches),_factors(other._factors)
+{
+  const MEDCouplingIMesh *mesh(other._mesh);
+  if(mesh)
+    _mesh=static_cast<MEDCouplingIMesh *>(mesh->deepCpy());
+  std::size_t sz(other._patches.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCouplingCartesianAMRPatch *patch(other._patches[i]);
+      if(patch)
+        _patches[i]=patch->deepCpy();
+    }
+}
+
 MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):_father(0)
 {
@@ -1632,6 +1749,20 @@ void MEDCouplingCartesianAMRMeshGen::dumpPatchesOf(const std::string& varName, s
     }
 }
 
+/*!
+ * \sa getPositionRelativeTo
+ */
+void MEDCouplingCartesianAMRMeshGen::getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<int>& ret) const
+{
+  if(this==ref)
+    return ;
+  if(!_father)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::getPositionRelativeToInternal : ref is not in the progeny of this !");
+  int myId(_father->getPatchIdFromChildMesh(this));
+  ret.push_back(myId);
+  _father->getPositionRelativeToInternal(ref,ret);
+}
+
 std::size_t MEDCouplingCartesianAMRMeshGen::getHeapMemorySizeWithoutChildren() const
 {
   return sizeof(MEDCouplingCartesianAMRMeshGen);
@@ -1669,10 +1800,28 @@ MEDCouplingCartesianAMRMeshSub::MEDCouplingCartesianAMRMeshSub(MEDCouplingCartes
 {
 }
 
+MEDCouplingCartesianAMRMeshSub::MEDCouplingCartesianAMRMeshSub(const MEDCouplingCartesianAMRMeshSub& other, MEDCouplingCartesianAMRMeshGen *father):MEDCouplingCartesianAMRMeshGen(other,father)
+{
+}
+
+MEDCouplingCartesianAMRMeshSub *MEDCouplingCartesianAMRMeshSub::deepCpy() const
+{
+  return new MEDCouplingCartesianAMRMeshSub(*this,_father);
+}
+
 MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                               const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop)
 {
   return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
+}
+
+MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::deepCpy() const
+{
+  return new MEDCouplingCartesianAMRMesh(*this);
+}
+
+MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const MEDCouplingCartesianAMRMesh& other):MEDCouplingCartesianAMRMeshGen(other,0)
+{
 }
 
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,

@@ -461,7 +461,7 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<int>& coarseS
       {
         int nxwg(coarseSt[0]+2*ghostSize);
         int kk(fineLocInCoarse[0].first+ghostSize+nxwg*(fineLocInCoarse[1].first+ghostSize)),fact1(facts[1]),fact0(facts[0]);
-        inPtr+=(dims[0]*fact0+2*ghostSize)*nbCompo;
+        inPtr+=(dims[0]*fact0+2*ghostSize)*ghostSize*nbCompo;
         for(int j=0;j<dims[1];j++)
           {
              for(int jfact=0;jfact<fact1;jfact++)
