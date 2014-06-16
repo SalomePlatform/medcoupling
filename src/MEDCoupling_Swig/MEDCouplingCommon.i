@@ -338,7 +338,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::New;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldOverTime::New;
-%newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::getMesh;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRPatchGen::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingCartesianAMRMeshGen::deepCpy;
@@ -4840,7 +4839,6 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRPatchGen : public RefCountObject
   {
   public:
-    virtual MEDCouplingCartesianAMRPatchGen *deepCpy() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
     int getMaxNumberOfLevelsRelativeToThis() const throw(INTERP_KERNEL::Exception);
@@ -4920,7 +4918,7 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRMeshGen : public RefCountObject, public TimeLabel
   {
   public:
-    virtual MEDCouplingCartesianAMRMeshGen *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingCartesianAMRMeshGen *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const throw(INTERP_KERNEL::Exception);
     int getAbsoluteLevel() const throw(INTERP_KERNEL::Exception);
     int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getPositionRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const throw(INTERP_KERNEL::Exception);
@@ -4933,6 +4931,7 @@ namespace ParaMEDMEM
     int getNumberOfCellsRecursiveWithOverlap() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsRecursiveWithoutOverlap() const throw(INTERP_KERNEL::Exception);
     bool isPatchInNeighborhoodOf(int patchId1, int patchId2, int ghostLev) const throw(INTERP_KERNEL::Exception);
+   virtual void detachFromFather() throw(INTERP_KERNEL::Exception);
     //
     int getNumberOfPatches() const throw(INTERP_KERNEL::Exception);
     int getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const throw(INTERP_KERNEL::Exception);
@@ -4943,7 +4942,6 @@ namespace ParaMEDMEM
     MEDCoupling1SGTUMesh *buildMeshOfDirectChildrenOnly() const throw(INTERP_KERNEL::Exception);
     void removeAllPatches() throw(INTERP_KERNEL::Exception);
     void removePatch(int patchId) throw(INTERP_KERNEL::Exception);
-    void detachFromFather() throw(INTERP_KERNEL::Exception);
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayByte *criterion, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception);
     void createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const DataArrayDouble *criterion, const std::vector<int>& factors, double eps) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *createCellFieldOnPatch(int patchId, const DataArrayDouble *cellFieldOnThis) const throw(INTERP_KERNEL::Exception);
@@ -4997,16 +4995,7 @@ namespace ParaMEDMEM
         return ret2;
       }
 
-      void createPatchesFromCriterionML(PyObject *bso, const DataArrayDouble *criterion, PyObject *factors, double eps) throw(INTERP_KERNEL::Exception)
-      {
-        std::vector<const INTERP_KERNEL::BoxSplittingOptions *> inp0;
-        convertFromPyObjVectorOfObj<const INTERP_KERNEL::BoxSplittingOptions *>(bso,SWIGTYPE_p_INTERP_KERNEL__BoxSplittingOptions,"BoxSplittingOptions",inp0);
-        std::vector< std::vector<int> > inp2;
-        convertPyToVectorOfVectorOfInt(factors,inp2);
-        self->createPatchesFromCriterionML(inp0,criterion,inp2,eps);
-      }
-
-      PyObject *retrieveGridsAt(int absoluteLev) const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *retrieveGridsAt(int absoluteLev) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<MEDCouplingCartesianAMRPatchGen *> ps(self->retrieveGridsAt(absoluteLev));
         int sz(ps.size());
@@ -5023,7 +5012,7 @@ namespace ParaMEDMEM
         return self->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostSz,inp);
       }
 
-      MEDCouplingCartesianAMRMeshGen *getFather() const throw(INTERP_KERNEL::Exception)
+      virtual MEDCouplingCartesianAMRMeshGen *getFather() const throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingCartesianAMRMeshGen *ret(const_cast<MEDCouplingCartesianAMRMeshGen *>(self->getFather()));
         if(ret)
@@ -5031,7 +5020,7 @@ namespace ParaMEDMEM
         return ret;
       }
       
-      MEDCouplingCartesianAMRMeshGen *getGodFather() const throw(INTERP_KERNEL::Exception)
+      virtual MEDCouplingCartesianAMRMeshGen *getGodFather() const throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingCartesianAMRMeshGen *ret(const_cast<MEDCouplingCartesianAMRMeshGen *>(self->getGodFather()));
         if(ret)
@@ -5124,6 +5113,15 @@ namespace ParaMEDMEM
         return MEDCouplingCartesianAMRMesh::New(meshName,spaceDim,nodeStrctPtr,nodeStrctPtr+sz,originPtr,originPtr+sz1,dxyzPtr,dxyzPtr+sz2);
       }
 
+      void createPatchesFromCriterionML(PyObject *bso, const DataArrayDouble *criterion, PyObject *factors, double eps) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const INTERP_KERNEL::BoxSplittingOptions *> inp0;
+        convertFromPyObjVectorOfObj<const INTERP_KERNEL::BoxSplittingOptions *>(bso,SWIGTYPE_p_INTERP_KERNEL__BoxSplittingOptions,"BoxSplittingOptions",inp0);
+        std::vector< std::vector<int> > inp2;
+        convertPyToVectorOfVectorOfInt(factors,inp2);
+        self->createPatchesFromCriterionML(inp0,criterion,inp2,eps);
+      }
+
       MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
       {
         return ParaMEDMEM_MEDCouplingCartesianAMRMesh_New(meshName,spaceDim,nodeStrct,origin,dxyz);
@@ -5144,9 +5142,9 @@ namespace ParaMEDMEM
     virtual void dealloc() throw(INTERP_KERNEL::Exception);
     %extend
     {
-      MEDCouplingCartesianAMRMeshGen *getMyGodFather() throw(INTERP_KERNEL::Exception)
+      MEDCouplingCartesianAMRMesh *getMyGodFather() throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingCartesianAMRMeshGen *ret(self->getMyGodFather());
+        MEDCouplingCartesianAMRMesh *ret(self->getMyGodFather());
         if(ret)
           ret->incrRef();
         return ret;

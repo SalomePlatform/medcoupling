@@ -94,7 +94,7 @@ namespace ParaMEDMEM
   {
     friend class MEDCouplingCartesianAMRMesh;
   public:
-    MEDCOUPLING_EXPORT MEDCouplingCartesianAMRMeshGen *getMyGodFather();
+    MEDCOUPLING_EXPORT MEDCouplingCartesianAMRMesh *getMyGodFather();
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
@@ -104,21 +104,21 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void alloc() = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
-    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf);
+    MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf);
     void checkGodFatherFrozen() const;
   protected:
-    virtual bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
+    virtual bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
     MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other, bool deepCpyGF);
   protected:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _gf;
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> _gf;
     TimeLabelConstOverseer _tlc;
   };
 
   class MEDCouplingAMRAttribute : public MEDCouplingDataForGodFather, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
-    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
+    MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT void spillNatures(const std::vector<NatureOfField>& nfs);
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCpy() const;
@@ -138,13 +138,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh);
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
-    MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMeshGen *gf);
+    MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
     //
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     MEDCOUPLING_EXPORT void updateTime() const;
   private:
-    MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
+    MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev);
     MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other, bool deepCpyGF);
     const DataArrayDoubleCollection& findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const;
     void synchronizeFineToCoarseByOneLevel(int level);

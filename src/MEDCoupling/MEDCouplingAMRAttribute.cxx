@@ -584,12 +584,12 @@ void MEDCouplingGridCollection::updateTime() const
     }
 }
 
-MEDCouplingCartesianAMRMeshGen *MEDCouplingDataForGodFather::getMyGodFather()
+MEDCouplingCartesianAMRMesh *MEDCouplingDataForGodFather::getMyGodFather()
 {
   return _gf;
 }
 
-MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMeshGen *gf):_gf(gf),_tlc(gf)
+MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(MEDCouplingCartesianAMRMesh *gf):_gf(gf),_tlc(gf)
 {
   if(!gf)
     throw INTERP_KERNEL::Exception("MEDCouplingDataForGodFather constructor : A data has to be attached to a AMR Mesh instance !");
@@ -601,7 +601,7 @@ void MEDCouplingDataForGodFather::checkGodFatherFrozen() const
   _tlc.checkConst();
 }
 
-bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMeshGen *gf)
+bool MEDCouplingDataForGodFather::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
 {
   bool ret(_tlc.keepTrackOfNewTL(gf));
   if(ret)
@@ -618,9 +618,9 @@ MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(const MEDCouplingDataFo
   other._tlc.checkConst();
   if(deepCpyGF)
     {
-      const MEDCouplingCartesianAMRMeshGen *gf(other._gf);
+      const MEDCouplingCartesianAMRMesh *gf(other._gf);
       if(gf)
-        _gf=gf->deepCpy();
+        _gf=gf->deepCpy(0);
       _tlc.keepTrackOfNewTL(_gf);
     }
 }
@@ -628,12 +628,12 @@ MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(const MEDCouplingDataFo
 /*!
  * This method creates, attach to a main AMR mesh \a gf ( called god father :-) ) and returns a data linked to \a gf ready for the computation.
  */
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev)
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev)
 {
   return new MEDCouplingAMRAttribute(gf,fieldNames,ghostLev);
 }
 
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev)
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev)
 {
   std::size_t sz(fieldNames.size());
   std::vector< std::pair<std::string,int> > fieldNames2(sz);
@@ -834,6 +834,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
 /*!
  * This method synchronizes from fine to coarse direction arrays. This method makes the hypothesis that \a this has been allocated before using
  * MEDCouplingAMRAttribute::alloc method.
+ * This method \b DOES \b NOT \b UPDATE the ghost zones (neither the fine not the coarse)
  *
  * \sa synchronizeFineToCoarseBetween
  */
@@ -854,6 +855,7 @@ void MEDCouplingAMRAttribute::synchronizeFineToCoarse()
  * This method allows to synchronizes fields on fine patches on level \a fromLev to coarser patches at \a toLev level.
  * This method operates step by step performing the synchronization the \a fromLev to \a fromLev - 1, then \a fromLev -1 to \a fromLev - 2 ...
  * until reaching \a toLev level.
+ * This method \b DOES \b NOT \b UPDATE the ghost zones (neither the fine not the coarse).
  *
  * \param [in] fromLev - an existing level considered as fine so bigger than \a toLev
  * \param [in] toLev - an existing level considered as the target level to reach.
@@ -875,6 +877,7 @@ void MEDCouplingAMRAttribute::synchronizeFineToCoarseBetween(int fromLev, int to
 /*!
  * This method synchronizes from coarse to fine arrays and fine to fine each other (if _ghost_lev is >0). This method makes the hypothesis that \a this has been allocated before using
  * MEDCouplingAMRAttribute::alloc method.
+ * This method \b DOES \b UPDATE \b the \b ghost \b zone (contrary to synchronizeFineToCoarse method)
  */
 void MEDCouplingAMRAttribute::synchronizeCoarseToFine()
 {
@@ -890,6 +893,7 @@ void MEDCouplingAMRAttribute::synchronizeCoarseToFine()
  * This method allows to synchronizes fields on coarse patches on level \a fromLev to their respective refined patches at \a toLev level.
  * This method operates step by step performing the synchronization the \a fromLev to \a fromLev + 1, then \a fromLev + 1 to \a fromLev + 2 ...
  * until reaching \a toLev level.
+ * This method \b DOES \b UPDATE \b the \b ghost \b zone (contrary to synchronizeFineToCoarseBetween method)
  *
  * \param [in] fromLev - an existing level considered as coarse so lower than \a toLev
  * \param [in] toLev - an existing level considered as the target level to reach.
@@ -933,10 +937,10 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZones()
   // 2nd - classical direct sublevel inside common patch
   for(int i=1;i<sz;i++)
     {
-      const MEDCouplingGridCollection *fine(_levs[i]);
-      if(!fine)
+      const MEDCouplingGridCollection *curLev(_levs[i]);
+      if(!curLev)
         throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeFineEachOtherInGhostZone : presence of a NULL element !");
-      fine->synchronizeFineEachOther(_ghost_lev,_neighbors[i]);
+      curLev->synchronizeFineEachOther(_ghost_lev,_neighbors[i]);
     }
   // 3rd - mixed level
   for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=_mixed_lev_neighbors.begin();it!=_mixed_lev_neighbors.end();it++)
@@ -953,7 +957,7 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZones()
 }
 
 /*!
- * This method
+ * This method synchronizes all direct children of \a mesh each other.
  */
 void MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh)
 {
@@ -962,15 +966,17 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf(const ME
   int level(mesh->getAbsoluteLevelRelativeTo(_gf)),sz(getNumberOfLevels());
   if(level<0 || level>=sz-1)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf : the specified level does not exist ! Must be in [0,nbOfLevelsOfThis-1) !");
-  const DataArrayDoubleCollection& colCoarse(findCollectionAttachedTo(mesh));
-  std::vector< const MEDCouplingCartesianAMRPatch *> directChildren(mesh->getPatches());
-  std::size_t nbOfDirChildren(directChildren.size());
-  for(std::size_t patchId=0;patchId<nbOfDirChildren;patchId++)
+  const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& itemsToFilter(_neighbors[level+1]);
+  std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > itemsToSync; itemsToSync.reserve(itemsToFilter.size());
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >::const_iterator it=itemsToFilter.begin();it!=itemsToFilter.end();it++)
     {
-      const DataArrayDoubleCollection& colFine(findCollectionAttachedTo(directChildren[patchId]->getMesh()));
-      DataArrayDoubleCollection *colFine2(const_cast<DataArrayDoubleCollection *>(&colFine));
-      DataArrayDoubleCollection::SynchronizeCoarseToFineOnlyInGhostZone(_ghost_lev,mesh,(int)patchId,&colCoarse,colFine2);
+      if((*it).first->getMesh()->getFather()==mesh && (*it).second->getMesh()->getFather()==mesh)
+        itemsToSync.push_back(std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *>((*it).first,(*it).second));
     }
+  const MEDCouplingGridCollection *curLev(_levs[level+1]);
+  if(!curLev)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf : presence of a NULL element !");
+  curLev->synchronizeFineEachOther(_ghost_lev,itemsToSync);
 }
 
 /*!
@@ -1008,7 +1014,7 @@ void MEDCouplingAMRAttribute::dealloc()
     }
 }
 
-bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMeshGen *gf)
+bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
 {
   bool ret(MEDCouplingDataForGodFather::changeGodFather(gf));
   return ret;
@@ -1037,7 +1043,7 @@ void MEDCouplingAMRAttribute::updateTime() const
 {//tony
 }
 
-MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMeshGen *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev):MEDCouplingDataForGodFather(gf),_ghost_lev(ghostLev)
+MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, int ghostLev):MEDCouplingDataForGodFather(gf),_ghost_lev(ghostLev)
 {
   //gf non empty, checked by constructor
   int maxLev(gf->getMaxNumberOfLevelsRelativeToThis());
@@ -1094,6 +1100,45 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& 
       if(elt)
         {
           _levs[i]=other._levs[i]->deepCpy(_gf,other._gf);
+        }
+    }
+  //_cross_lev_neighbors(other._cross_lev_neighbors)
+  sz=other._neighbors.size();
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& neigh2(other._neighbors[i]);
+      std::size_t sz2(neigh2.size());
+      std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& neigh3(_neighbors[i]);
+      for(std::size_t j=0;j<sz2;j++)
+        {
+          const MEDCouplingCartesianAMRPatch *p1(neigh2[j].first),*p2(neigh2[j].second);
+          std::vector<int> pp1(p1->getMesh()->getPositionRelativeTo(other._gf)),pp2(p2->getMesh()->getPositionRelativeTo(other._gf));
+          neigh3[j].first=_gf->getPatchAtPosition(pp1);
+          neigh3[j].second=_gf->getPatchAtPosition(pp2);
+        }
+    }
+  //
+  sz=other._mixed_lev_neighbors.size();
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCouplingCartesianAMRPatch *p1(other._mixed_lev_neighbors[i].first),*p2(other._mixed_lev_neighbors[i].second);
+      std::vector<int> pp1(p1->getMesh()->getPositionRelativeTo(other._gf)),pp2(p2->getMesh()->getPositionRelativeTo(other._gf));
+      _mixed_lev_neighbors[i].first=_gf->getPatchAtPosition(pp1);
+      _mixed_lev_neighbors[i].second=_gf->getPatchAtPosition(pp2);
+    }
+  //
+  sz=other._cross_lev_neighbors.size();
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& neigh2(other._cross_lev_neighbors[i]);
+      std::size_t sz2(neigh2.size());
+      std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& neigh3(_cross_lev_neighbors[i]);
+      for(std::size_t j=0;j<sz2;j++)
+        {
+          const MEDCouplingCartesianAMRPatch *p1(neigh2[j].first),*p2(neigh2[j].second);
+          std::vector<int> pp1(p1->getMesh()->getPositionRelativeTo(other._gf)),pp2(p2->getMesh()->getPositionRelativeTo(other._gf));
+          neigh3[j].first=_gf->getPatchAtPosition(pp1);
+          neigh3[j].second=_gf->getPatchAtPosition(pp2);
         }
     }
 }
