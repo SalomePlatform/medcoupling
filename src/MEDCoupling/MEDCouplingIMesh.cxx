@@ -780,48 +780,26 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhostZone(const DataArrayDouble *coarse
       }
     case 2:
       {
-        int nxwg(coarseSt[0]+2*ghostSize),fact0(facts[0]),fact1(facts[1]);
-        int kk(fineLocInCoarse[0].first+ghostSize-1+nxwg*(fineLocInCoarse[1].first+ghostSize-1));//kk is always >=0 thanks to the fact that ghostSize>=1 !
-        for(int jg=0;jg<ghostSize;jg++)
-          {
-            for(int ig=0;ig<ghostSize;ig++)
-              outPtr=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr);
-            int kk0(kk+1);
-            for(int ig=0;ig<dims[0];ig++,kk0++)
-              for(int ifact=0;ifact<fact0;ifact++)
-                outPtr=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
-            for(int ik=0;ik<ghostSize;ik++)
-              outPtr=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
-          }
-        for(int j=0;j<dims[1];j++)
-          {
-            kk=fineLocInCoarse[0].first-1+ghostSize+nxwg*(fineLocInCoarse[1].first+ghostSize+j);
-            for(int jfact=0;jfact<fact1;jfact++)
-              {
-                for(int ig=0;ig<ghostSize;ig++)
-                  outPtr=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr);
-                int kk0(kk+1+dims[0]);//1 not ghost. We make the hypothesis that factors is >= ghostlev
-                outPtr+=fact0*nbCompo*dims[0];
-                for(int ig=0;ig<ghostSize;ig++)
-                  outPtr=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
-              }
-          }
-        kk=fineLocInCoarse[0].first+ghostSize-1+nxwg*(fineLocInCoarse[1].second+ghostSize);
-        for(int jg=0;jg<ghostSize;jg++)
-          {
-            for(int ig=0;ig<ghostSize;ig++)
-              outPtr=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr);
-            int kk0(kk+1);
-            for(int ig=0;ig<dims[0];ig++,kk0++)
-              for(int ifact=0;ifact<fact0;ifact++)
-                outPtr=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
-            for(int ik=0;ik<ghostSize;ik++)
-              outPtr=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr);
-          }
+        SpreadCoarseToFineGhostZone2D(inPtr,outPtr,nbCompo,coarseSt,fineLocInCoarse,facts,ghostSize);
+        break;
+      }
+    case 3:
+      {
+        int fact0(facts[0]),fact1(facts[1]),fact2(facts[2]);
+        int nxyWgCoarse((coarseSt[0]+2*ghostSize)*(coarseSt[1]+2*ghostSize)),nxyWgFine((dims[0]*fact0+2*ghostSize)*(dims[1]*fact1+2*ghostSize));
+        int offset((fineLocInCoarse[2].first+ghostSize-1)*nxyWgCoarse);//offset is always >=0 thanks to the fact that ghostSize>=1 !
+        for(int i=0;i<ghostSize;i++,outPtr+=nxyWgFine*nbCompo)
+          SpreadCoarseToFineGhost2D(inPtr+offset*nbCompo,outPtr,nbCompo,coarseSt,fineLocInCoarse,facts,ghostSize);
+        offset+=nxyWgCoarse;
+        for(int i=0;i<dims[2];i++,offset+=nxyWgCoarse)
+          for(int j=0;j<fact2;j++,outPtr+=nxyWgFine*nbCompo)
+            SpreadCoarseToFineGhostZone2D(inPtr+offset*nbCompo,outPtr,nbCompo,coarseSt,fineLocInCoarse,facts,ghostSize);
+        for(int i=0;i<ghostSize;i++,outPtr+=nxyWgFine*nbCompo)
+          SpreadCoarseToFineGhost2D(inPtr+offset*nbCompo,outPtr,nbCompo,coarseSt,fineLocInCoarse,facts,ghostSize);
         break;
       }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhostZone : only dimensions 1, 2 supported !");
+      throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhostZone : only dimensions 1, 2, 3 supported !");
   }
 }
 
@@ -1464,5 +1442,49 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhost2D(const double *inPtr, double *ou
           outPtrWork=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtrWork);
       for(int ik=0;ik<ghostSize;ik++)
         outPtrWork=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtrWork);
+    }
+}
+
+void MEDCouplingIMesh::SpreadCoarseToFineGhostZone2D(const double *inPtr, double *outPtr, int nbCompo, const std::vector<int>& coarseSt, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize)
+{
+  double *outPtr2(outPtr);
+  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(fineLocInCoarse));
+  int nxwg(coarseSt[0]+2*ghostSize),fact0(facts[0]),fact1(facts[1]);
+  int kk(fineLocInCoarse[0].first+ghostSize-1+nxwg*(fineLocInCoarse[1].first+ghostSize-1));//kk is always >=0 thanks to the fact that ghostSize>=1 !
+  for(int jg=0;jg<ghostSize;jg++)
+    {
+      for(int ig=0;ig<ghostSize;ig++)
+        outPtr2=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr2);
+      int kk0(kk+1);
+      for(int ig=0;ig<dims[0];ig++,kk0++)
+        for(int ifact=0;ifact<fact0;ifact++)
+          outPtr2=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr2);
+      for(int ik=0;ik<ghostSize;ik++)
+        outPtr2=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr2);
+    }
+  for(int j=0;j<dims[1];j++)
+    {
+      kk=fineLocInCoarse[0].first-1+ghostSize+nxwg*(fineLocInCoarse[1].first+ghostSize+j);
+      for(int jfact=0;jfact<fact1;jfact++)
+        {
+          for(int ig=0;ig<ghostSize;ig++)
+            outPtr2=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr2);
+          int kk0(kk+1+dims[0]);//1 not ghost. We make the hypothesis that factors is >= ghostlev
+          outPtr2+=fact0*nbCompo*dims[0];
+          for(int ig=0;ig<ghostSize;ig++)
+            outPtr2=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr2);
+        }
+    }
+  kk=fineLocInCoarse[0].first+ghostSize-1+nxwg*(fineLocInCoarse[1].second+ghostSize);
+  for(int jg=0;jg<ghostSize;jg++)
+    {
+      for(int ig=0;ig<ghostSize;ig++)
+        outPtr2=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr2);
+      int kk0(kk+1);
+      for(int ig=0;ig<dims[0];ig++,kk0++)
+        for(int ifact=0;ifact<fact0;ifact++)
+          outPtr2=std::copy(inPtr+(kk0)*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr2);
+      for(int ik=0;ik<ghostSize;ik++)
+        outPtr2=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr2);
     }
 }
