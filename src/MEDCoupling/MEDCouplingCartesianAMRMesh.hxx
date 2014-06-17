@@ -89,7 +89,7 @@ namespace ParaMEDMEM
     static void FindNeighborsOfSubPatchesOf(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ret);
     static void UpdateNeighborsOfOneWithTwo(int ghostLev, const std::vector<int>& factors, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
     static void UpdateNeighborsOfOneWithTwoExt(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
-    static void UpdateNeighborsOfOneWithTwoMixedLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2);
+    static void UpdateNeighborsOfOneWithTwoMixedLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2, bool isConservative);
   private:
     static void ComputeZonesOfTwoRelativeToOneDiffLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, std::vector< std::pair<int,int> >& p1Zone, std::vector< std::pair<int,int> >& p2Zone, std::vector<int>& factToApplyOn2);
   private:

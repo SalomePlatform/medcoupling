@@ -5138,6 +5138,8 @@ namespace ParaMEDMEM
     virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeAllGhostZones() throw(INTERP_KERNEL::Exception);
     virtual void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeAllGhostZonesAtASpecifiedLevel(int level) throw(INTERP_KERNEL::Exception);
+    virtual void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level) throw(INTERP_KERNEL::Exception);
     virtual void alloc() throw(INTERP_KERNEL::Exception);
     virtual void dealloc() throw(INTERP_KERNEL::Exception);
     %extend

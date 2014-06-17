@@ -101,6 +101,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFineBetween(int fromLev, int toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZones() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesAtASpecifiedLevel(int level) = 0;
+    MEDCOUPLING_EXPORT virtual void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level) = 0;
     MEDCOUPLING_EXPORT virtual void alloc() = 0;
     MEDCOUPLING_EXPORT virtual void dealloc() = 0;
   protected:
@@ -136,6 +138,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void synchronizeCoarseToFineBetween(int fromLev, int toLev);
     MEDCOUPLING_EXPORT void synchronizeAllGhostZones();
     MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevel(int level);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level);
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
     MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);

@@ -174,7 +174,9 @@ void DataArrayDoubleCollection::SynchronizeGhostZoneOfOneUsingTwo(int ghostLev, 
   for(std::size_t i=0;i<sz;i++)
     {
       const DataArrayDouble *zeArrWhichGhostsWillBeUpdated(p1dac->_arrs[i].first);
-      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(ghostLev,p1,p2,const_cast<DataArrayDouble *>(zeArrWhichGhostsWillBeUpdated),p2dac->_arrs[i].first);
+      DataArrayDoubleCollection::CheckSameNatures(p1dac->_arrs[i].second,p2dac->_arrs[i].second);
+      bool isConservative(DataArrayDoubleCollection::IsConservativeNature(p1dac->_arrs[i].second));
+      MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(ghostLev,p1,p2,const_cast<DataArrayDouble *>(zeArrWhichGhostsWillBeUpdated),p2dac->_arrs[i].first,isConservative);
     }
 }
 
@@ -957,7 +959,13 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZones()
 }
 
 /*!
- * This method synchronizes all direct children of \a mesh each other.
+ * This method works \b ONLY \b ON \b DIRECT \b SONS \b OF \a mesh. So only a part of patches at a given level is updated here.
+ * The ghost zone of all of these sons of \a mesh are updated using the brother patches (the patches sharing the \b SAME \a mesh).
+ * It is sometimes possible that a ghost zone of some sons of \a mesh are covered by a patch of same level but different father.
+ * For such cases, the ghost zones are \b NOT updated. If you need a more thorough (but more costly) ghost zone update use synchronizeAllGhostZonesAtASpecifiedLevel method instead.
+ *
+ * \param [in] mesh - an element in the progeny of god father in \a this, which the ghost zone of its sons will be updated each other.
+ *
  */
 void MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh)
 {
@@ -977,6 +985,42 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf(const ME
   if(!curLev)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesOfDirectChidrenOf : presence of a NULL element !");
   curLev->synchronizeFineEachOther(_ghost_lev,itemsToSync);
+}
+
+/*!
+ * This method updates \b all the patches at level \a level each other without consideration of their father.
+ * So this method is more time consuming than synchronizeAllGhostZonesOfDirectChidrenOf.
+ */
+void MEDCouplingAMRAttribute::synchronizeAllGhostZonesAtASpecifiedLevel(int level)
+{
+  int maxLev(getNumberOfLevels());
+  if(level<0 || level>=maxLev)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesAtASpecifiedLevel : the specified level must be in [0,maxLevel) !");
+  if(level==0)
+    return ;//at level 0 only one patch -> no need to update
+  // 1st step - updates all patches pairs at level \a level sharing the same father
+  const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& items(_neighbors[level]);
+  const MEDCouplingGridCollection *curLev(_levs[level]);
+  if(!curLev)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesAtASpecifiedLevel : presence of a NULL element !");
+  curLev->synchronizeFineEachOther(_ghost_lev,items);
+  //2nd step - updates all patches pairs at level \a level not sharing the same father
+  const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& items2(_cross_lev_neighbors[level]);
+  curLev->synchronizeFineEachOtherExt(_ghost_lev,items2);
+}
+
+/*!
+ * This method updates ghost zones of patches at level \a level whatever their father \b using \b father \b patches \b ONLY (at level \b level - 1).
+ * This method is useful to propagate to the ghost zone of childhood the modification.
+ */
+void MEDCouplingAMRAttribute::synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level)
+{
+  int maxLev(getNumberOfLevels());
+  if(level<=0 || level>=maxLev)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather : the specified level must be in (0,maxLevel) !");
+  const MEDCouplingGridCollection *fine(_levs[level]),*coarse(_levs[level-1]);
+  MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(_ghost_lev,coarse,fine);
+  //_cross_lev_neighbors is not needed.
 }
 
 /*!

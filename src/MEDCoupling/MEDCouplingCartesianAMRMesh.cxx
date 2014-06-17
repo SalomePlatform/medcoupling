@@ -324,7 +324,7 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoExt(int ghostLev, 
 /*!
  * \a p1 is expected to be more refined than \a p2. \a p1 and \a p2 have to share a common ancestor. Compared to UpdateNeighborsOfOneWithTwoExt here \a p1 and \a p2 are \b not at the same level !
  */
-void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2)
+void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(int ghostLev, const MEDCouplingCartesianAMRPatch *p1, const MEDCouplingCartesianAMRPatch *p2, DataArrayDouble *dataOnP1, const DataArrayDouble *dataOnP2, bool isConservative)
 {
   std::vector< std::pair<int,int> > p1pp,p2pp;
   std::vector<int> factors;
@@ -338,6 +338,11 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(int ghost
   std::transform(dimsP2Refined.begin(),dimsP2Refined.end(),dimsP2RefinedGhost.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> fineP2(DataArrayDouble::New()); fineP2->alloc(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(dimsP2RefinedGhost),dataOnP2->getNumberOfComponents());
   MEDCouplingIMesh::SpreadCoarseToFineGhost(dataOnP2,dimsP2NotRefined,fineP2,p2RefinedAbs,factors,ghostLev);
+  if(isConservative)
+    {
+      int fact(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(factors));
+      std::transform(fineP2->begin(),fineP2->end(),fineP2->getPointer(),std::bind2nd(std::multiplies<double>(),1./((double)fact)));
+    }
   //
   UpdateNeighborsOfOneWithTwoInternal(ghostLev,p1->getMesh()->getFather()->getFactors(),p1pp,p2pp,dataOnP1,fineP2);
 }
