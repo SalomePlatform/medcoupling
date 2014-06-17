@@ -110,6 +110,7 @@ namespace ParaMEDMEM
     void checkSpaceDimension() const;
     static void CheckSpaceDimension(int spaceDim);
     static int FindIntRoot(int val, int order);
+    static void SpreadCoarseToFineGhost2D(const double *inPtr, double *outPtr, int nbCompo, const std::vector<int>& coarseSt, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
   private:
     int _space_dim;
     double _origin[3];
