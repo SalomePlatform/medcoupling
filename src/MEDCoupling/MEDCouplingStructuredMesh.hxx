@@ -69,6 +69,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void getSplitNodeValues(int *res) const;
     MEDCOUPLING_EXPORT virtual std::vector<int> getNodeGridStructure() const = 0;
     MEDCOUPLING_EXPORT std::vector<int> getCellGridStructure() const;
+    MEDCOUPLING_EXPORT double computeSquareness() const;
     MEDCOUPLING_EXPORT virtual MEDCouplingStructuredMesh *buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const = 0;
     MEDCOUPLING_EXPORT static std::vector<int> GetSplitVectFromStruct(const std::vector<int>& strct);
     MEDCOUPLING_EXPORT static bool IsPartStructured(const int *startIds, const int *stopIds, const std::vector<int>& st, std::vector< std::pair<int,int> >& partCompactFormat);
@@ -93,7 +94,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static int DeduceNumberOfGivenStructure(const std::vector<int>& st);
     MEDCOUPLING_EXPORT static void FindTheWidestAxisOfGivenRangeInCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat, int& axisId, int& sizeOfRange);
-    MEDCOUPLING_EXPORT static int FindMinimalPartOf(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static int FindMinimalPartOf(int minPatchLgth, const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static std::vector< std::vector<int> > ComputeSignaturePerAxisOf(const std::vector<int>& st, const std::vector<bool>& crit);
   private:
     static int GetNumberOfCellsOfSubLevelMesh(const std::vector<int>& cgs, int mdim);

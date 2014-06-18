@@ -737,7 +737,7 @@ public:
   std::vector<int> computeCGS() const { return MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(_part); }
   std::vector< std::vector<int> > computeSignature() const { return MEDCouplingStructuredMesh::ComputeSignaturePerAxisOf(computeCGS(),getConstCriterion()); }
   double getEfficiencyPerAxis(int axisId) const { return (double)_nb_of_true/((double)(_part[axisId].second-_part[axisId].first)); }
-  void zipToFitOnCriterion();
+  void zipToFitOnCriterion(int minPatchLgth);
   void updateNumberOfTrue() const;
   MEDCouplingAutoRefCountObjectPtr<InternalPatch> extractPart(const std::vector< std::pair<int,int> >&partInGlobal) const;
   MEDCouplingAutoRefCountObjectPtr<InternalPatch> deepCpy() const;
@@ -750,12 +750,12 @@ private:
   std::vector< std::pair<int,int> > _part;
 };
 
-void InternalPatch::zipToFitOnCriterion()
+void InternalPatch::zipToFitOnCriterion(int minPatchLgth)
 {
   std::vector<int> cgs(computeCGS());
   std::vector<bool> newCrit;
   std::vector< std::pair<int,int> > newPart,newPart2;
-  int newNbOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(cgs,_crit,newCrit,newPart));
+  int newNbOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(minPatchLgth,cgs,_crit,newCrit,newPart));
   MEDCouplingStructuredMesh::ChangeReferenceToGlobalOfCompactFrmt(_part,newPart,newPart2);
   if(newNbOfTrue!=_nb_of_true)
     throw INTERP_KERNEL::Exception("InternalPatch::zipToFitOnCrit : internal error !");
@@ -786,46 +786,47 @@ MEDCouplingAutoRefCountObjectPtr<InternalPatch> InternalPatch::deepCpy() const
   return ret;
 }
 
-void DissectBigPatch(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int axisId, int rangeOfAxisId, bool& cutFound, int& cutPlace)
+void DissectBigPatch(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int axisId, int largestLength, int& cutPlace)
 {
-  cutFound=false; cutPlace=-1;
-  std::vector<double> ratio(rangeOfAxisId-1);
-  for(int id=0;id<rangeOfAxisId-1;id++)
+  int minimumPatchLength(bso.getMinimumPatchLength());
+  std::vector<double> ratio(largestLength-minimumPatchLength,std::numeric_limits<double>::max());
+  const int dim(patchToBeSplit->getDimension());
+  int index_min = -1;
+  double minSemiEfficiencyRatio(std::numeric_limits<double>::max());
+  double efficiencyPerAxis[2];
+
+  for(int i=minimumPatchLength-1;i<largestLength-minimumPatchLength;i++)
     {
-      double efficiency[2];
+      int numberOfFlags_h;
       for(int h=0;h<2;h++)
         {
           std::vector< std::pair<int,int> > rectH(patchToBeSplit->getConstPart());
           if(h==0)
-            rectH[axisId].second=patchToBeSplit->getConstPart()[axisId].first+id;
+            rectH[axisId].second=patchToBeSplit->getConstPart()[axisId].first+i;
           else
-            rectH[axisId].first=patchToBeSplit->getConstPart()[axisId].first+id;
+            rectH[axisId].first=patchToBeSplit->getConstPart()[axisId].first+i;
           MEDCouplingAutoRefCountObjectPtr<InternalPatch> p(patchToBeSplit->deepCpy());
-          p->zipToFitOnCriterion();
-          //anouar rectH ?
-          efficiency[h]=p->getEfficiencyPerAxis(axisId);
+          p->zipToFitOnCriterion(bso.getMinimumPatchLength());
+          efficiencyPerAxis[h]=p->getEfficiencyPerAxis(axisId);
         }
-      ratio[id]=std::max(efficiency[0],efficiency[1])/std::min(efficiency[0],efficiency[1]);
-    }
-  int minCellDirection(bso.getMinCellDirection()),indexMin(-1);
-  int dimRatioInner(rangeOfAxisId-1-2*(minCellDirection-1));
-  std::vector<double> ratio_inner(dimRatioInner);
-  double minRatio(1.e10);
-  for(int i=0; i<dimRatioInner; i++)
-    {
-      if(ratio[minCellDirection-1+i]<minRatio)
+      ratio[i]=std::max(efficiencyPerAxis[0], efficiencyPerAxis[1]) / std::min(efficiencyPerAxis[0], efficiencyPerAxis[1]);
+      if(ratio[i]<minSemiEfficiencyRatio)
         {
-          minRatio=ratio[minCellDirection-1+i];
-          indexMin=i+minCellDirection;
+          minSemiEfficiencyRatio = ratio[i];
+          index_min = i;
         }
     }
-  cutFound=true; cutPlace=indexMin+patchToBeSplit->getConstPart()[axisId].first-1;
+
+  if(index_min==-1)
+    throw INTERP_KERNEL::Exception("DissectBigPatch : just call to Arthur !");
+
+  cutPlace=index_min+patchToBeSplit->getConstPart()[axisId].first;
 }
 
-void FindHole(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int& axisId, bool& cutFound, int& cutPlace)
+bool FindHole(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int axisId, int& cutPlace)
 {
-  cutPlace=-1; cutFound=false;
-  int minCellDirection(bso.getMinCellDirection());
+  cutPlace=-1;
+  int minimumPatchLength(bso.getMinimumPatchLength());
   const int dim(patchToBeSplit->getDimension());
   std::vector< std::vector<int> > signatures(patchToBeSplit->computeSignature());
   for(int id=0;id<dim;id++)
@@ -834,31 +835,35 @@ void FindHole(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch
       std::vector<int> hole;
       std::vector<double> distance;
       int len((int)signature.size());
-      for(int i=0;i<len;i++)
+      for(int i=minimumPatchLength-1;i<len-minimumPatchLength;i++)
         if(signature[i]==0)
-          if(len>= 2*minCellDirection && i >= minCellDirection-1 && i <= len-minCellDirection-1)
-            hole.push_back(i);
+          hole.push_back(i);
       if(!hole.empty())
         {
-          double center(((double)len/2.));
+          int closestHoleToMiddle(hole[0]);
+          int oldDistanceToMiddle(std::abs(hole[0]-len/2));
+          int newDistanceToMiddle(oldDistanceToMiddle);
           for(std::size_t i=0;i<hole.size();i++)
-            distance.push_back(fabs(hole[i]+1.-center));
-
-          std::size_t posDistanceMin(std::distance(distance.begin(),std::min_element(distance.begin(),distance.end())));
-          cutFound=true;
-          axisId=id;
-          cutPlace=hole[posDistanceMin]+patchToBeSplit->getConstPart()[axisId].first+1;
-          return ;
+            {
+              newDistanceToMiddle=std::abs(hole[i]-len/2);
+              if(newDistanceToMiddle < oldDistanceToMiddle)
+                {
+                  oldDistanceToMiddle = newDistanceToMiddle;
+                  closestHoleToMiddle = hole[i];
+                }
+            }
+          cutPlace=closestHoleToMiddle+patchToBeSplit->getConstPart()[axisId].first;
+          return true;
         }
     }
+  return false;
 }
 
-void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, bool& cutFound, int& cutPlace, int& axisId)
+bool FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int& cutPlace, int& axisId)
 {
-  cutFound=false; cutPlace=-1;// do not set axisId before to be sure that cutFound was set to true
-
+  bool cutFound(false); cutPlace=-1;// do not set axisId before to be sure that cutFound was set to true
   const std::vector< std::pair<int,int> >& part(patchToBeSplit->getConstPart());
-  int sign,minCellDirection(bso.getMinCellDirection());
+  int sign,minimumPatchLength(bso.getMinimumPatchLength());
   const int dim(patchToBeSplit->getDimension());
 
   std::vector<int> zeroCrossDims(dim,-1);
@@ -868,18 +873,18 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
     {
       const std::vector<int>& signature(signatures[id]);
 
-      std::vector<int> derivate_second_order,gradient_absolute,signe_change,zero_cross,edge,max_cross_list ;
+      std::vector<int> derivate_second_order,gradient_absolute,zero_cross,edge,max_cross_list ;
       std::vector<double> distance ;
 
-      for (unsigned int i=1;i<signature.size()-1;i++)
+      for(std::size_t i=1;i<signature.size()-1;i++)
         derivate_second_order.push_back(signature[i-1]-2*signature[i]+signature[i+1]) ;
 
       // Gradient absolute value
-      for ( unsigned int i=1;i<derivate_second_order.size();i++)
+      for(std::size_t i=1;i<derivate_second_order.size();i++)
         gradient_absolute.push_back(fabs(derivate_second_order[i]-derivate_second_order[i-1])) ;
       if(derivate_second_order.empty())
         continue;
-      for (unsigned int i=0;i<derivate_second_order.size()-1;i++)
+      for(std::size_t i=1;i<derivate_second_order.size()-1;i++)
         {
           if (derivate_second_order[i]*derivate_second_order[i+1] < 0 )
             sign = -1 ;
@@ -888,12 +893,11 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
           if (derivate_second_order[i]*derivate_second_order[i+1] == 0 )
             sign = 0 ;
           if ( sign==0 || sign==-1 )
-            if ( i >= (unsigned int)minCellDirection-2 && i <= signature.size()-minCellDirection-2 )
+            if ( i >= (std::size_t)minimumPatchLength-2 && i <= signature.size()-minimumPatchLength-2 )
               {
                 zero_cross.push_back(i) ;
                 edge.push_back(gradient_absolute[i]) ;
               }
-          signe_change.push_back(sign) ;
         }
       if ( zero_cross.size() > 0 )
         {
@@ -906,7 +910,7 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
           for (unsigned int i=0;i<max_cross_list.size();i++)
             distance.push_back(fabs(max_cross_list[i]+1-center));
 
-          float distance_min=*min_element(distance.begin(),distance.end()) ;
+          double distance_min=*min_element(distance.begin(),distance.end()) ;
           int pos_distance_min=find(distance.begin(),distance.end(),distance_min)-distance.begin();
           int best_place = max_cross_list[pos_distance_min] + part[id].first ;
           if ( max_cross >=0 )
@@ -917,7 +921,6 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
         }
       derivate_second_order.clear() ;
       gradient_absolute.clear() ;
-      signe_change.clear() ;
       zero_cross.clear() ;
       edge.clear() ;
       max_cross_list.clear() ;
@@ -943,26 +946,30 @@ void FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
       cutPlace=zeroCrossDims[max_cross_dims];
       axisId=max_cross_dims ;
     }
+  return cutFound;
 }
 
-void TryAction4(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int axisId, int rangeOfAxisId, bool& cutFound, int& cutPlace)
+bool TryAction4(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPatch *patchToBeSplit, int axisId, int rangeOfAxisId, int& cutPlace)
 {
-  cutFound=false;
-  if(patchToBeSplit->getEfficiency()<=bso.getEffeciencySnd())
+  if(patchToBeSplit->getEfficiency()<=bso.getEfficiencyGoal())
     {
-      if(rangeOfAxisId>=2*bso.getMinCellDirection())
+      if(rangeOfAxisId>=2*bso.getMinimumPatchLength())
         {
-          cutFound=true;
           cutPlace=rangeOfAxisId/2+patchToBeSplit->getConstPart()[axisId].first-1;
         }
+      else
+        return false;
     }
   else
     {
-      if(patchToBeSplit->getNumberOfCells()>bso.getMaxCells())
+      if(patchToBeSplit->getNumberOfCells()>bso.getMaximumNbOfCellsInPatch() || rangeOfAxisId>bso.getMaximumPatchLength())
         {
-          DissectBigPatch(bso,patchToBeSplit,axisId,rangeOfAxisId,cutFound,cutPlace);
+          DissectBigPatch(bso,patchToBeSplit,axisId,rangeOfAxisId,cutPlace);
         }
+      else
+        return false;
     }
+  return true;
 }
 
 MEDCouplingAutoRefCountObjectPtr<InternalPatch> DealWithNoCut(const InternalPatch *patch)
@@ -972,7 +979,7 @@ MEDCouplingAutoRefCountObjectPtr<InternalPatch> DealWithNoCut(const InternalPatc
   return ret;
 }
 
-void DealWithCut(const InternalPatch *patchToBeSplit, int axisId, int cutPlace, std::vector<MEDCouplingAutoRefCountObjectPtr<InternalPatch> >& listOfPatches)
+void DealWithCut(double minPatchLgth, const InternalPatch *patchToBeSplit, int axisId, int cutPlace, std::vector<MEDCouplingAutoRefCountObjectPtr<InternalPatch> >& listOfPatches)
 {
   MEDCouplingAutoRefCountObjectPtr<InternalPatch> leftPart,rightPart;
   std::vector< std::pair<int,int> > rect(patchToBeSplit->getConstPart());
@@ -981,7 +988,7 @@ void DealWithCut(const InternalPatch *patchToBeSplit, int axisId, int cutPlace, 
   rightRect[axisId].first=cutPlace+1;
   leftPart=patchToBeSplit->extractPart(leftRect);
   rightPart=patchToBeSplit->extractPart(rightRect);
-  leftPart->zipToFitOnCriterion(); rightPart->zipToFitOnCriterion();
+  leftPart->zipToFitOnCriterion(minPatchLgth); rightPart->zipToFitOnCriterion(minPatchLgth);
   listOfPatches.push_back(leftPart);
   listOfPatches.push_back(rightPart);
 }
@@ -1013,8 +1020,21 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfPatches() const
 }
 
 /*!
- * This method creates patches in \a this (by destroying the patches if any). This method uses \a criterion array as a field on cells on this level.
+ * This method is a generic algorithm to create patches in \a this (by destroying the patches if any).
+ * This method uses \a criterion array as a field on cells on this level.
  * This method only create patches at level 0 relative to \a this.
+ *
+ * This generic algorithm can be degenerated into three child ones, depending on the arguments given; in particular depending
+ * on whether they are equal to 0 or not.
+ * 1/ If  minimumPatchLength = maximumPatchLength = maximumPatchVolume = 0, then we have the Berger-Rigoutsos algorithm.
+ * This algorithm was developed in 1991 and seems appropriate for sequential programming.
+ * 2/ If maximumPatchLength = 0, then we have the Livne algorithm.
+ * This algorithm was developed in 2004 and is an improvement of the Berger-Rigoutsos algorithm.
+ * 3/ If maximumPatchVolume = 0, the we have the lmin-lmax algorithm.
+ * This algorithm was developed by Arthur TALPAERT in 2014 and is an improvement of the Livne algorithm. It is especially
+ * appropriate for parallel computing, where one patch would be given to one CPU. See Arthur TALPAERT's 2014 CANUM poster
+ * for more information.
+ *
  */
 void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KERNEL::BoxSplittingOptions& bso, const std::vector<bool>& criterion, const std::vector<int>& factors)
 {
@@ -1026,7 +1046,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
   std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> > listOfPatches,listOfPatchesOK;
   //
   MEDCouplingAutoRefCountObjectPtr<InternalPatch> p(new InternalPatch);
-  p->setNumberOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(cgs,criterion,p->getCriterion(),p->getPart()));
+  p->setNumberOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(bso.getMinimumPatchLength(),cgs,criterion,p->getCriterion(),p->getPart()));
   if(p->presenceOfTrue())
     listOfPatches.push_back(p);
   while(!listOfPatches.empty())
@@ -1035,21 +1055,22 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
       for(std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> >::iterator it=listOfPatches.begin();it!=listOfPatches.end();it++)
         {
           //
-          int axisId,rangeOfAxisId,cutPlace;
-          bool cutFound;
-          MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt((*it)->getConstPart(),axisId,rangeOfAxisId);
-          if((*it)->getEfficiency()>=bso.getEffeciency() && (*it)->getNumberOfCells()<bso.getMaxCells())
-            { listOfPatchesOK.push_back(DealWithNoCut(*it)); continue; }//action 1
-          FindHole(bso,*it,axisId,cutFound,cutPlace);//axisId overwritten here if FindHole equal to true !
-          if(cutFound)
-            { DealWithCut(*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 2
-          FindInflection(bso,*it,cutFound,cutPlace,axisId);//axisId overwritten here if cutFound equal to true !
-          if(cutFound)
-            { DealWithCut(*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 3
-          TryAction4(bso,*it,axisId,rangeOfAxisId,cutFound,cutPlace);
-          if(cutFound)
-            { DealWithCut(*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 4
-          listOfPatchesOK.push_back(DealWithNoCut(*it));
+          int axisId,largestLength,cutPlace;
+          MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt((*it)->getConstPart(),axisId,largestLength);
+          if((*it)->getEfficiency()>=bso.getEfficiencyThreshold() && ((*it)->getNumberOfCells()>bso.getMaximumNbOfCellsInPatch() || largestLength>bso.getMaximumPatchLength()))
+            {
+              DissectBigPatch(bso,*it,axisId,largestLength,cutPlace);
+              DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp);
+              continue;
+            }//action 1
+          if(FindHole(bso,*it,axisId,cutPlace))//axisId overwritten here if FindHole equal to true !
+            { DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 2
+          if(FindInflection(bso,*it,cutPlace,axisId))//axisId overwritten here if cutFound equal to true !
+            { DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 3
+          if(TryAction4(bso,*it,axisId,largestLength,cutPlace))
+            { DealWithCut(bso.getMinimumPatchLength(),*it,axisId,cutPlace,listOfPatchesTmp); continue; }//action 4
+          else
+            listOfPatchesOK.push_back(DealWithNoCut(*it));
         }
       listOfPatches=listOfPatchesTmp;
     }

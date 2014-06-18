@@ -15124,16 +15124,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # f.write("test.vti")
         amr=MEDCouplingCartesianAMRMesh("mesh",2,[51,51],[0.,0.],[0.04,0.04])
         arr2=DataArrayByte(im.getNumberOfCells()) ; arr2[:]=0 ; arr2[ids]=1
-        bso=BoxSplittingOptions() ; bso.setEffeciency(0.8) ; bso.setEffeciencySnd(0.8) ; bso.setMaxCells(1000) ; bso.setMinCellDirection(3)
+        bso=BoxSplittingOptions() ; bso.setEfficiencyGoal(0.5); bso.setEfficiencyThreshold(0.8) ; bso.setMaximumNbOfCellsInPatch(3000) ; bso.setMinimumPatchLength(6) ; bso.setMaximumPatchLength(11)
         amr.createPatchesFromCriterion(bso,arr2,[2,2])
-        self.assertEqual(18,amr.getNumberOfPatches())
-        exp0=[[(8,14),(19,38)],[(19,31),(8,17)],[(19,31),(33,42)],[(10,14),(12,16)],[(9,14),(16,19)],[(14,19),(9,19)],[(14,17),(19,22)],[(14,19),(31,41)],[(36,42),(19,38)],[(14,15),(22,28)],[(14,17),(28,31)],[(31,36),(9,19)],[(33,36),(19,22)],[(31,36),(31,41)],[(36,40),(12,16)],[(36,41),(16,19)],[(35,36),(22,28)],[(33,36),(28,31)]]
+        amr.buildMeshFromPatchEnvelop().writeVTK("toto.vtu")
+        m=amr.getImageMesh() ; m=m.buildUnstructured() ; m.changeSpaceDimension(3,1.); m.writeVTK("grid.vtu")
+        self.assertEqual(12,amr.getNumberOfPatches())
+        exp0=[[(9,19),(9,19)],[(9,19),(31,41)],[(31,41),(9,19)],[(8,17),(19,25)],[(8,17),(25,31)],[(19,25),(8,17)],[(25,31),(8,17)],[(19,25),(33,42)],[(25,31),(33,42)],[(31,41),(31,41)],[(33,42),(19,25)],[(33,42),(25,31)]]
         for i,bltr in enumerate(exp0):
             self.assertEqual(amr[i].getBLTRRange(),bltr)
             pass
-        m=amr.buildMeshFromPatchEnvelop()
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,9,8,10,11,13,12,14,15,17,16,18,19,21,20,22,23,25,24,26,27,29,28,30,31,33,32,34,35,37,36,38,39,41,40,42,43,45,44,46,47,49,48,50,51,53,52,54,55,57,56,58,59,61,60,62,63,65,64,66,67,69,68,70,71])))
-        self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([0.32,0.76,0.56,0.76,0.32,1.52,0.56,1.52,0.76,0.32,1.24,0.32,0.76,0.68,1.24,0.68,0.76,1.32,1.24,1.32,0.76,1.68,1.24,1.68,0.4,0.48,0.56,0.48,0.4,0.64,0.56,0.64,0.36,0.64,0.56,0.64,0.36,0.76,0.56,0.76,0.56,0.36,0.76,0.36,0.56,0.76,0.76,0.76,0.56,0.76,0.68,0.76,0.56,0.88,0.68,0.88,0.56,1.24,0.76,1.24,0.56,1.64,0.76,1.64,1.44,0.76,1.68,0.76,1.44,1.52,1.68,1.52,0.56,0.88,0.6,0.88,0.56,1.12,0.6,1.12,0.56,1.12,0.68,1.12,0.56,1.24,0.68,1.24,1.24,0.36,1.44,0.36,1.24,0.76,1.44,0.76,1.32,0.76,1.44,0.76,1.32,0.88,1.44,0.88,1.24,1.24,1.44,1.24,1.24,1.64,1.44,1.64,1.44,0.48,1.6,0.48,1.44,0.64,1.6,0.64,1.44,0.64,1.64,0.64,1.44,0.76,1.64,0.76,1.4,0.88,1.44,0.88,1.4,1.12,1.44,1.12,1.32,1.12,1.44,1.12,1.32,1.24,1.44,1.24],72,2),1e-12))
+        self.assertAlmostEqual(0.666666666667,amr[3].getMesh().getImageMesh().computeSquareness(),12)
         #
         self.assertEqual(MEDCouplingStructuredMesh.ChangeReferenceToGlobalOfCompactFrmt([(8,32),(4,17)],[(0,24),(2,12)]),[(8,32),(6,16)])
         self.assertEqual(MEDCouplingStructuredMesh.ChangeReferenceFromGlobalOfCompactFrmt([(8,32),(4,17)],[(8,32),(6,16)]),[(0,24),(2,12)])
@@ -15254,6 +15254,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         amr[0].addPatch([(10,12),(5,8)],[2,2])
         amr[1].addPatch([(0,1),(0,5)],[2,2])
         amr[2].addPatch([(3,4),(0,3)],[2,2])
+        m=amr.buildMeshFromPatchEnvelop()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,9,8,10,11])))
+        self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([1.,2.,4.,2.,1.,4.,4.,4.,4.,3.,5.,3.,4.,5.,5.,5.,0.,4.,1.,4.,0.,6.,1.,6.],12,2),1e-12))
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         att=MEDCouplingAMRAttribute(amr,[("Field",["X"])],ghostSz)
         att.alloc()
