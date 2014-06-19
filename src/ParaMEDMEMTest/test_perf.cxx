@@ -149,7 +149,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
-  ICoCo::Field* icocofield ;
+  ICoCo::MEDField* icocofield ;
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
@@ -187,7 +187,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=1.0;
     
-    icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+    icocofield=new ICoCo::MEDField(parafield->getField());
      
     dec.attachLocalField(icocofield);
   }
@@ -219,7 +219,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=0.0;
-    icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+    icocofield=new ICoCo::MEDField(parafield->getField());
       
     dec.attachLocalField(icocofield);
   }

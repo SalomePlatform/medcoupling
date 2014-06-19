@@ -27,22 +27,25 @@
 using namespace ICoCo;
 using std::string;
 
-Field::Field() {
-  _name=new string;
+Field::Field()
+{
 }
 
-Field::~Field() {
-  delete _name;
+Field::~Field()
+{
 }
 
-void Field::setName(const string& name) {
-  *_name=name;
+void Field::setName(const string& name)
+{
+  _name=name;
 }
 
-const string& Field::getName() const {
-  return *_name;
+const string& Field::getName() const
+{
+  return _name;
 }
 
-const char* Field::getCharName() const {
-  return _name->c_str();
+const char *Field::getCharName() const
+{
+  return _name.c_str();
 }

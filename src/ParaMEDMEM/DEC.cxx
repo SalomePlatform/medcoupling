@@ -26,7 +26,6 @@
 #include "DEC.hxx"
 #include "ICoCoField.hxx"
 #include "ICoCoMEDField.hxx"
-#include "ICoCoTrioField.hxx"
 #include "MPIProcessorGroup.hxx"
 
 #include <cmath>

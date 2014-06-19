@@ -541,7 +541,7 @@ DataArrayInt *MEDCouplingField::computeTupleIdsToSelectFromCellIds(const int *st
 
 /*!
  * Returns number of tuples expected regarding the spatial discretization of \a this
- * field and number of entities in the underlying mesh.
+ * field and number of entities in the underlying mesh. This method behaves exactly as MEDCouplingFieldDouble::getNumberOfTuples.
  *  \return int - the number of expected tuples.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.

@@ -29,7 +29,7 @@
 
 namespace ICoCo
 {
-  class Field;
+  class MEDField;
 }
 
 namespace ParaMEDMEM
@@ -40,16 +40,16 @@ namespace ParaMEDMEM
   class DisjointDEC : public DEC
   {
   public:
-    DisjointDEC():_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false),_icoco_field(0) { }
+    DisjointDEC():_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false) { }
     DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
     DisjointDEC(const DisjointDEC&);
     DisjointDEC &operator=(const DisjointDEC& s);
     DisjointDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                 const MPI_Comm& world_comm=MPI_COMM_WORLD);
     void setNature(NatureOfField nature);
-    void attachLocalField( MEDCouplingFieldDouble* field);
-    void attachLocalField(const ParaFIELD* field, bool ownPt=false);
-    void attachLocalField(const ICoCo::Field* field);
+    void attachLocalField( MEDCouplingFieldDouble *field);
+    void attachLocalField(const ParaFIELD *field, bool ownPt=false);
+    void attachLocalField(const ICoCo::MEDField *field);
     
     virtual void prepareSourceDE() = 0;
     virtual void prepareTargetDE() = 0;
@@ -80,8 +80,6 @@ namespace ParaMEDMEM
     const CommInterface* _comm_interface;
     bool _owns_field;
     bool _owns_groups;
-  private:
-    ICoCo::Field* _icoco_field;
   };
 }
 
