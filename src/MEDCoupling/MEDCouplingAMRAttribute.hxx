@@ -35,10 +35,16 @@ namespace ParaMEDMEM
     DataArrayDoubleCollection *deepCpy() const;
     void allocTuples(int nbOfTuples);
     void dellocTuples();
+    void copyFrom(const DataArrayDoubleCollection& other);
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     void spillNatures(const std::vector<NatureOfField>& nfs);
+    std::vector< std::pair<std::string, std::vector<std::string> > > getInfoOnComponents() const;
+    std::vector<NatureOfField> getNatures() const;
     std::vector<DataArrayDouble *> retrieveFields() const;
     const DataArrayDouble *getFieldWithName(const std::string& name) const;
+    DataArrayDouble *at(int pos);
+    const DataArrayDouble *at(int pos) const;
+    int size() const;
     static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse);
     static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *coarse, DataArrayDoubleCollection *fine);
     static void SynchronizeFineEachOther(int patchId, int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, const std::vector<const MEDCouplingCartesianAMRMeshGen *>& children, const std::vector<DataArrayDoubleCollection *>& fieldsOnFine);
@@ -69,8 +75,12 @@ namespace ParaMEDMEM
     void dealloc();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     void spillNatures(const std::vector<NatureOfField>& nfs);
+    std::vector< std::pair<std::string, std::vector<std::string> > > getInfoOnComponents() const;
+    std::vector<NatureOfField> getNatures() const;
     bool presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const;
     const DataArrayDoubleCollection& getFieldsAt(int pos) const;
+    DataArrayDoubleCollection& getFieldsAt(int pos);
+    void copyOverlappedZoneFrom(int ghostLev, const MEDCouplingGridCollection& other);
     static void SynchronizeFineToCoarse(int ghostLev, const MEDCouplingGridCollection *fine, const MEDCouplingGridCollection *coarse);
     static void SynchronizeCoarseToFine(int ghostLev, const MEDCouplingGridCollection *coarse, const MEDCouplingGridCollection *fine);
     void synchronizeFineEachOther(int ghostLev, const std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> >& ps) const;
@@ -95,6 +105,7 @@ namespace ParaMEDMEM
     friend class MEDCouplingCartesianAMRMesh;
   public:
     MEDCOUPLING_EXPORT MEDCouplingCartesianAMRMesh *getMyGodFather();
+    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMesh *getMyGodFather() const;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarse() = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeFineToCoarseBetween(int fromLev, int toLev) = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeCoarseToFine() = 0;
@@ -132,6 +143,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     //
+    MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *projectTo(MEDCouplingCartesianAMRMesh *targetGF) const;
+    //
     MEDCOUPLING_EXPORT void synchronizeFineToCoarse();
     MEDCOUPLING_EXPORT void synchronizeFineToCoarseBetween(int fromLev, int toLev);
     MEDCOUPLING_EXPORT void synchronizeCoarseToFine();
@@ -140,6 +153,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh);
     MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevel(int level);
     MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(int level);
+    //
     MEDCOUPLING_EXPORT void alloc();
     MEDCOUPLING_EXPORT void dealloc();
     MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);

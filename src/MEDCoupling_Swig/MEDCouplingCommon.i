@@ -360,6 +360,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::deepCpyWithoutGodFather;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::getFieldOn;
+%newobject ParaMEDMEM::MEDCouplingAMRAttribute::projectTo;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutOverlapWithoutGhost;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithGhost;
 %newobject ParaMEDMEM::MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost;
@@ -2951,6 +2952,13 @@ namespace ParaMEDMEM
         return MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,fieldOfDbl,inp);
       }
 
+      static void AssignPartOfFieldOfDoubleUsing(const std::vector<int>& st, DataArrayDouble *fieldOfDbl, PyObject *partCompactFormat, const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > inp;
+        convertPyToVectorPairInt(partCompactFormat,inp);
+        MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(st,fieldOfDbl,inp,other);
+      }
+
       static int DeduceNumberOfGivenRangeInCompactFrmt(PyObject *part) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
@@ -3010,6 +3018,14 @@ namespace ParaMEDMEM
             PyList_SetItem(retPy,i,tmp);
           }
         return retPy;
+      }
+
+      static bool AreRangesIntersect(PyObject *r1, PyObject *r2)
+      {
+        std::vector< std::pair<int,int> > r1Cpp,r2Cpp;
+        convertPyToVectorPairInt(r1,r1Cpp);
+        convertPyToVectorPairInt(r2,r2Cpp);
+        return MEDCouplingStructuredMesh::AreRangesIntersect(r1Cpp,r2Cpp);
       }
 
       static PyObject *IsPartStructured(PyObject *li, PyObject *st) throw(INTERP_KERNEL::Exception)
@@ -5000,6 +5016,16 @@ namespace ParaMEDMEM
         return ret2;
       }
 
+      virtual PyObject *positionRelativeToGodFather() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> out1;
+        std::vector< std::pair<int,int> > out0(self->positionRelativeToGodFather(out1));
+        PyObject *ret(PyTuple_New(2));
+        PyTuple_SetItem(ret,0,convertFromVectorPairInt(out0));
+        PyTuple_SetItem(ret,1,convertIntArrToPyList2(out1));
+        return ret;
+      }
+
       virtual PyObject *retrieveGridsAt(int absoluteLev) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<MEDCouplingCartesianAMRPatchGen *> ps(self->retrieveGridsAt(absoluteLev));
@@ -5169,6 +5195,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) throw(INTERP_KERNEL::Exception);
+    MEDCouplingAMRAttribute *projectTo(MEDCouplingCartesianAMRMesh *targetGF) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames, int ghostLev) throw(INTERP_KERNEL::Exception)

@@ -76,9 +76,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static std::vector<int> GetDimensionsFromCompactFrmt(const std::vector< std::pair<int,int> >& partCompactFormat);
     MEDCOUPLING_EXPORT static std::vector< std::pair<int,int> > GetCompactFrmtFromDimensions(const std::vector<int>& dims);
     MEDCOUPLING_EXPORT static std::vector< std::pair<int,int> > IntersectRanges(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2);
+    MEDCOUPLING_EXPORT static bool AreRangesIntersect(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2);
     MEDCOUPLING_EXPORT static void SwitchOnIdsFrom(const std::vector<int>& st, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& vectToSwitchOn);
     MEDCOUPLING_EXPORT static void ExtractFieldOfBoolFrom(const std::vector<int>& st, const std::vector<bool>& fieldOfBool, const std::vector< std::pair<int,int> >& partCompactFormat, std::vector<bool>& fieldOut);
     MEDCOUPLING_EXPORT static DataArrayDouble *ExtractFieldOfDoubleFrom(const std::vector<int>& st, const DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat);
+    MEDCOUPLING_EXPORT static void AssignPartOfFieldOfDoubleUsing(const std::vector<int>& st, DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat, const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static void ChangeReferenceFromGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigInAbs, std::vector< std::pair<int,int> >& partOfBigRelativeToBig, bool check=true);
     MEDCOUPLING_EXPORT static void ChangeReferenceToGlobalOfCompactFrmt(const std::vector< std::pair<int,int> >& bigInAbs, const std::vector< std::pair<int,int> >& partOfBigRelativeToBig, std::vector< std::pair<int,int> >& partOfBigInAbs, bool check=true);
     MEDCOUPLING_EXPORT static std::vector< std::pair<int,int> > TranslateCompactFrmt(const std::vector< std::pair<int,int> >& part, const std::vector<int>& translation);

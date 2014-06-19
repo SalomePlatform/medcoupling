@@ -126,6 +126,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          MEDCoupling1GTUMesh.* \
                          MEDCouplingPointSet.* \
                          MEDCouplingCMesh.* \
+			 MEDCouplingIMesh.* \
                          MEDCouplingStructuredMesh.* \
                          MEDCouplingCurveLinearMesh.* \
                          MEDCouplingExtrudedMesh.* \
@@ -136,6 +137,8 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          MEDCouplingFieldTemplate.* \
                          MEDCouplingFieldDiscretization.* \
                          MEDCouplingTimeDiscretization.* \
+			 MEDCouplingAMRAttribute.* \
+			 MEDCouplingCartesianAMRMesh.* \
                          MEDCouplingTimeLabel.* \
                          MEDCouplingRefCountObject.* \
                          MEDCouplingMemArray.* \

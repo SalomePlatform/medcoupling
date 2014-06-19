@@ -23,6 +23,7 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingIMesh.hxx"//tony to throw when optimization will be performed in AssignPartOfFieldOfDoubleUsing
 
 #include <numeric>
 
@@ -1469,6 +1470,8 @@ std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::GetCompactFrmtFromD
 /*!
  * This method returns the intersection zone of two ranges (in compact format) \a r1 and \a r2.
  * This method will throw exception if on one axis the intersection is empty.
+ *
+ * \sa AreRangesIntersect
  */
 std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::IntersectRanges(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2)
 {
@@ -1497,6 +1500,36 @@ std::vector< std::pair<int,int> > MEDCouplingStructuredMesh::IntersectRanges(con
         }
     }
   return ret;
+}
+
+/*!
+ * This method states if \a r1 and \a r2 do overlap of not. If yes you can call IntersectRanges to know the intersection area.
+ *
+ * \sa IntersectRanges
+ */
+bool MEDCouplingStructuredMesh::AreRangesIntersect(const std::vector< std::pair<int,int> >& r1, const std::vector< std::pair<int,int> >& r2)
+{
+  std::size_t sz(r1.size());
+  if(sz!=r2.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::AreRangesIntersect : the two ranges must have the same dimension !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(r1[i].first>r1[i].second)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::AreRangesIntersect : On axis " << i << " of range r1, end is before start !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(r2[i].first>r2[i].second)
+        {
+          std::ostringstream oss; oss << "MEDCouplingStructuredMesh::AreRangesIntersect : On axis " << i << " of range r2, end is before start !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(r1[i].second<=r2[i].first)
+        return false;
+      if(r1[i].first>=r2[i].second)
+        return false;
+    }
+  return true;
 }
 
 /*!
@@ -1674,6 +1707,20 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : Dimension supported are 1,2 or 3 !");
   }
   return ret.retn();
+}
+
+/*!
+ * This method assign a part of values in \a fieldOfDbl using entirely values of \b other.
+ *
+ * \param [in] st - the structure of \a fieldOfDbl.
+ * \param [in,out] fieldOfDbl - the array that will be partially filled using \a other.
+ * \param [in] partCompactFormat - the specification of the part.
+ * \param [in] other - the array that will be used to fill \a fieldOfDbl.
+ */
+void MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(const std::vector<int>& st, DataArrayDouble *fieldOfDbl, const std::vector< std::pair<int,int> >& partCompactFormat, const DataArrayDouble *other)
+{//to be optimized
+  std::vector<int> facts(st.size(),1.);
+  MEDCouplingIMesh::CondenseFineToCoarse(st,other,partCompactFormat,facts,fieldOfDbl);
 }
 
 /*!

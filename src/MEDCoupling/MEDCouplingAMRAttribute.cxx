@@ -51,6 +51,21 @@ void DataArrayDoubleCollection::dellocTuples()
     _arrs[i].first->reAlloc(0);
 }
 
+void DataArrayDoubleCollection::copyFrom(const DataArrayDoubleCollection& other)
+{
+  std::size_t sz(_arrs.size());
+  if(sz!=other._arrs.size())
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::copyFrom : size are not the same !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      DataArrayDouble *thisArr(_arrs[i].first);
+      const DataArrayDouble *otherArr(other._arrs[i].first);
+      if(!thisArr || !otherArr)
+        throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::copyFrom : empty DataArray !");
+      thisArr->cpyFrom(*otherArr);
+    }
+}
+
 void DataArrayDoubleCollection::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
 {
   std::size_t sz(_arrs.size());
@@ -73,6 +88,29 @@ void DataArrayDoubleCollection::spillNatures(const std::vector<NatureOfField>& n
       CheckValidNature(nfs[i]);
       _arrs[i].second=nfs[i];
     }
+}
+
+std::vector< std::pair < std::string, std::vector<std::string> > > DataArrayDoubleCollection::getInfoOnComponents() const
+{
+  std::size_t sz(_arrs.size());
+  std::vector< std::pair < std::string, std::vector<std::string> > > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const DataArrayDouble *elt(_arrs[i].first);
+      if(!elt)
+        throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::getInfoOnComponents : empty array !");
+      ret[i]=std::pair < std::string, std::vector<std::string> >(elt->getName(),elt->getInfoOnComponents());
+    }
+  return ret;
+}
+
+std::vector<NatureOfField> DataArrayDoubleCollection::getNatures() const
+{
+  std::size_t sz(_arrs.size());
+  std::vector<NatureOfField> ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    ret[i]=_arrs[i].second;
+  return ret;
 }
 
 std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
@@ -106,6 +144,25 @@ const DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::st
   std::ostringstream oss; oss << "DataArrayDoubleCollection::getFieldWithName : fieldName \"" << name << "\" does not exist in this ! Possibilities are :";
   std::copy(vec.begin(),vec.end(),std::ostream_iterator<std::string>(oss," "));
   throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+DataArrayDouble *DataArrayDoubleCollection::at(int pos)
+{
+  if(pos<0 || pos>=(int)_arrs.size())
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::at (non const) : pos must be in [0,nbOfFields) !");
+  return _arrs[pos].first;
+}
+
+const DataArrayDouble *DataArrayDoubleCollection::at(int pos) const
+{
+  if(pos<0 || pos>=(int)_arrs.size())
+    throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::at : pos must be in [0,nbOfFields) !");
+  return _arrs[pos].first;
+}
+
+int DataArrayDoubleCollection::size() const
+{
+  return (int)_arrs.size();
 }
 
 void DataArrayDoubleCollection::SynchronizeFineToCoarse(int ghostLev, const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh, int patchId, const DataArrayDoubleCollection *fine, DataArrayDoubleCollection *coarse)
@@ -342,6 +399,26 @@ void MEDCouplingGridCollection::spillNatures(const std::vector<NatureOfField>& n
     (*it).second->spillNatures(nfs);
 }
 
+std::vector< std::pair<std::string, std::vector<std::string> > > MEDCouplingGridCollection::getInfoOnComponents() const
+{
+  if(_map_of_dadc.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getInfoOnComponents : empty map !");
+  const DataArrayDoubleCollection *elt(_map_of_dadc[0].second);
+  if(!elt)
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getInfoOnComponents : null pointer !");
+  return elt->getInfoOnComponents();
+}
+
+std::vector<NatureOfField> MEDCouplingGridCollection::getNatures() const
+{
+  if(_map_of_dadc.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getNatures : empty map !");
+  const DataArrayDoubleCollection *elt(_map_of_dadc[0].second);
+  if(!elt)
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getNatures : null pointer !");
+  return elt->getNatures();
+}
+
 bool MEDCouplingGridCollection::presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const
 {
   int ret(0);
@@ -361,6 +438,52 @@ const DataArrayDoubleCollection& MEDCouplingGridCollection::getFieldsAt(int pos)
   if(pos<0 || pos>(int)_map_of_dadc.size())
     throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getFieldsAt : invalid pos given in input ! Must be in [0,size) !");
   return *_map_of_dadc[pos].second;
+}
+
+DataArrayDoubleCollection& MEDCouplingGridCollection::getFieldsAt(int pos)
+{
+  if(pos<0 || pos>(int)_map_of_dadc.size())
+    throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::getFieldsAt (non const) : invalid pos given in input ! Must be in [0,size) !");
+  return *_map_of_dadc[pos].second;
+}
+
+/*!
+ * This method copies for all grids intersecting themselves (between \a this and \a other), the values of fields of \a other to the intersecting
+ * part of fields of \a this. The fields are expected to be the same between \a other and \a this.
+ * This methods makes the hypothesis that \a this and \a other share two god father that are compatible each other that is to say with the same cell grid structure.
+ */
+void MEDCouplingGridCollection::copyOverlappedZoneFrom(int ghostLev, const MEDCouplingGridCollection& other)
+{
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+    {
+      std::vector<int> deltaThis,deltaOther;
+      std::vector< std::pair<int,int> > rgThis((*it).first->positionRelativeToGodFather(deltaThis));
+      std::vector<int> thisSt((*it).first->getImageMesh()->getCellGridStructure());
+      std::transform(thisSt.begin(),thisSt.end(),thisSt.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
+      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it2=other._map_of_dadc.begin();it2!=other._map_of_dadc.end();it2++)
+        {
+          std::vector< std::pair<int,int> > rgOther((*it2).first->positionRelativeToGodFather(deltaOther));
+          if(MEDCouplingStructuredMesh::AreRangesIntersect(rgThis,rgOther))
+            {
+              std::vector< std::pair<int,int> > isect(MEDCouplingStructuredMesh::IntersectRanges(rgThis,rgOther));
+              std::vector< std::pair<int,int> > pThis,pOther;
+              MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(rgThis,isect,pThis,true);
+              MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(rgOther,isect,pOther,true);
+              std::vector<int> otherSt((*it2).first->getImageMesh()->getCellGridStructure());
+              MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(pThis,ghostLev);
+              MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(pOther,ghostLev);
+              std::transform(otherSt.begin(),otherSt.end(),otherSt.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
+              int sz((*it2).second->size());
+              for(int i=0;i<sz;i++)
+                {
+                  const DataArrayDouble *otherArr((*it2).second->at(i));
+                  DataArrayDouble *thisArr((*it).second->at(i));
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> partOfOther(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(otherSt,otherArr,pOther));
+                  MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(thisSt,thisArr,pThis,partOfOther);
+                }
+            }
+        }
+    }
 }
 
 void MEDCouplingGridCollection::SynchronizeFineToCoarse(int ghostLev, const MEDCouplingGridCollection *fine, const MEDCouplingGridCollection *coarse)
@@ -587,6 +710,11 @@ void MEDCouplingGridCollection::updateTime() const
 }
 
 MEDCouplingCartesianAMRMesh *MEDCouplingDataForGodFather::getMyGodFather()
+{
+  return _gf;
+}
+
+const MEDCouplingCartesianAMRMesh *MEDCouplingDataForGodFather::getMyGodFather() const
 {
   return _gf;
 }
@@ -830,6 +958,55 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
   ret->setMesh(mesh->getImageMesh());
   ret->setArray(arr2);
   ret->setName(arr->getName());
+  return ret.retn();
+}
+
+/*!
+ * This method is useful just after a remesh after a time step computation to project values in \a this to the new
+ * mesh \a targetGF.
+ *
+ * This method performs a projection from \a this to a target AMR mesh \a targetGF.
+ * This method performs the projection by trying to transfer the finest information to \a targetGF.
+ * \b WARNING this method does not update the ghost zone, if any.
+ * The level0 of \a this god father must have the same structure than those of \a targetGF.
+ *
+ * This method makes checks that ghost size of \a this and \a targetGF are the same, and that
+ * the number of levels in \a this and in \a targetGF are also the same.
+ */
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::projectTo(MEDCouplingCartesianAMRMesh *targetGF) const
+{
+  if(!targetGF)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : given other target god is NULL !");
+  if(_levs.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : no levels in this !");
+  const MEDCouplingGridCollection *lev0(_levs[0]);
+  if(!lev0)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : lev0 is NULL !");
+  std::vector< std::pair < std::string, std::vector<std::string> > > fieldNames(lev0->getInfoOnComponents());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> ret(MEDCouplingAMRAttribute::New(targetGF,fieldNames,_ghost_lev));
+  ret->spillNatures(lev0->getNatures());
+  ret->alloc();
+  int nbLevs(getNumberOfLevels());
+  if(targetGF->getMaxNumberOfLevelsRelativeToThis()!=nbLevs)
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : number of levels of this and targetGF must be the same !");
+  // first step copy level0
+  if(getMyGodFather()->getImageMesh()->getCellGridStructure()!=targetGF->getImageMesh()->getCellGridStructure())
+    throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : god father of this and target ones do not have the same structure !");
+  const DataArrayDoubleCollection& col(lev0->getFieldsAt(0));
+  DataArrayDoubleCollection& colTarget(ret->_levs[0]->getFieldsAt(0));
+  colTarget.copyFrom(col);
+  // then go deeper and deeper
+  for(int i=1;i<nbLevs;i++)
+    {
+      ret->synchronizeCoarseToFineByOneLevel(i-1);
+      MEDCouplingGridCollection *targetCol(ret->_levs[i]);
+      if(!targetCol)
+        throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : null lev of target !");
+      const MEDCouplingGridCollection *thisCol(_levs[i]);
+      if(!thisCol)
+        throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : null lev of this !");
+      targetCol->copyOverlappedZoneFrom(_ghost_lev,*thisCol);
+    }
   return ret.retn();
 }
 

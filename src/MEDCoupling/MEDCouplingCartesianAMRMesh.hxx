@@ -146,6 +146,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual const MEDCouplingCartesianAMRMeshGen *getGodFather() const = 0;
     MEDCOUPLING_EXPORT virtual int getAbsoluteLevel() const = 0;
     MEDCOUPLING_EXPORT virtual void detachFromFather() = 0;
+    MEDCOUPLING_EXPORT virtual std::vector< std::pair<int,int> > positionRelativeToGodFather(std::vector<int>& st) const = 0;
     MEDCOUPLING_EXPORT virtual int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const = 0;
     MEDCOUPLING_EXPORT std::vector<int> getPositionRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRPatch *getPatchAtPosition(const std::vector<int>& pos) const;
@@ -216,6 +217,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT int getAbsoluteLevel() const;
     MEDCOUPLING_EXPORT void detachFromFather();
+    MEDCOUPLING_EXPORT std::vector< std::pair<int,int> > positionRelativeToGodFather(std::vector<int>& st) const;
     MEDCOUPLING_EXPORT int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
   private:
     MEDCouplingCartesianAMRMeshSub(const MEDCouplingCartesianAMRMeshSub& other, MEDCouplingCartesianAMRMeshGen *father);
@@ -234,6 +236,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT int getAbsoluteLevel() const;
     MEDCOUPLING_EXPORT void detachFromFather();
+    MEDCOUPLING_EXPORT std::vector< std::pair<int,int> > positionRelativeToGodFather(std::vector<int>& st) const;
     MEDCOUPLING_EXPORT int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
     MEDCOUPLING_EXPORT std::vector<MEDCouplingCartesianAMRPatchGen *> retrieveGridsAt(int absoluteLev) const;
     MEDCouplingCartesianAMRMesh *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const;

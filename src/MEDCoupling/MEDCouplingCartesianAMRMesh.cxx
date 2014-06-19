@@ -1731,6 +1731,44 @@ void MEDCouplingCartesianAMRMeshSub::detachFromFather()
   declareAsNew();
 }
 
+std::vector< std::pair<int,int> > MEDCouplingCartesianAMRMeshSub::positionRelativeToGodFather(std::vector<int>& st) const
+{
+  st=_father->getFactors();
+  std::size_t dim(st.size());
+  std::vector<int> prev(st);
+  int id(_father->getPatchIdFromChildMesh(this));
+  const MEDCouplingCartesianAMRPatch *p(_father->getPatch(id));
+  std::vector< std::pair<int,int> > ret(p->getBLTRRange());
+  std::vector<int> delta(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(ret)),start(dim);
+  std::transform(delta.begin(),delta.end(),prev.begin(),delta.begin(),std::multiplies<int>());
+  for(std::size_t i=0;i<dim;i++)
+    start[i]=ret[i].first;
+  std::transform(start.begin(),start.end(),prev.begin(),start.begin(),std::multiplies<int>());
+  const MEDCouplingCartesianAMRMeshGen *it(_father);
+  while(!dynamic_cast<const MEDCouplingCartesianAMRMesh *>(it))
+    {
+      const MEDCouplingCartesianAMRMeshSub *itc(static_cast<const MEDCouplingCartesianAMRMeshSub *>(it));
+      int id2(itc->_father->getPatchIdFromChildMesh(itc));
+      const MEDCouplingCartesianAMRPatch *p2(itc->_father->getPatch(id2));
+      const std::vector< std::pair<int,int> >& start2(p2->getBLTRRange());
+      std::vector<int> tmp(dim);
+      for(std::size_t i=0;i<dim;i++)
+        tmp[i]=start2[i].first;
+      //
+      prev=itc->_father->getFactors();
+      std::transform(st.begin(),st.end(),prev.begin(),st.begin(),std::multiplies<int>());
+      std::transform(st.begin(),st.end(),tmp.begin(),tmp.begin(),std::multiplies<int>());
+      std::transform(start.begin(),start.end(),tmp.begin(),start.begin(),std::plus<int>());
+      it=itc->_father;
+    }
+  for(std::size_t i=0;i<dim;i++)
+    {
+      ret[i].first=start[i];
+      ret[i].second=start[i]+delta[i];
+    }
+  return ret;
+}
+
 int MEDCouplingCartesianAMRMeshSub::getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const
 {
   if(this==ref)
@@ -1788,6 +1826,12 @@ int MEDCouplingCartesianAMRMesh::getAbsoluteLevel() const
 
 void MEDCouplingCartesianAMRMesh::detachFromFather()
 {//not a bug - do nothing
+}
+
+std::vector< std::pair<int,int> > MEDCouplingCartesianAMRMesh::positionRelativeToGodFather(std::vector<int>& st) const
+{
+  st=_mesh->getCellGridStructure();
+  return MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(st);
 }
 
 int MEDCouplingCartesianAMRMesh::getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const
