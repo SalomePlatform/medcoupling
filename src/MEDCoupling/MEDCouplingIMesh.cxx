@@ -1334,6 +1334,11 @@ void MEDCouplingIMesh::reprQuickOverview(std::ostream& stream) const
   stream << stream1.str();
 }
 
+std::string MEDCouplingIMesh::getVTKFileExtension() const
+{
+  return std::string("vti");
+}
+
 std::string MEDCouplingIMesh::getVTKDataSetType() const
 {
   return std::string("ImageData");

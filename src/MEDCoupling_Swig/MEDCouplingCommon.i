@@ -545,7 +545,9 @@ namespace ParaMEDMEM
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     virtual std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
-    void writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    std::string writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    virtual std::string getVTKFileExtension() const;
+    std::string getVTKFileNameOf(const std::string& fileName) const;
     // tools
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception);
@@ -3519,7 +3521,7 @@ namespace ParaMEDMEM
     void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
-    void writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
+    std::string  writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *deepCpy() const;
@@ -4590,11 +4592,11 @@ namespace ParaMEDMEM
         return MEDCouplingFieldDouble::MergeFields(tmp);
       }
 
-      static void WriteVTK(const char *fileName, PyObject *li, bool isBinary=true) throw(INTERP_KERNEL::Exception)
+      static std::string WriteVTK(const char *fileName, PyObject *li, bool isBinary=true) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const MEDCouplingFieldDouble *> tmp;
         convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
-        MEDCouplingFieldDouble::WriteVTK(fileName,tmp,isBinary);
+        return MEDCouplingFieldDouble::WriteVTK(fileName,tmp,isBinary);
       }
     }
   };

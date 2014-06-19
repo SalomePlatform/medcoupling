@@ -14936,6 +14936,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(mu.getNodalConnectivity().isEqual(DataArrayInt([1,0,3,4,2,1,4,5,4,3,6,7,5,4,7,8,7,6,9,10,8,7,10,11])))
         pass
 
+    def testSwig1GetValuesAsTuple1(self):
+        d=DataArrayDouble()
+        self.assertEqual(d.getValues(),[])
+        self.assertEqual(d.getValuesAsTuple(),[])
+        d=DataArrayDouble(24) ; d.iota() ; d.rearrange(3)
+        self.assertEqual(d.getValues(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.])
+        self.assertEqual(d.getValuesAsTuple(),[(0.,1.,2.0),(3.,4.,5.0),(6.,7.,8.0),(9.,10.,11.0),(12.,13.,14.0),(15.,16.,17.0),(18.,19.,20.0),(21.,22.,23.)]) 
+        d=DataArrayInt()
+        self.assertEqual(d.getValues(),[])
+        self.assertEqual(d.getValuesAsTuple(),[])
+        d=DataArrayInt(24) ; d.iota() ; d.rearrange(3)
+        self.assertEqual(d.getValues(),[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23])
+        self.assertEqual(d.getValuesAsTuple(),[(0,1,2),(3,4,5),(6,7,8),(9,10,11),(12,13,14),(15,16,17),(18,19,20),(21,22,23)])
+        pass
+
     def testSwig2AMR1(self):
         self.assertEqual((1,3,12),MEDCouplingStructuredMesh.GetSplitVectFromStruct([3,4,5]))
         self.assertEqual((3,2),MEDCouplingStructuredMesh.GetDimensionsFromCompactFrmt([(1,4),(2,4)]))

@@ -134,6 +134,8 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
  */
 void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue)
 {
+  if(!srcField || !targetField)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transfer : input field must be both not NULL !");
   transferUnderground(srcField,targetField,true,dftValue);
 }
 
@@ -148,34 +150,46 @@ void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCo
  */
 void MEDCouplingRemapper::partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField)
 {
+  if(!srcField || !targetField)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::partialTransfer : input field must be both not NULL !");
   transferUnderground(srcField,targetField,false,std::numeric_limits<double>::max());
 }
 
 void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue)
 {
+  if(!srcField || !targetField)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::reverseTransfer : input fields must be both not NULL !");
   checkPrepare();
+  targetField->checkCoherency();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
   if(_target_ft->getDiscretization()->getStringRepr()!=targetField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
   if(srcField->getNature()!=targetField->getNature())
     throw INTERP_KERNEL::Exception("Natures of fields mismatch !");
-  DataArrayDouble *array=srcField->getArray();
+  if(targetField->getNumberOfTuplesExpected()!=_target_ft->getNumberOfTuplesExpected())
+    {
+      std::ostringstream oss;
+      oss << "MEDCouplingRemapper::reverseTransfer : in given source field the number of tuples required is " << _target_ft->getNumberOfTuplesExpected() << " (on prepare) and number of tuples in given target field is " << targetField->getNumberOfTuplesExpected();
+      oss << " ! It appears that the target support is not the same between the prepare and the transfer !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  DataArrayDouble *array(srcField->getArray());
   int trgNbOfCompo=targetField->getNumberOfComponents();
   if(array)
     {
-      if(trgNbOfCompo!=srcField->getNumberOfComponents())
+      srcField->checkCoherency();
+      if(trgNbOfCompo!=srcField->getNumberOfTuplesExpected())
         throw INTERP_KERNEL::Exception("Number of components mismatch !");
     }
   else
     {
-      array=DataArrayDouble::New();
-      array->alloc(srcField->getNumberOfTuples(),trgNbOfCompo);
-      srcField->setArray(array);
-      array->decrRef();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble > tmp(DataArrayDouble::New());
+      tmp->alloc(srcField->getNumberOfTuplesExpected(),trgNbOfCompo);
+      srcField->setArray(tmp);
     }
   computeDeno(srcField->getNature(),srcField,targetField);
-  double *resPointer=array->getPointer();
+  double *resPointer(srcField->getArray()->getPointer());
   const double *inputPointer=targetField->getArray()->getConstPointer();
   computeReverseProduct(inputPointer,trgNbOfCompo,dftValue,resPointer);
 }
@@ -183,6 +197,9 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
 MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFieldDouble *srcField, double dftValue)
 {
   checkPrepare();
+  if(!srcField)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transferField : input srcField is NULL !");
+  srcField->checkCoherency();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(*_target_ft,srcField->getTimeDiscretization());
@@ -194,6 +211,9 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFiel
 
 MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue)
 {
+  if(!targetField)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transferField : input targetField is NULL !");
+  targetField->checkCoherency();
   checkPrepare();
   if(_target_ft->getDiscretization()->getStringRepr()!=targetField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
@@ -896,6 +916,9 @@ void MEDCouplingRemapper::releaseData(bool matrixSuppression)
 
 void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue)
 {
+  if(!srcField || !targetField)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transferUnderground : srcField or targetField is NULL !");
+  srcField->checkCoherency();
   checkPrepare();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
@@ -903,10 +926,18 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
   if(srcField->getNature()!=targetField->getNature())
     throw INTERP_KERNEL::Exception("Natures of fields mismatch !");
-  DataArrayDouble *array=targetField->getArray();
-  int srcNbOfCompo=srcField->getNumberOfComponents();
+  if(srcField->getNumberOfTuplesExpected()!=_src_ft->getNumberOfTuplesExpected())
+    {
+      std::ostringstream oss;
+      oss << "MEDCouplingRemapper::transferUnderground : in given source field the number of tuples required is " << _src_ft->getNumberOfTuplesExpected() << " (on prepare) and number of tuples in given source field is " << srcField->getNumberOfTuplesExpected();
+      oss << " ! It appears that the source support is not the same between the prepare and the transfer !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  DataArrayDouble *array(targetField->getArray());
+  int srcNbOfCompo(srcField->getNumberOfComponents());
   if(array)
     {
+      targetField->checkCoherency();
       if(srcNbOfCompo!=targetField->getNumberOfComponents())
         throw INTERP_KERNEL::Exception("Number of components mismatch !");
     }
@@ -914,14 +945,13 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
     {
       if(!isDftVal)
         throw INTERP_KERNEL::Exception("MEDCouplingRemapper::partialTransfer : This method requires that the array of target field exists ! Allocate it or call MEDCouplingRemapper::transfer instead !");
-      array=DataArrayDouble::New();
-      array->alloc(targetField->getNumberOfTuples(),srcNbOfCompo);
-      targetField->setArray(array);
-      array->decrRef();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(DataArrayDouble::New());
+      tmp->alloc(targetField->getNumberOfTuples(),srcNbOfCompo);
+      targetField->setArray(tmp);
     }
   computeDeno(srcField->getNature(),srcField,targetField);
-  double *resPointer=array->getPointer();
-  const double *inputPointer=srcField->getArray()->getConstPointer();
+  double *resPointer(targetField->getArray()->getPointer());
+  const double *inputPointer(srcField->getArray()->getConstPointer());
   computeProduct(inputPointer,srcNbOfCompo,isDftVal,dftValue,resPointer);
 }
 

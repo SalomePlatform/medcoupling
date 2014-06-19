@@ -8667,6 +8667,11 @@ std::string MEDCouplingUMesh::getVTKDataSetType() const
   return std::string("UnstructuredGrid");
 }
 
+std::string MEDCouplingUMesh::getVTKFileExtension() const
+{
+  return std::string("vtu");
+}
+
 /*!
  * Partitions the first given 2D mesh using the second given 2D mesh as a tool, and
  * returns a result mesh constituted by polygons.

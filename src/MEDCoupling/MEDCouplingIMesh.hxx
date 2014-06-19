@@ -99,6 +99,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
   private:
     MEDCouplingIMesh();
     MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCpy);

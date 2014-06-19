@@ -918,6 +918,11 @@ void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const
   coo->reprQuickOverviewData(stream,200);
 }
 
+std::string MEDCouplingCurveLinearMesh::getVTKFileExtension() const
+{
+  return std::string("vts");
+}
+
 std::string MEDCouplingCurveLinearMesh::getVTKDataSetType() const
 {
   return std::string("StructuredGrid");

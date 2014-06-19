@@ -251,6 +251,11 @@ std::string MEDCoupling1GTUMesh::getVTKDataSetType() const
   return std::string("UnstructuredGrid");
 }
 
+std::string MEDCoupling1GTUMesh::getVTKFileExtension() const
+{
+  return std::string("vtu");
+}
+
 std::size_t MEDCoupling1GTUMesh::getHeapMemorySizeWithoutChildren() const
 {
   return MEDCouplingPointSet::getHeapMemorySizeWithoutChildren();
