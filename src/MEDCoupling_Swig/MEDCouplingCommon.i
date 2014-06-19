@@ -427,14 +427,16 @@ namespace INTERP_KERNEL
   public:
     BoxSplittingOptions();
     void init() throw(INTERP_KERNEL::Exception);
-    double getEffeciency() const throw(INTERP_KERNEL::Exception);
-    void setEffeciency(double effeciency) throw(INTERP_KERNEL::Exception);
-    double getEffeciencySnd() const throw(INTERP_KERNEL::Exception);
-    void setEffeciencySnd(double effeciencySnd) throw(INTERP_KERNEL::Exception);
-    int getMinCellDirection() const throw(INTERP_KERNEL::Exception);
-    void setMinCellDirection(int minCellDirection) throw(INTERP_KERNEL::Exception);
-    int getMaxCells() const throw(INTERP_KERNEL::Exception);
-    void setMaxCells(int maxCells) throw(INTERP_KERNEL::Exception);
+    double getEfficiencyGoal() const throw(INTERP_KERNEL::Exception);
+    void setEfficiencyGoal(double efficiency) throw(INTERP_KERNEL::Exception);
+    double getEfficiencyThreshold() const throw(INTERP_KERNEL::Exception);
+    void setEfficiencyThreshold(double efficiencyThreshold) throw(INTERP_KERNEL::Exception);
+    int getMinimumPatchLength() const throw(INTERP_KERNEL::Exception);
+    void setMinimumPatchLength(int minPatchLength) throw(INTERP_KERNEL::Exception);
+    int getMaximumPatchLength() const throw(INTERP_KERNEL::Exception);
+    void setMaximumPatchLength(int maxPatchLength) throw(INTERP_KERNEL::Exception);
+    int getMaximumNbOfCellsInPatch() const throw(INTERP_KERNEL::Exception);
+    void setMaximumNbOfCellsInPatch(int maxNbCellsInPatch) throw(INTERP_KERNEL::Exception);
     void copyOptions(const BoxSplittingOptions & other) throw(INTERP_KERNEL::Exception);
     std::string printOptions() const throw(INTERP_KERNEL::Exception);
     %extend
@@ -2867,6 +2869,7 @@ namespace ParaMEDMEM
     int getNodeIdFromPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception);
     int getNumberOfCellsOfSubLevelMesh() const throw(INTERP_KERNEL::Exception);
     int getSpaceDimensionOnNodeStruct() const throw(INTERP_KERNEL::Exception);
+    double computeSquareness() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);

@@ -803,14 +803,17 @@ void MEDCouplingStructuredMesh::FindTheWidestAxisOfGivenRangeInCompactFrmt(const
  * \a partCompactFormat that contains all the True in \a crit. The returned vector of boolean is the field reduced to that part.
  * So the number of True is equal in \a st and in returned vector of boolean.
  *
+ * \param [in] minPatchLgth - minimum length that the patch may have for all directions.
  * \param [in] st - The structure per axis of the structured mesh considered.
  * \param [in] crit - The field of boolean (for performance reasons) lying on the mesh defined by \a st.
  * \param [out] partCompactFormat - The minimal part of \a st containing all the true of \a crit.
  * \param [out] reducedCrit - The reduction of \a criterion on \a partCompactFormat.
  * \return - The number of True in \a st (that is equal to those in \a reducedCrit)
  */
-int MEDCouplingStructuredMesh::FindMinimalPartOf(const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
+int MEDCouplingStructuredMesh::FindMinimalPartOf(int minPatchLgth, const std::vector<int>& st, const std::vector<bool>& crit, std::vector<bool>& reducedCrit, std::vector< std::pair<int,int> >& partCompactFormat)
 {
+  if(minPatchLgth<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : the input minPatchLgth has to be >=0 !");
   if((int)crit.size()!=DeduceNumberOfGivenStructure(st))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : size of vector of boolean is invalid regarding the declared structure !");
   int ret(-1);
@@ -834,6 +837,29 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf(const std::vector<int>& st, con
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : only dimension 1, 2 and 3 are supported actually !");
   }
+  std::vector<int> dims(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(partCompactFormat));
+  int i(0);
+  for(std::vector< std::pair<int,int> >::iterator it=partCompactFormat.begin();it!=partCompactFormat.end();it++,i++)
+    {
+      if(st[i]<minPatchLgth)
+        throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::FindMinimalPartOf : the input patch is tinier than the min length constraint !");
+      int start((*it).first),stop((*it).second),middle((start+stop)/2);
+      if(stop-start<minPatchLgth)
+        {
+          (*it).first=middle-minPatchLgth/2;
+          (*it).second=middle+minPatchLgth-minPatchLgth/2;
+          if((*it).first<0)
+            {
+              (*it).second+=-(*it).first;
+              (*it).first=0;
+            }
+          if((*it).second>st[i])
+            {
+              (*it).first-=(*it).second-st[i];
+              (*it).second=st[i];
+            }
+        }
+    }
   ExtractFieldOfBoolFrom(st,crit,partCompactFormat,reducedCrit);
   return ret;
 }
@@ -1036,7 +1062,16 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf1D(const std::vector<int>& st, c
         }
     }
   if(ret==0)
-    return ret;
+    {
+      std::size_t sz(st.size());
+      partCompactFormat.resize(sz);
+      for(std::size_t i=0;i<sz;i++)
+        {
+          partCompactFormat[i].first=st[i]/2;
+          partCompactFormat[i].second=st[i]/2;
+        }
+      return ret;
+    }
   partCompactFormat.resize(1);
   partCompactFormat[0].first=nxMin; partCompactFormat[0].second=nxMax+1;
   return ret;
@@ -1063,7 +1098,16 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf2D(const std::vector<int>& st, c
           }
       }
   if(ret==0)
-    return ret;
+    {
+      std::size_t sz(st.size());
+      partCompactFormat.resize(sz);
+      for(std::size_t i=0;i<sz;i++)
+        {
+          partCompactFormat[i].first=st[i]/2;
+          partCompactFormat[i].second=st[i]/2;
+        }
+      return ret;
+    }
   partCompactFormat.resize(2);
   partCompactFormat[0].first=nxMin; partCompactFormat[0].second=nxMax+1;
   partCompactFormat[1].first=nyMin; partCompactFormat[1].second=nyMax+1;
@@ -1093,7 +1137,16 @@ int MEDCouplingStructuredMesh::FindMinimalPartOf3D(const std::vector<int>& st, c
             }
         }
   if(ret==0)
-    return ret;
+    {
+      std::size_t sz(st.size());
+      partCompactFormat.resize(sz);
+      for(std::size_t i=0;i<sz;i++)
+        {
+          partCompactFormat[i].first=st[i]/2;
+          partCompactFormat[i].second=st[i]/2;
+        }
+      return ret;
+    }
   partCompactFormat.resize(3);
   partCompactFormat[0].first=nxMin; partCompactFormat[0].second=nxMax+1;
   partCompactFormat[1].first=nyMin; partCompactFormat[1].second=nyMax+1;
@@ -1233,6 +1286,30 @@ std::vector<int> MEDCouplingStructuredMesh::getCellGridStructure() const
   std::vector<int> ret(getNodeGridStructure());
   std::transform(ret.begin(),ret.end(),ret.begin(),std::bind2nd(std::plus<int>(),-1));
   return ret;
+}
+
+/*!
+ * This method returns the squareness of \a this (quadrature). \a this is expected to be with a mesh dimension equal to 2 or 3.
+ */
+double MEDCouplingStructuredMesh::computeSquareness() const
+{
+  std::vector<int> cgs(getCellGridStructure());
+  if(cgs.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::computeSquareness : empty mesh !");
+  std::size_t dim(cgs.size());
+  if(dim==1)
+    throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::computeSquareness : A segment cannot be square !");
+  if(dim<4)
+    {
+      int minAx(cgs[0]),maxAx(cgs[0]);
+      for(std::size_t i=1;i<dim;i++)
+        {
+          minAx=std::min(minAx,cgs[i]);
+          maxAx=std::max(maxAx,cgs[i]);
+        }
+      return (double)minAx/(double)maxAx;
+    }
+  throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::computeSquareness : only dimension 2 and 3 supported !");
 }
 
 /*!
