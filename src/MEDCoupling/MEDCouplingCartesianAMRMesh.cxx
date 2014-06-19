@@ -790,14 +790,12 @@ void DissectBigPatch(const INTERP_KERNEL::BoxSplittingOptions& bso, const Intern
 {
   int minimumPatchLength(bso.getMinimumPatchLength());
   std::vector<double> ratio(largestLength-minimumPatchLength,std::numeric_limits<double>::max());
-  const int dim(patchToBeSplit->getDimension());
   int index_min = -1;
   double minSemiEfficiencyRatio(std::numeric_limits<double>::max());
   double efficiencyPerAxis[2];
 
   for(int i=minimumPatchLength-1;i<largestLength-minimumPatchLength;i++)
     {
-      int numberOfFlags_h;
       for(int h=0;h<2;h++)
         {
           std::vector< std::pair<int,int> > rectH(patchToBeSplit->getConstPart());

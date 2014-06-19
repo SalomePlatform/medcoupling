@@ -40,12 +40,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field3.setName( "Barycenter" ) # name is necessary!
 
         # WriteVTK
-        fileName = "testExample_MEDCouplingFieldDouble_WriteVTK.vtk"
+        fileName = "testExample_MEDCouplingFieldDouble_WriteVTK"
         fs = [ field1, field2, field3 ] # field series
-        MEDCouplingFieldDouble.WriteVTK( fileName, fs )
+        writtenFileName=MEDCouplingFieldDouble.WriteVTK( fileName, fs )
+	print "The file name with correct extension is : %s"%(writtenFileName)
         #! [PySnippet_MEDCouplingFieldDouble_WriteVTK_1]
         import os
-        os.remove( fileName )   
+        os.remove( writtenFileName )
 
         return
 
