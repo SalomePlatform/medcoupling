@@ -4939,7 +4939,6 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRMeshGen : public RefCountObject, public TimeLabel
   {
   public:
-    virtual MEDCouplingCartesianAMRMeshGen *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const throw(INTERP_KERNEL::Exception);
     int getAbsoluteLevel() const throw(INTERP_KERNEL::Exception);
     int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getPositionRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const throw(INTERP_KERNEL::Exception);
@@ -4996,6 +4995,12 @@ namespace ParaMEDMEM
             PyList_SetItem(ret,i,convertCartesianAMRPatch(elt, SWIG_POINTER_OWN | 0 ));
           }
         return ret;
+      }
+
+      // agy : don't know why typemap fails here ??? let it in the extend section
+      PyObject *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const throw(INTERP_KERNEL::Exception)
+      {
+        return convertCartesianAMRMesh(self->deepCpy(father), SWIG_POINTER_OWN | 0 );
       }
 
       MEDCouplingCartesianAMRPatch *getPatchAtPosition(const std::vector<int>& pos) const throw(INTERP_KERNEL::Exception)
