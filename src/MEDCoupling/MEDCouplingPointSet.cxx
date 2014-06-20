@@ -1474,11 +1474,10 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   int nbCells=getNumberOfCells();
   if (nbCells != other->getNumberOfCells())
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
-  int maxId=-1;
-  int dan = da->getNumberOfTuples();
+  int dan(da->getNumberOfTuples());
   if (dan)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da1 = DataArrayInt::New(), da2 = DataArrayInt::New();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da1(DataArrayInt::New()),da2(DataArrayInt::New());
       da1->alloc(dan/2,1); da2->alloc(dan/2,1);
       std::copy(da->getConstPointer(), da->getConstPointer()+dan/2, da1->getPointer());
       std::copy(da->getConstPointer()+dan/2, da->getConstPointer()+dan, da2->getPointer());
