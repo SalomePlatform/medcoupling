@@ -370,6 +370,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void updateTime() const { }
     MEDCOUPLING_EXPORT MemArray<double>& accessToMemArray() { return _mem; }
     MEDCOUPLING_EXPORT const MemArray<double>& accessToMemArray() const { return _mem; }
+    MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool(double eps) const;
   public:
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -784,6 +785,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const;
+    MEDCOUPLING_EXPORT std::vector<bool> toVectorOfBool() const;
   private:
     ~DataArrayByte() { }
     DataArrayByte() { }

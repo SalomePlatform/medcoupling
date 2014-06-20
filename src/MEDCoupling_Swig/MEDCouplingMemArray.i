@@ -5194,6 +5194,223 @@ namespace ParaMEDMEM
             return ParaMEDMEM_DataArrayByte_presenceOfTuple(self,obj);
           }
       }
+
+      DataArrayByte *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+      {
+        self->checkAllocated();
+        const char msg[]="Unexpected situation in __setitem__ !";
+        int nbOfTuples(self->getNumberOfTuples()),nbOfComponents(self->getNumberOfComponents());
+        int sw1,sw2;
+        int i1;
+        std::vector<int> v1;
+        DataArrayInt *d1=0;
+        DataArrayIntTuple *dd1=0;
+        convertObjToPossibleCpp1(value,sw1,i1,v1,d1,dd1);
+        int it1,ic1;
+        std::vector<int> vt1,vc1;
+        std::pair<int, std::pair<int,int> > pt1,pc1;
+        DataArrayInt *dt1=0,*dc1=0;
+        convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw2,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+        switch(sw2)
+          {
+          case 1:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple1(i1,it1,it1+1,1,0,nbOfComponents,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 2:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 3:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 4:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 5:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple1(i1,it1,it1+1,1,ic1,ic1+1,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 6:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 7:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 8:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 9:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple2(i1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 10:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple2(i1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 11:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple4(i1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 12:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple2(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 13:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple1(i1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 14:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple3(i1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 15:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple1(i1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          case 16:
+            {
+              switch(sw1)
+                {
+                case 1:
+                  self->setPartOfValuesSimple3(i1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
+                  return self;
+                default:
+                  throw INTERP_KERNEL::Exception(msg);
+                }
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception(msg);
+          }
+        return self;
+      }
     }
   };
 

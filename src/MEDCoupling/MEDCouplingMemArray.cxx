@@ -4108,7 +4108,7 @@ DataArrayDouble *DataArrayDouble::computeAbs() const
 }
 
 /*!
- * Apply a liner function to a given component of \a this array, so that
+ * Apply a linear function to a given component of \a this array, so that
  * an array element <em>(x)</em> becomes \f$ a * x + b \f$.
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.
@@ -4131,7 +4131,7 @@ void DataArrayDouble::applyLin(double a, double b, int compoId)
 }
 
 /*!
- * Apply a liner function to all elements of \a this array, so that
+ * Apply a linear function to all elements of \a this array, so that
  * an element _x_ becomes \f$ a * x + b \f$.
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.
@@ -5582,6 +5582,37 @@ void DataArrayDouble::powEqual(const DataArrayDouble *other)
         }
     }
   declareAsNew();
+}
+
+/*!
+ * This method is \b NOT wrapped into python because it can be useful only for performance reasons in C++ context.
+ * All values in \a this must be 0. or 1. within eps error. 0 means false, 1 means true.
+ * If an another value than 0 or 1 appear (within eps precision) an INTERP_KERNEL::Exception will be thrown.
+ *
+ * \throw if \a this is not allocated.
+ * \throw if \a this has not exactly one component.
+ */
+std::vector<bool> DataArrayDouble::toVectorOfBool(double eps) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::toVectorOfBool : must be applied on single component array !");
+  int nbt(getNumberOfTuples());
+  std::vector<bool> ret(nbt);
+  const double *pt(begin());
+  for(int i=0;i<nbt;i++)
+    {
+      if(fabs(pt[i])<eps)
+        ret[i]=false;
+      else if(fabs(pt[i]-1.)<eps)
+        ret[i]=true;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::toVectorOfBool : the tuple #" << i << " has value " << pt[i] << " is invalid ! must be 0. or 1. !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return ret;
 }
 
 /*!

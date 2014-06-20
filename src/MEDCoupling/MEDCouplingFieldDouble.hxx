@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other);
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT void writeVTK(const std::string& fileName, bool isBinary=true) const;
+    MEDCOUPLING_EXPORT std::string writeVTK(const std::string& fileName, bool isBinary=true) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMerge(const MEDCouplingField *other) const;
@@ -115,6 +115,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getValueOn(const double *spaceLoc, double time, double *res) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const double *spaceLoc, int nbOfPoints) const;
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
+    MEDCOUPLING_EXPORT void applyLin(double a, double b);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const std::string& func);
@@ -190,7 +191,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const;
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT static void WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
+    MEDCOUPLING_EXPORT static std::string WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
   public:
     MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }

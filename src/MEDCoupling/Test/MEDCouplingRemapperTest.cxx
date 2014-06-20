@@ -126,7 +126,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0R_1()
   
   MEDCouplingFieldDouble *targetField=MEDCouplingFieldDouble::New(ON_CELLS);
   targetField->setNature(ConservativeVolumic);
-  targetField->setMesh(sourceMesh);
+  targetField->setMesh(targetMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);
   targetField->setArray(array);

@@ -689,16 +689,41 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
 
 /*!
  * Writes \a this mesh into a VTK format file named as specified.
- *  \param [in] fileName - the name of the file to write in.
+ *  \param [in] fileName - the name of the file to write in. If the extension is OK the fileName will be used directly.
+ *                         If extension is invalid or no extension the right extension will be appended.
+ *  \return - the real fileName
  *  \throw If \a fileName is not a writable file.
+ *  \sa getVTKFileNameOf
  */
-void MEDCouplingMesh::writeVTK(const std::string& fileName, bool isBinary) const
+std::string MEDCouplingMesh::writeVTK(const std::string& fileName, bool isBinary) const
 {
+  std::string ret(getVTKFileNameOf(fileName));
+  //
   std::string cda,pda;
   MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
   if(isBinary)
     { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
-  writeVTKAdvanced(fileName,cda,pda,byteArr);
+  writeVTKAdvanced(ret,cda,pda,byteArr);
+  return ret;
+}
+
+/*!
+ * This method takes in input a file name \a fileName and considering the VTK extension of \a this (depending on the type of \a this)
+ * returns a right file name. If the input \a fileName has a valid extension the returned string is equal to \a fileName.
+ *
+ * \sa  getVTKFileExtension
+ */
+std::string MEDCouplingMesh::getVTKFileNameOf(const std::string& fileName) const
+{
+  std::string ret;
+  std::string part0,part1;
+  SplitExtension(fileName,part0,part1);
+  std::string ext("."); ext+=getVTKFileExtension();
+  if(part1==ext)
+    ret=fileName;
+  else
+    ret=fileName+ext;
+  return ret;
 }
 
 void MEDCouplingMesh::writeVTKAdvanced(const std::string& fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const
@@ -719,4 +744,17 @@ void MEDCouplingMesh::writeVTKAdvanced(const std::string& fileName, const std::s
       ofs << "</VTKFile>\n";
       ofs.close();
     }
+}
+
+void MEDCouplingMesh::SplitExtension(const std::string& fileName, std::string& baseName, std::string& extension)
+{
+  std::size_t pos(fileName.find_last_of('.'));
+  if(pos==std::string::npos)
+    {
+      baseName=fileName;
+      extension.clear();
+      return ;
+    }
+  baseName=fileName.substr(0,pos);
+  extension=fileName.substr(pos);
 }

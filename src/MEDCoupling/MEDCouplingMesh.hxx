@@ -145,9 +145,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
     MEDCOUPLING_EXPORT virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                                     const std::vector<std::string>& littleStrings) = 0;
-    MEDCOUPLING_EXPORT void writeVTK(const std::string& fileName, bool isBinary=true) const;
+    MEDCOUPLING_EXPORT std::string writeVTK(const std::string& fileName, bool isBinary=true) const;
+    MEDCOUPLING_EXPORT std::string getVTKFileNameOf(const std::string& fileName) const;
+    MEDCOUPLING_EXPORT virtual std::string getVTKFileExtension() const = 0;
     /// @cond INTERNAL
     MEDCOUPLING_EXPORT void writeVTKAdvanced(const std::string& fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const;
+    MEDCOUPLING_EXPORT static void SplitExtension(const std::string& fileName, std::string& baseName, std::string& extension);
     /// @endcond
     MEDCOUPLING_EXPORT virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const = 0;
     MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;

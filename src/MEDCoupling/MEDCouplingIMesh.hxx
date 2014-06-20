@@ -46,11 +46,17 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getAxisUnit() const;
     MEDCOUPLING_EXPORT double getMeasureOfAnyCell() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *convertToCartesian() const;
-    MEDCOUPLING_EXPORT void refineWithFactor(int factor);
-    MEDCOUPLING_EXPORT static void CondenseFineToCoarse(DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse);
+    MEDCOUPLING_EXPORT void refineWithFactor(const std::vector<int>& factors);
+    MEDCOUPLING_EXPORT MEDCouplingIMesh *asSingleCell() const;
+    MEDCOUPLING_EXPORT static void CondenseFineToCoarse(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA);
+    MEDCOUPLING_EXPORT static void CondenseFineToCoarseGhost(const std::vector<int>& coarseSt, const DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, DataArrayDouble *coarseDA, int ghostSize);
+    MEDCOUPLING_EXPORT static void SpreadCoarseToFine(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts);
+    MEDCOUPLING_EXPORT static void SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
+    MEDCOUPLING_EXPORT static void SpreadCoarseToFineGhostZone(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingIMesh *buildWithGhost(int ghostLev) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
@@ -93,6 +99,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                             const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
   private:
     MEDCouplingIMesh();
     MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCpy);
@@ -104,6 +111,8 @@ namespace ParaMEDMEM
     void checkSpaceDimension() const;
     static void CheckSpaceDimension(int spaceDim);
     static int FindIntRoot(int val, int order);
+    static void SpreadCoarseToFineGhost2D(const double *inPtr, double *outPtr, int nbCompo, const std::vector<int>& coarseSt, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
+    static void SpreadCoarseToFineGhostZone2D(const double *inPtr, double *outPtr, int nbCompo, const std::vector<int>& coarseSt, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
   private:
     int _space_dim;
     double _origin[3];

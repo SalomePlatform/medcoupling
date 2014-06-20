@@ -315,6 +315,7 @@ class MEDLoaderTest(unittest.TestCase):
         fileName="Pyfile14.med";
         f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1();
         MEDLoader.MEDLoader.WriteField(fileName,f1,True);
+        self.assertEqual([MEDLoader.ON_GAUSS_NE],MEDLoader.MEDLoader.GetTypesOfField(fileName,'2DMesh_2','MyFieldOnGaussNE')) #Bug 22/5/2014
         f2=MEDLoader.MEDLoader.ReadField(MEDLoader.ON_GAUSS_NE,fileName,f1.getMesh().getName(),0,f1.getName(),1,5);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
         pass

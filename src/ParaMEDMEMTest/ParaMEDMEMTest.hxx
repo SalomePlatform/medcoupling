@@ -68,7 +68,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
 #endif
   CPPUNIT_TEST(testStructuredCoincidentDEC);
   CPPUNIT_TEST(testStructuredCoincidentDEC);
-  CPPUNIT_TEST(testICocoTrio1);
+  CPPUNIT_TEST(testICoco1);
   CPPUNIT_TEST(testGauthier1);
   CPPUNIT_TEST(testGauthier2);
   CPPUNIT_TEST(testGauthier3);
@@ -123,7 +123,7 @@ public:
   void testAsynchronousSlowSourceInterpKernelDEC_2D();
   void testAsynchronousFastSourceInterpKernelDEC_2D();
   //
-  void testICocoTrio1();
+  void testICoco1();
   void testGauthier1();
   void testGauthier2();
   void testGauthier3();

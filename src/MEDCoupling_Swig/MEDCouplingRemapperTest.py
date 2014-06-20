@@ -760,6 +760,31 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expArr2=DataArrayDouble([0.49,7.956666666666667,7.956666666666667,7.956666666666667,27.29,27.29,59.95666666666667,59.95666666666667,59.95666666666667,94.09,125.69,125.69,202.89,202.89,202.89,202.89,296.09,296.09,-36.])
         self.assertTrue(f2Test.getArray().isEqual(expArr2,1e-12))
         pass
+
+    def testRemapperAMR1(self):
+        """ This test is the origin of the ref values for MEDCouplingBasicsTest.testAMR2"""
+        coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
+        fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
+        MEDCouplingIMesh.CondenseFineToCoarse([5,7],fine,[(1,4),(2,4)],[4,4],coarse)
+        #
+        m=MEDCouplingCartesianAMRMesh("mesh",2,[6,8],[0.,0.],[1.,1.])
+        trgMesh=m.buildUnstructured()
+        m.addPatch([(1,4),(2,4)],[4,4])
+        srcMesh=m[0].getMesh().buildUnstructured()
+        srcField=MEDCouplingFieldDouble(ON_CELLS)
+        fine2=DataArrayDouble(3*2*4*4) ; fine2.iota(0) ; srcField.setArray(fine2)
+        srcField.setMesh(srcMesh) ; srcField.setNature(Integral)
+        #
+        trgField=MEDCouplingFieldDouble(ON_CELLS)
+        coarse2=DataArrayDouble(35) ; coarse2.iota(0) ; trgField.setArray(coarse2)
+        trgField.setMesh(trgMesh) ; trgField.setNature(Integral)
+        #
+        rem=MEDCouplingRemapper()
+        rem.prepare(srcMesh,trgMesh,"P0P0")
+        rem.partialTransfer(srcField,trgField)
+        #
+        self.assertTrue(coarse.isEqual(trgField.getArray(),1e-12))
+        pass
     
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]

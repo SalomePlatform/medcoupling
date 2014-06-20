@@ -138,6 +138,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void setUniformValue(int nbOfTuple, int nbOfCompo, double value);
     MEDCOUPLING_EXPORT virtual void setOrCreateUniformValueOnAllComponents(int nbOfTuple, double value);
     MEDCOUPLING_EXPORT virtual void applyLin(double a, double b, int compoId);
+    MEDCOUPLING_EXPORT virtual void applyLin(double a, double b);
     MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, const std::string& func);
     MEDCOUPLING_EXPORT virtual void applyFunc2(int nbOfComp, const std::string& func);

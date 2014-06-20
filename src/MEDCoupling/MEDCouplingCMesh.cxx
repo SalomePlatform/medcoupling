@@ -915,6 +915,11 @@ void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const
     }
 }
 
+std::string MEDCouplingCMesh::getVTKFileExtension() const
+{
+  return std::string("vtr");
+}
+
 std::string MEDCouplingCMesh::getVTKDataSetType() const
 {
   return std::string("RectilinearGrid");

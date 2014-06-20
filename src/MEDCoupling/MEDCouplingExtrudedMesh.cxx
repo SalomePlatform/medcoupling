@@ -953,6 +953,11 @@ void MEDCouplingExtrudedMesh::reprQuickOverview(std::ostream& stream) const
   stream << "MEDCouplingExtrudedMesh C++ instance at " << this << ". Name : \"" << getName() << "\".";
 }
 
+std::string MEDCouplingExtrudedMesh::getVTKFileExtension() const
+{
+  return _mesh2D->getVTKFileExtension();
+}
+
 std::string MEDCouplingExtrudedMesh::getVTKDataSetType() const
 {
   return _mesh2D->getVTKDataSetType();

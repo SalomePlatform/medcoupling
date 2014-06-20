@@ -28,20 +28,16 @@
 
 namespace ICoCo
 {
-  class TrioField;
-  
   class MEDField : public ICoCo::Field
   {
   public:
-    MEDField():_mesh(0),_field(0) { }
-    MEDField(ParaMEDMEM::MEDCouplingUMesh* mesh, ParaMEDMEM::MEDCouplingFieldDouble* field);
-    MEDField(TrioField&);
+    MEDField():_field(0) { }
+    MEDField(ParaMEDMEM::MEDCouplingFieldDouble* field);
     virtual ~MEDField();
-    ParaMEDMEM::MEDCouplingFieldDouble* getField() const  { return _field; }
-    ParaMEDMEM::MEDCouplingUMesh* getMesh()const { return _mesh; }
+    ParaMEDMEM::MEDCouplingFieldDouble *getField() const  { return _field; }
+    const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _field->getMesh(); }
   private:
-    ParaMEDMEM::MEDCouplingUMesh* _mesh;
-    ParaMEDMEM::MEDCouplingFieldDouble* _field;
+    ParaMEDMEM::MEDCouplingFieldDouble *_field;
   };
 }
 

@@ -48,6 +48,9 @@ DataArrayIntTuple.__imul__=ParaMEDMEMDataArrayIntTupleImul
 DataArrayIntTuple.__idiv__=ParaMEDMEMDataArrayIntTupleIdiv
 DataArrayIntTuple.__imod__=ParaMEDMEMDataArrayIntTupleImod
 
+DenseMatrix.__iadd__=ParaMEDMEMDenseMatrixIadd
+DenseMatrix.__isub__=ParaMEDMEMDenseMatrixIsub
+
 del ParaMEDMEMDataArrayDoubleIadd
 del ParaMEDMEMDataArrayDoubleIsub
 del ParaMEDMEMDataArrayDoubleImul
@@ -71,4 +74,6 @@ del ParaMEDMEMDataArrayIntTupleIsub
 del ParaMEDMEMDataArrayIntTupleImul
 del ParaMEDMEMDataArrayIntTupleIdiv
 del ParaMEDMEMDataArrayIntTupleImod
+del ParaMEDMEMDenseMatrixIadd
+del ParaMEDMEMDenseMatrixIsub
 %}

@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
     MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     MEDCOUPLING_EXPORT std::string getVTKDataSetType() const;
+    MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
     //
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT int getNodalConnectivityLength() const;

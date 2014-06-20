@@ -494,7 +494,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
-  ICoCo::Field* icocofield ;
+  ICoCo::MEDField* icocofield ;
   
   string filename_xml1              = getResourceFile("square1_split");
   string filename_xml2              = getResourceFile("square2_split");
@@ -539,7 +539,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
         value[ielem]=1.0;
     
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+      icocofield=new ICoCo::MEDField(parafield->getField());
       dec.setMethod(srcMeth);
       dec.attachLocalField(icocofield);
     }
@@ -574,7 +574,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+      icocofield=new ICoCo::MEDField(parafield->getField());
       dec.setMethod(targetMeth);
       dec.attachLocalField(icocofield);
     }
@@ -857,7 +857,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
-  ICoCo::Field* icocofield ;
+  ICoCo::MEDField* icocofield ;
   
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
@@ -905,7 +905,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
         value[ielem]=1.0;
     
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+      icocofield=new ICoCo::MEDField(parafield->getField());
       dec.setMethod(srcMeth);
       dec.attachLocalField(icocofield);
     }
@@ -940,7 +940,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+      icocofield=new ICoCo::MEDField(parafield->getField());
       dec.setMethod(targetMeth);
       dec.attachLocalField(icocofield);
     }  
@@ -2106,7 +2106,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
   
-  ICoCo::Field* icocofield ;
+  ICoCo::MEDField* icocofield ;
 
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
@@ -2155,7 +2155,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
         value[ielem]=0.0;
     
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+      icocofield=new ICoCo::MEDField(parafield->getField());
      
       dec.attachLocalField(icocofield);
 
@@ -2194,7 +2194,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       //      ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
-      icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
+      icocofield=new ICoCo::MEDField(parafield->getField());
       
       dec.attachLocalField(icocofield);
     }

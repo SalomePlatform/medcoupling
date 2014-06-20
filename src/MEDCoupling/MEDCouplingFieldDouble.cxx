@@ -451,10 +451,10 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
   return ret.str();
 }
 
-void MEDCouplingFieldDouble::writeVTK(const std::string& fileName, bool isBinary) const
+std::string MEDCouplingFieldDouble::writeVTK(const std::string& fileName, bool isBinary) const
 {
   std::vector<const MEDCouplingFieldDouble *> fs(1,this);
-  MEDCouplingFieldDouble::WriteVTK(fileName,fs,isBinary);
+  return MEDCouplingFieldDouble::WriteVTK(fileName,fs,isBinary);
 }
 
 bool MEDCouplingFieldDouble::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const
@@ -1445,7 +1445,7 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
 }
 
 /*!
- * Apply a liner function to a given component of \a this field, so that
+ * Apply a linear function to a given component of \a this field, so that
  * a component value <em>(x)</em> becomes \f$ a * x + b \f$.
  *  \param [in] a - the first coefficient of the function.
  *  \param [in] b - the second coefficient of the function.
@@ -1455,6 +1455,18 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
 void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
 {
   _time_discr->applyLin(a,b,compoId);
+}
+
+/*!
+ * Apply a linear function to all components of \a this field, so that
+ * values <em>(x)</em> becomes \f$ a * x + b \f$.
+ *  \param [in] a - the first coefficient of the function.
+ *  \param [in] b - the second coefficient of the function.
+ *  \throw If the data array(s) is(are) not set.
+ */
+void MEDCouplingFieldDouble::applyLin(double a, double b)
+{
+  _time_discr->applyLin(a,b);
 }
 
 /*!
@@ -1865,25 +1877,32 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
 }
 
 /*!
+ * Use MEDCouplingField::getNumberOfTuplesExpected instead of this method. This method will be removed soon, because it is
+ * confusing compared to getNumberOfComponents() and getNumberOfValues() behaviour.
+ *
  * Returns number of tuples in \a this field, that depends on 
  * - the number of entities in the underlying mesh
  * - \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field (e.g. number
  * of Gauss points if \a this->getTypeOfField() == 
  * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT").
  *
- * The returned value does **not depend** on the number of tuples in the data array
+ * The returned value does \b not \b depend on the number of tuples in the data array
  * (which has to be equal to the returned value), \b contrary to
  * getNumberOfComponents() and getNumberOfValues() that retrieve information from the
- * data array.
+ * data array (Sorry, it is confusing !).
+ * So \b this \b method \b behaves \b exactly \b as MEDCouplingField::getNumberOfTuplesExpected \b method.
+ *
  * \warning No checkCoherency() is done here.
  * For more info on the data arrays, see \ref MEDCouplingArrayPage.
  *  \return int - the number of tuples.
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the spatial discretization is not fully defined.
+ *  \sa MEDCouplingField::getNumberOfTuplesExpected
  */
 int MEDCouplingFieldDouble::getNumberOfTuples() const
 {
+  //std::cerr << " ******* MEDCouplingFieldDouble::getNumberOfTuples is deprecated : use MEDCouplingField::getNumberOfTuplesExpected instead ! ******" << std::endl;
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Impossible to retrieve number of tuples because no mesh specified !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
@@ -3230,10 +3249,10 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCoupli
  *  \ref  py_mcfielddouble_WriteVTK "Here is a Python example".
  *  \endif
  */
-void MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary)
+std::string MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary)
 {
   if(fs.empty())
-    return;
+    return std::string();
   std::size_t nfs=fs.size();
   if(!fs[0])
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : 1st instance of field is NULL !");
@@ -3245,6 +3264,7 @@ void MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const std::ve
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are not lying on a same mesh ! Expected by VTK ! MEDCouplingFieldDouble::setMesh or MEDCouplingFieldDouble::changeUnderlyingMesh can help to that.");
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are lying on a same mesh but it is empty !");
+  std::string ret(m->getVTKFileNameOf(fileName));
   MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
   if(isBinary)
     { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
@@ -3266,7 +3286,8 @@ void MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const std::ve
       else
         throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : only node and cell fields supported for the moment !");
     }
-  m->writeVTKAdvanced(fileName,coss.str(),noss.str(),byteArr);
+  m->writeVTKAdvanced(ret,coss.str(),noss.str(),byteArr);
+  return ret;
 }
 
 void MEDCouplingFieldDouble::reprQuickOverview(std::ostream& stream) const

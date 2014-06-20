@@ -20,6 +20,10 @@
 
 #include "MEDCouplingTimeLabel.hxx"
 
+#include "InterpKernelException.hxx"
+
+#include <limits>
+
 using namespace ParaMEDMEM;
 
 std::size_t TimeLabel::GLOBAL_TIME=0;
@@ -56,4 +60,53 @@ void TimeLabel::updateTimeWith(const TimeLabel& other) const
 void TimeLabel::forceTimeOfThis(const TimeLabel& other) const
 {
   _time=other._time;
+}
+
+TimeLabelConstOverseer::TimeLabelConstOverseer(const TimeLabel *tl):_tl(tl),_ref_time(std::numeric_limits<std::size_t>::max())
+{
+  if(!_tl)
+    throw INTERP_KERNEL::Exception("TimeLabelConstOverseer constructor : input instance must be not NULL !");
+  _tl->updateTime();
+  _ref_time=tl->getTimeOfThis();
+}
+
+/*!
+ * This method checks that the tracked instance is not NULL and if not NULL that its internal state has not changed.
+ */
+void TimeLabelConstOverseer::checkConst() const
+{
+  if(!_tl)
+    throw INTERP_KERNEL::Exception("TimeLabelConstOverseer::checkConst : NULL tracked instance !");
+  _tl->updateTime();
+  if(_ref_time!=_tl->getTimeOfThis())
+    throw INTERP_KERNEL::Exception("TimeLabelConstOverseer::checkConst : the state of the controlled instance of TimeLable has changed !");
+}
+
+bool TimeLabelConstOverseer::resetState()
+{
+  if(_tl)
+    {
+      _tl->updateTime();
+      _ref_time=_tl->getTimeOfThis();
+      return true;
+    }
+  else
+    return false;
+}
+
+bool TimeLabelConstOverseer::keepTrackOfNewTL(const TimeLabel *tl)
+{
+  if(_tl==tl)
+    return false;
+  _tl=tl;
+  if(_tl)
+    {
+      _tl->updateTime();
+      _ref_time=_tl->getTimeOfThis();
+    }
+  else
+    {
+      _ref_time=std::numeric_limits<std::size_t>::max();
+    }
+  return true;
 }

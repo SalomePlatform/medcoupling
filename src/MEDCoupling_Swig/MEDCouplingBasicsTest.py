@@ -13525,7 +13525,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         a,b=MEDCouplingStructuredMesh.IsPartStructured(d20,st)
         self.assertTrue(a) ; self.assertEqual(b,[(1,5),(0,3)])
         self.assertEqual(12,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt(b))
-        self.assertEqual(8,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(1,5),(1,3),(2,2)]))
+        self.assertEqual(0,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(1,5),(1,3),(2,2)]))
         self.assertEqual(0,MEDCouplingStructuredMesh.DeduceNumberOfGivenRangeInCompactFrmt([(5,5),(3,3),(2,2)]))
         self.assertEqual(36,MEDCouplingStructuredMesh.DeduceNumberOfGivenStructure([3,2,6]))
         self.assertEqual(126,MEDCouplingStructuredMesh.DeduceNumberOfGivenStructure((3,7,6)))
@@ -14635,7 +14635,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(mu.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30])))
         coo0=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0),(0,1,0),(1,1,0),(2,1,0),(0,2,0),(1,2,0),(2,2,0),(0,3,0),(1,3,0),(2,3,0)])
         self.assertTrue(mu.getCoords().isEqual(coo0,1e-12))
-        mu.writeVTK("tutu.vtu")
         #
         m=MEDCouplingCMesh()
         arrX=DataArrayDouble(3) ; arrX.iota()
@@ -14861,7 +14860,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m2bis.isEqual(m2,1e-12))
         #
         self.assertEqual(6,m2bis.getNumberOfCells())#3,2,4
-        m2bis.refineWithFactor(3)
+        m2bis.refineWithFactor([3,3,3])
         self.assertEqual(162,m2bis.getNumberOfCells())
         self.assertEqual((7,4,10),m2bis.getNodeStruct())
         self.assertEqual((1.5,3.5,2.5),m2bis.getOrigin())
@@ -14922,6 +14921,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual((1.,0.5,2.),m3.getDXYZ())
         # now playing with 3D surf
         m4=MEDCouplingIMesh("",3,DataArrayInt([3,1,4]),DataArrayDouble([1.5,2.5,3.5]),DataArrayDouble((0.5,1.,0.25))) ; m4.setAxisUnit("km")
+        self.assertEqual([(1.5,2.5),(2.5,3.5),(3.5,4.25)],m4.getBoundingBox())
         self.assertEqual(3,m4.getSpaceDimension())
         self.assertEqual(2,m4.getMeshDimension())
         self.assertEqual(12,m4.getNumberOfNodes())
@@ -14935,6 +14935,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(mu.getNodalConnectivity().isEqual(DataArrayInt([1,0,3,4,2,1,4,5,4,3,6,7,5,4,7,8,7,6,9,10,8,7,10,11])))
         pass
 
+    def testSwig1GetValuesAsTuple1(self):
+        d=DataArrayDouble()
+        self.assertEqual(d.getValues(),[])
+        self.assertEqual(d.getValuesAsTuple(),[])
+        d=DataArrayDouble(24) ; d.iota() ; d.rearrange(3)
+        self.assertEqual(d.getValues(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.])
+        self.assertEqual(d.getValuesAsTuple(),[(0.,1.,2.0),(3.,4.,5.0),(6.,7.,8.0),(9.,10.,11.0),(12.,13.,14.0),(15.,16.,17.0),(18.,19.,20.0),(21.,22.,23.)]) 
+        d=DataArrayInt()
+        self.assertEqual(d.getValues(),[])
+        self.assertEqual(d.getValuesAsTuple(),[])
+        d=DataArrayInt(24) ; d.iota() ; d.rearrange(3)
+        self.assertEqual(d.getValues(),[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23])
+        self.assertEqual(d.getValuesAsTuple(),[(0,1,2),(3,4,5),(6,7,8),(9,10,11),(12,13,14),(15,16,17),(18,19,20),(21,22,23)])
+        pass
+
     def testSwig2AMR1(self):
         self.assertEqual((1,3,12),MEDCouplingStructuredMesh.GetSplitVectFromStruct([3,4,5]))
         self.assertEqual((3,2),MEDCouplingStructuredMesh.GetDimensionsFromCompactFrmt([(1,4),(2,4)]))
@@ -14946,33 +14961,33 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(0,amr.getNumberOfPatches())
         self.assertEqual(1,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
-        amr.addPatch([(1,2),(0,1)],4)
+        amr.addPatch([(1,2),(0,1)],[4,4])
         self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
         self.assertEqual(20,amr.getNumberOfCellsRecursiveWithOverlap())
         self.assertEqual(19,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(1,amr.getNumberOfPatches())
         self.assertEqual(2,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
-        amr[0].addPatch([(2,3),(1,3)],2)
+        amr[0].addPatch([(2,3),(1,3)],[3,2])
         self.assertEqual(amr[0].getBLTRRange(),[(1,2),(0,1)])
         self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
-        self.assertEqual(28,amr.getNumberOfCellsRecursiveWithOverlap())
-        self.assertEqual(25,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(32,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(29,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(1,amr.getNumberOfPatches())
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
-        amr[0].addPatch([(0,2),(3,4)],3)
+        amr[0].addPatch([(0,2),(3,4)],[3,2])
         self.assertEqual(16,amr[0].getMesh().getNumberOfCellsAtCurrentLevel())
-        self.assertEqual(46,amr.getNumberOfCellsRecursiveWithOverlap())
-        self.assertEqual(41,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(44,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(39,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(2,amr[0].getMesh().getNumberOfPatches())
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
         del amr[0][1]
         self.assertEqual(amr[0].getBLTRRange(),[(1,2),(0,1)])
         self.assertEqual(4,amr.getNumberOfCellsAtCurrentLevel())
-        self.assertEqual(28,amr.getNumberOfCellsRecursiveWithOverlap())
-        self.assertEqual(25,amr.getNumberOfCellsRecursiveWithoutOverlap())
+        self.assertEqual(32,amr.getNumberOfCellsRecursiveWithOverlap())
+        self.assertEqual(29,amr.getNumberOfCellsRecursiveWithoutOverlap())
         self.assertEqual(1,amr.getNumberOfPatches())
         self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
         self.assertEqual(2,amr.getSpaceDimension())
@@ -14992,8 +15007,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f.getArray().isEqual(DataArrayDouble([60.75,52.75,52.75,44.75,52.75,44.75,44.75,36.75]),1e-12))
         f.applyLin(2.,0.,0)# here it is OK !
         self.assertTrue(f.getArray().isEqual(DataArrayDouble([121.5,105.5,105.5,89.5,105.5,89.5,89.5,73.5]),1e-12))
-        #f.applyLin(2.,0.)
-        #self.assertTrue(f.getArray().isEqual(DataArrayDouble([243.,211.,211.,179.,211.,179.,179.,127.]),1e-12))
+        f.applyLin(2.,0.)
+        self.assertTrue(f.getArray().isEqual(DataArrayDouble([243.,211.,211.,179.,211.,179.,179.,147.]),1e-12))
         pass
 
     def testSwig2StructurizeMe1(self):
@@ -15015,8 +15030,570 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f.isEqual(np))
         pass
 
-    def setUp(self):
+    def testSwig2DenseMatrix1(self):
+        m0=DenseMatrix(DataArrayDouble([2,3,4,5,1,6]),2,3)
+        self.assertEqual(m0.getNumberOfRows(),2)
+        self.assertEqual(m0.getNumberOfCols(),3)
+        self.assertEqual(m0.getNbOfElems(),6)
+        ref=m0.getData().getHiddenCppPointer()
+        m00=m0.deepCpy()
+        self.assertTrue(m0.isEqual(m00,1e-12))
+        m00.getData().setIJ(0,0,2.1)
+        self.assertTrue(not m0.isEqual(m00,1e-12))
+        m00.getData().setIJ(0,0,2.)
+        self.assertTrue(m0.isEqual(m00,1e-12))
+        self.assertTrue(m0.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        #
+        m000=m0*DataArrayDouble([5,9,3])
+        self.assertTrue(m000.getData().isEqual(DataArrayDouble([49.,52.]),1e-12))
+        #
+        m0.reShape(3,2)
+        self.assertTrue(not m0.isEqual(m00,1e-12))
+        self.assertEqual(m0.getNumberOfRows(),3)
+        self.assertEqual(m0.getNumberOfCols(),2)
+        self.assertEqual(ref,m0.getData().getHiddenCppPointer())
+        self.assertTrue(m0.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        m0.reShape(2,3)
+        self.assertTrue(m0.isEqual(m00,1e-12))
+        self.assertEqual(ref,m0.getData().getHiddenCppPointer())
+        self.assertEqual(m0.getNumberOfRows(),2)
+        self.assertEqual(m0.getNumberOfCols(),3)
+        self.assertTrue(m0.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        #m0np=m0.getData().toNumPyArray() ; m0np=matrix(m0np.reshape(m0.getNumberOfRows(),m0.getNumberOfCols()))
+        m1=m0.deepCpy()
+        self.assertEqual(m1.getNumberOfRows(),2)
+        self.assertEqual(m1.getNumberOfCols(),3)
+        self.assertTrue(m1.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        m11=m0.deepCpy() ; m11+=m1
+        self.assertEqual(m11.getNumberOfRows(),2)
+        self.assertEqual(m11.getNumberOfCols(),3)
+        self.assertTrue(m11.getData().isEqual(DataArrayDouble([4,6,8,10,2,12]),1e-12))
+        m11=m11+m1
+        self.assertEqual(m11.getNumberOfRows(),2)
+        self.assertEqual(m11.getNumberOfCols(),3)
+        self.assertTrue(m11.getData().isEqual(DataArrayDouble([6,9,12,15,3,18]),1e-12))
+        m11=m11-m1
+        self.assertEqual(m11.getNumberOfRows(),2)
+        self.assertEqual(m11.getNumberOfCols(),3)
+        self.assertTrue(m11.getData().isEqual(DataArrayDouble([4,6,8,10,2,12]),1e-12))
+        m11-=m1
+        self.assertEqual(m1.getNumberOfRows(),2)
+        self.assertEqual(m1.getNumberOfCols(),3)
+        self.assertTrue(m1.getData().isEqual(DataArrayDouble([2,3,4,5,1,6]),1e-12))
+        m1.transpose()
+        self.assertEqual(m1.getNumberOfRows(),3)
+        self.assertEqual(m1.getNumberOfCols(),2)
+        self.assertTrue(m1.getData().isEqual(DataArrayDouble([2,5,3,1,4,6]),1e-12))
+        #m1np=m0np.transpose()
+        m2=m0*m1
+        self.assertEqual(m2.getNumberOfRows(),2)
+        self.assertEqual(m2.getNumberOfCols(),2)
+        self.assertTrue(m2.getData().isEqual(DataArrayDouble([29,37,37,62]),1e-12))
         pass
+
+    def testSwig2AMR2(self):
+        """ Test condensation of fine IMesh instance into a coarse one, with a factor. See testRemapperAMR1 in MEDCouplingRemapperTest.py file to see how the expected value is obtained."""
+        coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
+        fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
+        MEDCouplingIMesh.CondenseFineToCoarse([5,7],fine,[(1,4),(2,4)],[4,4],coarse)
+        self.assertTrue(coarse.isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,312,376,440,14,15,1080,1144,1208,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34]),1e-12))
+        # 3D
+        coarse=DataArrayDouble(175) ; coarse.iota(0) #X=5,Y=7,Z=5
+        fine=DataArrayDouble(3*2*3*4*4*4) ; fine.iota(0) #X=3,Y=2,Z=3 refined by 4
+        MEDCouplingIMesh.CondenseFineToCoarse([5,7,5],fine,[(1,4),(2,4),(1,4)],[4,4,4],coarse)
+        self.assertTrue(coarse.isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.,31.,32.,33.,34.,35.,36.,37.,38.,39.,40.,41.,42.,43.,44.,45.,10464.,10720.,10976.,49.,50.,13536.,13792.,14048.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,71.,72.,73.,74.,75.,76.,77.,78.,79.,80.,35040.,35296.,35552.,84.,85.,38112.,38368.,38624.,89.,90.,91.,92.,93.,94.,95.,96.,97.,98.,99.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.,111.,112.,113.,114.,115.,59616.,59872.,60128.,119.,120.,62688.,62944.,63200.,124.,125.,126.,127.,128.,129.,130.,131.,132.,133.,134.,135.,136.,137.,138.,139.,140.,141.,142.,143.,144.,145.,146.,147.,148.,149.,150.,151.,152.,153.,154.,155.,156.,157.,158.,159.,160.,161.,162.,163.,164.,165.,166.,167.,168.,169.,170.,171.,172.,173.,174.]),1e-12))
+        # 1D
+        coarse=DataArrayDouble(5) ; coarse.iota(0) #X=5
+        fine=DataArrayDouble(3*4) ; fine.iota(0) #X=3 refined by 4
+        MEDCouplingIMesh.CondenseFineToCoarse([5],fine,[(1,4)],[4],coarse)
+        self.assertTrue(coarse.isEqual(DataArrayDouble([0,6,22,38,4]),1e-12))
+        pass
+
+    def testSwig2AMR3(self):
+        """ Test spread of coarse IMesh instance into a fine one, with a factor."""
+        coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
+        fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
+        MEDCouplingIMesh.SpreadCoarseToFine(coarse,[5,7],fine,[(1,4),(2,4)],[4,4])
+        self.assertTrue(fine.isEqual(DataArrayDouble([11.,11.,11.,11.,12.,12.,12.,12.,13.,13.,13.,13.,11.,11.,11.,11.,12.,12.,12.,12.,13.,13.,13.,13.,11.,11.,11.,11.,12.,12.,12.,12.,13.,13.,13.,13.,11.,11.,11.,11.,12.,12.,12.,12.,13.,13.,13.,13.,16.,16.,16.,16.,17.,17.,17.,17.,18.,18.,18.,18.,16.,16.,16.,16.,17.,17.,17.,17.,18.,18.,18.,18.,16.,16.,16.,16.,17.,17.,17.,17.,18.,18.,18.,18.,16.,16.,16.,16.,17.,17.,17.,17.,18.,18.,18.,18.]),1e-12))
+        # 3D
+        coarse=DataArrayDouble(175) ; coarse.iota(0) #X=5,Y=7,Z=5
+        fine=DataArrayDouble(3*2*3*4*4*4) ; fine.iota(0) #X=3,Y=2,Z=3 refined by 4
+        MEDCouplingIMesh.SpreadCoarseToFine(coarse,[5,7,5],fine,[(1,4),(2,4),(1,4)],[4,4,4])
+        self.assertTrue(fine.isEqual(DataArrayDouble([46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,46.,46.,46.,46.,47.,47.,47.,47.,48.,48.,48.,48.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,51.,51.,51.,51.,52.,52.,52.,52.,53.,53.,53.,53.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,81.,81.,81.,81.,82.,82.,82.,82.,83.,83.,83.,83.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,86.,86.,86.,86.,87.,87.,87.,87.,88.,88.,88.,88.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,116.,116.,116.,116.,117.,117.,117.,117.,118.,118.,118.,118.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.,121.,121.,121.,121.,122.,122.,122.,122.,123.,123.,123.,123.]),1e-12))
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(MEDCouplingIMesh("",3,DataArrayInt([6,8,6]),[0.,0.,0.],DataArrayDouble((1.,1.,1.)))) ; f.setArray(coarse) ; f.setName("tutu") ; f.checkCoherency()
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(MEDCouplingIMesh("",3,DataArrayInt([13,9,13]),[1.,2.,1.],DataArrayDouble((0.25,0.25,0.25)))) ; f.setArray(fine) ; f.setName("tutu") ; f.checkCoherency()
+        # 1D
+        coarse=DataArrayDouble(5) ; coarse.iota(0) #X=5
+        fine=DataArrayDouble(3*4) ; fine.iota(0) #X=3 refined by 4
+        MEDCouplingIMesh.SpreadCoarseToFine(coarse,[5],fine,[(1,4)],[4])
+        self.assertTrue(fine.isEqual(DataArrayDouble([1.,1.,1.,1.,2.,2.,2.,2.,3.,3.,3.,3.]),1e-12))
+        pass
+
+    def testSwig2AMR4(self):
+        """This test focuses on MEDCouplingCartesianAMRMesh.createPatchesFromCriterion method. To test it a field containing 0 everywhere except in the annulus (centered on the center of the mesh) value is 1."""
+        im=MEDCouplingIMesh("mesh",2,[51,51],[0.,0.],[0.04,0.04])
+        b=im.getBarycenterAndOwner() ; b-=[1.,1.] ; b=b.magnitude()
+        ids=b.getIdsInRange(0.4,0.7)
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(im) ; f.setName("toto") ; arr=DataArrayDouble(im.getNumberOfCells()) ; arr[:]=0. ; arr[ids]=1. ; f.setArray(arr)
+        # f.write("test.vti")
+        amr=MEDCouplingCartesianAMRMesh("mesh",2,[51,51],[0.,0.],[0.04,0.04])
+        arr2=DataArrayByte(im.getNumberOfCells()) ; arr2[:]=0 ; arr2[ids]=1
+        bso=BoxSplittingOptions() ; bso.setEfficiencyGoal(0.5); bso.setEfficiencyThreshold(0.8) ; bso.setMaximumNbOfCellsInPatch(3000) ; bso.setMinimumPatchLength(6) ; bso.setMaximumPatchLength(11)
+        amr.createPatchesFromCriterion(bso,arr2,[2,2])
+        m=amr.getImageMesh() ; m=m.buildUnstructured() ; m.changeSpaceDimension(3,1.)
+        self.assertEqual(12,amr.getNumberOfPatches())
+        exp0=[[(9,19),(9,19)],[(9,19),(31,41)],[(31,41),(9,19)],[(8,17),(19,25)],[(8,17),(25,31)],[(19,25),(8,17)],[(25,31),(8,17)],[(19,25),(33,42)],[(25,31),(33,42)],[(31,41),(31,41)],[(33,42),(19,25)],[(33,42),(25,31)]]
+        for i,bltr in enumerate(exp0):
+            self.assertEqual(amr[i].getBLTRRange(),bltr)
+            pass
+        self.assertAlmostEqual(0.666666666667,amr[3].getMesh().getImageMesh().computeSquareness(),12)
+        #
+        self.assertEqual(MEDCouplingStructuredMesh.ChangeReferenceToGlobalOfCompactFrmt([(8,32),(4,17)],[(0,24),(2,12)]),[(8,32),(6,16)])
+        self.assertEqual(MEDCouplingStructuredMesh.ChangeReferenceFromGlobalOfCompactFrmt([(8,32),(4,17)],[(8,32),(6,16)]),[(0,24),(2,12)])
+        self.assertTrue(amr.getImageMesh().isEqual(im,1e-12))
+        m=amr.getImageMesh().asSingleCell().build1SGTUnstructured()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3])))
+        self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([(0,0),(2,0),(0,2),(2,2)]),1e-12))
+        pass
+
+    def testSwig2AMR5(self):
+        """ Idem testAMR3, test spread of coarse IMesh instance into a fine one, with a factor, but here ghost is used !"""
+        # 1D
+        coarse=DataArrayDouble(5+2) ; coarse.iota(-1) #X=5 with ghostLev=1
+        fine=DataArrayDouble(3*4+2) ; fine.iota(1000) #X=3 refined by 4 with ghostLev=1
+        MEDCouplingIMesh.SpreadCoarseToFineGhost(coarse,[5],fine,[(1,4)],[4],1)
+        self.assertTrue(fine.isEqual(DataArrayDouble([0,1,1,1,1,2,2,2,2,3,3,3,3,4]),1e-12))
+        coarse.iota(-1000)
+        MEDCouplingIMesh.CondenseFineToCoarseGhost([5],fine,[(1,4)],[4],coarse,1)
+        self.assertTrue(coarse.isEqual(DataArrayDouble([-1000.,-999.,4.,8.,12.,-995.,-994.]),1e-12))
+        # 2D
+        coarse=DataArrayDouble((5+2*1)*(7+2*1)) ; coarse.iota(0) #X=5,Y=7 with ghostLev=1
+        fine=DataArrayDouble((3*4+2*1)*(2*4+2*1)) ; fine.iota(1000) #X=3,Y=2 refined by 4
+        MEDCouplingIMesh.SpreadCoarseToFineGhost(coarse,[5,7],fine,[(1,4),(2,4)],[4,4],1)
+        self.assertTrue(fine.isEqual(DataArrayDouble([15.,16.,16.,16.,16.,17.,17.,17.,17.,18.,18.,18.,18.,19.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,22.,23.,23.,23.,23.,24.,24.,24.,24.,25.,25.,25.,25.,26.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,29.,30.,30.,30.,30.,31.,31.,31.,31.,32.,32.,32.,32.,33.,36.,37.,37.,37.,37.,38.,38.,38.,38.,39.,39.,39.,39.,40.]),1e-12))
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(MEDCouplingIMesh("",2,DataArrayInt([8,10]),[0.,0.],DataArrayDouble((1.,1.)))) ; f.setArray(coarse) ; f.setName("tutu") ; f.checkCoherency()
+        coarse.iota(-1000)
+        fine2=DataArrayDouble.Meld(fine,3*fine) ; coarse2=DataArrayDouble.Meld(coarse,3*coarse)
+        MEDCouplingIMesh.CondenseFineToCoarseGhost([5,7],fine,[(1,4),(2,4)],[4,4],coarse,1)
+        MEDCouplingIMesh.CondenseFineToCoarseGhost([5,7],fine2,[(1,4),(2,4)],[4,4],coarse2,1)
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(MEDCouplingIMesh("",2,DataArrayInt([8,10]),[0.,0.],DataArrayDouble((1.,1.)))) ; f.setArray(coarse) ; f.setName("tutu") ; f.checkCoherency()
+        coarseExp=DataArrayDouble([-1000.,-999.,-998.,-997.,-996.,-995.,-994.,-993.,-992.,-991.,-990.,-989.,-988.,-987.,-986.,-985.,-984.,-983.,-982.,-981.,-980.,-979.,-978.,368.,384.,400.,-974.,-973.,-972.,-971.,480.,496.,512.,-967.,-966.,-965.,-964.,-963.,-962.,-961.,-960.,-959.,-958.,-957.,-956.,-955.,-954.,-953.,-952.,-951.,-950.,-949.,-948.,-947.,-946.,-945.,-944.,-943.,-942.,-941.,-940.,-939.,-938.])
+        self.assertTrue(coarse.isEqual(coarseExp,1e-12))
+        self.assertTrue(coarse2[:,0].isEqual(coarseExp,1e-12))
+        self.assertTrue(coarse2[:,1].isEqual(3*coarseExp,1e-12))
+        pass
+
+    def testSwig2AMR6(self):
+        """ Idem testSwig2AMR5, except that only 2D is considered here, and fine to fine is considered here. At the end of the test some checks about typing with AMR structs."""
+        amr=MEDCouplingCartesianAMRMesh("",2,[6,6],[0,0],[1,1])
+        da=DataArrayDouble((5+2)*(5+2)) ; da.iota() ; da+=0.9
+        amr.addPatch([(1,4),(2,4)],[4,4])
+        amr.addPatch([(0,1),(0,1)],[4,4])
+        amr.addPatch([(4,5),(3,4)],[4,4])
+        amr.addPatch([(4,5),(1,3)],[4,4])
+        amr.addPatch([(0,1),(1,4)],[4,4])
+        da0=DataArrayDouble((3*4+2)*(2*4+2)) ; da0.iota() ; da0[:]+=0.2
+        da1=DataArrayDouble((1*4+2)*(1*4+2)) ; da1.iota() ; da1[:]+=0.4
+        da2=DataArrayDouble((1*4+2)*(1*4+2)) ; da2.iota() ; da2[:]+=0.6
+        da3=DataArrayDouble((1*4+2)*(2*4+2)) ; da3.iota() ; da3[:]+=0.7
+        da4=DataArrayDouble((1*4+2)*(3*4+2)) ; da4.iota() ; da4[:]+=0.8
+        self.assertEqual(5,amr.getNumberOfPatches())
+        l=[da0,da1,da2,da3,da4]
+        lCpy=[elt.deepCpy() for elt in l]
+        l2=[DataArrayDouble.Meld(elt,3*elt) for elt in l]
+        amr.fillCellFieldOnPatchGhostAdv(0,da,1,l,False)
+        amr.fillCellFieldOnPatchGhostAdv(0,DataArrayDouble.Meld(da,3*da),1,l2,False)
+        amr.fillCellFieldOnPatchOnlyOnGhostZone(0,da,lCpy[0],1)
+        #
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(amr.getImageMesh().buildWithGhost(1)) ; f.setArray(da) ; f.setName("all")
+        f0=MEDCouplingFieldDouble(ON_CELLS) ; f0.setMesh(amr[0].getMesh().getImageMesh().buildWithGhost(1)) ; f0.setArray(da0) ; f0.setName("p0") ; f0.checkCoherency()
+        f1=MEDCouplingFieldDouble(ON_CELLS) ; f1.setMesh(amr[1].getMesh().getImageMesh().buildWithGhost(1)) ; f1.setArray(da1) ; f1.setName("p1") ; f1.checkCoherency()
+        f2=MEDCouplingFieldDouble(ON_CELLS) ; f2.setMesh(amr[2].getMesh().getImageMesh().buildWithGhost(1)) ; f2.setArray(da2) ; f2.setName("p2") ; f2.checkCoherency()
+        f3=MEDCouplingFieldDouble(ON_CELLS) ; f3.setMesh(amr[3].getMesh().getImageMesh().buildWithGhost(1)) ; f3.setArray(da3) ; f3.setName("p3") ; f3.checkCoherency()
+        f4=MEDCouplingFieldDouble(ON_CELLS) ; f4.setMesh(amr[4].getMesh().getImageMesh().buildWithGhost(1)) ; f4.setArray(da4) ; f4.setName("p4") ; f4.checkCoherency()
+        #
+        da0Exp=DataArrayDouble([28.8,16.9,16.9,16.9,16.9,17.9,17.9,17.9,17.9,18.9,18.9,18.9,18.9,25.7,34.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,31.7,40.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,37.7,46.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,43.7,52.8,23.9,23.9,23.9,23.9,24.9,24.9,24.9,24.9,25.9,25.9,25.9,25.9,49.7,58.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,7.6,64.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,13.6,70.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,19.6,76.8,30.9,30.9,30.9,30.9,31.9,31.9,31.9,31.9,32.9,32.9,32.9,32.9,25.6,36.9,37.9,37.9,37.9,37.9,38.9,38.9,38.9,38.9,39.9,39.9,39.9,39.9,40.9])
+        da0Exp2=DataArrayDouble([15.9,16.9,16.9,16.9,16.9,17.9,17.9,17.9,17.9,18.9,18.9,18.9,18.9,19.9,22.9,15.2,16.2,17.2,18.2,19.2,20.2,21.2,22.2,23.2,24.2,25.2,26.2,26.9,22.9,29.2,30.2,31.2,32.2,33.2,34.2,35.2,36.2,37.2,38.2,39.2,40.2,26.9,22.9,43.2,44.2,45.2,46.2,47.2,48.2,49.2,50.2,51.2,52.2,53.2,54.2,26.9,22.9,57.2,58.2,59.2,60.2,61.2,62.2,63.2,64.2,65.2,66.2,67.2,68.2,26.9,29.9,71.2,72.2,73.2,74.2,75.2,76.2,77.2,78.2,79.2,80.2,81.2,82.2,33.9,29.9,85.2,86.2,87.2,88.2,89.2,90.2,91.2,92.2,93.2,94.2,95.2,96.2,33.9,29.9,99.2,100.2,101.2,102.2,103.2,104.2,105.2,106.2,107.2,108.2,109.2,110.2,33.9,29.9,113.2,114.2,115.2,116.2,117.2,118.2,119.2,120.2,121.2,122.2,123.2,124.2,33.9,36.9,37.9,37.9,37.9,37.9,38.9,38.9,38.9,38.9,39.9,39.9,39.9,39.9,40.9])
+        self.assertTrue(da0.isEqual(da0Exp,1e-12))
+        self.assertTrue(l2[0][:,0].isEqual(da0Exp,1e-12))
+        self.assertTrue(l2[0][:,1].isEqual(3*da0Exp,1e-12))
+        self.assertTrue(lCpy[0].isEqual(da0Exp2,1e-12))
+        #
+        g0=amr.retrieveGridsAt(0)
+        self.assertEqual(1,len(g0))
+        self.assertTrue(isinstance(g0[0],MEDCouplingCartesianAMRPatchGF))
+        g1=amr.retrieveGridsAt(1)
+        self.assertEqual(5,len(g1))
+        for i in xrange(5):
+            self.assertTrue(isinstance(g1[i],MEDCouplingCartesianAMRPatch))
+            pass
+        pass
+    
+    def testSwig2AMR7(self):
+        """Idem testSwig2AMR6 except that we are in 1D"""
+        amr=MEDCouplingCartesianAMRMesh("",1,[6],[0],[1])
+        da=DataArrayDouble(5+2) ; da.iota() ; da+=0.9
+        amr.addPatch([(1,4)],[4])
+        amr.addPatch([(0,1)],[4])
+        da0=DataArrayDouble(3*4+2) ; da0.iota() ; da0[:]+=0.2
+        da1=DataArrayDouble(1*4+2) ; da1.iota() ; da1[:]+=0.4
+        self.assertEqual(2,amr.getNumberOfPatches())
+        l=[da0,da1]
+        lCpy=[elt.deepCpy() for elt in l]
+        l2=[DataArrayDouble.Meld(elt,3*elt) for elt in l]
+        amr.fillCellFieldOnPatchGhostAdv(0,da,1,l,False)
+        amr.fillCellFieldOnPatchGhostAdv(0,DataArrayDouble.Meld(da,3*da),1,l2,False)
+        amr.fillCellFieldOnPatchOnlyOnGhostZone(0,da,lCpy[0],1)
+        #
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(amr.getImageMesh().buildWithGhost(1)) ; f.setArray(da) ; f.setName("all")
+        f0=MEDCouplingFieldDouble(ON_CELLS) ; f0.setMesh(amr[0].getMesh().getImageMesh().buildWithGhost(1)) ; f0.setArray(da0) ; f0.setName("p0") ; f0.checkCoherency()
+        f1=MEDCouplingFieldDouble(ON_CELLS) ; f1.setMesh(amr[1].getMesh().getImageMesh().buildWithGhost(1)) ; f1.setArray(da1) ; f1.setName("p1") ; f1.checkCoherency()
+        #
+        da0Exp=DataArrayDouble([4.4,2.9,2.9,2.9,2.9,3.9,3.9,3.9,3.9,4.9,4.9,4.9,4.9,5.9])
+        da0Exp2=DataArrayDouble([1.9,1.2,2.2,3.2,4.2,5.2,6.2,7.2,8.2,9.2,10.2,11.2,12.2,5.9])
+        self.assertTrue(da0.isEqual(da0Exp,1e-12))
+        self.assertTrue(l2[0][:,0].isEqual(da0Exp,1e-12))
+        self.assertTrue(l2[0][:,1].isEqual(3*da0Exp,1e-12))
+        self.assertTrue(lCpy[0].isEqual(da0Exp2,1e-12))
+        pass
+
+    def testSwig2AMR8(self):
+        """This test checks 'basic' operations for ghost update."""
+        ghostSz=1
+        amr=MEDCouplingCartesianAMRMesh("",2,[6,7],[0,0],[1,1])
+        amr.addPatch([(1,4),(2,4)],[4,4])
+        amr.addPatch([(4,5),(3,5)],[4,4])
+        amr.addPatch([(0,1),(4,6)],[4,4])
+        amr[0].addPatch([(10,12),(5,8)],[2,2])
+        amr[1].addPatch([(0,1),(0,5)],[2,2])
+        amr[2].addPatch([(3,4),(0,3)],[2,2])
+        m=amr.buildMeshFromPatchEnvelop()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,2,3,5,4,6,7,9,8,10,11])))
+        self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([1.,2.,4.,2.,1.,4.,4.,4.,4.,3.,5.,3.,4.,5.,5.,5.,0.,4.,1.,4.,0.,6.,1.,6.],12,2),1e-12))
+        self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
+        att=MEDCouplingAMRAttribute(amr,[("Field",["X"])],ghostSz)
+        att.alloc()
+        d=att.getFieldOn(amr,"Field")
+        self.assertEqual(56,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        d.iota() ; d+=0.1
+        d0=att.getFieldOn(amr[0].getMesh(),"Field")
+        self.assertEqual(140,d0.getNumberOfTuples())
+        self.assertEqual(1,d0.getNumberOfComponents())
+        d0.iota() ; d0+=0.2
+        d1=att.getFieldOn(amr[1].getMesh(),"Field")
+        self.assertEqual(60,d1.getNumberOfTuples())
+        self.assertEqual(1,d1.getNumberOfComponents())
+        d1.iota() ; d1+=0.3
+        d2=att.getFieldOn(amr[2].getMesh(),"Field")
+        self.assertEqual(60,d2.getNumberOfTuples())
+        self.assertEqual(1,d2.getNumberOfComponents())
+        d2.iota() ; d2+=0.4
+        d00=att.getFieldOn(amr[0][0].getMesh(),"Field")
+        self.assertEqual(48,d00.getNumberOfTuples())
+        self.assertEqual(1,d00.getNumberOfComponents())
+        d00.iota() ; d00+=0.5
+        d10=att.getFieldOn(amr[1][0].getMesh(),"Field")
+        self.assertEqual(48,d10.getNumberOfTuples())
+        self.assertEqual(1,d10.getNumberOfComponents())
+        d10.iota() ; d10+=0.6
+        d20=att.getFieldOn(amr[2][0].getMesh(),"Field")
+        self.assertEqual(32,d20.getNumberOfTuples())
+        self.assertEqual(1,d20.getNumberOfComponents())
+        d20.iota() ; d20+=0.7
+        f=att.buildCellFieldOnRecurseWithoutOverlapWithoutGhost(amr,"Field")
+        arrExp=DataArrayDouble([8.1,9.1,10.1,11.1,12.1,15.1,16.1,17.1,18.1,19.1,22.1,26.1,29.1,37.1,38.1,39.1,44.1,45.1,46.1,47.1,15.2,16.2,17.2,18.2,19.2,20.2,21.2,22.2,23.2,24.2,25.2,26.2,29.2,30.2,31.2,32.2,33.2,34.2,35.2,36.2,37.2,38.2,39.2,40.2,43.2,44.2,45.2,46.2,47.2,48.2,49.2,50.2,51.2,52.2,53.2,54.2,57.2,58.2,59.2,60.2,61.2,62.2,63.2,64.2,65.2,66.2,67.2,68.2,71.2,72.2,73.2,74.2,75.2,76.2,77.2,78.2,79.2,80.2,81.2,82.2,85.2,86.2,87.2,88.2,89.2,90.2,91.2,92.2,93.2,94.2,99.2,100.2,101.2,102.2,103.2,104.2,105.2,106.2,107.2,108.2,113.2,114.2,115.2,116.2,117.2,118.2,119.2,120.2,121.2,122.2,7.5,8.5,9.5,10.5,13.5,14.5,15.5,16.5,19.5,20.5,21.5,22.5,25.5,26.5,27.5,28.5,31.5,32.5,33.5,34.5,37.5,38.5,39.5,40.5,8.3,9.3,10.3,14.3,15.3,16.3,20.3,21.3,22.3,26.3,27.3,28.3,32.3,33.3,34.3,37.3,38.3,39.3,40.3,43.3,44.3,45.3,46.3,49.3,50.3,51.3,52.3,5.6,6.6,9.6,10.6,13.6,14.6,17.6,18.6,21.6,22.6,25.6,26.6,29.6,30.6,33.6,34.6,37.6,38.6,41.6,42.6,7.4,8.4,9.4,13.4,14.4,15.4,19.4,20.4,21.4,25.4,26.4,27.4,28.4,31.4,32.4,33.4,34.4,37.4,38.4,39.4,40.4,43.4,44.4,45.4,46.4,49.4,50.4,51.4,52.4,5.7,6.7,9.7,10.7,13.7,14.7,17.7,18.7,21.7,22.7,25.7,26.7])
+        arrExp.setName("Field") ; arrExp.setInfoOnComponents(["X"])
+        self.assertTrue(f.getArray().isEqual(arrExp,1e-12))
+        m=MEDCoupling1SGTUMesh(f.getMesh())
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([1,0,6,7,2,1,7,8,3,2,8,9,4,3,9,10,5,4,10,11,7,6,12,13,8,7,13,14,9,8,14,15,10,9,15,16,11,10,16,17,13,12,18,19,17,16,20,21,19,18,22,23,24,23,27,28,25,24,28,29,26,25,29,30,28,27,32,33,29,28,33,34,30,29,34,35,31,30,35,36,38,37,50,51,39,38,51,52,40,39,52,53,41,40,53,54,42,41,54,55,43,42,55,56,44,43,56,57,45,44,57,58,46,45,58,59,47,46,59,60,48,47,60,61,49,48,61,62,51,50,63,64,52,51,64,65,53,52,65,66,54,53,66,67,55,54,67,68,56,55,68,69,57,56,69,70,58,57,70,71,59,58,71,72,60,59,72,73,61,60,73,74,62,61,74,75,64,63,76,77,65,64,77,78,66,65,78,79,67,66,79,80,68,67,80,81,69,68,81,82,70,69,82,83,71,70,83,84,72,71,84,85,73,72,85,86,74,73,86,87,75,74,87,88,77,76,89,90,78,77,90,91,79,78,91,92,80,79,92,93,81,80,93,94,82,81,94,95,83,82,95,96,84,83,96,97,85,84,97,98,86,85,98,99,87,86,99,100,88,87,100,101,90,89,102,103,91,90,103,104,92,91,104,105,93,92,105,106,94,93,106,107,95,94,107,108,96,95,108,109,97,96,109,110,98,97,110,111,99,98,111,112,100,99,112,113,101,100,113,114,103,102,115,116,104,103,116,117,105,104,117,118,106,105,118,119,107,106,119,120,108,107,120,121,109,108,121,122,110,109,122,123,111,110,123,124,112,111,124,125,116,115,126,127,117,116,127,128,118,117,128,129,119,118,129,130,120,119,130,131,121,120,131,132,122,121,132,133,123,122,133,134,124,123,134,135,125,124,135,136,127,126,137,138,128,127,138,139,129,128,139,140,130,129,140,141,131,130,141,142,132,131,142,143,133,132,143,144,134,133,144,145,135,134,145,146,136,135,146,147,149,148,153,154,150,149,154,155,151,150,155,156,152,151,156,157,154,153,158,159,155,154,159,160,156,155,160,161,157,156,161,162,159,158,163,164,160,159,164,165,161,160,165,166,162,161,166,167,164,163,168,169,165,164,169,170,166,165,170,171,167,166,171,172,169,168,173,174,170,169,174,175,171,170,175,176,172,171,176,177,174,173,178,179,175,174,179,180,176,175,180,181,177,176,181,182,184,183,187,188,185,184,188,189,186,185,189,190,188,187,191,192,189,188,192,193,190,189,193,194,192,191,195,196,193,192,196,197,194,193,197,198,196,195,199,200,197,196,200,201,198,197,201,202,200,199,204,205,201,200,205,206,202,201,206,207,204,203,208,209,205,204,209,210,206,205,210,211,207,206,211,212,209,208,213,214,210,209,214,215,211,210,215,216,212,211,216,217,214,213,218,219,215,214,219,220,216,215,220,221,217,216,221,222,224,223,226,227,225,224,227,228,227,226,229,230,228,227,230,231,230,229,232,233,231,230,233,234,233,232,235,236,234,233,236,237,236,235,238,239,237,236,239,240,239,238,241,242,240,239,242,243,242,241,244,245,243,242,245,246,245,244,247,248,246,245,248,249,248,247,250,251,249,248,251,252,251,250,253,254,252,251,254,255,257,256,260,261,258,257,261,262,259,258,262,263,261,260,264,265,262,261,265,266,263,262,266,267,265,264,268,269,266,265,269,270,267,266,270,271,269,268,273,274,270,269,274,275,271,270,275,276,272,271,276,277,274,273,278,279,275,274,279,280,276,275,280,281,277,276,281,282,279,278,283,284,280,279,284,285,281,280,285,286,282,281,286,287,284,283,288,289,285,284,289,290,286,285,290,291,287,286,291,292,289,288,293,294,290,289,294,295,291,290,295,296,292,291,296,297,299,298,301,302,300,299,302,303,302,301,304,305,303,302,305,306,305,304,307,308,306,305,308,309,308,307,310,311,309,308,311,312,311,310,313,314,312,311,314,315,314,313,316,317,315,314,317,318])))
+        self.assertTrue(m.getCoords().isEqualWithoutConsideringStr(DataArrayDouble([0.,0.,1.,0.,2.,0.,3.,0.,4.,0.,5.,0.,0.,1.,1.,1.,2.,1.,3.,1.,4.,1.,5.,1.,0.,2.,1.,2.,2.,2.,3.,2.,4.,2.,5.,2.,0.,3.,1.,3.,4.,3.,5.,3.,0.,4.,1.,4.,2.,4.,3.,4.,4.,4.,1.,5.,2.,5.,3.,5.,4.,5.,5.,5.,1.,6.,2.,6.,3.,6.,4.,6.,5.,6.,1.,2.,1.25,2.,1.5,2.,1.75,2.,2.,2.,2.25,2.,2.5,2.,2.75,2.,3.,2.,3.25,2.,3.5,2.,3.75,2.,4.,2.,1.,2.25,1.25,2.25,1.5,2.25,1.75,2.25,2.,2.25,2.25,2.25,2.5,2.25,2.75,2.25,3.,2.25,3.25,2.25,3.5,2.25,3.75,2.25,4.,2.25,1.,2.5,1.25,2.5,1.5,2.5,1.75,2.5,2.,2.5,2.25,2.5,2.5,2.5,2.75,2.5,3.,2.5,3.25,2.5,3.5,2.5,3.75,2.5,4.,2.5,1.,2.75,1.25,2.75,1.5,2.75,1.75,2.75,2.,2.75,2.25,2.75,2.5,2.75,2.75,2.75,3.,2.75,3.25,2.75,3.5,2.75,3.75,2.75,4.,2.75,1.,3.,1.25,3.,1.5,3.,1.75,3.,2.,3.,2.25,3.,2.5,3.,2.75,3.,3.,3.,3.25,3.,3.5,3.,3.75,3.,4.,3.,1.,3.25,1.25,3.25,1.5,3.25,1.75,3.25,2.,3.25,2.25,3.25,2.5,3.25,2.75,3.25,3.,3.25,3.25,3.25,3.5,3.25,3.75,3.25,4.,3.25,1.,3.5,1.25,3.5,1.5,3.5,1.75,3.5,2.,3.5,2.25,3.5,2.5,3.5,2.75,3.5,3.,3.5,3.25,3.5,3.5,3.5,1.,3.75,1.25,3.75,1.5,3.75,1.75,3.75,2.,3.75,2.25,3.75,2.5,3.75,2.75,3.75,3.,3.75,3.25,3.75,3.5,3.75,1.,4.,1.25,4.,1.5,4.,1.75,4.,2.,4.,2.25,4.,2.5,4.,2.75,4.,3.,4.,3.25,4.,3.5,4.,3.5,3.25,3.625,3.25,3.75,3.25,3.875,3.25,4.,3.25,3.5,3.375,3.625,3.375,3.75,3.375,3.875,3.375,4.,3.375,3.5,3.5,3.625,3.5,3.75,3.5,3.875,3.5,4.,3.5,3.5,3.625,3.625,3.625,3.75,3.625,3.875,3.625,4.,3.625,3.5,3.75,3.625,3.75,3.75,3.75,3.875,3.75,4.,3.75,3.5,3.875,3.625,3.875,3.75,3.875,3.875,3.875,4.,3.875,3.5,4.,3.625,4.,3.75,4.,3.875,4.,4.,4.,4.25,3.,4.5,3.,4.75,3.,5.,3.,4.25,3.25,4.5,3.25,4.75,3.25,5.,3.25,4.25,3.5,4.5,3.5,4.75,3.5,5.,3.5,4.25,3.75,4.5,3.75,4.75,3.75,5.,3.75,4.25,4.,4.5,4.,4.75,4.,5.,4.,4.,4.25,4.25,4.25,4.5,4.25,4.75,4.25,5.,4.25,4.,4.5,4.25,4.5,4.5,4.5,4.75,4.5,5.,4.5,4.,4.75,4.25,4.75,4.5,4.75,4.75,4.75,5.,4.75,4.,5.,4.25,5.,4.5,5.,4.75,5.,5.,5.,4.,3.,4.125,3.,4.25,3.,4.,3.125,4.125,3.125,4.25,3.125,4.,3.25,4.125,3.25,4.25,3.25,4.,3.375,4.125,3.375,4.25,3.375,4.,3.5,4.125,3.5,4.25,3.5,4.,3.625,4.125,3.625,4.25,3.625,4.,3.75,4.125,3.75,4.25,3.75,4.,3.875,4.125,3.875,4.25,3.875,4.,4.,4.125,4.,4.25,4.,4.,4.125,4.125,4.125,4.25,4.125,4.,4.25,4.125,4.25,4.25,4.25,0.,4.,0.25,4.,0.5,4.,0.75,4.,0.,4.25,0.25,4.25,0.5,4.25,0.75,4.25,0.,4.5,0.25,4.5,0.5,4.5,0.75,4.5,0.,4.75,0.25,4.75,0.5,4.75,0.75,4.75,1.,4.75,0.,5.,0.25,5.,0.5,5.,0.75,5.,1.,5.,0.,5.25,0.25,5.25,0.5,5.25,0.75,5.25,1.,5.25,0.,5.5,0.25,5.5,0.5,5.5,0.75,5.5,1.,5.5,0.,5.75,0.25,5.75,0.5,5.75,0.75,5.75,1.,5.75,0.,6.,0.25,6.,0.5,6.,0.75,6.,1.,6.,0.75,4.,0.875,4.,1.,4.,0.75,4.125,0.875,4.125,1.,4.125,0.75,4.25,0.875,4.25,1.,4.25,0.75,4.375,0.875,4.375,1.,4.375,0.75,4.5,0.875,4.5,1.,4.5,0.75,4.625,0.875,4.625,1.,4.625,0.75,4.75,0.875,4.75,1.,4.75],319,2),1e-12))
+        # the test is here ! To be called after iteration with no remesh
+        att.synchronizeAllGhostZones()
+        f=att.buildCellFieldOnWithGhost(amr,"Field") ; f.checkCoherency()
+        ftmp=att.buildCellFieldOnWithoutGhost(amr,"Field") ; ftmp.checkCoherency() ; self.assertTrue(ftmp.getArray().isEqualWithoutConsideringStr(DataArrayDouble([8.1,9.1,10.1,11.1,12.1,15.1,16.1,17.1,18.1,19.1,22.1,23.1,24.1,25.1,26.1,29.1,30.1,31.1,32.1,33.1,36.1,37.1,38.1,39.1,40.1,43.1,44.1,45.1,46.1,47.1]),1e-12))
+        f0=att.buildCellFieldOnWithGhost(amr[0].getMesh(),"Field")
+        f1=att.buildCellFieldOnWithGhost(amr[1].getMesh(),"Field")
+        f2=att.buildCellFieldOnWithGhost(amr[2].getMesh(),"Field")
+        f00=att.buildCellFieldOnWithGhost(amr[0][0].getMesh(),"Field")
+        f10=att.buildCellFieldOnWithGhost(amr[1][0].getMesh(),"Field")
+        f20=att.buildCellFieldOnWithGhost(amr[2][0].getMesh(),"Field")
+        self.assertTrue(f.getArray().isEqualWithoutConsideringStr(DataArrayDouble([0.1,1.1,2.1,3.1,4.1,5.1,6.1,7.1,8.1,9.1,10.1,11.1,12.1,13.1,14.1,15.1,16.1,17.1,18.1,19.1,20.1,21.1,22.1,23.1,24.1,25.1,26.1,27.1,28.1,29.1,30.1,31.1,32.1,33.1,34.1,35.1,36.1,37.1,38.1,39.1,40.1,41.1,42.1,43.1,44.1,45.1,46.1,47.1,48.1,49.1,50.1,51.1,52.1,53.1,54.1,55.1]),1e-12))
+        self.assertTrue(f0.getArray().isEqualWithoutConsideringStr(DataArrayDouble([15.1,16.1,16.1,16.1,16.1,17.1,17.1,17.1,17.1,18.1,18.1,18.1,18.1,19.1,22.1,15.2,16.2,17.2,18.2,19.2,20.2,21.2,22.2,23.2,24.2,25.2,26.2,26.1,22.1,29.2,30.2,31.2,32.2,33.2,34.2,35.2,36.2,37.2,38.2,39.2,40.2,26.1,22.1,43.2,44.2,45.2,46.2,47.2,48.2,49.2,50.2,51.2,52.2,53.2,54.2,26.1,22.1,57.2,58.2,59.2,60.2,61.2,62.2,63.2,64.2,65.2,66.2,67.2,68.2,26.1,29.1,71.2,72.2,73.2,74.2,75.2,76.2,77.2,78.2,79.2,80.2,81.2,82.2,7.3,29.1,85.2,86.2,87.2,88.2,89.2,90.2,91.2,92.2,93.2,94.2,95.2,96.2,13.3,29.1,99.2,100.2,101.2,102.2,103.2,104.2,105.2,106.2,107.2,108.2,109.2,110.2,19.3,29.1,113.2,114.2,115.2,116.2,117.2,118.2,119.2,120.2,121.2,122.2,123.2,124.2,25.3,10.4,37.1,37.1,37.1,37.1,38.1,38.1,38.1,38.1,39.1,39.1,39.1,39.1,31.3]),1e-12))
+        self.assertTrue(f1.getArray().isEqualWithoutConsideringStr(DataArrayDouble([68.2,26.1,26.1,26.1,26.1,27.1,82.2,7.3,8.3,9.3,10.3,34.1,96.2,13.3,14.3,15.3,16.3,34.1,110.2,19.3,20.3,21.3,22.3,34.1,124.2,25.3,26.3,27.3,28.3,34.1,39.1,31.3,32.3,33.3,34.3,41.1,39.1,37.3,38.3,39.3,40.3,41.1,39.1,43.3,44.3,45.3,46.3,41.1,39.1,49.3,50.3,51.3,52.3,41.1,46.1,47.1,47.1,47.1,47.1,48.1]),1e-12))
+        self.assertTrue(f2.getArray().isEqualWithoutConsideringStr(DataArrayDouble([28.1,29.1,29.1,29.1,29.1,113.2,35.1,7.4,8.4,9.4,10.4,37.1,35.1,13.4,14.4,15.4,16.4,37.1,35.1,19.4,20.4,21.4,22.4,37.1,35.1,25.4,26.4,27.4,28.4,37.1,42.1,31.4,32.4,33.4,34.4,44.1,42.1,37.4,38.4,39.4,40.4,44.1,42.1,43.4,44.4,45.4,46.4,44.1,42.1,49.4,50.4,51.4,52.4,44.1,49.1,50.1,50.1,50.1,50.1,51.1]),1e-12))
+        self.assertTrue(f00.getArray().isEqualWithoutConsideringStr(DataArrayDouble([80.2,81.2,81.2,82.2,82.2,9.6,94.2,7.5,8.5,9.5,10.5,13.6,94.2,13.5,14.5,15.5,16.5,17.6,108.2,19.5,20.5,21.5,22.5,21.6,108.2,25.5,26.5,27.5,28.5,25.6,122.2,31.5,32.5,33.5,34.5,29.6,122.2,37.5,38.5,39.5,40.5,33.6,39.1,39.1,39.1,39.1,39.1,37.6]),1e-12))
+        self.assertTrue(f10.getArray().isEqualWithoutConsideringStr(DataArrayDouble([68.2,26.1,26.1,26.1,82.2,5.6,6.6,8.3,82.2,9.6,10.6,8.3,10.5,13.6,14.6,14.3,16.5,17.6,18.6,14.3,22.5,21.6,22.6,20.3,28.5,25.6,26.6,20.3,34.5,29.6,30.6,26.3,40.5,33.6,34.6,26.3,39.1,37.6,38.6,32.3,39.1,41.6,42.6,32.3,39.1,37.3,37.3,38.3]),1e-12))
+        self.assertTrue(f20.getArray().isEqualWithoutConsideringStr(DataArrayDouble([29.1,29.1,29.1,113.2,9.4,5.7,6.7,37.1,9.4,9.7,10.7,37.1,15.4,13.7,14.7,37.1,15.4,17.7,18.7,37.1,21.4,21.7,22.7,37.1,21.4,25.7,26.7,37.1,27.4,28.4,28.4,37.1]),1e-12))
+        pass
+
+    def testSwig2AMR9(self):
+        """ Equivalent to testSwig2AMR8 except that here the ghost level is 2 !"""
+        ghostSz=2
+        amr=MEDCouplingCartesianAMRMesh("",2,[6,7],[0,0],[1,1])
+        amr.addPatch([(1,4),(2,4)],[4,4])
+        amr.addPatch([(4,5),(3,5)],[4,4])
+        amr.addPatch([(0,1),(4,6)],[4,4])
+        amr[0].addPatch([(10,12),(5,8)],[2,2])
+        amr[1].addPatch([(0,1),(0,5)],[2,2])
+        amr[2].addPatch([(3,4),(0,3)],[2,2])
+        self.assertEqual(3,amr.getMaxNumberOfLevelsRelativeToThis())
+        att=MEDCouplingAMRAttribute(amr,[("Field",["X"])],ghostSz)
+        att.alloc()
+        d=att.getFieldOn(amr,"Field")
+        self.assertEqual(90,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        d.iota() ; d+=0.1
+        d0=att.getFieldOn(amr[0].getMesh(),"Field")
+        self.assertEqual(192,d0.getNumberOfTuples())
+        self.assertEqual(1,d0.getNumberOfComponents())
+        d0.iota() ; d0+=0.2
+        d1=att.getFieldOn(amr[1].getMesh(),"Field")
+        self.assertEqual(96,d1.getNumberOfTuples())
+        self.assertEqual(1,d1.getNumberOfComponents())
+        d1.iota() ; d1+=0.3
+        d2=att.getFieldOn(amr[2].getMesh(),"Field")
+        self.assertEqual(96,d2.getNumberOfTuples())
+        self.assertEqual(1,d2.getNumberOfComponents())
+        d2.iota() ; d2+=0.4
+        d00=att.getFieldOn(amr[0][0].getMesh(),"Field")
+        self.assertEqual(80,d00.getNumberOfTuples())
+        self.assertEqual(1,d00.getNumberOfComponents())
+        d00.iota() ; d00+=0.5
+        d10=att.getFieldOn(amr[1][0].getMesh(),"Field")
+        self.assertEqual(84,d10.getNumberOfTuples())
+        self.assertEqual(1,d10.getNumberOfComponents())
+        d10.iota() ; d10+=0.6
+        d20=att.getFieldOn(amr[2][0].getMesh(),"Field")
+        self.assertEqual(60,d20.getNumberOfTuples())
+        self.assertEqual(1,d20.getNumberOfComponents())
+        d20.iota() ; d20+=0.7
+        # the test is here ! To be called after iteration with no remesh
+        att.synchronizeAllGhostZones()
+        f=att.buildCellFieldOnWithGhost(amr,"Field")
+        f0=att.buildCellFieldOnWithGhost(amr[0].getMesh(),"Field")
+        f1=att.buildCellFieldOnWithGhost(amr[1].getMesh(),"Field")
+        f2=att.buildCellFieldOnWithGhost(amr[2].getMesh(),"Field")
+        f00=att.buildCellFieldOnWithGhost(amr[0][0].getMesh(),"Field")
+        f10=att.buildCellFieldOnWithGhost(amr[1][0].getMesh(),"Field")
+        f20=att.buildCellFieldOnWithGhost(amr[2][0].getMesh(),"Field")
+        self.assertTrue(f0.getArray().isEqualWithoutConsideringStr(DataArrayDouble([29.1,29.1,30.1,30.1,30.1,30.1,31.1,31.1,31.1,31.1,32.1,32.1,32.1,32.1,33.1,33.1,29.1,29.1,30.1,30.1,30.1,30.1,31.1,31.1,31.1,31.1,32.1,32.1,32.1,32.1,33.1,33.1,38.1,38.1,34.2,35.2,36.2,37.2,38.2,39.2,40.2,41.2,42.2,43.2,44.2,45.2,42.1,42.1,38.1,38.1,50.2,51.2,52.2,53.2,54.2,55.2,56.2,57.2,58.2,59.2,60.2,61.2,42.1,42.1,38.1,38.1,66.2,67.2,68.2,69.2,70.2,71.2,72.2,73.2,74.2,75.2,76.2,77.2,42.1,42.1,38.1,38.1,82.2,83.2,84.2,85.2,86.2,87.2,88.2,89.2,90.2,91.2,92.2,93.2,42.1,42.1,47.1,47.1,98.2,99.2,100.2,101.2,102.2,103.2,104.2,105.2,106.2,107.2,108.2,109.2,18.3,19.3,47.1,47.1,114.2,115.2,116.2,117.2,118.2,119.2,120.2,121.2,122.2,123.2,124.2,125.2,26.3,27.3,47.1,47.1,130.2,131.2,132.2,133.2,134.2,135.2,136.2,137.2,138.2,139.2,140.2,141.2,34.3,35.3,47.1,47.1,146.2,147.2,148.2,149.2,150.2,151.2,152.2,153.2,154.2,155.2,156.2,157.2,42.3,43.3,20.4,21.4,57.1,57.1,57.1,57.1,58.1,58.1,58.1,58.1,59.1,59.1,59.1,59.1,50.3,51.3,28.4,29.4,57.1,57.1,57.1,57.1,58.1,58.1,58.1,58.1,59.1,59.1,59.1,59.1,58.3,59.3]),1e-12))
+        self.assertTrue(f1.getArray().isEqualWithoutConsideringStr(DataArrayDouble([76.2,77.2,42.1,42.1,42.1,42.1,43.1,43.1,92.2,93.2,42.1,42.1,42.1,42.1,43.1,43.1,108.2,109.2,18.3,19.3,20.3,21.3,52.1,52.1,124.2,125.2,26.3,27.3,28.3,29.3,52.1,52.1,140.2,141.2,34.3,35.3,36.3,37.3,52.1,52.1,156.2,157.2,42.3,43.3,44.3,45.3,52.1,52.1,59.1,59.1,50.3,51.3,52.3,53.3,61.1,61.1,59.1,59.1,58.3,59.3,60.3,61.3,61.1,61.1,59.1,59.1,66.3,67.3,68.3,69.3,61.1,61.1,59.1,59.1,74.3,75.3,76.3,77.3,61.1,61.1,68.1,68.1,69.1,69.1,69.1,69.1,70.1,70.1,68.1,68.1,69.1,69.1,69.1,69.1,70.1,70.1]),1e-12))
+        self.assertTrue(f2.getArray().isEqualWithoutConsideringStr(DataArrayDouble([46.1,46.1,47.1,47.1,47.1,47.1,130.2,131.2,46.1,46.1,47.1,47.1,47.1,47.1,146.2,147.2,55.1,55.1,18.4,19.4,20.4,21.4,57.1,57.1,55.1,55.1,26.4,27.4,28.4,29.4,57.1,57.1,55.1,55.1,34.4,35.4,36.4,37.4,57.1,57.1,55.1,55.1,42.4,43.4,44.4,45.4,57.1,57.1,64.1,64.1,50.4,51.4,52.4,53.4,66.1,66.1,64.1,64.1,58.4,59.4,60.4,61.4,66.1,66.1,64.1,64.1,66.4,67.4,68.4,69.4,66.1,66.1,64.1,64.1,74.4,75.4,76.4,77.4,66.1,66.1,73.1,73.1,74.1,74.1,74.1,74.1,75.1,75.1,73.1,73.1,74.1,74.1,74.1,74.1,75.1,75.1]),1e-12))
+        self.assertTrue(f00.getArray().isEqualWithoutConsideringStr(DataArrayDouble([107.2,107.2,108.2,108.2,109.2,109.2,14.6,15.6,107.2,107.2,108.2,108.2,109.2,109.2,20.6,21.6,123.2,123.2,18.5,19.5,20.5,21.5,26.6,27.6,123.2,123.2,26.5,27.5,28.5,29.5,32.6,33.6,139.2,139.2,34.5,35.5,36.5,37.5,38.6,39.6,139.2,139.2,42.5,43.5,44.5,45.5,44.6,45.6,155.2,155.2,50.5,51.5,52.5,53.5,50.6,51.6,155.2,155.2,58.5,59.5,60.5,61.5,56.6,57.6,59.1,59.1,59.1,59.1,59.1,59.1,62.6,63.6,59.1,59.1,59.1,59.1,59.1,59.1,68.6,69.6]),1e-12))
+        self.assertTrue(f10.getArray().isEqualWithoutConsideringStr(DataArrayDouble([93.2,93.2,42.1,42.1,42.1,42.1,93.2,93.2,42.1,42.1,42.1,42.1,109.2,109.2,14.6,15.6,19.3,19.3,109.2,109.2,20.6,21.6,19.3,19.3,20.5,21.5,26.6,27.6,27.3,27.3,28.5,29.5,32.6,33.6,27.3,27.3,36.5,37.5,38.6,39.6,35.3,35.3,44.5,45.5,44.6,45.6,35.3,35.3,52.5,53.5,50.6,51.6,43.3,43.3,60.5,61.5,56.6,57.6,43.3,43.3,59.1,59.1,62.6,63.6,51.3,51.3,59.1,59.1,68.6,69.6,51.3,51.3,59.1,59.1,58.3,58.3,59.3,59.3,59.1,59.1,58.3,58.3,59.3,59.3]),1e-12))
+        self.assertTrue(f20.getArray().isEqualWithoutConsideringStr(DataArrayDouble([47.1,47.1,47.1,47.1,146.2,146.2,47.1,47.1,47.1,47.1,146.2,146.2,20.4,20.4,14.7,15.7,57.1,57.1,20.4,20.4,20.7,21.7,57.1,57.1,28.4,28.4,26.7,27.7,57.1,57.1,28.4,28.4,32.7,33.7,57.1,57.1,36.4,36.4,38.7,39.7,57.1,57.1,36.4,36.4,44.7,45.7,57.1,57.1,44.4,44.4,45.4,45.4,57.1,57.1,44.4,44.4,45.4,45.4,57.1,57.1]),1e-12))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([3],1).isEqual(DataArrayInt([0,4])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([3],2).isEqual(DataArrayInt([0,1,5,6])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6],1).isEqual(DataArrayInt([0,6,49,55])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6],2).isEqual(DataArrayInt([0,8,10,16,73,79,81,89])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6,3],1).isEqual(DataArrayInt([0,6,49,55,224,230,273,279])))
+        self.assertTrue(MEDCouplingStructuredMesh.ComputeCornersGhost([5,6,3],2).isEqual(DataArrayInt([0,8,81,89,100,106,163,169,460,466,523,529,540,548,621,629])))
+        pass
+
+    def testSwig2AMR10(self):
+        """ This test, focuses on basic operations of coarse to fine and fine to coarse and ghost zone update with a ghost size set to 2 and dimension equal to 2."""
+        szGhost=2
+        amr=MEDCouplingCartesianAMRMesh("",2,[11,11],[0,0],[0.1,0.1])
+        amr.addPatch([(3,8),(0,3)],[2,2])
+        amr[0].addPatch([(0,10),(3,6)],[3,3])
+        amr[0].addPatch([(2,6),(0,3)],[3,3])
+        amr[0].addPatch([(6,10),(2,3)],[3,3])
+        amr.addPatch([(3,8),(3,6)],[2,2])
+        amr[1].addPatch([(0,4),(0,6)],[3,3])
+        amr[1].addPatch([(7,10),(0,4)],[3,3])
+        amr[1].addPatch([(4,7),(0,3)],[3,3])
+        amr[1].addPatch([(4,7),(3,6)],[3,3])
+        amr.addPatch([(0,3),(6,10)],[2,2])
+        self.assertEqual(([(30,39),(27,36)],[6,6]),amr[1][3].getMesh().positionRelativeToGodFather())
+        self.assertEqual(([(6,16),(6,12)],[2,2]),amr[1].getMesh().positionRelativeToGodFather())
+        self.assertTrue(not MEDCouplingStructuredMesh.AreRangesIntersect([(30,39),(27,36)],[(6,16),(6,12)]))
+        self.assertTrue(MEDCouplingStructuredMesh.AreRangesIntersect([(30,39),(27,36)],[(28,32),(35,37)]))
+        da=DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.])
+        MEDCouplingStructuredMesh.AssignPartOfFieldOfDoubleUsing([3,4],da,[(1,3),(2,3)],DataArrayDouble([7.7,8.8]))
+        self.assertTrue(da.isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.7,8.8,9.,10.,11.]),1e-12))
+        att=MEDCouplingAMRAttribute(amr,[("YY",1)],szGhost)
+        att.spillNatures([ConservativeVolumic])
+        att.alloc()
+        yy=att.getFieldOn(amr,"YY") ; yy.iota(0.01)
+        yy=att.getFieldOn(amr[0].getMesh(),"YY") ; yy.iota(0.02)
+        yy=att.getFieldOn(amr[1].getMesh(),"YY") ; yy.iota(0.03)
+        yy=att.getFieldOn(amr[0][0].getMesh(),"YY") ; yy.iota(0.04)
+        yy=att.getFieldOn(amr[0][1].getMesh(),"YY") ; yy.iota(0.05)
+        yy=att.getFieldOn(amr[0][2].getMesh(),"YY") ; yy.iota(0.06)
+        yy=att.getFieldOn(amr[1][0].getMesh(),"YY") ; yy.iota(0.07)
+        yy=att.getFieldOn(amr[1][1].getMesh(),"YY") ; yy.iota(0.08)
+        yy=att.getFieldOn(amr[1][2].getMesh(),"YY") ; yy.iota(0.09)
+        yy=att.getFieldOn(amr[1][3].getMesh(),"YY") ; yy.iota(0.10)
+        yy=att.getFieldOn(amr[2].getMesh(),"YY") ; yy.iota(0.11)
+        att2=att.deepCpy() ; att3=att2.deepCpy() ; att4=att3.deepCpy() ; att5=att4.deepCpy() ; att6=att5.deepCpy()
+        ###
+        att.synchronizeFineToCoarseBetween(2,1)
+        ###
+        for pos in [(),(0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(1,3)]:
+            self.assertTrue(att.getFieldOn(att.getMyGodFather().getMeshAtPosition(pos),"YY").isEqual(att2.getFieldOn(att2.getMyGodFather().getMeshAtPosition(pos),"YY"),1e-12))
+            pass
+        for pos in [(0,),(1,)]:
+            self.assertTrue(not att.getFieldOn(att.getMyGodFather().getMeshAtPosition(pos),"YY").isEqual(att2.getFieldOn(att2.getMyGodFather().getMeshAtPosition(pos),"YY"),1e-12))
+            pass
+        self.assertTrue(att.getFieldOn(amr[0].getMesh(),"YY").isEqualWithoutConsideringStr(DataArrayDouble([0.02,1.02,2.02,3.02,4.02,5.02,6.02,7.02,8.02,9.02,10.02,11.02,12.02,13.02,14.02,15.02,16.02,17.02,18.02,19.02,20.02,21.02,22.02,23.02,24.02,25.02,26.02,27.02,28.02,29.02,30.02,31.02,51.05,54.05,57.05,60.05,36.02,37.02,38.02,39.02,40.02,41.02,42.02,43.02,44.02,45.02,99.05,102.05,105.05,108.05,50.02,51.02,52.02,53.02,54.02,55.02,56.02,57.02,58.02,59.02,147.05,150.05,153.05,156.05,51.06,54.06,57.06,60.06,68.02,69.02,70.02,71.02,105.04,108.04,111.04,114.04,117.04,120.04,123.04,126.04,129.04,132.04,82.02,83.02,84.02,85.02,207.04,210.04,213.04,216.04,219.04,222.04,225.04,228.04,231.04,234.04,96.02,97.02,98.02,99.02,309.04,312.04,315.04,318.04,321.04,324.04,327.04,330.04,333.04,336.04,110.02,111.02,112.02,113.02,114.02,115.02,116.02,117.02,118.02,119.02,120.02,121.02,122.02,123.02,124.02,125.02,126.02,127.02,128.02,129.02,130.02,131.02,132.02,133.02,134.02,135.02,136.02,137.02,138.02,139.02]),1e-12))
+        self.assertTrue(att.getFieldOn(amr[1].getMesh(),"YY").isEqualWithoutConsideringStr(DataArrayDouble([0.03,1.03,2.03,3.03,4.03,5.03,6.03,7.03,8.03,9.03,10.03,11.03,12.03,13.03,14.03,15.03,16.03,17.03,18.03,19.03,20.03,21.03,22.03,23.03,24.03,25.03,26.03,27.03,28.03,29.03,51.07,54.07,57.07,60.07,42.09,45.09,48.09,42.08,45.08,48.08,40.03,41.03,42.03,43.03,99.07,102.07,105.07,108.07,81.09,84.09,87.09,81.08,84.08,87.08,54.03,55.03,56.03,57.03,147.07,150.07,153.07,156.07,120.09,123.09,126.09,120.08,123.08,126.08,68.03,69.03,70.03,71.03,195.07,198.07,201.07,204.07,42.1,45.1,48.1,159.08,162.08,165.08,82.03,83.03,84.03,85.03,243.07,246.07,249.07,252.07,81.1,84.1,87.1,93.03,94.03,95.03,96.03,97.03,98.03,99.03,291.07,294.07,297.07,300.07,120.1,123.1,126.1,107.03,108.03,109.03,110.03,111.03,112.03,113.03,114.03,115.03,116.03,117.03,118.03,119.03,120.03,121.03,122.03,123.03,124.03,125.03,126.03,127.03,128.03,129.03,130.03,131.03,132.03,133.03,134.03,135.03,136.03,137.03,138.03,139.03]),1e-12))
+        del att
+        ####
+        att2.synchronizeAllGhostZonesOfDirectChidrenOf(att2.getMyGodFather())
+        ### Only the 3 (0) (1) and (2) are modified (0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (1,3) are not modified.
+        exp2=DataArrayDouble([0.11,1.11,2.11,3.11,4.11,5.11,6.11,7.11,86.03,87.03,10.11,11.11,12.11,13.11,14.11,15.11,16.11,17.11,100.03,101.03,20.11,21.11,22.11,23.11,24.11,25.11,26.11,27.11,28.11,29.11,30.11,31.11,32.11,33.11,34.11,35.11,36.11,37.11,38.11,39.11,40.11,41.11,42.11,43.11,44.11,45.11,46.11,47.11,48.11,49.11,50.11,51.11,52.11,53.11,54.11,55.11,56.11,57.11,58.11,59.11,60.11,61.11,62.11,63.11,64.11,65.11,66.11,67.11,68.11,69.11,70.11,71.11,72.11,73.11,74.11,75.11,76.11,77.11,78.11,79.11,80.11,81.11,82.11,83.11,84.11,85.11,86.11,87.11,88.11,89.11,90.11,91.11,92.11,93.11,94.11,95.11,96.11,97.11,98.11,99.11,100.11,101.11,102.11,103.11,104.11,105.11,106.11,107.11,108.11,109.11,110.11,111.11,112.11,113.11,114.11,115.11,116.11,117.11,118.11,119.11])
+        self.assertTrue(att2.getFieldOn(att2.getMyGodFather().getMeshAtPosition((2,)),"YY").isEqualWithoutConsideringStr(exp2,1e-12))
+        exp3=DataArrayDouble([0.03,1.03,86.02,87.02,88.02,89.02,90.02,91.02,92.02,93.02,94.02,95.02,12.03,13.03,14.03,15.03,100.02,101.02,102.02,103.02,104.02,105.02,106.02,107.02,108.02,109.02,26.03,27.03,28.03,29.03,30.03,31.03,32.03,33.03,34.03,35.03,36.03,37.03,38.03,39.03,40.03,41.03,42.03,43.03,44.03,45.03,46.03,47.03,48.03,49.03,50.03,51.03,52.03,53.03,54.03,55.03,56.03,57.03,58.03,59.03,60.03,61.03,62.03,63.03,64.03,65.03,66.03,67.03,68.03,69.03,70.03,71.03,72.03,73.03,74.03,75.03,76.03,77.03,78.03,79.03,80.03,81.03,82.03,83.03,84.03,85.03,86.03,87.03,88.03,89.03,90.03,91.03,92.03,93.03,94.03,95.03,96.03,97.03,98.03,99.03,100.03,101.03,102.03,103.03,104.03,105.03,106.03,107.03,108.03,109.03,110.03,111.03,26.11,27.11,114.03,115.03,116.03,117.03,118.03,119.03,120.03,121.03,122.03,123.03,124.03,125.03,36.11,37.11,128.03,129.03,130.03,131.03,132.03,133.03,134.03,135.03,136.03,137.03,138.03,139.03])
+        self.assertTrue(att2.getFieldOn(att2.getMyGodFather().getMeshAtPosition((1,)),"YY").isEqualWithoutConsideringStr(exp3,1e-12))
+        exp4=DataArrayDouble([0.02,1.02,2.02,3.02,4.02,5.02,6.02,7.02,8.02,9.02,10.02,11.02,12.02,13.02,14.02,15.02,16.02,17.02,18.02,19.02,20.02,21.02,22.02,23.02,24.02,25.02,26.02,27.02,28.02,29.02,30.02,31.02,32.02,33.02,34.02,35.02,36.02,37.02,38.02,39.02,40.02,41.02,42.02,43.02,44.02,45.02,46.02,47.02,48.02,49.02,50.02,51.02,52.02,53.02,54.02,55.02,56.02,57.02,58.02,59.02,60.02,61.02,62.02,63.02,64.02,65.02,66.02,67.02,68.02,69.02,70.02,71.02,72.02,73.02,74.02,75.02,76.02,77.02,78.02,79.02,80.02,81.02,82.02,83.02,84.02,85.02,86.02,87.02,88.02,89.02,90.02,91.02,92.02,93.02,94.02,95.02,96.02,97.02,98.02,99.02,100.02,101.02,102.02,103.02,104.02,105.02,106.02,107.02,108.02,109.02,110.02,111.02,112.02,113.02,30.03,31.03,32.03,33.03,34.03,35.03,36.03,37.03,38.03,39.03,124.02,125.02,126.02,127.02,44.03,45.03,46.03,47.03,48.03,49.03,50.03,51.03,52.03,53.03,138.02,139.02])
+        self.assertTrue(att2.getFieldOn(att2.getMyGodFather().getMeshAtPosition((0,)),"YY").isEqualWithoutConsideringStr(exp4,1e-12))
+        for pos,iot in [((),0.01),((0,0),0.04),((0,1),0.05),((0,2),0.06),((1,0),0.07),((1,1),0.08),((1,2),0.09),((1,3),0.10)]:
+            vals=att2.getFieldOn(att2.getMyGodFather().getMeshAtPosition(pos),"YY")
+            l=vals.getNumberOfTuples()
+            exps=DataArrayDouble(l) ; exps.iota(iot)
+            self.assertTrue(vals.isEqualWithoutConsideringStr(exps,1e-12))
+            pass
+        del att2
+        ###
+        att3.synchronizeCoarseToFineBetween(1,2)
+        ###
+        for pos in [(),(0,),(1,),(2,)]:
+            self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition(pos),"YY").isEqual(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition(pos),"YY"),1e-12))
+            pass
+        exp5=DataArrayDouble([57.02,57.02,58.02,58.02,58.02,59.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,57.02,57.02,58.02,58.02,58.02,59.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,71.02,71.02,72.02,72.02,72.02,73.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02,71.02,71.02,72.02,72.02,72.02,73.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02,71.02,71.02,72.02,72.02,72.02,73.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02,85.02,85.02,86.02,86.02,86.02,87.02,87.02,87.02,88.02,88.02,88.02,89.02,89.02,89.02,90.02,90.02,90.02,91.02,91.02,91.02,92.02,92.02,92.02,93.02,93.02,93.02,94.02,94.02,94.02,95.02,95.02,95.02,96.02,96.02,85.02,85.02,86.02,86.02,86.02,87.02,87.02,87.02,88.02,88.02,88.02,89.02,89.02,89.02,90.02,90.02,90.02,91.02,91.02,91.02,92.02,92.02,92.02,93.02,93.02,93.02,94.02,94.02,94.02,95.02,95.02,95.02,96.02,96.02,85.02,85.02,86.02,86.02,86.02,87.02,87.02,87.02,88.02,88.02,88.02,89.02,89.02,89.02,90.02,90.02,90.02,91.02,91.02,91.02,92.02,92.02,92.02,93.02,93.02,93.02,94.02,94.02,94.02,95.02,95.02,95.02,96.02,96.02,99.02,99.02,100.02,100.02,100.02,101.02,101.02,101.02,102.02,102.02,102.02,103.02,103.02,103.02,104.02,104.02,104.02,105.02,105.02,105.02,106.02,106.02,106.02,107.02,107.02,107.02,108.02,108.02,108.02,109.02,109.02,109.02,110.02,110.02,99.02,99.02,100.02,100.02,100.02,101.02,101.02,101.02,102.02,102.02,102.02,103.02,103.02,103.02,104.02,104.02,104.02,105.02,105.02,105.02,106.02,106.02,106.02,107.02,107.02,107.02,108.02,108.02,108.02,109.02,109.02,109.02,110.02,110.02,99.02,99.02,100.02,100.02,100.02,101.02,101.02,101.02,102.02,102.02,102.02,103.02,103.02,103.02,104.02,104.02,104.02,105.02,105.02,105.02,106.02,106.02,106.02,107.02,107.02,107.02,108.02,108.02,108.02,109.02,109.02,109.02,110.02,110.02,113.02,113.02,114.02,114.02,114.02,115.02,115.02,115.02,116.02,116.02,116.02,117.02,117.02,117.02,118.02,118.02,118.02,119.02,119.02,119.02,120.02,120.02,120.02,121.02,121.02,121.02,122.02,122.02,122.02,123.02,123.02,123.02,124.02,124.02,113.02,113.02,114.02,114.02,114.02,115.02,115.02,115.02,116.02,116.02,116.02,117.02,117.02,117.02,118.02,118.02,118.02,119.02,119.02,119.02,120.02,120.02,120.02,121.02,121.02,121.02,122.02,122.02,122.02,123.02,123.02,123.02,124.02,124.02])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((0,0)),"YY").isEqualWithoutConsideringStr(exp5,1e-12))
+        exp6=DataArrayDouble([17.02,17.02,18.02,18.02,18.02,19.02,19.02,19.02,20.02,20.02,20.02,21.02,21.02,21.02,22.02,22.02,17.02,17.02,18.02,18.02,18.02,19.02,19.02,19.02,20.02,20.02,20.02,21.02,21.02,21.02,22.02,22.02,31.02,31.02,32.02,32.02,32.02,33.02,33.02,33.02,34.02,34.02,34.02,35.02,35.02,35.02,36.02,36.02,31.02,31.02,32.02,32.02,32.02,33.02,33.02,33.02,34.02,34.02,34.02,35.02,35.02,35.02,36.02,36.02,31.02,31.02,32.02,32.02,32.02,33.02,33.02,33.02,34.02,34.02,34.02,35.02,35.02,35.02,36.02,36.02,45.02,45.02,46.02,46.02,46.02,47.02,47.02,47.02,48.02,48.02,48.02,49.02,49.02,49.02,50.02,50.02,45.02,45.02,46.02,46.02,46.02,47.02,47.02,47.02,48.02,48.02,48.02,49.02,49.02,49.02,50.02,50.02,45.02,45.02,46.02,46.02,46.02,47.02,47.02,47.02,48.02,48.02,48.02,49.02,49.02,49.02,50.02,50.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((0,1)),"YY").isEqualWithoutConsideringStr(exp6,1e-12))
+        exp7=DataArrayDouble([49.02,49.02,50.02,50.02,50.02,51.02,51.02,51.02,52.02,52.02,52.02,53.02,53.02,53.02,54.02,54.02,49.02,49.02,50.02,50.02,50.02,51.02,51.02,51.02,52.02,52.02,52.02,53.02,53.02,53.02,54.02,54.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((0,2)),"YY").isEqualWithoutConsideringStr(exp7,1e-12))
+        exp8=DataArrayDouble([15.03,15.03,16.03,16.03,16.03,17.03,17.03,17.03,18.03,18.03,18.03,19.03,19.03,19.03,20.03,20.03,15.03,15.03,16.03,16.03,16.03,17.03,17.03,17.03,18.03,18.03,18.03,19.03,19.03,19.03,20.03,20.03,29.03,29.03,30.03,30.03,30.03,31.03,31.03,31.03,32.03,32.03,32.03,33.03,33.03,33.03,34.03,34.03,29.03,29.03,30.03,30.03,30.03,31.03,31.03,31.03,32.03,32.03,32.03,33.03,33.03,33.03,34.03,34.03,29.03,29.03,30.03,30.03,30.03,31.03,31.03,31.03,32.03,32.03,32.03,33.03,33.03,33.03,34.03,34.03,43.03,43.03,44.03,44.03,44.03,45.03,45.03,45.03,46.03,46.03,46.03,47.03,47.03,47.03,48.03,48.03,43.03,43.03,44.03,44.03,44.03,45.03,45.03,45.03,46.03,46.03,46.03,47.03,47.03,47.03,48.03,48.03,43.03,43.03,44.03,44.03,44.03,45.03,45.03,45.03,46.03,46.03,46.03,47.03,47.03,47.03,48.03,48.03,57.03,57.03,58.03,58.03,58.03,59.03,59.03,59.03,60.03,60.03,60.03,61.03,61.03,61.03,62.03,62.03,57.03,57.03,58.03,58.03,58.03,59.03,59.03,59.03,60.03,60.03,60.03,61.03,61.03,61.03,62.03,62.03,57.03,57.03,58.03,58.03,58.03,59.03,59.03,59.03,60.03,60.03,60.03,61.03,61.03,61.03,62.03,62.03,71.03,71.03,72.03,72.03,72.03,73.03,73.03,73.03,74.03,74.03,74.03,75.03,75.03,75.03,76.03,76.03,71.03,71.03,72.03,72.03,72.03,73.03,73.03,73.03,74.03,74.03,74.03,75.03,75.03,75.03,76.03,76.03,71.03,71.03,72.03,72.03,72.03,73.03,73.03,73.03,74.03,74.03,74.03,75.03,75.03,75.03,76.03,76.03,85.03,85.03,86.03,86.03,86.03,87.03,87.03,87.03,88.03,88.03,88.03,89.03,89.03,89.03,90.03,90.03,85.03,85.03,86.03,86.03,86.03,87.03,87.03,87.03,88.03,88.03,88.03,89.03,89.03,89.03,90.03,90.03,85.03,85.03,86.03,86.03,86.03,87.03,87.03,87.03,88.03,88.03,88.03,89.03,89.03,89.03,90.03,90.03,99.03,99.03,100.03,100.03,100.03,101.03,101.03,101.03,102.03,102.03,102.03,103.03,103.03,103.03,104.03,104.03,99.03,99.03,100.03,100.03,100.03,101.03,101.03,101.03,102.03,102.03,102.03,103.03,103.03,103.03,104.03,104.03,99.03,99.03,100.03,100.03,100.03,101.03,101.03,101.03,102.03,102.03,102.03,103.03,103.03,103.03,104.03,104.03,113.03,113.03,114.03,114.03,114.03,115.03,115.03,115.03,116.03,116.03,116.03,117.03,117.03,117.03,118.03,118.03,113.03,113.03,114.03,114.03,114.03,115.03,115.03,115.03,116.03,116.03,116.03,117.03,117.03,117.03,118.03,118.03])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((1,0)),"YY").isEqualWithoutConsideringStr(exp8,1e-12))
+        exp9=DataArrayDouble([22.03,22.03,23.03,23.03,23.03,24.03,24.03,24.03,25.03,25.03,25.03,26.03,26.03,22.03,22.03,23.03,23.03,23.03,24.03,24.03,24.03,25.03,25.03,25.03,26.03,26.03,36.03,36.03,37.03,37.03,37.03,38.03,38.03,38.03,39.03,39.03,39.03,40.03,40.03,36.03,36.03,37.03,37.03,37.03,38.03,38.03,38.03,39.03,39.03,39.03,40.03,40.03,36.03,36.03,37.03,37.03,37.03,38.03,38.03,38.03,39.03,39.03,39.03,40.03,40.03,50.03,50.03,51.03,51.03,51.03,52.03,52.03,52.03,53.03,53.03,53.03,54.03,54.03,50.03,50.03,51.03,51.03,51.03,52.03,52.03,52.03,53.03,53.03,53.03,54.03,54.03,50.03,50.03,51.03,51.03,51.03,52.03,52.03,52.03,53.03,53.03,53.03,54.03,54.03,64.03,64.03,65.03,65.03,65.03,66.03,66.03,66.03,67.03,67.03,67.03,68.03,68.03,64.03,64.03,65.03,65.03,65.03,66.03,66.03,66.03,67.03,67.03,67.03,68.03,68.03,64.03,64.03,65.03,65.03,65.03,66.03,66.03,66.03,67.03,67.03,67.03,68.03,68.03,78.03,78.03,79.03,79.03,79.03,80.03,80.03,80.03,81.03,81.03,81.03,82.03,82.03,78.03,78.03,79.03,79.03,79.03,80.03,80.03,80.03,81.03,81.03,81.03,82.03,82.03,78.03,78.03,79.03,79.03,79.03,80.03,80.03,80.03,81.03,81.03,81.03,82.03,82.03,92.03,92.03,93.03,93.03,93.03,94.03,94.03,94.03,95.03,95.03,95.03,96.03,96.03,92.03,92.03,93.03,93.03,93.03,94.03,94.03,94.03,95.03,95.03,95.03,96.03,96.03])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((1,1)),"YY").isEqualWithoutConsideringStr(exp9,1e-12))
+        exp10=DataArrayDouble([19.03,19.03,20.03,20.03,20.03,21.03,21.03,21.03,22.03,22.03,22.03,23.03,23.03,19.03,19.03,20.03,20.03,20.03,21.03,21.03,21.03,22.03,22.03,22.03,23.03,23.03,33.03,33.03,34.03,34.03,34.03,35.03,35.03,35.03,36.03,36.03,36.03,37.03,37.03,33.03,33.03,34.03,34.03,34.03,35.03,35.03,35.03,36.03,36.03,36.03,37.03,37.03,33.03,33.03,34.03,34.03,34.03,35.03,35.03,35.03,36.03,36.03,36.03,37.03,37.03,47.03,47.03,48.03,48.03,48.03,49.03,49.03,49.03,50.03,50.03,50.03,51.03,51.03,47.03,47.03,48.03,48.03,48.03,49.03,49.03,49.03,50.03,50.03,50.03,51.03,51.03,47.03,47.03,48.03,48.03,48.03,49.03,49.03,49.03,50.03,50.03,50.03,51.03,51.03,61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((1,2)),"YY").isEqualWithoutConsideringStr(exp10,1e-12))
+        exp11=DataArrayDouble([61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03,89.03,89.03,90.03,90.03,90.03,91.03,91.03,91.03,92.03,92.03,92.03,93.03,93.03,89.03,89.03,90.03,90.03,90.03,91.03,91.03,91.03,92.03,92.03,92.03,93.03,93.03,89.03,89.03,90.03,90.03,90.03,91.03,91.03,91.03,92.03,92.03,92.03,93.03,93.03,103.03,103.03,104.03,104.03,104.03,105.03,105.03,105.03,106.03,106.03,106.03,107.03,107.03,103.03,103.03,104.03,104.03,104.03,105.03,105.03,105.03,106.03,106.03,106.03,107.03,107.03,103.03,103.03,104.03,104.03,104.03,105.03,105.03,105.03,106.03,106.03,106.03,107.03,107.03,117.03,117.03,118.03,118.03,118.03,119.03,119.03,119.03,120.03,120.03,120.03,121.03,121.03,117.03,117.03,118.03,118.03,118.03,119.03,119.03,119.03,120.03,120.03,120.03,121.03,121.03])
+        self.assertTrue(att3.getFieldOn(att3.getMyGodFather().getMeshAtPosition((1,3)),"YY").isEqualWithoutConsideringStr(exp11,1e-12))
+        del att3
+        ### 
+        att4.synchronizeAllGhostZonesAtASpecifiedLevel(2)
+        for pos in [(),(0,),(1,),(2,)]:
+            self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition(pos),"YY").isEqual(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition(pos),"YY"),1e-12))
+            pass
+        exp12=DataArrayDouble([0.04,1.04,2.04,3.04,4.04,5.04,6.04,7.04,146.05,147.05,148.05,149.05,150.05,151.05,152.05,153.05,154.05,155.05,156.05,157.05,50.06,51.06,52.06,53.06,54.06,55.06,56.06,57.06,58.06,59.06,60.06,61.06,32.04,33.04,34.04,35.04,36.04,37.04,38.04,39.04,40.04,41.04,162.05,163.05,164.05,165.05,166.05,167.05,168.05,169.05,170.05,171.05,172.05,173.05,66.06,67.06,68.06,69.06,70.06,71.06,72.06,73.06,74.06,75.06,76.06,77.06,66.04,67.04,68.04,69.04,70.04,71.04,72.04,73.04,74.04,75.04,76.04,77.04,78.04,79.04,80.04,81.04,82.04,83.04,84.04,85.04,86.04,87.04,88.04,89.04,90.04,91.04,92.04,93.04,94.04,95.04,96.04,97.04,98.04,99.04,100.04,101.04,102.04,103.04,104.04,105.04,106.04,107.04,108.04,109.04,110.04,111.04,112.04,113.04,114.04,115.04,116.04,117.04,118.04,119.04,120.04,121.04,122.04,123.04,124.04,125.04,126.04,127.04,128.04,129.04,130.04,131.04,132.04,133.04,134.04,135.04,136.04,137.04,138.04,139.04,140.04,141.04,142.04,143.04,144.04,145.04,146.04,147.04,148.04,149.04,150.04,151.04,152.04,153.04,154.04,155.04,156.04,157.04,158.04,159.04,160.04,161.04,162.04,163.04,164.04,165.04,166.04,167.04,168.04,169.04,170.04,171.04,172.04,173.04,174.04,175.04,176.04,177.04,178.04,179.04,180.04,181.04,182.04,183.04,184.04,185.04,186.04,187.04,188.04,189.04,190.04,191.04,192.04,193.04,194.04,195.04,196.04,197.04,198.04,199.04,200.04,201.04,202.04,203.04,204.04,205.04,206.04,207.04,208.04,209.04,210.04,211.04,212.04,213.04,214.04,215.04,216.04,217.04,218.04,219.04,220.04,221.04,222.04,223.04,224.04,225.04,226.04,227.04,228.04,229.04,230.04,231.04,232.04,233.04,234.04,235.04,236.04,237.04,238.04,239.04,240.04,241.04,242.04,243.04,244.04,245.04,246.04,247.04,248.04,249.04,250.04,251.04,252.04,253.04,254.04,255.04,256.04,257.04,258.04,259.04,260.04,261.04,262.04,263.04,264.04,265.04,266.04,267.04,268.04,269.04,270.04,271.04,272.04,273.04,274.04,275.04,276.04,277.04,278.04,279.04,280.04,281.04,282.04,283.04,284.04,285.04,286.04,287.04,288.04,289.04,290.04,291.04,292.04,293.04,294.04,295.04,296.04,297.04,298.04,299.04,300.04,301.04,302.04,303.04,304.04,305.04,306.04,307.04,308.04,309.04,310.04,311.04,312.04,313.04,314.04,315.04,316.04,317.04,318.04,319.04,320.04,321.04,322.04,323.04,324.04,325.04,326.04,327.04,328.04,329.04,330.04,331.04,332.04,333.04,334.04,335.04,336.04,337.04,338.04,339.04,340.04,341.04,342.04,343.04,344.04,345.04,346.04,347.04,348.04,349.04,350.04,351.04,352.04,353.04,354.04,355.04,356.04,357.04,358.04,359.04,360.04,361.04,362.04,363.04,364.04,365.04,366.04,367.04,368.04,369.04,370.04,371.04,372.04,373.04,374.04,375.04,34.07,35.07,36.07,37.07,38.07,39.07,40.07,41.07,42.07,43.07,44.07,45.07,28.09,29.09,30.09,31.09,32.09,33.09,34.09,35.09,36.09,28.08,29.08,30.08,31.08,32.08,33.08,34.08,35.08,36.08,406.04,407.04,408.04,409.04,50.07,51.07,52.07,53.07,54.07,55.07,56.07,57.07,58.07,59.07,60.07,61.07,41.09,42.09,43.09,44.09,45.09,46.09,47.09,48.09,49.09,41.08,42.08,43.08,44.08,45.08,46.08,47.08,48.08,49.08,440.04,441.04])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((0,0)),"YY").isEqualWithoutConsideringStr(exp12,1e-12))
+        exp13=DataArrayDouble([[0.05,1.05,2.05,3.05,4.05,5.05,6.05,7.05,8.05,9.05,10.05,11.05,12.05,13.05,14.05,15.05,16.05,17.05,18.05,19.05,20.05,21.05,22.05,23.05,24.05,25.05,26.05,27.05,28.05,29.05,30.05,31.05,32.05,33.05,34.05,35.05,36.05,37.05,38.05,39.05,40.05,41.05,42.05,43.05,44.05,45.05,46.05,47.05,48.05,49.05,50.05,51.05,52.05,53.05,54.05,55.05,56.05,57.05,58.05,59.05,60.05,61.05,62.05,63.05,64.05,65.05,66.05,67.05,68.05,69.05,70.05,71.05,72.05,73.05,74.05,75.05,76.05,77.05,78.05,79.05,80.05,81.05,82.05,83.05,84.05,85.05,86.05,87.05,88.05,89.05,90.05,91.05,92.05,93.05,94.05,95.05,96.05,97.05,98.05,99.05,100.05,101.05,102.05,103.05,104.05,105.05,106.05,107.05,108.05,109.05,110.05,111.05,112.05,113.05,114.05,115.05,116.05,117.05,118.05,119.05,120.05,121.05,122.05,123.05,124.05,125.05,126.05,127.05,128.05,129.05,130.05,131.05,132.05,133.05,134.05,135.05,136.05,137.05,138.05,139.05,140.05,141.05,34.06,35.06,144.05,145.05,146.05,147.05,148.05,149.05,150.05,151.05,152.05,153.05,154.05,155.05,156.05,157.05,50.06,51.06,160.05,161.05,162.05,163.05,164.05,165.05,166.05,167.05,168.05,169.05,170.05,171.05,172.05,173.05,66.06,67.06,74.04,75.04,76.04,77.04,78.04,79.04,80.04,81.04,82.04,83.04,84.04,85.04,86.04,87.04,88.04,89.04,108.04,109.04,110.04,111.04,112.04,113.04,114.04,115.04,116.04,117.04,118.04,119.04,120.04,121.04,122.04,123.04]])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((0,1)),"YY").isEqualWithoutConsideringStr(exp13,1e-12))
+        exp14=DataArrayDouble([108.05,109.05,2.06,3.06,4.06,5.06,6.06,7.06,8.06,9.06,10.06,11.06,12.06,13.06,14.06,15.06,124.05,125.05,18.06,19.06,20.06,21.06,22.06,23.06,24.06,25.06,26.06,27.06,28.06,29.06,30.06,31.06,140.05,141.05,34.06,35.06,36.06,37.06,38.06,39.06,40.06,41.06,42.06,43.06,44.06,45.06,46.06,47.06,156.05,157.05,50.06,51.06,52.06,53.06,54.06,55.06,56.06,57.06,58.06,59.06,60.06,61.06,62.06,63.06,172.05,173.05,66.06,67.06,68.06,69.06,70.06,71.06,72.06,73.06,74.06,75.06,76.06,77.06,78.06,79.06,86.04,87.04,88.04,89.04,90.04,91.04,92.04,93.04,94.04,95.04,96.04,97.04,98.04,99.04,94.06,95.06,120.04,121.04,122.04,123.04,124.04,125.04,126.04,127.04,128.04,129.04,130.04,131.04,132.04,133.04,110.06,111.06])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((0,2)),"YY").isEqualWithoutConsideringStr(exp14,1e-12))
+        exp15=DataArrayDouble([0.07,1.07,308.04,309.04,310.04,311.04,312.04,313.04,314.04,315.04,316.04,317.04,318.04,319.04,320.04,321.04,16.07,17.07,342.04,343.04,344.04,345.04,346.04,347.04,348.04,349.04,350.04,351.04,352.04,353.04,354.04,355.04,32.07,33.07,34.07,35.07,36.07,37.07,38.07,39.07,40.07,41.07,42.07,43.07,44.07,45.07,28.09,29.09,48.07,49.07,50.07,51.07,52.07,53.07,54.07,55.07,56.07,57.07,58.07,59.07,60.07,61.07,41.09,42.09,64.07,65.07,66.07,67.07,68.07,69.07,70.07,71.07,72.07,73.07,74.07,75.07,76.07,77.07,54.09,55.09,80.07,81.07,82.07,83.07,84.07,85.07,86.07,87.07,88.07,89.07,90.07,91.07,92.07,93.07,67.09,68.09,96.07,97.07,98.07,99.07,100.07,101.07,102.07,103.07,104.07,105.07,106.07,107.07,108.07,109.07,80.09,81.09,112.07,113.07,114.07,115.07,116.07,117.07,118.07,119.07,120.07,121.07,122.07,123.07,124.07,125.07,93.09,94.09,128.07,129.07,130.07,131.07,132.07,133.07,134.07,135.07,136.07,137.07,138.07,139.07,140.07,141.07,106.09,107.09,144.07,145.07,146.07,147.07,148.07,149.07,150.07,151.07,152.07,153.07,154.07,155.07,156.07,157.07,119.09,120.09,160.07,161.07,162.07,163.07,164.07,165.07,166.07,167.07,168.07,169.07,170.07,171.07,172.07,173.07,132.09,133.09,176.07,177.07,178.07,179.07,180.07,181.07,182.07,183.07,184.07,185.07,186.07,187.07,188.07,189.07,28.1,29.1,192.07,193.07,194.07,195.07,196.07,197.07,198.07,199.07,200.07,201.07,202.07,203.07,204.07,205.07,41.1,42.1,208.07,209.07,210.07,211.07,212.07,213.07,214.07,215.07,216.07,217.07,218.07,219.07,220.07,221.07,54.1,55.1,224.07,225.07,226.07,227.07,228.07,229.07,230.07,231.07,232.07,233.07,234.07,235.07,236.07,237.07,67.1,68.1,240.07,241.07,242.07,243.07,244.07,245.07,246.07,247.07,248.07,249.07,250.07,251.07,252.07,253.07,80.1,81.1,256.07,257.07,258.07,259.07,260.07,261.07,262.07,263.07,264.07,265.07,266.07,267.07,268.07,269.07,93.1,94.1,272.07,273.07,274.07,275.07,276.07,277.07,278.07,279.07,280.07,281.07,282.07,283.07,284.07,285.07,106.1,107.1,288.07,289.07,290.07,291.07,292.07,293.07,294.07,295.07,296.07,297.07,298.07,299.07,300.07,301.07,119.1,120.1,304.07,305.07,306.07,307.07,308.07,309.07,310.07,311.07,312.07,313.07,314.07,315.07,316.07,317.07,132.1,133.1,320.07,321.07,322.07,323.07,324.07,325.07,326.07,327.07,328.07,329.07,330.07,331.07,332.07,333.07,334.07,335.07,336.07,337.07,338.07,339.07,340.07,341.07,342.07,343.07,344.07,345.07,346.07,347.07,348.07,349.07,350.07,351.07])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((1,0)),"YY").isEqualWithoutConsideringStr(exp15,1e-12))
+        exp16=DataArrayDouble([327.04,328.04,329.04,330.04,331.04,332.04,333.04,334.04,335.04,336.04,337.04,11.08,12.08,361.04,362.04,363.04,364.04,365.04,366.04,367.04,368.04,369.04,370.04,371.04,24.08,25.08,35.09,36.09,28.08,29.08,30.08,31.08,32.08,33.08,34.08,35.08,36.08,37.08,38.08,48.09,49.09,41.08,42.08,43.08,44.08,45.08,46.08,47.08,48.08,49.08,50.08,51.08,61.09,62.09,54.08,55.08,56.08,57.08,58.08,59.08,60.08,61.08,62.08,63.08,64.08,74.09,75.09,67.08,68.08,69.08,70.08,71.08,72.08,73.08,74.08,75.08,76.08,77.08,87.09,88.09,80.08,81.08,82.08,83.08,84.08,85.08,86.08,87.08,88.08,89.08,90.08,100.09,101.09,93.08,94.08,95.08,96.08,97.08,98.08,99.08,100.08,101.08,102.08,103.08,113.09,114.09,106.08,107.08,108.08,109.08,110.08,111.08,112.08,113.08,114.08,115.08,116.08,126.09,127.09,119.08,120.08,121.08,122.08,123.08,124.08,125.08,126.08,127.08,128.08,129.08,139.09,140.09,132.08,133.08,134.08,135.08,136.08,137.08,138.08,139.08,140.08,141.08,142.08,35.1,36.1,145.08,146.08,147.08,148.08,149.08,150.08,151.08,152.08,153.08,154.08,155.08,48.1,49.1,158.08,159.08,160.08,161.08,162.08,163.08,164.08,165.08,166.08,167.08,168.08,61.1,62.1,171.08,172.08,173.08,174.08,175.08,176.08,177.08,178.08,179.08,180.08,181.08,74.1,75.1,184.08,185.08,186.08,187.08,188.08,189.08,190.08,191.08,192.08,193.08,194.08,87.1,88.1,197.08,198.08,199.08,200.08,201.08,202.08,203.08,204.08,205.08,206.08,207.08])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((1,1)),"YY").isEqualWithoutConsideringStr(exp16,1e-12))
+        exp17=DataArrayDouble([318.04,319.04,320.04,321.04,322.04,323.04,324.04,325.04,326.04,327.04,328.04,329.04,330.04,352.04,353.04,354.04,355.04,356.04,357.04,358.04,359.04,360.04,361.04,362.04,363.04,364.04,44.07,45.07,28.09,29.09,30.09,31.09,32.09,33.09,34.09,35.09,36.09,28.08,29.08,60.07,61.07,41.09,42.09,43.09,44.09,45.09,46.09,47.09,48.09,49.09,41.08,42.08,76.07,77.07,54.09,55.09,56.09,57.09,58.09,59.09,60.09,61.09,62.09,54.08,55.08,92.07,93.07,67.09,68.09,69.09,70.09,71.09,72.09,73.09,74.09,75.09,67.08,68.08,108.07,109.07,80.09,81.09,82.09,83.09,84.09,85.09,86.09,87.09,88.09,80.08,81.08,124.07,125.07,93.09,94.09,95.09,96.09,97.09,98.09,99.09,100.09,101.09,93.08,94.08,140.07,141.07,106.09,107.09,108.09,109.09,110.09,111.09,112.09,113.09,114.09,106.08,107.08,156.07,157.07,119.09,120.09,121.09,122.09,123.09,124.09,125.09,126.09,127.09,119.08,120.08,172.07,173.07,132.09,133.09,134.09,135.09,136.09,137.09,138.09,139.09,140.09,132.08,133.08,188.07,189.07,28.1,29.1,30.1,31.1,32.1,33.1,34.1,35.1,36.1,145.08,146.08,204.07,205.07,41.1,42.1,43.1,44.1,45.1,46.1,47.1,48.1,49.1,158.08,159.08])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((1,2)),"YY").isEqualWithoutConsideringStr(exp17,1e-12))
+        exp18=DataArrayDouble([156.07,157.07,119.09,120.09,121.09,122.09,123.09,124.09,125.09,126.09,127.09,119.08,120.08,172.07,173.07,132.09,133.09,134.09,135.09,136.09,137.09,138.09,139.09,140.09,132.08,133.08,188.07,189.07,28.1,29.1,30.1,31.1,32.1,33.1,34.1,35.1,36.1,145.08,146.08,204.07,205.07,41.1,42.1,43.1,44.1,45.1,46.1,47.1,48.1,49.1,158.08,159.08,220.07,221.07,54.1,55.1,56.1,57.1,58.1,59.1,60.1,61.1,62.1,171.08,172.08,236.07,237.07,67.1,68.1,69.1,70.1,71.1,72.1,73.1,74.1,75.1,76.1,77.1,252.07,253.07,80.1,81.1,82.1,83.1,84.1,85.1,86.1,87.1,88.1,89.1,90.1,268.07,269.07,93.1,94.1,95.1,96.1,97.1,98.1,99.1,100.1,101.1,102.1,103.1,284.07,285.07,106.1,107.1,108.1,109.1,110.1,111.1,112.1,113.1,114.1,115.1,116.1,300.07,301.07,119.1,120.1,121.1,122.1,123.1,124.1,125.1,126.1,127.1,128.1,129.1,316.07,317.07,132.1,133.1,134.1,135.1,136.1,137.1,138.1,139.1,140.1,141.1,142.1,143.1,144.1,145.1,146.1,147.1,148.1,149.1,150.1,151.1,152.1,153.1,154.1,155.1,156.1,157.1,158.1,159.1,160.1,161.1,162.1,163.1,164.1,165.1,166.1,167.1,168.1])
+        self.assertTrue(att4.getFieldOn(att4.getMyGodFather().getMeshAtPosition((1,3)),"YY").isEqualWithoutConsideringStr(exp18,1e-12))
+        del att4
+        ###
+        att5.synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(2)
+        for pos in [(),(0,),(1,),(2,)]:
+            self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition(pos),"YY").isEqual(att6.getFieldOn(att6.getMyGodFather().getMeshAtPosition(pos),"YY"),1e-12))
+            pass
+        att5.buildCellFieldOnWithGhost(att5.getMyGodFather().getMeshAtPosition((0,0)),"YY")
+        exp19=DataArrayDouble([57.02,57.02,58.02,58.02,58.02,59.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,57.02,57.02,58.02,58.02,58.02,59.02,59.02,59.02,60.02,60.02,60.02,61.02,61.02,61.02,62.02,62.02,62.02,63.02,63.02,63.02,64.02,64.02,64.02,65.02,65.02,65.02,66.02,66.02,66.02,67.02,67.02,67.02,68.02,68.02,71.02,71.02,70.04,71.04,72.04,73.04,74.04,75.04,76.04,77.04,78.04,79.04,80.04,81.04,82.04,83.04,84.04,85.04,86.04,87.04,88.04,89.04,90.04,91.04,92.04,93.04,94.04,95.04,96.04,97.04,98.04,99.04,82.02,82.02,71.02,71.02,104.04,105.04,106.04,107.04,108.04,109.04,110.04,111.04,112.04,113.04,114.04,115.04,116.04,117.04,118.04,119.04,120.04,121.04,122.04,123.04,124.04,125.04,126.04,127.04,128.04,129.04,130.04,131.04,132.04,133.04,82.02,82.02,71.02,71.02,138.04,139.04,140.04,141.04,142.04,143.04,144.04,145.04,146.04,147.04,148.04,149.04,150.04,151.04,152.04,153.04,154.04,155.04,156.04,157.04,158.04,159.04,160.04,161.04,162.04,163.04,164.04,165.04,166.04,167.04,82.02,82.02,85.02,85.02,172.04,173.04,174.04,175.04,176.04,177.04,178.04,179.04,180.04,181.04,182.04,183.04,184.04,185.04,186.04,187.04,188.04,189.04,190.04,191.04,192.04,193.04,194.04,195.04,196.04,197.04,198.04,199.04,200.04,201.04,96.02,96.02,85.02,85.02,206.04,207.04,208.04,209.04,210.04,211.04,212.04,213.04,214.04,215.04,216.04,217.04,218.04,219.04,220.04,221.04,222.04,223.04,224.04,225.04,226.04,227.04,228.04,229.04,230.04,231.04,232.04,233.04,234.04,235.04,96.02,96.02,85.02,85.02,240.04,241.04,242.04,243.04,244.04,245.04,246.04,247.04,248.04,249.04,250.04,251.04,252.04,253.04,254.04,255.04,256.04,257.04,258.04,259.04,260.04,261.04,262.04,263.04,264.04,265.04,266.04,267.04,268.04,269.04,96.02,96.02,99.02,99.02,274.04,275.04,276.04,277.04,278.04,279.04,280.04,281.04,282.04,283.04,284.04,285.04,286.04,287.04,288.04,289.04,290.04,291.04,292.04,293.04,294.04,295.04,296.04,297.04,298.04,299.04,300.04,301.04,302.04,303.04,110.02,110.02,99.02,99.02,308.04,309.04,310.04,311.04,312.04,313.04,314.04,315.04,316.04,317.04,318.04,319.04,320.04,321.04,322.04,323.04,324.04,325.04,326.04,327.04,328.04,329.04,330.04,331.04,332.04,333.04,334.04,335.04,336.04,337.04,110.02,110.02,99.02,99.02,342.04,343.04,344.04,345.04,346.04,347.04,348.04,349.04,350.04,351.04,352.04,353.04,354.04,355.04,356.04,357.04,358.04,359.04,360.04,361.04,362.04,363.04,364.04,365.04,366.04,367.04,368.04,369.04,370.04,371.04,110.02,110.02,113.02,113.02,114.02,114.02,114.02,115.02,115.02,115.02,116.02,116.02,116.02,117.02,117.02,117.02,118.02,118.02,118.02,119.02,119.02,119.02,120.02,120.02,120.02,121.02,121.02,121.02,122.02,122.02,122.02,123.02,123.02,123.02,124.02,124.02,113.02,113.02,114.02,114.02,114.02,115.02,115.02,115.02,116.02,116.02,116.02,117.02,117.02,117.02,118.02,118.02,118.02,119.02,119.02,119.02,120.02,120.02,120.02,121.02,121.02,121.02,122.02,122.02,122.02,123.02,123.02,123.02,124.02,124.02])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((0,0)),"YY").isEqualWithoutConsideringStr(exp19,1e-12))
+        exp20=DataArrayDouble([17.02,17.02,18.02,18.02,18.02,19.02,19.02,19.02,20.02,20.02,20.02,21.02,21.02,21.02,22.02,22.02,17.02,17.02,18.02,18.02,18.02,19.02,19.02,19.02,20.02,20.02,20.02,21.02,21.02,21.02,22.02,22.02,31.02,31.02,34.05,35.05,36.05,37.05,38.05,39.05,40.05,41.05,42.05,43.05,44.05,45.05,36.02,36.02,31.02,31.02,50.05,51.05,52.05,53.05,54.05,55.05,56.05,57.05,58.05,59.05,60.05,61.05,36.02,36.02,31.02,31.02,66.05,67.05,68.05,69.05,70.05,71.05,72.05,73.05,74.05,75.05,76.05,77.05,36.02,36.02,45.02,45.02,82.05,83.05,84.05,85.05,86.05,87.05,88.05,89.05,90.05,91.05,92.05,93.05,50.02,50.02,45.02,45.02,98.05,99.05,100.05,101.05,102.05,103.05,104.05,105.05,106.05,107.05,108.05,109.05,50.02,50.02,45.02,45.02,114.05,115.05,116.05,117.05,118.05,119.05,120.05,121.05,122.05,123.05,124.05,125.05,50.02,50.02,59.02,59.02,130.05,131.05,132.05,133.05,134.05,135.05,136.05,137.05,138.05,139.05,140.05,141.05,64.02,64.02,59.02,59.02,146.05,147.05,148.05,149.05,150.05,151.05,152.05,153.05,154.05,155.05,156.05,157.05,64.02,64.02,59.02,59.02,162.05,163.05,164.05,165.05,166.05,167.05,168.05,169.05,170.05,171.05,172.05,173.05,64.02,64.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02,73.02,73.02,74.02,74.02,74.02,75.02,75.02,75.02,76.02,76.02,76.02,77.02,77.02,77.02,78.02,78.02])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((0,1)),"YY").isEqualWithoutConsideringStr(exp20,1e-12))
+        exp21=DataArrayDouble([49.02,49.02,50.02,50.02,50.02,51.02,51.02,51.02,52.02,52.02,52.02,53.02,53.02,53.02,54.02,54.02,49.02,49.02,50.02,50.02,50.02,51.02,51.02,51.02,52.02,52.02,52.02,53.02,53.02,53.02,54.02,54.02,63.02,63.02,34.06,35.06,36.06,37.06,38.06,39.06,40.06,41.06,42.06,43.06,44.06,45.06,68.02,68.02,63.02,63.02,50.06,51.06,52.06,53.06,54.06,55.06,56.06,57.06,58.06,59.06,60.06,61.06,68.02,68.02,63.02,63.02,66.06,67.06,68.06,69.06,70.06,71.06,72.06,73.06,74.06,75.06,76.06,77.06,68.02,68.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02,77.02,77.02,78.02,78.02,78.02,79.02,79.02,79.02,80.02,80.02,80.02,81.02,81.02,81.02,82.02,82.02])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((0,2)),"YY").isEqualWithoutConsideringStr(exp21,1e-12))
+        exp22=DataArrayDouble([15.03,15.03,16.03,16.03,16.03,17.03,17.03,17.03,18.03,18.03,18.03,19.03,19.03,19.03,20.03,20.03,15.03,15.03,16.03,16.03,16.03,17.03,17.03,17.03,18.03,18.03,18.03,19.03,19.03,19.03,20.03,20.03,29.03,29.03,34.07,35.07,36.07,37.07,38.07,39.07,40.07,41.07,42.07,43.07,44.07,45.07,34.03,34.03,29.03,29.03,50.07,51.07,52.07,53.07,54.07,55.07,56.07,57.07,58.07,59.07,60.07,61.07,34.03,34.03,29.03,29.03,66.07,67.07,68.07,69.07,70.07,71.07,72.07,73.07,74.07,75.07,76.07,77.07,34.03,34.03,43.03,43.03,82.07,83.07,84.07,85.07,86.07,87.07,88.07,89.07,90.07,91.07,92.07,93.07,48.03,48.03,43.03,43.03,98.07,99.07,100.07,101.07,102.07,103.07,104.07,105.07,106.07,107.07,108.07,109.07,48.03,48.03,43.03,43.03,114.07,115.07,116.07,117.07,118.07,119.07,120.07,121.07,122.07,123.07,124.07,125.07,48.03,48.03,57.03,57.03,130.07,131.07,132.07,133.07,134.07,135.07,136.07,137.07,138.07,139.07,140.07,141.07,62.03,62.03,57.03,57.03,146.07,147.07,148.07,149.07,150.07,151.07,152.07,153.07,154.07,155.07,156.07,157.07,62.03,62.03,57.03,57.03,162.07,163.07,164.07,165.07,166.07,167.07,168.07,169.07,170.07,171.07,172.07,173.07,62.03,62.03,71.03,71.03,178.07,179.07,180.07,181.07,182.07,183.07,184.07,185.07,186.07,187.07,188.07,189.07,76.03,76.03,71.03,71.03,194.07,195.07,196.07,197.07,198.07,199.07,200.07,201.07,202.07,203.07,204.07,205.07,76.03,76.03,71.03,71.03,210.07,211.07,212.07,213.07,214.07,215.07,216.07,217.07,218.07,219.07,220.07,221.07,76.03,76.03,85.03,85.03,226.07,227.07,228.07,229.07,230.07,231.07,232.07,233.07,234.07,235.07,236.07,237.07,90.03,90.03,85.03,85.03,242.07,243.07,244.07,245.07,246.07,247.07,248.07,249.07,250.07,251.07,252.07,253.07,90.03,90.03,85.03,85.03,258.07,259.07,260.07,261.07,262.07,263.07,264.07,265.07,266.07,267.07,268.07,269.07,90.03,90.03,99.03,99.03,274.07,275.07,276.07,277.07,278.07,279.07,280.07,281.07,282.07,283.07,284.07,285.07,104.03,104.03,99.03,99.03,290.07,291.07,292.07,293.07,294.07,295.07,296.07,297.07,298.07,299.07,300.07,301.07,104.03,104.03,99.03,99.03,306.07,307.07,308.07,309.07,310.07,311.07,312.07,313.07,314.07,315.07,316.07,317.07,104.03,104.03,113.03,113.03,114.03,114.03,114.03,115.03,115.03,115.03,116.03,116.03,116.03,117.03,117.03,117.03,118.03,118.03,113.03,113.03,114.03,114.03,114.03,115.03,115.03,115.03,116.03,116.03,116.03,117.03,117.03,117.03,118.03,118.03])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((1,0)),"YY").isEqualWithoutConsideringStr(exp22,1e-12))
+        exp23=DataArrayDouble([22.03,22.03,23.03,23.03,23.03,24.03,24.03,24.03,25.03,25.03,25.03,26.03,26.03,22.03,22.03,23.03,23.03,23.03,24.03,24.03,24.03,25.03,25.03,25.03,26.03,26.03,36.03,36.03,28.08,29.08,30.08,31.08,32.08,33.08,34.08,35.08,36.08,40.03,40.03,36.03,36.03,41.08,42.08,43.08,44.08,45.08,46.08,47.08,48.08,49.08,40.03,40.03,36.03,36.03,54.08,55.08,56.08,57.08,58.08,59.08,60.08,61.08,62.08,40.03,40.03,50.03,50.03,67.08,68.08,69.08,70.08,71.08,72.08,73.08,74.08,75.08,54.03,54.03,50.03,50.03,80.08,81.08,82.08,83.08,84.08,85.08,86.08,87.08,88.08,54.03,54.03,50.03,50.03,93.08,94.08,95.08,96.08,97.08,98.08,99.08,100.08,101.08,54.03,54.03,64.03,64.03,106.08,107.08,108.08,109.08,110.08,111.08,112.08,113.08,114.08,68.03,68.03,64.03,64.03,119.08,120.08,121.08,122.08,123.08,124.08,125.08,126.08,127.08,68.03,68.03,64.03,64.03,132.08,133.08,134.08,135.08,136.08,137.08,138.08,139.08,140.08,68.03,68.03,78.03,78.03,145.08,146.08,147.08,148.08,149.08,150.08,151.08,152.08,153.08,82.03,82.03,78.03,78.03,158.08,159.08,160.08,161.08,162.08,163.08,164.08,165.08,166.08,82.03,82.03,78.03,78.03,171.08,172.08,173.08,174.08,175.08,176.08,177.08,178.08,179.08,82.03,82.03,92.03,92.03,93.03,93.03,93.03,94.03,94.03,94.03,95.03,95.03,95.03,96.03,96.03,92.03,92.03,93.03,93.03,93.03,94.03,94.03,94.03,95.03,95.03,95.03,96.03,96.03])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((1,1)),"YY").isEqualWithoutConsideringStr(exp23,1e-12))
+        exp24=DataArrayDouble([19.03,19.03,20.03,20.03,20.03,21.03,21.03,21.03,22.03,22.03,22.03,23.03,23.03,19.03,19.03,20.03,20.03,20.03,21.03,21.03,21.03,22.03,22.03,22.03,23.03,23.03,33.03,33.03,28.09,29.09,30.09,31.09,32.09,33.09,34.09,35.09,36.09,37.03,37.03,33.03,33.03,41.09,42.09,43.09,44.09,45.09,46.09,47.09,48.09,49.09,37.03,37.03,33.03,33.03,54.09,55.09,56.09,57.09,58.09,59.09,60.09,61.09,62.09,37.03,37.03,47.03,47.03,67.09,68.09,69.09,70.09,71.09,72.09,73.09,74.09,75.09,51.03,51.03,47.03,47.03,80.09,81.09,82.09,83.09,84.09,85.09,86.09,87.09,88.09,51.03,51.03,47.03,47.03,93.09,94.09,95.09,96.09,97.09,98.09,99.09,100.09,101.09,51.03,51.03,61.03,61.03,106.09,107.09,108.09,109.09,110.09,111.09,112.09,113.09,114.09,65.03,65.03,61.03,61.03,119.09,120.09,121.09,122.09,123.09,124.09,125.09,126.09,127.09,65.03,65.03,61.03,61.03,132.09,133.09,134.09,135.09,136.09,137.09,138.09,139.09,140.09,65.03,65.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03,75.03,75.03,76.03,76.03,76.03,77.03,77.03,77.03,78.03,78.03,78.03,79.03,79.03])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((1,2)),"YY").isEqualWithoutConsideringStr(exp24,1e-12))
+        exp25=DataArrayDouble([61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,61.03,61.03,62.03,62.03,62.03,63.03,63.03,63.03,64.03,64.03,64.03,65.03,65.03,75.03,75.03,28.1,29.1,30.1,31.1,32.1,33.1,34.1,35.1,36.1,79.03,79.03,75.03,75.03,41.1,42.1,43.1,44.1,45.1,46.1,47.1,48.1,49.1,79.03,79.03,75.03,75.03,54.1,55.1,56.1,57.1,58.1,59.1,60.1,61.1,62.1,79.03,79.03,89.03,89.03,67.1,68.1,69.1,70.1,71.1,72.1,73.1,74.1,75.1,93.03,93.03,89.03,89.03,80.1,81.1,82.1,83.1,84.1,85.1,86.1,87.1,88.1,93.03,93.03,89.03,89.03,93.1,94.1,95.1,96.1,97.1,98.1,99.1,100.1,101.1,93.03,93.03,103.03,103.03,106.1,107.1,108.1,109.1,110.1,111.1,112.1,113.1,114.1,107.03,107.03,103.03,103.03,119.1,120.1,121.1,122.1,123.1,124.1,125.1,126.1,127.1,107.03,107.03,103.03,103.03,132.1,133.1,134.1,135.1,136.1,137.1,138.1,139.1,140.1,107.03,107.03,117.03,117.03,118.03,118.03,118.03,119.03,119.03,119.03,120.03,120.03,120.03,121.03,121.03,117.03,117.03,118.03,118.03,118.03,119.03,119.03,119.03,120.03,120.03,120.03,121.03,121.03])
+        self.assertTrue(att5.getFieldOn(att5.getMyGodFather().getMeshAtPosition((1,3)),"YY").isEqualWithoutConsideringStr(exp25,1e-12))
+        pass
+
+    def testSwig2AMR11(self):
+        """ Some tests in 3D with CondenseFineToCoarseGhost and SpreadCoarseToFineGhost"""
+        coarse=DataArrayDouble((6+4)*(7+4)*(5+4)) ; coarse.iota()
+        fine=DataArrayDouble((4*2+4)*(2*3+4)*(3*4+4))
+        MEDCouplingIMesh.SpreadCoarseToFineGhost(coarse,[6,7,5],fine,[(1,5),(2,4),(1,4)],[2,3,4],2)
+        exp0=DataArrayDouble([252.,252.,253.,253.,254.,254.,255.,255.,256.,256.,257.,257.,252.,252.,253.,253.,254.,254.,255.,255.,256.,256.,257.,257.,262.,262.,263.,263.,264.,264.,265.,265.,266.,266.,267.,267.,262.,262.,263.,263.,264.,264.,265.,265.,266.,266.,267.,267.,262.,262.,263.,263.,264.,264.,265.,265.,266.,266.,267.,267.,272.,272.,273.,273.,274.,274.,275.,275.,276.,276.,277.,277.,272.,272.,273.,273.,274.,274.,275.,275.,276.,276.,277.,277.,272.,272.,273.,273.,274.,274.,275.,275.,276.,276.,277.,277.,282.,282.,283.,283.,284.,284.,285.,285.,286.,286.,287.,287.,282.,282.,283.,283.,284.,284.,285.,285.,286.,286.,287.,287.])
+        exp1=DataArrayDouble([362.,362.,363.,363.,364.,364.,365.,365.,366.,366.,367.,367.,362.,362.,363.,363.,364.,364.,365.,365.,366.,366.,367.,367.,372.,372.,373.,373.,374.,374.,375.,375.,376.,376.,377.,377.,372.,372.,373.,373.,374.,374.,375.,375.,376.,376.,377.,377.,372.,372.,373.,373.,374.,374.,375.,375.,376.,376.,377.,377.,382.,382.,383.,383.,384.,384.,385.,385.,386.,386.,387.,387.,382.,382.,383.,383.,384.,384.,385.,385.,386.,386.,387.,387.,382.,382.,383.,383.,384.,384.,385.,385.,386.,386.,387.,387.,392.,392.,393.,393.,394.,394.,395.,395.,396.,396.,397.,397.,392.,392.,393.,393.,394.,394.,395.,395.,396.,396.,397.,397.])
+        exp2=DataArrayDouble([472.,472.,473.,473.,474.,474.,475.,475.,476.,476.,477.,477.,472.,472.,473.,473.,474.,474.,475.,475.,476.,476.,477.,477.,482.,482.,483.,483.,484.,484.,485.,485.,486.,486.,487.,487.,482.,482.,483.,483.,484.,484.,485.,485.,486.,486.,487.,487.,482.,482.,483.,483.,484.,484.,485.,485.,486.,486.,487.,487.,492.,492.,493.,493.,494.,494.,495.,495.,496.,496.,497.,497.,492.,492.,493.,493.,494.,494.,495.,495.,496.,496.,497.,497.,492.,492.,493.,493.,494.,494.,495.,495.,496.,496.,497.,497.,502.,502.,503.,503.,504.,504.,505.,505.,506.,506.,507.,507.,502.,502.,503.,503.,504.,504.,505.,505.,506.,506.,507.,507.])
+        exp3=DataArrayDouble([582.,582.,583.,583.,584.,584.,585.,585.,586.,586.,587.,587.,582.,582.,583.,583.,584.,584.,585.,585.,586.,586.,587.,587.,592.,592.,593.,593.,594.,594.,595.,595.,596.,596.,597.,597.,592.,592.,593.,593.,594.,594.,595.,595.,596.,596.,597.,597.,592.,592.,593.,593.,594.,594.,595.,595.,596.,596.,597.,597.,602.,602.,603.,603.,604.,604.,605.,605.,606.,606.,607.,607.,602.,602.,603.,603.,604.,604.,605.,605.,606.,606.,607.,607.,602.,602.,603.,603.,604.,604.,605.,605.,606.,606.,607.,607.,612.,612.,613.,613.,614.,614.,615.,615.,616.,616.,617.,617.,612.,612.,613.,613.,614.,614.,615.,615.,616.,616.,617.,617.])
+        exp4=DataArrayDouble([692.,692.,693.,693.,694.,694.,695.,695.,696.,696.,697.,697.,692.,692.,693.,693.,694.,694.,695.,695.,696.,696.,697.,697.,702.,702.,703.,703.,704.,704.,705.,705.,706.,706.,707.,707.,702.,702.,703.,703.,704.,704.,705.,705.,706.,706.,707.,707.,702.,702.,703.,703.,704.,704.,705.,705.,706.,706.,707.,707.,712.,712.,713.,713.,714.,714.,715.,715.,716.,716.,717.,717.,712.,712.,713.,713.,714.,714.,715.,715.,716.,716.,717.,717.,712.,712.,713.,713.,714.,714.,715.,715.,716.,716.,717.,717.,722.,722.,723.,723.,724.,724.,725.,725.,726.,726.,727.,727.,722.,722.,723.,723.,724.,724.,725.,725.,726.,726.,727.,727.])
+        exp=DataArrayDouble.Aggregate([exp0,exp0,exp1,exp1,exp1,exp1,exp2,exp2,exp2,exp2,exp3,exp3,exp3,exp3,exp4,exp4])
+        self.assertTrue(fine.isEqual(exp,1e-12))
+        #
+        fine.iota()
+        coarse.iota(0.5)
+        MEDCouplingIMesh.CondenseFineToCoarseGhost([6,7,5],fine,[(1,5),(2,4),(1,4)],[2,3,4],coarse,2)
+        amr=MEDCouplingCartesianAMRMesh("mesh",3,[7,8,6],[0.,0.,0.],[1.,1.,1.])
+        amr.addPatch([(1,5),(2,4),(1,4)],[2,3,4])
+        att=MEDCouplingAMRAttribute(amr,[("YY",1)],2)
+        att.alloc()
+        exp1=DataArrayDouble(990) ; exp1.iota(0.5)
+        ids=DataArrayInt([373,374,375,376,383,384,385,386,483,484,485,486,493,494,495,496,593,594,595,596,603,604,605,606])
+        vals=DataArrayDouble([11004.,11052.,11100.,11148.,11868.,11916.,11964.,12012.,22524.,22572.,22620.,22668.,23388.,23436.,23484.,23532.,34044.,34092.,34140.,34188.,34908.,34956.,35004.,35052.])
+        exp1[ids]=vals
+        self.assertTrue(coarse.isEqual(exp1,1e-12))
+        #
+        MEDCouplingStructuredMesh.MultiplyPartOf([10,11,9],[(3,7),(4,6),(3,6)],1/24.,coarse)
+        exp2=DataArrayDouble(990) ; exp2.iota(0.5)
+        exp2[ids]=vals/24.
+        self.assertTrue(coarse.isEqual(exp2,1e-12))
+        #
+        coarse.iota(0.5) ; fine.iota(0.1)
+        MEDCouplingIMesh.SpreadCoarseToFineGhostZone(coarse,[6,7,5],fine,[(1,5),(2,4),(1,4)],[2,3,4],2)
+        #
+        coarse.iota(0.5) ; fine.iota(0.1)
+        MEDCouplingIMesh.SpreadCoarseToFineGhostZone(coarse,[6,7,5],fine,[(1,5),(2,4),(1,4)],[2,3,4],2)
+        exp00=DataArrayDouble.Aggregate([exp0,exp0]) ; exp00+=0.5
+        self.assertTrue(fine[:240].isEqual(exp00,1e-12))
+        exp44=DataArrayDouble.Aggregate([exp4,exp4]) ; exp44+=0.5
+        self.assertTrue(fine[-240:].isEqual(exp44,1e-12))
+        self.assertTrue(fine[240:-240].isEqual(DataArrayDouble([362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,372.5,372.5,266.1,267.1,268.1,269.1,270.1,271.1,272.1,273.1,377.5,377.5,372.5,372.5,278.1,279.1,280.1,281.1,282.1,283.1,284.1,285.1,377.5,377.5,372.5,372.5,290.1,291.1,292.1,293.1,294.1,295.1,296.1,297.1,377.5,377.5,382.5,382.5,302.1,303.1,304.1,305.1,306.1,307.1,308.1,309.1,387.5,387.5,382.5,382.5,314.1,315.1,316.1,317.1,318.1,319.1,320.1,321.1,387.5,387.5,382.5,382.5,326.1,327.1,328.1,329.1,330.1,331.1,332.1,333.1,387.5,387.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,372.5,372.5,386.1,387.1,388.1,389.1,390.1,391.1,392.1,393.1,377.5,377.5,372.5,372.5,398.1,399.1,400.1,401.1,402.1,403.1,404.1,405.1,377.5,377.5,372.5,372.5,410.1,411.1,412.1,413.1,414.1,415.1,416.1,417.1,377.5,377.5,382.5,382.5,422.1,423.1,424.1,425.1,426.1,427.1,428.1,429.1,387.5,387.5,382.5,382.5,434.1,435.1,436.1,437.1,438.1,439.1,440.1,441.1,387.5,387.5,382.5,382.5,446.1,447.1,448.1,449.1,450.1,451.1,452.1,453.1,387.5,387.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,372.5,372.5,506.1,507.1,508.1,509.1,510.1,511.1,512.1,513.1,377.5,377.5,372.5,372.5,518.1,519.1,520.1,521.1,522.1,523.1,524.1,525.1,377.5,377.5,372.5,372.5,530.1,531.1,532.1,533.1,534.1,535.1,536.1,537.1,377.5,377.5,382.5,382.5,542.1,543.1,544.1,545.1,546.1,547.1,548.1,549.1,387.5,387.5,382.5,382.5,554.1,555.1,556.1,557.1,558.1,559.1,560.1,561.1,387.5,387.5,382.5,382.5,566.1,567.1,568.1,569.1,570.1,571.1,572.1,573.1,387.5,387.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,362.5,362.5,363.5,363.5,364.5,364.5,365.5,365.5,366.5,366.5,367.5,367.5,372.5,372.5,626.1,627.1,628.1,629.1,630.1,631.1,632.1,633.1,377.5,377.5,372.5,372.5,638.1,639.1,640.1,641.1,642.1,643.1,644.1,645.1,377.5,377.5,372.5,372.5,650.1,651.1,652.1,653.1,654.1,655.1,656.1,657.1,377.5,377.5,382.5,382.5,662.1,663.1,664.1,665.1,666.1,667.1,668.1,669.1,387.5,387.5,382.5,382.5,674.1,675.1,676.1,677.1,678.1,679.1,680.1,681.1,387.5,387.5,382.5,382.5,686.1,687.1,688.1,689.1,690.1,691.1,692.1,693.1,387.5,387.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,392.5,392.5,393.5,393.5,394.5,394.5,395.5,395.5,396.5,396.5,397.5,397.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,482.5,482.5,746.1,747.1,748.1,749.1,750.1,751.1,752.1,753.1,487.5,487.5,482.5,482.5,758.1,759.1,760.1,761.1,762.1,763.1,764.1,765.1,487.5,487.5,482.5,482.5,770.1,771.1,772.1,773.1,774.1,775.1,776.1,777.1,487.5,487.5,492.5,492.5,782.1,783.1,784.1,785.1,786.1,787.1,788.1,789.1,497.5,497.5,492.5,492.5,794.1,795.1,796.1,797.1,798.1,799.1,800.1,801.1,497.5,497.5,492.5,492.5,806.1,807.1,808.1,809.1,810.1,811.1,812.1,813.1,497.5,497.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,482.5,482.5,866.1,867.1,868.1,869.1,870.1,871.1,872.1,873.1,487.5,487.5,482.5,482.5,878.1,879.1,880.1,881.1,882.1,883.1,884.1,885.1,487.5,487.5,482.5,482.5,890.1,891.1,892.1,893.1,894.1,895.1,896.1,897.1,487.5,487.5,492.5,492.5,902.1,903.1,904.1,905.1,906.1,907.1,908.1,909.1,497.5,497.5,492.5,492.5,914.1,915.1,916.1,917.1,918.1,919.1,920.1,921.1,497.5,497.5,492.5,492.5,926.1,927.1,928.1,929.1,930.1,931.1,932.1,933.1,497.5,497.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,482.5,482.5,986.1,987.1,988.1,989.1,990.1,991.1,992.1,993.1,487.5,487.5,482.5,482.5,998.1,999.1,1000.1,1001.1,1002.1,1003.1,1004.1,1005.1,487.5,487.5,482.5,482.5,1010.1,1011.1,1012.1,1013.1,1014.1,1015.1,1016.1,1017.1,487.5,487.5,492.5,492.5,1022.1,1023.1,1024.1,1025.1,1026.1,1027.1,1028.1,1029.1,497.5,497.5,492.5,492.5,1034.1,1035.1,1036.1,1037.1,1038.1,1039.1,1040.1,1041.1,497.5,497.5,492.5,492.5,1046.1,1047.1,1048.1,1049.1,1050.1,1051.1,1052.1,1053.1,497.5,497.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,472.5,472.5,473.5,473.5,474.5,474.5,475.5,475.5,476.5,476.5,477.5,477.5,482.5,482.5,1106.1,1107.1,1108.1,1109.1,1110.1,1111.1,1112.1,1113.1,487.5,487.5,482.5,482.5,1118.1,1119.1,1120.1,1121.1,1122.1,1123.1,1124.1,1125.1,487.5,487.5,482.5,482.5,1130.1,1131.1,1132.1,1133.1,1134.1,1135.1,1136.1,1137.1,487.5,487.5,492.5,492.5,1142.1,1143.1,1144.1,1145.1,1146.1,1147.1,1148.1,1149.1,497.5,497.5,492.5,492.5,1154.1,1155.1,1156.1,1157.1,1158.1,1159.1,1160.1,1161.1,497.5,497.5,492.5,492.5,1166.1,1167.1,1168.1,1169.1,1170.1,1171.1,1172.1,1173.1,497.5,497.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,502.5,502.5,503.5,503.5,504.5,504.5,505.5,505.5,506.5,506.5,507.5,507.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,592.5,592.5,1226.1,1227.1,1228.1,1229.1,1230.1,1231.1,1232.1,1233.1,597.5,597.5,592.5,592.5,1238.1,1239.1,1240.1,1241.1,1242.1,1243.1,1244.1,1245.1,597.5,597.5,592.5,592.5,1250.1,1251.1,1252.1,1253.1,1254.1,1255.1,1256.1,1257.1,597.5,597.5,602.5,602.5,1262.1,1263.1,1264.1,1265.1,1266.1,1267.1,1268.1,1269.1,607.5,607.5,602.5,602.5,1274.1,1275.1,1276.1,1277.1,1278.1,1279.1,1280.1,1281.1,607.5,607.5,602.5,602.5,1286.1,1287.1,1288.1,1289.1,1290.1,1291.1,1292.1,1293.1,607.5,607.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,592.5,592.5,1346.1,1347.1,1348.1,1349.1,1350.1,1351.1,1352.1,1353.1,597.5,597.5,592.5,592.5,1358.1,1359.1,1360.1,1361.1,1362.1,1363.1,1364.1,1365.1,597.5,597.5,592.5,592.5,1370.1,1371.1,1372.1,1373.1,1374.1,1375.1,1376.1,1377.1,597.5,597.5,602.5,602.5,1382.1,1383.1,1384.1,1385.1,1386.1,1387.1,1388.1,1389.1,607.5,607.5,602.5,602.5,1394.1,1395.1,1396.1,1397.1,1398.1,1399.1,1400.1,1401.1,607.5,607.5,602.5,602.5,1406.1,1407.1,1408.1,1409.1,1410.1,1411.1,1412.1,1413.1,607.5,607.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,592.5,592.5,1466.1,1467.1,1468.1,1469.1,1470.1,1471.1,1472.1,1473.1,597.5,597.5,592.5,592.5,1478.1,1479.1,1480.1,1481.1,1482.1,1483.1,1484.1,1485.1,597.5,597.5,592.5,592.5,1490.1,1491.1,1492.1,1493.1,1494.1,1495.1,1496.1,1497.1,597.5,597.5,602.5,602.5,1502.1,1503.1,1504.1,1505.1,1506.1,1507.1,1508.1,1509.1,607.5,607.5,602.5,602.5,1514.1,1515.1,1516.1,1517.1,1518.1,1519.1,1520.1,1521.1,607.5,607.5,602.5,602.5,1526.1,1527.1,1528.1,1529.1,1530.1,1531.1,1532.1,1533.1,607.5,607.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,582.5,582.5,583.5,583.5,584.5,584.5,585.5,585.5,586.5,586.5,587.5,587.5,592.5,592.5,1586.1,1587.1,1588.1,1589.1,1590.1,1591.1,1592.1,1593.1,597.5,597.5,592.5,592.5,1598.1,1599.1,1600.1,1601.1,1602.1,1603.1,1604.1,1605.1,597.5,597.5,592.5,592.5,1610.1,1611.1,1612.1,1613.1,1614.1,1615.1,1616.1,1617.1,597.5,597.5,602.5,602.5,1622.1,1623.1,1624.1,1625.1,1626.1,1627.1,1628.1,1629.1,607.5,607.5,602.5,602.5,1634.1,1635.1,1636.1,1637.1,1638.1,1639.1,1640.1,1641.1,607.5,607.5,602.5,602.5,1646.1,1647.1,1648.1,1649.1,1650.1,1651.1,1652.1,1653.1,607.5,607.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5,612.5,612.5,613.5,613.5,614.5,614.5,615.5,615.5,616.5,616.5,617.5,617.5]),1e-12))
+        pass
+
+    def testSwig2AMR12(self):
+        """ This test check the MEDCouplingAMRAttribute.projectTo method."""
+        amr0=MEDCouplingCartesianAMRMesh("mesh",2,[11,11],[0.,0.],[1.,1.])
+        amr0.addPatch([(3,8),(0,3)],[2,2])
+        amr0.addPatch([(3,8),(3,6)],[2,2])
+        att0=MEDCouplingAMRAttribute(amr0,[("YY",1)],2)
+        att0.alloc()
+        att0.getFieldOn(amr0,"YY").iota(0.01)
+        att0.getFieldOn(amr0[0].getMesh(),"YY").iota(0.02)
+        att0.getFieldOn(amr0[1].getMesh(),"YY").iota(0.03)
+        amr1=MEDCouplingCartesianAMRMesh("mesh",2,[11,11],[0.,0.],[1.,1.])
+        amr1.addPatch([(2,5),(1,4)],[2,2])
+        att1=att0.projectTo(amr1)
+        self.assertTrue(att1.getFieldOn(amr1,"YY").isEqualWithoutConsideringStr(att0.getFieldOn(amr0,"YY"),1e-12))
+        self.assertTrue(att1.getFieldOn(amr1[0].getMesh(),"YY").isEqualWithoutConsideringStr(DataArrayDouble([31.01,31.01,32.01,32.01,33.01,33.01,34.01,34.01,35.01,35.01,31.01,31.01,32.01,32.01,33.01,33.01,34.01,34.01,35.01,35.01,45.01,45.01,46.01,46.01,58.02,59.02,60.02,61.02,49.01,49.01,45.01,45.01,46.01,46.01,72.02,73.02,74.02,75.02,49.01,49.01,59.01,59.01,60.01,60.01,86.02,87.02,88.02,89.02,63.01,63.01,59.01,59.01,60.01,60.01,100.02,101.02,102.02,103.02,63.01,63.01,73.01,73.01,74.01,74.01,30.03,31.03,32.03,33.03,77.01,77.01,73.01,73.01,74.01,74.01,44.03,45.03,46.03,47.03,77.01,77.01,87.01,87.01,88.01,88.01,89.01,89.01,90.01,90.01,91.01,91.01,87.01,87.01,88.01,88.01,89.01,89.01,90.01,90.01,91.01,91.01]),1e-12))
+        #
+        amr0=MEDCouplingCartesianAMRMesh("mesh",2,[11,11],[0.,0.],[1.,1.])
+        amr0.addPatch([(2,5),(2,7)],[2,2])
+        amr0.addPatch([(5,8),(2,7)],[2,2])
+        att0=MEDCouplingAMRAttribute(amr0,[("YY",1)],2)
+        att0.alloc()
+        att0.getFieldOn(amr0,"YY").iota(0.01)
+        att0.getFieldOn(amr0[0].getMesh(),"YY").iota(0.02)
+        att0.getFieldOn(amr0[1].getMesh(),"YY").iota(0.03)
+        amr1=MEDCouplingCartesianAMRMesh("mesh",2,[11,11],[0.,0.],[1.,1.])
+        amr1.addPatch([(3,6),(2,7)],[2,2])
+        amr1.addPatch([(6,9),(2,7)],[2,2])
+        att1=att0.projectTo(amr1)
+        assert(att1.getFieldOn(amr1,"YY").isEqual(att0.getFieldOn(amr0,"YY"),1e-12))
+        assert(att1.getFieldOn(amr1[0].getMesh(),"YY").isEqualWithoutConsideringStr(DataArrayDouble([46.01,46.01,47.01,47.01,48.01,48.01,49.01,49.01,50.01,50.01,46.01,46.01,47.01,47.01,48.01,48.01,49.01,49.01,50.01,50.01,60.01,60.01,24.02,25.02,26.02,27.02,22.03,23.03,64.01,64.01,60.01,60.01,34.02,35.02,36.02,37.02,32.03,33.03,64.01,64.01,74.01,74.01,44.02,45.02,46.02,47.02,42.03,43.03,78.01,78.01,74.01,74.01,54.02,55.02,56.02,57.02,52.03,53.03,78.01,78.01,88.01,88.01,64.02,65.02,66.02,67.02,62.03,63.03,92.01,92.01,88.01,88.01,74.02,75.02,76.02,77.02,72.03,73.03,92.01,92.01,102.01,102.01,84.02,85.02,86.02,87.02,82.03,83.03,106.01,106.01,102.01,102.01,94.02,95.02,96.02,97.02,92.03,93.03,106.01,106.01,116.01,116.01,104.02,105.02,106.02,107.02,102.03,103.03,120.01,120.01,116.01,116.01,114.02,115.02,116.02,117.02,112.03,113.03,120.01,120.01,130.01,130.01,131.01,131.01,132.01,132.01,133.01,133.01,134.01,134.01,130.01,130.01,131.01,131.01,132.01,132.01,133.01,133.01,134.01,134.01]),1e-12))
+        assert(att1.getFieldOn(amr1[1].getMesh(),"YY").isEqualWithoutConsideringStr(DataArrayDouble([49.01,49.01,50.01,50.01,51.01,51.01,52.01,52.01,53.01,53.01,49.01,49.01,50.01,50.01,51.01,51.01,52.01,52.01,53.01,53.01,63.01,63.01,24.03,25.03,26.03,27.03,66.01,66.01,67.01,67.01,63.01,63.01,34.03,35.03,36.03,37.03,66.01,66.01,67.01,67.01,77.01,77.01,44.03,45.03,46.03,47.03,80.01,80.01,81.01,81.01,77.01,77.01,54.03,55.03,56.03,57.03,80.01,80.01,81.01,81.01,91.01,91.01,64.03,65.03,66.03,67.03,94.01,94.01,95.01,95.01,91.01,91.01,74.03,75.03,76.03,77.03,94.01,94.01,95.01,95.01,105.01,105.01,84.03,85.03,86.03,87.03,108.01,108.01,109.01,109.01,105.01,105.01,94.03,95.03,96.03,97.03,108.01,108.01,109.01,109.01,119.01,119.01,104.03,105.03,106.03,107.03,122.01,122.01,123.01,123.01,119.01,119.01,114.03,115.03,116.03,117.03,122.01,122.01,123.01,123.01,133.01,133.01,134.01,134.01,135.01,135.01,136.01,136.01,137.01,137.01,133.01,133.01,134.01,134.01,135.01,135.01,136.01,136.01,137.01,137.01]),1e-12))
+        pass
+
     pass
 
 if __name__ == '__main__':

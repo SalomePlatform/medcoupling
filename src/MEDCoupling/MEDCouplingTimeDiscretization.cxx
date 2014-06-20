@@ -697,6 +697,17 @@ void MEDCouplingTimeDiscretization::applyLin(double a, double b, int compoId)
     }
 }
 
+void MEDCouplingTimeDiscretization::applyLin(double a, double b)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  for(std::size_t j=0;j<arrays.size();j++)
+    {
+      if(arrays[j])
+        arrays[j]->applyLin(a,b);
+    }
+}
+
 void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate func)
 {
   std::vector<DataArrayDouble *> arrays;
