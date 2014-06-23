@@ -384,7 +384,7 @@ void SauvReader::read_PILE_SOUS_MAILLAGE(const int                 nbObjects,
       else
         for (initIntReading(nbElements); more(); next());
 
-      // not a composit group
+      // not a composite group
       if (castemCellType>0 && nbSubGroups==0)
         {
           group._cellType = SauvUtilities::gibi2medGeom(castemCellType);
@@ -638,7 +638,7 @@ void SauvReader::read_PILE_COORDONNEES (const int nbObjects, std::vector<std::st
 
 //================================================================================
 /*!
- * \brief Finds or create a Group equal to a given field support 
+ * \brief Find or create a Group equal to a given field support
  */
 //================================================================================
 
@@ -647,7 +647,7 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
 {
   SauvUtilities::Group* group = NULL;
   set<SauvUtilities::Group*> sup_set( supports.begin(), supports.end() );
-  if (sup_set.size() == 1 ) // one or equal supports
+  if ( sup_set.size() == 1 ) // one or equal supports
     {
       group = supports[0];
     }
@@ -715,7 +715,7 @@ void SauvReader::setFieldSupport(const vector<SauvUtilities::Group*>& supports,
           // relocate sub-components according to a new order of groups
           if ( isModified )
             {
-              vector< DoubleField::_Sub_data > newSub( field->_sub.size() );
+              vector< DoubleField::_Sub_data > newSub   ( field->_sub.size() );
               vector< vector< double > >       newValues( field->_comp_values.size() );
               size_t iFromSub = 0, iNewSub = 0, iNewComp = 0;
               for ( ; iFromSub < field->_sub.size(); iFromSub += groups.size() )

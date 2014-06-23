@@ -3238,10 +3238,10 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
           grp._medGroup = DataArrayInt::New();
           grp._medGroup->setName( grp._name.c_str() );
           grp._medGroup->alloc( cell2order.size(), /*nbOfCompo=*/1 );
-          int * idsPrt = grp._medGroup->getPointer();
+          int * idsPtr = grp._medGroup->getPointer();
           TCellToOrderMap::iterator cell2orderIt, cell2orderEnd = cell2order.end();
           for ( cell2orderIt = cell2order.begin(); cell2orderIt != cell2orderEnd; ++cell2orderIt )
-            *idsPrt++ = (*cell2orderIt).first->_number - 1;
+            *idsPtr++ = (*cell2orderIt).first->_number - 1;
 
           // try to set the mesh name
           if ( !isMeshNameSet &&
@@ -3457,8 +3457,9 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   // set gauss points
   if ( timeStamp->getTypeOfField() == ParaMEDMEM::ON_GAUSS_PT )
     {
-      TGaussDef gaussDef( support->_cellType, fld->_sub[iSub].nbGauss() );
-      timeStamp->setGaussLocalizationOnType( support->_cellType,
+      TGaussDef gaussDef( fld->_sub[iSub]._support->_cellType,
+                          fld->_sub[iSub].nbGauss() );
+      timeStamp->setGaussLocalizationOnType( fld->_sub[iSub]._support->_cellType,
                                              gaussDef.myRefCoords,
                                              gaussDef.myCoords,
                                              gaussDef.myWeights );
