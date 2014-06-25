@@ -64,7 +64,7 @@ namespace INTERP_KERNEL
     //! Before intersecting as intersectWith a normalization is done.
     INTERPKERNEL_EXPORT double intersectWithAbs(QuadraticPolygon& other, double* barycenter);
     INTERPKERNEL_EXPORT void splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, const std::vector<int>& otherEdgeIds,
-                                      std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
+                                      std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo, std::map<int,int>& mergedNodes);
     INTERPKERNEL_EXPORT void buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
                                                      const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
     INTERPKERNEL_EXPORT void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,

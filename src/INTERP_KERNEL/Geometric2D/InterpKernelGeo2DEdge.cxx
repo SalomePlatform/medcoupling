@@ -163,6 +163,40 @@ unsigned MergePoints::getNumberOfAssociations() const
   return ret;
 }
 
+void MergePoints::PushInMap(int key, int value, std::map<int,int>& mergedNodes)
+{
+  if(key!=-1 && value!=-1)
+    mergedNodes[key]=value;
+}
+
+void MergePoints::updateMergedNodes(int e1Start, int e1End, int e2Start, int e2End, std::map<int,int>& mergedNodes)
+{
+  unsigned subTot(_ass1Start1+_ass1End1+_ass1Start2+_ass1End2);
+  if(subTot!=0)
+    {
+      if(_ass1Start1 && _ass1Start2)
+        PushInMap(e2Start,e1Start,mergedNodes);
+      if(_ass1Start1 && _ass1End2)
+        PushInMap(e2End,e1Start,mergedNodes);
+      if(_ass1End1 && _ass1Start2)
+        PushInMap(e2Start,e1End,mergedNodes);
+      if(_ass1End1 && _ass1End2)
+        PushInMap(e2End,e1End,mergedNodes);
+    }
+  subTot=_ass2Start1+_ass2End1+_ass2Start2+_ass2End2;
+  if(subTot!=0)
+    {
+      if(_ass2Start1 && _ass2Start2)
+        PushInMap(e2Start,e1Start,mergedNodes);
+      if(_ass2Start1 && _ass2End2)
+        PushInMap(e2End,e1Start,mergedNodes);
+      if(_ass2End1 && _ass2Start2)
+        PushInMap(e2Start,e1End,mergedNodes);
+      if(_ass2End1 && _ass2End2)
+        PushInMap(e2End,e1End,mergedNodes);
+    }
+}
+
 IntersectElement::IntersectElement(double val1, double val2, bool start1, bool end1, bool start2, bool end2, Node *node
                                    , const Edge& e1, const Edge& e2, bool keepOrder):_1S(keepOrder?start1:start2),
                                        _1E(keepOrder?end1:end2),

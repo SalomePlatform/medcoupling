@@ -8755,7 +8755,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
 }
 
 //tony to put in private of MEDCouplingUMesh
-MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::vector< std::vector<int> >& intersectEdge2, const DataArrayDouble *coords1, const std::vector<double>& addCoo)
+MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::vector< std::vector<int> >& intersectEdge2, const DataArrayDouble *coords1, const std::vector<double>& addCoo, const std::map<int,int>& mergedNodes)
 {
   int nCells(mesh1D->getNumberOfCells());
   if(nCells!=(int)intersectEdge2.size())
@@ -8777,14 +8777,20 @@ MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::
       int nbSubEdge(subEdges.size()/2);
       for(int j=0;j<nbSubEdge;j++)
         {
-          MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node> n1(MEDCouplingUMeshBuildQPNode(subEdges[2*j],coords1->begin(),offset1,coo2Ptr,offset2,addCoo));
-          MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node> n2(MEDCouplingUMeshBuildQPNode(subEdges[2*j+1],coords1->begin(),offset1,coo2Ptr,offset2,addCoo));
+          MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node> n1(MEDCouplingUMeshBuildQPNode(subEdges[2*j],coords1->begin(),offset1,coo2Ptr,offset2,addCoo)),n2(MEDCouplingUMeshBuildQPNode(subEdges[2*j+1],coords1->begin(),offset1,coo2Ptr,offset2,addCoo));
           MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> e2(e->buildEdgeLyingOnMe(n1,n2));
           INTERP_KERNEL::Edge *e2Ptr(e2);
+          std::map<int,int>::const_iterator itm;
           if(dynamic_cast<INTERP_KERNEL::EdgeArcCircle *>(e2Ptr))
             {
               tmp[0]=INTERP_KERNEL::NORM_SEG3;
-              tmp[1]=subEdges[2*j]; tmp[2]=subEdges[2*j+1];
+              itm=mergedNodes.find(subEdges[2*j]);
+              tmp[1]=itm!=mergedNodes.end()?(*itm).second:subEdges[2*j];
+              itm=mergedNodes.find(subEdges[2*j+1]);
+              tmp[2]=itm!=mergedNodes.end()?(*itm).second:subEdges[2*j+1];
+              tmp[3]=offset3+(int)addCooQuad.size()/2;
+              double tmp2[2];
+              e2->getBarycenter(tmp2); addCooQuad.insert(addCooQuad.end(),tmp2,tmp2+2);
               cicnt+=4;
               cOut->insertAtTheEnd(tmp,tmp+4);
               ciOut->pushBackSilent(cicnt);
@@ -8792,13 +8798,15 @@ MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::
           else
             {
               tmp[0]=INTERP_KERNEL::NORM_SEG2;
-              tmp[1]=subEdges[2*j]; tmp[2]=subEdges[2*j+1]; tmp[3]=offset3+(int)addCooQuad.size()/2;
+              itm=mergedNodes.find(subEdges[2*j]);
+              tmp[1]=itm!=mergedNodes.end()?(*itm).second:subEdges[2*j];
+              itm=mergedNodes.find(subEdges[2*j+1]);
+              tmp[2]=itm!=mergedNodes.end()?(*itm).second:subEdges[2*j+1];
               cicnt+=3;
               cOut->insertAtTheEnd(tmp,tmp+3);
               ciOut->pushBackSilent(cicnt);
             }
         }
-      //INTERP_KERNEL::Edge *e2(e->buildEdgeLyingOnMe());
       for(std::map<INTERP_KERNEL::Node *,int>::const_iterator it2=m.begin();it2!=m.end();it2++)
         (*it2).first->decrRef();
       e->decrRef();
@@ -8814,6 +8822,11 @@ MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::
   ret->setCoords(arr);
   return ret.retn();
 }
+
+/*MEDCouplingUMesh *BuildMesh2DCutFrom(const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *splitMesh1D, const DataArrayInt *elts, const DataArrayInt *eltsI)
+{
+
+}*/
 
 /*!
  * Partitions the first given 2D mesh using the second given 1D mesh as a tool.
@@ -8849,7 +8862,8 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   DataArrayInt *desc1(DataArrayInt::New()),*descIndx1(DataArrayInt::New()),*revDesc1(DataArrayInt::New()),*revDescIndx1(DataArrayInt::New());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dd1(desc1),dd2(descIndx1),dd3(revDesc1),dd4(revDescIndx1);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1Desc(mesh2D->buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1));
-  Intersect1DMeshes(m1Desc,mesh1D,eps,intersectEdge1,colinear2,subDiv2,addCoo);
+  std::map<int,int> mergedNodes;
+  Intersect1DMeshes(m1Desc,mesh1D,eps,intersectEdge1,colinear2,subDiv2,addCoo,mergedNodes);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCooDa(DataArrayDouble::New());
   addCooDa->useArray(&addCoo[0],false,C_DEALLOC,(int)addCoo.size()/2,2);
   // Step 2: re-order newly created nodes according to the ordering found in m2
@@ -8857,7 +8871,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   BuildIntersectEdges(m1Desc,mesh1D,addCoo,subDiv2,intersectEdge2);
   subDiv2.clear();
   //
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret1(BuildMesh1DCutFrom(mesh1D,intersectEdge2,mesh2D->getCoords(),addCoo));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret1(BuildMesh1DCutFrom(mesh1D,intersectEdge2,mesh2D->getCoords(),addCoo,mergedNodes));
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> baryRet1(ret1->getBarycenterAndOwner());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elts,eltsIndex;
   mesh2D->getCellsContainingPoints(baryRet1->begin(),baryRet1->getNumberOfTuples(),eps,elts,eltsIndex);
@@ -9220,9 +9234,10 @@ DataArrayInt *MEDCouplingUMesh::colinearize2D(double eps)
  * \param [out] subDiv2 - for each cell in \a m2Desc returns nodes that split it using convention \a m1Desc first, then \a m2Desc, then addCoo
  * \param [out] colinear2 - for each cell in \a m2Desc returns the edges in \a m1Desc that are colinear to it.
  * \param [out] addCoo - nodes to be append at the end
+ * \param [out] mergedNodes - gives all pair of nodes of \a m2Desc that have same location than some nodes in \a m1Desc. key is id in \a m2Desc offseted and value is id in \a m1Desc.
  */
 void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const MEDCouplingUMesh *m2Desc, double eps,
-                                         std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2, std::vector<double>& addCoo)
+                                         std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2, std::vector<double>& addCoo, std::map<int,int>& mergedNodes)
 {
   static const int SPACEDIM=2;
   INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
@@ -9262,7 +9277,7 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
             { (*itt)->incrRef(); nodesSafe[iii]=*itt; }
           // end of protection
           // Performs egde cutting:
-          pol1->splitAbs(*pol2,map1,map2,offset1,offset2,candidates2,intersectEdge1[i],i,colinear2,subDiv2,addCoo);
+          pol1->splitAbs(*pol2,map1,map2,offset1,offset2,candidates2,intersectEdge1[i],i,colinear2,subDiv2,addCoo,mergedNodes);
           delete pol2;
           delete pol1;
         }
@@ -9294,7 +9309,8 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
   m1Desc=m1->buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1);
   m2Desc=m2->buildDescendingConnectivity2(desc2,descIndx2,revDesc2,revDescIndx2);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd9(m1Desc),dd10(m2Desc);
-  Intersect1DMeshes(m1Desc,m2Desc,eps,intersectEdge1,colinear2,subDiv2,addCoo);
+  std::map<int,int> notUsedMap;
+  Intersect1DMeshes(m1Desc,m2Desc,eps,intersectEdge1,colinear2,subDiv2,addCoo,notUsedMap);
   m1Desc->incrRef(); desc1->incrRef(); descIndx1->incrRef(); revDesc1->incrRef(); revDescIndx1->incrRef();
   m2Desc->incrRef(); desc2->incrRef(); descIndx2->incrRef(); revDesc2->incrRef(); revDescIndx2->incrRef();
 }

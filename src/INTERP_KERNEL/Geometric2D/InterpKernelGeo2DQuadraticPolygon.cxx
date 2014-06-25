@@ -274,7 +274,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
                                 const std::vector<int>& otherEdgeIds,
                                 std::vector<int>& edgesThis, int cellIdThis,
                                 std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther,
-                                std::vector<double>& addCoo)
+                                std::vector<double>& addCoo, std::map<int,int>& mergedNodes)
 {
   double xBaryBB, yBaryBB;
   double fact=normalizeExt(&other, xBaryBB, yBaryBB);
@@ -302,6 +302,10 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
             {
               ElementaryEdge* curE1=it1.current();
               merge.clear();
+              //
+              std::map<INTERP_KERNEL::Node *,int>::const_iterator thisStart(mapThis.find(curE1->getStartNode())),thisEnd(mapThis.find(curE1->getEndNode())),otherStart(mapOther.find(curE2->getStartNode())),otherEnd(mapOther.find(curE2->getEndNode()));
+              int thisStart2(thisStart==mapThis.end()?-1:(*thisStart).second),thisEnd2(thisEnd==mapThis.end()?-1:(*thisEnd).second),otherStart2(otherStart==mapOther.end()?-1:(*otherStart).second+offset1),otherEnd2(otherEnd==mapOther.end()?-1:(*otherEnd).second+offset1);
+              //
               if(curE1->getPtr()->intersectWith(curE2->getPtr(),merge,*c1,*c2))
                 {
                   if(!curE1->getDirection()) c1->reverse();
@@ -325,6 +329,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other,
                   UpdateNeighbours(merge,it1,it2,curE1,curE2);
                   it1.next();
                 }
+              merge.updateMergedNodes(thisStart2,thisEnd2,otherStart2,otherEnd2,mergedNodes);
             }
         }
       if(otherTmp.presenceOfOn())
