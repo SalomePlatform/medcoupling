@@ -879,7 +879,7 @@ bool FindInflection(const INTERP_KERNEL::BoxSplittingOptions& bso, const Interna
 
       // Gradient absolute value
       for(std::size_t i=1;i<derivate_second_order.size();i++)
-        gradient_absolute.push_back(fabs(derivate_second_order[i]-derivate_second_order[i-1])) ;
+        gradient_absolute.push_back(abs(derivate_second_order[i]-derivate_second_order[i-1])) ;
       if(derivate_second_order.empty())
         continue;
       for(std::size_t i=1;i<derivate_second_order.size()-1;i++)
