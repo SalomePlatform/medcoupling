@@ -1212,6 +1212,8 @@ namespace INTERP_KERNEL
     while ( allNodeIndices.size() < nbOfCellNodes )
       allNodeIndices.push_back( allNodeIndices.size() );
     std::vector<int> classicFaceNodes(4);
+    if(cellModelCell.isQuadratic())
+      throw INTERP_KERNEL::Exception("SplitterTetra2::splitConvex : quadratic 3D cells are not implemented yet !");
     int* faceNodes = cellModelCell.isDynamic() ? &allNodeIndices[0] : &classicFaceNodes[0];
 
     // nodes of tetrahedron
