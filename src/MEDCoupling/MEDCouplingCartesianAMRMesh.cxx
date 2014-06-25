@@ -135,7 +135,7 @@ bool MEDCouplingCartesianAMRPatch::isInMyNeighborhood(const MEDCouplingCartesian
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::isInMyNeighborhood : the input patch is NULL !");
   const std::vector< std::pair<int,int> >& thisp(getBLTRRange());
   const std::vector< std::pair<int,int> >& otherp(other->getBLTRRange());
-  return IsInMyNeighborhood(ghostLev,thisp,otherp);
+  return IsInMyNeighborhood(ghostLev==0?0:1,thisp,otherp);//make hypothesis that nb this->_mesh->getFather->getFactors() is >= ghostLev
 }
 
 /*!

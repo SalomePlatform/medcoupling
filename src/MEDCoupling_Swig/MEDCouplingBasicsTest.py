@@ -15606,6 +15606,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         assert(att1.getFieldOn(amr1[1].getMesh(),"YY").isEqualWithoutConsideringStr(DataArrayDouble([49.01,49.01,50.01,50.01,51.01,51.01,52.01,52.01,53.01,53.01,49.01,49.01,50.01,50.01,51.01,51.01,52.01,52.01,53.01,53.01,63.01,63.01,24.03,25.03,26.03,27.03,66.01,66.01,67.01,67.01,63.01,63.01,34.03,35.03,36.03,37.03,66.01,66.01,67.01,67.01,77.01,77.01,44.03,45.03,46.03,47.03,80.01,80.01,81.01,81.01,77.01,77.01,54.03,55.03,56.03,57.03,80.01,80.01,81.01,81.01,91.01,91.01,64.03,65.03,66.03,67.03,94.01,94.01,95.01,95.01,91.01,91.01,74.03,75.03,76.03,77.03,94.01,94.01,95.01,95.01,105.01,105.01,84.03,85.03,86.03,87.03,108.01,108.01,109.01,109.01,105.01,105.01,94.03,95.03,96.03,97.03,108.01,108.01,109.01,109.01,119.01,119.01,104.03,105.03,106.03,107.03,122.01,122.01,123.01,123.01,119.01,119.01,114.03,115.03,116.03,117.03,122.01,122.01,123.01,123.01,133.01,133.01,134.01,134.01,135.01,135.01,136.01,136.01,137.01,137.01,133.01,133.01,134.01,134.01,135.01,135.01,136.01,136.01,137.01,137.01]),1e-12))
         pass
 
+    def testSwig2AMR13(self):
+        """ non regression test"""
+        for fact,len1,len2 in [([2,2],64,48),([3,3],100,70),([4,4],144,96)]:
+            amr=MEDCouplingCartesianAMRMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
+            amr.addPatch([(1,3),(0,2)],fact)
+            amr.addPatch([(1,3),(3,4)],fact)
+            att=MEDCouplingAMRAttribute(amr,[("YY",1)],2)
+            att.alloc()
+            att.getFieldOn(amr,"YY").iota(0.1)
+            att.getFieldOn(amr[0].getMesh(),"YY").iota(0.2)
+            att.getFieldOn(amr[1].getMesh(),"YY").iota(0.3)
+            att.synchronizeAllGhostZonesOfDirectChidrenOf(amr)
+            exp=DataArrayDouble(64) ; exp.iota(0.1)
+            self.assertTrue(att.getFieldOn(amr,"YY").isEqualWithoutConsideringStr(exp,1e-12))
+            exp0=DataArrayDouble(len1) ; exp0.iota(0.2)
+            self.assertTrue(att.getFieldOn(amr[0].getMesh(),"YY").isEqualWithoutConsideringStr(exp0,1e-12))
+            exp1=DataArrayDouble(len2) ; exp1.iota(0.3)
+            self.assertTrue(att.getFieldOn(amr[1].getMesh(),"YY").isEqualWithoutConsideringStr(exp1,1e-12))
+            pass
+        pass
+
     pass
 
 if __name__ == '__main__':
