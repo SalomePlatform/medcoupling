@@ -47,7 +47,7 @@ class SauvReader : public ParaMEDMEM::RefCountObject
 {
  public:
   MEDLOADER_EXPORT static SauvReader* New(const std::string& fileName);
-  MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS();
+  MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS(bool keep2DOri=false);
   MEDLOADER_EXPORT ~SauvReader();
 
  private:

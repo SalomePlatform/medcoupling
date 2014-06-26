@@ -112,7 +112,7 @@ std::string SauvReader::lineNb() const
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS()
+ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS(bool keep2DOri)
 {
   SauvUtilities::IntermediateMED iMed; // intermadiate DS
   _iMed = &iMed;
@@ -146,7 +146,7 @@ ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS()
           THROW_IK_EXCEPTION("XDR : ENREGISTREMENT DE TYPE " << recordNumber << " not implemented!!!");
     }
 
-  ParaMEDMEM::MEDFileData* medFileData = iMed.convertInMEDFileDS();
+  ParaMEDMEM::MEDFileData* medFileData = iMed.convertInMEDFileDS( keep2DOri );
 
   return medFileData;
 }

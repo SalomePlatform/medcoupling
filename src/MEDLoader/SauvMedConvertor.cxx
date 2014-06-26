@@ -2373,12 +2373,14 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
 //================================================================================
 /*!
  * \brief Makes ParaMEDMEM::MEDFileData from self
+ *  \param [in] keep2DOri - to keep or not orientation of faces in 3D space
+ *  \return ParaMEDMEM::MEDFileData* - conversion result
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
+ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS(bool keep2DOri)
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh();
+  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh(keep2DOri);
   MEDCouplingAutoRefCountObjectPtr< MEDFileFields > fields = makeMEDFileFields(mesh);
 
   MEDCouplingAutoRefCountObjectPtr< MEDFileMeshes > meshes = MEDFileMeshes::New();
@@ -2396,7 +2398,7 @@ ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
+ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh(bool keep2DOri)
 {
   // check if all needed piles are present
   checkDataAvailability();
@@ -2408,7 +2410,7 @@ ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
   if ( _spaceDim == 2 || _spaceDim == 1 )
     orientElements2D();
   else if ( _spaceDim == 3 )
-    orientElements3D();
+    orientElements3D( keep2DOri );
 
   // process groups
   decreaseHierarchicalDepthOfSubgroups();
@@ -2728,10 +2730,11 @@ void IntermediateMED::orientElements2D()
  */
 //================================================================================
 
-void IntermediateMED::orientElements3D()
+void IntermediateMED::orientElements3D(bool keep2DOri)
 {
   // set _reverse flags of faces
-  orientFaces3D();
+  if ( !keep2DOri )
+    orientFaces3D();
 
   // -----------------
   // fix connectivity

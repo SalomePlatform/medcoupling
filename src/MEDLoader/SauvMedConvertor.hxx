@@ -255,11 +255,12 @@ namespace SauvUtilities
     int getNbCellsOfType( TCellType type ) const { return _cellsByType[type].size(); }
     const Cell* insert(TCellType type, const Cell& ma) { return &( *_cellsByType[type].insert( ma ).first ); }
     Group* addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix=0);
-    ParaMEDMEM::MEDFileData* convertInMEDFileDS();
+
+    ParaMEDMEM::MEDFileData* convertInMEDFileDS(bool keep2DOri);
 
   private:
 
-    ParaMEDMEM::MEDFileUMesh* makeMEDFileMesh();
+    ParaMEDMEM::MEDFileUMesh* makeMEDFileMesh(bool keep2DOri);
     ParaMEDMEM::DataArrayDouble * getCoords();
     void setConnectivity( ParaMEDMEM::MEDFileUMesh* mesh, ParaMEDMEM::DataArrayDouble* coords );
     void setGroups( ParaMEDMEM::MEDFileUMesh* mesh );
@@ -283,7 +284,7 @@ namespace SauvUtilities
     void eraseUselessGroups();
     void detectMixDimGroups();
     void orientElements2D();
-    void orientElements3D();
+    void orientElements3D(bool keep2DOri);
     void orientFaces3D();
     void orientVolumes();
     void numberElements();

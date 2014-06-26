@@ -49,7 +49,7 @@ def convert(file_in, driver_in, driver_out, format=1, file_out=None):
     #
     if driver_in == "GIBI":
         sr = SauvReader.New(file_in)
-        mfd= sr.loadInMEDFileDS()
+        mfd= sr.loadInMEDFileDS( format )
         pass
     elif driver_in == "MED":
         mfd = MEDFileData(file_in)
@@ -110,9 +110,10 @@ def convert(file_in, driver_in, driver_out, format=1, file_out=None):
         raise NotImplementedError("Driver in %s is unknown"%(driver_in))
 
 def sauv2med(*argv):
-    argv = list(argv)
+    keep2DOri = ( "--keep2DOri" in argv )
     for arg in argv:
-        convert(arg, "GIBI", "MED")
+        if not arg.startswith("--keep"):
+            convert(arg, "GIBI", "MED", format = keep2DOri)
         pass
     return
 

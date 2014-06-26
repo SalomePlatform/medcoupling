@@ -2841,7 +2841,7 @@ namespace ParaMEDMEM
   {
   public:
     static SauvReader* New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
+    MEDFileData * loadInMEDFileDS(bool keep2DOri=false) throw(INTERP_KERNEL::Exception);
     %extend
     {
       SauvReader(const std::string& fileName) throw(INTERP_KERNEL::Exception)
