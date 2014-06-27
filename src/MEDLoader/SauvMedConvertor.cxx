@@ -2373,14 +2373,14 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
 //================================================================================
 /*!
  * \brief Makes ParaMEDMEM::MEDFileData from self
- *  \param [in] keep2DOri - to keep or not orientation of faces in 3D space
+ *  \param [in] fix2DOri - to fix or not orientation of faces in 3D space
  *  \return ParaMEDMEM::MEDFileData* - conversion result
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS(bool keep2DOri)
+ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS(bool fix2DOri)
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh(keep2DOri);
+  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh(fix2DOri);
   MEDCouplingAutoRefCountObjectPtr< MEDFileFields > fields = makeMEDFileFields(mesh);
 
   MEDCouplingAutoRefCountObjectPtr< MEDFileMeshes > meshes = MEDFileMeshes::New();
@@ -2398,7 +2398,7 @@ ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS(bool keep2DOri)
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh(bool keep2DOri)
+ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh(bool fix2DOri)
 {
   // check if all needed piles are present
   checkDataAvailability();
@@ -2410,7 +2410,7 @@ ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh(bool keep2DOri)
   if ( _spaceDim == 2 || _spaceDim == 1 )
     orientElements2D();
   else if ( _spaceDim == 3 )
-    orientElements3D( keep2DOri );
+    orientElements3D( fix2DOri );
 
   // process groups
   decreaseHierarchicalDepthOfSubgroups();
@@ -2730,10 +2730,10 @@ void IntermediateMED::orientElements2D()
  */
 //================================================================================
 
-void IntermediateMED::orientElements3D(bool keep2DOri)
+void IntermediateMED::orientElements3D(bool fix2DOri)
 {
   // set _reverse flags of faces
-  if ( !keep2DOri )
+  if ( fix2DOri )
     orientFaces3D();
 
   // -----------------

@@ -110,10 +110,10 @@ def convert(file_in, driver_in, driver_out, format=1, file_out=None):
         raise NotImplementedError("Driver in %s is unknown"%(driver_in))
 
 def sauv2med(*argv):
-    keep2DOri = ( "--keep2DOri" in argv )
+    fix2DOri = ( "--fix2DOri" in argv )
     for arg in argv:
-        if not arg.startswith("--keep"):
-            convert(arg, "GIBI", "MED", format = keep2DOri)
+        if not arg.startswith("--fix"):
+            convert(arg, "GIBI", "MED", format = fix2DOri)
         pass
     return
 

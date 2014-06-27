@@ -86,9 +86,8 @@ sauv2med myfile.sauv
 \endcode
 generates a \a med file named \a myfile.sauv.med
 
-An optional argument --keep2DOri allows preventing reversion of mesh faces 
-in 3D space. If this option is not provided, there is an attempt to orient 
-adjacent faces equally.
+An optional argument --fix2DOri enables an attempt to orient adjacent 
+faces equally in 3D space.
 
 \section med2sauv med2sauv tool
 
