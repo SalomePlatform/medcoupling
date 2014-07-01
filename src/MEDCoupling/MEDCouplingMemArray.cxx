@@ -8484,7 +8484,7 @@ DataArrayIntIterator *DataArrayInt::iterator()
 
 /*!
  * Creates a new DataArrayInt containing IDs (indices) of tuples holding value equal to a
- * given one.
+ * given one. The ids are sorted in the ascending order.
  *  \param [in] val - the value to find within \a this.
  *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
  *          array using decrRef() as it is no more needed.

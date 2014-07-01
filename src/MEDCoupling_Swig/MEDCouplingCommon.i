@@ -2515,7 +2515,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      static PyObject *Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *mesh1D, double eps)
+      static PyObject *Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *mesh1D, double eps) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingUMesh *splitMesh2D(0),*splitMesh1D(0);
         DataArrayInt *cellIdInMesh2D(0),*cellIdInMesh1D(0);
