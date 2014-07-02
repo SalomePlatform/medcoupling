@@ -8954,7 +8954,7 @@ MEDCouplingUMesh *BuildMesh2DCutFrom(int cellIdInMesh2D, const MEDCouplingUMesh 
       int iEnd(iStart);
       for(;iEnd<nbCellsInSplitMesh1D;)
         {
-          for(jj=0;edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iEnd]+2] && jj<nb;jj++);
+          for(jj=0;jj<nb && edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iEnd]+2];jj++);
           if(jj!=nb)
             break;
           else
@@ -8963,8 +8963,8 @@ MEDCouplingUMesh *BuildMesh2DCutFrom(int cellIdInMesh2D, const MEDCouplingUMesh 
       if(iEnd<nbCellsInSplitMesh1D)
         iEnd++;
       //
-      for(ii=0;edge1Bis[2*ii]!=cSplitPtr[ciSplitPtr[iStart]+1] && ii<nb;ii++);
-      for(jj=ii;edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iStart]+2] && jj<nb;jj++);
+      for(ii=0;ii<nb && edge1Bis[2*ii]!=cSplitPtr[ciSplitPtr[iStart]+1];ii++);
+      for(jj=ii;jj<nb && edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iStart]+2];jj++);
       //
       if(jj==nb)
         {//the edges splitMesh1D[iStart:iEnd] does not fully cut the current 2D cell -> single output cell
