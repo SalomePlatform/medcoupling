@@ -8720,8 +8720,10 @@ std::string MEDCouplingUMesh::getVTKFileExtension() const
  * The meshes should be in 2D space. In
  * addition, returns two arrays mapping cells of the result mesh to cells of the input
  * meshes.
- *  \param [in] m1 - the first input mesh which is a partitioned object.
- *  \param [in] m2 - the second input mesh which is a partition tool.
+ *  \param [in] m1 - the first input mesh which is a partitioned object. The mesh must be so that each point in the space covered by \a m1
+ *                      must be covered exactly by one entity, \b no \b more. If it is not the case, some tools are available to heal the mesh (conformize2D, mergeNodes)
+ *  \param [in] m2 - the second input mesh which is a partition tool. The mesh must be so that each point in the space covered by \a m2
+ *                      must be covered exactly by one entity, \b no \b more. If it is not the case, some tools are available to heal the mesh (conformize2D, mergeNodes)
  *  \param [in] eps - precision used to detect coincident mesh entities.
  *  \param [out] cellNb1 - a new instance of DataArrayInt holding for each result
  *         cell an id of the cell of \a m1 it comes from. The caller is to delete
@@ -8737,6 +8739,8 @@ std::string MEDCouplingUMesh::getVTKFileExtension() const
  *  \throw If the coordinates array is not set in any of the meshes.
  *  \throw If the nodal connectivity of cells is not defined in any of the meshes.
  *  \throw If any of the meshes is not a 2D mesh in 2D space.
+ *
+ *  \sa conformize2D, mergeNodes
  */
 MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
                                                       double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2)
@@ -8816,8 +8820,6 @@ bool IsColinearOfACellOf(const std::vector< std::vector<int> >& intersectEdge1, 
     }
   return false;
 }
-
-/// @endcond
 
 MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::vector< std::vector<int> >& intersectEdge2, const DataArrayDouble *coords1, const std::vector<double>& addCoo, const std::map<int,int>& mergedNodes, const std::vector< std::vector<int> >& colinear2, const std::vector< std::vector<int> >& intersectEdge1,
                                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& idsInRetColinear, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& idsInMesh1DForIdsInRetColinear)
@@ -9007,6 +9009,8 @@ void BuildMesh2DCutInternal2(const MEDCouplingUMesh *splitMesh1D, const std::vec
       eright.insert(eright.end(),ees.rbegin(),ees.rend());
     }
 }
+
+/// @endcond
 
 /// @cond INTERNAL
 
@@ -9333,19 +9337,24 @@ MEDCouplingUMesh *BuildMesh2DCutFrom(double eps, int cellIdInMesh2D, const MEDCo
 
 /*!
  * Partitions the first given 2D mesh using the second given 1D mesh as a tool.
- * Thus the final result contains all nodes from m1 plus new nodes. However it doesn't necessarily contains
- * all nodes from \a mesh1D.
+ * Thus the final result contains the aggregation of nodes of \a mesh2D, then nodes of \a mesh1D, then new nodes that are the result of the intersection
+ * and finaly, in case of quadratic polygon the centers of edges new nodes.
  * The meshes should be in 2D space. In addition, returns two arrays mapping cells of the resulting mesh to cells of the input.
  *
- * \param [in] mesh2D - the 2D mesh (spacedim=meshdim=2) to be intersected using \a mesh1D tool.
- * \param [in] mesh1D - the 1D mesh (spacedim=2 meshdim=1) the is the tool that will be used to intersect \a mesh2D.
+ * \param [in] mesh2D - the 2D mesh (spacedim=meshdim=2) to be intersected using \a mesh1D tool. The mesh must be so that each point in the space covered by \a mesh2D
+ *                      must be covered exactly by one entity, \b no \b more. If it is not the case, some tools are available to heal the mesh (conformize2D, mergeNodes)
+ * \param [in] mesh1D - the 1D mesh (spacedim=2 meshdim=1) the is the tool that will be used to intersect \a mesh2D. \a mesh1D must be ordered consecutively. If it is not the case
+ *                      you can invoke orderConsecutiveCells1D on \a mesh1D.
  * \param [in] eps - precision used to perform intersections and localization operations.
  * \param [out] splitMesh2D - the result of the split of \a mesh2D mesh.
  * \param [out] splitMesh1D - the result of the split of \a mesh1D mesh.
  * \param [out] cellIdInMesh2D - the array that gives for each cell id \a i in \a splitMesh2D the id in \a mesh2D it comes from.
  *                               So this array has a number of tuples equal to the number of cells of \a splitMesh2D and a number of component equal to 1.
- * \param [out] cellIdInMesh1D - the array that gives for each cell id \a i in \a splitMesh1D the 1 or 2 id(s) in \a splitMesh2D that \a i shares.
+ * \param [out] cellIdInMesh1D - the array of pair that gives for each cell id \a i in \a splitMesh1D the cell in \a splitMesh2D on the left for the 1st component
+ *                               and the cell in \a splitMesh2D on the right for the 2nt component. -1 means no cell.
  *                               So this array has a number of tuples equal to the number of cells of \a splitMesh1D and a number of components equal to 2.
+ *
+ * \sa Intersect2DMeshes, orderConsecutiveCells1D, conformize2D, mergeNodes
  */
 void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *mesh1D, double eps, MEDCouplingUMesh *&splitMesh2D, MEDCouplingUMesh *&splitMesh1D, DataArrayInt *&cellIdInMesh2D, DataArrayInt *&cellIdInMesh1D)
 {
@@ -9388,7 +9397,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,mesh1D,addCoo,subDiv2,intersectEdge2);
   subDiv2.clear();
-  //
+  // Step 3: compute splitMesh1D
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsInRet1Colinear,idsInDescMesh2DForIdsInRetColinear;
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2(DataArrayInt::New()); ret2->alloc(0,1);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret1(BuildMesh1DCutFrom(mesh1D,intersectEdge2,mesh2D->getCoords(),addCoo,mergedNodes,colinear2,intersectEdge1,
@@ -9423,8 +9432,9 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   if((DataArrayInt *)out0s)
     untouchedCells=untouchedCells->buildSubstraction(out0s);//if some edges in ret1 are colinear to descending mesh of mesh2D remove cells from untouched one
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > outMesh2DSplit;
+  // OK all is ready to insert in ret2 mesh
   if(!untouchedCells->empty())
-    {
+    {// the most easy part, cells in mesh2D not impacted at all
       outMesh2DSplit.push_back(static_cast<MEDCouplingUMesh *>(mesh2D->buildPartOfMySelf(untouchedCells->begin(),untouchedCells->end())));
       outMesh2DSplit.back()->setCoords(ret1->getCoords());
       ret2->pushBackValsSilent(untouchedCells->begin(),untouchedCells->end());
