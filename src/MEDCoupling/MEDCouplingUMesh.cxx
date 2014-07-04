@@ -8792,6 +8792,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   return ret.retn();
 }
 
+/// @cond INTERNAL
+
 bool IsColinearOfACellOf(const std::vector< std::vector<int> >& intersectEdge1, const std::vector<int>& candidates, int start, int stop, int& retVal)
 {
   if(candidates.empty())
@@ -8815,7 +8817,8 @@ bool IsColinearOfACellOf(const std::vector< std::vector<int> >& intersectEdge1, 
   return false;
 }
 
-//tony to put in private of MEDCouplingUMesh
+/// @endcond
+
 MEDCouplingUMesh *BuildMesh1DCutFrom(const MEDCouplingUMesh *mesh1D, const std::vector< std::vector<int> >& intersectEdge2, const DataArrayDouble *coords1, const std::vector<double>& addCoo, const std::map<int,int>& mergedNodes, const std::vector< std::vector<int> >& colinear2, const std::vector< std::vector<int> >& intersectEdge1,
                                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& idsInRetColinear, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& idsInMesh1DForIdsInRetColinear)
 {
@@ -8948,20 +8951,363 @@ void AddCellInMesh2D(MEDCouplingUMesh *mesh2D, const std::vector<int>& conn, con
     }
 }
 
-MEDCouplingUMesh *BuildMesh2DCutFrom(int cellIdInMesh2D, const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *mesh2DDesc, const MEDCouplingUMesh *splitMesh1D,
+/*!
+ * \b WARNING edges in out1 coming from \a splitMesh1D are \b NOT oriented because only used for equation of curve.
+ */
+void BuildMesh2DCutInternal2(const MEDCouplingUMesh *splitMesh1D, const std::vector<int>& edge1Bis, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& edge1BisPtr,
+                             std::vector< std::vector<int> >& out0, std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > >& out1)
+{
+  std::size_t nb(edge1Bis.size()/2);
+  std::size_t nbOfEdgesOf2DCellSplit(nb/2);
+  int iEnd(splitMesh1D->getNumberOfCells());
+  if(iEnd==0)
+    throw INTERP_KERNEL::Exception("BuildMesh2DCutInternal2 : internal error ! input 1D mesh must have at least one cell !");
+  std::size_t ii,jj;
+  const int *cSplitPtr(splitMesh1D->getNodalConnectivity()->begin()),*ciSplitPtr(splitMesh1D->getNodalConnectivityIndex()->begin());
+  for(ii=0;ii<nb && edge1Bis[2*ii]!=cSplitPtr[ciSplitPtr[0]+1];ii++);
+  for(jj=ii;jj<nb && edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iEnd-1]+2];jj++);
+  //
+  if(jj==nb)
+    {//the edges splitMesh1D[iStart:iEnd] does not fully cut the current 2D cell -> single output cell
+      out0.resize(1); out1.resize(1);
+      std::vector<int>& connOut(out0[0]);
+      connOut.resize(nbOfEdgesOf2DCellSplit);
+      std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& edgesPtr(out1[0]);
+      edgesPtr.resize(nbOfEdgesOf2DCellSplit);
+      for(std::size_t kk=0;kk<nbOfEdgesOf2DCellSplit;kk++)
+        {
+          connOut[kk]=edge1Bis[2*kk];
+          edgesPtr[kk]=edge1BisPtr[2*kk];
+        }
+    }
+  else
+    {
+      // [i,iEnd[ contains the
+      out0.resize(2); out1.resize(2);
+      std::vector<int>& connOutLeft(out0[0]);
+      std::vector<int>& connOutRight(out0[1]);//connOutLeft should end with edge1Bis[2*ii] and connOutRight should end with edge1Bis[2*jj+1]
+      std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& eleft(out1[0]);
+      std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& eright(out1[1]);
+      for(std::size_t k=ii;k<jj+1;k++)
+        { connOutLeft.push_back(edge1Bis[2*k+1]); eleft.push_back(edge1BisPtr[2*k+1]); }
+      std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > ees(iEnd);
+      for(int ik=iEnd-1;ik>=0;ik--)
+        {
+          std::map< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node>,int> m;
+          MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> ee(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)cSplitPtr[ciSplitPtr[ik]],cSplitPtr+ciSplitPtr[ik]+1,splitMesh1D->getCoords()->begin(),m));
+          ees[iEnd-1-ik]=ee;
+        }
+      for(int ik=iEnd-1;ik>=0;ik--)
+        connOutLeft.push_back(cSplitPtr[ciSplitPtr[ik]+1]);
+      for(std::size_t k=jj+1;k<nbOfEdgesOf2DCellSplit+ii;k++)
+        { connOutRight.push_back(edge1Bis[2*k+1]); eright.push_back(edge1BisPtr[2*k+1]); }
+      eleft.insert(eleft.end(),ees.begin(),ees.end());
+      for(int ik=0;ik<iEnd;ik++)
+        connOutRight.push_back(cSplitPtr[ciSplitPtr[ik]+2]);
+      eright.insert(eright.end(),ees.rbegin(),ees.rend());
+    }
+}
+
+/// @cond INTERNAL
+
+struct CellInfo
+{
+public:
+  CellInfo() { }
+  CellInfo(const std::vector<int>& edges, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& edgesPtr);
+public:
+  std::vector<int> _edges;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > _edges_ptr;
+};
+
+CellInfo::CellInfo(const std::vector<int>& edges, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& edgesPtr)
+{
+  std::size_t nbe(edges.size());
+  std::vector<int> edges2(2*nbe); std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > edgesPtr2(2*nbe);
+  for(std::size_t i=0;i<nbe;i++)
+    {
+      edges2[2*i]=edges[i]; edges2[2*i+1]=edges[(i+1)%nbe];
+      edgesPtr2[2*i]=edgesPtr[i]; edgesPtr2[2*i+1]=edgesPtr[i];
+    }
+  _edges.resize(4*nbe); _edges_ptr.resize(4*nbe);
+  std::copy(edges2.begin(),edges2.end(),_edges.begin()); std::copy(edges2.begin(),edges2.end(),_edges.begin()+2*nbe);
+  std::copy(edgesPtr2.begin(),edgesPtr2.end(),_edges_ptr.begin()); std::copy(edgesPtr2.begin(),edgesPtr2.end(),_edges_ptr.begin()+2*nbe);
+}
+
+class EdgeInfo
+{
+public:
+  EdgeInfo(int istart, int iend, const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh>& mesh):_istart(istart),_iend(iend),_mesh(mesh),_left(-7),_right(-7) { }
+  EdgeInfo(int istart, int iend, int pos, const MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge>& edge):_istart(istart),_iend(iend),_edge(edge),_left(pos),_right(pos+1) { }
+  bool isInMyRange(int pos) const { return pos>=_istart && pos<_iend; }
+  void somethingHappendAt(int pos, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newLeft, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newRight);
+  void feedEdgeInfoAt(double eps, const MEDCouplingUMesh *mesh2D, int offset, int neighbors[2]) const;
+private:
+  int _istart;
+  int _iend;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _mesh;
+  MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> _edge;
+  int _left;
+  int _right;
+};
+
+void EdgeInfo::somethingHappendAt(int pos, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newLeft, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newRight)
+{
+  const MEDCouplingUMesh *mesh(_mesh);
+  if(mesh)
+    return ;
+  if(_right<pos)
+    return ;
+  if(_left>pos)
+    { _left++; _right++; return ; }
+  if(_right==pos)
+    {
+      bool isLeft(std::find(newLeft.begin(),newLeft.end(),_edge)!=newLeft.end()),isRight(std::find(newRight.begin(),newRight.end(),_edge)!=newRight.end());
+      if((isLeft && isRight) || (!isLeft && !isRight))
+        throw INTERP_KERNEL::Exception("EdgeInfo::somethingHappendAt : internal error # 1 !");
+      if(isLeft)
+        return ;
+      if(isRight)
+        {
+          _right++;
+          return ;
+        }
+    }
+  if(_left==pos)
+    {
+      bool isLeft(std::find(newLeft.begin(),newLeft.end(),_edge)!=newLeft.end()),isRight(std::find(newRight.begin(),newRight.end(),_edge)!=newRight.end());
+      if((isLeft && isRight) || (!isLeft && !isRight))
+        throw INTERP_KERNEL::Exception("EdgeInfo::somethingHappendAt : internal error # 2 !");
+      if(isLeft)
+        {
+          _right++;
+          return ;
+        }
+      if(isRight)
+        {
+          _left++;
+          _right++;
+          return ;
+        }
+    }
+}
+
+void EdgeInfo::feedEdgeInfoAt(double eps, const MEDCouplingUMesh *mesh2D, int offset, int neighbors[2]) const
+{
+  const MEDCouplingUMesh *mesh(_mesh);
+  if(!mesh)
+    {
+      neighbors[0]=offset+_left; neighbors[1]=offset+_right;
+    }
+  else
+    {// not fully splitting cell case
+      if(mesh2D->getNumberOfCells()==1)
+        {//little optimization. 1 cell no need to find in which cell mesh is !
+          neighbors[0]=offset; neighbors[1]=offset;
+          return;
+        }
+      else
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> barys(mesh->getBarycenterAndOwner());
+          int cellId(mesh2D->getCellContainingPoint(barys->begin(),eps));
+          if(cellId==-1)
+            throw INTERP_KERNEL::Exception("EdgeInfo::feedEdgeInfoAt : internal error !");
+          neighbors[0]=offset+cellId; neighbors[1]=offset+cellId;
+        }
+    }
+}
+
+class VectorOfCellInfo
+{
+public:
+  VectorOfCellInfo(const std::vector<int>& edges, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& edgesPtr);
+  std::size_t size() const { return _pool.size(); }
+  int getPositionOf(double eps, const MEDCouplingUMesh *mesh) const;
+  void setMeshAt(int pos, const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh>& mesh, int istart, int iend, const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > >& edgePtrs);
+  const std::vector<int>& getConnOf(int pos) const { return get(pos)._edges; }
+  const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& getEdgePtrOf(int pos) const { return get(pos)._edges_ptr; }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> getZeMesh() const { return _ze_mesh; }
+  void feedEdgeInfoAt(double eps, int pos, int offset, int neighbors[2]) const;
+private:
+  int getZePosOfEdgeGivenItsGlobalId(int pos) const;
+  void updateEdgeInfo(int pos, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newLeft, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newRight);
+  const CellInfo& get(int pos) const;
+  CellInfo& get(int pos);
+private:
+  std::vector<CellInfo> _pool;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _ze_mesh;
+  std::vector<EdgeInfo> _edge_info;
+};
+
+VectorOfCellInfo::VectorOfCellInfo(const std::vector<int>& edges, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& edgesPtr):_pool(1)
+{
+  _pool[0]._edges=edges;
+  _pool[0]._edges_ptr=edgesPtr;
+}
+
+int VectorOfCellInfo::getPositionOf(double eps, const MEDCouplingUMesh *mesh) const
+{
+  if(_pool.empty())
+    throw INTERP_KERNEL::Exception("VectorOfCellSplitter::getPositionOf : empty !");
+  if(_pool.size()==1)
+    return 0;
+  const MEDCouplingUMesh *zeMesh(_ze_mesh);
+  if(!zeMesh)
+    throw INTERP_KERNEL::Exception("VectorOfCellSplitter::getPositionOf : null aggregated mesh !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> barys(mesh->getBarycenterAndOwner());
+  return zeMesh->getCellContainingPoint(barys->begin(),eps);
+}
+
+void VectorOfCellInfo::setMeshAt(int pos, const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh>& mesh, int istart, int iend, const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh>& mesh1DInCase, const std::vector< std::vector<int> >& edges, const std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > >& edgePtrs)
+{
+  get(pos);//to check pos
+  bool isFast(pos==0 && _pool.size()==1);
+  std::size_t sz(edges.size());
+  // dealing with edges
+  if(sz==1)
+    _edge_info.push_back(EdgeInfo(istart,iend,mesh1DInCase));
+  else
+    _edge_info.push_back(EdgeInfo(istart,iend,pos,edgePtrs[0].back()));
+  //
+  std::vector<CellInfo> pool(_pool.size()-1+sz);
+  for(int i=0;i<pos;i++)
+    pool[i]=_pool[i];
+  for(std::size_t j=0;j<sz;j++)
+    pool[pos+j]=CellInfo(edges[j],edgePtrs[j]);
+  for(int i=pos+1;i<(int)_pool.size();i++)
+    pool[pos+sz-1]=_pool[i];
+  _pool=pool;
+  //
+  if(sz==2)
+    updateEdgeInfo(pos,edgePtrs[0],edgePtrs[1]);
+  //
+  if(isFast)
+    {
+      _ze_mesh=mesh;
+      return ;
+    }
+  //
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms;
+  if(pos>0)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt(static_cast<MEDCouplingUMesh *>(_ze_mesh->buildPartOfMySelf2(0,pos,true)));
+      ms.push_back(elt);
+    }
+  ms.push_back(mesh);
+  if(pos<_ze_mesh->getNumberOfCells()-1)
+  {
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt(static_cast<MEDCouplingUMesh *>(_ze_mesh->buildPartOfMySelf2(pos+1,_ze_mesh->getNumberOfCells(),true)));
+    ms.push_back(elt);
+  }
+  std::vector< const MEDCouplingUMesh *> ms2(ms.size());
+  for(std::size_t j=0;j<ms2.size();j++)
+    ms2[j]=ms[j];
+  _ze_mesh=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms2);
+}
+
+void VectorOfCellInfo::feedEdgeInfoAt(double eps, int pos, int offset, int neighbors[2]) const
+{
+  _edge_info[getZePosOfEdgeGivenItsGlobalId(pos)].feedEdgeInfoAt(eps,_ze_mesh,offset,neighbors);
+}
+
+int VectorOfCellInfo::getZePosOfEdgeGivenItsGlobalId(int pos) const
+{
+  if(pos<0)
+    throw INTERP_KERNEL::Exception("VectorOfCellInfo::getZePosOfEdgeGivenItsGlobalId : invalid id ! Must be >=0 !");
+  int ret(0);
+  for(std::vector<EdgeInfo>::const_iterator it=_edge_info.begin();it!=_edge_info.end();it++,ret++)
+    {
+      if((*it).isInMyRange(pos))
+        return ret;
+    }
+  throw INTERP_KERNEL::Exception("VectorOfCellInfo::getZePosOfEdgeGivenItsGlobalId : invalid id !");
+}
+
+void VectorOfCellInfo::updateEdgeInfo(int pos, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newLeft, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& newRight)
+{
+  get(pos);//to check;
+  if(_edge_info.empty())
+    return ;
+  std::size_t sz(_edge_info.size()-1);
+  for(std::size_t i=0;i<sz;i++)
+    _edge_info[i].somethingHappendAt(pos,newLeft,newRight);
+}
+
+const CellInfo& VectorOfCellInfo::get(int pos) const
+{
+  if(pos<0 || pos>=(int)_pool.size())
+    throw INTERP_KERNEL::Exception("VectorOfCellSplitter::get const : invalid pos !");
+  return _pool[pos];
+}
+
+CellInfo& VectorOfCellInfo::get(int pos)
+{
+  if(pos<0 || pos>=(int)_pool.size())
+    throw INTERP_KERNEL::Exception("VectorOfCellSplitter::get : invalid pos !");
+  return _pool[pos];
+}
+
+MEDCouplingUMesh *BuildMesh2DCutInternal(double eps, const MEDCouplingUMesh *splitMesh1D, const std::vector<int>& allEdges, const std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> >& allEdgesPtr, int offset,
+                                         MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& idsLeftRight)
+{
+  int nbCellsInSplitMesh1D(splitMesh1D->getNumberOfCells());
+  if(nbCellsInSplitMesh1D==0)
+    throw INTERP_KERNEL::Exception("BuildMesh2DCutInternal : internal error ! input 1D mesh must have at least one cell !");
+  const int *cSplitPtr(splitMesh1D->getNodalConnectivity()->begin()),*ciSplitPtr(splitMesh1D->getNodalConnectivityIndex()->begin());
+  std::size_t nb(allEdges.size()),jj;
+  if(nb%2!=0)
+    throw INTERP_KERNEL::Exception("BuildMesh2DCutFrom : internal error 2 !");
+  std::vector<int> edge1Bis(nb*2);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > edge1BisPtr(nb*2);
+  std::copy(allEdges.begin(),allEdges.end(),edge1Bis.begin());
+  std::copy(allEdges.begin(),allEdges.end(),edge1Bis.begin()+nb);
+  std::copy(allEdgesPtr.begin(),allEdgesPtr.end(),edge1BisPtr.begin());
+  std::copy(allEdgesPtr.begin(),allEdgesPtr.end(),edge1BisPtr.begin()+nb);
+  //
+  idsLeftRight=DataArrayInt::New(); idsLeftRight->alloc(nbCellsInSplitMesh1D*2); idsLeftRight->fillWithValue(-2); idsLeftRight->rearrange(2);
+  int *idsLeftRightPtr(idsLeftRight->getPointer());
+  VectorOfCellInfo pool(edge1Bis,edge1BisPtr);
+  for(int iStart=0;iStart<nbCellsInSplitMesh1D;)
+    {// split [0:nbCellsInSplitMesh1D) in contiguous parts [iStart:iEnd)
+      int iEnd(iStart);
+      for(;iEnd<nbCellsInSplitMesh1D;)
+        {
+          for(jj=0;jj<nb && edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iEnd]+2];jj++);
+          if(jj!=nb)
+            break;
+          else
+            iEnd++;
+        }
+      if(iEnd<nbCellsInSplitMesh1D)
+        iEnd++;
+      //
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> partOfSplitMesh1D(static_cast<MEDCouplingUMesh *>(splitMesh1D->buildPartOfMySelf2(iStart,iEnd,1,true)));
+      int pos(pool.getPositionOf(eps,partOfSplitMesh1D));
+      //
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh>retTmp(MEDCouplingUMesh::New("",2));
+      retTmp->setCoords(splitMesh1D->getCoords());
+      retTmp->allocateCells();
+
+      std::vector< std::vector<int> > out0;
+      std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > > out1;
+
+      BuildMesh2DCutInternal2(partOfSplitMesh1D,pool.getConnOf(pos),pool.getEdgePtrOf(pos),out0,out1);
+      for(std::size_t cnt=0;cnt<out0.size();cnt++)
+        AddCellInMesh2D(retTmp,out0[cnt],out1[cnt]);
+      pool.setMeshAt(pos,retTmp,iStart,iEnd,partOfSplitMesh1D,out0,out1);
+      //
+      iStart=iEnd;
+    }
+  for(int mm=0;mm<nbCellsInSplitMesh1D;mm++)
+    pool.feedEdgeInfoAt(eps,mm,offset,idsLeftRightPtr+2*mm);
+  return pool.getZeMesh().retn();
+}
+
+MEDCouplingUMesh *BuildMesh2DCutFrom(double eps, int cellIdInMesh2D, const MEDCouplingUMesh *mesh2DDesc, const MEDCouplingUMesh *splitMesh1D,
                                      const int *descBg, const int *descEnd, const std::vector< std::vector<int> >& intersectEdge1, int offset,
                                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& idsLeftRight)
 {
-  idsLeftRight=DataArrayInt::New(); idsLeftRight->alloc(splitMesh1D->getNumberOfCells(),2);
-  int *idsLeftRightPtr(idsLeftRight->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret(MEDCouplingUMesh::New("",2));
-  ret->setCoords(splitMesh1D->getCoords());
-  ret->allocateCells();
-  int nbCellsInSplitMesh1D(splitMesh1D->getNumberOfCells());
-  if(nbCellsInSplitMesh1D==0)
-    throw INTERP_KERNEL::Exception("BuildMesh2DCutFrom : internal error ! input 1D mesh must have at least one cell !");
-  const int *cSplitPtr(splitMesh1D->getNodalConnectivity()->begin()),*ciSplitPtr(splitMesh1D->getNodalConnectivityIndex()->begin()),
-      *cdescPtr(mesh2DDesc->getNodalConnectivity()->begin()),*cidescPtr(mesh2DDesc->getNodalConnectivityIndex()->begin());
+  const int *cdescPtr(mesh2DDesc->getNodalConnectivity()->begin()),*cidescPtr(mesh2DDesc->getNodalConnectivityIndex()->begin());
   //
   std::vector<int> allEdges;
   std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > allEdgesPtr;
@@ -8979,86 +9325,11 @@ MEDCouplingUMesh *BuildMesh2DCutFrom(int cellIdInMesh2D, const MEDCouplingUMesh 
       for(std::size_t cnt=0;cnt<sz;cnt++)
         allEdgesPtr.push_back(ee);
     }
-  std::size_t nb(allEdges.size()),ii,jj;
-  if(nb%2!=0)
-    throw INTERP_KERNEL::Exception("BuildMesh2DCutFrom : internal error 2 !");
-  std::size_t nbOfEdgesOf2DCellSplit(nb/2);
-  std::vector<int> edge1Bis(nb*2);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > edge1BisPtr(nb*2);
-  std::copy(allEdges.begin(),allEdges.end(),edge1Bis.begin());
-  std::copy(allEdges.begin(),allEdges.end(),edge1Bis.begin()+nb);
-  std::copy(allEdgesPtr.begin(),allEdgesPtr.end(),edge1BisPtr.begin());
-  std::copy(allEdgesPtr.begin(),allEdgesPtr.end(),edge1BisPtr.begin()+nb);
   //
-  for(int iStart=0;iStart<nbCellsInSplitMesh1D;)
-    {
-      int iEnd(iStart);
-      for(;iEnd<nbCellsInSplitMesh1D;)
-        {
-          for(jj=0;jj<nb && edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iEnd]+2];jj++);
-          if(jj!=nb)
-            break;
-          else
-            iEnd++;
-        }
-      if(iEnd<nbCellsInSplitMesh1D)
-        iEnd++;
-      //
-      for(ii=0;ii<nb && edge1Bis[2*ii]!=cSplitPtr[ciSplitPtr[iStart]+1];ii++);
-      for(jj=ii;jj<nb && edge1Bis[2*jj+1]!=cSplitPtr[ciSplitPtr[iEnd-1]+2];jj++);
-      //
-      if(jj==nb)
-        {//the edges splitMesh1D[iStart:iEnd] does not fully cut the current 2D cell -> single output cell
-          std::vector<int> connOut(nbOfEdgesOf2DCellSplit);
-          std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > edgesPtr(nbOfEdgesOf2DCellSplit);
-          for(std::size_t kk=0;kk<nbOfEdgesOf2DCellSplit;kk++)
-            {
-              connOut[kk]=edge1Bis[2*kk];
-              edgesPtr[kk]=edge1BisPtr[2*kk];
-            }
-          AddCellInMesh2D(ret,connOut,edgesPtr);
-          for(int mm=iStart;mm<iEnd;mm++)
-            {
-              idsLeftRightPtr[2*mm]=offset;
-              idsLeftRightPtr[2*mm+1]=offset;
-            }
-        }
-      else
-        {
-          // [i,iEnd[ contains the
-          std::vector<int> connOutLeft,connOutRight;//connOutLeft should end with edge1Bis[2*ii] and connOutRight should end with edge1Bis[2*jj+1]
-          std::vector< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> > eleft,eright;
-          for(std::size_t k=ii;k<jj+1;k++)
-            { connOutLeft.push_back(edge1Bis[2*k+1]); eleft.push_back(edge1BisPtr[2*k+1]); }
-          for(int ik=iEnd-1;ik>=iStart;ik--)
-            {
-              connOutLeft.push_back(cSplitPtr[ciSplitPtr[ik]+1]);
-              std::map< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node>,int> m;
-              MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> ee(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)cSplitPtr[ciSplitPtr[ik]],cSplitPtr+ciSplitPtr[ik]+1,splitMesh1D->getCoords()->begin(),m));
-              eleft.push_back(ee);
-            }
-          for(std::size_t k=jj+1;k<nbOfEdgesOf2DCellSplit+ii;k++)
-            { connOutRight.push_back(edge1Bis[2*k+1]); eright.push_back(edge1BisPtr[2*k+1]); }
-          for(int ik=iStart;ik<iEnd;ik++)
-            {
-              std::map< MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node>,int> m;
-              connOutRight.push_back(cSplitPtr[ciSplitPtr[ik]+2]);
-              MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Edge> ee(MEDCouplingUMeshBuildQPFromEdge2((INTERP_KERNEL::NormalizedCellType)cSplitPtr[ciSplitPtr[ik]],cSplitPtr+ciSplitPtr[ik]+1,splitMesh1D->getCoords()->begin(),m));
-              eright.push_back(ee);
-            }
-          AddCellInMesh2D(ret,connOutLeft,eleft);
-          AddCellInMesh2D(ret,connOutRight,eright);
-          for(int mm=iStart;mm<iEnd;mm++)
-            {
-              idsLeftRightPtr[2*mm]=offset;
-              idsLeftRightPtr[2*mm+1]=offset+1;
-            }
-        }
-      //
-      iStart=iEnd;
-    }
-  return ret.retn();
+  return BuildMesh2DCutInternal(eps,splitMesh1D,allEdges,allEdgesPtr,offset,idsLeftRight);
 }
+
+/// @endcond
 
 /*!
  * Partitions the first given 2D mesh using the second given 1D mesh as a tool.
@@ -9128,7 +9399,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsInDesc2DToBeRefined(idsInDescMesh2DForIdsInRetColinear->deepCpy());
   idsInDesc2DToBeRefined->abs(); idsInDesc2DToBeRefined->applyLin(1,-1);
   idsInDesc2DToBeRefined=idsInDesc2DToBeRefined->buildUnique();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out0s;//ids in mesh2D that are impacted by the fact that some edges of \a mesh1D are part of those cells
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out0s;//ids in mesh2D that are impacted by the fact that some edges of \a mesh1D are part of the edges of those cells
   if(!idsInDesc2DToBeRefined->empty())
     {
       DataArrayInt *out0(0),*outi0(0);
@@ -9197,7 +9468,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsNonColPerCell2(idsInRet1NotColinear->selectByTupleId(idsNonColPerCell->begin(),idsNonColPerCell->end()));
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> partOfMesh1CuttingCur2DCell(static_cast<MEDCouplingUMesh *>(ret1NonCol->buildPartOfMySelf(idsNonColPerCell->begin(),idsNonColPerCell->end())));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> partOfRet3;
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> splitOfOneCell(BuildMesh2DCutFrom(*it,mesh2D,m1Desc,partOfMesh1CuttingCur2DCell,dd1->begin()+dd2->getIJ(*it,0),dd1->begin()+dd2->getIJ((*it)+1,0),intersectEdge1,ret2->getNumberOfTuples(),partOfRet3));
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> splitOfOneCell(BuildMesh2DCutFrom(eps,*it,m1Desc,partOfMesh1CuttingCur2DCell,dd1->begin()+dd2->getIJ(*it,0),dd1->begin()+dd2->getIJ((*it)+1,0),intersectEdge1,ret2->getNumberOfTuples(),partOfRet3));
       ret3->setPartOfValues3(partOfRet3,idsNonColPerCell2->begin(),idsNonColPerCell2->end(),0,2,1,true);
       outMesh2DSplit.push_back(splitOfOneCell);
       for(int i=0;i<splitOfOneCell->getNumberOfCells();i++)
@@ -9306,6 +9577,90 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
     }
 }
 
+/**
+ * Provides a renumbering of the cells of this (which has to be a piecewise connected 1D line), so that
+ * the segments of the line are indexed in consecutive order (i.e. cells \a i and \a i+1 are neighbors).
+ * This doesn't modify the mesh.
+ * The caller is to deal with the resulting DataArrayInt.
+ *  \throw If the coordinate array is not set.
+ *  \throw If the nodal connectivity of the cells is not defined.
+ *  \throw If m1 is not a mesh of dimension 2, or m1 is not a mesh of dimension 1
+ *  \throw If m2 is not a (piecewise) line (i.e. if a point has more than 2 adjacent segments)
+ */
+DataArrayInt *MEDCouplingUMesh::orderConsecutiveCells1D() const
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=1 || getSpaceDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::orderConsecutiveCells1D works on unstructured mesh with (meshdim, spacedim) = (1,2)!");
+
+  // Check that this is a line (and not a more complex 1D mesh) - each point is used at most by 2 segments:
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _d(DataArrayInt::New()),_dI(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rD(DataArrayInt::New()),_rDI(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m_points(buildDescendingConnectivity(_d, _dI, _rD, _rDI));
+  const int *d(_d->getConstPointer()), *dI(_dI->getConstPointer());
+  const int *rD(_rD->getConstPointer()), *rDI(_rDI->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _dsi(_rDI->deltaShiftIndex());
+  const int * dsi(_dsi->getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dsii = _dsi->getIdsNotInRange(0,3);
+  m_points=0;
+  if (dsii->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::orderConsecutiveCells1D only work with a mesh being a (piecewise) connected line!");
+
+  int nc(getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> result(DataArrayInt::New());
+  result->alloc(nc,1);
+
+  // set of edges not used so far
+  std::set<int> edgeSet;
+  for (int i=0; i<nc; edgeSet.insert(i), i++);
+
+  int startSeg=0;
+  int newIdx=0;
+  // while we have points with only one neighbor segments
+  do
+    {
+      std::list<int> linePiece;
+      // fills a list of consecutive segment linked to startSeg. This can go forward or backward.
+      for (int direction=0;direction<2;direction++) // direction=0 --> forward, direction=1 --> backward
+        {
+          // Fill the list forward (resp. backward) from the start segment:
+          int activeSeg = startSeg;
+          int prevPointId = -20;
+          int ptId;
+          while (!edgeSet.empty())
+            {
+              if (!(direction == 1 && prevPointId==-20)) // prevent adding twice startSeg
+                {
+                  if (direction==0)
+                    linePiece.push_back(activeSeg);
+                  else
+                    linePiece.push_front(activeSeg);
+                  edgeSet.erase(activeSeg);
+                }
+
+              int ptId1 = d[dI[activeSeg]], ptId2 = d[dI[activeSeg]+1];
+              ptId = direction ? (ptId1 == prevPointId ? ptId2 : ptId1) : (ptId2 == prevPointId ? ptId1 : ptId2);
+              if (dsi[ptId] == 1) // hitting the end of the line
+                break;
+              prevPointId = ptId;
+              int seg1 = rD[rDI[ptId]], seg2 = rD[rDI[ptId]+1];
+              activeSeg = (seg1 == activeSeg) ? seg2 : seg1;
+            }
+        }
+      // Done, save final piece into DA:
+      std::copy(linePiece.begin(), linePiece.end(), result->getPointer()+newIdx);
+      newIdx += linePiece.size();
+
+      // identify next valid start segment (one which is not consumed)
+      if(!edgeSet.empty())
+        startSeg = *(edgeSet.begin());
+    }
+  while (!edgeSet.empty());
+  return result.retn();
+}
+
+/// @cond INTERNAL
+
 void IKGeo2DInternalMapper2(INTERP_KERNEL::Node *n, const std::map<MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node>,int>& m, int forbVal0, int forbVal1, std::vector<int>& isect)
 {
   MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node> nTmp(n); nTmp->incrRef();
@@ -9335,6 +9690,8 @@ bool IKGeo2DInternalMapper(const INTERP_KERNEL::ComposedEdge& c, const std::map<
     }
   return presenceOfOn;
 }
+
+/// @endcond
 
 /**
  * This method split some of edges of 2D cells in \a this. The edges to be split are specified in \a subNodesInSeg and in \a subNodesInSegI using index storage mode.

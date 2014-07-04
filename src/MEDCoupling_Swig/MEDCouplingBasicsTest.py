@@ -15727,6 +15727,152 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(c.isEqual(DataArrayInt([0,2,3,4,5,7,8,9,11,12,14,15,1,1,6,6,10,10,13,13])))
         self.assertTrue(d.isEqual(DataArrayInt([(12,13),(14,15),(16,17),(18,19)])))
         pass
+
+    def testIntersect2DMeshWith1DLine6(self):
+        """ Basic test for Intersect2DMeshWith1DLine: a vertical line intersecting a square. """
+        m1c = MEDCouplingCMesh()
+        coordX = DataArrayDouble([-1., 1., 2])
+        m1c.setCoordsAt(0,coordX)
+        coordY = DataArrayDouble([0., 2.])
+        m1c.setCoordsAt(1,coordY);
+        m1 = m1c.buildUnstructured()
+
+        # A simple line:
+        m2 = MEDCouplingUMesh("bla", 1)
+        coord2 = DataArrayDouble([0.,-1.0,  0.,1.,  0.,3.,  0.5,2.2], 4, 2)
+        conn2 = DataArrayInt([NORM_SEG2,0,1,NORM_SEG3,1,2,3])
+        connI2 = DataArrayInt([0,3,7])
+        m2.setCoords(coord2)
+        m2.setConnectivity(conn2, connI2)
+
+        # End of construction of input meshes m1bis and m2 -> start of specific part of the test
+        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)        
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,2,1,4,5,32,0,3,11,7,10,14,15,16,17,18,32,4,1,10,7,11,19,20,21,22,23])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,16,27])))
+        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,6,10,1,10,7,2,7,11,12,2,11,8,13])))
+        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,10,14])))
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:6].isEqual(m1.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[6:10].isEqual(m2.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[10:].isEqual(DataArrayDouble([(0.,0.),(0.5164175471673584,2.),(0.3796918047064557,1.43726403104512),(0.3796918047064557,2.56273596895488),(-1.,1.),(-0.24179122641632078,2.),(0.3796918047064558,1.4372640310451201),(0.,0.5),(-0.5,0.),(1.,1.),(0.5,0.),(0.,0.5),(0.3796918047064558,1.4372640310451201),(0.7582087735836792,2.)]),1e-12))
+        self.assertTrue(c.isEqual(DataArrayInt([1,0,0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(1,2),(-1,-1)])))
+        pass
+
+    def testSwig2Intersect2DMeshWith1DLine7(self):
+        """ Star pattern (a triangle intersecting another one upside down) """
+        coords1 = DataArrayDouble([-2.,1.,   2.,1.,  0.,-2.], 3,2)
+        coords2 = DataArrayDouble([0.,2.,   2.,-1.,  -2.,-1.,  0.,3.], 4,2)
+        m1 = MEDCouplingUMesh("triangle", 2)
+        m2 = MEDCouplingUMesh("tri_line", 1)
+        m1.setCoords(coords1)
+        m2.setCoords(coords2)
+        m1.setConnectivity(DataArrayInt([NORM_TRI3, 0,1,2]), DataArrayInt([0,4]))
+        m2.setConnectivity(DataArrayInt([NORM_SEG2,0,1,NORM_SEG2,1,2,NORM_SEG2,2,3]), DataArrayInt([0,3,6,9]))
+    # End of construction of input meshes m1bis and m2 -> start of specific part of the test
+        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([5,1,9,7,5,2,11,10,5,0,8,12,5,7,9,10,11,12,8])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,8,12,19])))
+        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,3,7,1,7,9,1,9,4,1,4,10,1,10,11,1,11,5,1,5,12,1,12,8,1,8,6])))
+        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24,27])))
+        self.assertTrue(a.getCoords()[:3].isEqual(m1.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[3:7].isEqual(m2.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[7:].isEqual(DataArrayDouble([(0.6666666666666666,1.),(-1.,1.),(1.3333333333333333,1.1102230246251565e-16),(0.6666666666666665,-0.9999999999999996),(-0.6666666666666667,-1.),(-1.4285714285714284,0.14285714285714302)]),1e-12))
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(c.isEqual(DataArrayInt([0,0,0,0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(0,3),(-1,-1),(-1,-1),(1,3),(-1,-1),(-1,-1),(2,3),(-1,-1)])))
+        pass
+    
+    def testSwig2Intersect2DMeshWith1DLine8(self):
+        """ Line pieces ending (or fully located) in the middle of a cell """
+        m1c = MEDCouplingCMesh()
+        m1c.setCoordsAt(0,DataArrayDouble([-1., 1.]))
+        m1c.setCoordsAt(1,DataArrayDouble([-1., 1.]));
+        m1 = m1c.buildUnstructured()
+        coords2 = DataArrayDouble([0.,0.,  0.,1.5, -1.5,0.,  0.5,0.0,  0.0,-0.5, 1.1,-0.6], 6,2)
+        m2 = MEDCouplingUMesh("piecewise_line", 1)
+        m2.setCoords(coords2)
+        c = DataArrayInt([NORM_SEG2,2,1, NORM_SEG2,1,4, NORM_SEG2,4,3,  NORM_SEG2,3,5])
+        cI = DataArrayInt([0,3,6,9,12])
+        m2.setConnectivity(c, cI)
+        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([5,2,11,10,5,3,13,7,8,12,5,1,0,10,11,12,8,7,13])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,10,19])))
+        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,6,10,1,10,11,1,11,5,1,5,12,1,12,8,1,8,7,1,7,13,1,13,9])))
+        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24])))
+        self.assertTrue(a.getCoords()[:4].isEqual(m1.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[4:10].isEqual(m2.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[10:].isEqual(DataArrayDouble([(-1.,0.5),(-0.5,1.),(0.,1.),(1.,-0.5)]),1e-12))
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(c.isEqual(DataArrayInt([0,0,0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(0,2),(-1,-1),(-1,-1),(1,2),(1,2),(1,2),(-1,-1)])))
+        pass
+
+    def testSwig2Intersect2DMeshWith1DLine9(self):
+        """ Intersection with a line whose connectivity is not consecutive """
+        m1c = MEDCouplingCMesh()
+        coordX = DataArrayDouble([-1., 1., 2])
+        m1c.setCoordsAt(0,coordX)
+        coordY = DataArrayDouble([0., 2.])
+        m1c.setCoordsAt(1,coordY);
+        m1 = m1c.buildUnstructured()
+        # A simple line:
+        m2 = MEDCouplingUMesh("bla", 1)
+        coord2 = DataArrayDouble([0.,1.5,  0.5,1.,  0.0,0.5,  0.0,3.0,  0.0,-1.0], 5, 2)
+        conn2 = DataArrayInt([NORM_SEG2,3,0,NORM_SEG3,0,2,1,NORM_SEG2,2,4])
+        connI2 = DataArrayInt([0,3,7,10])
+        m2.setCoords(coord2)
+        m2.setConnectivity(conn2, connI2)
+        # End of construction of input meshes m1bis and m2 -> start of specific part of the test
+        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,2,1,4,5,32,4,1,11,8,6,12,14,15,16,17,18,19,32,0,3,12,6,8,11,20,21,22,23,24,25])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,18,31])))
+        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,9,12,1,12,6,2,6,8,13,1,8,11,1,11,10])))
+        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,10,13,16])))
+        self.assertTrue(a.getCoords()[:6].isEqual(m1.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[6:11].isEqual(m2.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[11:].isEqual(DataArrayDouble([(0.,0.),(0.,2.),(0.5,1.),(1.,1.),(0.5,0.),(0.,0.25),(0.5,1.),(0.,1.75),(0.5,2.),(-1.,1.),(-0.5,2.),(0.,1.75),(0.5,1.),(0.,0.25),(-0.5,0.)]),1e-12))
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(c.isEqual(DataArrayInt([1,0,0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(1,2),(1,2),(-1,-1)])))
+        pass
+
+    def testOrderConsecutiveCells1D1(self):
+        """A line in several unconnected pieces:"""
+        m2 = MEDCouplingUMesh.New("bla", 1)
+        c = DataArrayInt([NORM_SEG2,0,1,NORM_SEG3,1,3,2, NORM_SEG2,3,4,
+                               NORM_SEG3,5,7,6, NORM_SEG3,7,9,8, NORM_SEG2,9,10,
+                               NORM_SEG2,11,12,NORM_SEG2,12,13,
+                               NORM_SEG2,14,15])
+        cI = DataArrayInt([0,3,7,10,14,18,21,24,27,30])
+        coords2 = DataArrayDouble([float(i) for i in range(32)], 16,2)
+        m2.setCoords(coords2);
+        m2.setConnectivity(c, cI);
+        m2.checkCoherency2(1.0e-8);
+      
+        # Shuffle a bit :-)
+        m2.renumberCells(DataArrayInt([0,3,6,8,1,4,7,5,2]), True);
+        res = m2.orderConsecutiveCells1D()
+        expRes = [0,3,6,8,1,4,2,7,5]
+        self.assertEqual(m2.getNumberOfCells(),res.getNumberOfTuples())
+        self.assertEqual(expRes, res.getValues())
+      
+        # A closed line (should also work)
+        m3 = MEDCouplingUMesh.New("bla3", 1)
+        conn3A = DataArrayInt([NORM_SEG2,0,1,NORM_SEG3,1,3,2, NORM_SEG2,3,0])
+        coord3 = coords2[0:5]
+        c.reAlloc(10)
+        cI.reAlloc(4)
+        
+        m3.setCoords(coord3)
+        m3.setConnectivity(conn3A, cI)
+        m3.checkCoherency2(1.0e-8)
+        res2 = m3.orderConsecutiveCells1D()
+        expRes2 = [0,1,2]
+        self.assertEqual(m3.getNumberOfCells(),res2.getNumberOfTuples())
+        self.assertEqual(expRes2, res2.getValues())
+        pass
+
     pass
 
 if __name__ == '__main__':

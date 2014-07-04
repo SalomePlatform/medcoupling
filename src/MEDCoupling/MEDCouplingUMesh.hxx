@@ -266,6 +266,7 @@ namespace ParaMEDMEM
                                                       DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr);
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf2DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf3DMesh() const;
+    MEDCOUPLING_EXPORT DataArrayInt *orderConsecutiveCells1D() const;
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy);
