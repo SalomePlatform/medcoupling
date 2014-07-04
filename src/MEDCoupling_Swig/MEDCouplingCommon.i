@@ -295,6 +295,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeRangesFromTypeDistribution;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildUnionOf2DMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildUnionOf3DMesh;
+%newobject ParaMEDMEM::MEDCouplingUMesh::orderConsecutiveCells1D;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTreeFast;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree2DQuadratic;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic;
@@ -1658,6 +1659,7 @@ namespace ParaMEDMEM
     DataArrayInt *convertNodalConnectivityToStaticGeoTypeMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf2DMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *orderConsecutiveCells1D() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTreeFast() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree2DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
@@ -2512,6 +2514,19 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(mret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellNb1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(cellNb2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      static PyObject *Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *mesh1D, double eps) throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingUMesh *splitMesh2D(0),*splitMesh1D(0);
+        DataArrayInt *cellIdInMesh2D(0),*cellIdInMesh1D(0);
+        MEDCouplingUMesh::Intersect2DMeshWith1DLine(mesh2D,mesh1D,eps,splitMesh2D,splitMesh1D,cellIdInMesh2D,cellIdInMesh1D);
+        PyObject *ret(PyTuple_New(4));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(splitMesh2D),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(splitMesh1D),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(cellIdInMesh2D),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(cellIdInMesh1D),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 

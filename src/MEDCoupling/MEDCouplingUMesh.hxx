@@ -242,6 +242,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static void ComputeVecAndPtOfFace(double eps, const double *coords, const int *begin, const int *end, double *v, double *p);
     MEDCOUPLING_EXPORT static void TryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2);
+    MEDCOUPLING_EXPORT static void Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D, const MEDCouplingUMesh *mesh1D,
+                                                             double eps, MEDCouplingUMesh *&splitMesh2D, MEDCouplingUMesh *&splitMesh1D, DataArrayInt *&cellIdInMesh2D, DataArrayInt *&cellIdInMesh1D);
     MEDCOUPLING_EXPORT static bool BuildConvexEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, DataArrayInt *nodalConnecOut);
     MEDCOUPLING_EXPORT static bool RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0);
     MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
@@ -264,6 +266,7 @@ namespace ParaMEDMEM
                                                       DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr);
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf2DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf3DMesh() const;
+    MEDCOUPLING_EXPORT DataArrayInt *orderConsecutiveCells1D() const;
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy);
@@ -308,6 +311,7 @@ namespace ParaMEDMEM
     static DataArrayInt *ComputeSpreadZoneGraduallyFromSeedAlg(std::vector<bool>& fetched, const int *seedBg, const int *seedEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn, int nbOfDepthPeeling, int& nbOfDepthPeelingPerformed);
     static void FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, const int *conn, const double *coo, double *zipFrmt);
     static void AppendExtrudedCell(const int *connBg, const int *connEnd, int nbOfNodesPerLev, bool isQuad, std::vector<int>& ret);
+    static void Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const MEDCouplingUMesh *m2Desc, double eps, std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2, std::vector<double>& addCoo, std::map<int,int>& mergedNodes);
     static void IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
                                             std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2,
                                             MEDCouplingUMesh *& m1Desc, DataArrayInt *&desc1, DataArrayInt *&descIndx1, DataArrayInt *&revDesc1, DataArrayInt *&revDescIndx1,

@@ -137,17 +137,17 @@ void ComposedEdge::initLocations() const
 }
 
 /**
- * Reset the status of all edges (OUT, IN, ON) because they were potentially assignated
+ * Reset the status of all edges (OUT, IN, ON) because they were potentially assigned
  * by the previous candidate processing.
  */
-void ComposedEdge::initLocationsWithOther(const ComposedEdge& other) const
+void ComposedEdge::InitLocationsWithOther(const ComposedEdge& first, const ComposedEdge& other)
 {
   std::set<Edge *> s1,s2;
-  for(std::list<ElementaryEdge *>::const_iterator it1=_sub_edges.begin();it1!=_sub_edges.end();it1++)
+  for(std::list<ElementaryEdge *>::const_iterator it1=first._sub_edges.begin();it1!=first._sub_edges.end();it1++)
     s1.insert((*it1)->getPtr());
   for(std::list<ElementaryEdge *>::const_iterator it2=other._sub_edges.begin();it2!=other._sub_edges.end();it2++)
     s2.insert((*it2)->getPtr());
-  initLocations();
+  first.initLocations();
   other.initLocations();
   std::vector<Edge *> s3;
   std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<Edge *> >(s3));

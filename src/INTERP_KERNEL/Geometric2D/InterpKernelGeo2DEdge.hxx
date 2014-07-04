@@ -82,6 +82,9 @@ namespace INTERP_KERNEL
     bool isEnd2(unsigned rk) const;
     void clear();
     unsigned getNumberOfAssociations() const;
+    void updateMergedNodes(int e1Start, int e1End, int e2Start, int e2End, std::map<int,int>& mergedNodes);
+  private:
+    static void PushInMap(int key, int value, std::map<int,int>& mergedNodes);
   private:
     unsigned _ass1Start1  : 1;
     unsigned _ass1End1    : 1;
