@@ -1808,6 +1808,11 @@ MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(const std::string&
   return new MEDCouplingCartesianAMRMesh(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop);
 }
 
+MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::New(MEDCouplingIMesh *mesh)
+{
+  return new MEDCouplingCartesianAMRMesh(mesh);
+}
+
 const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRMesh::getFather() const
 {
   //I'm god father ! No father !
@@ -1923,6 +1928,10 @@ MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const MEDCouplingCartes
 
 MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                          const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop):MEDCouplingCartesianAMRMeshGen(meshName,spaceDim,nodeStrctStart,nodeStrctStop,originStart,originStop,dxyzStart,dxyzStop)
+{
+}
+
+MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh):MEDCouplingCartesianAMRMeshGen(mesh)
 {
 }
 

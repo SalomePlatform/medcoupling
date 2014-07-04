@@ -5143,6 +5143,7 @@ namespace ParaMEDMEM
   class MEDCouplingCartesianAMRMesh : public MEDCouplingCartesianAMRMeshGen
   {
   public:
+    static MEDCouplingCartesianAMRMesh *New(MEDCouplingIMesh *mesh) throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
@@ -5175,7 +5176,12 @@ namespace ParaMEDMEM
 
       MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
       {
-        return ParaMEDMEM_MEDCouplingCartesianAMRMesh_New(meshName,spaceDim,nodeStrct,origin,dxyz);
+        return ParaMEDMEM_MEDCouplingCartesianAMRMesh_New__SWIG_1(meshName,spaceDim,nodeStrct,origin,dxyz);
+      }
+
+      MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDCouplingCartesianAMRMesh::New(mesh);
       }
     }
   };

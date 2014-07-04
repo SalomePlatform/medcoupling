@@ -42,6 +42,7 @@ namespace ParaMEDMEM
     std::vector<NatureOfField> getNatures() const;
     std::vector<DataArrayDouble *> retrieveFields() const;
     const DataArrayDouble *getFieldWithName(const std::string& name) const;
+    DataArrayDouble *getFieldWithName(const std::string& name);
     DataArrayDouble *at(int pos);
     const DataArrayDouble *at(int pos) const;
     int size() const;
@@ -139,6 +140,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfLevels() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const;

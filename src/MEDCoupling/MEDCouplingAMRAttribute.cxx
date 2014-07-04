@@ -146,6 +146,25 @@ const DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::st
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
+DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::string& name)
+{
+  std::vector<std::string> vec;
+  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::iterator it=_arrs.begin();it!=_arrs.end();it++)
+    {
+      DataArrayDouble *obj((*it).first);
+      if(obj)
+        {
+          if(obj->getName()==name)
+            return obj;
+          else
+            vec.push_back(obj->getName());
+        }
+    }
+  std::ostringstream oss; oss << "DataArrayDoubleCollection::getFieldWithName non const : fieldName \"" << name << "\" does not exist in this ! Possibilities are :";
+  std::copy(vec.begin(),vec.end(),std::ostream_iterator<std::string>(oss," "));
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
 DataArrayDouble *DataArrayDoubleCollection::at(int pos)
 {
   if(pos<0 || pos>=(int)_arrs.size())
@@ -275,6 +294,12 @@ DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pai
   for(std::size_t i=0;i<sz;i++)
     {
       const std::pair<std::string,int>& info(fieldNames[i]);
+      if(info.second<=0)
+        {
+          std::ostringstream oss; oss << "DataArrayDoubleCollection constructor : At pos #" << i << " the array with name \"" << info.first << "\" as a number of components equal to " << info.second;
+          oss << " It has to be >=1 !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
       _arrs[i].first=DataArrayDouble::New();
       _arrs[i].first->alloc(0,info.second);
       _arrs[i].first->setName(info.first);
@@ -858,7 +883,21 @@ const DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianA
           return ddc.getFieldWithName(fieldName);
         }
     }
-  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::retrieveFieldOn : the mesh specified is not in the progeny of this !");
+  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::getFieldOn : the mesh specified is not in the progeny of this !");
+}
+
+DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+    {
+      int tmp(-1);
+      if((*it)->presenceOf(mesh,tmp))
+        {
+          DataArrayDoubleCollection& ddc((*it)->getFieldsAt(tmp));
+          return ddc.getFieldWithName(fieldName);
+        }
+    }
+  throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::getFieldOn non const : the mesh specified is not in the progeny of this !");
 }
 
 /*!

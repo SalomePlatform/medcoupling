@@ -232,6 +232,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(MEDCouplingIMesh *mesh);
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT int getAbsoluteLevel() const;
@@ -246,6 +247,7 @@ namespace ParaMEDMEM
     MEDCouplingCartesianAMRMesh(const MEDCouplingCartesianAMRMesh& other);
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
+    MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh);
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
     ~MEDCouplingCartesianAMRMesh();
   };

@@ -15148,7 +15148,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ids=b.getIdsInRange(0.4,0.7)
         f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(im) ; f.setName("toto") ; arr=DataArrayDouble(im.getNumberOfCells()) ; arr[:]=0. ; arr[ids]=1. ; f.setArray(arr)
         # f.write("test.vti")
-        amr=MEDCouplingCartesianAMRMesh("mesh",2,[51,51],[0.,0.],[0.04,0.04])
+        amr=MEDCouplingCartesianAMRMesh(MEDCouplingIMesh("mesh",2,[51,51],[0.,0.],[0.04,0.04]))
         arr2=DataArrayByte(im.getNumberOfCells()) ; arr2[:]=0 ; arr2[ids]=1
         bso=BoxSplittingOptions() ; bso.setEfficiencyGoal(0.5); bso.setEfficiencyThreshold(0.8) ; bso.setMaximumNbOfCellsInPatch(3000) ; bso.setMinimumPatchLength(6) ; bso.setMaximumPatchLength(11)
         amr.createPatchesFromCriterion(bso,arr2,[2,2])
