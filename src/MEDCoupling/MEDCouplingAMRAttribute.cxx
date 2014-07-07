@@ -24,6 +24,7 @@
 #include "MEDCouplingIMesh.hxx"
 
 #include <sstream>
+#include <fstream>
 
 using namespace ParaMEDMEM;
 
@@ -969,7 +970,6 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCo
  */
 MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
-  //tony
   const DataArrayDouble *arr(0);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
@@ -1000,12 +1000,122 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
   return ret.retn();
 }
 
-/*!
- * This method is useful just after a remesh after a time step computation to project values in \a this to the new
- * mesh \a targetGF.
- *
- * This method performs a projection from \a this to a target AMR mesh \a targetGF.
- * This method performs the projection by trying to transfer the finest information to \a targetGF.
+
+std::string MEDCouplingAMRAttribute::writeVTHB(const std::string& fileName) const
+{
+  static const char EXT[]=".vthb";
+  std::string baseName,extName,zeFileName;
+  MEDCouplingMesh::SplitExtension(fileName,baseName,extName);
+  if(extName==EXT)
+    zeFileName=fileName;
+  else
+    { zeFileName=baseName; zeFileName+=EXT; }
+  //
+  std::ofstream ofs(fileName.c_str());
+  ofs << "<VTKFile type=\"vtkOverlappingAMR\" version=\"1.1\" byte_order=\"" << MEDCouplingByteOrderStr() << "\">\n";
+  const MEDCouplingCartesianAMRMesh *gf(getMyGodFather());
+  ofs << "  <vtkOverlappingAMR origin=\"";
+  const MEDCouplingIMesh *gfm(gf->getImageMesh());
+  std::vector<double> orig(gfm->getOrigin());
+  std::vector<double> spacing(gfm->getDXYZ());
+  int dim((int)orig.size());
+  std::copy(orig.begin(),orig.end(),std::ostream_iterator<double>(ofs," ")); ofs << "\" grid_description=\"";
+  for(int i=0;i<dim;i++)
+    {
+      char tmp[2]; tmp[0]='X'+i; tmp[1]='\0';
+      ofs << tmp;
+    }
+  ofs << "\">\n";
+  //
+  int maxLev(gf->getMaxNumberOfLevelsRelativeToThis()),kk(0);
+  for(int i=0;i<maxLev;i++)
+    {
+      std::vector<MEDCouplingCartesianAMRPatchGen *> patches(gf->retrieveGridsAt(i));
+      std::size_t sz(patches.size());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > patchesSafe(sz);
+      for(std::size_t j=0;j<sz;j++)
+        patchesSafe[j]=patches[j];
+      if(sz==0)
+        continue;
+      ofs << "    <Block level=\"" << i << "\" spacing=\"";
+      std::copy(spacing.begin(),spacing.end(),std::ostream_iterator<double>(ofs," "));
+      ofs << "\">\n";
+      if(i!=maxLev-1)
+        {
+          std::vector<int> factors(patches[0]->getMesh()->getFactors());
+          for(int k=0;k<dim;k++)
+            spacing[k]*=1./((double) factors[k]);
+        }
+      std::size_t jj(0);
+      for(std::vector<MEDCouplingCartesianAMRPatchGen *>::const_iterator it=patches.begin();it!=patches.end();it++,jj++,kk++)
+        {
+          ofs << "      <DataSet index=\"" << jj << "\" amr_box=\"";
+          const MEDCouplingCartesianAMRPatch *patchCast(dynamic_cast<const MEDCouplingCartesianAMRPatch *>(*it));
+          const MEDCouplingCartesianAMRMeshGen *mesh((*it)->getMesh());
+          if(patchCast)
+            {
+              const std::vector< std::pair<int,int> >& bltr(patchCast->getBLTRRangeRelativeToGF());
+              for(int pp=0;pp<dim;pp++)
+                ofs << bltr[pp].first << " " << bltr[pp].second-1 << " ";
+            }
+          else
+            {
+              const MEDCouplingIMesh *im((*it)->getMesh()->getImageMesh());
+              std::vector<int> cgs(im->getCellGridStructure());
+              for(int pp=0;pp<dim;pp++)
+                ofs << "0 " << cgs[pp]-1 << " ";
+            }
+          ofs << "\" file=\"";
+          //
+          int tmp(-1);
+          if(_levs[i]->presenceOf((*it)->getMesh(),tmp))
+            {
+              const DataArrayDoubleCollection& ddc(_levs[i]->getFieldsAt(tmp));
+              std::vector<DataArrayDouble *> arrs(ddc.retrieveFields());
+              std::size_t nbFields(arrs.size());
+              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrsSafe(nbFields),arrs2Safe(nbFields);
+              std::vector< const MEDCouplingFieldDouble *> fields(nbFields);
+              std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > fieldsSafe(nbFields);
+              for(std::size_t pp=0;pp<nbFields;pp++)
+                arrsSafe[pp]=arrs[pp];
+              for(std::size_t pp=0;pp<nbFields;pp++)
+                {
+                  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
+                  std::vector<int> cgs(mesh->getImageMesh()->getCellGridStructure()),cgsWG(im->getCellGridStructure());
+                  arrs2Safe[pp]=DataArrayDouble::New();
+                  arrs2Safe[pp]->alloc(mesh->getImageMesh()->getNumberOfCells(),arrs[pp]->getNumberOfComponents());
+                  std::vector< std::pair<int,int> > cgs2(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(cgs));
+                  MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(cgs2,_ghost_lev);
+                  std::vector<int> fakeFactors(mesh->getImageMesh()->getSpaceDimension(),1);
+                  MEDCouplingIMesh::SpreadCoarseToFine(arrs[pp],cgsWG,arrs2Safe[pp],cgs2,fakeFactors);
+                  arrs2Safe[pp]->copyStringInfoFrom(*arrs[pp]);
+                  //
+                  fieldsSafe[pp]=MEDCouplingFieldDouble::New(ON_CELLS); fields[pp]=fieldsSafe[pp];
+                  fieldsSafe[pp]->setMesh(mesh->getImageMesh());
+                  fieldsSafe[pp]->setArray(arrs2Safe[pp]);
+                  fieldsSafe[pp]->setName(arrs[pp]->getName());
+                }
+              std::ostringstream vtiFileName; vtiFileName << baseName << "_" << kk << ".vti";
+              MEDCouplingFieldDouble::WriteVTK(vtiFileName.str(),fields,true);
+              //
+              ofs << vtiFileName.str() << "\">\n";
+              ofs << "      \n      </DataSet>\n";
+            }
+        }
+      ofs << "    </Block>\n";
+    }
+  //
+  ofs << "  </vtkOverlappingAMR>\n";
+  ofs << "</VTKFile>\n";
+  return zeFileName;
+}
+
+  /*!
+   * This method is useful just after a remesh after a time step computation to project values in \a this to the new
+   * mesh \a targetGF.
+   *
+   * This method performs a projection from \a this to a target AMR mesh \a targetGF.
+   * This method performs the projection by trying to transfer the finest information to \a targetGF.
  * \b WARNING this method does not update the ghost zone, if any.
  * The level0 of \a this god father must have the same structure than those of \a targetGF.
  *

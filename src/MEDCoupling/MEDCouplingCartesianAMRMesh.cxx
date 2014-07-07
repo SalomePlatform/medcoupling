@@ -193,6 +193,43 @@ bool MEDCouplingCartesianAMRPatch::isInMyNeighborhoodDiffLev(const MEDCouplingCa
   return IsInMyNeighborhood(ghostLev>0?1:0,thispp,otherpp);//1 not ghostLev ! It is not a bug ( I hope :) ) ! Because as \a this is a refinement of \a other ghostLev is supposed to be <= factors
 }
 
+std::vector< std::pair<int,int> > MEDCouplingCartesianAMRPatch::getBLTRRangeRelativeToGF() const
+{
+  std::vector< std::pair<int,int> > ret(_bl_tr);
+  const MEDCouplingCartesianAMRMeshGen *mesh(getMesh());
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::getBLTRRangeRelativeToGF : not valid !");
+  const MEDCouplingCartesianAMRMeshGen *fath(mesh->getFather());
+  if(!fath)
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch::getBLTRRangeRelativeToGF : not valid 2 !");
+  std::vector<int> factors(fath->getFactors());
+  std::size_t sz(ret.size());
+  for(std::size_t ii=0;ii<sz;ii++)
+    {
+      ret[ii].first*=factors[ii];
+      ret[ii].second*=factors[ii];
+    }
+  const MEDCouplingCartesianAMRMeshGen *oldFather(fath);
+  fath=oldFather->getFather();
+  while(fath)
+    {
+      int pos(fath->getPatchIdFromChildMesh(oldFather));
+      const MEDCouplingCartesianAMRPatch *p(fath->getPatch(pos));
+      const std::vector< std::pair<int,int> >& tmp(p->getBLTRRange());
+      const std::vector<int>& factors2(fath->getFactors());
+      std::transform(factors.begin(),factors.end(),factors2.begin(),factors.begin(),std::multiplies<int>());
+      for(std::size_t ii=0;ii<sz;ii++)
+        {
+          int delta(ret[ii].second-ret[ii].first);
+          ret[ii].first+=tmp[ii].first*factors[ii];
+          ret[ii].second=ret[ii].first+delta;
+        }
+      oldFather=fath;
+      fath=oldFather->getFather();
+    }
+  return ret;
+}
+
 std::vector<int> MEDCouplingCartesianAMRPatch::computeCellGridSt() const
 {
   const MEDCouplingCartesianAMRMeshGen *m(getMesh());

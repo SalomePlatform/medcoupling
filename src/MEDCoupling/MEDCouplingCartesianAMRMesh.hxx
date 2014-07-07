@@ -82,6 +82,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isInMyNeighborhoodDiffLev(const MEDCouplingCartesianAMRPatch *other, int ghostLev) const;
     // basic set/get
     MEDCOUPLING_EXPORT const std::vector< std::pair<int,int> >& getBLTRRange() const { return _bl_tr; }
+    MEDCOUPLING_EXPORT std::vector< std::pair<int,int> > getBLTRRangeRelativeToGF() const;
     MEDCOUPLING_EXPORT std::vector<int> computeCellGridSt() const;
     MEDCOUPLING_EXPORT static bool IsInMyNeighborhood(int ghostLev, const std::vector< std::pair<int,int> >& p1, const std::vector< std::pair<int,int> >& p2);
     //

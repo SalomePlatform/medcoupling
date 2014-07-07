@@ -15626,6 +15626,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertTrue(att.getFieldOn(amr[1].getMesh(),"YY").isEqualWithoutConsideringStr(exp1,1e-12))
             pass
         pass
+    
+    def testSwig2AMR14(self):
+        """ non regression linked to VTHB write."""
+        fact=[2,2] ; fact2=[3,3]
+        amr=MEDCouplingCartesianAMRMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
+        amr.addPatch([(1,3),(0,2)],fact)
+        amr.addPatch([(1,3),(3,4)],fact)
+        amr[0].addPatch([(1,3),(1,3)],fact2)
+        amr[1].addPatch([(1,3),(1,2)],fact2)
+        att=MEDCouplingAMRAttribute(amr,[("YY",1)],2)
+        att.alloc()
+        att.getFieldOn(amr,"YY").iota(0.1)
+        att.getFieldOn(amr[0].getMesh(),"YY").iota(0.2)
+        att.getFieldOn(amr[1].getMesh(),"YY").iota(0.3)
+        att.getFieldOn(amr[0][0].getMesh(),"YY").iota(0.4)
+        att.getFieldOn(amr[1][0].getMesh(),"YY").iota(0.5)
+        self.assertEqual(amr[0].getBLTRRangeRelativeToGF(),[(2,6),(0,4)])
+        self.assertEqual(amr[1].getBLTRRangeRelativeToGF(),[(2,6),(6,8)])
+        self.assertEqual(amr[0][0].getBLTRRangeRelativeToGF(),[(9,15),(3,9)])
+        self.assertEqual(amr[1][0].getBLTRRangeRelativeToGF(),[(9,15),(21,24)])
+        pass
 
     def testSwig2Intersect2DMeshWith1DLine1(self):
         """A basic test with no colinearity between m1 and m2."""

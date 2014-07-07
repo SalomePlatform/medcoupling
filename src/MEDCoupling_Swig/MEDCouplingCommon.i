@@ -4904,6 +4904,12 @@ namespace ParaMEDMEM
         return convertFromVectorPairInt(ret);
       }
 
+      PyObject *getBLTRRangeRelativeToGF() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< std::pair<int,int> > ret(self->getBLTRRangeRelativeToGF());
+        return convertFromVectorPairInt(ret);
+      }
+
       void addPatch(PyObject *bottomLeftTopRight, const std::vector<int>& factors) throw(INTERP_KERNEL::Exception)
       {
         std::vector< std::pair<int,int> > inp;
@@ -5222,6 +5228,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) throw(INTERP_KERNEL::Exception);
     MEDCouplingAMRAttribute *projectTo(MEDCouplingCartesianAMRMesh *targetGF) const throw(INTERP_KERNEL::Exception);
+    std::string writeVTHB(const std::string& fileName) const throw(INTERP_KERNEL::Exception);
     %extend
     {
       static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, PyObject *fieldNames, int ghostLev) throw(INTERP_KERNEL::Exception)
