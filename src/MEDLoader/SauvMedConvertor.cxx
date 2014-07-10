@@ -2373,14 +2373,12 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
 //================================================================================
 /*!
  * \brief Makes ParaMEDMEM::MEDFileData from self
- *  \param [in] fix2DOri - to fix or not orientation of faces in 3D space
- *  \return ParaMEDMEM::MEDFileData* - conversion result
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS(bool fix2DOri)
+ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh(fix2DOri);
+  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh();
   MEDCouplingAutoRefCountObjectPtr< MEDFileFields > fields = makeMEDFileFields(mesh);
 
   MEDCouplingAutoRefCountObjectPtr< MEDFileMeshes > meshes = MEDFileMeshes::New();
@@ -2398,7 +2396,7 @@ ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS(bool fix2DOri)
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh(bool fix2DOri)
+ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
 {
   // check if all needed piles are present
   checkDataAvailability();
@@ -2410,7 +2408,7 @@ ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh(bool fix2DOri)
   if ( _spaceDim == 2 || _spaceDim == 1 )
     orientElements2D();
   else if ( _spaceDim == 3 )
-    orientElements3D( fix2DOri );
+    orientElements3D();
 
   // process groups
   decreaseHierarchicalDepthOfSubgroups();
@@ -2685,42 +2683,43 @@ void IntermediateMED::orientElements2D()
       // --------------------------
       // orient faces clockwise
       // --------------------------
-      int iQuad = isQuadratic ? 2 : 1;
-      for ( elemIt = faces->begin(), elemEnd = faces->end(); elemIt != elemEnd; elemIt++ )
-        {
-          // look for index of the most left node
-          int iLeft = 0, iNode, nbNodes = elemIt->_nodes.size() / iQuad;
-          double x, minX = nodeCoords( elemIt->_nodes[0] )[0];
-          for ( iNode = 1; iNode < nbNodes; ++iNode )
-            if (( x = nodeCoords( elemIt->_nodes[ iNode ])[ 0 ]) < minX )
-              minX = x, iLeft = iNode;
+      // COMMENTED for issue 0022612 note 17739
+      // int iQuad = isQuadratic ? 2 : 1;
+      // for ( elemIt = faces->begin(), elemEnd = faces->end(); elemIt != elemEnd; elemIt++ )
+      //   {
+      //     // look for index of the most left node
+      //     int iLeft = 0, iNode, nbNodes = elemIt->_nodes.size() / iQuad;
+      //     double x, minX = nodeCoords( elemIt->_nodes[0] )[0];
+      //     for ( iNode = 1; iNode < nbNodes; ++iNode )
+      //       if (( x = nodeCoords( elemIt->_nodes[ iNode ])[ 0 ]) < minX )
+      //         minX = x, iLeft = iNode;
 
-          // indeces of the nodes neighboring the most left one
-          int iPrev = ( iLeft - 1 < 0 ) ? nbNodes - 1 : iLeft - 1;
-          int iNext = ( iLeft + 1 == nbNodes ) ? 0 : iLeft + 1;
-          // find components of prev-left and left-next vectors
-          double xP = nodeCoords( elemIt->_nodes[ iPrev ])[ 0 ];
-          double yP = nodeCoords( elemIt->_nodes[ iPrev ])[ 1 ];
-          double xN = nodeCoords( elemIt->_nodes[ iNext ])[ 0 ];
-          double yN = nodeCoords( elemIt->_nodes[ iNext ])[ 1 ];
-          double xL = nodeCoords( elemIt->_nodes[ iLeft ])[ 0 ];
-          double yL = nodeCoords( elemIt->_nodes[ iLeft ])[ 1 ];
-          double xPL = xL - xP, yPL = yL - yP; // components of prev-left vector
-          double xLN = xN - xL, yLN = yN - yL; // components of left-next vector
-          // normalise y of the vectors
-          double modPL = sqrt ( xPL * xPL + yPL * yPL );
-          double modLN = sqrt ( xLN * xLN + yLN * yLN );
-          if ( modLN > std::numeric_limits<double>::min() &&
-               modPL > std::numeric_limits<double>::min() )
-            {
-              yPL /= modPL;
-              yLN /= modLN;
-              // summary direction of neighboring links must be positive
-              bool clockwise = ( yPL + yLN > 0 );
-              if ( !clockwise )
-                reverse( *elemIt, swapVec );
-            }
-        }
+      //     // indeces of the nodes neighboring the most left one
+      //     int iPrev = ( iLeft - 1 < 0 ) ? nbNodes - 1 : iLeft - 1;
+      //     int iNext = ( iLeft + 1 == nbNodes ) ? 0 : iLeft + 1;
+      //     // find components of prev-left and left-next vectors
+      //     double xP = nodeCoords( elemIt->_nodes[ iPrev ])[ 0 ];
+      //     double yP = nodeCoords( elemIt->_nodes[ iPrev ])[ 1 ];
+      //     double xN = nodeCoords( elemIt->_nodes[ iNext ])[ 0 ];
+      //     double yN = nodeCoords( elemIt->_nodes[ iNext ])[ 1 ];
+      //     double xL = nodeCoords( elemIt->_nodes[ iLeft ])[ 0 ];
+      //     double yL = nodeCoords( elemIt->_nodes[ iLeft ])[ 1 ];
+      //     double xPL = xL - xP, yPL = yL - yP; // components of prev-left vector
+      //     double xLN = xN - xL, yLN = yN - yL; // components of left-next vector
+      //     // normalise y of the vectors
+      //     double modPL = sqrt ( xPL * xPL + yPL * yPL );
+      //     double modLN = sqrt ( xLN * xLN + yLN * yLN );
+      //     if ( modLN > std::numeric_limits<double>::min() &&
+      //          modPL > std::numeric_limits<double>::min() )
+      //       {
+      //         yPL /= modPL;
+      //         yLN /= modLN;
+      //         // summary direction of neighboring links must be positive
+      //         bool clockwise = ( yPL + yLN > 0 );
+      //         if ( !clockwise )
+      //           reverse( *elemIt, swapVec );
+      //       }
+      //   }
     }
 }
 
@@ -2730,11 +2729,11 @@ void IntermediateMED::orientElements2D()
  */
 //================================================================================
 
-void IntermediateMED::orientElements3D(bool fix2DOri)
+void IntermediateMED::orientElements3D()
 {
   // set _reverse flags of faces
-  if ( fix2DOri )
-    orientFaces3D();
+  // COMMENTED for issue 0022612 note 17739
+  //orientFaces3D();
 
   // -----------------
   // fix connectivity
@@ -2766,7 +2765,8 @@ void IntermediateMED::orientElements3D(bool fix2DOri)
     }
   }
 
-  orientVolumes();
+  // COMMENTED for issue 0022612 note 17739
+  //orientVolumes();
 }
 
 //================================================================================
