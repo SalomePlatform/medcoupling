@@ -9823,7 +9823,8 @@ DataArrayInt *DataArrayInt::buildSubstractionOptimized(const DataArrayInt *other
   checkAllocated(); other->checkAllocated();
   if(getNumberOfComponents()!=1) throw INTERP_KERNEL::Exception(MSG);
   if(other->getNumberOfComponents()!=1) throw INTERP_KERNEL::Exception(MSG);
-  const int *pt1Bg(begin()),*pt1End(end()),*pt2Bg(other->begin()),*pt2End(other->end()),*work1(pt1Bg),*work2(pt2Bg);
+  const int *pt1Bg(begin()),*pt1End(end()),*pt2Bg(other->begin()),*pt2End(other->end());
+  const int *work1(pt1Bg),*work2(pt2Bg);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(;work1!=pt1End;work1++)
     {
