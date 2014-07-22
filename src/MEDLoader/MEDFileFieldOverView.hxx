@@ -90,10 +90,10 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void retrieveFamilyIdsOnNodes(DataArrayInt *& famIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT void retrieveNumberIdsOnNodes(DataArrayInt *& numIds, bool& isWithoutCopy) const;
     MEDLOADER_EXPORT std::vector< INTERP_KERNEL::NormalizedCellType > getGeoTypes() const;
-    void setFamilyIdsOnCells(DataArrayInt *famIds, bool isNoCopy);
-    void setNumberIdsOnCells(DataArrayInt *numIds, bool isNoCopy);
-    void setFamilyIdsOnNodes(DataArrayInt *famIds, bool isNoCopy);
-    void setNumberIdsOnNodes(DataArrayInt *numIds, bool isNoCopy);
+    void setFamilyIdsOnCells(DataArrayInt *famIds);
+    void setNumberIdsOnCells(DataArrayInt *numIds);
+    void setFamilyIdsOnNodes(DataArrayInt *famIds);
+    void setNumberIdsOnNodes(DataArrayInt *numIds);
     virtual void selectPartOfNodes(const DataArrayInt *pflNodes) = 0;
     virtual MEDMeshMultiLev *prepare() const = 0;
     int getNumberOfCells(INTERP_KERNEL::NormalizedCellType t) const;
@@ -115,13 +115,9 @@ namespace ParaMEDMEM
     int _nb_nodes;
     //
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_fam_ids;
-    bool _cell_fam_ids_nocpy;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_num_ids;
-    bool _cell_num_ids_nocpy;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_fam_ids;
-    bool _node_fam_ids_nocpy;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_num_ids;
-    bool _node_num_ids_nocpy;
   public:
     MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     MEDLOADER_EXPORT static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
@@ -171,9 +167,7 @@ namespace ParaMEDMEM
   protected:
     bool _is_internal;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _face_fam_ids;
-    bool _face_fam_ids_nocpy;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _face_num_ids;
-    bool _face_num_ids_nocpy;
   };
 
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
