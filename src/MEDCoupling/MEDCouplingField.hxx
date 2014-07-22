@@ -86,7 +86,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     // for MED file RW
     MEDCOUPLING_EXPORT int getNumberOfTuplesExpectedRegardingCode(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
     MEDCOUPLING_EXPORT virtual void reprQuickOverview(std::ostream& stream) const = 0;

@@ -52,12 +52,10 @@ std::size_t DenseMatrix::getHeapMemorySizeWithoutChildren() const
   return sizeof(DenseMatrix);
 }
 
-std::vector<const BigMemoryObject *> DenseMatrix::getDirectChildren() const
+std::vector<const BigMemoryObject *> DenseMatrix::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  const DataArrayDouble *pt(_data);
-  if(pt)
-    ret.push_back(pt);
+  ret.push_back((const DataArrayDouble *)_data);
   return ret;
 }
 

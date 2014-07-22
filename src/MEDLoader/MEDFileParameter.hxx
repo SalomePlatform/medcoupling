@@ -63,7 +63,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT double getValue() const { return _arr; }
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT void readValue(med_idt fid, const std::string& name);
     MEDLOADER_EXPORT std::string simpleRepr() const;
   protected:
@@ -106,7 +106,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
@@ -126,7 +126,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileParameterMultiTS *deepCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
@@ -158,7 +158,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileParameters *New();
     MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileParameters *deepCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;

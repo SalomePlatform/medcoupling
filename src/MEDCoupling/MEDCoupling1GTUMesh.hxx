@@ -96,7 +96,7 @@ namespace ParaMEDMEM
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     // overload of MEDCouplingMesh
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED; }
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
@@ -186,7 +186,7 @@ namespace ParaMEDMEM
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     // overload of MEDCouplingMesh
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED; }
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;

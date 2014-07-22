@@ -53,15 +53,12 @@ std::size_t MEDFileData::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<const BigMemoryObject *> MEDFileData::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileData::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  if((const MEDFileFields *)_fields)
-    ret.push_back((const MEDFileFields *)_fields);
-  if((const MEDFileMeshes *)_meshes)
-    ret.push_back((const MEDFileMeshes *)_meshes);
-  if((const MEDFileParameters *)_params)
-    ret.push_back((const MEDFileParameters *)_params);
+  ret.push_back((const MEDFileFields *)_fields);
+  ret.push_back((const MEDFileMeshes *)_meshes);
+  ret.push_back((const MEDFileParameters *)_params);
   return ret;
 
 }

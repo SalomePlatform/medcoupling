@@ -86,7 +86,7 @@ std::size_t SauvReader::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<const BigMemoryObject *> SauvReader::getDirectChildren() const
+std::vector<const BigMemoryObject *> SauvReader::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }

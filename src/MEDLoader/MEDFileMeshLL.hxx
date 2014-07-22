@@ -43,7 +43,7 @@ namespace ParaMEDMEM
   public:
     MEDFileMeshL2();
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     const char *getName() const { return _name.getReprForWrite(); }
     const char *getDescription() const { return _description.getReprForWrite(); }
     const char *getUnivName() const { return _univ_name.getReprForWrite(); }
@@ -130,7 +130,7 @@ namespace ParaMEDMEM
     operator MEDCouplingUMesh *() const;
     void operator=(MEDCouplingUMesh *m);
     void updateTime() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
   private:
     const MEDFileUMeshSplitL1 *_st;
@@ -154,7 +154,7 @@ namespace ParaMEDMEM
     void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileUMeshAggregateCompute deepCpy(DataArrayDouble *coords) const;
     bool isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
@@ -186,7 +186,7 @@ namespace ParaMEDMEM
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
     void setName(const std::string& name);
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileUMeshSplitL1 *deepCpy(DataArrayDouble *coords) const;
     void setCoords(DataArrayDouble *coords);
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;

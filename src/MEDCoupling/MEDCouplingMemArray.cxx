@@ -120,7 +120,7 @@ std::size_t DataArray::getHeapMemorySizeWithoutChildren() const
   return sz1+sz2+sz3;
 }
 
-std::vector<const BigMemoryObject *> DataArray::getDirectChildren() const
+std::vector<const BigMemoryObject *> DataArray::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }

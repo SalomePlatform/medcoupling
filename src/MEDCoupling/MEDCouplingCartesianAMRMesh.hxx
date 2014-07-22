@@ -60,7 +60,7 @@ namespace ParaMEDMEM
     const MEDCouplingCartesianAMRMeshGen *getMeshSafe() const;
     MEDCouplingCartesianAMRMeshGen *getMeshSafe();
   private:
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _mesh;
   };
@@ -202,7 +202,7 @@ namespace ParaMEDMEM
     virtual void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<int>& ret) const = 0;
   protected:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void updateTime() const;
   protected:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> _mesh;
@@ -249,7 +249,7 @@ namespace ParaMEDMEM
     MEDCouplingCartesianAMRMesh(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                 const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh);
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     ~MEDCouplingCartesianAMRMesh();
   };
 }

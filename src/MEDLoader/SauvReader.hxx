@@ -52,7 +52,7 @@ class SauvReader : public ParaMEDMEM::RefCountObject
 
  private:
   std::size_t getHeapMemorySizeWithoutChildren() const;
-  std::vector<const BigMemoryObject *> getDirectChildren() const;
+  std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   void readRecord2();
   void readRecord4();
   void readRecord7();

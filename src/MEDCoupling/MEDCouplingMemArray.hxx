@@ -116,7 +116,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void setName(const std::string& name);
     MEDCOUPLING_EXPORT void copyStringInfoFrom(const DataArray& other);
     MEDCOUPLING_EXPORT void copyPartOfStringInfoFrom(const DataArray& other, const std::vector<int>& compoIds);

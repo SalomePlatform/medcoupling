@@ -205,6 +205,16 @@ std::string BigMemoryObject::getHeapMemorySizeStr() const
   return oss.str();
 }
 
+std::vector<const BigMemoryObject *> BigMemoryObject::getDirectChildren() const
+{
+  std::vector<const BigMemoryObject *> ret;
+  std::vector<const BigMemoryObject *> retWithNull(getDirectChildrenWithNull());
+  for(std::vector<const BigMemoryObject *>::const_iterator it=retWithNull.begin();it!=retWithNull.end();it++)
+    if(*it)
+      ret.push_back(*it);
+  return ret;
+}
+
 BigMemoryObject::~BigMemoryObject()
 {
 }

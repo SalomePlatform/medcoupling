@@ -72,7 +72,7 @@ std::size_t MEDFileParameterDouble1TSWTI::getHeapMemorySizeWithoutChildren() con
   return sizeof(MEDFileParameterDouble1TSWTI);
 }
 
-std::vector<const BigMemoryObject *> MEDFileParameterDouble1TSWTI::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameterDouble1TSWTI::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -350,7 +350,7 @@ std::size_t MEDFileParameterDouble1TS::getHeapMemorySizeWithoutChildren() const
   return getHeapMemSizeOfStrings()+sizeof(MEDFileParameterDouble1TS);
 }
 
-std::vector<const BigMemoryObject *> MEDFileParameterDouble1TS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameterDouble1TS::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -486,15 +486,11 @@ std::size_t MEDFileParameterMultiTS::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileParameterMultiTS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameterMultiTS::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS> >::const_iterator it=_param_per_ts.begin();it!=_param_per_ts.end();it++)
-    {
-      const MEDFileParameter1TS *elt(*it);
-      if(elt)
-        ret.push_back(elt);
-    }
+    ret.push_back((const MEDFileParameter1TS *)*it);
   return ret;
 }
 
@@ -742,15 +738,11 @@ std::size_t MEDFileParameters::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileParameters::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileParameters::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS> >::const_iterator it=_params.begin();it!=_params.end();it++)
-    {
-      const MEDFileParameterMultiTS *elt(*it);
-      if(elt)
-        ret.push_back(elt);
-    }
+    ret.push_back((const MEDFileParameterMultiTS *)*it);
   return ret;
 }
 

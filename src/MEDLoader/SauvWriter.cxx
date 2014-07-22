@@ -226,7 +226,7 @@ std::size_t SauvWriter::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<const BigMemoryObject *> SauvWriter::getDirectChildren() const
+std::vector<const BigMemoryObject *> SauvWriter::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }

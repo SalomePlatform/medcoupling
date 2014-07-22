@@ -52,7 +52,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void getTinySerializationInformation(std::vector<int>& tiI, std::vector<double>& tiD) const = 0;
     MEDCOUPLING_EXPORT virtual TypeOfTimeDiscretization getTimeType() const = 0;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT bool isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
     MEDCOUPLING_EXPORT bool isOverllapingWithMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
     MEDCOUPLING_EXPORT bool isAfterMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
@@ -145,7 +145,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingDefinitionTime();
     MEDCOUPLING_EXPORT MEDCouplingDefinitionTime(const std::vector<const MEDCouplingFieldDouble *>& fs, const std::vector<int>& meshRefs, const std::vector<std::vector<int> >& arrRefs);
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void assign(const MEDCouplingDefinitionTime& other);
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingDefinitionTime& other) const;
     MEDCOUPLING_EXPORT double getTimeResolution() const { return _eps; }

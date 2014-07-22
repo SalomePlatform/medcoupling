@@ -47,7 +47,7 @@ std::size_t MEDFileMeshStruct::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileMeshStruct::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileMeshStruct::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -158,7 +158,7 @@ std::size_t MEDMeshMultiLev::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<const BigMemoryObject *> MEDMeshMultiLev::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDMeshMultiLev::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -1772,12 +1772,10 @@ std::size_t MEDFileField1TSStructItem2::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileField1TSStructItem2::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileField1TSStructItem2::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  const DataArrayInt *pfl(_pfl);
-  if(pfl)
-    ret.push_back(pfl);
+  ret.push_back((const DataArrayInt *)_pfl);
   return ret;
 }
 
@@ -1988,7 +1986,7 @@ std::size_t MEDFileField1TSStructItem::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileField1TSStructItem::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileField1TSStructItem::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDFileField1TSStructItem2 >::const_iterator it=_items.begin();it!=_items.end();it++)
@@ -2171,7 +2169,7 @@ std::size_t MEDFileField1TSStruct::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileField1TSStruct::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileField1TSStruct::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector<MEDFileField1TSStructItem>::const_iterator it=_already_checked.begin();it!=_already_checked.end();it++)
@@ -2313,18 +2311,14 @@ std::size_t MEDFileFastCellSupportComparator::getHeapMemorySizeWithoutChildren()
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileFastCellSupportComparator::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFastCellSupportComparator::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   const MEDFileMeshStruct *mst(_mesh_comp);
   if(mst)
     ret.push_back(mst);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct> >::const_iterator it=_f1ts_cmps.begin();it!=_f1ts_cmps.end();it++)
-    {
-      const MEDFileField1TSStruct *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileField1TSStruct *)*it);
   return ret;
 }
 

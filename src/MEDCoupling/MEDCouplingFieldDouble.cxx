@@ -1939,12 +1939,12 @@ std::size_t MEDCouplingFieldDouble::getHeapMemorySizeWithoutChildren() const
   return MEDCouplingField::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingFieldDouble::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingFieldDouble::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDCouplingField::getDirectChildren());
+  std::vector<const BigMemoryObject *> ret(MEDCouplingField::getDirectChildrenWithNull());
   if(_time_discr)
     {
-      std::vector<const BigMemoryObject *> ret2(_time_discr->getDirectChildren());
+      std::vector<const BigMemoryObject *> ret2(_time_discr->getDirectChildrenWithNull());
       ret.insert(ret.end(),ret2.begin(),ret2.end());
     }
   return ret;

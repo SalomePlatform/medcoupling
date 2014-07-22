@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DenseMatrix *deepCpy() const;
     MEDCOUPLING_EXPORT DenseMatrix *shallowCpy() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void updateTime() const;
     //
     MEDCOUPLING_EXPORT int getNumberOfRows() const { return _nb_rows; }

@@ -38,7 +38,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileData *New();
     MEDLOADER_EXPORT MEDFileData *deepCpy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileFields *getFields() const;
     MEDLOADER_EXPORT MEDFileMeshes *getMeshes() const;
     MEDLOADER_EXPORT MEDFileParameters *getParams() const;

@@ -161,13 +161,11 @@ std::size_t MEDCouplingField::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingField::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingField::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  if(_mesh)
-    ret.push_back(_mesh);
-  if((const MEDCouplingFieldDiscretization *)_type)
-    ret.push_back((const MEDCouplingFieldDiscretization *)_type);
+  ret.push_back(_mesh);
+  ret.push_back((const MEDCouplingFieldDiscretization *)_type);
   return ret;
 }
 

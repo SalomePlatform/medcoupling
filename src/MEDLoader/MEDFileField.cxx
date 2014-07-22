@@ -114,7 +114,7 @@ std::size_t MEDFileFieldLoc::getHeapMemorySizeWithoutChildren() const
   return (_ref_coo.capacity()+_gs_coo.capacity()+_w.capacity())*sizeof(double)+_name.capacity();
 }
 
-std::vector<const BigMemoryObject *> MEDFileFieldLoc::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFieldLoc::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -418,7 +418,7 @@ std::size_t MEDFileFieldPerMeshPerTypePerDisc::getHeapMemorySizeWithoutChildren(
   return _profile.capacity()+_localization.capacity()+5*sizeof(int);
 }
 
-std::vector<const BigMemoryObject *> MEDFileFieldPerMeshPerTypePerDisc::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFieldPerMeshPerTypePerDisc::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -989,15 +989,11 @@ std::size_t MEDFileFieldPerMeshPerType::getHeapMemorySizeWithoutChildren() const
   return _field_pm_pt_pd.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc>);
 }
 
-std::vector<const BigMemoryObject *> MEDFileFieldPerMeshPerType::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFieldPerMeshPerType::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
-    {
-      const MEDFileFieldPerMeshPerTypePerDisc *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileFieldPerMeshPerTypePerDisc *)*it);
   return ret;
 }
 
@@ -1551,15 +1547,11 @@ std::size_t MEDFileFieldPerMesh::getHeapMemorySizeWithoutChildren() const
   return _mesh_name.capacity()+_field_pm_pt.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType >);
 }
 
-std::vector<const BigMemoryObject *> MEDFileFieldPerMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFieldPerMesh::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
-    {
-      const MEDFileFieldPerMeshPerType *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileFieldPerMeshPerType *)*it);
   return ret;
 }
 
@@ -2540,21 +2532,13 @@ std::size_t MEDFileFieldGlobs::getHeapMemorySizeWithoutChildren() const
   return _file_name.capacity()+_pfls.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<DataArrayInt>)+_locs.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc>);
 }
 
-std::vector<const BigMemoryObject *> MEDFileFieldGlobs::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFieldGlobs::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< DataArrayInt > >::const_iterator it=_pfls.begin();it!=_pfls.end();it++)
-    {
-      const DataArrayInt *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const DataArrayInt *)*it);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
-    {
-      const MEDFileFieldLoc *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileFieldLoc *)*it);
   return ret;
 }
 
@@ -3009,11 +2993,10 @@ std::size_t MEDFileFieldGlobsReal::getHeapMemorySizeWithoutChildren() const
   return 0;
 }
 
-std::vector<const BigMemoryObject *> MEDFileFieldGlobsReal::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFieldGlobsReal::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  if((const MEDFileFieldGlobs *)_globals)
-    ret.push_back((const MEDFileFieldGlobs *)_globals);
+  ret.push_back((const MEDFileFieldGlobs *)_globals);
   return ret;
 }
 
@@ -4248,17 +4231,13 @@ std::size_t MEDFileAnyTypeField1TSWithoutSDA::getHeapMemorySizeWithoutChildren()
   return _dt_unit.capacity()+_field_per_mesh.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh >);
 }
 
-std::vector<const BigMemoryObject *> MEDFileAnyTypeField1TSWithoutSDA::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileAnyTypeField1TSWithoutSDA::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   if(getUndergroundDataArray())
     ret.push_back(getUndergroundDataArray());
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
-    {
-      const MEDFileFieldPerMesh *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileFieldPerMesh *)*it);
   return ret;
 }
 
@@ -5647,11 +5626,10 @@ std::size_t MEDFileAnyTypeField1TS::getHeapMemorySizeWithoutChildren() const
   return MEDFileFieldGlobsReal::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDFileAnyTypeField1TS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileAnyTypeField1TS::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDFileFieldGlobsReal::getDirectChildren());
-  if((const MEDFileAnyTypeField1TSWithoutSDA *)_content)
-    ret.push_back((const MEDFileAnyTypeField1TSWithoutSDA *)_content);
+  std::vector<const BigMemoryObject *> ret(MEDFileFieldGlobsReal::getDirectChildrenWithNull());
+  ret.push_back((const MEDFileAnyTypeField1TSWithoutSDA *)_content);
   return ret;
 }
 
@@ -6754,15 +6732,11 @@ std::size_t MEDFileAnyTypeFieldMultiTSWithoutSDA::getHeapMemorySizeWithoutChildr
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileAnyTypeFieldMultiTSWithoutSDA::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileAnyTypeFieldMultiTSWithoutSDA::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
-    {
-      const MEDFileAnyTypeField1TSWithoutSDA *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileAnyTypeField1TSWithoutSDA *)*it);
   return ret;
 }
 
@@ -8232,11 +8206,10 @@ std::size_t MEDFileAnyTypeFieldMultiTS::getHeapMemorySizeWithoutChildren() const
   return MEDFileFieldGlobsReal::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDFileAnyTypeFieldMultiTS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileAnyTypeFieldMultiTS::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDFileFieldGlobsReal::getDirectChildren());
-  if((const MEDFileAnyTypeFieldMultiTSWithoutSDA *)_content)
-    ret.push_back((const MEDFileAnyTypeFieldMultiTSWithoutSDA *)_content);
+  std::vector<const BigMemoryObject *> ret(MEDFileFieldGlobsReal::getDirectChildrenWithNull());
+  ret.push_back((const MEDFileAnyTypeFieldMultiTSWithoutSDA *)_content);
   return ret;
 }
 
@@ -9411,15 +9384,11 @@ std::size_t MEDFileFields::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileFields::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileFields::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
-    {
-      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileAnyTypeFieldMultiTSWithoutSDA *)*it);
   return ret;
 }
 

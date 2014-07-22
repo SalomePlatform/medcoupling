@@ -40,7 +40,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT virtual MEDFileMesh *createNewEmpty() const = 0;
     MEDLOADER_EXPORT virtual MEDFileMesh *deepCpy() const = 0;
     MEDLOADER_EXPORT virtual MEDFileMesh *shallowCpy() const = 0;
@@ -201,7 +201,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *New();
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
     MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
@@ -309,7 +309,7 @@ namespace ParaMEDMEM
     friend class MEDFileMesh;
   public:
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const;
     MEDLOADER_EXPORT int getMaxFamilyIdInArrays() const;
     MEDLOADER_EXPORT int getMinFamilyIdInArrays() const;
@@ -374,7 +374,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileCMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileCMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
     MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
@@ -405,7 +405,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileCurveLinearMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
     MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
@@ -435,7 +435,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName);
     MEDLOADER_EXPORT MEDFileMeshMultiTS *deepCpy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::string getName() const;
     MEDLOADER_EXPORT void setName(const std::string& newMeshName);
     MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
@@ -461,7 +461,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileMeshes *New(const std::string& fileName);
     MEDLOADER_EXPORT MEDFileMeshes *deepCpy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void simpleReprWithoutHeader(std::ostream& oss) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;

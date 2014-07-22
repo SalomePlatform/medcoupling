@@ -51,7 +51,7 @@ namespace ParaMEDMEM
   public:
     MEDLOADER_EXPORT static MEDFileMeshStruct *New(const MEDFileMesh *mesh);
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     const MEDFileMesh *getTheMesh() const { return _mesh; }
     int getNumberOfNodes() const { return _nb_nodes; }
     bool doesManageGeoType(INTERP_KERNEL::NormalizedCellType t) const;
@@ -76,7 +76,7 @@ namespace ParaMEDMEM
   {
   public:
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   public:
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<int>& levs);
@@ -213,7 +213,7 @@ namespace ParaMEDMEM
     void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     //
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     //
     const DataArrayInt *getPfl(const MEDFileFieldGlobsReal *globs) const;
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
@@ -246,7 +246,7 @@ namespace ParaMEDMEM
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     bool operator==(const MEDFileField1TSStructItem& other) const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     bool isEntityCell() const;
     bool isComputed() const { return _computed; }
     TypeOfField getType() const { return _type; }
@@ -273,7 +273,7 @@ namespace ParaMEDMEM
     static MEDFileField1TSStruct *New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
     void checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     bool isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const;
     bool isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt);
@@ -299,7 +299,7 @@ namespace ParaMEDMEM
     bool isEqual(const MEDFileAnyTypeFieldMultiTS *other);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeFieldMultiTS *other);
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   private:
     MEDFileFastCellSupportComparator(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref);
   private:

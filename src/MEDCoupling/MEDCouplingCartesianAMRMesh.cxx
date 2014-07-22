@@ -78,11 +78,10 @@ MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatchGen::getMeshSafe()
     return mesh;
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRPatchGen::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRPatchGen::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  if((const MEDCouplingCartesianAMRMeshGen *)_mesh)
-    ret.push_back((const MEDCouplingCartesianAMRMeshGen *)_mesh);
+  ret.push_back((const MEDCouplingCartesianAMRMeshGen *)_mesh);
   return ret;
 }
 
@@ -1706,16 +1705,12 @@ std::size_t MEDCouplingCartesianAMRMeshGen::getHeapMemorySizeWithoutChildren() c
   return sizeof(MEDCouplingCartesianAMRMeshGen);
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMeshGen::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMeshGen::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  if((const MEDCouplingIMesh *)_mesh)
-    ret.push_back((const MEDCouplingIMesh *)_mesh);
+  ret.push_back((const MEDCouplingIMesh *)_mesh);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
-    {
-      if((const MEDCouplingCartesianAMRPatch*)*it)
-        ret.push_back((const MEDCouplingCartesianAMRPatch*)*it);
-    }
+    ret.push_back((const MEDCouplingCartesianAMRPatch*)*it);
   return ret;
 }
 
@@ -1972,9 +1967,9 @@ MEDCouplingCartesianAMRMesh::MEDCouplingCartesianAMRMesh(MEDCouplingIMesh *mesh)
 {
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMesh::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDCouplingCartesianAMRMeshGen::getDirectChildren());
+  std::vector<const BigMemoryObject *> ret(MEDCouplingCartesianAMRMeshGen::getDirectChildrenWithNull());
   return ret;
 }
 

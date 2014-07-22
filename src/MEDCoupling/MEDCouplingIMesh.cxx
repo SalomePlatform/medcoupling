@@ -821,7 +821,7 @@ std::size_t MEDCouplingIMesh::getHeapMemorySizeWithoutChildren() const
   return MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingIMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingIMesh::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }

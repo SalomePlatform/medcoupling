@@ -111,15 +111,12 @@ std::size_t MEDCouplingCMesh::getHeapMemorySizeWithoutChildren() const
   return MEDCouplingStructuredMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingCMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingCMesh::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  if(_x_array)
-    ret.push_back(_x_array);
-  if(_y_array)
-    ret.push_back(_y_array);
-  if(_z_array)
-    ret.push_back(_z_array);
+  ret.push_back(_x_array);
+  ret.push_back(_y_array);
+  ret.push_back(_z_array);
   return ret;
 }
 

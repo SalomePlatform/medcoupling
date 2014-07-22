@@ -56,7 +56,7 @@ std::size_t MEDFileMesh::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileMesh::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -1990,22 +1990,16 @@ std::size_t MEDFileUMesh::getHeapMemorySizeWithoutChildren() const
   return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDFileMesh::getDirectChildren());
-  if((const DataArrayDouble*)_coords)
-    ret.push_back((const DataArrayDouble*)_coords);
-  if((const DataArrayInt *)_fam_coords)
-    ret.push_back((const DataArrayInt *)_fam_coords);
-  if((const DataArrayInt *)_num_coords)
-    ret.push_back((const DataArrayInt *)_num_coords);
-  if((const DataArrayInt *)_rev_num_coords)
-    ret.push_back((const DataArrayInt *)_rev_num_coords);
-  if((const DataArrayAsciiChar *)_name_coords)
-    ret.push_back((const DataArrayAsciiChar *)_name_coords);
+  std::vector<const BigMemoryObject *> ret(MEDFileMesh::getDirectChildrenWithNull());
+  ret.push_back((const DataArrayDouble*)_coords);
+  ret.push_back((const DataArrayInt *)_fam_coords);
+  ret.push_back((const DataArrayInt *)_num_coords);
+  ret.push_back((const DataArrayInt *)_rev_num_coords);
+  ret.push_back((const DataArrayAsciiChar *)_name_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
-    if((const MEDFileUMeshSplitL1*) *it)
-      ret.push_back((const MEDFileUMeshSplitL1*) *it);
+    ret.push_back((const MEDFileUMeshSplitL1*) *it);
   return ret;
 }
 
@@ -3976,33 +3970,21 @@ std::size_t MEDFileStructuredMesh::getHeapMemorySizeWithoutChildren() const
   return MEDFileMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDFileStructuredMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileStructuredMesh::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDFileMesh::getDirectChildren());
-  if((const DataArrayInt *)_fam_nodes)
-    ret.push_back((const DataArrayInt *)_fam_nodes);
-  if((const DataArrayInt *)_num_nodes)
-    ret.push_back((const DataArrayInt *)_num_nodes);
-  if((const DataArrayAsciiChar *)_names_nodes)
-    ret.push_back((const DataArrayAsciiChar *)_names_nodes);
-  if((const DataArrayInt *)_fam_cells)
-    ret.push_back((const DataArrayInt *)_fam_cells);
-  if((const DataArrayInt *)_num_cells)
-    ret.push_back((const DataArrayInt *)_num_cells);
-  if((const DataArrayAsciiChar *)_names_cells)
-    ret.push_back((const DataArrayAsciiChar *)_names_cells);
-  if((const DataArrayInt *)_fam_faces)
-    ret.push_back((const DataArrayInt *)_fam_faces);
-  if((const DataArrayInt *)_num_faces)
-    ret.push_back((const DataArrayInt *)_num_faces);
-  if((const DataArrayInt *)_rev_num_nodes)
-    ret.push_back((const DataArrayInt *)_rev_num_nodes);
-  if((const DataArrayAsciiChar *)_names_faces)
-    ret.push_back((const DataArrayAsciiChar *)_names_faces);
-  if((const DataArrayInt *)_rev_num_cells)
-    ret.push_back((const DataArrayInt *)_rev_num_cells);
-  if((const MEDCoupling1SGTUMesh*)_faces_if_necessary)
-    ret.push_back((const MEDCoupling1SGTUMesh*)_faces_if_necessary);
+  std::vector<const BigMemoryObject *> ret(MEDFileMesh::getDirectChildrenWithNull());
+  ret.push_back((const DataArrayInt *)_fam_nodes);
+  ret.push_back((const DataArrayInt *)_num_nodes);
+  ret.push_back((const DataArrayAsciiChar *)_names_nodes);
+  ret.push_back((const DataArrayInt *)_fam_cells);
+  ret.push_back((const DataArrayInt *)_num_cells);
+  ret.push_back((const DataArrayAsciiChar *)_names_cells);
+  ret.push_back((const DataArrayInt *)_fam_faces);
+  ret.push_back((const DataArrayInt *)_num_faces);
+  ret.push_back((const DataArrayInt *)_rev_num_nodes);
+  ret.push_back((const DataArrayAsciiChar *)_names_faces);
+  ret.push_back((const DataArrayInt *)_rev_num_cells);
+  ret.push_back((const MEDCoupling1SGTUMesh*)_faces_if_necessary);
   return ret;
 }
 
@@ -5067,11 +5049,10 @@ std::size_t MEDFileCMesh::getHeapMemorySizeWithoutChildren() const
   return MEDFileStructuredMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDFileCMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileCMesh::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDFileStructuredMesh::getDirectChildren());
-  if((const MEDCouplingCMesh *)_cmesh)
-    ret.push_back((const MEDCouplingCMesh *)_cmesh);
+  std::vector<const BigMemoryObject *> ret(MEDFileStructuredMesh::getDirectChildrenWithNull());
+  ret.push_back((const MEDCouplingCMesh *)_cmesh);
   return ret;
 }
 
@@ -5324,11 +5305,10 @@ std::size_t MEDFileCurveLinearMesh::getHeapMemorySizeWithoutChildren() const
   return MEDFileStructuredMesh::getHeapMemorySizeWithoutChildren();
 }
 
-std::vector<const BigMemoryObject *> MEDFileCurveLinearMesh::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileCurveLinearMesh::getDirectChildrenWithNull() const
 {
-  std::vector<const BigMemoryObject *> ret(MEDFileStructuredMesh::getDirectChildren());
-  if((const MEDCouplingCurveLinearMesh *)_clmesh)
-    ret.push_back((const MEDCouplingCurveLinearMesh *)_clmesh);
+  std::vector<const BigMemoryObject *> ret(MEDFileStructuredMesh::getDirectChildrenWithNull());
+  ret.push_back((const MEDCouplingCurveLinearMesh *)_clmesh);
   return ret;
 }
 
@@ -5537,15 +5517,11 @@ std::size_t MEDFileMeshMultiTS::getHeapMemorySizeWithoutChildren() const
   return _mesh_one_ts.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileMesh>);
 }
 
-std::vector<const BigMemoryObject *> MEDFileMeshMultiTS::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileMeshMultiTS::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
-    {
-      const MEDFileMesh *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileMesh *)*it);
   return ret;
 }
 
@@ -5824,15 +5800,11 @@ std::size_t MEDFileMeshes::getHeapMemorySizeWithoutChildren() const
   return _meshes.capacity()*(sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS>));
 }
 
-std::vector<const BigMemoryObject *> MEDFileMeshes::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDFileMeshes::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
-    {
-      const MEDFileMeshMultiTS *cur(*it);
-      if(cur)
-        ret.push_back(cur);
-    }
+    ret.push_back((const MEDFileMeshMultiTS *)*it);
   return ret;
 }
 

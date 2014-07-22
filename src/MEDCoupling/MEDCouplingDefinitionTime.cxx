@@ -114,7 +114,7 @@ std::size_t MEDCouplingDefinitionTimeSlice::getHeapMemorySizeWithoutChildren() c
   return 0;
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingDefinitionTimeSlice::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingDefinitionTimeSlice::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }
@@ -474,7 +474,7 @@ std::size_t MEDCouplingDefinitionTime::getHeapMemorySizeWithoutChildren() const
   return _slices.capacity()*(sizeof(MEDCouplingDefinitionTimeSlice)+sizeof(int));
 }
 
-std::vector<const BigMemoryObject *> MEDCouplingDefinitionTime::getDirectChildren() const
+std::vector<const BigMemoryObject *> MEDCouplingDefinitionTime::getDirectChildrenWithNull() const
 {
   return std::vector<const BigMemoryObject *>();
 }

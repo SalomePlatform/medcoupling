@@ -42,7 +42,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
     MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
@@ -370,7 +370,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     MEDCOUPLING_EXPORT const DataArrayDouble *getEndArray() const;

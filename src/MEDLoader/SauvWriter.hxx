@@ -54,7 +54,7 @@ namespace ParaMEDMEM
   private:
     SauvWriter();
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject *> getDirectChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     /*!
      * \brief Class representing a GIBI sub-mesh (described in the pile 1 of the SAUVE file).
      * It stands for a named med sub-mesh (family, etc) and contains either cell IDs or other sub-meshes. 

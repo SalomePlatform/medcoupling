@@ -40,7 +40,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingExtrudedMesh *New();
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
