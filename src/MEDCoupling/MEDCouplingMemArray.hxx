@@ -256,7 +256,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT void transpose();
     MEDCOUPLING_EXPORT DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const;
-    MEDCOUPLING_EXPORT DataArray *keepSelectedComponents(const std::vector<int>& compoIds) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const;
     MEDCOUPLING_EXPORT void meldWith(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT bool areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayInt *&tupleIds) const;
     MEDCOUPLING_EXPORT void findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
@@ -505,7 +505,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT void transpose();
     MEDCOUPLING_EXPORT DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const;
-    MEDCOUPLING_EXPORT DataArray *keepSelectedComponents(const std::vector<int>& compoIds) const;
+    MEDCOUPLING_EXPORT DataArrayInt *keepSelectedComponents(const std::vector<int>& compoIds) const;
     MEDCOUPLING_EXPORT void meldWith(const DataArrayInt *other);
     MEDCOUPLING_EXPORT void setSelectedComponents(const DataArrayInt *a, const std::vector<int>& compoIds);
     MEDCOUPLING_EXPORT void setPartOfValues1(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
@@ -705,7 +705,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT DataArrayChar *substr(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const;
-    MEDCOUPLING_EXPORT DataArray *keepSelectedComponents(const std::vector<int>& compoIds) const;
+    MEDCOUPLING_EXPORT DataArrayChar *keepSelectedComponents(const std::vector<int>& compoIds) const;
     MEDCOUPLING_EXPORT void meldWith(const DataArrayChar *other);
     MEDCOUPLING_EXPORT void setPartOfValues1(const DataArrayChar *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
     MEDCOUPLING_EXPORT void setPartOfValuesSimple1(char a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp);

@@ -3970,13 +3970,13 @@ namespace ParaMEDMEM
               case 1:
                 {
                   std::vector<int> v2(1,singleVal);
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr=static_cast<DataArrayDouble *>(ret0Arr->keepSelectedComponents(v2));
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(v2));
                   ret0->setArray(aarr);
                   return ret0.retn();
                 }
               case 2:
                 {
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr=static_cast<DataArrayDouble *>(ret0Arr->keepSelectedComponents(multiVal));
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(multiVal));
                   ret0->setArray(aarr);
                   return ret0.retn();
                 }
@@ -3986,7 +3986,7 @@ namespace ParaMEDMEM
                   std::vector<int> v2(nbOfComp);
                   for(int i=0;i<nbOfComp;i++)
                     v2[i]=slic.first+i*slic.second.second;
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr=static_cast<DataArrayDouble *>(ret0Arr->keepSelectedComponents(v2));
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(v2));
                   ret0->setArray(aarr);
                   return ret0.retn();
                 }

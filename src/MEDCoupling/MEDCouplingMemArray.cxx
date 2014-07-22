@@ -1862,7 +1862,7 @@ void DataArrayDouble::transpose()
  *  \ref py_mcdataarraydouble_KeepSelectedComponents "Here is a Python example".
  *  \endif
  */
-DataArray *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const
+DataArrayDouble *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   checkAllocated();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
@@ -7686,7 +7686,7 @@ void DataArrayInt::reAlloc(int nbOfTuples)
  *  \ref py_mcdataarrayint_keepselectedcomponents "Here is a Python example".
  *  \endif
  */
-DataArray *DataArrayInt::keepSelectedComponents(const std::vector<int>& compoIds) const
+DataArrayInt *DataArrayInt::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   checkAllocated();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());

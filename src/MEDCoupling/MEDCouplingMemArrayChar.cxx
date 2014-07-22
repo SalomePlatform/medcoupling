@@ -738,7 +738,7 @@ DataArrayChar *DataArrayChar::changeNbOfComponents(int newNbOfComp, char dftValu
  *  \ref py_mcdataarrayint_keepselectedcomponents "Here is a Python example".
  *  \endif
  */
-DataArray *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoIds) const
+DataArrayChar *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   checkAllocated();
   MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret(buildEmptySpecializedDAChar());
