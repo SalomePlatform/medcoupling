@@ -154,8 +154,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         array = DataArrayDouble.New( v, 2, 2 ) # 2 tuples per 2 components
         field = MEDCouplingFieldDouble.New( ON_CELLS )
         field.setArray( array )
-        func = "IVec * v + JVec * v*v + 10"
-        field.applyFunc( func )
+        func = "IVec * v + JVec * w*w + 10"
+        field.applyFunc( 2, func )
         self.assertTrue( field.getNumberOfComponents() == 2 ) # 2 components remains
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_1]
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_2]
@@ -2357,7 +2357,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(d1.isEqual(DataArrayDouble([1.,4.,121.,144.,441.,484.,961.,1681.],4,2),1e-12))
 # ! [PySnippetDataArrayApplyFunc1_2]
 # ! [PySnippetDataArrayApplyFunc1_3]
-        d2=d.applyFunc("smth*IVec+2*smth*JVec")
+        d2=d.applyFunc(2,"smth1*IVec+2*smth2*JVec")
         self.assertTrue(d2.isEqual(DataArrayDouble([1.,4.,11.,24.,21.,44.,31.,82.],4,2),1e-12))
 # ! [PySnippetDataArrayApplyFunc1_3]
 # ! [PySnippetDataArrayApplyFunc1_4]

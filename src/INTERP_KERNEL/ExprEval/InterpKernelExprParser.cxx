@@ -21,6 +21,7 @@
 #include "InterpKernelExprParser.hxx"
 #include "InterpKernelValue.hxx"
 #include "InterpKernelAsmX86.hxx"
+#include "InterpKernelAutoPtr.hxx"
 
 #include <cctype>
 #include <sstream>
@@ -84,13 +85,22 @@ void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr)
   _value=valuesInExpr[pos];
 }
 
-LeafExprVar::LeafExprVar(const std::string& var):_fast_pos(-1),_var_name(var)
+LeafExprVal *LeafExprVal::deepCpy() const
+{
+  return new LeafExprVal(*this);
+}
+
+LeafExprVar::LeafExprVar(const std::string& var):_fast_pos(-1),_var_name(var),_val(0)
 {
 }
 
 void LeafExprVar::fillValue(Value *val) const
 {
-  val->setVarname(_fast_pos,_var_name);
+  if(_val)
+    val->setDouble(_val[_fast_pos]);
+  else
+    val->setVarname(_fast_pos,_var_name);
+
 }
 
 void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const
@@ -125,6 +135,22 @@ void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, in
     }
 }
 
+/*!
+ * \param [in] vars - the sorted list of vars
+ * \param [in] nbOfCompo - the size of the input tuples (it is used to scan if no problem occurs)
+ * \param [in] targetNbOfCompo - the size of the output tuple (it is used to check that no problem occurs)
+ * \param [in] refPos - is an integer in [0,targetNbOfCompo), that tell the id of \a this. It is for multi interpreters.
+ * \sa evaluateDouble
+ */
+void LeafExprVar::prepareExprEvaluationDouble(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo, int refPos, const double *ptOfInputStart, const double *ptOfInputEnd) const
+{
+  if((int)vars.size()!=std::distance(ptOfInputStart,ptOfInputEnd))
+    throw INTERP_KERNEL::Exception("LeafExprVar::prepareExprEvaluationDouble : size of input vector must be equal to the input vector !");
+  prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
+  _ref_pos=refPos;
+  _val=ptOfInputStart;
+}
+
 void LeafExprVar::prepareExprEvaluationVec() const
 {
   if(!isRecognizedKeyVar(_var_name,_fast_pos))
@@ -145,6 +171,11 @@ bool LeafExprVar::isRecognizedKeyVar(const std::string& var, int& pos)
   return true;
 }
 
+LeafExprVar *LeafExprVar::deepCpy() const
+{
+  return new LeafExprVar(*this);
+}
+
 /*!
  * Nothing to do it is not a bug.
  */
@@ -154,6 +185,26 @@ void LeafExprVar::replaceValues(const std::vector<double>& valuesInExpr)
 
 LeafExprVar::~LeafExprVar()
 {
+}
+
+void ExprParserOfEval::clearSortedMemory()
+{
+  delete _leaf;
+  for(std::vector<ExprParserOfEval>::iterator it=_sub_parts.begin();it!=_sub_parts.end();it++)
+    (*it).clearSortedMemory();
+  for(std::vector<Function *>::iterator it=_funcs.begin();it!=_funcs.end();it++)
+    delete *it;
+}
+
+void ExprParserOfEval::sortMemory()
+{
+  for(std::vector<ExprParserOfEval>::iterator it=_sub_parts.begin();it!=_sub_parts.end();it++)
+    (*it).sortMemory();
+  if(_leaf)
+    _leaf=_leaf->deepCpy();
+  for(std::vector<Function *>::iterator it=_funcs.begin();it!=_funcs.end();it++)
+    if(*it)
+      *it=(*it)->deepCpy();
 }
 
 ExprParser::ExprParser(const std::string& expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
@@ -171,6 +222,7 @@ ExprParser::ExprParser(const char *expr, int lgth, ExprParser *father):_father(f
 ExprParser::~ExprParser()
 {
   delete _leaf;
+  _for_eval.clearSortedMemory();
   releaseFunctions();
 }
 
@@ -242,17 +294,15 @@ void ExprParser::parse()
       replaceValues(valuesInExpr);
       _expr=tmp;
     }
+  reverseThis();
   _is_parsing_ok=true;
 }
 
 double ExprParser::evaluate() const
 {
-  Value *gen=new ValueDouble;
-  ValueDouble *res=(ValueDouble *)evaluateLowLev(gen);
-  delete gen;
-  double ret=res->getData();
-  delete res;
-  return ret;
+  AutoCppPtr<Value> gen(new ValueDouble);
+  AutoCppPtr<ValueDouble> res(static_cast<ValueDouble *>(evaluateLowLev(gen)));
+  return res->getData();
 }
 
 DecompositionInUnitBase ExprParser::evaluateUnit() const
@@ -276,20 +326,9 @@ DecompositionInUnitBase ExprParser::evaluateUnit() const
 
 void ExprParser::evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const
 {
-  Value *gen=new ValueDoubleExpr(szOfOutParam,inParam);
-  ValueDoubleExpr *res=0;
-  try
-    {
-      res=(ValueDoubleExpr *)evaluateLowLev(gen);
-    }
-  catch(INTERP_KERNEL::Exception& e)
-    {
-      delete gen;
-      throw e;
-    }
-  delete gen;
+  AutoCppPtr<Value> gen(new ValueDoubleExpr(szOfOutParam,inParam));
+  AutoCppPtr<ValueDoubleExpr> res(static_cast<ValueDoubleExpr *>(evaluateLowLev(gen)));
   std::copy(res->getData(),res->getData()+szOfOutParam,outParam);
-  delete res;
 }
 
 void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const
@@ -301,8 +340,56 @@ void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int
         leafC->prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
     }
   else
-    for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
       (*iter).prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
+}
+
+/*!
+ * \param [in] vars - the sorted list of vars
+ * \param [in] nbOfCompo - the size of the input tuples (it is used to scan if no problem occurs)
+ * \param [in] targetNbOfCompo - the size of the output tuple (it is used to check that no problem occurs)
+ * \param [in] refPos - is an integer in [0,targetNbOfCompo), that tell the id of \a this. It is for multi interpreters.
+ * \sa evaluateDouble
+ */
+void ExprParser::prepareExprEvaluationDouble(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo, int refPos, const double *ptOfInputStart, const double *ptOfInputEnd) const
+{
+  if((int)vars.size()!=std::distance(ptOfInputStart,ptOfInputEnd))
+    throw INTERP_KERNEL::Exception("ExprParser::prepareExprEvaluationDouble : size of input vector must be equal to the input vector !");
+  if(_leaf)
+    {
+      LeafExprVar *leafC=dynamic_cast<LeafExprVar *>(_leaf);
+      if(leafC)
+        leafC->prepareExprEvaluationDouble(vars,nbOfCompo,targetNbOfCompo,refPos,ptOfInputStart,ptOfInputEnd);
+    }
+  else
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      (*iter).prepareExprEvaluationDouble(vars,nbOfCompo,targetNbOfCompo,refPos,ptOfInputStart,ptOfInputEnd);
+}
+
+void ExprParser::prepareFastEvaluator() const
+{
+  _for_eval.clearSortedMemory();
+  _for_eval=convertMeTo();
+  _for_eval.sortMemory();
+}
+
+/*!
+ * \sa prepareExprEvaluationDouble
+ */
+double ExprParser::evaluateDouble() const
+{
+  checkForEvaluation();
+  std::vector<double> stackOfVal;
+  evaluateDoubleInternal(stackOfVal);
+  return stackOfVal.back();
+}
+
+void ExprParser::checkForEvaluation() const
+{
+  if(!_is_parsing_ok)
+    throw INTERP_KERNEL::Exception("checkForEvaluation : Parsing fails ! Invalid expression !");
+  if(_sub_expr.empty() && !_leaf)
+    throw INTERP_KERNEL::Exception("checkForEvaluation : Empty expression !");
 }
 
 void ExprParser::prepareExprEvaluationVec() const
@@ -328,16 +415,13 @@ void ExprParser::prepareExprEvaluationVecLowLev() const
         leafC->prepareExprEvaluationVec();
     }
   else
-    for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
       (*iter).prepareExprEvaluationVecLowLev();
 }
 
 Value *ExprParser::evaluateLowLev(Value *valGen) const
 {
-  if(!_is_parsing_ok)
-    throw INTERP_KERNEL::Exception("Parsing fails ! Invalid expression !");
-  if(_sub_expr.empty() && !_leaf)
-    throw INTERP_KERNEL::Exception("Empty expression !");
+  checkForEvaluation();
   std::vector<Value *> stackOfVal;
   try
     {
@@ -359,12 +443,11 @@ Value *ExprParser::evaluateLowLev(Value *valGen) const
       else
         {
           stackOfVal.resize(_sub_expr.size());
-          std::vector<Value *>::reverse_iterator iter2=stackOfVal.rbegin();
-          for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++,iter2++)
+          std::vector<Value *>::iterator iter2=stackOfVal.begin();
+          for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++,iter2++)
             *iter2=(*iter).evaluateLowLev(valGen);
         }
-      std::list<Function *>::const_iterator iter3;
-      for(iter3=_func_btw_sub_expr.begin();iter3!=_func_btw_sub_expr.end();iter3++)
+      for(std::vector<Function *>::const_iterator iter3=_func_btw_sub_expr.begin();iter3!=_func_btw_sub_expr.end();iter3++)
         (*iter3)->operate(stackOfVal);
     }
   catch(INTERP_KERNEL::Exception& e)
@@ -376,6 +459,33 @@ Value *ExprParser::evaluateLowLev(Value *valGen) const
   return stackOfVal.back();
 }
 
+void ExprParser::reverseThis()
+{
+  if(_leaf)
+    return ;
+  for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+    (*iter).reverseThis();
+  AutoPtr<char> buf(new char[sizeof(ExprParser)]);
+  char *loc(reinterpret_cast<char *>(&_sub_expr[0])),*bufPtr(buf);
+  std::size_t sz(_sub_expr.size());
+  std::size_t nbOfTurn(sz/2);
+  for(std::size_t i=0;i<nbOfTurn;i++)
+    {
+      std::copy(loc+i*sizeof(ExprParser),loc+(i+1)*sizeof(ExprParser),bufPtr);
+      std::copy(loc+(sz-i-1)*sizeof(ExprParser),loc+(sz-i)*sizeof(ExprParser),loc+i*sizeof(ExprParser));
+      std::copy(bufPtr,bufPtr+sizeof(ExprParser),loc+(sz-i-1)*sizeof(ExprParser));
+    }
+}
+
+ExprParserOfEval ExprParser::convertMeTo() const
+{
+  std::size_t sz(_sub_expr.size());
+  std::vector<ExprParserOfEval> subExpr(sz);
+  for(std::size_t i=0;i<sz;i++)
+    subExpr[i]=_sub_expr[i].convertMeTo();
+  return ExprParserOfEval(_leaf,subExpr,_func_btw_sub_expr);
+}
+
 void ExprParser::getSetOfVars(std::set<std::string>& vars) const
 {
   if(_leaf)
@@ -385,7 +495,7 @@ void ExprParser::getSetOfVars(std::set<std::string>& vars) const
         vars.insert(leafC->getVar());
     }
   else
-    for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
       (*iter).getSetOfVars(vars);
 }
 
@@ -404,7 +514,7 @@ void ExprParser::getTrueSetOfVars(std::set<std::string>& trueVars) const
 
 void ExprParser::parseDeeper()
 {
-  for(std::list<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+  for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
     if(!(*iter).simplify())
       (*iter).parseDeeper();
 }
@@ -727,7 +837,7 @@ void ExprParser::parseForPow()
 
 void ExprParser::releaseFunctions()
 {
-  for(std::list<Function *>::iterator iter=_func_btw_sub_expr.begin();iter!=_func_btw_sub_expr.end();iter++)
+  for(std::vector<Function *>::iterator iter=_func_btw_sub_expr.begin();iter!=_func_btw_sub_expr.end();iter++)
     delete *iter;
   _func_btw_sub_expr.clear();
 }
@@ -924,7 +1034,7 @@ void ExprParser::replaceValues(const std::vector<double>& valuesInExpr)
     _leaf->replaceValues(valuesInExpr);
   else
     {
-      for(std::list<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).replaceValues(valuesInExpr);
     }
 }
@@ -986,10 +1096,10 @@ void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
     _leaf->compileX86(ass);
   else
     {
-      for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86LowLev(ass);
     }
-  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+  for(std::vector<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
     (*iter2)->operateX86(ass);
 }
 
@@ -999,11 +1109,16 @@ void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
     _leaf->compileX86_64(ass);
   else
     {
-      for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86_64LowLev(ass);
     }
-  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+  for(std::vector<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
     (*iter2)->operateX86(ass);
+}
+
+double LeafExprVal::getDoubleValue() const
+{
+  return _value;
 }
 
 void LeafExprVal::compileX86(std::vector<std::string>& ass) const
@@ -1038,6 +1153,17 @@ void LeafExprVal::compileX86_64(std::vector<std::string>& ass) const
   ass.push_back("add rsp,8");
 }
 
+double LeafExprVar::getDoubleValue() const
+{
+  if(_fast_pos>=0)
+    return _val[_fast_pos];
+  else
+    {
+      int pos(-7-_fast_pos);
+      return pos==_ref_pos?1.:0.;
+    }
+}
+
 void LeafExprVar::compileX86(std::vector<std::string>& ass) const
 {
   ass.push_back("fld qword [ebp+8]");
@@ -1057,7 +1183,7 @@ int ExprParser::getStackSizeToPlayX86(const ExprParser *asker) const
     {
       int sz=_father->getStackSizeToPlayX86(this);
       int i=0;
-      for(std::list<ExprParser>::const_reverse_iterator iter=_sub_expr.rbegin();iter!=_sub_expr.rend();iter++,i++)
+      for(std::vector<ExprParser>::const_reverse_iterator iter=_sub_expr.rbegin();iter!=_sub_expr.rend();iter++,i++)
         {
           const ExprParser& obj=(*iter);
           const ExprParser *pt=&obj;

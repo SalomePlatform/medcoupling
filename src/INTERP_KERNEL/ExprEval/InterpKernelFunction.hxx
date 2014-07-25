@@ -47,10 +47,13 @@ namespace INTERP_KERNEL
   public:
     virtual ~Function();
     virtual int getNbInputParams() const = 0;
-    virtual void operate(std::vector<Value *>& stack) const = 0;
+    virtual void operate(std::vector<Value *>& stck) const = 0;
     virtual void operateX86(std::vector<std::string>& asmb) const = 0;
+    virtual void operateStackOfDouble(std::vector<double>& stck) const = 0;
+    virtual void operateStackOfDoubleSafe(std::vector<double>& stck) const { operateStackOfDouble(stck); }
     virtual const char *getRepr() const = 0;
     virtual bool isACall() const = 0;
+    virtual Function *deepCpy() const = 0;
   };
 
   class INTERPKERNEL_EXPORT UnaryFunction : public Function
@@ -63,10 +66,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~IdentityFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    IdentityFunction *deepCpy() const { return new IdentityFunction; }
   public:
     static const char REPR[];
   };
@@ -75,10 +80,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~PositiveFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    PositiveFunction *deepCpy() const { return new PositiveFunction; }
   public:
     static const char REPR[];
   };
@@ -87,10 +94,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~NegateFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    NegateFunction *deepCpy() const { return new NegateFunction; }
   public:
     static const char REPR[];
   };
@@ -99,10 +108,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~CosFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    CosFunction *deepCpy() const { return new CosFunction; }
   public:
     static const char REPR[];
   };
@@ -111,10 +122,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~SinFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    SinFunction *deepCpy() const { return new SinFunction; }
   public:
     static const char REPR[];
   };
@@ -123,10 +136,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~TanFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    TanFunction *deepCpy() const { return new TanFunction; }
   public:
     static const char REPR[];
   };
@@ -135,10 +150,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~ACosFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    ACosFunction *deepCpy() const { return new ACosFunction; }
   public:
     static const char REPR[];
   };
@@ -147,10 +165,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~ASinFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    ASinFunction *deepCpy() const { return new ASinFunction; }
   public:
     static const char REPR[];
   };
@@ -159,10 +180,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~ATanFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    ATanFunction *deepCpy() const { return new ATanFunction; }
   public:
     static const char REPR[];
   };
@@ -171,10 +194,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~CoshFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    CoshFunction *deepCpy() const { return new CoshFunction; }
   public:
     static const char REPR[];
   };
@@ -183,10 +208,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~SinhFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    SinhFunction *deepCpy() const { return new SinhFunction; }
   public:
     static const char REPR[];
   };
@@ -195,10 +222,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~TanhFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    TanhFunction *deepCpy() const { return new TanhFunction; }
   public:
     static const char REPR[];
   };
@@ -207,10 +236,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~SqrtFunction();
-    void operate(std::vector<Value *>& stack) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operate(std::vector<Value *>& stck) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    SqrtFunction *deepCpy() const { return new SqrtFunction; }
   public:
     static const char REPR[];
   };
@@ -219,10 +251,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~AbsFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    AbsFunction *deepCpy() const { return new AbsFunction; }
   public:
     static const char REPR[];
   };
@@ -231,10 +265,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~ExpFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    ExpFunction *deepCpy() const { return new ExpFunction; }
   public:
     static const char REPR[];
   };
@@ -243,10 +279,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~LnFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    LnFunction *deepCpy() const { return new LnFunction; }
   public:
     static const char REPR[];
   };
@@ -255,10 +294,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~LogFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    LogFunction *deepCpy() const { return new LogFunction; }
   public:
     static const char REPR[];
   };
@@ -267,10 +309,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~Log10Function();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    Log10Function *deepCpy() const { return new Log10Function; }
   public:
     static const char REPR[];
   };
@@ -285,10 +330,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~PlusFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    PlusFunction *deepCpy() const { return new PlusFunction; }
   public:
     static const char REPR[];
   };
@@ -297,10 +344,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~MinusFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    MinusFunction *deepCpy() const { return new MinusFunction; }
   public:
     static const char REPR[];
   };
@@ -309,10 +358,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~MultFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    MultFunction *deepCpy() const { return new MultFunction; }
   public:
     static const char REPR[];
   };
@@ -321,10 +372,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~DivFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    DivFunction *deepCpy() const { return new DivFunction; }
   public:
     static const char REPR[];
   };
@@ -333,10 +387,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~PowFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    PowFunction *deepCpy() const { return new PowFunction; }
   public:
     static const char REPR[];
   };
@@ -345,10 +402,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~MaxFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    MaxFunction *deepCpy() const { return new MaxFunction; }
   public:
     static const char REPR[];
   };
@@ -357,10 +416,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~MinFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    MinFunction *deepCpy() const { return new MinFunction; }
   public:
     static const char REPR[];
   };
@@ -369,10 +430,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~GreaterThanFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    GreaterThanFunction *deepCpy() const { return new GreaterThanFunction; }
   public:
     static const char REPR[];
   };
@@ -381,10 +444,12 @@ namespace INTERP_KERNEL
   {
   public:
     ~LowerThanFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    LowerThanFunction *deepCpy() const { return new LowerThanFunction; }
   public:
     static const char REPR[];
   };
@@ -399,10 +464,13 @@ namespace INTERP_KERNEL
   {
   public:
     ~IfFunction();
-    void operate(std::vector<Value *>& stack) const;
+    void operate(std::vector<Value *>& stck) const;
     void operateX86(std::vector<std::string>& asmb) const;
+    void operateStackOfDouble(std::vector<double>& stck) const;
+    void operateStackOfDoubleSafe(std::vector<double>& stck) const;
     const char *getRepr() const;
     bool isACall() const;
+    IfFunction *deepCpy() const { return new IfFunction; }
   public:
     static const char REPR[];
   };

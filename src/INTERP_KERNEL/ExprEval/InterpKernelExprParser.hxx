@@ -39,10 +39,12 @@ namespace INTERP_KERNEL
   {
   public:
     INTERPKERNEL_EXPORT virtual ~LeafExpr();
+    INTERPKERNEL_EXPORT virtual double getDoubleValue() const = 0;
     INTERPKERNEL_EXPORT virtual void fillValue(Value *val) const = 0;
     INTERPKERNEL_EXPORT virtual void compileX86(std::vector<std::string>& ass) const = 0;
     INTERPKERNEL_EXPORT virtual void compileX86_64(std::vector<std::string>& ass) const = 0;
     INTERPKERNEL_EXPORT virtual void replaceValues(const std::vector<double>& valuesInExpr) = 0;
+    INTERPKERNEL_EXPORT virtual LeafExpr *deepCpy() const = 0;
     INTERPKERNEL_EXPORT static LeafExpr *buildInstanceFrom(const std::string& expr);
   };
 
@@ -51,10 +53,12 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT LeafExprVal(double value);
     INTERPKERNEL_EXPORT ~LeafExprVal();
+    INTERPKERNEL_EXPORT double getDoubleValue() const;
     INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void fillValue(Value *val) const;
     INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr);
+    INTERPKERNEL_EXPORT LeafExprVal *deepCpy() const;
   private:
     double _value;
   };
@@ -62,21 +66,60 @@ namespace INTERP_KERNEL
   class LeafExprVar : public LeafExpr
   {
   public:
+    INTERPKERNEL_EXPORT LeafExprVar(const LeafExprVar& other):_fast_pos(other._fast_pos),_ref_pos(other._ref_pos),_var_name(other._var_name),_val(other._val) { }
     INTERPKERNEL_EXPORT LeafExprVar(const std::string& var);
     INTERPKERNEL_EXPORT ~LeafExprVar();
+    INTERPKERNEL_EXPORT double getDoubleValue() const;
     INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void fillValue(Value *val) const;
     INTERPKERNEL_EXPORT std::string getVar() const { return _var_name; }
     INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const;
+    INTERPKERNEL_EXPORT void prepareExprEvaluationDouble(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo, int refPos, const double *ptOfInputStart, const double *ptOfInputEnd) const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const;
     INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr);
     INTERPKERNEL_EXPORT static bool isRecognizedKeyVar(const std::string& var, int& pos);
+    INTERPKERNEL_EXPORT LeafExprVar *deepCpy() const;
   public:
     static const char END_OF_RECOGNIZED_VAR[];
   private:
     mutable int _fast_pos;
+    mutable int _ref_pos;
     std::string _var_name;
+    mutable const double *_val;
+  };
+
+  class ExprParserOfEval
+  {
+  public:
+    ExprParserOfEval():_leaf(0) { }
+    ExprParserOfEval(LeafExpr *leaf, const std::vector<ExprParserOfEval>& subParts, const std::vector<Function *>& funcs):_leaf(leaf),_sub_parts(subParts),_funcs(funcs) { }
+    void evaluateDoubleInternal(std::vector<double>& stck) const
+    {
+      if(_leaf)
+        stck.push_back(_leaf->getDoubleValue());
+      else
+        for(std::vector<ExprParserOfEval>::const_iterator iter=_sub_parts.begin();iter!=_sub_parts.end();iter++)
+          (*iter).evaluateDoubleInternal(stck);
+      for(std::vector<Function *>::const_iterator iter3=_funcs.begin();iter3!=_funcs.end();iter3++)
+        (*iter3)->operateStackOfDouble(stck);
+    }
+    void evaluateDoubleInternalSafe(std::vector<double>& stck) const
+    {
+      if(_leaf)
+        stck.push_back(_leaf->getDoubleValue());
+      else
+        for(std::vector<ExprParserOfEval>::const_iterator iter=_sub_parts.begin();iter!=_sub_parts.end();iter++)
+          (*iter).evaluateDoubleInternalSafe(stck);
+      for(std::vector<Function *>::const_iterator iter3=_funcs.begin();iter3!=_funcs.end();iter3++)
+        (*iter3)->operateStackOfDoubleSafe(stck);
+    }
+    void clearSortedMemory();
+    void sortMemory();
+  private:
+    LeafExpr *_leaf;
+    std::vector<ExprParserOfEval> _sub_parts;
+    std::vector<Function *> _funcs;
   };
 
   class ExprParser
@@ -90,8 +133,14 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT double evaluate() const;
     INTERPKERNEL_EXPORT DecompositionInUnitBase evaluateUnit() const;
     INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const;
-    INTERPKERNEL_EXPORT void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const;
+    INTERPKERNEL_EXPORT void prepareExprEvaluationDouble(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo, int refPos, const double *ptOfInputStart, const double *ptOfInputEnd) const;
+    INTERPKERNEL_EXPORT void prepareFastEvaluator() const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const;
+    INTERPKERNEL_EXPORT double evaluateDouble() const;
+    INTERPKERNEL_EXPORT void evaluateDoubleInternal(std::vector<double>& stck) const { _for_eval.evaluateDoubleInternal(stck); }
+    INTERPKERNEL_EXPORT void evaluateDoubleInternalSafe(std::vector<double>& stck) const { _for_eval.evaluateDoubleInternalSafe(stck); }
+    INTERPKERNEL_EXPORT void checkForEvaluation() const;
+    INTERPKERNEL_EXPORT void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const;
     INTERPKERNEL_EXPORT void getSetOfVars(std::set<std::string>& vars) const;
     INTERPKERNEL_EXPORT void getTrueSetOfVars(std::set<std::string>& vars) const;
     //
@@ -105,6 +154,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT static std::string deleteWhiteSpaces(const std::string& expr);
   private:
     Value *evaluateLowLev(Value *valGen) const;
+    void reverseThis();
+    ExprParserOfEval convertMeTo() const;
   private:
     void prepareExprEvaluationVecLowLev() const;
     bool tryToInterpALeaf();
@@ -128,8 +179,9 @@ namespace INTERP_KERNEL
     LeafExpr *_leaf;
     bool _is_parsing_ok;
     std::string _expr;
-    std::list<ExprParser> _sub_expr;
-    std::list<Function *> _func_btw_sub_expr;
+    mutable ExprParserOfEval _for_eval;
+    std::vector<ExprParser> _sub_expr;
+    std::vector<Function *> _func_btw_sub_expr;
   private:
     static const int MAX_X86_FP_ST=8;
     static const char WHITE_SPACES[];

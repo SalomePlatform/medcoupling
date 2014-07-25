@@ -341,10 +341,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyRPow(double val);
     MEDCOUPLING_EXPORT DataArrayDouble *negate() const;
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const std::string& func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const std::string& func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const;
+    MEDCOUPLING_EXPORT void applyFuncOnThis(const std::string& func, bool isSafe=true);
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func, bool isSafe=true) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const;
     MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const;

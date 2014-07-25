@@ -15894,6 +15894,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expRes2, res2.getValues())
         pass
 
+    def testDADApplyFuncOnThis1(self):
+        d=DataArrayDouble(5) ; d.iota(0.)
+        d.applyFuncOnThis("2*x+1")
+        self.assertTrue(d.isEqual(DataArrayDouble([1.,3.,5.,7.,9.]),1e-12))
+        d=DataArrayDouble(6) ; d.iota(0.) ; d.rearrange(2)
+        d.applyFuncOnThis("2*x+1")
+        self.assertTrue(d.isEqual(DataArrayDouble([1.,3.,5.,7.,9.,11.],3,2),1e-12))
+        d.applyFuncOnThis("1+2*3")
+        self.assertTrue(d.isEqual(DataArrayDouble([(7.,7.),(7.,7.),(7.,7.)]),1e-12))
+        pass
+
     pass
 
 if __name__ == '__main__':

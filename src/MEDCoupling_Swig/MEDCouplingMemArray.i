@@ -564,10 +564,11 @@ namespace ParaMEDMEM
     void applyRPow(double val) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *negate() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc(const std::string& func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
+    void applyFuncOnThis(const std::string& func, bool isSafe=true) throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const std::string& func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast64(const std::string& func) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);

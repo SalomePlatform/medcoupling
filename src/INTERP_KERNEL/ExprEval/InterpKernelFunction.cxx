@@ -22,6 +22,7 @@
 #include "InterpKernelValue.hxx"
 
 #include <cmath>
+#include <limits>
 
 using namespace INTERP_KERNEL;
 
@@ -191,11 +192,15 @@ IdentityFunction::~IdentityFunction()
 {
 }
 
-void IdentityFunction::operate(std::vector<Value *>& stack) const
+void IdentityFunction::operate(std::vector<Value *>& stck) const
 {
 }
 
 void IdentityFunction::operateX86(std::vector<std::string>& asmb) const
+{
+}
+
+void IdentityFunction::operateStackOfDouble(std::vector<double>& stck) const
 {
 }
 
@@ -218,11 +223,15 @@ int UnaryFunction::getNbInputParams() const
   return 1;
 }
 
-void PositiveFunction::operate(std::vector<Value *>& stack) const
+void PositiveFunction::operate(std::vector<Value *>& stck) const
 {
 }
 
 void PositiveFunction::operateX86(std::vector<std::string>& asmb) const
+{
+}
+
+void PositiveFunction::operateStackOfDouble(std::vector<double>& stck) const
 {
 }
 
@@ -240,15 +249,21 @@ NegateFunction::~NegateFunction()
 {
 }
 
-void NegateFunction::operate(std::vector<Value *>& stack) const
+void NegateFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->negate();
 }
 
 void NegateFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fchs");
+}
+
+void NegateFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=-v;
 }
 
 const char *NegateFunction::getRepr() const
@@ -265,15 +280,21 @@ CosFunction::~CosFunction()
 {
 }
 
-void CosFunction::operate(std::vector<Value *>& stack) const
+void CosFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->cos();
 }
 
 void CosFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fcos");
+}
+
+void CosFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=cos(v);
 }
 
 const char *CosFunction::getRepr() const
@@ -290,15 +311,21 @@ SinFunction::~SinFunction()
 {
 }
 
-void SinFunction::operate(std::vector<Value *>& stack) const
+void SinFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->sin();
 }
 
 void SinFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fsin");
+}
+
+void SinFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=sin(v);
 }
 
 const char *SinFunction::getRepr() const
@@ -315,15 +342,21 @@ TanFunction::~TanFunction()
 {
 }
 
-void TanFunction::operate(std::vector<Value *>& stack) const
+void TanFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->tan();
 }
 
 void TanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void TanFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=tan(v);
 }
 
 const char *TanFunction::getRepr() const
@@ -340,15 +373,29 @@ ACosFunction::~ACosFunction()
 {
 }
 
-void ACosFunction::operate(std::vector<Value *>& stack) const
+void ACosFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->acos();
 }
 
 void ACosFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void ACosFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=acos(v);
+}
+
+void ACosFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  if(fabs(v)>1.)
+    throw INTERP_KERNEL::Exception("acos on a value which absolute is > 1 !");
+  stck.back()=acos(v);
 }
 
 const char *ACosFunction::getRepr() const
@@ -365,15 +412,29 @@ ASinFunction::~ASinFunction()
 {
 }
 
-void ASinFunction::operate(std::vector<Value *>& stack) const
+void ASinFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->asin();
 }
 
 void ASinFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void ASinFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=asin(v);
+}
+
+void ASinFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  if(fabs(v)>1.)
+    throw INTERP_KERNEL::Exception("asin on a value which absolute is > 1 !");
+  stck.back()=asin(v);
 }
 
 const char *ASinFunction::getRepr() const
@@ -390,15 +451,21 @@ ATanFunction::~ATanFunction()
 {
 }
 
-void ATanFunction::operate(std::vector<Value *>& stack) const
+void ATanFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->atan();
 }
 
 void ATanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void ATanFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=atan(v);
 }
 
 const char *ATanFunction::getRepr() const
@@ -415,15 +482,21 @@ CoshFunction::~CoshFunction()
 {
 }
 
-void CoshFunction::operate(std::vector<Value *>& stack) const
+void CoshFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->cosh();
 }
 
 void CoshFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void CoshFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=cosh(v);
 }
 
 const char *CoshFunction::getRepr() const
@@ -440,15 +513,21 @@ SinhFunction::~SinhFunction()
 {
 }
 
-void SinhFunction::operate(std::vector<Value *>& stack) const
+void SinhFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->sinh();
 }
 
 void SinhFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void SinhFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=sinh(v);
 }
 
 const char *SinhFunction::getRepr() const
@@ -465,15 +544,21 @@ TanhFunction::~TanhFunction()
 {
 }
 
-void TanhFunction::operate(std::vector<Value *>& stack) const
+void TanhFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->tanh();
 }
 
 void TanhFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void TanhFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=tanh(v);
 }
 
 const char *TanhFunction::getRepr() const
@@ -490,15 +575,29 @@ SqrtFunction::~SqrtFunction()
 {
 }
 
-void SqrtFunction::operate(std::vector<Value *>& stack) const
+void SqrtFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->sqrt();
 }
 
 void SqrtFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fsqrt");
+}
+
+void SqrtFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=sqrt(v);
+}
+
+void SqrtFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  if(v<0.)
+    throw INTERP_KERNEL::Exception("sqrt on a value < 0. !");
+  stck.back()=sqrt(v);
 }
 
 const char *SqrtFunction::getRepr() const
@@ -515,15 +614,21 @@ AbsFunction::~AbsFunction()
 {
 }
 
-void AbsFunction::operate(std::vector<Value *>& stack) const
+void AbsFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->abs();
 }
 
 void AbsFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fabs");
+}
+
+void AbsFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=fabs(v);
 }
 
 const char *AbsFunction::getRepr() const
@@ -536,15 +641,21 @@ bool AbsFunction::isACall() const
   return false;
 }
 
-void ExpFunction::operate(std::vector<Value *>& stack) const
+void ExpFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->exp();
 }
 
 void ExpFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void ExpFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=std::exp(v);
 }
 
 const char *ExpFunction::getRepr() const
@@ -561,15 +672,29 @@ LnFunction::~LnFunction()
 {
 }
 
-void LnFunction::operate(std::vector<Value *>& stack) const
+void LnFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->ln();
 }
 
 void LnFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void LnFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=std::log(v);
+}
+
+void LnFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  if(v<0.)
+    throw INTERP_KERNEL::Exception("ln on a value < 0. !");
+  stck.back()=std::log(v);
 }
 
 const char *LnFunction::getRepr() const
@@ -586,15 +711,29 @@ LogFunction::~LogFunction()
 {
 }
 
-void LogFunction::operate(std::vector<Value *>& stack) const
+void LogFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->ln();
 }
 
 void LogFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
+}
+
+void LogFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=std::log(v);
+}
+
+void LogFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  if(v<0.)
+    throw INTERP_KERNEL::Exception("log on a value < 0. !");
+  stck.back()=std::log(v);
 }
 
 const char *LogFunction::getRepr() const
@@ -611,15 +750,29 @@ Log10Function::~Log10Function()
 {
 }
 
-void Log10Function::operate(std::vector<Value *>& stack) const
+void Log10Function::operate(std::vector<Value *>& stck) const
 {
-  Value *val=stack.back();
+  Value *val=stck.back();
   val->log10();
 }
 
 void Log10Function::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
+}
+
+void Log10Function::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  stck.back()=std::log10(v);
+}
+
+void Log10Function::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double v(stck.back());
+  if(v<0.)
+    throw INTERP_KERNEL::Exception("log10 on a value < 0. !");
+  stck.back()=std::log10(v);
 }
 
 const char *Log10Function::getRepr() const
@@ -641,11 +794,11 @@ PlusFunction::~PlusFunction()
 {
 }
 
-void PlusFunction::operate(std::vector<Value *>& stack) const
+void PlusFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -666,6 +819,13 @@ void PlusFunction::operateX86(std::vector<std::string>& asmb) const
   asmb.push_back("faddp st1");
 }
 
+void PlusFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=a+stck.back();
+}
+
 const char *PlusFunction::getRepr() const
 {
   return REPR;
@@ -680,11 +840,11 @@ MinusFunction::~MinusFunction()
 {
 }
 
-void MinusFunction::operate(std::vector<Value *>& stack) const
+void MinusFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -705,6 +865,13 @@ void MinusFunction::operateX86(std::vector<std::string>& asmb) const
   asmb.push_back("fsubp st1");
 }
 
+void MinusFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=a-stck.back();
+}
+
 const char *MinusFunction::getRepr() const
 {
   return REPR;
@@ -719,11 +886,11 @@ MultFunction::~MultFunction()
 {
 }
 
-void MultFunction::operate(std::vector<Value *>& stack) const
+void MultFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3=val1->mult(val2);
   delete val1;
   delete val2;
@@ -733,6 +900,13 @@ void MultFunction::operate(std::vector<Value *>& stack) const
 void MultFunction::operateX86(std::vector<std::string>& asmb) const
 {
   asmb.push_back("fmulp st1");
+}
+
+void MultFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=a*stck.back();
 }
 
 const char *MultFunction::getRepr() const
@@ -749,11 +923,11 @@ DivFunction::~DivFunction()
 {
 }
 
-void DivFunction::operate(std::vector<Value *>& stack) const
+void DivFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -774,6 +948,22 @@ void DivFunction::operateX86(std::vector<std::string>& asmb) const
   asmb.push_back("fdivp st1");
 }
 
+void DivFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=a/stck.back();
+}
+
+void DivFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  if(stck.back()==0.)
+    throw INTERP_KERNEL::Exception("division by 0. !");
+  stck.back()=a/stck.back();
+}
+
 const char *DivFunction::getRepr() const
 {
   return REPR;
@@ -788,11 +978,11 @@ PowFunction::~PowFunction()
 {
 }
 
-void PowFunction::operate(std::vector<Value *>& stack) const
+void PowFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -813,6 +1003,23 @@ void PowFunction::operateX86(std::vector<std::string>& asmb) const
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
 
+void PowFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=std::pow(a,stck.back());
+}
+
+void PowFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  double b(stck.back());
+  if(a<0.)
+    throw INTERP_KERNEL::Exception("pow with val < 0. !");
+  stck.back()=std::pow(a,b);
+}
+
 const char *PowFunction::getRepr() const
 {
   return REPR;
@@ -831,11 +1038,11 @@ MaxFunction::~MaxFunction()
 {
 }
 
-void MaxFunction::operate(std::vector<Value *>& stack) const
+void MaxFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -856,6 +1063,13 @@ void MaxFunction::operateX86(std::vector<std::string>& asmb) const
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
 
+void MaxFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=std::max(stck.back(),a);
+}
+
 const char *MaxFunction::getRepr() const
 {
   return REPR;
@@ -870,11 +1084,11 @@ MinFunction::~MinFunction()
 {
 }
 
-void MinFunction::operate(std::vector<Value *>& stack) const
+void MinFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -895,6 +1109,13 @@ void MinFunction::operateX86(std::vector<std::string>& asmb) const
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
 
+void MinFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  stck.back()=std::min(stck.back(),a);
+}
+
 const char *MinFunction::getRepr() const
 {
   return REPR;
@@ -909,11 +1130,11 @@ GreaterThanFunction::~GreaterThanFunction()
 {
 }
 
-void GreaterThanFunction::operate(std::vector<Value *>& stack) const
+void GreaterThanFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -934,6 +1155,14 @@ void GreaterThanFunction::operateX86(std::vector<std::string>& asmb) const
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
 }
 
+void GreaterThanFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  double b(stck.back());
+  stck.back()=a>b?std::numeric_limits<double>::max():-std::numeric_limits<double>::max();
+}
+
 const char *GreaterThanFunction::getRepr() const
 {
   return REPR;
@@ -948,11 +1177,11 @@ LowerThanFunction::~LowerThanFunction()
 {
 }
 
-void LowerThanFunction::operate(std::vector<Value *>& stack) const
+void LowerThanFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *& val2=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *& val2=stck.back();
   Value *val3;
   try
     {
@@ -971,6 +1200,14 @@ void LowerThanFunction::operate(std::vector<Value *>& stack) const
 void LowerThanFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void LowerThanFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double a(stck.back());
+  stck.pop_back();
+  double b(stck.back());
+  stck.back()=a<b?std::numeric_limits<double>::max():-std::numeric_limits<double>::max();
 }
 
 const char *LowerThanFunction::getRepr() const
@@ -992,13 +1229,13 @@ IfFunction::~IfFunction()
 {
 }
 
-void IfFunction::operate(std::vector<Value *>& stack) const
+void IfFunction::operate(std::vector<Value *>& stck) const
 {
-  Value *val1=stack.back();
-  stack.pop_back();
-  Value *val2=stack.back();
-  stack.pop_back();
-  Value *&val3=stack.back();
+  Value *val1=stck.back();
+  stck.pop_back();
+  Value *val2=stck.back();
+  stck.pop_back();
+  Value *&val3=stck.back();
   Value *val4;
   try
     {
@@ -1019,6 +1256,28 @@ void IfFunction::operate(std::vector<Value *>& stack) const
 void IfFunction::operateX86(std::vector<std::string>& asmb) const
 {
   throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+void IfFunction::operateStackOfDouble(std::vector<double>& stck) const
+{
+  double cond(stck.back());
+  stck.pop_back();
+  double the(stck.back());
+  stck.pop_back();
+  if(cond==std::numeric_limits<double>::max())
+    stck.back()=the;
+}
+
+void IfFunction::operateStackOfDoubleSafe(std::vector<double>& stck) const
+{
+  double cond(stck.back());
+  stck.pop_back();
+  double the(stck.back());
+  stck.pop_back();
+  if(cond!=std::numeric_limits<double>::max() && cond!=-std::numeric_limits<double>::max())
+    throw INTERP_KERNEL::Exception("ifFunc : first parameter of ternary func is NOT a consequence of a boolean op !");
+  if(cond==std::numeric_limits<double>::max())
+    stck.back()=the;
 }
 
 const char *IfFunction::getRepr() const

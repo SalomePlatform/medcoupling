@@ -4307,6 +4307,8 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate fun
  *  \param [in] nbOfComp - number of components in the result array.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
+ *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array and \a nbOfComp components.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -4314,89 +4316,188 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate fun
  *  \throw If \a this is not allocated.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const std::string& func) const
+DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const std::string& func, bool isSafe) const
 {
-  checkAllocated();
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
   std::set<std::string> vars;
   expr.getTrueSetOfVars(vars);
-  int oldNbOfComp=getNumberOfComponents();
-  if((int)vars.size()>oldNbOfComp)
-    {
-      std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
-      oss << vars.size() << " variables : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
   std::vector<std::string> varsV(vars.begin(),vars.end());
-  expr.prepareExprEvaluation(varsV,oldNbOfComp,nbOfComp);
-  //
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=getNumberOfTuples();
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
-    {
-      try
-      {
-          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
-      }
-      catch(INTERP_KERNEL::Exception& e)
-      {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !" << e.what();
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    }
-  return newArr;
+  return applyFunc3(nbOfComp,varsV,func,isSafe);
 }
 
 /*!
  * Returns a new DataArrayDouble created from \a this one by applying a function to every
- * tuple of \a this array. Textual data is not copied.
+ * tuple of \a this array. Textual data is not copied. This method works by tuples (whatever its size).
+ * If \a this is a one component array, call applyFuncOnThis instead that performs the same work faster.
+ *
  * For more info see \ref MEDCouplingArrayApplyFunc0.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
+ *                       If false the computation is carried on without any notification. When false the evaluation is a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples and components as \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.
+ *  \sa applyFuncOnThis
  *  \throw If \a this is not allocated.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func) const
+DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func, bool isSafe) const
 {
+  int nbOfComp(getNumberOfComponents());
+  if(nbOfComp<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFunc : output number of component must be > 0 !");
   checkAllocated();
+  int nbOfTuples(getNumberOfTuples());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newArr(DataArrayDouble::New());
+  newArr->alloc(nbOfTuples,nbOfComp);
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
-  expr.prepareExprEvaluationVec();
-  //
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=getNumberOfTuples();
-  int nbOfComp=getNumberOfComponents();
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  if((int)vars.size()>1)
     {
-      try
-      {
-          expr.evaluateExpr(nbOfComp,ptr+i*nbOfComp,ptrToFill+i*nbOfComp);
-      }
-      catch(INTERP_KERNEL::Exception& e)
-      {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed ! " << e.what();
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
+      std::ostringstream oss; oss << "DataArrayDouble::applyFunc : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFunc2 or applyFunc3 instead ! Vars in expr are : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  return newArr;
+  if(vars.empty())
+    {
+      expr.prepareFastEvaluator();
+      newArr->rearrange(1);
+      newArr->fillWithValue(expr.evaluateDouble());
+      newArr->rearrange(nbOfComp);
+      return newArr.retn();
+    }
+  std::vector<std::string> vars2(vars.begin(),vars.end());
+  double buff,*ptrToFill(newArr->getPointer());
+  const double *ptr(begin());
+  std::vector<double> stck;
+  expr.prepareExprEvaluationDouble(vars2,1,1,0,&buff,&buff+1);
+  expr.prepareFastEvaluator();
+  if(!isSafe)
+    {
+      for(int i=0;i<nbOfTuples;i++)
+        {
+          for(int iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            {
+              buff=*ptr;
+              expr.evaluateDoubleInternal(stck);
+              *ptrToFill=stck.back();
+              stck.pop_back();
+            }
+        }
+    }
+  else
+    {
+      for(int i=0;i<nbOfTuples;i++)
+        {
+          for(int iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            {
+              buff=*ptr;
+              try
+              {
+                  expr.evaluateDoubleInternalSafe(stck);
+              }
+              catch(INTERP_KERNEL::Exception& e)
+              {
+                  std::ostringstream oss; oss << "For tuple # " << i << " component # " << iComp << " with value (";
+                  oss << buff;
+                  oss << ") : Evaluation of function failed !" << e.what();
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+              *ptrToFill=stck.back();
+              stck.pop_back();
+            }
+        }
+    }
+  return newArr.retn();
+}
+
+/*!
+ * This method is a non const method that modify the array in \a this.
+ * This method only works on one component array. It means that function \a func must
+ * contain at most one variable.
+ * This method is a specialization of applyFunc method with one parameter on one component array.
+ *
+ *  \param [in] func - the expression defining how to transform a tuple of \a this array.
+ *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
+ *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
+ *
+ * \sa applyFunc
+ */
+void DataArrayDouble::applyFuncOnThis(const std::string& func, bool isSafe)
+{
+  int nbOfComp(getNumberOfComponents());
+  if(nbOfComp<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFuncOnThis : output number of component must be > 0 !");
+  checkAllocated();
+  int nbOfTuples(getNumberOfTuples());
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  if((int)vars.size()>1)
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::applyFuncOnThis : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFunc2 or applyFunc3 instead ! Vars in expr are : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(vars.empty())
+    {
+      expr.prepareFastEvaluator();
+      std::vector<std::string> compInfo(getInfoOnComponents());
+      rearrange(1);
+      fillWithValue(expr.evaluateDouble());
+      rearrange(nbOfComp);
+      setInfoOnComponents(compInfo);
+      return ;
+    }
+  std::vector<std::string> vars2(vars.begin(),vars.end());
+  double buff,*ptrToFill(getPointer());
+  const double *ptr(begin());
+  std::vector<double> stck;
+  expr.prepareExprEvaluationDouble(vars2,1,1,0,&buff,&buff+1);
+  expr.prepareFastEvaluator();
+  if(!isSafe)
+    {
+      for(int i=0;i<nbOfTuples;i++)
+        {
+          for(int iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            {
+              buff=*ptr;
+              expr.evaluateDoubleInternal(stck);
+              *ptrToFill=stck.back();
+              stck.pop_back();
+            }
+        }
+    }
+  else
+    {
+      for(int i=0;i<nbOfTuples;i++)
+        {
+          for(int iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            {
+              buff=*ptr;
+              try
+              {
+                  expr.evaluateDoubleInternalSafe(stck);
+              }
+              catch(INTERP_KERNEL::Exception& e)
+              {
+                  std::ostringstream oss; oss << "For tuple # " << i << " component # " << iComp << " with value (";
+                  oss << buff;
+                  oss << ") : Evaluation of function failed !" << e.what();
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+              *ptrToFill=stck.back();
+              stck.pop_back();
+            }
+        }
+    }
 }
 
 /*!
@@ -4406,6 +4507,8 @@ DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func) const
  *  \param [in] nbOfComp - number of components in the result array.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
+ *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -4414,44 +4517,9 @@ DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func) const
  *  \throw If \a func contains vars that are not in \a this->getInfoOnComponent().
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& func) const
+DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& func, bool isSafe) const
 {
-  checkAllocated();
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  std::set<std::string> vars;
-  expr.getTrueSetOfVars(vars);
-  int oldNbOfComp=getNumberOfComponents();
-  if((int)vars.size()>oldNbOfComp)
-    {
-      std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
-      oss << vars.size() << " variables : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  expr.prepareExprEvaluation(getVarsOnComponent(),oldNbOfComp,nbOfComp);
-  //
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=getNumberOfTuples();
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
-    {
-      try
-      {
-          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
-      }
-      catch(INTERP_KERNEL::Exception& e)
-      {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !" << e.what();
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    }
-  return newArr;
+  return applyFunc3(nbOfComp,getVarsOnComponent(),func,isSafe);
 }
 
 /*!
@@ -4462,6 +4530,8 @@ DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& fu
  *  \param [in] varsOrder - sequence of vars defining their order.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
+ *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -4470,14 +4540,20 @@ DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& fu
  *  \throw If \a func contains vars not in \a varsOrder.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
+DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe) const
 {
+  if(nbOfComp<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFunc3 : output number of component must be > 0 !");
+  std::vector<std::string> varsOrder2(varsOrder);
+  int oldNbOfComp(getNumberOfComponents());
+  for(int i=(int)varsOrder.size();i<oldNbOfComp;i++)
+    varsOrder2.push_back(std::string());
   checkAllocated();
+  int nbOfTuples(getNumberOfTuples());
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
   std::set<std::string> vars;
   expr.getTrueSetOfVars(vars);
-  int oldNbOfComp=getNumberOfComponents();
   if((int)vars.size()>oldNbOfComp)
     {
       std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
@@ -4485,29 +4561,49 @@ DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  expr.prepareExprEvaluation(varsOrder,oldNbOfComp,nbOfComp);
-  //
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newArr(DataArrayDouble::New());
   newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
+  INTERP_KERNEL::AutoPtr<double> buff(new double[oldNbOfComp]);
+  double *buffPtr(buff),*ptrToFill;
+  std::vector<double> stck;
+  for(int iComp=0;iComp<nbOfComp;iComp++)
     {
-      try
-      {
-          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
-      }
-      catch(INTERP_KERNEL::Exception& e)
-      {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !" << e.what();
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
+      expr.prepareExprEvaluationDouble(varsOrder2,oldNbOfComp,nbOfComp,iComp,buffPtr,buffPtr+oldNbOfComp);
+      expr.prepareFastEvaluator();
+      const double *ptr(getConstPointer());
+      ptrToFill=newArr->getPointer()+iComp;
+      if(!isSafe)
+        {
+          for(int i=0;i<nbOfTuples;i++,ptrToFill+=nbOfComp,ptr+=oldNbOfComp)
+            {
+              std::copy(ptr,ptr+oldNbOfComp,buffPtr);
+              expr.evaluateDoubleInternal(stck);
+              *ptrToFill=stck.back();
+              stck.pop_back();
+            }
+        }
+      else
+        {
+          for(int i=0;i<nbOfTuples;i++,ptrToFill+=nbOfComp,ptr+=oldNbOfComp)
+            {
+              std::copy(ptr,ptr+oldNbOfComp,buffPtr);
+              try
+              {
+                  expr.evaluateDoubleInternalSafe(stck);
+                  *ptrToFill=stck.back();
+                  stck.pop_back();
+              }
+              catch(INTERP_KERNEL::Exception& e)
+              {
+                  std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+                  std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+                  oss << ") : Evaluation of function failed !" << e.what();
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+            }
+        }
     }
-  return newArr;
+  return newArr.retn();
 }
 
 void DataArrayDouble::applyFuncFast32(const std::string& func)

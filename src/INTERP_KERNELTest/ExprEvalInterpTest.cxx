@@ -538,3 +538,159 @@ void ExprEvalInterpTest::testInterpreter5()
   expr4.parse();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(6994207.8359543988,expr4.evaluate(),1e-5);
 }
+
+/*!
+ * Test focusing on fast evaluator.
+ */
+void ExprEvalInterpTest::testInterpreter6()
+{
+  std::vector<double> stackOfVal;
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr1("1.-2./3.");
+  expr1.parse();
+  expr1.prepareFastEvaluator();
+  expr1.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333333,stackOfVal.back(),1e-14);
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr2("1.-2.^3.");
+  expr2.parse();
+  expr2.prepareFastEvaluator();
+  expr2.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-7.,stackOfVal.back(),1e-14);
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr3("(7.-2.)^3.");
+  expr3.parse();
+  expr3.prepareFastEvaluator();
+  expr3.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125.,stackOfVal.back(),1e-12);
+  // now playing with one parameter - calling several times
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr4("1.2/(7.-2.*cos(x/3))");
+  expr4.parse();
+  expr4.prepareFastEvaluator();
+  double z;
+  expr4.prepareExprEvaluationDouble(std::vector<std::string>(1,"x"),1,1,0,&z,&z+1);
+  expr4.prepareFastEvaluator();
+  z=0.77;
+  expr4.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.23689586281558844,stackOfVal.back(),1e-12);
+  stackOfVal.pop_back();
+  z=0.55;
+  expr4.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2384018932069258,stackOfVal.back(),1e-12);
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr5("x-2*cos(y/3.)");
+  expr5.parse();
+  expr5.prepareFastEvaluator();
+  double *aa(new double[2]);
+  std::vector<std::string> vv(2); vv[0]="x"; vv[1]="y";
+  expr5.prepareExprEvaluationDouble(vv,2,1,0,aa,aa+2);
+  expr5.prepareFastEvaluator();
+  aa[0]=0.3; aa[1]=0.5;
+  expr5.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.67228646312585,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  aa[0]=0.5; aa[1]=0.3;
+  expr5.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.4900083305560516,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  delete [] aa;
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr6("x*IVec-2*cos(y/3.)*JVec");
+  expr6.parse();
+  aa=new double[2];
+  vv.resize(2); vv[0]="x"; vv[1]="y";
+  expr6.prepareExprEvaluationDouble(vv,2,2,0,aa,aa+2);//emulate 1st interpreter
+  expr6.prepareFastEvaluator();
+  aa[0]=0.3; aa[1]=0.5;
+  expr6.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.3,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  expr6.prepareExprEvaluationDouble(vv,2,2,1,aa,aa+2);//emulate 2nd interpreter
+  expr6.prepareFastEvaluator();
+  expr6.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.97228646312585,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  delete [] aa;
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr7("if(x>3.,-6,7.)");
+  expr7.parse();
+  expr7.prepareExprEvaluationDouble(std::vector<std::string>(1,"x"),1,1,0,&z,&z+1);
+  expr7.prepareFastEvaluator();
+  z=3.1;
+  expr7.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-6.,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  z=2.8;
+  expr7.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr8("if(x<3.,-6,7.)");
+  expr8.parse();
+  expr8.prepareExprEvaluationDouble(std::vector<std::string>(1,"x"),1,1,0,&z,&z+1);
+  expr8.prepareFastEvaluator();
+  z=3.1;
+  expr8.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  z=2.8;
+  expr8.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-6.,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr9("x*x/2");//this test is very important to test for iso priority with more than one
+  expr9.parse();
+  expr9.prepareExprEvaluationDouble(std::vector<std::string>(1,"x"),1,1,0,&z,&z+1);
+  expr9.prepareFastEvaluator();
+  z=3.;
+  expr9.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.5,stackOfVal.back(),1e-14);
+  stackOfVal.pop_back();
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr10("2./3./4./5.");
+  expr10.parse();
+  expr10.prepareFastEvaluator();
+  expr10.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.03333333333333333,stackOfVal.back(),1e-13);
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr11("2./3./4.*5.");
+  expr11.parse();
+  expr11.prepareFastEvaluator();
+  expr11.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.83333333333333333,stackOfVal.back(),1e-14);
+  //
+  stackOfVal.clear();
+  INTERP_KERNEL::ExprParser expr12("2./3.*4.*5.");
+  expr12.parse();
+  expr12.prepareFastEvaluator();
+  expr12.evaluateDoubleInternal(stackOfVal);
+  CPPUNIT_ASSERT_EQUAL(1,(int)stackOfVal.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(13.333333333333333,stackOfVal.back(),1e-14);
+}
