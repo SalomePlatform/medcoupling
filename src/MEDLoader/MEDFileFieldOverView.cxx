@@ -1756,7 +1756,7 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
     }
   else
     {
-      arr->setName(NEWLY_CREATED_PFL_NAME);
+      arr->setName(arrs[0]->getName());
       std::pair<int,int> p(0,oldNbTuples);
       std::string a,b;
       MEDFileField1TSStructItem2 ret(gt,p,a,b);
