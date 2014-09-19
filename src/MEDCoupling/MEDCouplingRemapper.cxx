@@ -49,6 +49,24 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
   releaseData(false);
 }
 
+/*!
+ * This method is the second step of the remapping process. The remapping process works in three phases :
+ *
+ * - Set remapping options appropriately
+ * - The computation of remapping matrix
+ * - Apply the matrix vector multiply to obtain the result of the remapping
+ * 
+ * This method performs the second step (computation of remapping matrix) which may be CPU-time consuming. This phase is also the most critical (where the most tricky algorithm) in the remapping process.
+ * Strictly speaking to perform the computation of the remapping matrix the field templates source-side and target-side is required (which is the case of MEDCouplingRemapper::prepareEx).
+ * So this method is less precise but a more user friendly way to compute a remapping matrix.
+ *
+ * \param [in] srcMesh the source mesh
+ * \param [in] targetMesh the target mesh
+ * \param [in] method A string obtained by aggregation of the spatial discretisation string representation of source field and target field. The string representation is those returned by MEDCouplingFieldDiscretization::getStringRepr.
+ *             Example : "P0" is for cell discretization. "P1" is for node discretization. So "P0P1" for \a method parameter means from a source cell field (lying on \a srcMesh) to a target node field (lying on \a targetMesh).
+ *
+ * \sa MEDCouplingRemapper::prepareEx
+ */
 int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method)
 {
   if(!srcMesh || !targetMesh)
@@ -62,6 +80,15 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
   return prepareEx(src,target);
 }
 
+/*!
+ * This method is the generalization of MEDCouplingRemapper::prepare. Indeed, MEDCouplingFieldTemplate instances gives all required information to compute the remapping matrix.
+ * This method must be used instead of MEDCouplingRemapper::prepare if Gauss point to Gauss point must be applied.
+ *
+ * \param [in] src is the field template source side.
+ * \param [in] target is the field template target side.
+ *
+ * \sa MEDCouplingRemapper::prepare
+ */
 int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target)
 {
   if(!src || !target)
@@ -130,7 +157,13 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
  * If meshes of \b srcField and \b targetField do not match exactly those given into \ref ParaMEDMEM::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
  * 
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
- * \param [out] targetField the destination field with the allocated array in which all tuples will be overwritten.
+ * \param [in/out] targetField the destination field with the allocated array in which all tuples will be overwritten.
+ * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
+ *             For example in "P0P0" case (cell-cell) if a cell in target mesh is not overlapped by any source cell the \a dftValue value will be attached on that cell in the returned \a targetField. In some cases a target
+ *             cell not intercepted by any source cell is a bug so in this case it is advised to set a huge value (1e300 for example) to \a dftValue to quickly point to the problem. But for users doing parallelism a target cell can
+ *             be intercepted by a source cell on a different process. In this case 0. assigned to \a dftValue is more appropriate.
+ *
+ * \sa transferField
  */
 void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue)
 {
@@ -194,6 +227,19 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   computeReverseProduct(inputPointer,trgNbOfCompo,dftValue,resPointer);
 }
 
+/*!
+ * This method performs the operation source to target using matrix computed in ParaMEDMEM::MEDCouplingRemapper::prepare method.
+ * If mesh of \b srcField does not match exactly those given into \ref ParaMEDMEM::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
+ * 
+ * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
+ * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
+ *             For example in "P0P0" case (cell-cell) if a cell in target mesh is not overlapped by any source cell the \a dftValue value will be attached on that cell in the returned \a targetField. In some cases a target
+ *             cell not intercepted by any source cell is a bug so in this case it is advised to set a huge value (1e300 for example) to \a dftValue to quickly point to the problem. But for users doing parallelism a target cell can
+ *             be intercepted by a source cell on a different process. In this case 0. assigned to \a dftValue is more appropriate.
+ * \return destination field to be deallocated by the caller.
+ *
+ * \sa transfer
+ */
 MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFieldDouble *srcField, double dftValue)
 {
   checkPrepare();

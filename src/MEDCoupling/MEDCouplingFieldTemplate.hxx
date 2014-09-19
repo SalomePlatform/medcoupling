@@ -26,7 +26,13 @@
 namespace ParaMEDMEM
 {
   class MEDCouplingFieldDouble;
-
+  /*!
+   * \brief A field template can be seen as a field without array of values.
+   *
+   * A field template instance aggregates a MEDCouplingMesh instance and a spatial discretization object (instance of MEDCouplingFieldDiscretization).
+   * 
+   * Instances of type MEDCouplingFieldTemplate are the most appropriate for preparation of matrix using MEDCouplingRemapper::prepareEx.
+   */
   class MEDCouplingFieldTemplate : public MEDCouplingField
   {
   public:
