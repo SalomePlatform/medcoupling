@@ -26,7 +26,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDFileMesh *ParaMEDFileMesh::New(const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   ParaMEDMEM::MEDCouplingMeshType meshType;
@@ -38,14 +38,55 @@ MEDFileMesh *ParaMEDFileMesh::New(const MPI_Comm com, const MPI_Info nfo, const 
   {
     case UNSTRUCTURED:
       {
-        return ParaMEDFileUMesh::New(com,nfo,fileName,mName,dt,it,mrs);
+        return ParaMEDFileUMesh::New(iPart,nbOfParts,fileName,mName,dt,it,mrs);
       }
     default:
       throw INTERP_KERNEL::Exception("ParaMEDFileMesh::New : only unstructured mesh supported for the moment !");
   }
 }
 
-MEDFileUMesh *ParaMEDFileUMesh::New(const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+MEDFileMesh *ParaMEDFileMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  int dummy0,dummy1;
+  std::string dummy2;
+  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  switch(meshType)
+  {
+    case UNSTRUCTURED:
+      {
+        return ParaMEDFileUMesh::ParaNew(iPart,nbOfParts,com,nfo,fileName,mName,dt,it,mrs);
+      }
+    default:
+      throw INTERP_KERNEL::Exception("ParaMEDFileMesh::ParaNew : only unstructured mesh supported for the moment !");
+  }
+}
+
+MEDFileUMesh *ParaMEDFileUMesh::New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret;
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  //
+  int meshDim, spaceDim, numberOfNodes;
+  std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(MEDLoader::GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
+  std::vector<INTERP_KERNEL::NormalizedCellType> types;
+  std::vector<int> distrib;
+  for(std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > >::const_iterator it0=typesDistrib.begin();it0!=typesDistrib.end();it0++)
+    for(std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+      {
+        types.push_back((*it1).first);
+        int tmp[3];
+        DataArray::GetSlice(0,(*it1).second,1,iPart,nbOfParts,tmp[0],tmp[1]);
+        tmp[2]=1;
+        distrib.insert(distrib.end(),tmp,tmp+3);
+      }
+  ret=MEDFileUMesh::LoadPartOf(fileName,mName,types,distrib,dt,it,mrs);
+  return ret.retn();
+}
+
+MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
   MEDFileUtilities::AutoFid fid(MEDparFileOpen(fileName.c_str(),MED_ACC_RDONLY,com,nfo));
@@ -55,13 +96,25 @@ MEDFileUMesh *ParaMEDFileUMesh::New(const MPI_Comm com, const MPI_Info nfo, cons
   return ret.retn();
 }
 
-MEDFileMeshes *ParaMEDFileMeshes::New(const MPI_Comm com, const MPI_Info nfo, const std::string& fileName)
+MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::string& fileName)
 {
   std::vector<std::string> ms(MEDLoader::GetMeshNames(fileName));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mesh(ParaMEDFileMesh::New(com,nfo,fileName,(*it)));
+      MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mesh(ParaMEDFileMesh::New(iPart,nbOfParts,fileName,(*it)));
+      ret->pushMesh(mesh);
+    }
+  return ret.retn();
+}
+
+MEDFileMeshes *ParaMEDFileMeshes::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName)
+{
+  std::vector<std::string> ms(MEDLoader::GetMeshNames(fileName));
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());
+  for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mesh(ParaMEDFileMesh::ParaNew(iPart,nbOfParts,com,nfo,fileName,(*it)));
       ret->pushMesh(mesh);
     }
   return ret.retn();
