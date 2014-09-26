@@ -24,6 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMesh.hxx"
 
+#include <map>
 #include <vector>
 
 namespace INTERP_KERNEL
@@ -119,9 +120,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArrayInt *findBoundaryNodes() const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodesInCell(int cellId) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayInt *computeFetchedNodeIds() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getNodeIdsInUse(int& nbrOfNodesInUse) const = 0;
     MEDCOUPLING_EXPORT virtual void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodesInConn(const int *newNodeNumbersO2N) = 0;
+    MEDCOUPLING_EXPORT virtual void renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N) = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT virtual void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;

@@ -3648,6 +3648,89 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f1ts.getUndergroundDataArray().isEqual(DataArrayDouble([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.]),1e-12))
         pass
 
+    def testMEDFileUMeshLoadPart1(self):
+        """ This method tests MEDFileUMesh.LoadPart that loads only a part of a specified mesh in a MED file. The part is specfied using a slice of cell ids. Only nodes on which cells lies are loaded to reduce at most the amount of
+        memory of the returned instance.
+        """
+        fileName="Pyfile81.med"
+        arr=DataArrayDouble(6) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m.setName("Mesh")
+        m.changeSpaceDimension(3,0.)
+        infos=["aa [b]","cc [de]","gg [klm]"]
+        m.getCoords().setInfoOnComponents(infos)
+        m.checkCoherency2()
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        m1=MEDCouplingCMesh() ; m1.setCoords(arr) ; m1.setName("Mesh") 
+        m1=m1.buildUnstructured() ; m1.setCoords(m.getCoords())
+        mm.setMeshAtLevel(-1,m1)
+        renum0=DataArrayInt([3,6,7,10,11,0,2,1,9,8,5,4,12,13,14,24,23,22,21,20,19,18,17,16,15])
+        famField0=DataArrayInt([-3,-6,-7,-10,-11,0,-2,-1,-9,-8,-5,-4,-12,-13,-14,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15])
+        namesCellL0=DataArrayAsciiChar(25,16)
+        namesCellL0[:]=["Cell#%.3d        "%(i) for i in xrange(25)]
+        renumM1=DataArrayInt([3,4,0,2,1])
+        famFieldM1=DataArrayInt([-3,-4,0,-2,-1])
+        mm.setRenumFieldArr(0,renum0)
+        mm.setFamilyFieldArr(0,famField0)
+        #mm.setNameFieldAtLevel(0,namesCellL0)
+        mm.setRenumFieldArr(-1,renumM1)
+        mm.setFamilyFieldArr(-1,famFieldM1)
+        renum1=DataArrayInt([13,16,17,20,21,10,12,11,19,18,15,14,22,23,24,34,33,32,31,30,29,28,27,26,25,45,44,43,42,41,40,39,38,37,36,35])
+        famField1=DataArrayInt([-13,-16,-17,-20,-21,-10,-12,-11,-19,-18,-15,-14,-22,-23,-24,-34,-33,-32,-31,-30,-29,-28,-27,-26,-25,-45,-44,-43,-42,-41,-40,-39,-38,-37,-36,-35])
+        namesNodes=DataArrayAsciiChar(36,16)
+        namesNodes[:]=["Node#%.3d        "%(i) for i in xrange(36)]
+        mm.setRenumFieldArr(1,renum1)
+        mm.setFamilyFieldArr(1,famField1)
+        #mm.setNameFieldAtLevel(1,namesNodes)
+        mm.setFamilyId("Fam7",77)
+        mm.setFamilyId("Fam8",88)
+        mm.setGroupsOnFamily("Fam7",["Grp0","Grp1"])
+        mm.setGroupsOnFamily("Fam8",["Grp1","Grp2"])
+        mm.write(fileName,2)
+        #
+        mm0=MEDFileUMesh.LoadPartOf(fileName,"Mesh",[NORM_QUAD4],[0,10,1])
+        assert(mm0.getAllGeoTypes()==[NORM_QUAD4])
+        assert(mm0.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().isEqual(DataArrayInt([1,0,6,7,2,1,7,8,3,2,8,9,4,3,9,10,5,4,10,11,7,6,12,13,8,7,13,14,9,8,14,15,10,9,15,16,11,10,16,17])))
+        coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0),(3,0,0),(4,0,0),(5,0,0),(0,1,0),(1,1,0),(2,1,0),(3,1,0),(4,1,0),(5,1,0),(0,2,0),(1,2,0),(2,2,0),(3,2,0),(4,2,0),(5,2,0)]) ; coo.setInfoOnComponents(infos)
+        assert(mm0.getCoords().isEqual(coo,1e-12))
+        assert(mm0.getFamilyFieldAtLevel(0).isEqual(famField0[:10]))
+        assert(mm0.getNumberFieldAtLevel(0).isEqual(renum0[:10]))
+        #assert(mm0.getNameFieldAtLevel(0).isEqual(namesCellL0[:10]))
+        assert(mm0.getFamilyFieldAtLevel(1).isEqual(famField1[:18]))
+        assert(mm0.getNumberFieldAtLevel(1).isEqual(renum1[:18]))
+        #assert(mm0.getNameFieldAtLevel(1).isEqual(namesNodes[:18]))
+        #
+        mm1=MEDFileUMesh.LoadPartOf(fileName,"Mesh",[NORM_QUAD4],[11,25,1])
+        assert(mm1.getAllGeoTypes()==[NORM_QUAD4])
+        assert(mm1.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().isEqual(DataArrayInt([1,0,6,7,2,1,7,8,3,2,8,9,4,3,9,10,6,5,11,12,7,6,12,13,8,7,13,14,9,8,14,15,10,9,15,16,12,11,17,18,13,12,18,19,14,13,19,20,15,14,20,21,16,15,21,22])))
+        coo=DataArrayDouble([(1,2,0),(2,2,0),(3,2,0),(4,2,0),(5,2,0),(0,3,0),(1,3,0),(2,3,0),(3,3,0),(4,3,0),(5,3,0),(0,4,0),(1,4,0),(2,4,0),(3,4,0),(4,4,0),(5,4,0),(0,5,0),(1,5,0),(2,5,0),(3,5,0),(4,5,0),(5,5,0)]) ; coo.setInfoOnComponents(infos)
+        assert(mm1.getCoords().isEqual(coo,1e-12))
+        assert(mm1.getFamilyFieldAtLevel(0).isEqual(famField0[11:]))
+        assert(mm1.getNumberFieldAtLevel(0).isEqual(renum0[11:]))
+        #assert(mm1.getNameFieldAtLevel(0).isEqual(namesCellL0[11:]))
+        assert(mm1.getFamilyFieldAtLevel(1).isEqual(famField1[13:]))
+        assert(mm1.getNumberFieldAtLevel(1).isEqual(renum1[13:]))
+        #assert(mm1.getNameFieldAtLevel(1).isEqual(namesNodes[13:]))
+        #
+        mm2=MEDFileUMesh.LoadPartOf(fileName,"Mesh",[NORM_SEG2,NORM_QUAD4],[0,5,1,1,10,1])
+        assert(mm2.getAllGeoTypes()==[NORM_QUAD4,NORM_SEG2])
+        assert(mm2.getFamilyFieldAtLevel(0).isEqual(famField0[1:10]))
+        assert(mm2.getNumberFieldAtLevel(0).isEqual(renum0[1:10]))
+        #assert(mm2.getNameFieldAtLevel(0).isEqual(namesCellL0[1:10]))
+        assert(mm2.getFamilyFieldAtLevel(-1).isEqual(famFieldM1))
+        assert(mm2.getNumberFieldAtLevel(-1).isEqual(renumM1))
+        assert(mm2.getNameFieldAtLevel(-1) is None)
+        assert(mm2.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().isEqual(DataArrayInt([2,1,7,8,3,2,8,9,4,3,9,10,5,4,10,11,7,6,12,13,8,7,13,14,9,8,14,15,10,9,15,16,11,10,16,17])))
+        assert(mm2.getDirectUndergroundSingleGeoTypeMesh(NORM_SEG2).getNodalConnectivity().isEqual(DataArrayInt([0,1,1,2,2,3,3,4,4,5])))
+        coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0),(3,0,0),(4,0,0),(5,0,0),(0,1,0),(1,1,0),(2,1,0),(3,1,0),(4,1,0),(5,1,0),(0,2,0),(1,2,0),(2,2,0),(3,2,0),(4,2,0),(5,2,0)]) ; coo.setInfoOnComponents(infos)
+        assert(mm2.getCoords().isEqual(coo,1e-12))
+        assert(mm2.getFamilyFieldAtLevel(1).isEqual(famField1[:18]))
+        assert(mm2.getNumberFieldAtLevel(1).isEqual(renum1[:18]))
+        #assert(mm2.getNameFieldAtLevel(1).isEqual(namesNodes[:18]))
+        pass
+
     pass
 
 unittest.main()

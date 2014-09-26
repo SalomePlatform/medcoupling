@@ -50,7 +50,7 @@ namespace ParaMEDMEM
     const char *getTimeUnit() const { return _dt_unit.getReprForWrite(); }
     int getIteration() const { return _iteration; }
     int getOrder() const { return _order; }
-    double getTime() { return _time; }
+    double getTime() const { return _time; }
     std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim);
     static int GetMeshIdFromName(med_idt fid, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1);
     static double CheckMeshTimeStep(med_idt fid, const std::string& mname, int nstep, int dt, int it);
@@ -70,9 +70,13 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileUMeshL2();
+    std::vector<std::string> loadCommonPart(med_idt fid, int mId, const std::string& mName, int dt, int it, int& Mdim);
     void loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPart(med_idt fid, int mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it);
+    void loadPartCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, DataArrayInt *n2o);
     int getNumberOfLevels() const { return _per_type_mesh.size(); }
     bool emptyLev(int levId) const { return _per_type_mesh[levId].empty(); }
     const std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >& getLev(int levId) const { return _per_type_mesh[levId]; }

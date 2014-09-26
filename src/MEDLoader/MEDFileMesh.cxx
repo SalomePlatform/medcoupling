@@ -1983,6 +1983,40 @@ MEDFileUMesh *MEDFileUMesh::New()
   return new MEDFileUMesh;
 }
 
+/*!
+ * This method loads from file with name \a fileName the mesh called \a mName as New does. The difference is that
+ * here only a part of cells contained in the file will be loaded. The selection of cell is specified using the two consecutive parameters
+ * \a types and \a slicPerTyp. This method allows to load from a mesh (typically huge) in a MED file a part of cells of that mesh.
+ * The part of cells is specified using triplet (start,stop,step) for each geometric type. Only nodes lying on selected cells will be loaded to reduce
+ * at most the memory consumtion.
+ *
+ * \param [in] fileName - the name of the file.
+ * \param [in] mName - the name of the mesh to be read.
+ * \param [in] types - the list of the geo types of which some part will be taken. A geometric type in \a types must appear only once at most.
+ * \param [in] slicPerType - an array of size 3 times larger than \a types that specifies for each type in \a types (in the same order) resp the start, the stop and the step.
+ * \param [in] dt - the iteration, that is to say the first element of the pair that locates the asked time step.
+ * \param [in] it - the order, that is to say the second element of the pair that locates the asked time step.
+ * \param [in] mrs - the request for what to be loaded.
+ * \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this mesh using decrRef() as it is no more needed.
+ */
+MEDFileUMesh *MEDFileUMesh::LoadPartOf(const std::string& fileName, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+  return MEDFileUMesh::LoadPartOf(fid,mName,types,slicPerTyp,dt,it,mrs);
+}
+
+/*!
+ * Please refer to the other MEDFileUMesh::LoadPartOf method that has the same semantic and the same parameter (excepted the first).
+ * This method is \b NOT wrapped into python.
+ */
+MEDFileUMesh *MEDFileUMesh::LoadPartOf(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
+  ret->loadPartUMeshFromFile(fid,mName,types,slicPerTyp,dt,it,mrs);
+  return ret.retn();
+}
+
 std::size_t MEDFileUMesh::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(MEDFileMesh::getHeapMemorySizeWithoutChildren());
@@ -2192,19 +2226,52 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
+/*!
+ * This method loads only a part of specified cells (given by range of cell ID per geometric type)
+ * See MEDFileUMesh::LoadPartOf for detailed description.
+ *
+ * \sa loadUMeshFromFile
+ */
+void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUMeshL2 loaderl2;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  int dummy0,dummy1;
+  std::string dummy2;
+  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2));
+  if(meshType!=UNSTRUCTURED)
+    {
+      std::ostringstream oss; oss << "loadPartUMeshFromFile : Trying to load as unstructured an existing mesh with name '" << mName << "' !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  loaderl2.loadPart(fid,mid,mName,types,slicPerTyp,dt,it,mrs);
+  dispatchLoadedPart(fid,loaderl2,mName,mrs);
+}
+
+/*!
+ * This method loads \b all \b the \b mesh \a mName in the file with \a fid descriptor.
+ *
+ * \sa loadPartUMeshFromFile
+ */
 void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUMeshL2 loaderl2;
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dummy2;
-  int mid=MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2));
   if(meshType!=UNSTRUCTURED)
     {
       std::ostringstream oss; oss << "Trying to load as unstructured an existing mesh with name '" << mName << "' !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   loaderl2.loadAll(fid,mid,mName,dt,it,mrs);
+  dispatchLoadedPart(fid,loaderl2,mName,mrs);
+
+}
+
+void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl2, const std::string& mName, MEDFileMeshReadSelector *mrs)
+{
   int lev=loaderl2.getNumberOfLevels();
   _ms.resize(lev);
   for(int i=0;i<lev;i++)

@@ -200,6 +200,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT static MEDFileUMesh *New();
+    MEDLOADER_EXPORT static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileUMesh *LoadPartOf(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
@@ -284,7 +286,9 @@ namespace ParaMEDMEM
     void writeLL(med_idt fid) const;
     MEDFileUMesh();
     MEDFileUMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void loadPartUMeshFromFile(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
     void loadUMeshFromFile(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
+    void dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl2, const std::string& mName, MEDFileMeshReadSelector *mrs);
     const MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMaxExt) const;
     MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMaxExt);
     void checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const;

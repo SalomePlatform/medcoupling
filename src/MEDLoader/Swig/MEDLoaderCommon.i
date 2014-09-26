@@ -95,6 +95,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::computeAllFamilyIdsInUse;
 %newobject ParaMEDMEM::MEDFileStructuredMesh::getImplicitFaceMesh;
 %newobject ParaMEDMEM::MEDFileUMesh::New;
+%newobject ParaMEDMEM::MEDFileUMesh::LoadPartOf;
 %newobject ParaMEDMEM::MEDFileUMesh::getCoords;
 %newobject ParaMEDMEM::MEDFileUMesh::getGroup;
 %newobject ParaMEDMEM::MEDFileUMesh::getGroups;
@@ -782,6 +783,17 @@ namespace ParaMEDMEM
          MEDFileUMesh()
          {
            return MEDFileUMesh::New();
+         }
+
+         static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<int> typesCpp1;
+           convertPyToNewIntArr3(types,typesCpp1);
+           std::size_t sz(typesCpp1.size());
+           std::vector<INTERP_KERNEL::NormalizedCellType> typesCpp2(sz);
+           for(std::size_t ii=0;ii<sz;ii++)
+             typesCpp2[ii]=(INTERP_KERNEL::NormalizedCellType)typesCpp1[ii];
+           return MEDFileUMesh::LoadPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs);
          }
          
          PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)

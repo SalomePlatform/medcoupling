@@ -15905,6 +15905,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayDouble([(7.,7.),(7.,7.),(7.,7.)]),1e-12))
         pass
 
+    def testSwig2PointSetComputeFetchedNodeIds1(self):
+        arr=DataArrayDouble(6) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr,arr)
+        m=m.buildUnstructured()
+        m0=m[[0,1,5,6,25,26,30,31,124]]
+        ref=DataArrayInt([0,1,2,6,7,8,12,13,14,36,37,38,42,43,44,48,49,50,72,73,74,78,79,80,84,85,86,172,173,178,179,208,209,214,215])
+        self.assertTrue(m0.computeFetchedNodeIds().isEqual(ref))
+        self.assertTrue(MEDCoupling1SGTUMesh(m0).computeFetchedNodeIds().isEqual(ref))
+        self.assertEqual(m0.getAllGeoTypes(),[NORM_HEXA8])
+        m0.convertAllToPoly()
+        self.assertEqual(m0.getAllGeoTypes(),[NORM_POLYHED])
+        self.assertTrue(MEDCoupling1DGTUMesh(m0).computeFetchedNodeIds().isEqual(ref))
+        pass
+
     pass
 
 if __name__ == '__main__':

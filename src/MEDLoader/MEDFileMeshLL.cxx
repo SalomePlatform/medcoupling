@@ -243,22 +243,58 @@ MEDFileUMeshL2::MEDFileUMeshL2()
 {
 }
 
-void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, int mId, const std::string& mName, int dt, int it, int& Mdim)
 {
+  Mdim=-3;
   _name.set(mName.c_str());
   int nstep;
-  int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim);
+  std::vector<std::string> ret(getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim));
   if(nstep==0)
-    return ;
+    {
+      Mdim=-4;
+      return std::vector<std::string>();
+    }
   if(meshType!=UNSTRUCTURED)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected an unstructured one whereas in file it is not an unstructured !");
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
   _iteration=dt;
   _order=it;
+  return ret;
+}
+
+void MEDFileUMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  int Mdim;
+  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
+  if(Mdim==-4)
+    return ;
   loadConnectivity(fid,Mdim,mName,dt,it,mrs);//to improve check (dt,it) coherency
   loadCoords(fid,mId,infosOnComp,mName,dt,it);
+}
+
+void MEDFileUMeshL2::loadPart(med_idt fid, int mId, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  int Mdim;
+  std::vector<std::string> infosOnComp(loadCommonPart(fid,mId,mName,dt,it,Mdim));
+  if(Mdim==-4)
+    return ;
+  loadPartOfConnectivity(fid,Mdim,mName,types,slicPerTyp,dt,it,mrs);
+  med_bool changement,transformation;
+  int nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  std::vector<bool> fetchedNodeIds(nCoords,false);
+  for(std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
+    for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+      (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(DataArrayInt::BuildListOfSwitchedOn(fetchedNodeIds));
+  std::map<int,int> o2n;
+  int newId(0);
+  for(const int *it0=n2o->begin();it0!=n2o->end();it0++,newId++)
+    o2n[*it0]=newId;
+  for(std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
+    for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+      (*it1)->getMesh()->renumberNodesInConn(o2n);
+  loadPartCoords(fid,mId,infosOnComp,mName,dt,it,n2o);
 }
 
 void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -267,21 +303,40 @@ void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& 
   _per_type_mesh[0].clear();
   for(int j=0;j<MED_N_CELL_FIXED_GEO;j++)
     {
-      MEDFileUMeshPerType *tmp=MEDFileUMeshPerType::New(fid,mName.c_str(),dt,it,mdim,typmai[j],typmai2[j],mrs);
+      MEDFileUMeshPerType *tmp(MEDFileUMeshPerType::New(fid,mName.c_str(),dt,it,mdim,typmai[j],typmai2[j],mrs));
       if(tmp)
         _per_type_mesh[0].push_back(tmp);
     }
   sortTypes();
 }
 
+void MEDFileUMeshL2::loadPartOfConnectivity(med_idt fid, int mdim, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  std::size_t nbOfTypes(types.size());
+  if(slicPerTyp.size()!=3*nbOfTypes)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartOfConnectivity : The size of slicPerTyp array is expected to be equal to 3 times size of array types !");
+  std::set<INTERP_KERNEL::NormalizedCellType> types2(types.begin(),types.end());
+  if(types2.size()!=nbOfTypes)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartOfConnectivity : the geometric types in types array must appear once !");
+  _per_type_mesh.resize(1);
+  _per_type_mesh[0].clear();
+  for(std::size_t ii=0;ii<nbOfTypes;ii++)
+    {
+      int strt(slicPerTyp[3*ii+0]),stp(slicPerTyp[3*ii+1]),step(slicPerTyp[3*ii+2]);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,types[ii],strt,stp,step,mrs));
+      _per_type_mesh[0].push_back(tmp);
+    }
+  sortTypes();
+}
+
 void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it)
 {
-  int spaceDim=infosOnComp.size();
+  int spaceDim((int)infosOnComp.size());
   med_bool changement,transformation;
-  int nCoords=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation);
+  int nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   _coords=DataArrayDouble::New();
   _coords->alloc(nCoords,spaceDim);
-  double *coordsPtr=_coords->getPointer();
+  double *coordsPtr(_coords->getPointer());
   MEDmeshNodeCoordinateRd(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,coordsPtr);
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
@@ -310,6 +365,57 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
     _name_coords=0;
   for(int i=0;i<spaceDim;i++)
     _coords->setInfoOnComponent(i,infosOnComp[i]);
+}
+
+/*!
+ * \param [in] n2o - List all ids to be selected. \b WARNING it is an input parameter \b but non const because the array is modified during the treatment of this
+ *                   method. But at the end of the method the state is the same as those before entering in the method (except time label !). This is the consequence of FORTRAN <-> C mode.
+ */
+void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, DataArrayInt *n2o)
+{
+  if(!n2o || !n2o->isAllocated() || n2o->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartCoords : n2o must be not NULL and allocated and with one component !");
+  med_bool changement,transformation;
+  int spaceDim((int)infosOnComp.size()),nbNodesToLoad(n2o->getNumberOfTuples()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  _coords=DataArrayDouble::New();
+  _coords->alloc(nbNodesToLoad,spaceDim);
+  med_filter filter=MED_FILTER_INIT,filter2=MED_FILTER_INIT;
+  n2o->applyLin(1,1);//C -> FORTRAN
+  MEDfilterEntityCr(fid,/*nentity*/nCoords,/*nvaluesperentity*/1,/*nconstituentpervalue*/spaceDim,
+                    /*constituentselect*/MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
+                    /*profilename*/MED_NO_PROFILE,/*filterarraysize*/nbNodesToLoad,/*filterarray*/n2o->begin(),&filter);
+  MEDmeshNodeCoordinateAdvancedRd(fid,mName.c_str(),dt,it,&filter,_coords->getPointer());
+  MEDfilterClose(&filter);
+  MEDfilterEntityCr(fid,nCoords,1,1,MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
+                    MED_NO_PROFILE,nbNodesToLoad,n2o->begin(),&filter2);
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      _fam_coords=DataArrayInt::New();
+      _fam_coords->alloc(nbNodesToLoad,1);
+      MEDmeshEntityAttributeAdvancedRd(fid,mName.c_str(),MED_FAMILY_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_fam_coords->getPointer());
+    }
+  else
+    _fam_coords=0;
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      _num_coords=DataArrayInt::New();
+      _num_coords->alloc(nbNodesToLoad,1);
+      MEDmeshEntityAttributeAdvancedRd(fid,mName.c_str(),MED_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_num_coords->getPointer());
+    }
+  else
+    _num_coords=0;
+  if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_NAME,MED_NODAL,&changement,&transformation)>0)
+    {
+      _name_coords=DataArrayAsciiChar::New();
+      _name_coords->alloc(nbNodesToLoad+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
+      MEDmeshEntityAttributeAdvancedRd(fid,mName.c_str(),MED_NAME,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_name_coords->getPointer());
+      _name_coords->reAlloc(nbNodesToLoad);//not a bug to avoid the memory corruption due to last \0 at the end
+    }
+  else
+    _name_coords=0;
+  n2o->applyLin(1,-1);//FORTRAN -> C
+  MEDfilterClose(&filter2);
+  _coords->setInfoOnComponents(infosOnComp);
 }
 
 void MEDFileUMeshL2::sortTypes()

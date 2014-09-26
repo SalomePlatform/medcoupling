@@ -1425,10 +1425,8 @@ DataArrayInt *MEDCouplingUMesh::computeFetchedNodeIds() const
  */
 void MEDCouplingUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
-  int nbOfNodes=(int)nodeIdsInUse.size();
-  int nbOfCells=getNumberOfCells();
-  const int *connIndex=_nodal_connec_index->getConstPointer();
-  const int *conn=_nodal_connec->getConstPointer();
+  int nbOfNodes((int)nodeIdsInUse.size()),nbOfCells(getNumberOfCells());
+  const int *connIndex(_nodal_connec_index->getConstPointer()),*conn(_nodal_connec->getConstPointer());
   for(int i=0;i<nbOfCells;i++)
     for(int j=connIndex[i]+1;j<connIndex[i+1];j++)
       if(conn[j]>=0)
@@ -1437,7 +1435,7 @@ void MEDCouplingUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
             nodeIdsInUse[conn[j]]=true;
           else
             {
-              std::ostringstream oss; oss << "MEDCouplingUMesh::getNodeIdsInUse : In cell #" << i  << " presence of node id " <<  conn[j] << " not in [0," << nbOfNodes << ") !";
+              std::ostringstream oss; oss << "MEDCouplingUMesh::computeNodeIdsAlg : In cell #" << i  << " presence of node id " <<  conn[j] << " not in [0," << nbOfNodes << ") !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
@@ -1460,12 +1458,12 @@ void MEDCouplingUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
  *  \ref cpp_mcumesh_getNodeIdsInUse "Here is a C++ example".<br>
  *  \ref  py_mcumesh_getNodeIdsInUse "Here is a Python example".
  *  \endif
- * \sa computeNodeIdsAlg()
+ * \sa computeFetchedNodeIds, computeNodeIdsAlg()
  */
 DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 {
   nbrOfNodesInUse=-1;
-  int nbOfNodes=getNumberOfNodes();
+  int nbOfNodes(getNumberOfNodes());
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfNodes,1);
   int *traducer=ret->getPointer();
@@ -2497,6 +2495,39 @@ void MEDCouplingUMesh::duplicateNodes(const int *nodeIdsToDuplicateBg, const int
   int nbOfNodes=getNumberOfNodes();
   duplicateNodesInCoords(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd);
   duplicateNodesInConn(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,nbOfNodes);
+}
+
+/*!
+ *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
+ *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
+ *  of a big mesh.
+ */
+void MEDCouplingUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+{
+  checkConnectivityFullyDefined();
+  int *conn(getNodalConnectivity()->getPointer());
+  const int *connIndex(getNodalConnectivityIndex()->getConstPointer());
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+      {
+        int& node=conn[iconn];
+        if(node>=0)//avoid polyhedron separator
+          {
+            std::map<int,int>::const_iterator it(newNodeNumbersO2N.find(node));
+            if(it!=newNodeNumbersO2N.end())
+              {
+                node=(*it).second;
+              }
+            else
+              {
+                std::ostringstream oss; oss << "MEDCouplingUMesh::renumberNodesInConn(map) : presence in connectivity for cell #" << i << " of node #" << node << " : Not in map !";
+                throw INTERP_KERNEL::Exception(oss.str().c_str());
+              }
+          }
+      }
+  _nodal_connec->declareAsNew();
+  updateTime();
 }
 
 /*!

@@ -284,7 +284,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getIJSafe(int tupleId, int compoId) const;
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); declareAsNew(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayDoubleIterator *iterator();
@@ -527,7 +527,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int back() const;
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); declareAsNew(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayIntIterator *iterator();
@@ -727,7 +727,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT char back() const;
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, char newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, char newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT char *getPointer() { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT char *getPointer() { return _mem.getPointer(); declareAsNew(); }
     MEDCOUPLING_EXPORT const char *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT const char *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const char *end() const { return getConstPointer()+getNbOfElems(); }
