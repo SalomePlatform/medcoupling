@@ -2498,23 +2498,50 @@ void MEDCouplingUMesh::duplicateNodes(const int *nodeIdsToDuplicateBg, const int
 }
 
 /*!
- *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
- *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
- *  of a big mesh.
+ * This method renumbers only nodal connectivity in \a this. The renumbering is only an offset applied. So this method is a specialization of
+ * \a renumberNodesInConn. \b WARNING, this method does not check that the resulting node ids in the nodal connectivity is in a valid range !
+ *
+ * \param [in] offset - specifies the offset to be applied on each element of connectivity.
+ *
+ * \sa renumberNodesInConn
  */
-void MEDCouplingUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+void MEDCouplingUMesh::renumberNodesWithOffsetInConn(int offset)
 {
   checkConnectivityFullyDefined();
   int *conn(getNodalConnectivity()->getPointer());
   const int *connIndex(getNodalConnectivityIndex()->getConstPointer());
-  int nbOfCells=getNumberOfCells();
+  int nbOfCells(getNumberOfCells());
   for(int i=0;i<nbOfCells;i++)
     for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
       {
         int& node=conn[iconn];
         if(node>=0)//avoid polyhedron separator
           {
-            std::map<int,int>::const_iterator it(newNodeNumbersO2N.find(node));
+            node+=offset;
+          }
+      }
+  _nodal_connec->declareAsNew();
+  updateTime();
+}
+
+/*!
+ *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
+ *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
+ *  of a big mesh.
+ */
+void MEDCouplingUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N)
+{
+  checkConnectivityFullyDefined();
+  int *conn(getNodalConnectivity()->getPointer());
+  const int *connIndex(getNodalConnectivityIndex()->getConstPointer());
+  int nbOfCells(getNumberOfCells());
+  for(int i=0;i<nbOfCells;i++)
+    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+      {
+        int& node=conn[iconn];
+        if(node>=0)//avoid polyhedron separator
+          {
+            INTERP_KERNEL::HashMap<int,int>::const_iterator it(newNodeNumbersO2N.find(node));
             if(it!=newNodeNumbersO2N.end())
               {
                 node=(*it).second;
@@ -2550,7 +2577,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
   checkConnectivityFullyDefined();
   int *conn=getNodalConnectivity()->getPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
-  int nbOfCells=getNumberOfCells();
+  int nbOfCells(getNumberOfCells());
   for(int i=0;i<nbOfCells;i++)
     for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
       {

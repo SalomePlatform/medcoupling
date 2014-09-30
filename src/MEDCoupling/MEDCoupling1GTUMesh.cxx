@@ -1068,11 +1068,26 @@ DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 }
 
 /*!
+ * This method renumbers only nodal connectivity in \a this. The renumbering is only an offset applied. So this method is a specialization of
+ * \a renumberNodesInConn. \b WARNING, this method does not check that the resulting node ids in the nodal connectivity is in a valid range !
+ *
+ * \param [in] offset - specifies the offset to be applied on each element of connectivity.
+ *
+ * \sa renumberNodesInConn
+ */
+void MEDCoupling1SGTUMesh::renumberNodesWithOffsetInConn(int offset)
+{
+  getNumberOfCells();//only to check that all is well defined.
+  _conn->applyLin(1,offset);
+  updateTime();
+}
+
+/*!
  *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
  *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
  *  of a big mesh.
  */
-void MEDCoupling1SGTUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+void MEDCoupling1SGTUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N)
 {
   getNumberOfCells();//only to check that all is well defined.
   int *begPtr(_conn->getPointer());
@@ -1080,7 +1095,7 @@ void MEDCoupling1SGTUMesh::renumberNodesInConn(const std::map<int,int>& newNodeN
   int *endPtr(begPtr+nbElt);
   for(int *it=begPtr;it!=endPtr;it++)
     {
-      std::map<int,int>::const_iterator it2(newNodeNumbersO2N.find(*it));
+      INTERP_KERNEL::HashMap<int,int>::const_iterator it2(newNodeNumbersO2N.find(*it));
       if(it2!=newNodeNumbersO2N.end())
         {
           *it=(*it2).second;
@@ -3094,11 +3109,34 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 }
 
 /*!
+ * This method renumbers only nodal connectivity in \a this. The renumbering is only an offset applied. So this method is a specialization of
+ * \a renumberNodesInConn. \b WARNING, this method does not check that the resulting node ids in the nodal connectivity is in a valid range !
+ *
+ * \param [in] offset - specifies the offset to be applied on each element of connectivity.
+ *
+ * \sa renumberNodesInConn
+ */
+void MEDCoupling1DGTUMesh::renumberNodesWithOffsetInConn(int offset)
+{
+  getNumberOfCells();//only to check that all is well defined.
+  //
+  int nbElemsIn(getNumberOfNodes()),nbOfTuples(_conn->getNumberOfTuples());
+  int *pt(_conn->getPointer());
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      if(*pt==-1) continue;
+      *pt+=offset;
+    }
+  //
+  updateTime();
+}
+
+/*!
  *  Same than renumberNodesInConn(const int *) except that here the format of old-to-new traducer is using map instead
  *  of array. This method is dedicated for renumbering from a big set of nodes the a tiny set of nodes which is the case during extraction
  *  of a big mesh.
  */
-void MEDCoupling1DGTUMesh::renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N)
+void MEDCoupling1DGTUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N)
 {
   getNumberOfCells();//only to check that all is well defined.
   //
@@ -3109,7 +3147,7 @@ void MEDCoupling1DGTUMesh::renumberNodesInConn(const std::map<int,int>& newNodeN
       if(*pt==-1) continue;
       if(*pt>=0 && *pt<nbElemsIn)
         {
-          std::map<int,int>::const_iterator it(newNodeNumbersO2N.find(*pt));
+          INTERP_KERNEL::HashMap<int,int>::const_iterator it(newNodeNumbersO2N.find(*pt));
           if(it!=newNodeNumbersO2N.end())
             *pt=(*it).second;
           else

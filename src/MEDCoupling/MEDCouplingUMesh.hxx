@@ -140,7 +140,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
                                                  DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const;
     MEDCOUPLING_EXPORT void duplicateNodes(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd);
-    MEDCOUPLING_EXPORT void renumberNodesInConn(const std::map<int,int>& newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void renumberNodesWithOffsetInConn(int offset);
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void shiftNodeNumbersInConn(int delta);
     MEDCOUPLING_EXPORT void duplicateNodesInConn(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd, int offset);

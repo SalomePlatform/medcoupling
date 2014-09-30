@@ -286,15 +286,13 @@ void MEDFileUMeshL2::loadPart(med_idt fid, int mId, const std::string& mName, co
   for(std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
     for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
       (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(DataArrayInt::BuildListOfSwitchedOn(fetchedNodeIds));
-  std::map<int,int> o2n;
-  int newId(0);
-  for(const int *it0=n2o->begin();it0!=n2o->end();it0++,newId++)
-    o2n[*it0]=newId;
+  int nMin(std::distance(fetchedNodeIds.begin(),std::find(fetchedNodeIds.begin(),fetchedNodeIds.end(),true)));
+  int nMax(std::distance(fetchedNodeIds.rbegin(),std::find(fetchedNodeIds.rbegin(),fetchedNodeIds.rend(),true)));
+  nMax=nCoords-nMax-1;
   for(std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
     for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-      (*it1)->getMesh()->renumberNodesInConn(o2n);
-  loadPartCoords(fid,mId,infosOnComp,mName,dt,it,n2o);
+      (*it1)->getMesh()->renumberNodesWithOffsetInConn(-nMin);
+  loadPartCoords(fid,mId,infosOnComp,mName,dt,it,nMin,nMax);
 }
 
 void MEDFileUMeshL2::loadConnectivity(med_idt fid, int mdim, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -367,27 +365,22 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
     _coords->setInfoOnComponent(i,infosOnComp[i]);
 }
 
-/*!
- * \param [in] n2o - List all ids to be selected. \b WARNING it is an input parameter \b but non const because the array is modified during the treatment of this
- *                   method. But at the end of the method the state is the same as those before entering in the method (except time label !). This is the consequence of FORTRAN <-> C mode.
- */
-void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, DataArrayInt *n2o)
+void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std::string>& infosOnComp, const std::string& mName, int dt, int it, int nMin, int nMax)
 {
-  if(!n2o || !n2o->isAllocated() || n2o->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartCoords : n2o must be not NULL and allocated and with one component !");
   med_bool changement,transformation;
-  int spaceDim((int)infosOnComp.size()),nbNodesToLoad(n2o->getNumberOfTuples()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
+  int spaceDim((int)infosOnComp.size()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   _coords=DataArrayDouble::New();
+  int nbNodesToLoad(nMax-nMin+1);
   _coords->alloc(nbNodesToLoad,spaceDim);
   med_filter filter=MED_FILTER_INIT,filter2=MED_FILTER_INIT;
-  n2o->applyLin(1,1);//C -> FORTRAN
-  MEDfilterEntityCr(fid,/*nentity*/nCoords,/*nvaluesperentity*/1,/*nconstituentpervalue*/spaceDim,
-                    /*constituentselect*/MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
-                    /*profilename*/MED_NO_PROFILE,/*filterarraysize*/nbNodesToLoad,/*filterarray*/n2o->begin(),&filter);
+  MEDfilterBlockOfEntityCr(fid,/*nentity*/nCoords,/*nvaluesperentity*/1,/*nconstituentpervalue*/spaceDim,
+                           MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
+                           /*start*/nMin+1,/*stride*/1,/*count*/1,/*blocksize*/nbNodesToLoad,
+                           /*lastblocksize=useless because count=1*/0,&filter);
   MEDmeshNodeCoordinateAdvancedRd(fid,mName.c_str(),dt,it,&filter,_coords->getPointer());
   MEDfilterClose(&filter);
-  MEDfilterEntityCr(fid,nCoords,1,1,MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
-                    MED_NO_PROFILE,nbNodesToLoad,n2o->begin(),&filter2);
+  MEDfilterBlockOfEntityCr(fid,nCoords,1,1,MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
+                           MED_NO_PROFILE,nMin+1,1,1,nbNodesToLoad,0,&filter2);
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       _fam_coords=DataArrayInt::New();
@@ -413,7 +406,6 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
     }
   else
     _name_coords=0;
-  n2o->applyLin(1,-1);//FORTRAN -> C
   MEDfilterClose(&filter2);
   _coords->setInfoOnComponents(infosOnComp);
 }
