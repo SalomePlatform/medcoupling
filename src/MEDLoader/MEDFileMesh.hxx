@@ -24,6 +24,7 @@
 #include "MEDLoaderDefines.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileUtilities.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 #include "MEDFileMeshReadSelector.hxx"
 
 #include <map>
@@ -224,6 +225,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
+    MEDLOADER_EXPORT const PartDefinition *getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt=INTERP_KERNEL::NORM_ERROR) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
     MEDLOADER_EXPORT bool hasImplicitPart() const;
     MEDLOADER_EXPORT int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const;
@@ -262,6 +264,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDLOADER_EXPORT DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDLOADER_EXPORT DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
+    MEDLOADER_EXPORT int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     //
     MEDLOADER_EXPORT void setFamilyNameAttachedOnId(int id, const std::string& newFamName);
     MEDLOADER_EXPORT void setCoords(DataArrayDouble *coords);
@@ -306,6 +309,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _name_coords;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_coords;
+    MEDCouplingAutoRefCountObjectPtr<PartDefinition> _part_coords;
   };
 
   class MEDFileStructuredMesh : public MEDFileMesh

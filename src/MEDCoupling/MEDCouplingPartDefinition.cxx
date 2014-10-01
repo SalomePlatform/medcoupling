@@ -178,6 +178,13 @@ int SlicePartDefinition::getEffectiveStop() const
   return _start+nbElems*_step;
 }
 
+void SlicePartDefinition::getSlice(int& start, int& stop, int& step) const
+{
+  start=_start;
+  stop=_stop;
+  step=_step;
+}
+
 SlicePartDefinition::SlicePartDefinition(int start, int stop, int step):_start(start),_stop(stop),_step(step)
 {
 }

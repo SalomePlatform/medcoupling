@@ -27,6 +27,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
@@ -51,6 +52,7 @@ namespace ParaMEDMEM
     int getIteration() const { return _iteration; }
     int getOrder() const { return _order; }
     double getTime() const { return _time; }
+    MEDCouplingAutoRefCountObjectPtr<PartDefinition> getPartDefOfCoo() const { return _part_coords; }
     std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim);
     static int GetMeshIdFromName(med_idt fid, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1);
     static double CheckMeshTimeStep(med_idt fid, const std::string& mname, int nstep, int dt, int it);
@@ -64,6 +66,7 @@ namespace ParaMEDMEM
     int _iteration;
     int _order;
     double _time;
+    MEDCouplingAutoRefCountObjectPtr<PartDefinition> _part_coords;
   };
 
   class MEDFileUMeshL2 : public MEDFileMeshL2
@@ -149,12 +152,13 @@ namespace ParaMEDMEM
     MEDFileUMeshAggregateCompute();
     void setName(const std::string& name);
     void assignParts(const std::vector< const MEDCoupling1GTUMesh * >& mParts);
+    void assignDefParts(const std::vector<const PartDefinition *>& partDefs);
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
-    std::vector<MEDCoupling1GTUMesh *> getPartsWithoutComputation() const;
-    MEDCoupling1GTUMesh *getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
+    std::vector<MEDCoupling1GTUMesh *> retrievePartsWithoutComputation() const;
+    MEDCoupling1GTUMesh *retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
     void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -169,6 +173,7 @@ namespace ParaMEDMEM
     int getSize() const;
     void setCoords(DataArrayDouble *coords);
     void forceComputationOfPartsFromUMesh() const;
+    const PartDefinition *getPartDefOfWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
   private:
     std::size_t getTimeOfParts() const;
     std::size_t getTimeOfUMesh() const;
@@ -177,6 +182,7 @@ namespace ParaMEDMEM
     mutable std::size_t _mp_time;
     mutable std::size_t _m_time;
     mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
+    mutable std::vector< MEDCouplingAutoRefCountObjectPtr<PartDefinition> > _part_def;
   };
 
   class MEDFileUMeshSplitL1 : public RefCountObject
@@ -208,8 +214,8 @@ namespace ParaMEDMEM
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
-    std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.getPartsWithoutComputation(); }
-    MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.getPartWithoutComputation(gt); }
+    std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.retrievePartsWithoutComputation(); }
+    MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.retrievePartWithoutComputation(gt); }
     DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     std::vector<int> getDistributionOfTypes() const { return _m_by_types.getDistributionOfTypes(); }
@@ -218,6 +224,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getNumberField() const;
     const DataArrayAsciiChar *getNameField() const;
     const DataArrayInt *getRevNumberField() const;
+    const PartDefinition *getPartDef(INTERP_KERNEL::NormalizedCellType gt) const;
     void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups);

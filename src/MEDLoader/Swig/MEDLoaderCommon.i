@@ -97,6 +97,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::New;
 %newobject ParaMEDMEM::MEDFileUMesh::LoadPartOf;
 %newobject ParaMEDMEM::MEDFileUMesh::getCoords;
+%newobject ParaMEDMEM::MEDFileUMesh::getPartDefAtLevel;
 %newobject ParaMEDMEM::MEDFileUMesh::getGroup;
 %newobject ParaMEDMEM::MEDFileUMesh::getGroups;
 %newobject ParaMEDMEM::MEDFileUMesh::getFamily;
@@ -727,6 +728,7 @@ namespace ParaMEDMEM
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
+    int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     //
     std::vector<int> getGrpNonEmptyLevels(const std::string& grp) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getGrpNonEmptyLevelsExt(const std::string& grp) const throw(INTERP_KERNEL::Exception);
@@ -838,6 +840,14 @@ namespace ParaMEDMEM
            if(ret)
              ret->incrRef();
            return ret;
+         }
+
+         PartDefinition *getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt=INTERP_KERNEL::NORM_ERROR) const throw(INTERP_KERNEL::Exception)
+         {
+           const PartDefinition *ret(self->getPartDefAtLevel(meshDimRelToMaxExt,gt));
+           if(ret)
+             ret->incrRef();
+           return const_cast<PartDefinition *>(ret);
          }
 
          PyObject *duplicateNodesOnM1Group(const std::string& grpNameM1) throw(INTERP_KERNEL::Exception)

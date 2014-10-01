@@ -23,6 +23,7 @@
 
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
@@ -47,6 +48,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getFam() const { return _fam; }
     const DataArrayInt *getNum() const { return _num; }
     const DataArrayAsciiChar *getNames() const { return _names; }
+    const PartDefinition *getPartDef() const { return _pd; }
     static void Write(med_idt fid, const std::string& mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayInt *fam, const DataArrayInt *num, const DataArrayAsciiChar *names);
   private:
     MEDFileUMeshPerType();
@@ -69,6 +71,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
     MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names;
+    MEDCouplingAutoRefCountObjectPtr<PartDefinition> _pd;
     med_entity_type _entity;
   };
 }

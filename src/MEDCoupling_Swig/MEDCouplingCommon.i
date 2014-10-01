@@ -5466,6 +5466,13 @@ namespace ParaMEDMEM
       {
         return SlicePartDefinition::New(start,stop,step);
       }
+
+      PyObject *getSlice() const throw(INTERP_KERNEL::Exception)
+      {
+        int a,b,c;
+        self->getSlice(a,b,c);
+        return PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(c));
+      }
       
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {

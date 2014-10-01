@@ -2032,6 +2032,7 @@ std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() c
   ret.push_back((const DataArrayInt *)_num_coords);
   ret.push_back((const DataArrayInt *)_rev_num_coords);
   ret.push_back((const DataArrayAsciiChar *)_name_coords);
+  ret.push_back((const PartDefinition *)_part_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     ret.push_back((const MEDFileUMeshSplitL1*) *it);
   return ret;
@@ -2297,6 +2298,7 @@ void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl
     _num_coords=loaderl2.getCoordsNum();
   if(!mrs || mrs->isNodeNameFieldReading())
     _name_coords=loaderl2.getCoordsName();
+  _part_coords=loaderl2.getPartDefOfCoo();
   computeRevNum();
 }
 
@@ -2755,6 +2757,21 @@ const DataArrayAsciiChar *MEDFileUMesh::getNameFieldAtLevel(int meshDimRelToMaxE
   return l1->getNameField();
 }
 
+/*!
+ * This method returns for a specified relative level \a meshDimRelToMaxExt the part effectively read (if the instance is the result of the read of a file).
+ *
+ * \param [in] meshDimRelToMaxExt - the extended relative level for which the part definition is requested.
+ * \param [in] gt - The input geometric type for which the part definition is requested.
+ * \return the part definition owned by \a this. So no need to deallocate the returned instance.
+ */
+const PartDefinition *MEDFileUMesh::getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt) const
+{
+  if(meshDimRelToMaxExt==1)
+    return _part_coords;
+  const MEDFileUMeshSplitL1 *l1(getMeshAtLevSafe(meshDimRelToMaxExt));
+  return l1->getPartDef(gt);
+}
+
 int MEDFileUMesh::getNumberOfNodes() const
 {
   const DataArrayDouble *coo=_coords;
@@ -3162,6 +3179,18 @@ DataArrayInt *MEDFileUMesh::extractNumberFieldOnGeoType(INTERP_KERNEL::Normalize
   int lev=(int)cm.getDimension()-getMeshDimension();
   const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
   return sp->extractNumberFieldOnGeoType(gt);
+}
+
+/*!
+ * This method returns for specified geometric type \a gt the relative level to \a this.
+ * If the relative level is empty an exception will be thrown.
+ */
+int MEDFileUMesh::getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  int ret((int)cm.getDimension()-getMeshDimension());
+  getMeshAtLevSafe(ret);//To test that returned value corresponds to a valid level.
+  return ret;
 }
 
 const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt) const

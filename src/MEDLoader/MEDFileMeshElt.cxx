@@ -124,6 +124,7 @@ void MEDFileUMeshPerType::loadPart(med_idt fid, const char *mName, int dt, int i
   med_bool changement,transformation;
   int curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(type));
+  _pd=PartDefinition::New(strt,end,step);
   if(!cm.isDynamic())
     {
       loadPartStaticType(fid,mName,dt,it,mdim,curNbOfElem,geoElt,type,entity,strt,end,step,mrs);

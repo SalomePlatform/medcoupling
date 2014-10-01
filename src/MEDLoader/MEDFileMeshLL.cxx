@@ -378,6 +378,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
                            /*start*/nMin+1,/*stride*/1,/*count*/1,/*blocksize*/nbNodesToLoad,
                            /*lastblocksize=useless because count=1*/0,&filter);
   MEDmeshNodeCoordinateAdvancedRd(fid,mName.c_str(),dt,it,&filter,_coords->getPointer());
+  _part_coords=PartDefinition::New(nMin,nMax,1);
   MEDfilterClose(&filter);
   MEDfilterBlockOfEntityCr(fid,nCoords,1,1,MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
                            MED_NO_PROFILE,nMin+1,1,1,nbNodesToLoad,0,&filter2);
@@ -634,15 +635,18 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const std::st
   int sz=v.size();
   std::vector<const MEDCoupling1GTUMesh *> ms(sz);
   std::vector<const DataArrayInt *> fams(sz),nums(sz);
-  std::vector<const DataArrayChar *> names(sz); 
+  std::vector<const DataArrayChar *> names(sz);
+  std::vector<const PartDefinition *> pds(sz);
   for(int i=0;i<sz;i++)
     {
       MEDCoupling1GTUMesh *elt(v[i]->getMesh());
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp2=l2.getCoords();
       elt->setCoords(tmp2);
       ms[i]=elt;
+      pds[i]=v[i]->getPartDef();
     }
   _m_by_types.assignParts(ms);
+  _m_by_types.assignDefParts(pds);
   if(l2.isFamDefinedOnLev(id))
     {
       for(int i=0;i<sz;i++)
@@ -960,6 +964,11 @@ const DataArrayAsciiChar *MEDFileUMeshSplitL1::getNameField() const
   return _names;
 }
 
+const PartDefinition *MEDFileUMeshSplitL1::getPartDef(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  return _m_by_types.getPartDefOfWithoutComputation(gt);
+}
+
 void MEDFileUMeshSplitL1::eraseFamilyField()
 {
   _fam->fillWithZero();
@@ -1161,8 +1170,25 @@ void MEDFileUMeshAggregateCompute::assignParts(const std::vector< const MEDCoupl
       ret[i]=const_cast<MEDCoupling1GTUMesh *>(elt); elt->incrRef();
     }
   _m_parts=ret;
+  _part_def.clear(); _part_def.resize(sz);
   _mp_time=std::max(_mp_time,_m_time)+1;
   _m=0;
+}
+
+void MEDFileUMeshAggregateCompute::assignDefParts(const std::vector<const PartDefinition *>& partDefs)
+{
+  if(_mp_time<_m_time)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::assignDefParts : the parts require a computation !");
+  std::size_t sz(partDefs.size());
+  if(_part_def.size()!=partDefs.size() || _part_def.size()!=_m_parts.size())
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::assignDefParts : sizes of vectors of part definition mismatch !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const PartDefinition *elt(partDefs[i]);
+      if(elt)
+        elt->incrRef();
+      _part_def[i]=const_cast<PartDefinition*>(elt);
+    }
 }
 
 void MEDFileUMeshAggregateCompute::assignUMesh(MEDCouplingUMesh *m)
@@ -1198,7 +1224,7 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshAggregateCompute::get
     return _m->getAllGeoTypesSorted();
 }
 
-std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getPartsWithoutComputation() const
+std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::retrievePartsWithoutComputation() const
 {
   if(_mp_time<_m_time)
     throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartsWithoutComputation : the parts require a computation !");
@@ -1217,12 +1243,12 @@ std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::getParts() cons
 {
   if(_mp_time<_m_time)
     forceComputationOfPartsFromUMesh();
-  return getPartsWithoutComputation();
+  return retrievePartsWithoutComputation();
 }
 
-MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::getPartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
+MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
 {
-  std::vector<MEDCoupling1GTUMesh *> v(getPartsWithoutComputation());
+  std::vector<MEDCoupling1GTUMesh *> v(retrievePartsWithoutComputation());
   std::size_t sz(v.size());
   for(std::size_t i=0;i<sz;i++)
     {
@@ -1236,7 +1262,7 @@ MEDCoupling1GTUMesh *MEDFileUMeshAggregateCompute::getPartWithoutComputation(INT
 void MEDFileUMeshAggregateCompute::getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const
 {
   start=0; stop=0;
-  std::vector<MEDCoupling1GTUMesh *> v(getPartsWithoutComputation());
+  std::vector<MEDCoupling1GTUMesh *> v(retrievePartsWithoutComputation());
   std::size_t sz(v.size());
   for(std::size_t i=0;i<sz;i++)
     {
@@ -1265,7 +1291,26 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
   _m_parts.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     _m_parts[i]=MEDCoupling1GTUMesh::New(ms[i]);
+  _part_def.clear();
+  _part_def.resize(_m_parts.size());
   _mp_time=std::max(_mp_time,_m_time);
+}
+
+const PartDefinition *MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const
+{
+  if(_mp_time<_m_time)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : the parts require a computation !");
+  if(_m_parts.size()!=_part_def.size())
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : size of arrays are expected to be the same !");
+  std::size_t sz(_m_parts.size());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCoupling1GTUMesh *mesh(_m_parts[i]);
+      if(mesh)
+        if(mesh->getCellModelEnum()==gt)
+          return _part_def[i];
+    }
+  throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : The input geo type is not existing in this !");
 }
 
 std::size_t MEDFileUMeshAggregateCompute::getTimeOfThis() const

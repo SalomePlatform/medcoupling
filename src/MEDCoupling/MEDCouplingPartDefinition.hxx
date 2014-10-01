@@ -74,6 +74,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getRepr() const;
     //specific method
     MEDCOUPLING_EXPORT int getEffectiveStop() const;
+    MEDCOUPLING_EXPORT void getSlice(int& start, int& stop, int& step) const;
   private:
     SlicePartDefinition(int start, int stop, int step);
     MEDCOUPLING_EXPORT void updateTime() const;

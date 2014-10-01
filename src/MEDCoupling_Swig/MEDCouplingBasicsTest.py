@@ -15930,6 +15930,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,8,11,14,17,20])))
         self.assertEqual(pd.getNumberOfElems(),6)
         self.assertEqual(pd.getEffectiveStop(),23)
+        self.assertEqual(pd.getSlice(),slice(5,23,3))
         pd=PartDefinition.New(5,22,1)
         self.assertTrue(isinstance(pd,SlicePartDefinition))
         self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21])))
