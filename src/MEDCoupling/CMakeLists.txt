@@ -58,6 +58,7 @@ SET(medcoupling_SOURCES
   MEDCouplingCartesianAMRMesh.cxx
   MEDCouplingAMRAttribute.cxx
   MEDCouplingMatrix.cxx
+  MEDCouplingPartDefinition.cxx
   )
 
 SET(medcouplingremapper_SOURCES

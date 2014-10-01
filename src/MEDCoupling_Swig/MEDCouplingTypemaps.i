@@ -85,6 +85,21 @@ static PyObject* convertMultiFields(ParaMEDMEM::MEDCouplingMultiFields *mfs, int
   return ret;
 }
 
+static PyObject *convertPartDefinition(ParaMEDMEM::PartDefinition *pd, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(!pd)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<ParaMEDMEM::DataArrayPartDefinition *>(pd))
+    ret=SWIG_NewPointerObj((void*)pd,SWIGTYPE_p_ParaMEDMEM__DataArrayPartDefinition,owner);
+  else
+    ret=SWIG_NewPointerObj((void*)pd,SWIGTYPE_p_ParaMEDMEM__SlicePartDefinition,owner);
+  return ret;
+}
+
 static PyObject *convertCartesianAMRMesh(ParaMEDMEM::MEDCouplingCartesianAMRMeshGen *mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   if(!mesh)

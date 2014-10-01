@@ -43,6 +43,7 @@
 #include "MEDCouplingCartesianAMRMesh.hxx"
 #include "MEDCouplingAMRAttribute.hxx"
 #include "MEDCouplingMatrix.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 #include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -147,6 +148,18 @@ using namespace INTERP_KERNEL;
 %typemap(out) MEDCouplingMultiFields*
 {
   $result=convertMultiFields($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
+%typemap(out) ParaMEDMEM::PartDefinition*
+{
+  $result=convertPartDefinition($1,$owner);
+}
+
+%typemap(out) PartDefinition*
+{
+  $result=convertPartDefinition($1,$owner);
 }
 //$$$$$$$$$$$$$$$$$$
 
@@ -374,6 +387,11 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DenseMatrix::__add__;
 %newobject ParaMEDMEM::DenseMatrix::__sub__;
 %newobject ParaMEDMEM::DenseMatrix::__mul__;
+%newobject ParaMEDMEM::PartDefinition::New;
+%newobject ParaMEDMEM::PartDefinition::toDAI;
+%newobject ParaMEDMEM::PartDefinition::__add__;
+%newobject ParaMEDMEM::DataArrayPartDefinition::New;
+%newobject ParaMEDMEM::SlicePartDefinition::New;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -404,6 +422,9 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingDataForGodFather "$this->decrRef();"
 %feature("unref") MEDCouplingAMRAttribute "$this->decrRef();"
 %feature("unref") DenseMatrix "$this->decrRef();"
+%feature("unref") PartDefinition "$this->decrRef();"
+%feature("unref") DataArrayPartDefinition "$this->decrRef();"
+%feature("unref") SlicePartDefinition "$this->decrRef();"
 
 %rename(assign) *::operator=;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
@@ -5386,6 +5407,80 @@ namespace ParaMEDMEM
       }
 #endif
     }
+  };
+  
+  class PartDefinition : public RefCountObject, public TimeLabel
+  {
+  public:
+    static PartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
+    static PartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
+    virtual DataArrayInt *toDAI() const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfElems() const throw(INTERP_KERNEL::Exception);
+    virtual std::string getRepr() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      virtual PartDefinition *__add__(const PartDefinition& other) const throw(INTERP_KERNEL::Exception)
+      {
+        return (*self)+other;
+      }
+    }
+  protected:
+    virtual ~PartDefinition();
+  };
+
+  class DataArrayPartDefinition : public PartDefinition
+  {
+  public:
+    static DataArrayPartDefinition *New(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      DataArrayPartDefinition(DataArrayInt *listOfIds) throw(INTERP_KERNEL::Exception)
+      {
+        return DataArrayPartDefinition::New(listOfIds);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->getRepr();
+      }
+      
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss; oss << "DataArrayPartDefinition C++ instance at " << self << "." << std::endl;
+        oss << self->getRepr();
+        return oss.str();
+      }
+    }
+  protected:
+    virtual ~DataArrayPartDefinition();
+  };
+
+  class SlicePartDefinition : public PartDefinition
+  {
+  public:
+    static SlicePartDefinition *New(int start, int stop, int step) throw(INTERP_KERNEL::Exception);
+    int getEffectiveStop() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      SlicePartDefinition(int start, int stop, int step) throw(INTERP_KERNEL::Exception)
+      {
+        return SlicePartDefinition::New(start,stop,step);
+      }
+      
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->getRepr();
+      }
+      
+      std::string __repr__() const throw(INTERP_KERNEL::Exception)
+      {
+        std::ostringstream oss; oss << "SlicePartDefinition C++ instance at " << self << "." << std::endl;
+        oss << self->getRepr();
+        return oss.str();
+      }
+    }
+  protected:
+    virtual ~SlicePartDefinition();
   };
 }
 

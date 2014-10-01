@@ -15919,6 +15919,44 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(MEDCoupling1DGTUMesh(m0).computeFetchedNodeIds().isEqual(ref))
         pass
 
+    def testSwig2PartDefinition1(self):
+        pd=PartDefinition.New(5,22,3)
+        self.assertTrue(isinstance(pd,SlicePartDefinition))
+        self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,8,11,14,17,20])))
+        self.assertEqual(pd.getNumberOfElems(),6)
+        self.assertEqual(pd.getEffectiveStop(),23)
+        pd=PartDefinition.New(5,23,3)
+        self.assertTrue(isinstance(pd,SlicePartDefinition))
+        self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,8,11,14,17,20])))
+        self.assertEqual(pd.getNumberOfElems(),6)
+        self.assertEqual(pd.getEffectiveStop(),23)
+        pd=PartDefinition.New(5,22,1)
+        self.assertTrue(isinstance(pd,SlicePartDefinition))
+        self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21])))
+        self.assertEqual(pd.getNumberOfElems(),17)
+        self.assertEqual(pd.getEffectiveStop(),22)
+        pd=PartDefinition.New(5,23,3)+PartDefinition.New(23,27,3)
+        self.assertTrue(isinstance(pd,SlicePartDefinition))
+        self.assertEqual(pd.getNumberOfElems(),8)
+        self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,8,11,14,17,20,23,26])))
+        self.assertEqual(pd.getEffectiveStop(),29)
+        pd=SlicePartDefinition(5,22,1)
+        self.assertTrue(isinstance(pd,SlicePartDefinition))
+        self.assertTrue(pd.toDAI().isEqual(DataArrayInt([5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21])))
+        self.assertEqual(pd.getNumberOfElems(),17)
+        self.assertEqual(pd.getEffectiveStop(),22)
+        d=DataArrayInt([2,4,5,6,10])
+        pd=PartDefinition.New(d)
+        self.assertTrue(isinstance(pd,DataArrayPartDefinition))
+        self.assertEqual(pd.toDAI().getHiddenCppPointer(),d.getHiddenCppPointer())
+        pd=DataArrayPartDefinition(d)
+        self.assertEqual(pd.toDAI().getHiddenCppPointer(),d.getHiddenCppPointer())
+        pd=DataArrayPartDefinition(d)+DataArrayPartDefinition(DataArrayInt([12,14,20]))
+        self.assertTrue(isinstance(pd,DataArrayPartDefinition))
+        self.assertEqual(pd.getNumberOfElems(),8)
+        self.assertTrue(pd.toDAI().isEqual(DataArrayInt([2,4,5,6,10,12,14,20])))
+        pass
+
     pass
 
 if __name__ == '__main__':
