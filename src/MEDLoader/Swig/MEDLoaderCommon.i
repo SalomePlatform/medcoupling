@@ -124,6 +124,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMeshes::__iter__;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
+%newobject ParaMEDMEM::MEDFileFields::LoadPartOf;
 %newobject ParaMEDMEM::MEDFileFields::deepCpy;
 %newobject ParaMEDMEM::MEDFileFields::shallowCpy;
 %newobject ParaMEDMEM::MEDFileFields::getFieldWithName;
@@ -2254,6 +2255,7 @@ namespace ParaMEDMEM
   public:
     static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
     static MEDFileFields *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
+    static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0) throw(INTERP_KERNEL::Exception);
     MEDFileFields *deepCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
