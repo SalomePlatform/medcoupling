@@ -288,7 +288,7 @@ void MEDFileUMeshL2::loadPart(med_idt fid, int mId, const std::string& mName, co
       (*it1)->getMesh()->computeNodeIdsAlg(fetchedNodeIds);
   int nMin(std::distance(fetchedNodeIds.begin(),std::find(fetchedNodeIds.begin(),fetchedNodeIds.end(),true)));
   int nMax(std::distance(fetchedNodeIds.rbegin(),std::find(fetchedNodeIds.rbegin(),fetchedNodeIds.rend(),true)));
-  nMax=nCoords-nMax-1;
+  nMax=nCoords-nMax;
   for(std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
     for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
       (*it1)->getMesh()->renumberNodesWithOffsetInConn(-nMin);
@@ -370,7 +370,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
   med_bool changement,transformation;
   int spaceDim((int)infosOnComp.size()),nCoords(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation));
   _coords=DataArrayDouble::New();
-  int nbNodesToLoad(nMax-nMin+1);
+  int nbNodesToLoad(nMax-nMin);
   _coords->alloc(nbNodesToLoad,spaceDim);
   med_filter filter=MED_FILTER_INIT,filter2=MED_FILTER_INIT;
   MEDfilterBlockOfEntityCr(fid,/*nentity*/nCoords,/*nvaluesperentity*/1,/*nconstituentpervalue*/spaceDim,

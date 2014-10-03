@@ -3752,6 +3752,20 @@ class MEDLoaderTest(unittest.TestCase):
         arr[:,1]=range(100,125)
         f.setArray(arr)
         MEDLoader.WriteField(fileName,f,2)
+        f=MEDCouplingFieldDouble(ON_NODES,ONE_TIME) ; f.setMesh(m)
+        f.setName("FieldNode")
+        arr=DataArrayDouble(36,2) ; arr.setInfoOnComponents(compos)
+        arr[:,0]=range(200,236)
+        arr[:,1]=range(300,336)
+        f.setArray(arr)
+        f.checkCoherency()
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f)
+        #
+        ms=MEDFileMeshes()
+        mm=MEDFileUMesh.LoadPartOf(fileName,meshName,[NORM_QUAD4],[0,6,1])
+        ms.pushMesh(mm)
+        fs=MEDFileFields.LoadPartOf(fileName,False,ms)
+        self.assertEqual(fs[1][0].getFieldSplitedByType(),[(40,[(1,(0,14),'','')])])
         #
         ms=MEDFileMeshes()
         mm=MEDFileUMesh.LoadPartOf(fileName,meshName,[NORM_QUAD4],[3,15,1])
@@ -3762,6 +3776,10 @@ class MEDLoaderTest(unittest.TestCase):
         arr=DataArrayDouble(12,2) ; arr[:,0]=range(3,15) ; arr[:,1]=range(103,115)
         arr.setInfoOnComponents(compos)
         self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        fs[1][0].loadArrays()
+        arr=DataArrayDouble(21,2) ; arr[:,0]=range(203,224) ; arr[:,1]=range(303,324)
+        arr.setInfoOnComponents(compos)
+        self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
         pass
 
     pass
