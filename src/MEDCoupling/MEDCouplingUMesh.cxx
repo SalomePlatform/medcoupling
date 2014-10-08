@@ -9646,7 +9646,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
 /**
  * Provides a renumbering of the cells of this (which has to be a piecewise connected 1D line), so that
  * the segments of the line are indexed in consecutive order (i.e. cells \a i and \a i+1 are neighbors).
- * This doesn't modify the mesh.
+ * This doesn't modify the mesh. This method only works using nodal connectivity consideration. Coordinates of nodes are ignored here.
  * The caller is to deal with the resulting DataArrayInt.
  *  \throw If the coordinate array is not set.
  *  \throw If the nodal connectivity of the cells is not defined.
@@ -9656,8 +9656,8 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
 DataArrayInt *MEDCouplingUMesh::orderConsecutiveCells1D() const
 {
   checkFullyDefined();
-  if(getMeshDimension()!=1 || getSpaceDimension()!=2)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::orderConsecutiveCells1D works on unstructured mesh with (meshdim, spacedim) = (1,2)!");
+  if(getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::orderConsecutiveCells1D works on unstructured mesh with meshdim = 1 !");
 
   // Check that this is a line (and not a more complex 1D mesh) - each point is used at most by 2 segments:
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _d(DataArrayInt::New()),_dI(DataArrayInt::New());
