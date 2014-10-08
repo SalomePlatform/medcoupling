@@ -3896,7 +3896,9 @@ DataArrayInt *MEDCouplingUMesh::getCellIdsCrossingPlane(const double *origin, co
   if(angle>eps)
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=_coords->deepCpy();
-      MEDCouplingPointSet::Rotate3DAlg(origin,vec2,angle,coo->getNumberOfTuples(),coo->getPointer());
+      double normm2(sqrt(vec2[0]*vec2[0]+vec2[1]*vec2[1]+vec2[2]*vec2[2]));
+      if(normm2/normm>1e-6)
+        MEDCouplingPointSet::Rotate3DAlg(origin,vec2,angle,coo->getNumberOfTuples(),coo->getPointer());
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mw=clone(false);//false -> shallow copy
       mw->setCoords(coo);
       mw->getBoundingBox(bbox);
@@ -9652,6 +9654,8 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
  *  \throw If the nodal connectivity of the cells is not defined.
  *  \throw If m1 is not a mesh of dimension 2, or m1 is not a mesh of dimension 1
  *  \throw If m2 is not a (piecewise) line (i.e. if a point has more than 2 adjacent segments)
+ *
+ * \sa DataArrayInt::sortEachPairToMakeALinkedList
  */
 DataArrayInt *MEDCouplingUMesh::orderConsecutiveCells1D() const
 {

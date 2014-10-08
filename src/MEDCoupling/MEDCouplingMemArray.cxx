@@ -10390,6 +10390,68 @@ DataArrayInt *DataArrayInt::findIdInRangeForEachTuple(const DataArrayInt *ranges
 }
 
 /*!
+ * \b WARNING this method is a \b non \a const \b method. This method works tuple by tuple. Each tuple is expected to be pairs (number of components must be equal to 2).
+ * This method rearrange each pair in \a this so that, tuple with id \b tid will be after the call \c this->getIJ(tid,0)==this->getIJ(tid-1,1) and \c this->getIJ(tid,1)==this->getIJ(tid+1,0).
+ * If it is impossible to reach such condition an exception will be thrown ! \b WARNING In case of throw \a this can be partially modified !
+ * If this method has correctly worked, \a this will be able to be considered as a linked list.
+ * This method does nothing if number of tuples is lower of equal to 1.
+ *
+ * This method is useful for users having an unstructured mesh having only SEG2 to rearrange internaly the connectibity without any coordinates consideration.
+ *
+ * \sa MEDCouplingUMesh::orderConsecutiveCells1D
+ */
+void DataArrayInt::sortEachPairToMakeALinkedList()
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::sortEachPairToMakeALinkedList : Only works on DataArrayInt instance with nb of components equal to 2 !");
+  int nbOfTuples(getNumberOfTuples());
+  if(nbOfTuples<=1)
+    return ;
+  int *conn(getPointer());
+  for(int i=1;i<nbOfTuples;i++,conn+=2)
+    {
+      if(i>1)
+        {
+          if(conn[2]==conn[3])
+            {
+              std::ostringstream oss; oss << "DataArrayInt::sortEachPairToMakeALinkedList : In the tuple #" << i << " presence of a pair filled with same ids !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          if(conn[2]!=conn[1] && conn[3]==conn[1] && conn[2]!=conn[0])
+            std::swap(conn[2],conn[3]);
+          //not(conn[2]==conn[1] && conn[3]!=conn[1] && conn[3]!=conn[0])
+          if(conn[2]!=conn[1] || conn[3]==conn[1] || conn[3]==conn[0])
+            {
+              std::ostringstream oss; oss << "DataArrayInt::sortEachPairToMakeALinkedList : In the tuple #" << i << " something is invalid !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          if(conn[0]==conn[1] || conn[2]==conn[3])
+            throw INTERP_KERNEL::Exception("DataArrayInt::sortEachPairToMakeALinkedList : In the 2 first tuples presence of a pair filled with same ids !");
+          int tmp[4];
+          std::set<int> s;
+          s.insert(conn,conn+4);
+          if(s.size()!=3)
+            throw INTERP_KERNEL::Exception("DataArrayInt::sortEachPairToMakeALinkedList : This can't be considered as a linked list regarding 2 first tuples !");
+          if(std::count(conn,conn+4,conn[0])==2)
+            {
+              tmp[0]=conn[1];
+              tmp[1]=conn[0];
+              tmp[2]=conn[0];
+              if(conn[2]==conn[0])
+                { tmp[3]=conn[3]; }
+              else
+                { tmp[3]=conn[2];}
+              std::copy(tmp,tmp+4,conn);
+            }
+        }
+    }
+}
+
+/*!
  * 
  * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayInt instance.
  *             \a nbTimes  should be at least equal to 1.
