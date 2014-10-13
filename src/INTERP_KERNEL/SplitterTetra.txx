@@ -393,7 +393,6 @@ namespace INTERP_KERNEL
   {
     typedef typename MyMeshType::MyConnType ConnType;
     typedef double Vect2[2];
-    typedef double Vect3[3];
     typedef double Triangle2[3][2];
 
     const double *const tri0[3] = {p1, p2, p3};
@@ -597,8 +596,6 @@ namespace INTERP_KERNEL
                                                         std::multiset<TriangleFaceKey>& listOfTetraFacesTreated,
                                                         std::set<TriangleFaceKey>& listOfTetraFacesColinear)
   {
-    typedef typename MyMeshType::MyConnType ConnType;
-
     double totalSurface = 0.0;
 
     // check if we have planar tetra element

@@ -97,7 +97,6 @@ namespace INTERP_KERNEL
                                          MatrixType&        result,
                                          const char *       method)
   {
-    typedef typename MyUMeshType::MyConnType ConnType;
     typedef typename MyCMeshType::MyConnType CConnType;
 
     if ( std::string("P0P0") != method )

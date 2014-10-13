@@ -83,7 +83,6 @@ namespace INTERP_KERNEL
   template<class MyMeshType>
   inline const double* getCoordsOfNode2(typename MyMeshType::MyConnType node, typename MyMeshType::MyConnType element, const MyMeshType& mesh, typename MyMeshType::MyConnType& nodeId)
   {
-    typedef typename MyMeshType::MyConnType ConnType;
     nodeId= getGlobalNumberOfNode(node, element, mesh);
     return mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*nodeId;
   }
