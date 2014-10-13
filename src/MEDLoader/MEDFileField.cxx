@@ -528,9 +528,9 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
         throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively : Part def only implemented for split one !");
       if(!_profile.empty())
         throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively : profiles are not managed yet with part of def !");
-      int start,stop,step;
-      spd->getSlice(start,stop,step);
-      _nval=DataArray::GetNumberOfItemGivenBES(start,stop,step,"MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively");
+      int start1,stop1,step1;
+      spd->getSlice(start1,stop1,step1);
+      _nval=DataArray::GetNumberOfItemGivenBES(start1,stop1,step1,"MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively");
     }
   _start=start;
   _end=start+_nval*nbi;
@@ -570,7 +570,6 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadBigArray(med_idt fid, const MEDFileF
       std::ostringstream oss; oss << "MEDFileFieldPerMeshPerTypePerDisc::loadBigArray : Invalid start ("<< _start << ") regarding admissible range of allocated array [0," << arr->getNumberOfTuples() << "] !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  med_int tmp1,nbi;
   int nbOfCompo(arr->getNumberOfComponents());
   DataArrayDouble *arrD(dynamic_cast<DataArrayDouble *>(arr));
   if(arrD)
@@ -2420,7 +2419,6 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWith
       std::string name1(MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1));
       if(nbProfile>0 || nbProfile2>0)
         {
-          const MEDFileUMesh *mmu(dynamic_cast<const MEDFileUMesh *>(mm));
           const PartDefinition *pd(0);
           if(mmu)
             pd=mmu->getPartDefAtLevel(mmu->getRelativeLevOnGeoType(typmai2[i]),typmai2[i]);
