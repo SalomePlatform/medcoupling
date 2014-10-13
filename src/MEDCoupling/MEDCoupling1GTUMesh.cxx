@@ -3120,7 +3120,7 @@ void MEDCoupling1DGTUMesh::renumberNodesWithOffsetInConn(int offset)
 {
   getNumberOfCells();//only to check that all is well defined.
   //
-  int nbElemsIn(getNumberOfNodes()),nbOfTuples(_conn->getNumberOfTuples());
+  int nbOfTuples(_conn->getNumberOfTuples());
   int *pt(_conn->getPointer());
   for(int i=0;i<nbOfTuples;i++,pt++)
     {
