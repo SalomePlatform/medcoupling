@@ -2037,7 +2037,6 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileField1TSStructItem::getGeo
 
 MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFileAnyTypeField1TS *ref, const MEDFileMeshStruct *meshSt)
 {
-  TypeOfField atype;
   std::vector< MEDFileField1TSStructItem2 > anItems;
   //
   std::vector< std::vector<std::string> > pfls,locs;
@@ -2047,16 +2046,14 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFile
   std::size_t nbOfGeoTypes(geoTypes.size());
   if(nbOfGeoTypes==0)
     throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : not null by empty ref  !");
-  bool isFirst=true;
+  if(typesF[0].empty())
+    throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : internal error #1 bis !");
+  TypeOfField atype(typesF[0][0]);
   for(std::size_t i=0;i<nbOfGeoTypes;i++)
     {
       std::size_t sz=typesF[i].size();
       if(strtEnds[i].size()<1 || sz<1 || pfls[i].size()<1)
         throw INTERP_KERNEL::Exception("MEDFileField1TSStruct : internal error #1 !");
-      //
-      if(isFirst)
-        atype=typesF[i][0];
-      isFirst=false;
       //
       for(std::size_t j=0;j<sz;j++)
         {
