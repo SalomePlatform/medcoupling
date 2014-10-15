@@ -89,7 +89,11 @@ MEDFileUMesh *ParaMEDFileUMesh::New(int iPart, int nbOfParts, const std::string&
 MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
+#ifdef HDF5_IS_PARALLEL
   MEDFileUtilities::AutoFid fid(MEDparFileOpen(fileName.c_str(),MED_ACC_RDONLY,com,nfo));
+#else
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+#endif
   //
   int meshDim, spaceDim, numberOfNodes;
   std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(MEDLoader::GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
