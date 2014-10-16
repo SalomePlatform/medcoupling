@@ -158,7 +158,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -369,7 +373,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -531,7 +539,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -782,7 +794,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -910,7 +926,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1072,7 +1092,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1277,7 +1301,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1472,7 +1500,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                #for itmp in tmp:
+                #    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                #    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1616,7 +1648,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                #for itmp in tmp:
+                #    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                #    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1745,7 +1781,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1844,7 +1884,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                #for itmp in tmp:
+                #    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                #    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -1935,7 +1979,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                #for itmp in tmp:
+                #    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                #    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -2048,7 +2096,11 @@ class MEDLoaderTest4(unittest.TestCase):
             for fields in fields_per_mesh:
                 allFMTSLeavesToDisplay2=[]
                 for fmts in fields:
-                    allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                    tmp=fmts.splitDiscretizations()
+                    for itmp in tmp:
+                        self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                        pass
+                    allFMTSLeavesToDisplay2+=tmp
                     pass
                 allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
                 pass
@@ -2200,7 +2252,11 @@ class MEDLoaderTest4(unittest.TestCase):
             for fields in fields_per_mesh:
                 allFMTSLeavesToDisplay2=[]
                 for fmts in fields:
-                    allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                    tmp=fmts.splitDiscretizations()
+                    for itmp in tmp:
+                        self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                        pass
+                    allFMTSLeavesToDisplay2+=tmp
                     pass
                 allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
                 pass
@@ -2358,7 +2414,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -2546,7 +2606,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -2618,7 +2682,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -2730,7 +2798,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -2795,7 +2867,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -2896,7 +2972,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3076,7 +3156,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3273,7 +3357,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3381,7 +3469,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3482,7 +3574,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3586,7 +3682,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3796,7 +3896,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -3911,7 +4015,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -4049,7 +4157,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -4183,7 +4295,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -4287,7 +4403,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -4393,7 +4513,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -4489,7 +4613,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass
@@ -4589,7 +4717,11 @@ class MEDLoaderTest4(unittest.TestCase):
         for fields in fields_per_mesh:
             allFMTSLeavesToDisplay2=[]
             for fmts in fields:
-                allFMTSLeavesToDisplay2+=fmts.splitDiscretizations()
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
                 pass
             allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
             pass

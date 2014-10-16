@@ -1278,6 +1278,7 @@ namespace ParaMEDMEM
     bool isDealingTS(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     void setInfo(const std::vector<std::string>& infos) throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
+    bool presenceOfMultiDiscPerGeoType() const throw(INTERP_KERNEL::Exception);
     void setTime(int iteration, int order, double val) throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeField1TS *shallowCpy() const throw(INTERP_KERNEL::Exception);
     MEDFileAnyTypeField1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
@@ -1672,6 +1673,7 @@ namespace ParaMEDMEM
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     void setMeshName(const std::string& newMeshName) throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
+    bool presenceOfMultiDiscPerGeoType() const throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTS() const throw(INTERP_KERNEL::Exception);
     void eraseEmptyTS() throw(INTERP_KERNEL::Exception);

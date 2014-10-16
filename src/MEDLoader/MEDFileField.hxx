@@ -202,6 +202,7 @@ namespace ParaMEDMEM
     void getSizes(int& globalSz, int& nbOfEntries) const;
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
     int getNumberOfComponents() const;
+    bool presenceOfMultiDiscPerGeoType() const;
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -260,6 +261,7 @@ namespace ParaMEDMEM
     int getMeshOrder() const { return _mesh_order; }
     std::string getMeshName() const { return _mesh_name; }
     int getNumberOfComponents() const;
+    bool presenceOfMultiDiscPerGeoType() const;
     DataArray *getOrCreateAndGetArray();
     const DataArray *getOrCreateAndGetArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -494,6 +496,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT int getNumberOfComponents() const;
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
     MEDLOADER_EXPORT std::vector<std::string>& getInfo();
+    MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& infos);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -659,6 +662,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& infos);
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
     MEDLOADER_EXPORT std::vector<std::string>& getInfo();
+    MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
     MEDLOADER_EXPORT std::vector<TypeOfField> getTypesOfFieldAvailable() const;
     MEDLOADER_EXPORT std::vector< std::vector<std::pair<int,int> > > getFieldSplitedByType(const std::string& mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF,
         std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const;
@@ -801,6 +805,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual MEDFileAnyTypeField1TSWithoutSDA *createNew1TSWithoutSDAEmptyInstance() const = 0;
     MEDLOADER_EXPORT virtual void checkCoherencyOfType(const MEDFileAnyTypeField1TSWithoutSDA *f1ts) const = 0;
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
+    MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& info);
     MEDLOADER_EXPORT int getTimeStepPos(int iteration, int order) const;
     MEDLOADER_EXPORT const MEDFileAnyTypeField1TSWithoutSDA& getTimeStepEntry(int iteration, int order) const;
@@ -961,6 +966,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileAnyTypeFieldMultiTSIterator *iterator();
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     MEDLOADER_EXPORT const std::vector<std::string>& getInfo() const;
+    MEDLOADER_EXPORT bool presenceOfMultiDiscPerGeoType() const;
     MEDLOADER_EXPORT void setInfo(const std::vector<std::string>& info);
     MEDLOADER_EXPORT int getNumberOfComponents() const;
     MEDLOADER_EXPORT int getNonEmptyLevels(int iteration, int order, const std::string& mname, std::vector<int>& levs) const;

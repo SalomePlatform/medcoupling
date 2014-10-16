@@ -1337,6 +1337,18 @@ int MEDFileFieldPerMeshPerType::getNumberOfComponents() const
   return _father->getNumberOfComponents();
 }
 
+bool MEDFileFieldPerMeshPerType::presenceOfMultiDiscPerGeoType() const
+{
+  std::size_t nb(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    {
+      const MEDFileFieldPerMeshPerTypePerDisc *fmtd(*it);
+      if(fmtd)
+        nb++;
+    }
+  return nb>1;
+}
+
 DataArray *MEDFileFieldPerMeshPerType::getOrCreateAndGetArray()
 {
   return _father->getOrCreateAndGetArray();
@@ -1759,6 +1771,19 @@ int MEDFileFieldPerMesh::getOrder() const
 int MEDFileFieldPerMesh::getNumberOfComponents() const
 {
   return _father->getNumberOfComponents();
+}
+
+bool MEDFileFieldPerMesh::presenceOfMultiDiscPerGeoType() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      const MEDFileFieldPerMeshPerType *fpmt(*it);
+      if(!fpmt)
+        continue;
+      if(fpmt->presenceOfMultiDiscPerGeoType())
+        return true;
+    }
+  return false;
 }
 
 DataArray *MEDFileFieldPerMesh::getOrCreateAndGetArray()
@@ -4501,6 +4526,19 @@ std::vector<std::string>& MEDFileAnyTypeField1TSWithoutSDA::getInfo()
   return arr->getInfoOnComponents();
 }
 
+bool MEDFileAnyTypeField1TSWithoutSDA::presenceOfMultiDiscPerGeoType() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      const MEDFileFieldPerMesh *fpm(*it);
+      if(!fpm)
+        continue;
+      if(fpm->presenceOfMultiDiscPerGeoType())
+        return true;
+    }
+  return false;
+}
+
 /*!
  * Returns a new MEDCouplingFieldDouble of given type lying on a given support.
  *  \param [in] type - a spatial discretization of the new field.
@@ -5864,6 +5902,11 @@ std::vector<std::string>& MEDFileAnyTypeField1TS::getInfo()
   return contentNotNullBase()->getInfo();
 }
 
+bool MEDFileAnyTypeField1TS::presenceOfMultiDiscPerGeoType() const
+{
+  return contentNotNullBase()->presenceOfMultiDiscPerGeoType();
+}
+
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileAnyTypeField1TS::getLeafGivenMeshAndTypeAndLocId(const std::string& mName, INTERP_KERNEL::NormalizedCellType typ, int locId)
 {
   return contentNotNullBase()->getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
@@ -6901,6 +6944,19 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTSWithoutSDA::part
         ids->pushBackSilent(id);
     }
   return buildFromTimeStepIds(ids->begin(),ids->end());
+}
+
+bool MEDFileAnyTypeFieldMultiTSWithoutSDA::presenceOfMultiDiscPerGeoType() const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      const MEDFileAnyTypeField1TSWithoutSDA *cur(*it);
+      if(!cur)
+        continue;
+      if(cur->presenceOfMultiDiscPerGeoType())
+        return true;
+    }
+  return false;
 }
 
 const std::vector<std::string>& MEDFileAnyTypeFieldMultiTSWithoutSDA::getInfo() const
@@ -8158,6 +8214,11 @@ bool MEDFileAnyTypeFieldMultiTS::changeMeshNames(const std::vector< std::pair<st
 const std::vector<std::string>& MEDFileAnyTypeFieldMultiTS::getInfo() const
 {
   return contentNotNullBase()->getInfo();
+}
+
+bool MEDFileAnyTypeFieldMultiTS::presenceOfMultiDiscPerGeoType() const
+{
+  return contentNotNullBase()->presenceOfMultiDiscPerGeoType();
 }
 
 void MEDFileAnyTypeFieldMultiTS::setInfo(const std::vector<std::string>& info)
