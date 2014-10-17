@@ -1537,6 +1537,7 @@ bool MEDFileFieldPerMeshPerType::keepOnlyGaussDiscretization(std::size_t idOfDis
   elt->setNewStart(globalNum);
   globalNum=elt->getEnd();
   its.push_back(bgEnd);
+  _field_pm_pt_pd=newPmPtPd;
   return true;
 }
 
@@ -4248,7 +4249,7 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> 
       return ret0;
     }
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > ret(nbOfMDPGT);
-  for(std::size_t i=0;i<allEnt.size();i++)
+  for(std::size_t i=0;i<nbOfMDPGT;i++)
     {
       std::vector< std::pair<int,int> > its;
       ret[i]=shallowCpy();
@@ -7714,7 +7715,7 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutS
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> elt(createNew());
       for(std::size_t j=0;j<sz;j++)
-        elt->pushBackTimeStep(items[i][j]);
+        elt->pushBackTimeStep(items[j][i]);
       ret[i]=elt;
       elt->MEDFileFieldNameScope::operator=(*this);
     }
