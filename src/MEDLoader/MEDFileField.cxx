@@ -1505,7 +1505,7 @@ void MEDFileFieldPerMeshPerType::setLeaves(const std::vector< MEDCouplingAutoRef
  */
 bool MEDFileFieldPerMeshPerType::keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its)
 {
-  bool ret=false;
+  bool ret(false);
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> > newPmPtPd;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
     if((*it)->getType()==tof)
@@ -1520,6 +1520,24 @@ bool MEDFileFieldPerMeshPerType::keepOnlySpatialDiscretization(TypeOfField tof, 
   if(ret)
     _field_pm_pt_pd=newPmPtPd;
   return ret;
+}
+
+/*!
+ *  \param [in,out] globalNum a global numbering counter for the renumbering.
+ *  \param [out] its - list of pair (start,stop) kept
+ *  \return bool - false if the type of field \a tof is not contained in \a this.
+ */
+bool MEDFileFieldPerMeshPerType::keepOnlyGaussDiscretization(std::size_t idOfDisc, int &globalNum, std::vector< std::pair<int,int> >& its)
+{
+  if(_field_pm_pt_pd.size()<=idOfDisc)
+    return false;
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> elt(_field_pm_pt_pd[idOfDisc]);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> > newPmPtPd(1,elt);
+  std::pair<int,int> bgEnd; bgEnd.first=_field_pm_pt_pd[idOfDisc]->getStart(); bgEnd.second=_field_pm_pt_pd[idOfDisc]->getEnd();
+  elt->setNewStart(globalNum);
+  globalNum=elt->getEnd();
+  its.push_back(bgEnd);
+  return true;
 }
 
 MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType):_father(fath),_geo_type(geoType)
@@ -2065,6 +2083,25 @@ void MEDFileFieldPerMesh::keepOnlySpatialDiscretization(TypeOfField tof, int &gl
     {
       std::vector< std::pair<int,int> > its2;
       if((*it)->keepOnlySpatialDiscretization(tof,globalNum,its2))
+        {
+          ret.push_back(*it);
+          its.insert(its.end(),its2.begin(),its2.end());
+        }
+    }
+  _field_pm_pt=ret;
+}
+
+/*!
+ * \param [in,out] globalNum a global numbering counter for the renumbering.
+ * \param [out] its - list of pair (start,stop) kept
+ */
+void MEDFileFieldPerMesh::keepOnlyGaussDiscretization(std::size_t idOfDisc, int &globalNum, std::vector< std::pair<int,int> >& its)
+{
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > > ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      std::vector< std::pair<int,int> > its2;
+      if((*it)->keepOnlyGaussDiscretization(idOfDisc,globalNum,its2))
         {
           ret.push_back(*it);
           its.insert(its.end(),its2.begin(),its2.end());
@@ -4152,12 +4189,18 @@ bool MEDFileAnyTypeField1TSWithoutSDA::renumberEntitiesLyingOnMesh(const std::st
   return ret;
 }
 
+/*!
+ * This method splits \a this into several sub-parts so that each sub parts have exactly one spatial discretization. This method implements the minimal
+ * splitting that leads to single spatial discretization of this.
+ *
+ * \sa splitMultiDiscrPerGeoTypes
+ */
 std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > MEDFileAnyTypeField1TSWithoutSDA::splitDiscretizations() const
 {
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
   std::vector< std::vector<TypeOfField> > typesF;
   std::vector< std::vector<std::string> > pfls,locs;
-  std::vector< std::vector<std::pair<int,int> > > bgEnd=getFieldSplitedByType(getMeshName().c_str(),types,typesF,pfls,locs);
+  std::vector< std::vector<std::pair<int,int> > > bgEnd(getFieldSplitedByType(getMeshName().c_str(),types,typesF,pfls,locs));
   std::set<TypeOfField> allEnt;
   for(std::vector< std::vector<TypeOfField> >::const_iterator it1=typesF.begin();it1!=typesF.end();it1++)
     for(std::vector<TypeOfField>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
@@ -4168,7 +4211,48 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> 
     {
       std::vector< std::pair<int,int> > its;
       ret[i]=shallowCpy();
-      int newLgth=ret[i]->keepOnlySpatialDiscretization(*it3,its);
+      int newLgth(ret[i]->keepOnlySpatialDiscretization(*it3,its));
+      ret[i]->updateData(newLgth,its);
+    }
+  return ret;
+}
+
+/*!
+ * This method performs a sub splitting as splitDiscretizations does but finer. This is the finest spliting level that can be done.
+ * This method implements the minimal splitting so that each returned elements are mono Gauss discretization per geometric type.
+ *
+ * \sa splitDiscretizations
+ */
+std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes() const
+{
+  std::vector<INTERP_KERNEL::NormalizedCellType> types;
+  std::vector< std::vector<TypeOfField> > typesF;
+  std::vector< std::vector<std::string> > pfls,locs;
+  std::vector< std::vector<std::pair<int,int> > > bgEnd(getFieldSplitedByType(getMeshName().c_str(),types,typesF,pfls,locs));
+  std::set<TypeOfField> allEnt;
+  std::size_t nbOfMDPGT(0),ii(0);
+  for(std::vector< std::vector<TypeOfField> >::const_iterator it1=typesF.begin();it1!=typesF.end();it1++,ii++)
+    {
+      nbOfMDPGT=std::max(nbOfMDPGT,locs[ii].size());
+      for(std::vector<TypeOfField>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+        allEnt.insert(*it2);
+    }
+	if(allEnt.size()!=1)
+	  throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes : this field is expected to be defined only on one spatial discretization !");
+	if(nbOfMDPGT==0)
+	  throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes : empty field !");
+  if(nbOfMDPGT==1)
+    {
+      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > ret0(1);
+      ret0[0]=const_cast<MEDFileAnyTypeField1TSWithoutSDA *>(this); this->incrRef();
+      return ret0;
+    }
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > ret(nbOfMDPGT);
+  for(std::size_t i=0;i<allEnt.size();i++)
+    {
+      std::vector< std::pair<int,int> > its;
+      ret[i]=shallowCpy();
+      int newLgth(ret[i]->keepOnlyGaussDiscretization(i,its));
       ret[i]->updateData(newLgth,its);
     }
   return ret;
@@ -4176,9 +4260,17 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> 
 
 int MEDFileAnyTypeField1TSWithoutSDA::keepOnlySpatialDiscretization(TypeOfField tof, std::vector< std::pair<int,int> >& its)
 {
-  int globalCounter=0;
+  int globalCounter(0);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
     (*it)->keepOnlySpatialDiscretization(tof,globalCounter,its);
+  return globalCounter;
+}
+
+int MEDFileAnyTypeField1TSWithoutSDA::keepOnlyGaussDiscretization(std::size_t idOfDisc, std::vector< std::pair<int,int> >& its)
+{
+  int globalCounter(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    (*it)->keepOnlyGaussDiscretization(idOfDisc,globalCounter,its);
   return globalCounter;
 }
 
@@ -5956,14 +6048,34 @@ std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > MEDFil
 
 /*!
  * This method returns as MEDFileAnyTypeField1TS new instances as number of spatial discretizations in \a this.
- * The returned instances are deep copy of \a this except that for globals that are share with those contained in \a this.
+ * The returned instances are shallowed copied of \a this except that for globals that are share with those contained in \a this.
  */
 std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitDiscretizations() const
 {
   const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
   if(!content)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::splitDiscretizations : no content in this ! Unable to split discretization !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > contentsSplit=content->splitDiscretizations();
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > contentsSplit(content->splitDiscretizations());
+  std::size_t sz(contentsSplit.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      ret[i]=shallowCpy();
+      ret[i]->_content=contentsSplit[i];
+    }
+  return ret;
+}
+
+/*!
+ * This method returns as MEDFileAnyTypeField1TS new instances as number of maximal number of discretization in \a this.
+ * The returned instances are shallowed copied of \a this except that for globals that are share with those contained in \a this.
+ */
+std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > MEDFileAnyTypeField1TS::splitMultiDiscrPerGeoTypes() const
+{
+  const MEDFileAnyTypeField1TSWithoutSDA *content(_content);
+  if(!content)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TS::splitMultiDiscrPerGeoTypes : no content in this ! Unable to split discretization !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > contentsSplit(content->splitMultiDiscrPerGeoTypes());
   std::size_t sz(contentsSplit.size());
   std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > ret(sz);
   for(std::size_t i=0;i<sz;i++)
@@ -7563,9 +7675,46 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutS
       }
   for(std::size_t i=0;i<types.size();i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> elt=createNew();
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> elt(createNew());
       for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it1=ret2[i].begin();it1!=ret2[i].end();it1++)
         elt->pushBackTimeStep(*it1);//also updates infos in elt
+      ret[i]=elt;
+      elt->MEDFileFieldNameScope::operator=(*this);
+    }
+  return ret;
+}
+
+/*!
+ * Contrary to splitDiscretizations method this method makes the hypothesis that the times series are **NOT** impacted by the splitting of multi discretization.
+ */
+std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > MEDFileAnyTypeFieldMultiTSWithoutSDA::splitMultiDiscrPerGeoTypes() const
+{
+  std::size_t sz(_time_steps.size());
+  std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > > items(sz);
+  std::size_t szOut(std::numeric_limits<std::size_t>::max());
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDFileAnyTypeField1TSWithoutSDA *timeStep(_time_steps[i]);
+      if(!timeStep)
+        {
+          std::ostringstream oss; oss << "MEDFileAnyTypeFieldMultiTSWithoutSDA::splitMultiDiscrPerGeoTypes : time step #" << i << " is null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      items[i]=timeStep->splitMultiDiscrPerGeoTypes();
+      if(szOut==std::numeric_limits<std::size_t>::max())
+        szOut=items[i].size();
+      else
+        if(items[i].size()!=szOut)
+          throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::splitMultiDiscrPerGeoTypes : The splitting per discretization is expected to be same among time steps !");
+    }
+  if(szOut==std::numeric_limits<std::size_t>::max())
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTSWithoutSDA::splitMultiDiscrPerGeoTypes : empty field !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret(szOut);
+  for(std::size_t i=0;i<szOut;i++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> elt(createNew());
+      for(std::size_t j=0;j<sz;j++)
+        elt->pushBackTimeStep(items[i][j]);
       ret[i]=elt;
       elt->MEDFileFieldNameScope::operator=(*this);
     }
@@ -8355,14 +8504,34 @@ std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ME
 
 /*!
  * This method returns as MEDFileAnyTypeFieldMultiTS new instances as number of discretizations over time steps in \a this.
- * The returned instances are deep copy of \a this except that for globals that are share with those contained in \a this.
+ * The returned instances are shallow copied of \a this included globals that are share with those contained in \a this.
  */
 std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::splitDiscretizations() const
 {
   const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
   if(!content)
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::splitDiscretizations : no content in this ! Unable to split discretizations !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > contentsSplit=content->splitDiscretizations();
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > contentsSplit(content->splitDiscretizations());
+  std::size_t sz(contentsSplit.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      ret[i]=shallowCpy();
+      ret[i]->_content=contentsSplit[i];
+    }
+  return ret;
+}
+
+/*!
+ * This method returns as MEDFileAnyTypeFieldMultiTS new instances as number of sub-discretizations over time steps in \a this.
+ * The returned instances are shallow copied of \a this included globals that are share with those contained in \a this.
+ */
+std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > MEDFileAnyTypeFieldMultiTS::splitMultiDiscrPerGeoTypes() const
+{
+  const MEDFileAnyTypeFieldMultiTSWithoutSDA *content(_content);
+  if(!content)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::splitMultiDiscrPerGeoTypes : no content in this ! Unable to split discretizations !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > contentsSplit(content->splitMultiDiscrPerGeoTypes());
   std::size_t sz(contentsSplit.size());
   std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret(sz);
   for(std::size_t i=0;i<sz;i++)

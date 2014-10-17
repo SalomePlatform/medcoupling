@@ -1395,6 +1395,16 @@ namespace ParaMEDMEM
           PyList_SetItem(retPy,i,convertMEDFileField1TS(ret[i].retn(), SWIG_POINTER_OWN | 0 ));
         return retPy;
       }
+
+      PyObject *splitMultiDiscrPerGeoTypes() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > ret=self->splitMultiDiscrPerGeoTypes();
+        std::size_t sz=ret.size();
+        PyObject *retPy=PyList_New(sz);
+        for(std::size_t i=0;i<sz;i++)
+          PyList_SetItem(retPy,i,convertMEDFileField1TS(ret[i].retn(), SWIG_POINTER_OWN | 0 ));
+        return retPy;
+      }
     }
   };
 
@@ -1942,6 +1952,16 @@ namespace ParaMEDMEM
       PyObject *splitDiscretizations() const throw(INTERP_KERNEL::Exception)
       {
         std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret=self->splitDiscretizations();
+        std::size_t sz=ret.size();
+        PyObject *retPy=PyList_New(sz);
+        for(std::size_t i=0;i<sz;i++)
+          PyList_SetItem(retPy,i,convertMEDFileFieldMultiTS(ret[i].retn(), SWIG_POINTER_OWN | 0 ));
+        return retPy;
+      }
+
+      PyObject *splitMultiDiscrPerGeoTypes() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret=self->splitMultiDiscrPerGeoTypes();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)

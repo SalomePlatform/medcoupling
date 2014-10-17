@@ -218,6 +218,7 @@ namespace ParaMEDMEM
     void fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     void setLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves);
     bool keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its);
+    bool keepOnlyGaussDiscretization(std::size_t idOfDisc, int &globalNum, std::vector< std::pair<int,int> >& its);
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
   private:
     std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells);
@@ -272,6 +273,7 @@ namespace ParaMEDMEM
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
     bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob);
     void keepOnlySpatialDiscretization(TypeOfField tof, int &globalNum, std::vector< std::pair<int,int> >& its);
+    void keepOnlyGaussDiscretization(std::size_t idOfDisc, int &globalNum, std::vector< std::pair<int,int> >& its);
     void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
     void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl, MEDCouplingAutoRefCountObjectPtr<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
@@ -523,7 +525,9 @@ namespace ParaMEDMEM
   public:
     MEDLOADER_EXPORT bool renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob);
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > splitDiscretizations() const;
+    MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > splitMultiDiscrPerGeoTypes() const;
     MEDLOADER_EXPORT int keepOnlySpatialDiscretization(TypeOfField tof, std::vector< std::pair<int,int> >& its);
+    MEDLOADER_EXPORT int keepOnlyGaussDiscretization(std::size_t idOfDisc, std::vector< std::pair<int,int> >& its);
   public:
     MEDLOADER_EXPORT void allocNotFromFile(int newNbOfTuples);
     MEDLOADER_EXPORT bool allocIfNecessaryTheArrayToReceiveDataFromFile();
@@ -677,6 +681,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void unloadArraysWithoutDataLoss();
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitComponents() const;
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitDiscretizations() const;
+    MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > splitMultiDiscrPerGeoTypes() const;
     MEDLOADER_EXPORT MEDFileAnyTypeField1TS *deepCpy() const;
     MEDLOADER_EXPORT int copyTinyInfoFrom(const MEDCouplingFieldDouble *field, const DataArray *arr);
     MEDLOADER_EXPORT virtual MEDFileAnyTypeField1TS *shallowCpy() const = 0;
@@ -799,6 +804,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *deepCpy() const;
     MEDLOADER_EXPORT virtual std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > splitComponents() const;
     MEDLOADER_EXPORT virtual std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > splitDiscretizations() const;
+    MEDLOADER_EXPORT virtual std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> > splitMultiDiscrPerGeoTypes() const;
     MEDLOADER_EXPORT virtual const char *getTypeStr() const = 0;
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *shallowCpy() const = 0;
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTSWithoutSDA *createNew() const = 0;
@@ -932,6 +938,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTS *deepCpy() const;
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > splitComponents() const;
     MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > splitDiscretizations() const;
+    MEDLOADER_EXPORT std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > splitMultiDiscrPerGeoTypes() const;
     MEDLOADER_EXPORT virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const = 0;
     MEDLOADER_EXPORT virtual void checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1ts) const = 0;
     //
