@@ -47,9 +47,10 @@ SET(COMMON_LIBS
   ${KERNEL_SalomeKernelHelpers}
   ${KERNEL_SalomeLifeCycleCORBA}
   ${KERNEL_SALOMELocalTrace}
-  ${KERNEL_SALOMEBasics} 
+  ${KERNEL_SALOMEBasics}
   ${KERNEL_SalomeGenericObj}
   medcoupling
+  medcouplingremapper
   interpkernel
   ${MEDFILE_C_LIBRARIES}
   ${HDF5_LIBRARIES}
@@ -57,7 +58,7 @@ SET(COMMON_LIBS
   ${PLATFORM_LIBRARIES}
 )
 
-# This undefines the macros MIN and MAX which are specified in the windows headers 
+# This undefines the macros MIN and MAX which are specified in the windows headers
 IF(WIN32)
   SET(COMMON_FLAGS "${COMMON_FLAGS} -DNOMINMAX")
 ENDIF(WIN32)

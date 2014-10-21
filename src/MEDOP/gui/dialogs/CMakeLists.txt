@@ -26,6 +26,7 @@ SET(MEDOPGUI_dialogs_FORMS
   DlgAlias.ui
   DlgUseInWorkspace.ui
   DlgChangeUnderlyingMesh.ui
+  DlgInterpolateField.ui
   DlgImageToMed.ui
 )
 QT4_WRAP_UI(MEDOPGUI_dialogs_FORMS_HEADERS ${MEDOPGUI_dialogs_FORMS})
@@ -35,6 +36,7 @@ SET(MEDOPGUI_dialogs_FILES
   DlgAlias.hxx
   DlgUseInWorkspace.hxx
   DlgChangeUnderlyingMesh.hxx
+  DlgInterpolateField.hxx
   DlgImageToMed.hxx
 )
 QT4_WRAP_CPP(MEDOPGUI_dialogs_HEADERS_MOC ${MEDOPGUI_dialogs_FILES})
@@ -55,12 +57,13 @@ SET(MEDOPGUI_dialogs_SOURCES
   DlgAlias.cxx
   DlgUseInWorkspace.cxx
   DlgChangeUnderlyingMesh.cxx
+  DlgInterpolateField.cxx
   DlgImageToMed.cxx
 )
 
 ADD_LIBRARY(MEDOPGUI_dialogs SHARED ${MEDOPGUI_dialogs_SOURCES} ${MEDOPGUI_dialogs_HEADERS_MOC} ${MEDOPGUI_dialogs_FORMS_HEADERS})
-TARGET_LINK_LIBRARIES(MEDOPGUI_dialogs ${CAS_KERNEL} ${QT_LIBRARIES} ${KERNEL_SalomeIDLKernel} 
-    ${GUI_SalomeGuiHelpers} ${OMNIORB_LIBRARIES} ${GUI_qtx} ${GUI_suit} ${PLATFORM_LIBRARIES} 
+TARGET_LINK_LIBRARIES(MEDOPGUI_dialogs ${CAS_KERNEL} ${QT_LIBRARIES} ${KERNEL_SalomeIDLKernel}
+    ${GUI_SalomeGuiHelpers} ${OMNIORB_LIBRARIES} ${GUI_qtx} ${GUI_suit} ${PLATFORM_LIBRARIES}
     ${KERNEL_SalomeLifeCycleCORBA} ${KERNEL_SalomeKernelHelpers} ${GUI_SalomeGuiHelpers})
 INSTALL(TARGETS MEDOPGUI_dialogs DESTINATION ${SALOME_INSTALL_LIBS})
 
@@ -76,4 +79,3 @@ INSTALL(TARGETS dlgTester DESTINATION ${SALOME_INSTALL_BINS})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
-

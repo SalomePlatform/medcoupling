@@ -22,6 +22,7 @@ ADD_SUBDIRECTORY(testfiles)
 SET(MED_RESOURCES_FILES
   datasource_add.png
   datasource_changeUnderlyingMesh.png
+  datasource_interpolateField.png
   datasource_expandfield.png
   datasource_field.png
   datasource_mesh.png
@@ -37,4 +38,3 @@ SET(MED_RESOURCES_FILES
   workspace_save.png
   )
 INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
-
