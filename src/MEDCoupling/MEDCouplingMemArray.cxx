@@ -1169,6 +1169,15 @@ void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const std::string&
   std::string idt(indent,' ');
   ofs.precision(17);
   ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
+  //
+  bool areAllEmpty(true);
+  for(std::vector<std::string>::const_iterator it=_info_on_compo.begin();it!=_info_on_compo.end();it++)
+    if(!(*it).empty())
+      areAllEmpty=false;
+  if(!areAllEmpty)
+    for(std::size_t i=0;i<_info_on_compo.size();i++)
+      ofs << " ComponentName" << i << "=\"" << _info_on_compo[i] << "\"";
+  //
   if(byteArr)
     {
       ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
