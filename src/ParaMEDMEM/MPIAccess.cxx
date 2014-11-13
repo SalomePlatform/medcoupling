@@ -1033,6 +1033,30 @@ namespace ParaMEDMEM
       }
   }
 
+  // Returns the MPI size of a TimeMessage
+  MPI_Aint MPIAccess::timeExtent() const
+  {
+    MPI_Aint aextent ;
+    MPI_Type_extent( _MPI_TIME , &aextent ) ;
+    return aextent ;
+  }
+
+  // Returns the MPI size of a MPI_INT
+  MPI_Aint MPIAccess::intExtent() const
+  {
+    MPI_Aint aextent ;
+    MPI_Type_extent( MPI_INT , &aextent ) ;
+    return aextent ;
+  }
+
+  // Returns the MPI size of a MPI_DOUBLE
+  MPI_Aint MPIAccess::doubleExtent() const
+  {
+    MPI_Aint aextent ;
+    MPI_Type_extent( MPI_DOUBLE , &aextent ) ;
+    return aextent ;
+  }
+
   // Outputs fields of a TimeMessage structure
   ostream & operator<< (ostream & f ,const TimeMessage & aTimeMsg )
   {

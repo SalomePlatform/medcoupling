@@ -259,30 +259,6 @@ namespace ParaMEDMEM
     return ((aMPITag%MODULO_TAG) == _message_time) ;
   }
 
-  // Returns the MPI size of a TimeMessage
-  inline MPI_Aint MPIAccess::timeExtent() const
-  {
-    MPI_Aint aextent ;
-    MPI_Type_extent( _MPI_TIME , &aextent ) ;
-    return aextent ;
-  }
-
-  // Returns the MPI size of a MPI_INT
-  inline MPI_Aint MPIAccess::intExtent() const
-  {
-    MPI_Aint aextent ;
-    MPI_Type_extent( MPI_INT , &aextent ) ;
-    return aextent ;
-  }
-
-  // Returns the MPI size of a MPI_DOUBLE
-  inline MPI_Aint MPIAccess::doubleExtent() const
-  {
-    MPI_Aint aextent ;
-    MPI_Type_extent( MPI_DOUBLE , &aextent ) ;
-    return aextent ;
-  }
-
   // Returns the MPI size of the MPI_Datatype datatype
   inline MPI_Aint MPIAccess::extent( MPI_Datatype adatatype ) const
   {
