@@ -33,6 +33,8 @@ namespace ICoCo
   public:
     MEDField():_field(0) { }
     MEDField(ParaMEDMEM::MEDCouplingFieldDouble* field);
+    MEDField(const MEDField& field);
+    MEDField& operator=(const MEDField& field);
     virtual ~MEDField();
     ParaMEDMEM::MEDCouplingFieldDouble *getField() const  { return _field; }
     const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _field->getMesh(); }
