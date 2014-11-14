@@ -36,10 +36,27 @@ namespace ICoCo
     if(_field)
       _field->incrRef();
   }
+ MEDField::MEDField(const MEDField& field):_field(field.getField())
+  {
+    if(_field)
+      _field->incrRef();
+  }
 
   MEDField::~MEDField()
   {
     if(_field)
       _field->decrRef();
+  }
+
+
+  MEDField& MEDField::operator=(const MEDField& field)
+  {
+    if (_field)
+      _field->decrRef();
+     
+    _field=field.getField();
+    if(_field)
+      _field->incrRef();
+    return *this;
   }
 }

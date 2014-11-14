@@ -176,7 +176,7 @@ namespace ParaMEDMEM
                 locator.exchangeMethod(_method,idistant_proc,distantMeth);
                 //adds the contribution of the distant mesh on the local one
                 int idistant_proc_in_union=_union_group->translateRank(_target_group,idistant_proc);
-                std::cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<std::endl;
+                //std::cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<std::endl;
                 _interpolation_matrix->addContribution(*distant_mesh,idistant_proc_in_union,distant_ids,_method,distantMeth);
                 distant_mesh->decrRef();
                 delete [] distant_ids;
@@ -200,7 +200,7 @@ namespace ParaMEDMEM
             int  idistant_proc=i;
             //gathers pieces of the target meshes that can intersect the local mesh
             locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
-            std::cout << " Data sent from "<<_union_group->myRank()<<" to source proc "<< idistant_proc<<std::endl;
+            //std::cout << " Data sent from "<<_union_group->myRank()<<" to source proc "<< idistant_proc<<std::endl;
             if (distant_mesh!=0)
               {
                 std::string distantMeth;
