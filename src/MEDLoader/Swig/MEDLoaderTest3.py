@@ -3782,6 +3782,20 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
         pass
 
+    def testMEDFileWithoutCells1(self):
+        fileName="Pyfile83.med"
+        coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
+        coo.setInfoOnComponents(["aa [m]","bbb [s]","cccc [m/s]"])
+        mm=MEDFileUMesh()
+        mm.setCoords(coo)
+        mm.setName("mesh")
+        mm.write(fileName,2)
+        #
+        mm=MEDFileMesh.New(fileName)
+        self.assertEqual(mm.getName(),"mesh")
+        self.assertTrue(mm.getCoords().isEqual(coo,1e-12))
+        pass
+
     pass
 
 unittest.main()

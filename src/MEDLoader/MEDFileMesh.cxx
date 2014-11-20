@@ -2314,7 +2314,9 @@ void MEDFileUMesh::writeLL(med_idt fid) const
   MEDLoaderBase::safeStrCpy(_name.c_str(),MED_NAME_SIZE,maa,_too_long_str);
   MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_COMMENT_SIZE,desc,_too_long_str);
   int spaceDim=coo?coo->getNumberOfComponents():0;
-  int mdim=getMeshDimension();
+  int mdim(0);
+  if(!_ms.empty())
+    mdim=getMeshDimension();
   INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
   for(int i=0;i<spaceDim;i++)
