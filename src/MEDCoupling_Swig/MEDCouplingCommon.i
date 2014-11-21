@@ -390,6 +390,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::PartDefinition::New;
 %newobject ParaMEDMEM::PartDefinition::toDAI;
 %newobject ParaMEDMEM::PartDefinition::__add__;
+%newobject ParaMEDMEM::PartDefinition::composeWith;
+%newobject ParaMEDMEM::PartDefinition::tryToSimplify;
 %newobject ParaMEDMEM::DataArrayPartDefinition::New;
 %newobject ParaMEDMEM::SlicePartDefinition::New;
 
@@ -5417,6 +5419,9 @@ namespace ParaMEDMEM
     virtual DataArrayInt *toDAI() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::string getRepr() const throw(INTERP_KERNEL::Exception);
+    virtual PartDefinition *composeWith(const PartDefinition *other) const throw(INTERP_KERNEL::Exception);
+    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    virtual PartDefinition *tryToSimplify() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       virtual PartDefinition *__add__(const PartDefinition& other) const throw(INTERP_KERNEL::Exception)

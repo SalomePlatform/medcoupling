@@ -4444,6 +4444,25 @@ namespace ParaMEDMEM
         PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return pyRet;
       }
+
+      PyObject *isRange() const throw(INTERP_KERNEL::Exception)
+      {
+        int a(0),b(0),c(0);
+        bool ret(self->isRange(a,b,c));
+        PyObject *pyRet=PyTuple_New(2);
+        PyObject *ret0Py=ret?Py_True:Py_False,*ret1Py(0);
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(pyRet,0,ret0Py);
+        if(ret)
+          ret1Py=PySlice_New(PyInt_FromLong(a),PyInt_FromLong(b),PyInt_FromLong(c));
+        else
+          {
+            ret1Py=Py_None;
+            Py_XINCREF(ret1Py);
+          }
+        PyTuple_SetItem(pyRet,1,ret1Py);
+        return pyRet;
+      }
     }
   };
 

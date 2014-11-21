@@ -72,6 +72,61 @@ std::string DataArrayPartDefinition::getRepr() const
   return oss.str();
 }
 
+/*!
+ * This method operates FoG where F is \a this and G is \a other.
+ * Example : if \a other is SlicePart(4,14,1) and if \a this is DataArrayPartDefinition([0,1,2,3,6,7,8,9]) -> DataArrayPartDefinition([4,5,6,7,11,12,13]) will be returned
+ */
+PartDefinition *DataArrayPartDefinition::composeWith(const PartDefinition *other) const
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("DataArrayPartDefinition::composeWith : input PartDef must be not NULL !");
+  checkCoherency();
+  other->checkCoherency();
+  const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(other));
+  if(spd)
+    {//special case for optim
+      int a(0),b(0),c(0);
+      spd->getSlice(a,b,c);
+      if(c==1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(DataArrayInt::New());
+          arr->alloc(_arr->getNumberOfTuples(),1);
+          std::transform(_arr->begin(),_arr->end(),arr->getPointer(),std::bind2nd(std::plus<int>(),a));
+          return DataArrayPartDefinition::New(arr);
+        }
+    }
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr1(other->toDAI());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr1->selectByTupleIdSafe(_arr->begin(),_arr->end()));
+  return DataArrayPartDefinition::New(arr2);
+}
+
+void DataArrayPartDefinition::checkCoherency() const
+{
+  CheckInternalArrayOK(_arr);
+}
+
+/*!
+ * This method tries to simplify \a this if possible.
+ * 
+ * \return a new reference (equal to this) to be decrRefed.
+ */
+PartDefinition *DataArrayPartDefinition::tryToSimplify() const
+{
+  checkCoherency();
+  int a(0),b(0),c(0);
+  if(_arr->isRange(a,b,c))
+    {
+      return SlicePartDefinition::New(a,b,c);
+    }
+  else
+    {
+      PartDefinition *ret(const_cast<DataArrayPartDefinition *>(this));
+      ret->incrRef();
+      return ret;
+    }
+}
+
 DataArrayInt *DataArrayPartDefinition::toDAI() const
 {
   checkInternalArrayOK();
@@ -163,6 +218,40 @@ PartDefinition *SlicePartDefinition::operator+(const PartDefinition& other) cons
   if(other2)
     return add2(other2);
   throw INTERP_KERNEL::Exception("SlicePartDefinition::operator+ : unrecognized type in input !");
+}
+
+/*!
+ * This method operates FoG where F is \a this and G is \a other.
+ * Example : if \a this is SlicePart(4,6,1) and if \a other is DataArrayPartDefinition([12,13,17,18,22,28,34,44]) -> DataArrayPartDefinition([22,28]) will be returned
+ */
+PartDefinition *SlicePartDefinition::composeWith(const PartDefinition *other) const
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("SlicePartDefinition::composeWith : input PartDef must be not NULL !");
+  checkCoherency();
+  other->checkCoherency();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(other->toDAI());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr1(arr->selectByTupleId2(_start,_stop,_step));
+  return DataArrayPartDefinition::New(arr1);
+}
+
+/*!
+ * Do nothing it is not a bug.
+ */
+void SlicePartDefinition::checkCoherency() const
+{
+}
+
+/*!
+ * Return \a this (because it cannot be simplified)
+ * 
+ * \return a new reference (equal to this) to be decrRefed.
+ */
+PartDefinition *SlicePartDefinition::tryToSimplify() const
+{
+  PartDefinition *ret(const_cast<SlicePartDefinition *>(this));
+  ret->incrRef();
+  return ret;
 }
 
 std::string SlicePartDefinition::getRepr() const
