@@ -15858,6 +15858,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(1,2),(1,2),(-1,-1)])))
         pass
 
+    def testSwig2Intersect2DMeshWith1DLine10(self):
+        """ Intersection between a circle and various lines """
+        eps = 1.0e-8
+        m_circ = MEDCouplingDataForTest.buildCircle2(0.0, 0.0, 2.0)
+        coords = [0.0,3.0,0.0,-3.0]
+        connec = [0,1]
+        m_line = MEDCouplingUMesh.New("seg", 1)  
+        m_line.allocateCells(1)
+        meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
+        m_line.setCoords(meshCoords)
+        m_line.insertNextCell(NORM_SEG2, connec)
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m_circ, m_line, eps)    
+        self.assertEqual([32, 1, 7, 10, 11, 12, 13, 14, 15, 32, 5, 3, 11, 10, 16, 17, 18, 19], a.getNodalConnectivity().getValues())
+        self.assertEqual([0, 9, 18],   a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1, 8, 11, 1, 11, 10, 1, 10, 9], b.getNodalConnectivity().getValues())
+        self.assertEqual([0, 3, 6, 9], b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(a.getCoords()[:8].isEqual(m_circ.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[8:10].isEqual(m_line.getCoords(),1e-12))
+        coo_tgt = DataArrayDouble([2.0, 0.0, 1.4142135623730951, 1.414213562373095, 1.2246467991473532e-16, 2.0, -1.414213562373095, 1.4142135623730951, -2.0, 2.4492935982947064e-16, -1.4142135623730954, -1.414213562373095, -3.6739403974420594e-16, -2.0, 1.4142135623730947, -1.4142135623730954, 0.0, 3.0, 0.0, -3.0, 0.0, -2.0, 0.0, 2.0, 2.0, -2.220446049250313e-16, 0.7653668647301797, -1.8477590650225735, 0.0, 0.0, 0.7653668647301797, 1.8477590650225735, -1.9999999999999998, -3.2343398276365944e-16, -0.7653668647301795, 1.8477590650225735, 0.0, 0.0, -0.7653668647301795, -1.8477590650225735])
+        self.assertTrue(a.getCoords().isEqualWithoutConsideringStr(coo_tgt, 1.0e-12))
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertEqual([0, 0], c.getValues())
+        self.assertEqual([-1, -1, 0, 1, -1, -1], d.getValues())
+
     def testOrderConsecutiveCells1D1(self):
         """A line in several unconnected pieces:"""
         m2 = MEDCouplingUMesh.New("bla", 1)
