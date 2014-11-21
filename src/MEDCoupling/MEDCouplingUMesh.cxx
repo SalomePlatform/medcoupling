@@ -10045,7 +10045,8 @@ void MEDCouplingUMesh::Intersect1DMeshes(const MEDCouplingUMesh *m1Desc, const M
           delete pol1;
         }
       else
-        intersectEdge1[i].insert(intersectEdge1[i].end(),c1+ci1[i]+1,c1+ci1[i+1]);
+        // Copy the edge (take only the two first points, ie discard quadratic point at this stage)
+        intersectEdge1[i].insert(intersectEdge1[i].end(),c1+ci1[i]+1,c1+ci1[i]+3);
     }
 }
 
