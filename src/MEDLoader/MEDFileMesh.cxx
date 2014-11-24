@@ -3499,24 +3499,34 @@ struct MEDLoaderAccVisit1
  */
 DataArrayInt *MEDFileUMesh::zipCoords()
 {
-  const DataArrayDouble *coo=getCoords();
+  const DataArrayDouble *coo(getCoords());
   if(!coo)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::zipCoords : no coordinates set in this !");
-  int nbOfNodes=coo->getNumberOfTuples();
+  int nbOfNodes(coo->getNumberOfTuples());
   std::vector<bool> nodeIdsInUse(nbOfNodes,false);
-  std::vector<int> neLevs=getNonEmptyLevels();
+  std::vector<int> neLevs(getNonEmptyLevels());
   for(std::vector<int>::const_iterator lev=neLevs.begin();lev!=neLevs.end();lev++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=getMeshAtLevel(*lev);
-      m->computeNodeIdsAlg(nodeIdsInUse);
+      const MEDFileUMeshSplitL1 *zeLev(getMeshAtLevSafe(*lev));
+      if(zeLev->isMeshStoredSplitByType())
+        {
+          std::vector<MEDCoupling1GTUMesh *> ms(zeLev->getDirectUndergroundSingleGeoTypeMeshes());
+          for(std::vector<MEDCoupling1GTUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+            if(*it)
+              (*it)->computeNodeIdsAlg(nodeIdsInUse);
+        }
+      else
+        {
+          zeLev->getWholeMesh(false)->computeNodeIdsAlg(nodeIdsInUse);
+        }
     }
-  int nbrOfNodesInUse=(int)std::count(nodeIdsInUse.begin(),nodeIdsInUse.end(),true);
+  int nbrOfNodesInUse((int)std::count(nodeIdsInUse.begin(),nodeIdsInUse.end(),true));
   if(nbrOfNodesInUse==nbOfNodes)
-    return 0;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfNodes,1);
+    return 0;//no need to update _part_coords
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfNodes,1);
   std::transform(nodeIdsInUse.begin(),nodeIdsInUse.end(),ret->getPointer(),MEDLoaderAccVisit1());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=ret->invertArrayO2N2N2OBis(nbrOfNodesInUse);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=coo->selectByTupleIdSafe(ret2->begin(),ret2->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2(ret->invertArrayO2N2N2OBis(nbrOfNodesInUse));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords(coo->selectByTupleIdSafe(ret2->begin(),ret2->end()));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFamCoords;
   MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> newNameCoords;
   if((const DataArrayInt *)_fam_coords)
@@ -3531,6 +3541,13 @@ DataArrayInt *MEDFileUMesh::zipCoords()
     {
       if((MEDFileUMeshSplitL1*)*it)
         (*it)->renumberNodesInConn(ret->begin());
+    }
+  // updates _part_coords
+  const PartDefinition *pc(_part_coords);
+  if(pc)
+    {
+      MEDCouplingAutoRefCountObjectPtr<PartDefinition> tmpPD(DataArrayPartDefinition::New(ret2));
+      _part_coords=tmpPD->composeWith(pc);
     }
   return ret.retn();
 }

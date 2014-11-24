@@ -1018,10 +1018,7 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const std::string& mName, int mdim)
 
 void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
-  MEDCouplingUMesh *m(_m_by_types.getUmesh());
-  if(!m)
-    return;
-  m->renumberNodesInConn(newNodeNumbersO2N);
+  _m_by_types.renumberNodesInConnWithoutComputation(newNodeNumbersO2N);
 }
 
 void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId)
@@ -1280,6 +1277,26 @@ void MEDFileUMeshAggregateCompute::getStartStopOfGeoTypeWithoutComputation(INTER
   throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getStartStopOfGeoTypeWithoutComputation : the geometric type is not existing !");
 }
 
+void MEDFileUMeshAggregateCompute::renumberNodesInConnWithoutComputation(const int *newNodeNumbersO2N)
+{
+  if(_mp_time>_m_time)
+    {
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+        {
+          MEDCoupling1GTUMesh *m(*it);
+          if(m)
+            m->renumberNodesInConn(newNodeNumbersO2N);
+        }
+    }
+  else
+    {
+      MEDCouplingUMesh *m(getUmesh());
+      if(!m)
+        return;
+      m->renumberNodesInConn(newNodeNumbersO2N);
+    }
+}
+
 void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
 {
   const MEDCouplingUMesh *m(_m);
@@ -1311,6 +1328,14 @@ const PartDefinition *MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputati
           return _part_def[i];
     }
   throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : The input geo type is not existing in this !");
+}
+
+/*!
+ * This method returns true if \a this is stored split by type false if stored in a merged unstructured mesh.
+ */
+bool MEDFileUMeshAggregateCompute::isStoredSplitByType() const
+{
+  return _mp_time>=_m_time;
 }
 
 std::size_t MEDFileUMeshAggregateCompute::getTimeOfThis() const
