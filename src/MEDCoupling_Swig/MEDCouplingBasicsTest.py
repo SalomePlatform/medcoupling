@@ -15988,6 +15988,64 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([(49,50),(50,51),(51,52),(52,53),(53,54),(54,55),(55,56),(56,57),(57,58),(58,59),(59,60),(60,61),(61,62),(62,63),(63,64),(64,65),(65,66),(66,67)])))
         pass
 
+    def testSwig2DAIIsRange(self):
+        d=DataArrayInt([2,6,10])
+        a,b=d.isRange()
+        self.assertTrue(a)
+        self.assertEqual(b,slice(2,11,4))
+        self.assertTrue(DataArrayInt.Range(b.start,b.stop,b.step).isEqual(d))
+        #
+        d=DataArrayInt([2,7,10])
+        a,b=d.isRange()
+        self.assertTrue(not a)
+        self.assertTrue(b is None)
+        #
+        d=DataArrayInt([22,17,12])
+        a,b=d.isRange()
+        self.assertTrue(a)
+        self.assertEqual(b,slice(22,11,-5))
+        self.assertTrue(DataArrayInt.Range(b.start,b.stop,b.step).isEqual(d))
+        #
+        d=DataArrayInt([22,16,12])
+        a,b=d.isRange()
+        self.assertTrue(not a)
+        self.assertTrue(b is None)
+        #
+        d=DataArrayInt([33])
+        a,b=d.isRange()
+        self.assertTrue(a)
+        self.assertEqual(b,slice(33,34,1))
+        self.assertTrue(DataArrayInt.Range(b.start,b.stop,b.step).isEqual(d))
+        #
+        d=DataArrayInt([])
+        a,b=d.isRange()
+        self.assertTrue(a)
+        self.assertEqual(b,slice(0,0,1))
+        self.assertTrue(DataArrayInt.Range(b.start,b.stop,b.step).isEqual(d))
+        #
+        d=DataArrayInt([2,6,10,2])
+        a,b=d.isRange()
+        self.assertTrue(not a)
+        self.assertTrue(b is None)
+        pass
+
+    def testSwig2PartDefinitionComposeWith1(self):
+        f=PartDefinition.New(DataArrayInt([0,1,2,3,6,7,8,9]))
+        g=PartDefinition.New(4,14,1)
+        h=f.composeWith(g)
+        self.assertTrue(isinstance(h,DataArrayPartDefinition))
+        self.assertTrue(h.toDAI().isEqual(DataArrayInt([4,5,6,7,10,11,12,13])))
+        f2=f.tryToSimplify()
+        g2=g.tryToSimplify()
+        self.assertEqual(f2.getHiddenCppPointer(),f.getHiddenCppPointer())# same because no simplification due to content of array
+        self.assertEqual(g2.getHiddenCppPointer(),g.getHiddenCppPointer())# same because no simplification linked to type of PartDef
+        p=PartDefinition.New(DataArrayInt([2,6,10]))
+        p2=p.tryToSimplify()
+        self.assertNotEqual(p2.getHiddenCppPointer(),p.getHiddenCppPointer())
+        self.assertTrue(isinstance(p2,SlicePartDefinition))
+        self.assertEqual(p2.getSlice(),slice(2,11,4))
+        pass
+
     pass
 
 if __name__ == '__main__':

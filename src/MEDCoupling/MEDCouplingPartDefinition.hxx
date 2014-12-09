@@ -36,6 +36,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual int getNumberOfElems() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *operator+(const PartDefinition& other) const = 0;
     MEDCOUPLING_EXPORT virtual std::string getRepr() const = 0;
+    MEDCOUPLING_EXPORT virtual PartDefinition *composeWith(const PartDefinition *other) const = 0;
+    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
+    MEDCOUPLING_EXPORT virtual PartDefinition *tryToSimplify() const = 0;
   protected:
     virtual ~PartDefinition();
   };
@@ -50,6 +53,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfElems() const;
     MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
+    MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
+    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
   private:
     DataArrayPartDefinition(DataArrayInt *listOfIds);
     void checkInternalArrayOK() const;
@@ -72,6 +78,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfElems() const;
     MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
+    MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
+    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
     //specific method
     MEDCOUPLING_EXPORT int getEffectiveStop() const;
     MEDCOUPLING_EXPORT void getSlice(int& start, int& stop, int& step) const;

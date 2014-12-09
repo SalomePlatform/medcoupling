@@ -3782,6 +3782,75 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
         pass
 
+    def testMEDFileWithoutCells1(self):
+        fileName="Pyfile83.med"
+        coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
+        coo.setInfoOnComponents(["aa [m]","bbb [s]","cccc [m/s]"])
+        mm=MEDFileUMesh()
+        mm.setCoords(coo)
+        mm.setName("mesh")
+        mm.write(fileName,2)
+        #
+        mm=MEDFileMesh.New(fileName)
+        self.assertEqual(mm.getName(),"mesh")
+        self.assertTrue(mm.getCoords().isEqual(coo,1e-12))
+        pass
+
+    def testZipCoordsWithLoadPart1(self):
+        """ Test close to Pyfile82.med except that here zipCoords on MEDFileUMesh is invoked here to see if the PartDef is correctly updated.
+        """
+        fileName="Pyfile84.med"
+        meshName="Mesh"
+        compos=["aa [kg]","bbb [m/s]"]
+        arr=DataArrayDouble(6) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m.setName(meshName)
+        m.changeSpaceDimension(3,0.)
+        infos=["aa [b]","cc [de]","gg [klm]"]
+        m.getCoords().setInfoOnComponents(infos)
+        m.checkCoherency2()
+        f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f.setMesh(m)
+        f.setName("Field")
+        arr=DataArrayDouble(25,2) ; arr.setInfoOnComponents(compos)
+        arr[:,0]=range(25)
+        arr[:,1]=range(100,125)
+        f.setArray(arr)
+        MEDLoader.WriteField(fileName,f,2)
+        f=MEDCouplingFieldDouble(ON_NODES,ONE_TIME) ; f.setMesh(m)
+        f.setName("FieldNode")
+        arr=DataArrayDouble(36,2) ; arr.setInfoOnComponents(compos)
+        arr[:,0]=range(200,236)
+        arr[:,1]=range(300,336)
+        f.setArray(arr)
+        f.checkCoherency()
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f)
+        #
+        ms=MEDFileMeshes()
+        mm=MEDFileUMesh.LoadPartOf(fileName,meshName,[NORM_QUAD4],[4,6,1])
+        ms.pushMesh(mm)
+        spd=mm.getPartDefAtLevel(0,NORM_QUAD4)
+        self.assertEqual(spd.getSlice(),slice(4,6,1))
+        spd=mm.getPartDefAtLevel(1)
+        self.assertEqual(spd.getSlice(),slice(4,14,1))
+        self.assertTrue(spd.getNumberOfElems()==10 and spd.getNumberOfElems()==mm.getNumberOfNodes())
+        mm.zipCoords() # <- The important line is here !
+        spd=mm.getPartDefAtLevel(0,NORM_QUAD4)
+        self.assertEqual(spd.getSlice(),slice(4,6,1))
+        spd=mm.getPartDefAtLevel(1)
+        self.assertTrue(spd.getNumberOfElems()==8 and spd.getNumberOfElems()==mm.getNumberOfNodes())
+        self.assertTrue(spd.toDAI().isEqual(DataArrayInt([4,5,6,7,10,11,12,13])))
+        fs=MEDFileFields.LoadPartOf(fileName,False,ms)
+        fs[0][0].loadArrays()
+        arr=DataArrayDouble([(4,104),(5,105)])
+        arr.setInfoOnComponents(compos)
+        self.assertTrue(fs[0][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        fs[1][0].loadArrays()
+        arr=DataArrayDouble([(204,304),(205,305),(206,306),(207,307),(210,310),(211,311),(212,312),(213,313)])
+        arr.setInfoOnComponents(compos)
+        self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
+        pass
+
     pass
 
 unittest.main()

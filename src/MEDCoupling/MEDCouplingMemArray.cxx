@@ -6424,7 +6424,7 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
  */
 void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
                                      DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const
-    {
+{
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("Call splitByValueRange  method on DataArrayInt with only one component, you can call 'rearrange' method before !");
@@ -6467,7 +6467,60 @@ void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
   castArr=ret1.retn();
   rankInsideCast=ret2.retn();
   castsPresent=ret3.retn();
+}
+
+/*!
+ * This method look at \a this if it can be considered as a range defined by the 3-tuple ( \a strt , \a sttoopp , \a stteepp ).
+ * If false is returned the tuple must be ignored. If true is returned \a this can be considered by a range( \a strt , \a sttoopp , \a stteepp ).
+ * This method works only if \a this is allocated and single component. If not an exception will be thrown.
+ *
+ * \param [out] strt - the start of the range (included) if true is returned.
+ * \param [out] sttoopp - the end of the range (not included) if true is returned.
+ * \param [out] stteepp - the step of the range if true is returned.
+ * \return the verdict of the check.
+ *
+ * \sa DataArray::GetNumberOfItemGivenBES
+ */
+bool DataArrayInt::isRange(int& strt, int& sttoopp, int& stteepp) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::isRange : this must be single component array !");
+  int nbTuples(getNumberOfTuples());
+  if(nbTuples==0)
+    { strt=0; sttoopp=0; stteepp=1; return true; }
+  const int *pt(begin());
+  strt=*pt; 
+  if(nbTuples==1)
+    { sttoopp=strt+1; stteepp=1; return true; }
+  strt=*pt; sttoopp=pt[nbTuples-1];
+  if(strt==sttoopp)
+    return false;
+  if(sttoopp>strt)
+    {
+      sttoopp++;
+      int a(sttoopp-1-strt),tmp(strt);
+      if(a%(nbTuples-1)!=0)
+        return false;
+      stteepp=a/(nbTuples-1);
+      for(int i=0;i<nbTuples;i++,tmp+=stteepp)
+        if(pt[i]!=tmp)
+          return false;
+      return true;
     }
+  else
+    {
+      sttoopp--;
+      int a(strt-sttoopp-1),tmp(strt);
+      if(a%(nbTuples-1)!=0)
+        return false;
+      stteepp=-(a/(nbTuples-1));
+      for(int i=0;i<nbTuples;i++,tmp+=stteepp)
+        if(pt[i]!=tmp)
+          return false;
+      return true;
+    }
+}
 
 /*!
  * Creates a one-dimensional DataArrayInt (\a res) whose contents are computed from 

@@ -160,6 +160,8 @@ namespace ParaMEDMEM
     std::vector<MEDCoupling1GTUMesh *> retrievePartsWithoutComputation() const;
     MEDCoupling1GTUMesh *retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
     void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
+    void renumberNodesInConnWithoutComputation(const int *newNodeNumbersO2N);
+    bool isStoredSplitByType() const;
     std::size_t getTimeOfThis() const;
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -213,6 +215,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
+    bool isMeshStoredSplitByType() const { return _m_by_types.isStoredSplitByType(); }
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.retrievePartsWithoutComputation(); }
     MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.retrievePartWithoutComputation(gt); }

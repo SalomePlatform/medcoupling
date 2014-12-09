@@ -475,13 +475,14 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
     {
       if(!_profile.empty())
         throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile : not implemented !");
+      INTERP_KERNEL::AutoPtr<char> pflname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),locname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
+      int profilesize,nbi;
+      int overallNval(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile_it+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
       const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
       if(spd)
         {
-          int profilesize,nbi,start,stop,step;
+          int start,stop,step;
           spd->getSlice(start,stop,step);
-          INTERP_KERNEL::AutoPtr<char> pflname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE)),locname(MEDLoaderBase::buildEmptyString(MED_NAME_SIZE));
-          int overallNval(MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,_profile_it+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi));
           int nbOfEltsToLoad(DataArray::GetNumberOfItemGivenBES(start,stop,step,"MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile"));
           med_filter filter=MED_FILTER_INIT;
           MEDfilterBlockOfEntityCr(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
@@ -491,6 +492,29 @@ void MEDFileFieldPerMeshPerTypePerDisc::goReadZeValuesInFile(med_idt fid, const 
           MEDfieldValueAdvancedRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,&filter,startFeedingPtr);
           MEDfilterClose(&filter);
           return ;
+        }
+      const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
+      if(dpd)
+        {
+          dpd->checkCoherency();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> myIds(dpd->toDAI());
+          int a(myIds->getMinValueInArray()),b(myIds->getMaxValueInArray());
+          myIds->applyLin(1,-a);
+          int nbOfEltsToLoad(b-a+1);
+          med_filter filter=MED_FILTER_INIT;
+          {//TODO : manage int32 !
+            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(DataArrayDouble::New());
+            tmp->alloc(nbOfEltsToLoad,nbOfCompo);
+            MEDfilterBlockOfEntityCr(fid,/*nentity*/overallNval,/*nvaluesperentity*/nbi,/*nconstituentpervalue*/nbOfCompo,
+                                     MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
+                                     /*start*/a+1,/*stride*/1,/*count*/1,/*blocksize*/nbOfEltsToLoad,
+                                     /*lastblocksize=useless because count=1*/0,&filter);
+            MEDfieldValueAdvancedRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,&filter,reinterpret_cast<unsigned char *>(tmp->getPointer()));
+            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> feeder(DataArrayDouble::New());
+            feeder->useExternalArrayWithRWAccess(reinterpret_cast<double *>(startFeedingPtr),_nval,nbOfCompo);
+            feeder->setContigPartOfSelectedValues(0,tmp,myIds);
+          }
+          MEDfilterClose(&filter);
         }
       else
         throw INTERP_KERNEL::Exception("Not implemented yet for not slices!");
@@ -523,14 +547,9 @@ void MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively(med_i
     }
   else
     {
-      const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
-      if(!spd)
-        throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively : Part def only implemented for split one !");
       if(!_profile.empty())
         throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively : profiles are not managed yet with part of def !");
-      int start1,stop1,step1;
-      spd->getSlice(start1,stop1,step1);
-      _nval=DataArray::GetNumberOfItemGivenBES(start1,stop1,step1,"MEDFileFieldPerMeshPerTypePerDisc::loadOnlyStructureOfDataRecursively");
+      _nval=pd->getNumberOfElems();
     }
   _start=start;
   _end=start+_nval*nbi;
