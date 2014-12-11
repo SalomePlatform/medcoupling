@@ -591,6 +591,52 @@ namespace INTERP_KERNEL
       throw INTERP_KERNEL::Exception("CellModel::fillSonEdgesNodalConnectivity3D : not implemented yet for NORM_POLYHED !");   
   }
 
+  void CellModel::changeOrientationOf2D(int *nodalConn, unsigned int sz) const
+  {
+    if(sz<1)
+      return ;
+    if(!isQuadratic())
+      {
+        std::vector<int> tmp(sz-1);
+        std::copy(nodalConn+1,nodalConn+sz,tmp.rbegin());
+        std::copy(tmp.begin(),tmp.end(),nodalConn+1);
+      }
+    else
+      {
+        unsigned int sz2(sz/2);
+        std::vector<int> tmp0(sz2-1),tmp1(sz2);
+        std::copy(nodalConn+1,nodalConn+sz2,tmp0.rbegin());
+        std::copy(nodalConn+sz2,nodalConn+sz,tmp1.rbegin());
+        std::copy(tmp0.begin(),tmp0.end(),nodalConn+1);
+        std::copy(tmp1.begin(),tmp1.end(),nodalConn+sz2);
+      }
+  }
+
+  void CellModel::changeOrientationOf1D(int *nodalConn, unsigned int sz) const
+  {
+    if(!isDynamic())
+      {
+        if(sz==2 || sz==3)
+          {
+            std::swap(nodalConn[0],nodalConn[1]);
+            return ;
+          }
+        else if(sz==4)
+          {
+            std::swap(nodalConn[0],nodalConn[1]);
+            std::swap(nodalConn[2],nodalConn[3]);
+          }
+        else
+          throw Exception("CellModel::changeOrientationOf1D : unrecognized 1D cell type !");
+      }
+    else
+      {
+        std::vector<int> tmp(sz-1);
+        std::copy(nodalConn+1,nodalConn+sz,tmp.rbegin());
+        std::copy(tmp.begin(),tmp.end(),nodalConn+1);
+      }
+  }
+
   //================================================================================
   /*!
    * \brief Return number of nodes in sonId-th son of a Dynamic() cell

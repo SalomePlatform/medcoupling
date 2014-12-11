@@ -15667,24 +15667,24 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     def testSwig2Intersect2DMeshWith1DLine2(self):
-         """A basic test with colinearity between m1 and m2 and the last cell of m2 outside m1."""
-         i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
-         m1=i.buildUnstructured()
-         m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([0.5,2.,2.25,2.,2.5,2.,2.75,2.,3.,2.,4.,2.,5.,2.],7,2)) ; m2.allocateCells()
-         for i in xrange(6):
-             m2.insertNextCell(NORM_SEG2,[i,i+1])
-             pass
-         a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
-         self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,2,1,6,7,4,3,2,7,8,4,4,3,8,9,4,16,15,20,21,4,17,16,21,22,4,18,17,22,23,4,19,18,23,24,5,6,5,10,25,11,5,7,6,11,12,5,8,7,12,26,27,28,13,5,9,8,13,14,5,11,25,10,15,16,5,12,11,16,17,5,13,28,27,26,12,17,18,5,14,13,18,19])))
-         self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,46,51,59,64,70,75,83,88])))
-         self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,25,11,1,11,12,1,12,26,1,26,27,1,27,28,1,28,13,1,13,14,1,14,31])))
-         self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24])))
-         self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-         self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(),1e-12))
-         self.assertTrue(a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
-         self.assertTrue(c.isEqual(DataArrayInt([0,1,2,3,12,13,14,15,4,5,6,7,8,9,10,11])))
-         self.assertTrue(d.isEqual(DataArrayInt([(12,8),(13,9),(14,10),(14,10),(14,10),(14,10),(15,11),(-1,-1)])))
-         pass
+        """A basic test with colinearity between m1 and m2 and the last cell of m2 outside m1."""
+        i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
+        m1=i.buildUnstructured()
+        m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([0.5,2.,2.25,2.,2.5,2.,2.75,2.,3.,2.,4.,2.,5.,2.],7,2)) ; m2.allocateCells()
+        for i in xrange(6):
+            m2.insertNextCell(NORM_SEG2,[i,i+1])
+            pass
+        a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,2,1,6,7,4,3,2,7,8,4,4,3,8,9,4,16,15,20,21,4,17,16,21,22,4,18,17,22,23,4,19,18,23,24,5,6,5,10,25,11,5,7,6,11,12,5,8,7,12,26,27,28,13,5,9,8,13,14,5,11,25,10,15,16,5,12,11,16,17,5,13,28,27,26,12,17,18,5,14,13,18,19])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,46,51,59,64,70,75,83,88])))
+        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,25,11,1,11,12,1,12,26,1,26,27,1,27,28,1,28,13,1,13,14,1,14,31])))
+        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24])))
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
+        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,3,12,13,14,15,4,5,6,7,8,9,10,11])))
+        self.assertTrue(d.isEqual(DataArrayInt([(12,8),(13,9),(14,10),(14,10),(14,10),(14,10),(15,11),(-1,-1)])))
+        pass
 
     def testSwig2Intersect2DMeshWith1DLine3(self):
         """m2 fully included in cell #12. of m1"""
@@ -15864,23 +15864,181 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m_circ = MEDCouplingDataForTest.buildCircle2(0.0, 0.0, 2.0)
         coords = [0.0,3.0,0.0,-3.0]
         connec = [0,1]
-        m_line = MEDCouplingUMesh.New("seg", 1)  
+        m_line = MEDCouplingUMesh("seg", 1)  
         m_line.allocateCells(1)
         meshCoords = DataArrayDouble.New(coords, len(coords)/2, 2)
         m_line.setCoords(meshCoords)
         m_line.insertNextCell(NORM_SEG2, connec)
-        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m_circ, m_line, eps)    
-        self.assertEqual([32, 1, 7, 10, 11, 12, 13, 14, 15, 32, 5, 3, 11, 10, 16, 17, 18, 19], a.getNodalConnectivity().getValues())
-        self.assertEqual([0, 9, 18],   a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1, 8, 11, 1, 11, 10, 1, 10, 9], b.getNodalConnectivity().getValues())
-        self.assertEqual([0, 3, 6, 9], b.getNodalConnectivityIndex().getValues())
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m_circ, m_line, eps)
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:m_circ.getNumberOfNodes()].isEqual(m_circ.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[m_circ.getNumberOfNodes():m_circ.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.414213562373095),(0.,2.),(-1.414213562373095,1.4142135623730951),(-2.,0.),(-1.4142135623730954,-1.414213562373095),(0.,-2.),(1.4142135623730947,-1.4142135623730954),(0.,3.),(0.,-3.),(0.,-2.),(0.,2.),(2.,0.),(0.7653668647301797,-1.8477590650225735),(0.,0.),(0.7653668647301797,1.8477590650225735),(-2,0.),(-0.7653668647301795,1.8477590650225735),(0.,0.),(-0.7653668647301795,-1.8477590650225735)]),1e-12))
+        self.assertEqual([32,1,7,10,11,12,13,14,15,32,5,3,11,10,16,17,18,19],a.getNodalConnectivity().getValues())
+        self.assertEqual([0,9,18],  a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,8,11,1,11,10,1,10,9],b.getNodalConnectivity().getValues())
+        self.assertEqual([0,3,6,9],b.getNodalConnectivityIndex().getValues())
         self.assertTrue(a.getCoords()[:8].isEqual(m_circ.getCoords(),1e-12))
         self.assertTrue(a.getCoords()[8:10].isEqual(m_line.getCoords(),1e-12))
-        coo_tgt = DataArrayDouble([2.0, 0.0, 1.4142135623730951, 1.414213562373095, 1.2246467991473532e-16, 2.0, -1.414213562373095, 1.4142135623730951, -2.0, 2.4492935982947064e-16, -1.4142135623730954, -1.414213562373095, -3.6739403974420594e-16, -2.0, 1.4142135623730947, -1.4142135623730954, 0.0, 3.0, 0.0, -3.0, 0.0, -2.0, 0.0, 2.0, 2.0, -2.220446049250313e-16, 0.7653668647301797, -1.8477590650225735, 0.0, 0.0, 0.7653668647301797, 1.8477590650225735, -1.9999999999999998, -3.2343398276365944e-16, -0.7653668647301795, 1.8477590650225735, 0.0, 0.0, -0.7653668647301795, -1.8477590650225735])
-        self.assertTrue(a.getCoords().isEqualWithoutConsideringStr(coo_tgt, 1.0e-12))
+        coo_tgt = DataArrayDouble([2.,0.,1.4142135623730951,1.414213562373095,1.2246467991473532e-16,2.,-1.414213562373095,1.4142135623730951,-2.,0.,-1.4142135623730954,-1.414213562373095,-3.6739403974420594e-16,-2.,1.4142135623730947,-1.4142135623730954,0.,3.,0.,-3.,0.,-2.,0.,2.,2.,0.,0.7653668647301797,-1.8477590650225735,0.,0.,0.7653668647301797,1.8477590650225735,-2.,0.,-0.7653668647301795,1.8477590650225735,0.,0.,-0.7653668647301795,-1.8477590650225735])
+        self.assertTrue(a.getCoords().isEqualWithoutConsideringStr(coo_tgt,1.0e-12))
         self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertEqual([0, 0], c.getValues())
-        self.assertEqual([-1, -1, 0, 1, -1, -1], d.getValues())
+        self.assertEqual([0,0],c.getValues())
+        self.assertEqual([-1,-1,0,1,-1,-1],d.getValues())
+
+    def testSwig2Intersect2DMeshWith1DLine11(self):
+        """ Quad line re-entering a square cell """
+        eps = 1.0e-8
+        m = MEDCouplingUMesh("box", 2)
+        m.setCoords(DataArrayDouble([-1., -1., -1., 1., 1., 1., 1., -1.0],4,2))
+        c, cI = [NORM_POLYGON, 0, 1, 2, 3], [0, 5]
+        m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
+        m.checkCoherency()
+        coords2 = [0., 1.3, -1.3, 0., -0.6, 0.6, 0., -1.3, -0.5, -0.5]
+        connec2, cI2 = [NORM_SEG3, 0, 1, 2, NORM_SEG3, 1, 3, 4], [0,4,8]
+        m_line = MEDCouplingUMesh("seg", 1)  
+        m_line.setCoords(DataArrayDouble(coords2, len(coords2)/2, 2))
+        m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(0.,1.3),(-1.3,0.),(-0.6,0.6),(0.,-1.3),(-0.5,-0.5),(-1.,0.23453685964236054),(-1.,-0.13033276368660177),(-0.2345368596423598,1.),(-0.1303327636866019,-1.),(-0.11489196370692323,1.1481421036683868),(-0.6,0.6),(-1.1481421036683859,0.11489196370692323),(-1.147455889106615,-0.0593103465193594),(-0.5,-0.5),(-0.0593103465193594,-1.147455889106615),(1.,0.),(0.4348336181566991,-1.),(-0.5651663818433009,-1.),(-1.,-0.5651663818433009),(-1.,0.05210204797787939),(-0.6,0.6),(0.3827315701788201,1.),(-0.6172684298211799,1.),(-0.6,0.6),(-1.,0.6172684298211802),(-0.6,0.6),(0.3827315701788201,1.),(1.,0.),(0.4348336181566991,-1.),(-0.5,-0.5),(-1.,0.05210204797787939),(-1.,-0.5651663818433009),(-0.5,-0.5),(-0.5651663818433009,-1.)]),1e-12))
+        self.assertEqual([32,9,11,2,3,12,10,29,30,31,32,33,34,32,0,10,12,35,36,37,32,1,11,9,26,27,28],a.getNodalConnectivity().getValues())
+        self.assertEqual([0,13,20,27],a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([2,4,11,13,2,11,9,14,2,9,5,15,2,5,10,16,2,10,12,17,2,12,7,18],b.getNodalConnectivity().getValues())
+        self.assertEqual([0,4,8,12,16,20,24],b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(a.getCoords()[:4].isEqual(m.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[4:9].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(DataArrayInt([0,0,0]).isEqual(c))
+        self.assertTrue(DataArrayInt([(-1,-1),(0,2),(-1,-1),(-1,-1),(0,1),(-1,-1)]).isEqual(d))
+        pass
+
+    def testSwig2Intersect2DMeshWith1DLine12(self):
+        """ Two squares one in the other intersected by an horizontal line """
+        eps = 1.0e-8
+        m = MEDCouplingUMesh("boxbox", 2)
+        m.setCoords(DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,-0.25,-0.25,-0.25,0.25,0.25,0.25,0.25,-0.25],8,2))
+        c = [NORM_POLYGON, 4, 5, 6, 7, NORM_POLYGON, 0, 1, 5, 4, NORM_POLYGON, 1, 2, 3, 0, 4, 7, 6, 5]
+        cI = [0, 5, 10, 19]
+        m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
+        m.checkCoherency()
+        coords2 = [-1., 0.25, 1., 0.25]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        m_line = MEDCouplingUMesh.New("seg", 1)  
+        m_line.setCoords(DataArrayDouble(coords2, len(coords2)/2, 2))
+        m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
+        m_line2 = m_line.deepCpy()
+        m2 = m.deepCpy()
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(-0.5,-0.5),(-0.5,0.5),(0.5,0.5),(0.5,-0.5),(-0.25,-0.25),(-0.25,0.25),(0.25,0.25),(0.25,-0.25),(-1.,0.25),(1.,0.25),(-0.5,0.25),(0.5,0.25)]),1e-12))
+        self.assertEqual([5,4,5,6,7,5,1,5,10,5,4,0,10,5,5,5,1,2,11,6,5,3,0,4,7,6,11],a.getNodalConnectivity().getValues())
+        self.assertEqual([0,5,9,14,20,27],a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,8,10,1,10,5,1,5,6,1,6,11,1,11,9],b.getNodalConnectivity().getValues())
+        self.assertEqual([0,3,6,9,12,15],b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(c.isEqual(DataArrayInt([0,1,1,2,2])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(3,0),(3,4),(-1,-1)])))
+        pass
+
+    def testSwig2Intersect2DMeshWith1DLine13(self):
+        """ A square (side length) in a circle intersected by a simple horizontal line """
+        import math
+        eps = 1.0e-8
+        m = MEDCouplingUMesh("boxcircle", 2)
+        sq2 = math.sqrt(2.0)
+        soth = (sq2+1.0)/2.0
+        coo = [2., 0., sq2, sq2, 0., 2., -sq2, sq2, -2., 0., -sq2, -sq2, 0., -2., sq2, -sq2, -1., -1., -1., 1., 1., 
+         1., 1., -1., -1., 0., 0., 1., 1., 0., 0., -1., -soth, soth, soth,soth]
+        coo = DataArrayDouble(coo); coo.rearrange(2) 
+        m.setCoords(coo)
+        c = [NORM_QPOLYG, 8, 9, 10, 11, 12, 13, 14, 15, NORM_QPOLYG, 3, 1, 10, 9, 2, 17, 13, 16, NORM_QPOLYG, 1, 7, 5, 3, 9, 8, 11, 10, 0, 6, 4, 16, 12, 15, 14, 17]
+        cI = [0, 9, 18, 35]
+        m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
+        m.checkCoherency()
+        coords2 = [-2., 1., 2., 1.0]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        m_line = MEDCouplingUMesh("seg", 1)  
+        m_line.setCoords(DataArrayDouble(coords2, len(coords2)/2, 2))
+        m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.4142135623730951),(0.,2.),(-1.4142135623730951,1.4142135623730951),(-2.,0.),(-1.4142135623730951,-1.4142135623730951),(0.,-2.),(1.4142135623730951,-1.4142135623730951),(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(-1.,0.),(0.,1.),(1.,0.),(0.,-1.),(-1.2071067811865475,1.2071067811865475),(1.2071067811865475,1.2071067811865475),(-2.,1.),(2.,1.),(1.7320508075688772,1.),(-1.7320508075688772,1.),(-1.2071067811865475,1.2071067811865475),(-1.3660254037844386,1.),(-1.58670668058247,1.2175228580174415),(0.,-1.),(1.,0.),(1.2071067811865475,1.2071067811865475),(1.5867066805824703,1.2175228580174413),(1.9828897227476205,-0.26105238444010315),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844386,1.),(-1.,0.),(1.5867066805824703,1.2175228580174413),(1.3660254037844386,1.),(1.2071067811865475,1.2071067811865475),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844386,1.),(-1.,0.),(0.,-1.),(1.,0.),(1.3660254037844386,1.),(1.9828897227476205,-0.26105238444010315)]),1e-12))
+        self.assertEqual([32,8,9,10,11,12,13,14,15,32,3,1,10,9,2,17,13,16,32,3,9,21,22,23,24,32,1,20,10,34,35,36,32,7,5,21,9,8,11,10,20,37,38,39,40,41,42,43,44],a.getNodalConnectivity().getValues())
+        self.assertEqual([0,9,18,25,32,49],a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,18,21,1,21,9,1,9,10,1,10,20,1,20,19],b.getNodalConnectivity().getValues())
+        self.assertEqual([0,3,6,9,12,15],b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,2,2])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(2,4),(1,0),(3,4),(-1,-1)])))
+        pass
+
+    def testSwig2Intersect2DMeshWith1DLine14(self):
+        """ A circle in a circle intersected by a simple horizontal line, not tangent to the circles """
+        eps = 1.0e-8
+        m = MEDCouplingUMesh("boxcircle", 2)
+        coo = [2.,0.,1.4142135623730951,1.414213562373095,0.,2.,-1.414213562373095,1.4142135623730951,-2.,0.,-1.4142135623730954,-1.414213562373095,0.,-2.,
+               1.4142135623730947,-1.4142135623730954,1.,0.,0.7071067811865476,0.7071067811865475,0.,1.,-0.7071067811865475,0.7071067811865476,-1.,0.,-0.7071067811865477,-0.7071067811865475,
+               0.,-1.,0.7071067811865474,-0.7071067811865477,1.060660171779821,-1.0606601717798214,-1.0606601717798214,-1.0606601717798212]
+        coo = DataArrayDouble(coo); coo.rearrange(2) 
+        m.setCoords(coo)
+        c = [NORM_QPOLYG, 15, 13, 11, 9, 14, 12, 10, 8, NORM_QPOLYG, 7, 5, 13, 15, 6, 17, 14, 16, NORM_QPOLYG, 5, 3, 1, 7, 15, 9, 11, 13, 4, 2, 0, 16, 8, 10, 12, 17]
+        cI = [0, 9, 18, 35] 
+        m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
+        m.checkCoherency()
+        coords2 = [-2., 0., 2., 0.]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        m_line = MEDCouplingUMesh.New("seg", 1)  
+        m_line.setCoords(DataArrayDouble(coords2, len(coords2)/2, 2))
+        m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.414213562373095),(0.,2.),(-1.414213562373095,1.4142135623730951),(-2.,0.),(-1.4142135623730954,-1.414213562373095),(0.,-2.),(1.4142135623730947,-1.4142135623730954),(1.,0.),(0.7071067811865476,0.7071067811865475),(0.,1.),(-0.7071067811865475,0.7071067811865476),(-1.,0.),(-0.7071067811865477,-0.7071067811865475),(0.,-1.),(0.7071067811865474,-0.7071067811865477),(1.060660171779821,-1.0606601717798214),(-1.0606601717798214,-1.0606601717798212),(-2.,0.),(2.,0.),(-1.,0.),(1.,0.),(0.,2.),(1.8477590650225735,0.7653668647301795),(1.8477590650225735,-0.7653668647301797),(1.060660171779821,-1.0606601717798214),(0.9238795325112867,-0.38268343236508984),(0.9238795325112867,0.3826834323650897),(0.,1.),(-0.9238795325112867,0.3826834323650896),(-1.5,0.),(-1.8477590650225735,0.7653668647301792),(-1.0606601717798214,-1.0606601717798212),(-1.8477590650225733,-0.7653668647301799),(-1.5,0.),(-0.9238795325112866,-0.38268343236508995),(0.,1.),(-0.9238795325112867,0.3826834323650896),(-1.5,0.),(-1.8477590650225735,0.7653668647301792),(0.,2.),(1.8477590650225735,0.7653668647301795),(1.5,0.),(0.9238795325112867,0.3826834323650897),(1.060660171779821,-1.0606601717798214),(0.9238795325112867,-0.38268343236508984),(1.5,0.),(1.8477590650225735,-0.7653668647301797),(0.,1.),(0.9238795325112867,0.3826834323650897),(0.,0.),(-0.9238795325112867,0.3826834323650896),(0.,-1.),(-0.9238795325112866,-0.38268343236508995),(0.,0.),(0.9238795325112867,-0.38268343236508984)]),1e-12))
+        self.assertEqual([32,7,5,13,15,6,17,14,16,32,9,11,20,18,3,1,19,21,36,37,38,39,40,41,42,43,32,7,15,21,19,44,45,46,47,32,13,5,18,20,32,33,34,35,32,11,9,21,20,48,49,50,51,32,15,13,20,21,52,53,54,55],a.getNodalConnectivity().getValues())
+        self.assertEqual([0,9,26,35,44,53,62],a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,18,20,1,20,21,1,21,19],b.getNodalConnectivity().getValues())
+        self.assertEqual([0,3,6,9],b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(c.isEqual(DataArrayInt([1,2,2,2,0,0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(1,3),(4,5),(1,2)])))
+        pass
+
+    def testSwig2Intersect2DMeshWith1DLine15(self):
+        """ Same as testSwig2Intersect2DMeshWith1DLine13 except that the line is colinear AND splits on of the common edge of 2D mesh."""
+        import math
+        eps = 1.0e-8
+        m = MEDCouplingUMesh("boxcircle", 2)
+        sq2 = math.sqrt(2.0)
+        soth = (sq2+1.0)/2.0
+        coo = [2., 0., sq2, sq2, 0., 2., -sq2, sq2, -2., 0., -sq2, -sq2, 0., -2., sq2, -sq2, -1., -1., -1., 1., 1., 
+         1., 1., -1., -1., 0., 0., 1., 1., 0., 0., -1., -soth, soth, soth,soth]
+        coo = DataArrayDouble(coo); coo.rearrange(2) 
+        m.setCoords(coo)
+        c = [NORM_QPOLYG, 8, 9, 10, 11, 12, 13, 14, 15, NORM_QPOLYG, 3, 1, 10, 9, 2, 17, 13, 16, NORM_QPOLYG, 1, 7, 5, 3, 9, 8, 11, 10, 0, 6, 4, 16, 12, 15, 14, 17]
+        cI = [0, 9, 18, 35]
+        m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
+        m.checkCoherency()
+        coords2 = [(-2., 1.),(2.,1.),(0.,1)]
+        connec2, cI2 = [NORM_SEG2, 0, 2, NORM_SEG2, 2, 1], [0,3,6]
+        m_line = MEDCouplingUMesh("seg", 1)  
+        m_line.setCoords(DataArrayDouble(coords2))
+        m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
+        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
+        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
+        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.4142135623730951),(0.,2.),(-1.4142135623730951,1.4142135623730951),(-2.,0.),(-1.4142135623730951,-1.4142135623730951),(0.,-2.),(1.4142135623730951,-1.4142135623730951),(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(-1.,0.),(0.,1.),(1.,0.),(0.,-1.),(-1.2071067811865475,1.2071067811865475),(1.2071067811865475,1.2071067811865475),(-2.,1.),(2.,1.),(0.,1.),(1.7320508075688776,1.),(-1.7320508075688776,1.),(-0.5,1.),(0.5,1.),(0.5,1.),(-0.5,1.),(-1.2071067811865475,1.2071067811865475),(-1.3660254037844388,1.),(-1.58670668058247,1.2175228580174415),(0.,-1.),(1.,0.),(1.2071067811865475,1.2071067811865475),(1.5867066805824703,1.2175228580174413),(1.9828897227476205,-0.26105238444010315),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844388,1.),(-1.,0.),(1.5867066805824703,1.2175228580174413),(1.3660254037844388,1.),(1.2071067811865475,1.2071067811865475),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844388,1.),(-1.,0.),(0.,-1.),(1.,0.),(1.3660254037844388,1.),(1.9828897227476205,-0.26105238444010315)]),1e-12))
+        self.assertEqual([32,8,9,20,10,11,12,23,24,14,15,32,3,1,10,20,9,2,17,25,26,16,32,3,9,22,27,28,29,32,1,21,10,39,40,41,32,7,5,22,9,8,11,10,21,42,43,44,45,46,47,48,49],a.getNodalConnectivity().getValues())
+        self.assertEqual([0,11,22,29,36,53],a.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,18,22,1,22,9,1,9,20,1,20,10,1,10,21,1,21,19],b.getNodalConnectivity().getValues())
+        self.assertEqual([0,3,6,9,12,15,18],b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,2,2])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(2,4),(1,0),(1,0),(3,4),(-1,-1)])))
+        pass
 
     def testOrderConsecutiveCells1D1(self):
         """A line in several unconnected pieces:"""
@@ -16046,6 +16204,47 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(p2.getSlice(),slice(2,11,4))
         pass
 
+    def testSwig2DAIGetIdsStrictlyNegative1(self):
+        d=DataArrayInt([4,-5,-1,0,3,99,-7])
+        self.assertTrue(d.getIdsStrictlyNegative().isEqual(DataArrayInt([1,2,6])))
+        pass
+
+    def testSwig2DAIReplaceOneValByInThis1(self):
+        d=DataArrayInt([4,-5,-1,0,-5,99,-7,5])
+        d.replaceOneValByInThis(-5,900)
+        self.assertTrue(d.isEqual(DataArrayInt([4,900,-1,0,900,99,-7,5])))
+        pass
+
+    def testSwig2DAIGetMinMaxValues1(self):
+        d=DataArrayInt([4,-5,-1,0,3,99,-7])
+        a,b=d.getMinMaxValues()
+        self.assertEqual(a,-7)
+        self.assertEqual(b,99)
+        pass
+
+    def testSwig2DAIBuildUniqueNotSorted1(self):
+        d=DataArrayInt([-5,3,2,-1,2,3,-6,4,2,-5,3,7])
+        self.assertTrue(d.buildUniqueNotSorted().isEqual(DataArrayInt([-5,3,2,-1,-6,4,7])))
+        pass
+
+    def testSwig2UMeshChangeOrientationOfCells1(self):
+        """ Here testing changeOrientationOfCell method on unstructured meshes lying on no coords."""
+        m=MEDCouplingUMesh("mesh",1)
+        c=DataArrayInt([NORM_SEG2,4,5,NORM_SEG2,10,8,NORM_SEG3,20,7,33,NORM_SEG3,13,15,12,NORM_SEG2,3,2,NORM_SEG4,5,6,8,10,NORM_SEG4,34,33,3,2])
+        cI=DataArrayInt([0,3,6,10,14,17,22,27])
+        m.setConnectivity(c,cI)
+        m.changeOrientationOfCells()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([NORM_SEG2,5,4,NORM_SEG2,8,10,NORM_SEG3,7,20,33,NORM_SEG3,15,13,12,NORM_SEG2,2,3,NORM_SEG4,6,5,10,8,NORM_SEG4,33,34,2,3])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(cI))
+        # testing 2D cells
+        m=MEDCouplingUMesh("mesh",2)
+        c=DataArrayInt([NORM_TRI3,0,1,2,NORM_QUAD4,3,4,5,6,NORM_POLYGON,7,8,9,10,11,NORM_TRI6,12,13,14,15,16,17,NORM_QUAD8,18,19,20,21,22,23,24,25,NORM_QPOLYG,26,27,28,29,30,31,32,33,34,35])
+        cI=DataArrayInt([0,4,9,15,22,31,42])
+        m.setConnectivity(c,cI)
+        m.changeOrientationOfCells()
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([NORM_TRI3,0,2,1,NORM_QUAD4,3,6,5,4,NORM_POLYGON,7,11,10,9,8,NORM_TRI6,12,14,13,17,16,15,NORM_QUAD8,18,21,20,19,25,24,23,22,NORM_QPOLYG,26,30,29,28,27,35,34,33,32,31])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(cI))
+        pass
     pass
 
 if __name__ == '__main__':

@@ -185,6 +185,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void convertDegeneratedCells();
     MEDCOUPLING_EXPORT void are2DCellsNotCorrectlyOriented(const double *vec, bool polyOnly, std::vector<int>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const double *vec, bool polyOnly);
+    MEDCOUPLING_EXPORT void changeOrientationOfCells();
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons();
     MEDCOUPLING_EXPORT void getFastAveragePlaneOfThis(double *vec, double *pos) const;

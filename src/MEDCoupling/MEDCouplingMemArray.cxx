@@ -6345,7 +6345,7 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
 }
 
 /*!
- * Modifies \a this one-dimensional array so that each value \a v = \a indArrBg[ \a v ],
+ * Modifies in place \a this one-dimensional array so that each value \a v = \a indArrBg[ \a v ],
  * i.e. a current value is used as in index to get a new value from \a indArrBg.
  *  \param [in] indArrBg - pointer to the first element of array of new values to assign
  *         to \a this array.
@@ -6354,15 +6354,15 @@ void DataArrayInt::reprQuickOverviewData(std::ostream& stream, std::size_t maxNb
  *  \throw If \a this->getNumberOfComponents() != 1
  *  \throw If any value of \a this can't be used as a valid index for 
  *         [\a indArrBg, \a indArrEnd).
+ *
+ *  \sa replaceOneValByInThis
  */
 void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
-  int nbElemsIn=(int)std::distance(indArrBg,indArrEnd);
-  int nbOfTuples=getNumberOfTuples();
-  int *pt=getPointer();
+  int nbElemsIn((int)std::distance(indArrBg,indArrEnd)),nbOfTuples(getNumberOfTuples()),*pt(getPointer());
   for(int i=0;i<nbOfTuples;i++,pt++)
     {
       if(*pt>=0 && *pt<nbElemsIn)
@@ -6374,6 +6374,29 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
         }
     }
   declareAsNew();
+}
+
+/*!
+ * Modifies in place \a this one-dimensional array like this : each id in \a this so that this[id] equal to \a valToBeReplaced will be replaced at the same place by \a replacedBy.
+ *
+ * \param [in] valToBeReplaced - the value in \a this to be replaced.
+ * \param [in] replacedBy - the value taken by each tuple previously equal to \a valToBeReplaced.
+ *
+ * \sa DataArrayInt::transformWithIndArr
+ */
+void DataArrayInt::replaceOneValByInThis(int valToBeReplaced, int replacedBy)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call replaceOneValByInThis method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  if(valToBeReplaced==replacedBy)
+    return ;
+  int nbOfTuples(getNumberOfTuples()),*pt(getPointer());
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      if(*pt==valToBeReplaced)
+        *pt=replacedBy;
+    }
 }
 
 /*!
@@ -9250,6 +9273,32 @@ int DataArrayInt::getMinValueInArray() const
 }
 
 /*!
+ * Returns in a single walk in \a this the min value and the max value in \a this.
+ * \a this is expected to be single component array.
+ *
+ * \param [out] minValue - the min value in \a this.
+ * \param [out] maxValue - the max value in \a this.
+ *
+ * \sa getMinValueInArray, getMinValue, getMaxValueInArray, getMaxValue
+ */
+void DataArrayInt::getMinMaxValues(int& minValue, int& maxValue) const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getMinMaxValues : must be applied on DataArrayInt with only one component !");
+  int nbTuples(getNumberOfTuples());
+  const int *pt(begin());
+  minValue=std::numeric_limits<int>::max(); maxValue=-std::numeric_limits<int>::max();
+  for(int i=0;i<nbTuples;i++,pt++)
+    {
+      if(*pt<minValue)
+        minValue=*pt;
+      if(*pt>maxValue)
+        maxValue=*pt;
+    }
+}
+
+/*!
  * Converts every value of \a this array to its absolute value.
  * \b WARNING this method is non const. If a new DataArrayInt instance should be built containing the result of abs DataArrayInt::computeAbs
  * should be called instead.
@@ -9422,7 +9471,7 @@ void DataArrayInt::applyModulus(int val)
  * \param [in] vmax end of range. This value is \b not included in range (excluded).
  * \return a newly allocated data array that the caller should deal with.
  *
- * \sa DataArrayInt::getIdsNotInRange
+ * \sa DataArrayInt::getIdsNotInRange , DataArrayInt::getIdsStrictlyNegative
  */
 DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const
 {
@@ -9447,7 +9496,7 @@ DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const
  * \param [in] vmax end of range. This value is included in range (included).
  * \return a newly allocated data array that the caller should deal with.
  * 
- * \sa DataArrayInt::getIdsInRange
+ * \sa DataArrayInt::getIdsInRange , DataArrayInt::getIdsStrictlyNegative
  */
 DataArrayInt *DataArrayInt::getIdsNotInRange(int vmin, int vmax) const
 {
@@ -9459,6 +9508,26 @@ DataArrayInt *DataArrayInt::getIdsNotInRange(int vmin, int vmax) const
   int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr<vmin || *cptr>=vmax)
+      ret->pushBackSilent(i);
+  return ret.retn();
+}
+
+/*!
+ * This method works only on data array with one component. This method returns a newly allocated array storing stored ascendantly of tuple ids in \a this so that this[id]<0.
+ *
+ * \return a newly allocated data array that the caller should deal with.
+ * \sa DataArrayInt::getIdsInRange
+ */
+DataArrayInt *DataArrayInt::getIdsStrictlyNegative() const
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsStrictlyNegative : this must have exactly one component !");
+  const int *cptr(getConstPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  int nbOfTuples(getNumberOfTuples());
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(*cptr<0)
       ret->pushBackSilent(i);
   return ret.retn();
 }
@@ -10039,6 +10108,7 @@ DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const
  * 
  * \return a newly allocated array that contain the result of the unique operation applied on \a this.
  * \throw if \a this is not allocated or if \a this has not exactly one component.
+ * \sa DataArrayInt::buildUniqueNotSorted
  */
 DataArrayInt *DataArrayInt::buildUnique() const
 {
@@ -10052,6 +10122,38 @@ DataArrayInt *DataArrayInt::buildUnique() const
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(std::distance(data,last),1);
   std::copy(data,last,ret->getPointer());
+  return ret.retn();
+}
+
+/*!
+ * This method can be applied on allocated with one component DataArrayInt instance.
+ * This method keep elements only once by keeping the same order in \a this that is not expected to be sorted.
+ *
+ * \return a newly allocated array that contain the result of the unique operation applied on \a this.
+ *
+ * \throw if \a this is not allocated or if \a this has not exactly one component.
+ *
+ * \sa DataArrayInt::buildUnique
+ */
+DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
+{
+  checkAllocated();
+    if(getNumberOfComponents()!=1)
+      throw INTERP_KERNEL::Exception("DataArrayInt::buildUniqueNotSorted : only single component allowed !");
+  int minVal,maxVal;
+  getMinMaxValues(minVal,maxVal);
+  std::vector<bool> b(maxVal-minVal+1,false);
+  const int *ptBg(begin()),*endBg(end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  for(const int *pt=ptBg;pt!=endBg;pt++)
+    {
+      if(!b[*pt-minVal])
+        {
+          ret->pushBackSilent(*pt);
+          b[*pt-minVal]=true;
+        }
+    }
+  ret->copyStringInfoFrom(*this);
   return ret.retn();
 }
 

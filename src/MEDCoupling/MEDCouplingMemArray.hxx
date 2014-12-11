@@ -476,6 +476,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
     MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArrBg, const int *indArrEnd);
+    MEDCOUPLING_EXPORT void replaceOneValByInThis(int valToBeReplaced, int replacedBy);
     MEDCOUPLING_EXPORT DataArrayInt *transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const;
     MEDCOUPLING_EXPORT void splitByValueRange(const int *arrBg, const int *arrEnd,
                                               DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const;
@@ -555,6 +556,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getMaxValueInArray() const;
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const;
     MEDCOUPLING_EXPORT int getMinValueInArray() const;
+    MEDCOUPLING_EXPORT void getMinMaxValues(int& minValue, int& maxValue) const;
     MEDCOUPLING_EXPORT void abs();
     MEDCOUPLING_EXPORT DataArrayInt *computeAbs() const;
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId);
@@ -568,6 +570,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyRPow(int val);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(int vmin, int vmax) const;
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotInRange(int vmin, int vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsStrictlyNegative() const;
     MEDCOUPLING_EXPORT bool checkAllIdsInRange(int vmin, int vmax) const;
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr);
@@ -586,6 +589,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *buildUnion(const DataArrayInt *other) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildIntersection(const DataArrayInt *other) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildUnique() const;
+    MEDCOUPLING_EXPORT DataArrayInt *buildUniqueNotSorted() const;
     MEDCOUPLING_EXPORT DataArrayInt *deltaShiftIndex() const;
     MEDCOUPLING_EXPORT void computeOffsets();
     MEDCOUPLING_EXPORT void computeOffsets2();

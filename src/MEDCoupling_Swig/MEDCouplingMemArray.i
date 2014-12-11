@@ -73,6 +73,7 @@
 %newobject ParaMEDMEM::DataArrayInt::computeAbs;
 %newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotInRange;
+%newobject ParaMEDMEM::DataArrayInt::getIdsStrictlyNegative;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::AggregateIndexes;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
@@ -92,6 +93,7 @@
 %newobject ParaMEDMEM::DataArrayInt::buildSubstractionOptimized;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::buildUnique;
+%newobject ParaMEDMEM::DataArrayInt::buildUniqueNotSorted;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
 %newobject ParaMEDMEM::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
@@ -2507,6 +2509,7 @@ namespace ParaMEDMEM
     void fillWithZero() throw(INTERP_KERNEL::Exception);
     void fillWithValue(int val) throw(INTERP_KERNEL::Exception);
     void iota(int init=0) throw(INTERP_KERNEL::Exception);
+    void replaceOneValByInThis(int valToBeReplaced, int replacedBy) throw(INTERP_KERNEL::Exception);
     std::string repr() const throw(INTERP_KERNEL::Exception);
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
@@ -2568,6 +2571,7 @@ namespace ParaMEDMEM
     void applyRPow(int val) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsNotInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getIdsStrictlyNegative() const throw(INTERP_KERNEL::Exception);
     bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
@@ -2581,6 +2585,7 @@ namespace ParaMEDMEM
     DataArrayInt *buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildIntersection(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnique() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *buildUniqueNotSorted() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *deltaShiftIndex() const throw(INTERP_KERNEL::Exception);
     void computeOffsets() throw(INTERP_KERNEL::Exception);
     void computeOffsets2() throw(INTERP_KERNEL::Exception);
@@ -2781,6 +2786,16 @@ namespace ParaMEDMEM
         if(strt==std::numeric_limits<int>::max() || stp==std::numeric_limits<int>::max())
           throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrOfSliceOnScaledArr (wrap) : the input slice contains some unknowns that can't be determined in static method ! Call DataArray::getSlice (non static) instead !");
         return self->buildExplicitArrOfSliceOnScaledArr(strt,stp,step);
+      }
+
+      PyObject *getMinMaxValues() const throw(INTERP_KERNEL::Exception)
+      {
+        int a,b;
+        self->getMinMaxValues(a,b);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,PyInt_FromLong(a));
+        PyTuple_SetItem(ret,1,PyInt_FromLong(b));
+        return ret;
       }
    
       static PyObject *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, PyObject *arr, PyObject *arrI) throw(INTERP_KERNEL::Exception)

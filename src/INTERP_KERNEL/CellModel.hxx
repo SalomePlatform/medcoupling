@@ -72,6 +72,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity4(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
     INTERPKERNEL_EXPORT unsigned fillSonEdgesNodalConnectivity3D(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
+    INTERPKERNEL_EXPORT void changeOrientationOf2D(int *nodalConn, unsigned int sz) const;
+    INTERPKERNEL_EXPORT void changeOrientationOf1D(int *nodalConn, unsigned int sz) const;
   private:
     bool _dyn;
     bool _quadratic;
