@@ -2783,6 +2783,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException, m.checkDeepEquivalWith, m2, 2, eps)
         pass
 
+    def testSwig2CheckDeepEquivalWith2(self):
+        eps = 1.0e-8
+        m = MEDCouplingUMesh("tst", 2)
+        m.setCoords(DataArrayDouble([], 0,2))
+        m.setConnectivity(DataArrayInt([]), DataArrayInt([0]))
+        m2 = m.deepCpy()
+        m.checkDeepEquivalWith(m2, 0, eps)  # Should not raise!
+        pass
+
     def testCopyTinyStringsFromOnFields(self):
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
         nbOfCells=m.getNumberOfCells();

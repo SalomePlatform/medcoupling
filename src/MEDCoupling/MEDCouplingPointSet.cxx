@@ -1459,7 +1459,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   int oldNbOfNodes=getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->buildPermArrayForMergeNode(prec,oldNbOfNodes,areNodesMerged,newNbOfNodes);
   //mergeNodes
-  if(!areNodesMerged)
+  if(!areNodesMerged && oldNbOfNodes != 0)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Nodes are incompatible ! ");
   const int *pt=std::find_if(da->getConstPointer()+oldNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),oldNbOfNodes-1));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
