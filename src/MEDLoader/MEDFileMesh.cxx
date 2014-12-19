@@ -3517,7 +3517,8 @@ DataArrayInt *MEDFileUMesh::zipCoords()
         }
       else
         {
-          zeLev->getWholeMesh(false)->computeNodeIdsAlg(nodeIdsInUse);
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh(zeLev->getWholeMesh(false));
+          mesh->computeNodeIdsAlg(nodeIdsInUse);
         }
     }
   int nbrOfNodesInUse((int)std::count(nodeIdsInUse.begin(),nodeIdsInUse.end(),true));
@@ -3540,7 +3541,10 @@ DataArrayInt *MEDFileUMesh::zipCoords()
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
     {
       if((MEDFileUMeshSplitL1*)*it)
-        (*it)->renumberNodesInConn(ret->begin());
+        {
+          (*it)->renumberNodesInConn(ret->begin());
+          (*it)->setCoords(_coords);
+        }
     }
   // updates _part_coords
   const PartDefinition *pc(_part_coords);

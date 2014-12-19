@@ -4905,6 +4905,77 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
+    def test35(self):
+        """ Emulate MEDReader in // mode context. Here a Simple mesh having more nodes than really needed. This test focuses on that point particulary."""
+        fname="ForMEDReader35.med"
+        arrX=DataArrayDouble(7) ; arrX.iota()
+        arrY=DataArrayDouble([0.,1.])
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY) ; m=m.buildUnstructured() ; m=m[[0,5,1,4,2,3]] ; m.changeSpaceDimension(3,0.) ; m.setName("Mesh")
+        f=MEDCouplingFieldDouble(ON_CELLS) ; f.setMesh(m) ; f.setName("Field") ; f.setArray(DataArrayDouble([(0.1,1.1),(2.1,3.1),(4.1,5.1),(6.1,7.1),(8.1,9.1),(10.1,11.1)])) ; f.getArray().setInfoOnComponents(["aa","bbb"])
+        MEDLoader.WriteUMesh(fname,m,True)
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fname,f)
+        ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
+        ms=MEDFileMeshes() # here we reproduce what is done by ParaMEDFileMeshes.ParaNew
+        ms.pushMesh(MEDFileUMesh.LoadPartOf(fname,"Mesh",[NORM_QUAD4],[0,2,1],-1,-1));
+        ms[0].zipCoords() 
+        #
+        fields=MEDFileFields.LoadPartOf(fname,False,ms);
+        fields.removeFieldsWithoutAnyTimeStep()
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    if itmp.presenceOfMultiDiscPerGeoType():
+                        tmp2=itmp.splitMultiDiscrPerGeoTypes()
+                        for iii,itmp2 in enumerate(tmp2):
+                            name="%s_%i"%(itmp2.getName(),iii)
+                            itmp2.setName(name)
+                            allFMTSLeavesToDisplay2.append(itmp2)
+                            pass
+                        pass
+                    else:
+                        allFMTSLeavesToDisplay2.append(itmp)
+                        pass
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        #
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),1)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1) # one time serie here : because the 2 fields are defined on the same time steps
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),1)
+        allFMTSLeavesPerCommonSupport=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesPerTimeSeries[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport),1)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport[0][0]),1)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        #
+        fcscp=allFMTSLeavesPerCommonSupport[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(ncc)
+        self.assertTrue(a0.isEqual(m.getCoords()[[0,1,5,6,7,8,12,13]],1e-12))# <- the aim of the test
+        self.assertTrue(a1.isEqual(DataArrayByte([9,9])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,5])))
+        self.assertTrue(a3.isEqual(DataArrayInt([4,1,0,4,5,4,3,2,6,7])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        f2=allFMTSLeavesPerCommonSupport[0][0][0][0]
+        fsst=MEDFileField1TSStructItem.BuildItemFrom(f2,mst)
+        f2.loadArraysIfNecessary()
+        v=mml.buildDataArray(fsst,fields,f2.getUndergroundDataArray())
+        self.assertEqual(f2.getName(),f.getName())
+        vExp=DataArrayDouble([(0.1,1.1),(2.1,3.1)])
+        vExp.setInfoOnComponents(['aa','bbb'])
+        self.assertTrue(v.isEqual(vExp,1e-12))
+        pass
+
     pass
 
 unittest.main()
