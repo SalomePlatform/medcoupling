@@ -45,7 +45,7 @@ MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& f
   }
 }
 
-MEDFileMesh *ParaMEDFileMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+MEDFileMesh *ParaMEDFileMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   ParaMEDMEM::MEDCouplingMeshType meshType;
@@ -66,9 +66,26 @@ MEDFileMesh *ParaMEDFileMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm c
 
 MEDFileUMesh *ParaMEDFileUMesh::New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret;
+  MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
-  //
+  return ParaMEDFileUMesh::NewPrivate(fid,iPart,nbOfParts,fileName,mName,dt,it,mrs);
+}
+
+// MPI_COMM_WORLD, MPI_INFO_NULL 
+MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+#ifdef HDF5_IS_PARALLEL
+  MEDFileUtilities::AutoFid fid(MEDparFileOpen(fileName.c_str(),MED_ACC_RDONLY,com,nfo));
+#else
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+#endif
+  return ParaMEDFileUMesh::NewPrivate(fid,iPart,nbOfParts,fileName,mName,dt,it,mrs);
+}
+
+MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret;
   int meshDim, spaceDim, numberOfNodes;
   std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(MEDLoader::GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
@@ -82,21 +99,7 @@ MEDFileUMesh *ParaMEDFileUMesh::New(int iPart, int nbOfParts, const std::string&
         tmp[2]=1;
         distrib.insert(distrib.end(),tmp,tmp+3);
       }
-  ret=MEDFileUMesh::LoadPartOf(fileName,mName,types,distrib,dt,it,mrs);
-  return ret.retn();
-}
-
-MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
-{
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
-#ifdef HDF5_IS_PARALLEL
-  MEDFileUtilities::AutoFid fid(MEDparFileOpen(fileName.c_str(),MED_ACC_RDONLY,com,nfo));
-#else
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
-#endif
-  //
-  int meshDim, spaceDim, numberOfNodes;
-  std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(MEDLoader::GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
+  ret=MEDFileUMesh::LoadPartOf(fid,mName,types,distrib,dt,it,mrs);
   return ret.retn();
 }
 
@@ -112,7 +115,7 @@ MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::strin
   return ret.retn();
 }
 
-MEDFileMeshes *ParaMEDFileMeshes::ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName)
+MEDFileMeshes *ParaMEDFileMeshes::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName)
 {
   std::vector<std::string> ms(MEDLoader::GetMeshNames(fileName));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());

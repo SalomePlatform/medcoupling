@@ -21,6 +21,8 @@
 #ifndef __PARAMEDFILEMESH_HXX__
 #define __PARAMEDFILEMESH_HXX__
 
+#include "med.h"
+
 #include "mpi.h"
 
 #include <string>
@@ -36,21 +38,23 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
-    static MEDFileMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
   };
 
   class ParaMEDFileUMesh
   {
   public:
     static MEDFileUMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
-    static MEDFileUMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileUMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+  private:
+    static MEDFileUMesh *NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
   };
 
   class ParaMEDFileMeshes
   {
   public:
     static MEDFileMeshes *New(int iPart, int nbOfParts, const std::string& fileName);
-    static MEDFileMeshes *ParaNew(int iPart, int nbOfParts, const MPI_Comm com, const MPI_Info nfo, const std::string& fileName);
+    static MEDFileMeshes *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName);
   };
 }
 
