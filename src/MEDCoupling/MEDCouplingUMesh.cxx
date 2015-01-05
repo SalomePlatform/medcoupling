@@ -9520,13 +9520,18 @@ bool AreEdgeEqual(const double *coo2D, const INTERP_KERNEL::CellModel& typ1, con
       bool status0(conn1[0]==conn2[0] && conn1[1]==conn2[1]);
       if(!status0)
         return false;
+      const double *a(0),*bb(0),*be(0);
       if(typ1.isQuadratic())
         {
-          const double *a(coo2D+2*conn1[2]),*bb(coo2D+2*conn2[0]),*be(coo2D+2*conn2[1]);
-          double b[2]; b[0]=(be[0]+bb[0])/2.; b[1]=(be[1]+bb[1])/2.;
-          double dist(sqrt((a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1])));
-          return dist<eps;
+          a=coo2D+2*conn1[2]; bb=coo2D+2*conn2[0]; be=coo2D+2*conn2[1];
         }
+      else
+        {
+          a=coo2D+2*conn2[2]; bb=coo2D+2*conn1[0]; be=coo2D+2*conn1[1];
+        }
+      double b[2]; b[0]=(be[0]+bb[0])/2.; b[1]=(be[1]+bb[1])/2.;
+      double dist(sqrt((a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1])));
+      return dist<eps;
     }
 }
 
