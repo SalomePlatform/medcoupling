@@ -16069,8 +16069,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m_line = MEDCouplingUMesh("seg", 1)  
         m_line.setCoords(DataArrayDouble(coords2, len(coords2)/2, 2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
-        tmp_m=m.deepCpy() ; tmp_m.tessellate2D(0.1) ; tmp_m.writeVTK("m2D.vtu")
-        tmp_line=m_line.deepCpy() ; tmp_line.tessellate2DCurve(0.1) ; tmp_line.writeVTK("m1D.vtu")
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
         self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
         self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
