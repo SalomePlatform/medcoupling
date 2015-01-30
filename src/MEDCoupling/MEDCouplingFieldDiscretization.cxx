@@ -159,6 +159,21 @@ TypeOfField MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(const s
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
 
+std::string MEDCouplingFieldDiscretization::GetTypeOfFieldRepr(TypeOfField type)
+{
+  if(type==MEDCouplingFieldDiscretizationP0::TYPE)
+    return MEDCouplingFieldDiscretizationP0::REPR;
+  if(type==MEDCouplingFieldDiscretizationP1::TYPE)
+    return MEDCouplingFieldDiscretizationP1::REPR;
+  if(type==MEDCouplingFieldDiscretizationGauss::TYPE)
+    return MEDCouplingFieldDiscretizationGauss::REPR;
+  if(type==MEDCouplingFieldDiscretizationGaussNE::TYPE)
+    return MEDCouplingFieldDiscretizationGaussNE::REPR;
+  if(type==MEDCouplingFieldDiscretizationKriging::TYPE)
+    return MEDCouplingFieldDiscretizationKriging::REPR;
+  throw INTERP_KERNEL::Exception("GetTypeOfFieldRepr : Representation does not match with any field discretization !");
+}
+
 bool MEDCouplingFieldDiscretization::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
 {
   std::string reason;

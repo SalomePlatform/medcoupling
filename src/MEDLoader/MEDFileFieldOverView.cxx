@@ -22,6 +22,7 @@
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
 
+#include "MEDCouplingFieldDiscretization.hxx"
 #include "CellModel.hxx"
 
 using namespace ParaMEDMEM;
@@ -1664,7 +1665,7 @@ void MEDFileField1TSStructItem2::checkInRange(int nbOfEntity, int nip, const MED
   if(_pfl->getName().empty())
     {
       if(nbOfEntity!=(_start_end.second-_start_end.first)/nip)
-        throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkInRange : Mismatch between number of entities and size of node field !");
+        throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::checkInRange : Mismatch between number of entities and size of field !");
       return ;
     }
   else
@@ -2064,7 +2065,15 @@ MEDFileField1TSStructItem MEDFileField1TSStructItem::BuildItemFrom(const MEDFile
         }
     }
   MEDFileField1TSStructItem ret(atype,anItems);
-  ret.checkWithMeshStruct(meshSt,ref);
+  try
+    {
+      ret.checkWithMeshStruct(meshSt,ref);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      std::ostringstream oss; oss << e.what() << " (" << MEDCouplingFieldDiscretization::GetTypeOfFieldRepr(ret.getType()) << ")";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return ret;
 }
 
@@ -2297,8 +2306,17 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
   for(int i=0;i<nbPts;i++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=ref->getTimeStepAtPos(i);
-      _f1ts_cmps[i]=MEDFileField1TSStruct::New(elt,_mesh_comp);
-      _f1ts_cmps[i]->checkWithMeshStruct(_mesh_comp,elt);
+      try
+        {
+          _f1ts_cmps[i]=MEDFileField1TSStruct::New(elt,_mesh_comp);
+          _f1ts_cmps[i]->checkWithMeshStruct(_mesh_comp,elt);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "Problem in field with name \"" << ref->getName() << "\"" << std::endl;
+          oss << "More Details : " << e.what();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
     }
 }
 
