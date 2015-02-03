@@ -749,6 +749,7 @@ namespace ParaMEDMEM
     const MEDFileField1TSWithoutSDA *contentNotNull() const;
     MEDFileField1TSWithoutSDA *contentNotNull();
   private:
+    ~MEDFileField1TS() { }
     MEDFileField1TS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms);
     MEDFileField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms);
     MEDFileField1TS(const std::string& fileName, const std::string& fieldName, int iteration, int order, bool loadAll, const MEDFileMeshes *ms);
@@ -784,6 +785,7 @@ namespace ParaMEDMEM
     const MEDFileIntField1TSWithoutSDA *contentNotNull() const;
     MEDFileIntField1TSWithoutSDA *contentNotNull();
   private:
+    ~MEDFileIntField1TS() { }
     MEDFileIntField1TS();
     MEDFileIntField1TS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms);
     MEDFileIntField1TS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms);
@@ -1032,6 +1034,7 @@ namespace ParaMEDMEM
     const MEDFileFieldMultiTSWithoutSDA *contentNotNull() const;
     MEDFileFieldMultiTSWithoutSDA *contentNotNull();
   private:
+    ~MEDFileFieldMultiTS() { }
     MEDFileFieldMultiTS();
     MEDFileFieldMultiTS(const MEDFileFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
     MEDFileFieldMultiTS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms);
@@ -1068,6 +1071,7 @@ namespace ParaMEDMEM
     const MEDFileIntFieldMultiTSWithoutSDA *contentNotNull() const;
     MEDFileIntFieldMultiTSWithoutSDA *contentNotNull();
   private:
+    ~MEDFileIntFieldMultiTS() { }
     MEDFileIntFieldMultiTS();
     MEDFileIntFieldMultiTS(const MEDFileIntFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent);
     MEDFileIntFieldMultiTS(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms);
@@ -1140,6 +1144,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
     MEDLOADER_EXPORT void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
   private:
+    ~MEDFileFields() { }
     MEDFileFields();
     MEDFileFields(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms);
   private:

@@ -211,7 +211,6 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT void setName(const std::string& name);
-    MEDLOADER_EXPORT ~MEDFileUMesh();
     //
     MEDLOADER_EXPORT int getMaxAbsFamilyIdInArrays() const;
     MEDLOADER_EXPORT int getMaxFamilyIdInArrays() const;
@@ -286,6 +285,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
     MEDLOADER_EXPORT DataArrayInt *zipCoords();
   private:
+    MEDLOADER_EXPORT ~MEDFileUMesh();
     void writeLL(med_idt fid) const;
     MEDFileUMesh();
     MEDFileUMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
@@ -349,6 +349,7 @@ namespace ParaMEDMEM
     // tools
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
   protected:
+    ~MEDFileStructuredMesh() { }
     void changeFamilyIdArr(int oldId, int newId);
     void deepCpyAttributes();
     void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
@@ -395,6 +396,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT const MEDCouplingCMesh *getMesh() const;
     MEDLOADER_EXPORT void setMesh(MEDCouplingCMesh *m);
   private:
+    ~MEDFileCMesh() { }
     const MEDCouplingStructuredMesh *getStructuredMesh() const;
     void writeLL(med_idt fid) const;
     MEDFileCMesh();
@@ -425,6 +427,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT const MEDCouplingCurveLinearMesh *getMesh() const;
     MEDLOADER_EXPORT void setMesh(MEDCouplingCurveLinearMesh *m);
   private:
+    ~MEDFileCurveLinearMesh() { }
     MEDFileCurveLinearMesh();
     MEDFileCurveLinearMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     const MEDCouplingStructuredMesh *getStructuredMesh() const;
@@ -452,6 +455,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
   private:
+    ~MEDFileMeshMultiTS() { }
     void loadFromFile(const std::string& fileName, const std::string& mName);
     MEDFileMeshMultiTS();
     MEDFileMeshMultiTS(const std::string& fileName);
@@ -486,6 +490,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setMeshAtPos(int i, MEDFileMesh *mesh);
     MEDLOADER_EXPORT void destroyMeshAtPos(int i);
   private:
+    ~MEDFileMeshes() { }
     void checkCoherency() const;
     void loadFromFile(const std::string& fileName);
     MEDFileMeshes();
