@@ -32,7 +32,7 @@
 #include <vector>
 #include <iostream>
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include <mpi.h>
 #endif
 
@@ -106,7 +106,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
             std::cout << "c" << idomain << "|" << i << "|" << global << " ";
         }
     }
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Verbose>500 && MyGlobals::_World_Size>1) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
 #endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
@@ -125,7 +125,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
             std::cout << "n" << idomain << "|" << i << "|" << global << " ";
         }
     }
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Verbose>500 && MyGlobals::_World_Size>1) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
 #endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;

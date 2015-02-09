@@ -35,7 +35,7 @@
 #include <sstream>
 #include <string>
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include <mpi.h>
 #endif
 
@@ -118,7 +118,7 @@ void MEDPARTITIONER::SendDoubleVec(const std::vector<double>& vec, const int tar
   int size=vec.size();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDoubleVec " << size << std::endl;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Send(&size, 1, MPI_INT, target, tag, MPI_COMM_WORLD);
   MPI_Send(const_cast<double*>(&vec[0]), size, MPI_DOUBLE, target, tag+100, MPI_COMM_WORLD);
 #endif
@@ -134,7 +134,7 @@ std::vector<double>* MEDPARTITIONER::RecvDoubleVec(const int source)
 {
   int tag = 111002;
   int size;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Status status;  
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000) 
@@ -150,7 +150,7 @@ void MEDPARTITIONER::RecvDoubleVec(std::vector<double>& vec, const int source)
 {
   int tag = 111002;
   int size;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Status status;  
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
@@ -170,7 +170,7 @@ void MEDPARTITIONER::SendIntVec(const std::vector<int>& vec, const int target)
   int size=vec.size();
   if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendIntVec " << size << std::endl;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Send(&size, 1, MPI_INT, target, tag, MPI_COMM_WORLD);
   MPI_Send(const_cast<int*>(&vec[0]), size,MPI_INT, target, tag+100, MPI_COMM_WORLD);
 #endif
@@ -185,7 +185,7 @@ std::vector<int> *MEDPARTITIONER::RecvIntVec(const int source)
 {
   int tag = 111003;
   int size;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Status status;  
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
@@ -201,7 +201,7 @@ void MEDPARTITIONER::RecvIntVec(std::vector<int>& vec, const int source)
 {
   int tag = 111003;
   int size;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Status status;  
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
@@ -228,7 +228,7 @@ void MEDPARTITIONER::SendDataArrayInt(const ParaMEDMEM::DataArrayInt *da, const 
   size[2]=da->getNumberOfComponents();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDataArrayInt " << size[0] << std::endl;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Send(&size, 3, MPI_INT, target, tag, MPI_COMM_WORLD);
   const int *p=da->getConstPointer();
   MPI_Send(const_cast<int*>(&p[0]), size[0] ,MPI_INT, target, tag+100, MPI_COMM_WORLD);
@@ -244,7 +244,7 @@ ParaMEDMEM::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
 {
   int tag = 111004;
   int size[3];
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Status status;
   MPI_Recv(size, 3, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
@@ -276,7 +276,7 @@ void MEDPARTITIONER::SendDataArrayDouble(const ParaMEDMEM::DataArrayDouble *da, 
   size[2]=da->getNumberOfComponents();
   if (MyGlobals::_Verbose>1000) 
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDataArrayDouble " << size[0] << std::endl;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Send(&size, 3, MPI_INT, target, tag, MPI_COMM_WORLD);
   const double *p=da->getConstPointer();
   MPI_Send(const_cast<double*>(&p[0]), size[0] ,MPI_DOUBLE, target, tag+100, MPI_COMM_WORLD);
@@ -292,7 +292,7 @@ ParaMEDMEM::DataArrayDouble* MEDPARTITIONER::RecvDataArrayDouble(const int sourc
 {
   int tag = 111005;
   int size[3];
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Status status;
   MPI_Recv(size, 3, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)

@@ -26,7 +26,7 @@
 #include <iostream>
 #include <numeric>
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include <mpi.h>
 #endif
 
@@ -37,7 +37,7 @@ MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
   :_rank(0),_world_size(1), _nb_result_domains(-1), _init_time(0.0),
    _mesure_memory(mesure_memory), _init_memory(0), _max_memory(0)
 {
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Rank==-1)
     {
       MPI_Init(0,0);  //do once only
@@ -76,7 +76,7 @@ bool MEDPARTITIONER::ParaDomainSelector::isOnDifferentHosts() const
   evaluateMemory();
   if ( _world_size < 2 ) return false;
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   char name_here[ MPI_MAX_PROCESSOR_NAME+1 ], name_there[ MPI_MAX_PROCESSOR_NAME+1 ];
   int size;
   MPI_Get_processor_name( name_here, &size);
@@ -152,11 +152,11 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<ParaMEDMEM
     }
   else
     {
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
       all_nb_elems.resize( nb_domains*2 );
       MPI_Allreduce((void*)&nb_elems[0], (void*)&all_nb_elems[0], nb_domains*2, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 #else
-      throw INTERP_KERNEL::Exception("not(HAVE_MPI2) incompatible with MPI_World_Size>1");
+      throw INTERP_KERNEL::Exception("not(HAVE_MPI) incompatible with MPI_World_Size>1");
 #endif
    }
   int total_nb_cells=0, total_nb_nodes=0;
@@ -289,7 +289,7 @@ std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherG
   Graph* glob_graph = 0;
 
   evaluateMemory();
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 
   // ---------------
   // Gather indices
@@ -379,7 +379,7 @@ std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherG
 
   delete [] partition;
 
-#endif // HAVE_MPI2
+#endif // HAVE_MPI
 
   return std::auto_ptr<Graph>( glob_graph );
 }
@@ -430,7 +430,7 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbCellPairs()
   evaluateMemory();
 
   std::vector< int > send_buf = _nb_cell_pairs_by_joint;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   MPI_Allreduce((void*)&send_buf[0],
                 (void*)&_nb_cell_pairs_by_joint[0],
                 _nb_cell_pairs_by_joint.size(),
@@ -477,7 +477,7 @@ int *MEDPARTITIONER::ParaDomainSelector::exchangeSubentityIds( int loc_domain, i
                                                const std::vector<int>& loc_ids_here ) const
 {
   int* loc_ids_dist = new int[ loc_ids_here.size()];
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   int dest = getProcessorID( dist_domain );
   int tag  = 2002 + jointId( loc_domain, dist_domain );
   MPI_Status status;
@@ -516,7 +516,7 @@ int MEDPARTITIONER::ParaDomainSelector::jointId( int local_domain, int distant_d
 
 double MEDPARTITIONER::ParaDomainSelector::getPassedTime() const
 {
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   return MPI_Wtime() - _init_time;
 #else
   return 0.0;
@@ -531,7 +531,7 @@ double MEDPARTITIONER::ParaDomainSelector::getPassedTime() const
 
 void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const
 {
-#ifndef HAVE_MPI2
+#ifndef HAVE_MPI
   throw INTERP_KERNEL::Exception("ParaDomainSelector::sendMesh : incoherent call in non_MPI mode");
 #else
   if (MyGlobals::_Verbose>600)
@@ -584,7 +584,7 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
 */
 void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source)const
 {
-#ifndef HAVE_MPI2
+#ifndef HAVE_MPI
   throw INTERP_KERNEL::Exception("ParaDomainSelector::recvMesh : incoherent call in non_MPI mode");
 #else
   // First stage : exchanging sizes

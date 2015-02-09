@@ -43,7 +43,7 @@
 #include <cstdlib>
 #include <vector>
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include <mpi.h>
 #endif
 
@@ -108,7 +108,7 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
 void MEDPARTITIONERTest::setUp()
 {
   this->_verbose=0;
-#if defined(HAVE_MPI2)
+#if defined(HAVE_MPI)
   if (MyGlobals::_Rank==-1)  //do once only
     {
       MPI_Init(0,0);
@@ -123,10 +123,10 @@ void MEDPARTITIONERTest::setUp()
 
   if (_verbose>10)
     {
-#if defined(HAVE_MPI2)
-      cout<<"\ndefined(HAVE_MPI2)"<<endl;
+#if defined(HAVE_MPI)
+      cout<<"\ndefined(HAVE_MPI)"<<endl;
 #else
-      cout<<"\nNOT defined(HAVE_MPI2)"<<endl;
+      cout<<"\nNOT defined(HAVE_MPI)"<<endl;
 #endif
 #if defined(MED_ENABLE_PARMETIS)
       cout<<"defined(MED_ENABLE_PARMETIS)"<<endl;
@@ -893,7 +893,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
 
 void MEDPARTITIONERTest::testMetisSmallSize()
 {
-  //#if !defined(HAVE_MPI2)
+  //#if !defined(HAVE_MPI)
   setSmallSize();
   createTestMeshes();
   std::string MetisOrScotch("metis");
@@ -975,7 +975,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionScotch()
 
 void MEDPARTITIONERTest::testScotchSmallSize()
 {
-  //#if !defined(HAVE_MPI2)
+  //#if !defined(HAVE_MPI)
   setSmallSize();
   createTestMeshes();
   std::string MetisOrScotch("scotch");
