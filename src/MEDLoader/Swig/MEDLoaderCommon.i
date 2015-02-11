@@ -606,6 +606,13 @@ namespace ParaMEDMEM
            PyList_SetItem(res,1,PyString_FromString(what.c_str()));
            return res;
          }
+
+         void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const DataArrayInt *> grps;
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",grps);
+           self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
+         }
          
          PyObject *areFamsEqual(const MEDFileMesh *other) const throw(INTERP_KERNEL::Exception)
          {
@@ -805,13 +812,6 @@ namespace ParaMEDMEM
            if(tmp)
              tmp->incrRef();
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
-         }
-         
-         void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
-         {
-           std::vector<const DataArrayInt *> grps;
-           convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",grps);
-           self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
          }
 
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
