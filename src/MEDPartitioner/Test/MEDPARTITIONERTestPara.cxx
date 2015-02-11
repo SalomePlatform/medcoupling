@@ -49,7 +49,7 @@ using namespace std;
 using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
 
-#if defined(HAVE_MPI2)
+#if defined(HAVE_MPI)
 void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
 {
   int res;

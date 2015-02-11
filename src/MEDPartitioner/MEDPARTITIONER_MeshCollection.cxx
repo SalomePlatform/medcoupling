@@ -25,7 +25,7 @@
 #include "MEDPARTITIONER_Topology.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include "MEDPARTITIONER_JointFinder.hxx"
 #endif
 
@@ -43,7 +43,7 @@
 
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include <mpi.h>
 #endif
 
@@ -115,7 +115,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   //treating faces
   /////////////////
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
@@ -131,7 +131,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   ////////////////////
   //treating families
   ////////////////////
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
@@ -155,7 +155,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
                "faceFamily");
 
   //treating groups
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
@@ -164,7 +164,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   _family_info=initialCollection.getFamilyInfo();
   _group_info=initialCollection.getGroupInfo();
   
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
@@ -240,7 +240,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
             }
         }
     }
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (isParallelMode())
     {
       //if (MyGlobals::_Verbose>300) std::cout<<"proc "<<rank<<" : castCellMeshes send/receive"<<std::endl;
@@ -335,7 +335,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
 
       for (int inew=0; inew<_topology->nbDomain(); inew++)
         {
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
           //sending meshes for parallel computation
           if (isParallelMode() && _domain_selector->isMyDomain(inew) && !_domain_selector->isMyDomain(iold))  
             _domain_selector->sendMesh(*(getMesh(inew)), _domain_selector->getProcessorID(iold));
@@ -538,7 +538,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
         }
     }
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   //send/receive stuff
   if (isParallelMode())
     {
@@ -643,7 +643,7 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<ParaMEDMEM::MEDCou
         sourceCoords->decrRef();
       }
   // send-recv operations
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   for (int inew=0; inew<inewMax; inew++)
     {
       for (int iold=0; iold<ioldMax; iold++)
@@ -806,7 +806,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
       std::string descriptionField=initialCollection.getFieldDescriptions()[ifield];
       if (descriptionField.find(nameTo)==std::string::npos)
         continue; //only nameTo accepted in Fields name description
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
       for (int inew=0; inew<inewMax; inew++)
         {
           for (int iold=0; iold<ioldMax; iold++)
@@ -980,7 +980,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones()
           bool mesh1Here = true, mesh2Here = true;
           if (isParallelMode())
             {
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
               mesh1Here = _domain_selector->isMyDomain(inew1);
               mesh2Here = _domain_selector->isMyDomain(inew2);
               if ( !mesh1Here && mesh2Here )
@@ -1036,7 +1036,7 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones()
 
           if ( isParallelMode())
             {
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
               if ( mesh1Here && !mesh2Here )
                 {
                   //send faces2 to domain of recvMesh
@@ -1286,7 +1286,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
               f<<xml;
               f.close();
             }
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
            if (MyGlobals::_World_Size>1)
              MPI_Barrier(MPI_COMM_WORLD); //wait for creation of nameFileXml
 #endif
@@ -1326,7 +1326,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
   try
     {
       //check for all proc/file compatibility of _field_descriptions
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
       _field_descriptions=AllgathervVectorOfString(MyGlobals::_Field_Descriptions);
 #else
       _field_descriptions=MyGlobals::_Field_Descriptions;
@@ -1337,7 +1337,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
       std::cerr << "proc " << MyGlobals::_Rank << " : INTERP_KERNEL_Exception : " << e.what() << std::endl;
       throw INTERP_KERNEL::Exception("Something wrong verifying coherency of files med ands fields");
     }
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   try
     {
       //check for all proc/file compatibility of _family_info
@@ -1424,7 +1424,7 @@ MEDPARTITIONER::MeshCollection::~MeshCollection()
   delete _driver;
   if (_topology!=0 && _owns_topology)
     delete _topology;
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   delete _joint_finder;
 #endif
 }
@@ -1703,7 +1703,7 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDPARTITIONER::SkyL
 
   std::vector<std::vector<std::multimap<int,int> > > commonDistantNodes;
   int nbdomain=_topology->nbDomain();
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
   if (isParallelMode())
     {
       _joint_finder=new JointFinder(*this);
@@ -1745,7 +1745,7 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDPARTITIONER::SkyL
         }
       revConn->decrRef();
       index->decrRef();
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
       for (int iother=0; iother<nbdomain; iother++)
         {
           std::multimap<int,int>::iterator it;

@@ -51,8 +51,9 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <cstring>
 
-#ifdef HAVE_MPI2
+#ifdef HAVE_MPI
 #include <mpi.h>
 #endif
 
