@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'MED, Manipulation de champs dans SALOME'
-copyright = '2010-2014 CEA/DEN, EDF R&D, OPEN CASCADE, G. Boulant, A. Geay'
+copyright = '2010-2015 CEA/DEN, EDF R&D, OPEN CASCADE, G. Boulant, A. Geay'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
