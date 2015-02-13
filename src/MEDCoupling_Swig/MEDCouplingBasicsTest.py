@@ -16287,6 +16287,84 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([NORM_TRI3,0,2,1,NORM_QUAD4,3,6,5,4,NORM_POLYGON,7,11,10,9,8,NORM_TRI6,12,14,13,17,16,15,NORM_QUAD8,18,21,20,19,25,24,23,22,NORM_QPOLYG,26,30,29,28,27,35,34,33,32,31])))
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(cI))
         pass
+
+    def testSwig2StructuredMeshCellLocation1(self):
+        # 3D
+        arrX=DataArrayDouble(5) ; arrX.iota()
+        arrY=DataArrayDouble(4) ; arrY.iota()
+        arrZ=DataArrayDouble(3) ; arrZ.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY,arrZ)
+        li=[]
+        liExp3D=[(0,0,0),(1,0,0),(2,0,0),(3,0,0),(0,1,0),(1,1,0),(2,1,0),(3,1,0),(0,2,0),(1,2,0),(2,2,0),(3,2,0),(0,0,1),(1,0,1),(2,0,1),(3,0,1),(0,1,1),(1,1,1),(2,1,1),(3,1,1),(0,2,1),(1,2,1),(2,2,1),(3,2,1)]
+        self.assertEqual(24,m.getNumberOfCells())
+        for i in xrange(m.getNumberOfCells()):
+            li.append(m.getLocationFromCellId(i))
+            pass
+        self.assertEqual(liExp3D,li)
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,24)
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,-1)
+        # 2D
+        arrX=DataArrayDouble(5) ; arrX.iota()
+        arrY=DataArrayDouble(4) ; arrY.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY)
+        li=[]
+        liExp2D=[(0,0),(1,0),(2,0),(3,0),(0,1),(1,1),(2,1),(3,1),(0,2),(1,2),(2,2),(3,2)]
+        self.assertEqual(12,m.getNumberOfCells())
+        for i in xrange(m.getNumberOfCells()):
+            li.append(m.getLocationFromCellId(i))
+            pass
+        self.assertEqual(liExp2D,li)
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,12)
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,-1)
+        # 1D
+        arrX=DataArrayDouble(5) ; arrX.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX)
+        self.assertEqual(4,m.getNumberOfCells())
+        for i in xrange(m.getNumberOfCells()):
+            self.assertEqual((i,),m.getLocationFromCellId(i))
+            pass
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,4)
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,-1)
+        pass
+
+    def testSwig2StructuredMeshNodeLocation1(self):
+        # 3D
+        arrX=DataArrayDouble(5) ; arrX.iota()
+        arrY=DataArrayDouble(4) ; arrY.iota()
+        arrZ=DataArrayDouble(3) ; arrZ.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY,arrZ)
+        li=[]
+        liExp3D=[(0,0,0),(1,0,0),(2,0,0),(3,0,0),(4,0,0),(0,1,0),(1,1,0),(2,1,0),(3,1,0),(4,1,0),(0,2,0),(1,2,0),(2,2,0),(3,2,0),(4,2,0),(0,3,0),(1,3,0),(2,3,0),(3,3,0),(4,3,0),(0,0,1),(1,0,1),(2,0,1),(3,0,1),(4,0,1),(0,1,1),(1,1,1),(2,1,1),(3,1,1),(4,1,1),(0,2,1),(1,2,1),(2,2,1),(3,2,1),(4,2,1),(0,3,1),(1,3,1),(2,3,1),(3,3,1),(4,3,1),(0,0,2),(1,0,2),(2,0,2),(3,0,2),(4,0,2),(0,1,2),(1,1,2),(2,1,2),(3,1,2),(4,1,2),(0,2,2),(1,2,2),(2,2,2),(3,2,2),(4,2,2),(0,3,2),(1,3,2),(2,3,2),(3,3,2),(4,3,2)]
+        self.assertEqual(60,m.getNumberOfNodes())
+        for i in xrange(m.getNumberOfNodes()):
+            li.append(m.getLocationFromNodeId(i))
+            pass
+        self.assertEqual(liExp3D,li)
+        self.assertRaises(InterpKernelException,m.getLocationFromNodeId,60)
+        self.assertRaises(InterpKernelException,m.getLocationFromNodeId,-1)
+        # 2D
+        arrX=DataArrayDouble(5) ; arrX.iota()
+        arrY=DataArrayDouble(4) ; arrY.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY)
+        li=[]
+        liExp2D=[(0,0),(1,0),(2,0),(3,0),(4,0),(0,1),(1,1),(2,1),(3,1),(4,1),(0,2),(1,2),(2,2),(3,2),(4,2),(0,3),(1,3),(2,3),(3,3),(4,3)]
+        self.assertEqual(20,m.getNumberOfNodes())
+        for i in xrange(m.getNumberOfNodes()):
+            li.append(m.getLocationFromNodeId(i))
+            pass
+        self.assertEqual(liExp2D,li)
+        self.assertRaises(InterpKernelException,m.getLocationFromNodeId,20)
+        self.assertRaises(InterpKernelException,m.getLocationFromNodeId,-1)
+        # 1D
+        arrX=DataArrayDouble(5) ; arrX.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arrX)
+        self.assertEqual(5,m.getNumberOfNodes())
+        for i in xrange(m.getNumberOfNodes()):
+            self.assertEqual((i,),m.getLocationFromNodeId(i))
+            pass
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,5)
+        self.assertRaises(InterpKernelException,m.getLocationFromCellId,-1)
+        pass
     pass
 
 if __name__ == '__main__':

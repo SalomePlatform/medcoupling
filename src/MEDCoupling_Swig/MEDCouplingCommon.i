@@ -2914,6 +2914,8 @@ namespace ParaMEDMEM
     virtual std::vector<int> getNodeGridStructure() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getCellGridStructure() const throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTUnstructured() const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getLocationFromCellId(int cellId) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getLocationFromNodeId(int cellId) const throw(INTERP_KERNEL::Exception);
     static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     MEDCoupling1SGTUMesh *build1SGTSubLevelMesh() const throw(INTERP_KERNEL::Exception);
     static int DeduceNumberOfGivenStructure(const std::vector<int>& st) throw(INTERP_KERNEL::Exception);

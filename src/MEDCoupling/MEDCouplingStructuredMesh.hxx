@@ -38,7 +38,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeEffectiveNbOfNodesPerCell() const;
-    MEDCOUPLING_EXPORT static void GetPosFromId(int nodeId, int meshDim, const int *split, int *res);
+    MEDCOUPLING_EXPORT std::vector<int> getLocationFromCellId(int cellId) const;
+    MEDCOUPLING_EXPORT std::vector<int> getLocationFromNodeId(int nodeId) const;
+    MEDCOUPLING_EXPORT static void GetPosFromId(int eltId, int meshDim, const int *split, int *res);
     MEDCOUPLING_EXPORT static INTERP_KERNEL::NormalizedCellType GetGeoTypeGivenMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;

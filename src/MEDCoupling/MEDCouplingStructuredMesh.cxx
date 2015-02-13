@@ -1271,9 +1271,55 @@ int MEDCouplingStructuredMesh::getNumberOfNodes() const
   return ret;
 }
 
-void MEDCouplingStructuredMesh::GetPosFromId(int nodeId, int meshDim, const int *split, int *res)
+/*!
+ * This method returns for a cell which id is \a cellId the location (locX,locY,locZ) of this cell in \a this.
+ * 
+ * \param [in] cellId
+ * \return - A vector of size this->getMeshDimension()
+ * \throw if \a cellId not in [ 0, this->getNumberOfCells() )
+ */
+std::vector<int> MEDCouplingStructuredMesh::getLocationFromCellId(int cellId) const
 {
-  int work=nodeId;
+  int meshDim(getMeshDimension());
+  std::vector<int> ret(meshDim);
+  std::vector<int> struc(getCellGridStructure());
+  int nbCells(std::accumulate(struc.begin(),struc.end(),1,std::multiplies<int>()));
+  if(cellId<0 || cellId>=nbCells)
+    {
+      std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getLocationFromCellId : Input cell id (" << cellId << ") is invalid ! Should be in [0," << nbCells << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<int> spt(GetSplitVectFromStruct(struc));
+  GetPosFromId(cellId,meshDim,&spt[0],&ret[0]);
+  return ret;
+}
+
+/*!
+ * This method returns for a node which id is \a nodeId the location (locX,locY,locZ) of this node in \a this.
+ * 
+ * \param [in] nodeId
+ * \return - A vector of size this->getSpaceDimension()
+ * \throw if \a cellId not in [ 0, this->getNumberOfNodes() )
+ */
+std::vector<int> MEDCouplingStructuredMesh::getLocationFromNodeId(int nodeId) const
+{
+  int spaceDim(getSpaceDimension());
+  std::vector<int> ret(spaceDim);
+  std::vector<int> struc(getNodeGridStructure());
+  int nbNodes(std::accumulate(struc.begin(),struc.end(),1,std::multiplies<int>()));
+  if(nodeId<0 || nodeId>=nbNodes)
+    {
+      std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getLocationFromNodeId : Input node id (" << nodeId << ") is invalid ! Should be in [0," << nbNodes << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<int> spt(GetSplitVectFromStruct(struc));
+  GetPosFromId(nodeId,spaceDim,&spt[0],&ret[0]);
+  return ret;
+}
+
+void MEDCouplingStructuredMesh::GetPosFromId(int eltId, int meshDim, const int *split, int *res)
+{
+  int work(eltId);
   for(int i=meshDim-1;i>=0;i--)
     {
       int pos=work/split[i];
