@@ -673,6 +673,14 @@ namespace ParaMEDMEM
              tmp->incrRef();
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
+
+         PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         {
+           const DataArrayInt *tmp=self->getRevNumberFieldAtLevel(meshDimRelToMaxExt);
+           if(tmp)
+             tmp->incrRef();
+           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+         }
          
          PyObject *getNameFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
          {
@@ -748,17 +756,10 @@ namespace ParaMEDMEM
     std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getNodeGroupArr(const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getNodeFamilyArr(const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMaxExt, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -804,14 +805,6 @@ namespace ParaMEDMEM
            for(std::size_t ii=0;ii<sz;ii++)
              typesCpp2[ii]=(INTERP_KERNEL::NormalizedCellType)typesCpp1[ii];
            return MEDFileUMesh::LoadPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs);
-         }
-         
-         PyObject *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
-         {
-           const DataArrayInt *tmp=self->getRevNumberFieldAtLevel(meshDimRelToMaxExt);
-           if(tmp)
-             tmp->incrRef();
-           return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
 
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)

@@ -3850,7 +3850,17 @@ class MEDLoaderTest(unittest.TestCase):
         arr.setInfoOnComponents(compos)
         self.assertTrue(fs[1][0].getUndergroundDataArray().isEqual(arr,1e-12))
         pass
-
+    
+    def testMEDFileCMeshSetGroupsAtLevel(self):
+        """ Non regression test to check that setGroupsAtLevel is available with MEDFileCMesh.
+        """
+        m=MEDCouplingCMesh() ; m.setCoords(DataArrayDouble([0,1,2,3,4]),DataArrayDouble([0,1,2,3,4]))
+        m.setName("Mesh")
+        mm=MEDFileCMesh() ; mm.setMesh(m)
+        grp=DataArrayInt([1,3,4,5,7]) ; grp.setName("MyAssembly")
+        mm.setGroupsAtLevel(0,[grp])
+        self.assertTrue(mm.getFamilyFieldAtLevel(0).isEqual(DataArrayInt([-1,-2,-1,-2,-2,-2,-1,-2,-1,-1,-1,-1,-1,-1,-1,-1])))
+        pass
     pass
 
 unittest.main()
