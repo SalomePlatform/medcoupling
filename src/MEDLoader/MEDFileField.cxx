@@ -6743,6 +6743,7 @@ MEDCouplingFieldDouble *MEDFileIntField1TS::getFieldAtLevel(TypeOfField type, in
   if(!arrOutC)
     throw INTERP_KERNEL::Exception("MEDFileIntField1TS::getFieldAtLevelOld : mismatch between dataArrays type and MEDFileIntField1TS ! Expected int32 !");
   arrOut=arrOutC;
+  arrOut->incrRef();  // arrOut2 dies at the end of the func
   return ret.retn();
 }
 
