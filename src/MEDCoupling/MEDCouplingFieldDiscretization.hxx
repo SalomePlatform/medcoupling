@@ -92,6 +92,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT virtual void finishUnserialization(const std::vector<double>& tinyInfo);
     MEDCOUPLING_EXPORT virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
+    MEDCOUPLING_EXPORT virtual void checkForUnserialization(const std::vector<int>& tinyInfo, const DataArrayInt *arr);
     MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                                const std::vector<double>& gsCoo, const std::vector<double>& wg);
     MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
@@ -251,6 +252,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<double>& tinyInfo);
     MEDCOUPLING_EXPORT void getSerializationIntArray(DataArrayInt *& arr) const;
     MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr);
+    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<int>& tinyInfo, const DataArrayInt *arr);
     MEDCOUPLING_EXPORT double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const;
     MEDCOUPLING_EXPORT void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArray *da) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
@@ -285,6 +287,7 @@ namespace ParaMEDMEM
     void zipGaussLocalizations();
     int getOffsetOfCell(int cellId) const;
     void checkLocalizationId(int locId) const;
+    void commonUnserialization(const std::vector<int>& tinyInfo);
   public:
     static const char REPR[];
     static const TypeOfField TYPE;

@@ -82,7 +82,7 @@ void numarrdeal(void *pt, void *wron)
     {
       Py_XINCREF(obj);
       PyArrayObject *objC=reinterpret_cast<PyArrayObject *>(obj);
-      objC->flags|=NPY_OWNDATA;
+      objC->flags|=NPY_ARRAY_OWNDATA;
       Py_XDECREF(weakRefOnOwner);
       Py_XDECREF(obj);
     }
@@ -282,24 +282,36 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
   if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order
     {
       PyArrayObject *elt0C=reinterpret_cast<PyArrayObject *>(elt0);
-      PyArrayObject *eltOwning=(PyArray_FLAGS(elt0C) & NPY_OWNDATA)?elt0C:NULL;
-      int mask=NPY_OWNDATA; mask=~mask;
+      PyArrayObject *eltOwning=(PyArray_FLAGS(elt0C) & NPY_ARRAY_OWNDATA)?elt0C:NULL;
+      int mask=NPY_ARRAY_OWNDATA; mask=~mask;
       elt0C->flags&=mask;
       PyObject *deepestObj=elt0;
       PyObject *base=elt0C->base;
       if(base) deepestObj=base;
+      bool isSpetialCase(false);
       while(base)
         {
           if(PyArray_Check(base))
             {
               PyArrayObject *baseC=reinterpret_cast<PyArrayObject *>(base);
-              eltOwning=(PyArray_FLAGS(baseC) & NPY_OWNDATA)?baseC:eltOwning;
+              eltOwning=(PyArray_FLAGS(baseC) & NPY_ARRAY_OWNDATA)?baseC:eltOwning;
               baseC->flags&=mask;
               base=baseC->base;
               if(base) deepestObj=base;
             }
           else
-            break;
+            {
+              isSpetialCase=true;
+              break;
+            }
+        }
+      if(isSpetialCase)
+        {// this case is present for numpy arrayint coming from load of pickelized string. The owner of elt0 is not an array -> A copy is requested.
+          std::size_t nbOfElems(sz0*sz1);
+          T *dataCpy=(T*)malloc(sizeof(T)*nbOfElems);
+          std::copy(reinterpret_cast<const T*>(data),reinterpret_cast<const T*>(data)+nbOfElems,dataCpy);
+          ret->useArray(dataCpy,true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
+          return ret.retn();
         }
       typename ParaMEDMEM::MemArray<T>& mma=ret->accessToMemArray();
       if(eltOwning==NULL)
@@ -363,7 +375,7 @@ int NumpyArrSetBaseObjectExt(PyArrayObject *arr, PyObject *obj)
  
 
         /* If this array owns its own data, stop collapsing */
-        if (PyArray_CHKFLAGS(obj_arr, NPY_OWNDATA)) {
+        if (PyArray_CHKFLAGS(obj_arr, NPY_ARRAY_OWNDATA )) { 
             break;
         }   
 

@@ -586,6 +586,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
+    virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
     static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static bool IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     static bool IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
@@ -610,7 +611,7 @@ namespace ParaMEDMEM
            PyList_SetItem(res,2,SWIG_From_int(tmp2));
            return res;
          }
-
+         
          int getCellContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
          {
            double val;
@@ -975,6 +976,102 @@ namespace ParaMEDMEM
            for(int i=0;iL!=result.end(); i++, iL++)
              PyList_SetItem(res,i,PyInt_FromLong(*iL));
            return res;
+         }
+
+         virtual PyObject *getTinySerializationInformation() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<double> a0;
+           std::vector<int> a1;
+           std::vector<std::string> a2;
+           self->getTinySerializationInformation(a0,a1,a2);
+           PyObject *ret(PyTuple_New(3));
+           PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
+           PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
+           int sz(a2.size());
+           PyObject *ret2(PyList_New(sz));
+           {
+             for(int i=0;i<sz;i++)
+               PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
+           }
+           PyTuple_SetItem(ret,2,ret2);
+           return ret;
+         }
+
+         virtual PyObject *serialize() const throw(INTERP_KERNEL::Exception)
+         {
+           DataArrayInt *a0Tmp(0);
+           DataArrayDouble *a1Tmp(0);
+           self->serialize(a0Tmp,a1Tmp);
+           PyObject *ret(PyTuple_New(2));
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(a0Tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(a1Tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+           return ret;
+         }
+
+         void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<std::string> littleStrings;
+           self->resizeForUnserialization(tinyInfo,a1,a2,littleStrings);
+         }
+         
+         PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+         {// put an empty dict in input to say to __new__ to call __init__...
+           PyObject *ret(PyTuple_New(1));
+           PyObject *ret0(PyDict_New());
+           PyTuple_SetItem(ret,0,ret0);
+           return ret;
+         }
+         
+         PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
+         {
+           PyObject *ret0(ParaMEDMEM_MEDCouplingMesh_getTinySerializationInformation(self));
+           PyObject *ret1(ParaMEDMEM_MEDCouplingMesh_serialize(self));
+           PyObject *ret(PyTuple_New(2));
+           PyTuple_SetItem(ret,0,ret0);
+           PyTuple_SetItem(ret,1,ret1);
+           return ret;
+         }
+
+         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+         {
+           static const char MSG[]="MEDCouplingMesh.__setstate__ : expected input is a tuple of size 2 !";
+           if(!PyTuple_Check(inp))
+             throw INTERP_KERNEL::Exception(MSG);
+           int sz(PyTuple_Size(inp));
+           if(sz!=2)
+             throw INTERP_KERNEL::Exception(MSG);
+           PyObject *elt0(PyTuple_GetItem(inp,0));
+           PyObject *elt1(PyTuple_GetItem(inp,1));
+           std::vector<double> a0;
+           std::vector<int> a1;
+           std::vector<std::string> a2;
+           DataArrayInt *b0(0);
+           DataArrayDouble *b1(0);
+           {
+             if(!PyTuple_Check(elt0) && PyTuple_Size(elt0)!=3)
+               throw INTERP_KERNEL::Exception(MSG);
+             PyObject *a0py(PyTuple_GetItem(elt0,0)),*a1py(PyTuple_GetItem(elt0,1)),*a2py(PyTuple_GetItem(elt0,2));
+             int tmp(-1);
+             fillArrayWithPyListDbl3(a0py,tmp,a0);
+             convertPyToNewIntArr3(a1py,a1);
+             fillStringVector(a2py,a2);
+           }
+           {
+             if(!PyTuple_Check(elt1) && PyTuple_Size(elt1)!=2)
+               throw INTERP_KERNEL::Exception(MSG);
+             PyObject *b0py(PyTuple_GetItem(elt1,0)),*b1py(PyTuple_GetItem(elt1,1));
+             void *argp(0);
+             int status(SWIG_ConvertPtr(b0py,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0));
+             if(!SWIG_IsOK(status))
+               throw INTERP_KERNEL::Exception(MSG);
+             b0=reinterpret_cast<DataArrayInt *>(argp);
+             status=SWIG_ConvertPtr(b1py,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+             if(!SWIG_IsOK(status))
+               throw INTERP_KERNEL::Exception(MSG);
+             b1=reinterpret_cast<DataArrayDouble *>(argp);
+           }
+           // useless here to call resizeForUnserialization because arrays are well resized.
+           self->unserialization(a0,a1,b0,b1,a2);
          }
          
          static MEDCouplingMesh *MergeMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -1704,7 +1801,13 @@ namespace ParaMEDMEM
       {
         return MEDCouplingUMesh::New(meshName,meshDim);
       }
-      
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingUMesh");
+      }
+
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -2672,6 +2775,16 @@ namespace ParaMEDMEM
       {
         return MEDCouplingExtrudedMesh::New(mesh3D,mesh2D,cell2DId);
       }
+
+      MEDCouplingExtrudedMesh()
+      {
+        return MEDCouplingExtrudedMesh::New();
+      }
+
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingExtrudedMesh");
+      }
       
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
@@ -2762,6 +2875,11 @@ namespace ParaMEDMEM
     DataArrayInt *sortHexa8EachOther() throw(INTERP_KERNEL::Exception);
     %extend
     {
+      MEDCoupling1SGTUMesh()
+      {
+        return MEDCoupling1SGTUMesh::New();
+      }
+
       MEDCoupling1SGTUMesh(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1SGTUMesh::New(name,type);
@@ -2770,6 +2888,11 @@ namespace ParaMEDMEM
       MEDCoupling1SGTUMesh(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1SGTUMesh::New(m);
+      }
+
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCoupling1SGTUMesh");
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2825,6 +2948,10 @@ namespace ParaMEDMEM
     bool isPacked() const throw(INTERP_KERNEL::Exception);
     %extend
     {
+      MEDCoupling1DGTUMesh()
+      {
+        return MEDCoupling1DGTUMesh::New();
+      }
       MEDCoupling1DGTUMesh(const std::string& name, INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1DGTUMesh::New(name,type);
@@ -2833,6 +2960,11 @@ namespace ParaMEDMEM
       MEDCoupling1DGTUMesh(const MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
       {
         return MEDCoupling1DGTUMesh::New(m);
+      }
+
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCoupling1DGTUMesh");
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -3177,6 +3309,11 @@ namespace ParaMEDMEM
       {
         return MEDCouplingCMesh::New(meshName);
       }
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingCMesh");
+      }
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
         return self->simpleRepr();
@@ -3216,6 +3353,10 @@ namespace ParaMEDMEM
       MEDCouplingCurveLinearMesh(const std::string& meshName) throw(INTERP_KERNEL::Exception)
       {
         return MEDCouplingCurveLinearMesh::New(meshName);
+      }
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingCurveLinearMesh");
       }
       std::string __str__() const throw(INTERP_KERNEL::Exception) 
       {
@@ -3292,6 +3433,11 @@ namespace ParaMEDMEM
       MEDCouplingIMesh(const std::string& meshName, int spaceDim, PyObject *nodeStrct, PyObject *origin, PyObject *dxyz) throw(INTERP_KERNEL::Exception)
       {
         return ParaMEDMEM_MEDCouplingIMesh_New__SWIG_1(meshName,spaceDim,nodeStrct,origin,dxyz);
+      }
+
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingIMesh");
       }
 
       void setNodeStruct(PyObject *nodeStrct) throw(INTERP_KERNEL::Exception)
@@ -4658,6 +4804,160 @@ namespace ParaMEDMEM
         std::vector<const MEDCouplingFieldDouble *> tmp;
         convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
         return MEDCouplingFieldDouble::WriteVTK(fileName,tmp,isBinary);
+      }
+
+      PyObject *getTinySerializationInformation() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<double> a0;
+        std::vector<int> a1;
+        std::vector<std::string> a2;
+        self->getTinySerializationDbleInformation(a0);
+        self->getTinySerializationIntInformation(a1);
+        self->getTinySerializationStrInformation(a2);
+        //
+        PyObject *ret(PyTuple_New(3));
+        PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
+        PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
+        int sz(a2.size());
+        PyObject *ret2(PyList_New(sz));
+        {
+          for(int i=0;i<sz;i++)
+            PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
+        }
+        PyTuple_SetItem(ret,2,ret2);
+        return ret;
+      }
+      
+      PyObject *serialize() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret0(0);
+        std::vector<DataArrayDouble *> ret1;
+        self->serialize(ret0,ret1);
+        if(ret0)
+          ret0->incrRef();
+        std::size_t sz(ret1.size());
+        PyObject *ret(PyTuple_New(2));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyObject *ret1Py(PyList_New(sz));
+        for(std::size_t i=0;i<sz;i++)
+          {
+            if(ret1[i])
+              ret1[i]->incrRef();
+            PyList_SetItem(ret1Py,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret1[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+          }
+        PyTuple_SetItem(ret,1,ret1Py);
+        return ret;
+      }
+
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        static const char MSG[]="MEDCouplingFieldDouble.__new__ : the args in input is expected to be a tuple !";
+        if(!PyTuple_Check(args))
+          throw INTERP_KERNEL::Exception(MSG);
+        PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
+        PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
+        PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
+        //
+        PyObject *tmp0(PyTuple_New(1));
+        PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
+        PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
+        Py_DECREF(tmp0);
+        Py_DECREF(selfMeth);
+        if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
+          {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
+            PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
+            ////
+            PyObject *a(PyInt_FromLong(0));
+            PyObject *uniqueElt(PyDict_GetItem(PyTuple_GetItem(args,1),a));
+            Py_DECREF(a);
+            if(!uniqueElt)
+              throw INTERP_KERNEL::Exception(MSG);
+            if(!PyTuple_Check(uniqueElt) || PyTuple_Size(uniqueElt)!=2)
+              throw INTERP_KERNEL::Exception(MSG);
+            PyObject *tmp2(PyObject_CallObject(initMeth,uniqueElt));
+            Py_XDECREF(tmp2);
+            ////
+            Py_DECREF(initMeth);
+          }
+        return instance;
+      }
+
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {// put an empty dict in input to say to __new__ to call __init__...
+        self->checkCoherency();
+        PyObject *ret(PyTuple_New(1));
+        PyObject *ret0(PyDict_New());
+        {
+          PyObject *a(PyInt_FromLong(0)),*b(PyInt_FromLong(self->getTypeOfField())),*c(PyInt_FromLong(self->getTimeDiscretization()));
+          PyObject *d(PyTuple_New(2)); PyTuple_SetItem(d,0,b); PyTuple_SetItem(d,1,c);
+          PyDict_SetItem(ret0,a,d);
+          Py_DECREF(a); Py_DECREF(d);
+        }
+        PyTuple_SetItem(ret,0,ret0);
+        return ret;
+      }
+
+      PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
+      {
+        self->checkCoherency();
+        PyObject *ret0(ParaMEDMEM_MEDCouplingFieldDouble_getTinySerializationInformation(self));
+        PyObject *ret1(ParaMEDMEM_MEDCouplingFieldDouble_serialize(self));
+        const MEDCouplingMesh *mesh(self->getMesh());
+        if(mesh)
+          mesh->incrRef();
+        PyObject *ret(PyTuple_New(3));
+        PyTuple_SetItem(ret,0,ret0);
+        PyTuple_SetItem(ret,1,ret1);
+        PyTuple_SetItem(ret,2,convertMesh(const_cast<MEDCouplingMesh *>(mesh),SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+      
+      void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+      {
+        static const char MSG[]="MEDCouplingFieldDouble.__setstate__ : expected input is a tuple of size 3 !";
+        if(!PyTuple_Check(inp))
+          throw INTERP_KERNEL::Exception(MSG);
+        int sz(PyTuple_Size(inp));
+        if(sz!=3)
+          throw INTERP_KERNEL::Exception(MSG);
+        // mesh
+        PyObject *elt2(PyTuple_GetItem(inp,2));
+        void *argp=0;
+        int status(SWIG_ConvertPtr(elt2,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingMesh,0|0));
+        if(!SWIG_IsOK(status))
+          throw INTERP_KERNEL::Exception(MSG);
+        self->setMesh(reinterpret_cast< const MEDCouplingUMesh * >(argp));
+        //
+        PyObject *elt0(PyTuple_GetItem(inp,0));
+        PyObject *elt1(PyTuple_GetItem(inp,1));
+        std::vector<double> a0;
+        std::vector<int> a1;
+        std::vector<std::string> a2;
+        DataArrayInt *b0(0);
+        std::vector<DataArrayDouble *>b1;
+        {
+          if(!PyTuple_Check(elt0) && PyTuple_Size(elt0)!=3)
+            throw INTERP_KERNEL::Exception(MSG);
+          PyObject *a0py(PyTuple_GetItem(elt0,0)),*a1py(PyTuple_GetItem(elt0,1)),*a2py(PyTuple_GetItem(elt0,2));
+          int tmp(-1);
+          fillArrayWithPyListDbl3(a0py,tmp,a0);
+          convertPyToNewIntArr3(a1py,a1);
+          fillStringVector(a2py,a2);
+        }
+        {
+          if(!PyTuple_Check(elt1) && PyTuple_Size(elt1)!=2)
+            throw INTERP_KERNEL::Exception(MSG);
+          PyObject *b0py(PyTuple_GetItem(elt1,0)),*b1py(PyTuple_GetItem(elt1,1));
+          void *argp(0);
+          int status(SWIG_ConvertPtr(b0py,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0));
+          if(!SWIG_IsOK(status))
+            throw INTERP_KERNEL::Exception(MSG);
+          b0=reinterpret_cast<DataArrayInt *>(argp);
+          convertFromPyObjVectorOfObj<ParaMEDMEM::DataArrayDouble *>(b1py,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",b1);
+        }
+        self->checkForUnserialization(a1,b0,b1);
+        // useless here to call resizeForUnserialization because arrays are well resized.
+        self->finishUnserialization(a1,a0,a2);
       }
     }
   };

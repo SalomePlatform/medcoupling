@@ -29,9 +29,9 @@ namespace INTERP_KERNEL
     %extend
     {
       std::string __str__() const
-        {
-          return std::string(self->what());
-        }
+      {
+        return std::string(self->what());
+      }
     }
   };
 }
@@ -157,3 +157,12 @@ namespace ParaMEDMEM
     return std::string(script);
   }
 }
+
+%pythoncode %{
+def INTERPKERNELExceptionReduceFunct(a,b):
+    ret=InterpKernelException.__new__(a)
+    ret.__init__(*b)
+    return ret
+def INTERPKERNELExceptionReduce(self):
+    return INTERPKERNELExceptionReduceFunct,(InterpKernelException,(self.what(),))
+%}

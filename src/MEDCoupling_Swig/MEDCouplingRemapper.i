@@ -103,6 +103,9 @@ namespace ParaMEDMEM
 }
 
 %pythoncode %{
+def ParaMEDMEMDataArrayDoublenew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.DataArrayDouble____new___(cls,args)
 def ParaMEDMEMDataArrayDoubleIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayDouble____iadd___(self, self, *args)
@@ -118,6 +121,9 @@ def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
 def ParaMEDMEMDataArrayDoubleIpow(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayDouble____ipow___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoublenew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCouplingFieldDouble____new___(cls,args)
 def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -133,6 +139,12 @@ def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
 def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____ipow___(self, self, *args)
+def ParaMEDMEMDataArrayIntnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.DataArrayInt____new___(cls,args)
+def ParaMEDMEMDataArrayIntnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____new___(cls,args)
 def ParaMEDMEMDataArrayIntIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayInt____iadd___(self, self, *args)
@@ -184,6 +196,27 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DenseMatrix____isub___(self, self, *args)
+def ParaMEDMEMMEDCouplingUMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCouplingUMesh____new___(cls,args)
+def ParaMEDMEMMEDCoupling1DGTUMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCoupling1DGTUMesh____new___(cls,args)
+def ParaMEDMEMMEDCoupling1SGTUMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCoupling1SGTUMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingCurveLinearMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCouplingCurveLinearMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingCMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCouplingCMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingIMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCouplingIMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingExtrudedMeshnew(cls,*args):
+    import _MEDCouplingRemapper
+    return _MEDCouplingRemapper.MEDCouplingExtrudedMesh____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"

@@ -476,6 +476,41 @@ namespace ParaMEDMEM
         GetIndicesOfSlice(sly,self->getNumberOfTuples(),&strt,&stp,&step,"DataArray::getNumberOfItemGivenBESRelative (wrap) : the input slice is invalid !");
         return DataArray::GetNumberOfItemGivenBESRelative(strt,stp,step,"");
       }
+
+      PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
+      {
+        PyObject *ret(PyTuple_New(2));
+        std::string a0(self->getName());
+        const std::vector<std::string> &a1(self->getInfoOnComponents());
+        PyTuple_SetItem(ret,0,PyString_FromString(a0.c_str()));
+        //
+        int sz(a1.size());
+        PyObject *ret1(PyList_New(sz));
+        for(int i=0;i<sz;i++)
+          PyList_SetItem(ret1,i,PyString_FromString(a1[i].c_str()));
+        PyTuple_SetItem(ret,1,ret1);
+        //
+        return ret;
+      }
+
+      void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+      {
+        static const char MSG[]="DataArrayDouble.__setstate__ : expected input is a tuple of size 2 with string as 1st arg and list of string as 2nd arg !";
+        if(!PyTuple_Check(inp))
+          throw INTERP_KERNEL::Exception("DataArrayDouble.__setstate__ : invalid input ! Invalid overwrite of __getstate__ ?");
+        int sz(PyTuple_Size(inp));
+        if(sz!=2)
+          throw INTERP_KERNEL::Exception("DataArrayDouble.__setstate__ : invalid tuple in input ! Should be of size 2 ! Invalid overwrite of __getstate__ ?");
+        PyObject *a0(PyTuple_GetItem(inp,0));
+        if(!PyString_Check(a0))
+          throw INTERP_KERNEL::Exception(MSG);
+        PyObject *a1(PyTuple_GetItem(inp,1));
+        std::vector<std::string> a1cpp;
+        if(!fillStringVector(a1,a1cpp))
+          throw INTERP_KERNEL::Exception(MSG);
+        self->setName(PyString_AsString(a0));
+        self->setInfoOnComponents(a1cpp);
+      }
     }
   };
   
@@ -2173,6 +2208,59 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        static const char MSG[]="DataArrayDouble.__new__ : the args in input is expected to be a tuple !";
+        if(!PyTuple_Check(args))
+          throw INTERP_KERNEL::Exception(MSG);
+        PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
+        PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
+        PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
+        //
+        PyObject *tmp0(PyTuple_New(1));
+        PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
+        PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
+        Py_DECREF(tmp0);
+        Py_DECREF(selfMeth);
+        PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
+        int sz(PyTuple_Size(args));
+        
+        if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
+          {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
+            PyObject *zeNumpyRepr(0);
+            PyObject *tmp1(PyInt_FromLong(0));
+            zeNumpyRepr=PyDict_GetItem(PyTuple_GetItem(args,1),tmp1);//borrowed
+            Py_DECREF(tmp1);
+            PyObject *tmp3(PyTuple_New(1));
+            PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
+            PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
+            Py_XDECREF(tmp2);
+            Py_DECREF(tmp3);
+          }
+        Py_DECREF(initMeth);
+        return instance;
+      }
+
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {
+#ifdef WITH_NUMPY
+        if(!self->isAllocated())
+          throw INTERP_KERNEL::Exception("PyWrap of DataArrayDouble.__getnewargs__ : self is not allocated !");
+        PyObject *ret(PyTuple_New(1));
+        PyObject *ret0(PyDict_New());
+        PyObject *numpyArryObj(ParaMEDMEM_DataArrayDouble_toNumPyArray(self));
+        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
+          PyObject *tmp1(PyInt_FromLong(0));
+          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
+          PyTuple_SetItem(ret,0,ret0);
+        }
+        return ret;
+#else
+        throw INTERP_KERNEL::Exception("PyWrap of DataArrayDouble.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
+#endif
       }
     }
   };
@@ -4477,6 +4565,59 @@ namespace ParaMEDMEM
           }
         PyTuple_SetItem(pyRet,1,ret1Py);
         return pyRet;
+      }
+      
+      // serialization
+      static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+      {
+        static const char MSG[]="DataArrayInt.__new__ : the args in input is expected to be a tuple !";
+        if(!PyTuple_Check(args))
+          throw INTERP_KERNEL::Exception(MSG);
+        PyObject *builtinsd(PyEval_GetBuiltins());//borrowed
+        PyObject *obj(PyDict_GetItemString(builtinsd,"object"));//borrowed
+        PyObject *selfMeth(PyObject_GetAttrString(obj,"__new__"));
+        //
+        PyObject *tmp0(PyTuple_New(1));
+        PyTuple_SetItem(tmp0,0,cls); Py_XINCREF(cls);
+        PyObject *instance(PyObject_CallObject(selfMeth,tmp0));
+        Py_DECREF(tmp0);
+        Py_DECREF(selfMeth);
+        PyObject *initMeth(PyObject_GetAttrString(instance,"__init__"));
+        int sz(PyTuple_Size(args));
+        
+        if(PyTuple_Size(args)==2 && PyDict_Check(PyTuple_GetItem(args,1)) && PyDict_Size(PyTuple_GetItem(args,1))==1 )
+          {// NOT general case. only true if in unpickeling context ! call __init__. Because for all other cases, __init__ is called right after __new__ !
+            PyObject *zeNumpyRepr(0);
+            PyObject *tmp1(PyInt_FromLong(0));
+            zeNumpyRepr=PyDict_GetItem(PyTuple_GetItem(args,1),tmp1);//borrowed
+            Py_DECREF(tmp1);
+            PyObject *tmp3(PyTuple_New(1));
+            PyTuple_SetItem(tmp3,0,zeNumpyRepr); Py_XINCREF(zeNumpyRepr);
+            PyObject *tmp2(PyObject_CallObject(initMeth,tmp3));
+            Py_XDECREF(tmp2);
+            Py_DECREF(tmp3);
+          }
+        Py_DECREF(initMeth);
+        return instance;
+      }
+      
+      PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+      {
+#ifdef WITH_NUMPY
+        if(!self->isAllocated())
+          throw INTERP_KERNEL::Exception("PyWrap of DataArrayInt.__getnewargs__ : self is not allocated !");
+        PyObject *ret(PyTuple_New(1));
+        PyObject *ret0(PyDict_New());
+        PyObject *numpyArryObj(ParaMEDMEM_DataArrayInt_toNumPyArray(self));
+        {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
+          PyObject *tmp1(PyInt_FromLong(0));
+          PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
+          PyTuple_SetItem(ret,0,ret0);
+        }
+        return ret;
+#else
+        throw INTERP_KERNEL::Exception("PyWrap of DataArrayInt.__getnewargs__ : not implemented because numpy is not active in your configuration ! No serialization/unserialization available without numpy !");
+#endif
       }
     }
   };

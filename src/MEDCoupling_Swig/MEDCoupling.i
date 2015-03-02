@@ -20,6 +20,9 @@
 %include "MEDCouplingCommon.i"
 
 %pythoncode %{
+def ParaMEDMEMDataArrayDoublenew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDouble____new___(cls,args)
 def ParaMEDMEMDataArrayDoubleIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayDouble____iadd___(self, self, *args)
@@ -35,6 +38,9 @@ def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
 def ParaMEDMEMDataArrayDoubleIpow(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayDouble____ipow___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoublenew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldDouble____new___(cls,args)
 def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -50,6 +56,9 @@ def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
 def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
     import _MEDCoupling
     return _MEDCoupling.MEDCouplingFieldDouble____ipow___(self, self, *args)
+def ParaMEDMEMDataArrayIntnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____new___(cls,args)
 def ParaMEDMEMDataArrayIntIadd(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayInt____iadd___(self, self, *args)
@@ -101,6 +110,27 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DenseMatrix____isub___(self, self, *args)
+def ParaMEDMEMMEDCouplingUMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingUMesh____new___(cls,args)
+def ParaMEDMEMMEDCoupling1DGTUMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCoupling1DGTUMesh____new___(cls,args)
+def ParaMEDMEMMEDCoupling1SGTUMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCoupling1SGTUMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingCurveLinearMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingCurveLinearMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingCMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingCMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingIMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingIMesh____new___(cls,args)
+def ParaMEDMEMMEDCouplingExtrudedMeshnew(cls,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingExtrudedMesh____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"

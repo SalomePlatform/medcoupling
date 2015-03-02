@@ -350,6 +350,13 @@ void MEDCouplingFieldDiscretization::resizeForUnserialization(const std::vector<
 /*!
  * Empty : Not a bug
  */
+void MEDCouplingFieldDiscretization::checkForUnserialization(const std::vector<int>& tinyInfo, const DataArrayInt *arr)
+{
+}
+
+/*!
+ * Empty : Not a bug
+ */
 void MEDCouplingFieldDiscretization::finishUnserialization(const std::vector<double>& tinyInfo)
 {
 }
@@ -1609,18 +1616,24 @@ void MEDCouplingFieldDiscretizationGauss::resizeForUnserialization(const std::ve
   else
     _discr_per_cell=0;
   arr=_discr_per_cell;
-  int nbOfLoc=tinyInfo[1];
-  _loc.clear();
-  int dim=tinyInfo[2];
-  int delta=-1;
-  if(nbOfLoc>0)
-    delta=((int)tinyInfo.size()-3)/nbOfLoc;
-  for(int i=0;i<nbOfLoc;i++)
+  commonUnserialization(tinyInfo);
+}
+
+void MEDCouplingFieldDiscretizationGauss::checkForUnserialization(const std::vector<int>& tinyInfo, const DataArrayInt *arr)
+{
+  static const char MSG[]="MEDCouplingFieldDiscretizationGauss::checkForUnserialization : expect to have one not null DataArrayInt !";
+  int val=tinyInfo[0];
+  if(val>=0)
     {
-      std::vector<int> tmp(tinyInfo.begin()+3+i*delta,tinyInfo.begin()+3+(i+1)*delta);
-      MEDCouplingGaussLocalization elt=MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(dim,tmp);
-      _loc.push_back(elt);
+      if(!arr)
+        throw INTERP_KERNEL::Exception(MSG);
+      arr->checkNbOfTuplesAndComp(val,1,MSG);
+      _discr_per_cell=const_cast<DataArrayInt *>(arr);
+      _discr_per_cell->incrRef();
     }
+  else
+    _discr_per_cell=0;
+  commonUnserialization(tinyInfo);
 }
 
 void MEDCouplingFieldDiscretizationGauss::finishUnserialization(const std::vector<double>& tinyInfo)
@@ -2059,6 +2072,22 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
     if(tmp[i]!=-2)
       tmpLoc.push_back(_loc[i]);
   _loc=tmpLoc;
+}
+
+void MEDCouplingFieldDiscretizationGauss::commonUnserialization(const std::vector<int>& tinyInfo)
+{
+  int nbOfLoc=tinyInfo[1];
+  _loc.clear();
+  int dim=tinyInfo[2];
+  int delta=-1;
+  if(nbOfLoc>0)
+    delta=((int)tinyInfo.size()-3)/nbOfLoc;
+  for(int i=0;i<nbOfLoc;i++)
+    {
+      std::vector<int> tmp(tinyInfo.begin()+3+i*delta,tinyInfo.begin()+3+(i+1)*delta);
+      MEDCouplingGaussLocalization elt=MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(dim,tmp);
+      _loc.push_back(elt);
+    }
 }
 
 MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE()

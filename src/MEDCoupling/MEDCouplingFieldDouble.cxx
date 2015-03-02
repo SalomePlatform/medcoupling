@@ -2088,6 +2088,7 @@ void MEDCouplingFieldDouble::getTinySerializationDbleInformation(std::vector<dou
  * @param dataInt out parameter. If not null the pointer is already owned by \a this after the call of this method. In this case no decrRef must be applied.
  * @param arrays out parameter is a vector resized to the right size. The pointers in the vector is already owned by \a this after the call of this method.
  *               No decrRef must be applied to every instances in returned vector.
+ * \sa checkForUnserialization
  */
 void MEDCouplingFieldDouble::resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays)
 {
@@ -2102,6 +2103,25 @@ void MEDCouplingFieldDouble::resizeForUnserialization(const std::vector<int>& ti
   _time_discr->resizeForUnserialization(tinyInfoI2,arrays);
   std::vector<int> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
   _type->resizeForUnserialization(tinyInfoITmp3,dataInt);
+}
+
+/*!
+ * This method is extremely close to resizeForUnserialization except that here the arrays in \a dataInt and in \a arrays are attached in \a this
+ * after having checked that size is correct. This method is used in python pickeling context to avoid copy of data.
+ * \sa resizeForUnserialization
+ */
+void MEDCouplingFieldDouble::checkForUnserialization(const std::vector<int>& tinyInfoI, const DataArrayInt *dataInt, const std::vector<DataArrayDouble *>& arrays)
+{
+  if(!((const MEDCouplingFieldDiscretization *)_type))
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
+  std::vector<int> tinyInfoITmp(tinyInfoI);
+  int sz=tinyInfoITmp.back();
+  tinyInfoITmp.pop_back();
+  std::vector<int> tinyInfoITmp2(tinyInfoITmp.begin(),tinyInfoITmp.end()-sz);
+  std::vector<int> tinyInfoI2(tinyInfoITmp2.begin()+3,tinyInfoITmp2.end());
+  _time_discr->checkForUnserialization(tinyInfoI2,arrays);
+  std::vector<int> tinyInfoITmp3(tinyInfoITmp.end()-sz,tinyInfoITmp.end());
+  _type->checkForUnserialization(tinyInfoITmp3,dataInt);
 }
 
 void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)

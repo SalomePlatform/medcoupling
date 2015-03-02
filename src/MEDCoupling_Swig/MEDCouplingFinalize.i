@@ -18,12 +18,15 @@
 //
 
 %pythoncode %{
+InterpKernelException.__reduce__=INTERPKERNELExceptionReduce
+DataArrayDouble.__new__=classmethod(ParaMEDMEMDataArrayDoublenew)
 DataArrayDouble.__iadd__=ParaMEDMEMDataArrayDoubleIadd
 DataArrayDouble.__isub__=ParaMEDMEMDataArrayDoubleIsub
 DataArrayDouble.__imul__=ParaMEDMEMDataArrayDoubleImul
 DataArrayDouble.__idiv__=ParaMEDMEMDataArrayDoubleIdiv
 DataArrayDouble.__ipow__=ParaMEDMEMDataArrayDoubleIpow
 
+DataArrayInt.__new__=classmethod(ParaMEDMEMDataArrayIntnew)
 DataArrayInt.__iadd__=ParaMEDMEMDataArrayIntIadd
 DataArrayInt.__isub__=ParaMEDMEMDataArrayIntIsub
 DataArrayInt.__imul__=ParaMEDMEMDataArrayIntImul
@@ -51,6 +54,17 @@ DataArrayIntTuple.__imod__=ParaMEDMEMDataArrayIntTupleImod
 DenseMatrix.__iadd__=ParaMEDMEMDenseMatrixIadd
 DenseMatrix.__isub__=ParaMEDMEMDenseMatrixIsub
 
+MEDCouplingUMesh.__new__=classmethod(ParaMEDMEMMEDCouplingUMeshnew)
+MEDCoupling1DGTUMesh.__new__=classmethod(ParaMEDMEMMEDCoupling1DGTUMeshnew)
+MEDCoupling1SGTUMesh.__new__=classmethod(ParaMEDMEMMEDCoupling1SGTUMeshnew)
+MEDCouplingCurveLinearMesh.__new__=classmethod(ParaMEDMEMMEDCouplingCurveLinearMeshnew)
+MEDCouplingCMesh.__new__=classmethod(ParaMEDMEMMEDCouplingCMeshnew)
+MEDCouplingIMesh.__new__=classmethod(ParaMEDMEMMEDCouplingIMeshnew)
+MEDCouplingExtrudedMesh.__new__=classmethod(ParaMEDMEMMEDCouplingExtrudedMeshnew)
+MEDCouplingFieldDouble.__new__=classmethod(ParaMEDMEMMEDCouplingFieldDoublenew)
+
+del INTERPKERNELExceptionReduce
+del ParaMEDMEMDataArrayDoublenew
 del ParaMEDMEMDataArrayDoubleIadd
 del ParaMEDMEMDataArrayDoubleIsub
 del ParaMEDMEMDataArrayDoubleImul
@@ -60,6 +74,7 @@ del ParaMEDMEMMEDCouplingFieldDoubleIsub
 del ParaMEDMEMMEDCouplingFieldDoubleImul
 del ParaMEDMEMMEDCouplingFieldDoubleIdiv
 del ParaMEDMEMMEDCouplingFieldDoubleIpow
+del ParaMEDMEMDataArrayIntnew
 del ParaMEDMEMDataArrayIntIadd
 del ParaMEDMEMDataArrayIntIsub
 del ParaMEDMEMDataArrayIntImul
@@ -76,4 +91,12 @@ del ParaMEDMEMDataArrayIntTupleIdiv
 del ParaMEDMEMDataArrayIntTupleImod
 del ParaMEDMEMDenseMatrixIadd
 del ParaMEDMEMDenseMatrixIsub
+del ParaMEDMEMMEDCouplingUMeshnew
+del ParaMEDMEMMEDCoupling1DGTUMeshnew
+del ParaMEDMEMMEDCoupling1SGTUMeshnew
+del ParaMEDMEMMEDCouplingCurveLinearMeshnew
+del ParaMEDMEMMEDCouplingCMeshnew
+del ParaMEDMEMMEDCouplingIMeshnew
+del ParaMEDMEMMEDCouplingExtrudedMeshnew
+del ParaMEDMEMMEDCouplingFieldDoublenew
 %}

@@ -259,6 +259,9 @@ int MPI_Finalize();
   %}
 
 %pythoncode %{
+def ParaMEDMEMDataArrayDoublenew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDouble____new___(cls,args)
 def ParaMEDMEMDataArrayDoubleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDouble____iadd___(self, self, *args)
@@ -286,6 +289,9 @@ def ParaMEDMEMDataArrayDoubleTupleImul(self,*args):
 def ParaMEDMEMDataArrayDoubleTupleIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDoubleTuple____idiv___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoublenew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldDouble____new___(cls,args)
 def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____iadd___(self, self, *args)
@@ -301,6 +307,9 @@ def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
 def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____ipow___(self, self, *args)
+def ParaMEDMEMDataArrayIntnew(cls,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt____new___(cls,args)
 def ParaMEDMEMDataArrayIntIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayInt____iadd___(self, self, *args)

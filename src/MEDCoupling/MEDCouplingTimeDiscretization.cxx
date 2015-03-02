@@ -258,6 +258,24 @@ void MEDCouplingTimeDiscretization::resizeForUnserialization(const std::vector<i
   arrays[0]=arr;
 }
 
+void MEDCouplingTimeDiscretization::checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays)
+{
+  static const char MSG[]="MEDCouplingTimeDiscretization::checkForUnserialization : arrays in input is expected to have size one !";
+  if(arrays.size()!=1)
+    throw INTERP_KERNEL::Exception(MSG);
+  if(_array!=0)
+    _array->decrRef();
+  _array=0;
+  if(tinyInfoI[0]!=-1 && tinyInfoI[1]!=-1)
+    {
+      if(!arrays[0])
+        throw INTERP_KERNEL::Exception(MSG);
+      arrays[0]->checkNbOfTuplesAndComp(tinyInfoI[0],tinyInfoI[1],MSG);
+      _array=arrays[0];
+      _array->incrRef();
+    }
+}
+
 void MEDCouplingTimeDiscretization::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
 {
   _time_tolerance=tinyInfoD[0];
@@ -2463,6 +2481,32 @@ void MEDCouplingTwoTimeSteps::resizeForUnserialization(const std::vector<int>& t
     }
   _end_array=arr;
   arrays[1]=arr;
+}
+
+void MEDCouplingTwoTimeSteps::checkForUnserialization(const std::vector<int>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays)
+{
+  static const char MSG[]="MEDCouplingTimeDiscretization::checkForUnserialization : arrays in input is expected to have size two !";
+  if(arrays.size()!=2)
+    throw INTERP_KERNEL::Exception(MSG);
+  if(_array!=0)
+    _array->decrRef();
+  if(_end_array!=0)
+    _end_array->decrRef();
+  _array=0; _end_array=0;
+  if(tinyInfoI[0]!=-1 && tinyInfoI[1]!=-1)
+    {
+      if(!arrays[0])
+        throw INTERP_KERNEL::Exception(MSG);
+      arrays[0]->checkNbOfTuplesAndComp(tinyInfoI[0],tinyInfoI[1],MSG);
+      _array=arrays[0]; _array->incrRef();
+    }
+  if(tinyInfoI[6]!=-1 && tinyInfoI[7]!=-1)
+    {
+      if(!arrays[1])
+        throw INTERP_KERNEL::Exception(MSG);
+      arrays[1]->checkNbOfTuplesAndComp(tinyInfoI[0],tinyInfoI[1],MSG);
+      _end_array=arrays[1]; _end_array->incrRef();
+    }
 }
 
 void MEDCouplingTwoTimeSteps::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
