@@ -2782,6 +2782,12 @@ int MEDFileUMesh::getNumberOfNodes() const
   return coo->getNumberOfTuples();
 }
 
+int MEDFileUMesh::getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const
+{
+  const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  return l1->getNumberOfCells();
+}
+
 bool MEDFileUMesh::hasImplicitPart() const
 {
   return false;
@@ -3552,6 +3558,83 @@ DataArrayInt *MEDFileUMesh::zipCoords()
     {
       MEDCouplingAutoRefCountObjectPtr<PartDefinition> tmpPD(DataArrayPartDefinition::New(ret2));
       _part_coords=tmpPD->composeWith(pc);
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method performs an extrusion along a path defined by \a m1D.
+ * \a this is expected to be a mesh with max mesh dimension equal to 2.
+ * \a m1D is expected to be a mesh with space dimesion equal to 3 and mesh dimension equal to 1.
+ * Mesh dimensions of returned mesh is incremented by one compared to thoose in \a this.
+ * This method scans all levels in \a this
+ * and put them in the returned mesh. All groups in \a this are also put in the returned mesh.
+ *
+ * \param [in] m1D - the mesh defining the extrusion path.
+ * \param [in] policy - defines the policy of extrusion (see MEDCouplingUMesh::buildExtrudedMesh for more details)
+ * \return - a new reference on mesh (you have to deal with using decrRef). The returned mesh will have the same name than \a this.
+ *
+ * \sa MEDCouplingUMesh::buildExtrudedMesh
+ */
+MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildExtrudedMesh : this is expected to be with mesh dimension equal to 2 !");
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
+  m1D->checkCoherency();
+  if(m1D->getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildExtrudedMesh : input mesh must have a mesh dimension equal to one !");
+  int nbRep(m1D->getNumberOfCells());
+  std::vector<int> levs(getNonEmptyLevels());
+  std::vector<std::string> grps(getGroupsNames());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > zeList;
+  DataArrayDouble *coords(0);
+  for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> item(getMeshAtLevel(*lev));
+      item->changeSpaceDimension(3+(*lev),0.);//no problem non const but change DataArrayDouble for coordinates do not alter data
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp(static_cast<MEDCouplingUMesh *>(m1D->deepCpy()));
+      tmp->changeSpaceDimension(3+(*lev),0.);
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt(item->buildExtrudedMesh(tmp,policy));
+      zeList.push_back(elt);
+      if(*lev==0)
+        coords=elt->getCoords();
+    }
+  if(!coords)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildExtrudedMesh : internal error !");
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> >::iterator it=zeList.begin();it!=zeList.end();it++)
+    {
+      (*it)->setName(getName());
+      (*it)->setCoords(coords);
+    }
+  for(std::size_t ii=0;ii!=zeList.size();ii++)
+    {
+      int lev(levs[ii]);
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt(zeList[ii]);
+      int nbCellsB4Extrusion(getNumberOfCellsAtLevel(lev));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(elt->sortCellsInMEDFileFrmt());
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > outGrps;
+      std::vector< const DataArrayInt * > outGrps2;
+      for(std::vector<std::string>::const_iterator grp=grps.begin();grp!=grps.end();grp++)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArr(getGroupArr(lev,*grp));
+          if(grpArr->empty())
+            continue;
+          std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grpArrs(nbRep);
+          std::vector< const DataArrayInt *> grpArrs2(nbRep);
+          for(int iii=0;iii<nbRep;iii++)
+            {
+              grpArrs[iii]=grpArr->deepCpy(); grpArrs[iii]->applyLin(1,iii*nbCellsB4Extrusion);
+              grpArrs2[iii]=grpArrs[iii];
+            }
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArrExt(DataArrayInt::Aggregate(grpArrs2));
+          grpArrExt->transformWithIndArr(o2n->begin(),o2n->end());
+          grpArrExt->setName(*grp);
+          outGrps.push_back(grpArrExt);
+          outGrps2.push_back(grpArrExt);
+        }
+      ret->setMeshAtLevel(lev,elt);
+      ret->setGroupsAtLevel(lev,outGrps2);
     }
   return ret.retn();
 }

@@ -111,6 +111,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::extractFamilyFieldOnGeoType;
 %newobject ParaMEDMEM::MEDFileUMesh::extractNumberFieldOnGeoType;
 %newobject ParaMEDMEM::MEDFileUMesh::zipCoords;
+%newobject ParaMEDMEM::MEDFileUMesh::buildExtrudedMesh;
 %newobject ParaMEDMEM::MEDFileCMesh::New;
 %newobject ParaMEDMEM::MEDFileCurveLinearMesh::New;
 %newobject ParaMEDMEM::MEDFileMeshMultiTS::New;
@@ -767,6 +768,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getLevelM3Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
     void forceComputationOfParts() const throw(INTERP_KERNEL::Exception);
     //
+    int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     void eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
@@ -779,6 +781,7 @@ namespace ParaMEDMEM
     DataArrayInt *zipCoords() throw(INTERP_KERNEL::Exception);
     DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
+    MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const throw(INTERP_KERNEL::Exception);
     %extend
        { 
          MEDFileUMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)

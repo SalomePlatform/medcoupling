@@ -226,6 +226,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const PartDefinition *getPartDefAtLevel(int meshDimRelToMaxExt, INTERP_KERNEL::NormalizedCellType gt=INTERP_KERNEL::NORM_ERROR) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
+    MEDLOADER_EXPORT int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT bool hasImplicitPart() const;
     MEDLOADER_EXPORT int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDLOADER_EXPORT void releaseImplicitPartIfAny() const;
@@ -284,6 +285,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified);
     MEDLOADER_EXPORT bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell);
     MEDLOADER_EXPORT DataArrayInt *zipCoords();
+    MEDLOADER_EXPORT MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
   private:
     MEDLOADER_EXPORT ~MEDFileUMesh();
     void writeLL(med_idt fid) const;

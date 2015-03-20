@@ -915,6 +915,11 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
   return tmp.retn();
 }
 
+int MEDFileUMeshSplitL1::getNumberOfCells() const
+{
+  return _m_by_types.getNumberOfCells();
+}
+
 DataArrayInt *MEDFileUMeshSplitL1::extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const
 {
   const DataArrayInt *fam(_fam);
@@ -1205,6 +1210,16 @@ MEDCouplingUMesh *MEDFileUMeshAggregateCompute::getUmesh() const
   _m_parts.clear();//to avoid memory peak !
   _m_time=_mp_time+1;//+1 is important ! That is to say that only _m is OK not _m_parts because cleared !
   return _m;
+}
+
+int MEDFileUMeshAggregateCompute::getNumberOfCells() const
+{
+  if(_mp_time<=_m_time)
+    return _m->getNumberOfCells();
+  int ret(0);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+    ret+=(*it)->getNumberOfCells();
+  return ret;
 }
 
 std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshAggregateCompute::getGeoTypes() const

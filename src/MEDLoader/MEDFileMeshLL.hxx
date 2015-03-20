@@ -155,6 +155,7 @@ namespace ParaMEDMEM
     void assignDefParts(const std::vector<const PartDefinition *>& partDefs);
     void assignUMesh(MEDCouplingUMesh *m);
     MEDCouplingUMesh *getUmesh() const;
+    int getNumberOfCells() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
     std::vector<MEDCoupling1GTUMesh *> retrievePartsWithoutComputation() const;
@@ -215,6 +216,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
+    int getNumberOfCells() const;
     bool isMeshStoredSplitByType() const { return _m_by_types.isStoredSplitByType(); }
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.retrievePartsWithoutComputation(); }
