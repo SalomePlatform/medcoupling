@@ -50,7 +50,7 @@ SET (SWIG_MODULE_MEDLoader_EXTRA_DEPS ${MEDLoader_SWIG_DPYS_FILES}
     ${medloader_HEADERS_HXX}
     ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
-    
+
 SWIG_ADD_MODULE(MEDLoader python MEDLoader.i)
 SWIG_LINK_LIBRARIES(MEDLoader ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medloader medcoupling)
 IF(WIN32)
@@ -88,3 +88,13 @@ IF(NUMPY_FOUND)
   ADD_TEST(MEDLoaderCouplingTrainingSession ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDLoaderCouplingTrainingSession.py)
   SET_TESTS_PROPERTIES(MEDLoaderCouplingTrainingSession PROPERTIES ENVIRONMENT "${tests_env}")
 ENDIF(NUMPY_FOUND)
+
+# Application tests
+
+SET(TEST_INSTALL_DIRECTORY ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDLoader/Swig)
+
+INSTALL(FILES MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py MEDLoaderTest4.py SauvLoaderTest.py MEDLoaderExamplesTest.py MEDLoaderCouplingTrainingSession.py CaseIO.py CaseReader.py CaseWriter.py VTKReader.py MEDLoaderSplitter.py medutilities.py DESTINATION ${TEST_INSTALL_DIRECTORY})
+
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${TEST_INSTALL_DIRECTORY}
+        RENAME CTestTestfile.cmake)

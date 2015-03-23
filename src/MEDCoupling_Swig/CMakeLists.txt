@@ -30,7 +30,7 @@ SET (MEDCoupling_SWIG_DPYS_FILES
     MEDCouplingMemArray.i
     MEDCouplingFieldDiscretization.i
     MEDCouplingFinalize.i
-    MEDCouplingTypemaps.i)   
+    MEDCouplingTypemaps.i)
 
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
@@ -46,7 +46,7 @@ INCLUDE_DIRECTORIES(
   )
 
 # _ABR_ Ensure dependency mechanism on all SWIG files and headers
-SET (SWIG_MODULE_MEDCoupling_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES} 
+SET (SWIG_MODULE_MEDCoupling_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES}
     ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
 
@@ -93,3 +93,12 @@ IF(NUMPY_FOUND)
   ADD_TEST(MEDCouplingPickleTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingPickleTest.py)
   SET_TESTS_PROPERTIES(MEDCouplingPickleTest PROPERTIES ENVIRONMENT "${tests_env}")
 ENDIF(NUMPY_FOUND)
+
+# Application tests
+
+SET(TEST_INSTALL_DIRECTORY ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDCoupling_Swig)
+INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py MEDCouplingPickleTest.py MEDCouplingExamplesTest.py DESTINATION ${TEST_INSTALL_DIRECTORY})
+
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${TEST_INSTALL_DIRECTORY}
+        RENAME CTestTestfile.cmake)
