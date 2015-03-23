@@ -258,6 +258,50 @@ namespace ParaMEDMEM
       stream << "No data !\n";
   }
 
+  /*!
+   * \param [in] sl is typically the number of components
+   */
+  template<class T>
+  void MemArray<T>::reprNotTooLong(int sl, std::ostream& stream) const
+  {
+    if(reprHeader(sl,stream))
+      {
+        const T *data=getConstPointer();
+        if(_nb_of_elem!=0 && sl!=0)
+          {
+            std::size_t nbOfTuples=_nb_of_elem/std::abs(sl);
+            if(nbOfTuples<=1000)
+              {
+                for(std::size_t i=0;i<nbOfTuples;i++)
+                  {
+                    stream << "Tuple #" << i << " : ";
+                    std::copy(data,data+sl,std::ostream_iterator<T>(stream," "));
+                    stream << "\n";
+                    data+=sl;
+                  }
+              }
+            else
+              {// too much tuples -> print the 3 first tuples and 3 last.
+                stream << "Tuple #0 : ";
+                std::copy(data,data+sl,std::ostream_iterator<T>(stream," ")); stream << "\n";
+                stream << "Tuple #1 : ";
+                std::copy(data+sl,data+2*sl,std::ostream_iterator<T>(stream," ")); stream << "\n";
+                stream << "Tuple #2 : ";
+                std::copy(data+2*sl,data+3*sl,std::ostream_iterator<T>(stream," ")); stream << "\n";
+                stream << "...\n";
+                stream << "Tuple #" << nbOfTuples-3 << " : ";
+                std::copy(data+(nbOfTuples-3)*sl,data+(nbOfTuples-2)*sl,std::ostream_iterator<T>(stream," ")); stream << "\n";
+                stream << "Tuple #" << nbOfTuples-2 << " : ";
+                std::copy(data+(nbOfTuples-2)*sl,data+(nbOfTuples-1)*sl,std::ostream_iterator<T>(stream," ")); stream << "\n";
+                stream << "Tuple #" << nbOfTuples-1 << " : ";
+                std::copy(data+(nbOfTuples-1)*sl,data+nbOfTuples*sl,std::ostream_iterator<T>(stream," ")); stream << "\n";
+              }
+          }
+        else
+          stream << "Empty Data\n";
+      }
+  }
+
   template<class T>
   void MemArray<T>::fillWithValue(const T& val)
   {

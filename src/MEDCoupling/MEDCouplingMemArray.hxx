@@ -71,6 +71,7 @@ namespace ParaMEDMEM
     void repr(int sl, std::ostream& stream) const;
     bool reprHeader(int sl, std::ostream& stream) const;
     void reprZip(int sl, std::ostream& stream) const;
+    void reprNotTooLong(int sl, std::ostream& stream) const;
     void fillWithValue(const T& val);
     T *fromNoInterlace(int nbOfComp) const;
     T *toNoInterlace(int nbOfComp) const;
@@ -228,11 +229,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const;
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
+    MEDCOUPLING_EXPORT std::string reprNotTooLong() const;
     MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const std::string& nameInFile, DataArrayByte *byteArr) const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprNotTooLongStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprNotTooLongWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;
@@ -467,11 +471,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void iota(int init=0);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
+    MEDCOUPLING_EXPORT std::string reprNotTooLong() const;
     MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprNotTooLongStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprNotTooLongWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprCppStream(const std::string& varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const;

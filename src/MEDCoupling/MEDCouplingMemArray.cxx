@@ -1146,7 +1146,9 @@ bool DataArrayDouble::isMonotonic(bool increasing, double eps) const
 /*!
  * Returns a textual and human readable representation of \a this instance of
  * DataArrayDouble. This text is shown when a DataArrayDouble is printed in Python.
- *  \return std::string - text describing \a this DataArrayDouble.
+ * \return std::string - text describing \a this DataArrayDouble.
+ *
+ * \sa reprNotTooLong, reprZip
  */
 std::string DataArrayDouble::repr() const
 {
@@ -1159,6 +1161,18 @@ std::string DataArrayDouble::reprZip() const
 {
   std::ostringstream ret;
   reprZipStream(ret);
+  return ret.str();
+}
+
+/*!
+ * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
+ * printed out to avoid to consume too much space in interpretor.
+ * \sa repr
+ */
+std::string DataArrayDouble::reprNotTooLong() const
+{
+  std::ostringstream ret;
+  reprNotTooLongStream(ret);
   return ret.str();
 }
 
@@ -1211,6 +1225,12 @@ void DataArrayDouble::reprZipStream(std::ostream& stream) const
   reprZipWithoutNameStream(stream);
 }
 
+void DataArrayDouble::reprNotTooLongStream(std::ostream& stream) const
+{
+  stream << "Name of double array : \"" << _name << "\"\n";
+  reprNotTooLongWithoutNameStream(stream);
+}
+
 void DataArrayDouble::reprWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
@@ -1223,6 +1243,13 @@ void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
   DataArray::reprWithoutNameStream(stream);
   stream.precision(17);
   _mem.reprZip(getNumberOfComponents(),stream);
+}
+
+void DataArrayDouble::reprNotTooLongWithoutNameStream(std::ostream& stream) const
+{
+  DataArray::reprWithoutNameStream(stream);
+  stream.precision(17);
+  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 void DataArrayDouble::reprCppStream(const std::string& varName, std::ostream& stream) const
@@ -6188,7 +6215,9 @@ void DataArrayInt::iota(int init)
 /*!
  * Returns a textual and human readable representation of \a this instance of
  * DataArrayInt. This text is shown when a DataArrayInt is printed in Python.
- *  \return std::string - text describing \a this DataArrayInt.
+ * \return std::string - text describing \a this DataArrayInt.
+ * 
+ * \sa reprNotTooLong, reprZip
  */
 std::string DataArrayInt::repr() const
 {
@@ -6201,6 +6230,18 @@ std::string DataArrayInt::reprZip() const
 {
   std::ostringstream ret;
   reprZipStream(ret);
+  return ret.str();
+}
+
+/*!
+ * This method is close to repr method except that when \a this has more than 1000 tuples, all tuples are not
+ * printed out to avoid to consume too much space in interpretor.
+ * \sa repr
+ */
+std::string DataArrayInt::reprNotTooLong() const
+{
+  std::ostringstream ret;
+  reprNotTooLongStream(ret);
   return ret.str();
 }
 
@@ -6257,6 +6298,12 @@ void DataArrayInt::reprZipStream(std::ostream& stream) const
   reprZipWithoutNameStream(stream);
 }
 
+void DataArrayInt::reprNotTooLongStream(std::ostream& stream) const
+{
+  stream << "Name of int array : \"" << _name << "\"\n";
+  reprNotTooLongWithoutNameStream(stream);
+}
+
 void DataArrayInt::reprWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
@@ -6267,6 +6314,13 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
   _mem.reprZip(getNumberOfComponents(),stream);
+}
+
+void DataArrayInt::reprNotTooLongWithoutNameStream(std::ostream& stream) const
+{
+  DataArray::reprWithoutNameStream(stream);
+  stream.precision(17);
+  _mem.reprNotTooLong(getNumberOfComponents(),stream);
 }
 
 void DataArrayInt::reprCppStream(const std::string& varName, std::ostream& stream) const

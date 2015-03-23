@@ -16365,6 +16365,31 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,m.getLocationFromCellId,5)
         self.assertRaises(InterpKernelException,m.getLocationFromCellId,-1)
         pass
+
+    def testSwig2DataArrayPrintNotTooLong1(self):
+        """ Now that DataArrayDouble and DataArrayInt and pickelized they can appear in YACS ports. Avoid to have too heavy string representation of them."""
+        d=DataArrayDouble(2000) ; d.iota() ; d.rearrange(2)
+        st0=d.repr() ; st1=str(d) ; st2=d.reprNotTooLong()
+        self.assertEqual(st0,st1) # 1000 tuples ( >=0 and <= 1000) -> str(d)==d.repr()
+        self.assertEqual(st1,st2)
+        #
+        d=DataArrayDouble(2002) ; d.iota() ; d.rearrange(2)
+        st0=d.repr() ; st1=str(d) ; st2=d.reprNotTooLong()
+        self.assertNotEqual(st0,st1) # 1001 tuples ( > 1000) -> str(d)==d.reprNotTooLong()
+        self.assertEqual(st1,st2)
+        self.assertIn(len(st2),xrange(0,1000)) # no more than 1000 characters
+        ## Now for DataArrayInt
+        d=DataArrayInt(2000) ; d.iota() ; d.rearrange(2)
+        st0=d.repr() ; st1=str(d) ; st2=d.reprNotTooLong()
+        self.assertEqual(st0,st1) # 1000 tuples ( >=0 and <= 1000) -> str(d)==d.repr()
+        self.assertEqual(st1,st2)
+        #
+        d=DataArrayInt(2002) ; d.iota() ; d.rearrange(2)
+        st0=d.repr() ; st1=str(d) ; st2=d.reprNotTooLong()
+        self.assertNotEqual(st0,st1) # 1001 tuples ( > 1000) -> str(d)==d.reprNotTooLong()
+        self.assertEqual(st1,st2)
+        self.assertIn(len(st2),xrange(0,1000)) # no more than 1000 characters
+        pass
     pass
 
 if __name__ == '__main__':

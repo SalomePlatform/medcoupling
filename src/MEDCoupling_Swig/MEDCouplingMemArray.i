@@ -540,6 +540,7 @@ namespace ParaMEDMEM
     bool isMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
     std::string repr() const throw(INTERP_KERNEL::Exception);
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
+    std::string reprNotTooLong() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
@@ -752,7 +753,7 @@ namespace ParaMEDMEM
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
-        return self->repr();
+        return self->reprNotTooLong();
       }
 
       double __float__() const throw(INTERP_KERNEL::Exception)
@@ -2600,6 +2601,7 @@ namespace ParaMEDMEM
     void replaceOneValByInThis(int valToBeReplaced, int replacedBy) throw(INTERP_KERNEL::Exception);
     std::string repr() const throw(INTERP_KERNEL::Exception);
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
+    std::string reprNotTooLong() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *invertArrayO2N2N2OBis(int newNbOfElem) const throw(INTERP_KERNEL::Exception);
@@ -2806,7 +2808,7 @@ namespace ParaMEDMEM
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
       {
-        return self->repr();
+        return self->reprNotTooLong();
       }
 
       int __len__() const throw(INTERP_KERNEL::Exception)
