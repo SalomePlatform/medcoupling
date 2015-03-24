@@ -3589,9 +3589,12 @@ MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int p
   std::vector<std::string> grps(getGroupsNames());
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > zeList;
   DataArrayDouble *coords(0);
+  std::size_t nbOfLevsOut(levs.size()+1);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > o2ns(nbOfLevsOut);
   for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> item(getMeshAtLevel(*lev));
+      item=item->clone(false);
       item->changeSpaceDimension(3+(*lev),0.);//no problem non const but change DataArrayDouble for coordinates do not alter data
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp(static_cast<MEDCouplingUMesh *>(m1D->deepCpy()));
       tmp->changeSpaceDimension(3+(*lev),0.);
@@ -3612,30 +3615,97 @@ MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int p
       int lev(levs[ii]);
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt(zeList[ii]);
       int nbCellsB4Extrusion(getNumberOfCellsAtLevel(lev));
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(elt->sortCellsInMEDFileFrmt());
+      if(lev<=-1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt1(getMeshAtLevel(lev+1));
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt2(elt1->clone(false));
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(elt2->getNodalConnectivity()->deepCpy());
+          elt2->setConnectivity(tmp,elt2->getNodalConnectivityIndex());
+          elt2->shiftNodeNumbersInConn(nbRep*elt1->getNumberOfNodes());
+          elt1->setCoords(elt->getCoords()); elt2->setCoords(elt->getCoords());
+          std::vector<const MEDCouplingUMesh *> elts(3);
+          elts[0]=elt; elts[1]=elt1; elts[2]=elt2;
+          elt=MEDCouplingUMesh::MergeUMeshesOnSameCoords(elts);
+          elt->setName(getName());
+        }
+      //
+      o2ns[ii]=elt->sortCellsInMEDFileFrmt();
+      ret->setMeshAtLevel(lev,elt);
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> endLev(getMeshAtLevel(levs.back())),endLev2;
+  endLev=endLev->clone(false); endLev->setCoords(coords);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(endLev->getNodalConnectivity()->deepCpy());
+  endLev2=endLev->clone(false); endLev2->setConnectivity(tmp,endLev->getNodalConnectivityIndex());
+  endLev2->shiftNodeNumbersInConn(nbRep*getNumberOfNodes());
+  endLev=MEDCouplingUMesh::MergeUMeshesOnSameCoords(endLev,endLev2);
+  o2ns[levs.size()]=endLev->sortCellsInMEDFileFrmt();
+  endLev->setName(getName());
+  ret->setMeshAtLevel(levs.back()-1,endLev);
+  //
+  for(std::size_t ii=0;ii!=zeList.size();ii++)
+    {
+      int lev(levs[ii]);
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > outGrps;
       std::vector< const DataArrayInt * > outGrps2;
+      if(lev<=-1)
+        {
+          for(std::vector<std::string>::const_iterator grp=grps.begin();grp!=grps.end();grp++)
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArr(getGroupArr(lev+1,*grp));
+              if(!grpArr->empty())
+                {
+                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArr1(grpArr->deepCpy()),grpArr2(grpArr->deepCpy());
+                  int offset0(zeList[ii]->getNumberOfCells());
+                  int offset1(offset0+getNumberOfCellsAtLevel(lev+1));
+                  grpArr1->applyLin(1,offset0); grpArr2->applyLin(1,offset1);
+                  std::ostringstream oss; oss << grpArr2->getName() << "_top";
+                  grpArr2->setName(oss.str());
+                  grpArr1->transformWithIndArr(o2ns[ii]->begin(),o2ns[ii]->end());
+                  grpArr2->transformWithIndArr(o2ns[ii]->begin(),o2ns[ii]->end());
+                  outGrps.push_back(grpArr1); outGrps.push_back(grpArr2);
+                  outGrps2.push_back(grpArr1); outGrps2.push_back(grpArr2);
+                }
+            }
+        }
+      //
       for(std::vector<std::string>::const_iterator grp=grps.begin();grp!=grps.end();grp++)
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArr(getGroupArr(lev,*grp));
-          if(grpArr->empty())
-            continue;
-          std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grpArrs(nbRep);
-          std::vector< const DataArrayInt *> grpArrs2(nbRep);
-          for(int iii=0;iii<nbRep;iii++)
+          if(!grpArr->empty())
             {
-              grpArrs[iii]=grpArr->deepCpy(); grpArrs[iii]->applyLin(1,iii*nbCellsB4Extrusion);
-              grpArrs2[iii]=grpArrs[iii];
+              int nbCellsB4Extrusion(getNumberOfCellsAtLevel(lev));
+              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grpArrs(nbRep);
+              std::vector< const DataArrayInt *> grpArrs2(nbRep);
+              for(int iii=0;iii<nbRep;iii++)
+                {
+                  grpArrs[iii]=grpArr->deepCpy(); grpArrs[iii]->applyLin(1,iii*nbCellsB4Extrusion);
+                  grpArrs2[iii]=grpArrs[iii];
+                }
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArrExt(DataArrayInt::Aggregate(grpArrs2));
+              grpArrExt->transformWithIndArr(o2ns[ii]->begin(),o2ns[ii]->end());
+              std::ostringstream grpName; grpName << *grp << "_extruded";
+              grpArrExt->setName(grpName.str());
+              outGrps.push_back(grpArrExt);
+              outGrps2.push_back(grpArrExt);
             }
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArrExt(DataArrayInt::Aggregate(grpArrs2));
-          grpArrExt->transformWithIndArr(o2n->begin(),o2n->end());
-          grpArrExt->setName(*grp);
-          outGrps.push_back(grpArrExt);
-          outGrps2.push_back(grpArrExt);
         }
-      ret->setMeshAtLevel(lev,elt);
       ret->setGroupsAtLevel(lev,outGrps2);
     }
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > outGrps;
+  std::vector< const DataArrayInt * > outGrps2;
+  for(std::vector<std::string>::const_iterator grp=grps.begin();grp!=grps.end();grp++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArr1(getGroupArr(levs.back(),*grp));
+      if(grpArr1->empty())
+        continue;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpArr2(grpArr1->deepCpy());
+      std::ostringstream grpName; grpName << *grp << "_top";
+      grpArr2->setName(grpName.str());
+      grpArr2->applyLin(1,getNumberOfCellsAtLevel(levs.back()));
+      outGrps.push_back(grpArr1); outGrps.push_back(grpArr2);
+      outGrps2.push_back(grpArr1); outGrps2.push_back(grpArr2);
+    }
+  ret->setGroupsAtLevel(levs.back()-1,outGrps2);
   return ret.retn();
 }
 

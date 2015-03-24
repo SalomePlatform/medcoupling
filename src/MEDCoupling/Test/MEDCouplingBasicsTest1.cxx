@@ -1140,6 +1140,7 @@ void MEDCouplingBasicsTest1::testExtrudedMesh4()
   double center[3]={0.,0.,0.};
   double vector[3]={0.,1.,0.};
   m2->rotate(center,vector,-M_PI/2.);
+  m1->zipCoords();
   MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   const int expected1[15]= {1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
   const int rexpected1[15]={3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12};
@@ -1159,6 +1160,7 @@ void MEDCouplingBasicsTest1::testExtrudedMesh4()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[rexpected1[i]],arrPtr[i],1e-16);
   f->decrRef();
   MEDCouplingUMesh *m5=m4->build3DUnstructuredMesh();
+  m5->zipCoords();
   CPPUNIT_ASSERT(m5->isEqual(m3,1e-12));
   f=m5->getMeasureField(true);
   arr=f->getArray();

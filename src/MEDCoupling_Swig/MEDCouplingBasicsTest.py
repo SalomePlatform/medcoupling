@@ -779,6 +779,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         center=[0.,0.,0.]
         vector=[0.,1.,0.]
         m2.rotate(center,vector,-pi/2.);
+        m1.zipCoords()
         m3=m1.buildExtrudedMesh(m2,0);
         expected1=[1,3,2,0,6,5,7,10,11,8,12,9,14,13,4]
         rexpected1=[3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12]
@@ -800,6 +801,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],16);
             pass
         m5=m4.build3DUnstructuredMesh();
+        m5.zipCoords()
         self.assertTrue(m5.isEqual(m3,1e-12));
         f=m5.getMeasureField(True);
         f.setMesh(m4)
@@ -16389,6 +16391,25 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertNotEqual(st0,st1) # 1001 tuples ( > 1000) -> str(d)==d.reprNotTooLong()
         self.assertEqual(st1,st2)
         self.assertIn(len(st2),xrange(0,1000)) # no more than 1000 characters
+        pass
+
+    def testExtrudedMeshWithoutZipCoords1(self):
+        """This test checks that MEDCouplingUMesh.buildExtrudedMesh do not perform a zipCoords."""
+        arr=DataArrayDouble([(0.,0.),(1.,0.),(2.,0.),(3.,0.)])
+        m=MEDCouplingUMesh("mesh",1) ; m.setCoords(arr)
+        m.allocateCells()
+        m.insertNextCell(NORM_SEG2,[1,2])
+        arr1D=DataArrayDouble([(0.,0.),(0.,1.5),(0.,2.)])
+        m1D=MEDCouplingUMesh("mesh1D",1) ; m1D.setCoords(arr1D)
+        m1D.allocateCells()
+        m1D.insertNextCell(NORM_SEG2,[0,1])
+        m1D.insertNextCell(NORM_SEG2,[1,2])
+        m2D=m.buildExtrudedMesh(m1D,0)
+        self.assertEqual(m.getCoords().getHiddenCppPointer(),m2D.getCoords().getHiddenCppPointer())
+        coo=DataArrayDouble([(0,0),(1,0),(2,0),(3,0),(0,1.5),(1,1.5),(2,1.5),(3,1.5),(0,2),(1,2),(2,2),(3,2)])
+        self.assertTrue(m.getCoords().isEqual(coo,1e-12))
+        self.assertTrue(m2D.getNodalConnectivity().isEqual(DataArrayInt([4,1,2,6,5,4,5,6,10,9])))
+        self.assertTrue(m2D.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10])))
         pass
     pass
 

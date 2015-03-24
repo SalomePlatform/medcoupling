@@ -4628,7 +4628,6 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *me
       else
         throw INTERP_KERNEL::Exception("Invalid 2D mesh and 1D mesh because 2D mesh has quadratic cells and 1D is not fully quadratic !");
     }
-  zipCoords();
   int oldNbOfNodes=getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords;
   switch(policy)
