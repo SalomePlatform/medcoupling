@@ -2068,6 +2068,8 @@ MEDFileMesh *MEDFileUMesh::deepCpy() const
       if((const MEDFileUMeshSplitL1 *)(*it))
         ret->_ms[i]=(*it)->deepCpy(ret->_coords);
     }
+  if((const PartDefinition*)_part_coords)
+    ret->_part_coords=_part_coords->deepCpy();
   return ret.retn();
 }
 
@@ -2176,7 +2178,15 @@ bool MEDFileUMesh::isEqual(const MEDFileMesh *other, double eps, std::string& wh
             return false;
         }
     }
-  return true;
+  const PartDefinition *pd0(_part_coords),*pd1(otherC->_part_coords);
+  if(!pd0 && !pd1)
+    return true;
+  if((!pd0 && pd1) || (pd0 && !pd1))
+    {
+      what=std::string("node part def is defined only for one among this or other !");
+      return false;
+    }
+  return pd0->isEqual(pd1,what);
 }
 
 /*!
@@ -3707,6 +3717,137 @@ MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int p
     }
   ret->setGroupsAtLevel(levs.back()-1,outGrps2);
   return ret.retn();
+}
+
+void MEDFileUMesh::serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI, MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& bigArrayD)
+{
+  clearNonDiscrAttributes();
+  forceComputationOfParts();
+  tinyDouble.clear(); tinyInt.clear(); tinyStr.clear(); bigArraysI.clear(); bigArrayD=0;
+  std::vector<int> layer0;
+  layer0.push_back(_order); //0 i
+  layer0.push_back(_iteration);//1 i
+  layer0.push_back(getSpaceDimension());//2 i
+  tinyDouble.push_back(_time);//0 d
+  tinyStr.push_back(_name);//0 s
+  tinyStr.push_back(_desc_name);//1 s
+  for(int i=0;i<getSpaceDimension();i++)
+    tinyStr.push_back(_coords->getInfoOnComponent(i));
+  layer0.push_back((int)_families.size());//3 i <- key info aa layer#0
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      tinyStr.push_back((*it).first);
+      layer0.push_back((*it).second);
+    }
+  layer0.push_back((int)_groups.size());//3+aa i <- key info bb layer#0
+  for(std::map<std::string, std::vector<std::string> >::const_iterator it0=_groups.begin();it0!=_groups.end();it0++)
+    {
+      layer0.push_back((int)(*it0).second.size());
+      tinyStr.push_back((*it0).first);
+      for(std::vector<std::string>::const_iterator it1=((*it0).second).begin();it1!=((*it0).second).end();it1++)
+        tinyStr.push_back(*it1);
+    }
+  // sizeof(layer0)==3+aa+1+bb layer#0
+  bigArrayD=_coords;// 0 bd
+  bigArraysI.push_back(_fam_coords);// 0 bi
+  bigArraysI.push_back(_num_coords);// 1 bi
+  const PartDefinition *pd(_part_coords);
+  if(!pd)
+    layer0.push_back(-1);
+  else
+    {
+      std::vector<int> tmp0;
+      pd->serialize(tmp0,bigArraysI);
+      tinyInt.push_back(tmp0.size());
+      tinyInt.insert(tinyInt.end(),tmp0.begin(),tmp0.end());
+    }
+  //
+  std::vector<int> layer1;
+  std::vector<int> levs(getNonEmptyLevels());
+  layer1.push_back((int)levs.size());// 0 i <- key
+  layer1.insert(layer1.end(),levs.begin(),levs.end());
+  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+    {
+      const MEDFileUMeshSplitL1 *lev(getMeshAtLevSafe(*it));
+      lev->serialize(layer1,bigArraysI);
+    }
+  // put layers all together.
+  tinyInt.push_back(layer0.size());
+  tinyInt.insert(tinyInt.end(),layer0.begin(),layer0.end());
+  tinyInt.push_back(layer1.size());
+  tinyInt.insert(tinyInt.end(),layer1.begin(),layer1.end());
+}
+
+void MEDFileUMesh::unserialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr,
+                               std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI, MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& bigArrayD)
+{
+  int sz0(tinyInt[0]);
+  std::vector<int> layer0(tinyInt.begin()+1,tinyInt.begin()+1+sz0);
+  int sz1(tinyInt[sz0+1]);
+  std::vector<int> layer1(tinyInt.begin()+2+sz0,tinyInt.begin()+2+sz0+sz1);
+  //
+  std::reverse(layer0.begin(),layer0.end());
+  std::reverse(layer1.begin(),layer1.end());
+  std::reverse(tinyDouble.begin(),tinyDouble.end());
+  std::reverse(tinyStr.begin(),tinyStr.end());
+  std::reverse(bigArraysI.begin(),bigArraysI.end());
+  //
+  _order=layer0.back(); layer0.pop_back();
+  _iteration=layer0.back(); layer0.pop_back();
+  int spaceDim(layer0.back()); layer0.pop_back();
+  _time=tinyDouble.back(); tinyDouble.pop_back();
+  _name=tinyStr.back(); tinyStr.pop_back();
+  _desc_name=tinyStr.back(); tinyStr.pop_back();
+  _coords=bigArrayD; _coords->rearrange(spaceDim);
+  for(int i=0;i<spaceDim;i++)
+    {
+      _coords->setInfoOnComponent(i,tinyStr.back());
+      tinyStr.pop_back();
+    }
+  int nbOfFams(layer0.back()); layer0.pop_back();
+  _families.clear();
+  for(int i=0;i<nbOfFams;i++)
+    {
+      _families[tinyStr.back()]=layer0.back();
+      tinyStr.pop_back(); layer0.pop_back();
+    }
+  int nbGroups(layer0.back()); layer0.pop_back();
+  _groups.clear();
+  for(int i=0;i<nbGroups;i++)
+    {
+      std::string grpName(tinyStr.back()); tinyStr.pop_back();
+      int nbOfFamsOnGrp(layer0.back()); layer0.pop_back();
+      std::vector<std::string> fams(nbOfFamsOnGrp);
+      for(int j=0;j<nbOfFamsOnGrp;j++)
+        {
+          fams[j]=tinyStr.back(); tinyStr.pop_back();
+        }
+      _groups[grpName]=fams;
+    }
+  _fam_coords=bigArraysI.back(); bigArraysI.pop_back();
+  _num_coords=bigArraysI.back(); bigArraysI.pop_back();
+  _part_coords=0;
+  int isPd(layer0.back()); layer0.pop_back();
+  if(isPd!=-1)
+    {
+      std::vector<int> tmp0(layer0.begin(),layer0.begin()+isPd);
+      layer0.erase(layer0.begin(),layer0.begin()+isPd);
+      _part_coords=PartDefinition::Unserialize(tmp0,bigArraysI);
+    }
+  if(!layer0.empty())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::unserialize : something wrong during unserialization #1 !");
+  //
+  int nbLevs(layer1.back()); layer1.pop_back();
+  std::vector<int> levs(layer1.rbegin(),layer1.rbegin()+nbLevs); layer1.erase(layer1.end()-nbLevs,layer1.end());
+  _ms.clear();
+  int maxLev(-(*std::min_element(levs.begin(),levs.end())));
+  _ms.resize(maxLev+1);
+  for(int i=0;i<nbLevs;i++)
+    {
+      int lev(levs[i]);
+      int pos(-lev);
+      _ms[pos]=MEDFileUMeshSplitL1::Unserialize(_name,_coords,layer1,bigArraysI);
+    }
 }
 
 /*!

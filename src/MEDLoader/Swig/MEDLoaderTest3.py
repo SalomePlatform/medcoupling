@@ -3942,6 +3942,98 @@ class MEDLoaderTest(unittest.TestCase):
         mm3D.setName("MeshExtruded")
         mm3D.write(fileName,0)
         pass
+
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def testMEDFileUMeshPickeling1(self):
+        import cPickle
+        outFileName="Pyfile86.med"
+        c=DataArrayDouble([-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ],9,2)
+        c.setInfoOnComponents(["aa","bbb"])
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
+        m=MEDCouplingUMesh();
+        m.setMeshDimension(2);
+        m.allocateCells(5);
+        m.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+        m.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+        m.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        m.insertNextCell(NORM_POLYGON,4,targetConn[10:14])
+        m.insertNextCell(NORM_POLYGON,4,targetConn[14:18])
+        m.finishInsertingCells();
+        m.setCoords(c)
+        m.checkCoherency()
+        m1=MEDCouplingUMesh.New();
+        m1.setMeshDimension(1);
+        m1.allocateCells(3);
+        m1.insertNextCell(NORM_SEG2,2,[1,4])
+        m1.insertNextCell(NORM_SEG2,2,[3,6])
+        m1.insertNextCell(NORM_SEG3,3,[2,8,5])
+        m1.finishInsertingCells();
+        m1.setCoords(c)
+        m1.checkCoherency()
+        m2=MEDCouplingUMesh.New();
+        m2.setMeshDimension(0);
+        m2.allocateCells(4);
+        m2.insertNextCell(NORM_POINT1,1,[1])
+        m2.insertNextCell(NORM_POINT1,1,[3])
+        m2.insertNextCell(NORM_POINT1,1,[2])
+        m2.insertNextCell(NORM_POINT1,1,[6])
+        m2.finishInsertingCells();
+        m2.setCoords(c)
+        m2.checkCoherency()
+        #
+        mm=MEDFileUMesh.New()
+        self.assertTrue(mm.getUnivNameWrStatus())
+        mm.setName("MyFirstMEDCouplingMEDmesh")
+        mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
+        mm.setCoords(c)
+        mm.setMeshAtLevel(-1,m1);
+        mm.setMeshAtLevel(0,m);
+        mm.setRenumFieldArr(0,DataArrayInt([32,41,50,56,7]))
+        mm.setMeshAtLevel(-2,m2);
+        mm.setRenumFieldArr(-2,DataArrayInt([102,52,45,63]))
+        # playing with groups
+        g1_2=DataArrayInt.New()
+        g1_2.setValues([1,3],2,1)
+        g1_2.setName("G1")
+        g2_2=DataArrayInt.New()
+        g2_2.setValues([1,2,3],3,1)
+        g2_2.setName("G2")
+        mm.setGroupsAtLevel(0,[g1_2,g2_2],False)
+        g1_1=DataArrayInt.New()
+        g1_1.setValues([0,1,2],3,1)
+        g1_1.setName("G1")
+        g2_1=DataArrayInt.New()
+        g2_1.setValues([0,2],2,1)
+        g2_1.setName("G2")
+        mm.setGroupsAtLevel(-1,[g1_1,g2_1],False)
+        g1_N=DataArrayInt.New()
+        g1_N.setValues(range(8),8,1)
+        g1_N.setName("G1")
+        g2_N=DataArrayInt.New()
+        g2_N.setValues(range(9),9,1)
+        g2_N.setName("G2")
+        mm.setGroupsAtLevel(1,[g1_N,g2_N],False)
+        mm.createGroupOnAll(0,"GrpOnAllCell")
+        # check content of mm
+        t=mm.getGroupArr(0,"G1",False)
+        self.assertTrue(g1_2.isEqual(t));
+        t=mm.getGroupArr(0,"G2",False)
+        self.assertTrue(g2_2.isEqual(t));
+        t=mm.getGroupArr(-1,"G1",False)
+        self.assertTrue(g1_1.isEqual(t));
+        t=mm.getGroupArr(-1,"G2",False)
+        self.assertTrue(g2_1.isEqual(t));
+        t=mm.getGroupArr(1,"G1",False)
+        self.assertTrue(g1_N.isEqual(t));
+        t=mm.getGroupArr(1,"G2",False)
+        self.assertTrue(g2_N.isEqual(t));
+        self.assertTrue(mm.existsGroup("GrpOnAllCell"));
+        t=mm.getGroupArr(0,"GrpOnAllCell")
+        #
+        st=cPickle.dumps(mm,cPickle.HIGHEST_PROTOCOL)
+        mm2=cPickle.loads(st)
+        self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+        pass
     pass
 
 unittest.main()

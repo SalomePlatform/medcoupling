@@ -799,6 +799,12 @@ namespace ParaMEDMEM
            return MEDFileUMesh::New();
          }
 
+         // serialization
+         static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
+         {
+           return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDFileUMesh");
+         }
+
          static MEDFileUMesh *LoadPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<int>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)
          {
            std::vector<int> typesCpp1;
@@ -808,6 +814,90 @@ namespace ParaMEDMEM
            for(std::size_t ii=0;ii<sz;ii++)
              typesCpp2[ii]=(INTERP_KERNEL::NormalizedCellType)typesCpp1[ii];
            return MEDFileUMesh::LoadPartOf(fileName,mName,typesCpp2,slicPerTyp,dt,it,mrs);
+         }
+
+         PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
+         {// put an empty dict in input to say to __new__ to call __init__...
+           PyObject *ret(PyTuple_New(1));
+           PyObject *ret0(PyDict_New());
+           PyTuple_SetItem(ret,0,ret0);
+           return ret;
+         }
+
+         PyObject *__getstate__() throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<double> a0;
+           std::vector<int> a1;
+           std::vector<std::string> a2;
+           std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a3;
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a4;
+           self->serialize(a0,a1,a2,a3,a4);
+           PyObject *ret(PyTuple_New(5));
+           PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
+           PyTuple_SetItem(ret,1,convertIntArrToPyList2(a1));
+           int sz(a2.size());
+           PyObject *ret2(PyList_New(sz));
+           for(int i=0;i<sz;i++)
+             PyList_SetItem(ret2,i,PyString_FromString(a2[i].c_str()));
+           PyTuple_SetItem(ret,2,ret2);
+           sz=a3.size();
+           PyObject *ret3(PyList_New(sz));
+           for(int i=0;i<sz;i++)
+             {
+               DataArrayInt *elt(a3[i]);
+               if(elt)
+                 elt->incrRef();
+               PyList_SetItem(ret3,i,SWIG_NewPointerObj(SWIG_as_voidptr(elt),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+             }
+           PyTuple_SetItem(ret,3,ret3);
+           DataArrayDouble *ret4(a4);
+           if(ret4)
+             ret4->incrRef();
+           PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(ret4),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+           return ret;
+         }
+
+         void __setstate__(PyObject *inp) throw(INTERP_KERNEL::Exception)
+         {
+           static const char MSG[]="MEDFileUMesh.__setstate__ : expected input is a tuple of size 4 !";
+           if(!PyTuple_Check(inp))
+             throw INTERP_KERNEL::Exception(MSG);
+           int sz(PyTuple_Size(inp));
+           if(sz!=5)
+             throw INTERP_KERNEL::Exception(MSG);
+           std::vector<double> a0;
+           std::vector<int> a1;
+           std::vector<std::string> a2;
+           std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a3;
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a4;
+           //
+           PyObject *a0py(PyTuple_GetItem(inp,0)),*a1py(PyTuple_GetItem(inp,1)),*a2py(PyTuple_GetItem(inp,2));
+           int tmp(-1);
+           fillArrayWithPyListDbl3(a0py,tmp,a0);
+           convertPyToNewIntArr3(a1py,a1);
+           fillStringVector(a2py,a2);
+           //
+           PyObject *b0py(PyTuple_GetItem(inp,3)),*b1py(PyTuple_GetItem(inp,4));
+           void *argp(0);
+           int status(SWIG_ConvertPtr(b1py,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0));
+           if(!SWIG_IsOK(status))
+             throw INTERP_KERNEL::Exception(MSG);
+           a4=reinterpret_cast<DataArrayDouble *>(argp);
+           if((DataArrayDouble *)a4)
+             a4->incrRef();
+           {
+             std::vector< DataArrayInt * > a3Tmp;
+             convertFromPyObjVectorOfObj<ParaMEDMEM::DataArrayInt *>(b0py,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",a3Tmp);
+             std::size_t sz(a3Tmp.size());
+             a3.resize(sz);
+             for(std::size_t i=0;i<sz;i++)
+               {
+                 a3[i]=a3Tmp[i];
+                 if(a3Tmp[i])
+                   a3Tmp[i]->incrRef();
+               }
+             self->unserialize(a0,a1,a2,a3,a4);
+           }
          }
 
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)

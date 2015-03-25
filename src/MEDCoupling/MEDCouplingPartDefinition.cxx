@@ -32,6 +32,24 @@ PartDefinition *PartDefinition::New(DataArrayInt *listOfIds)
   return DataArrayPartDefinition::New(listOfIds);
 }
 
+PartDefinition *PartDefinition::Unserialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI)
+{
+  if(tinyInt.empty())
+    {
+      MEDCouplingAutoRefCountObjectPtr<PartDefinition> ret(DataArrayPartDefinition::New(bigArraysI.back()));
+      bigArraysI.pop_back();
+      return ret.retn();
+    }
+  else if(tinyInt.size()==3)
+    {
+      MEDCouplingAutoRefCountObjectPtr<PartDefinition> ret(SlicePartDefinition::New(tinyInt[0],tinyInt[1],tinyInt[2]));
+      tinyInt.erase(tinyInt.begin(),tinyInt.begin()+3);
+      return ret.retn();
+    }
+  else
+    throw INTERP_KERNEL::Exception("PartDefinition::Unserialize");
+}
+
 PartDefinition::~PartDefinition()
 {
 }
@@ -39,6 +57,45 @@ PartDefinition::~PartDefinition()
 DataArrayPartDefinition *DataArrayPartDefinition::New(DataArrayInt *listOfIds)
 {
   return new DataArrayPartDefinition(listOfIds);
+}
+
+bool DataArrayPartDefinition::isEqual(const PartDefinition *other, std::string& what) const
+{
+  if(!other)
+    {
+      what="DataArrayPartDefinition::isEqual : other is null, this is not null !";
+      return false;
+    }
+  const DataArrayPartDefinition *otherC(dynamic_cast<const DataArrayPartDefinition *>(other));
+  if(!otherC)
+    {
+      what="DataArrayPartDefinition::isEqual : other is not DataArrayPartDefinition !";
+      return false;
+    }
+  const DataArrayInt *arr0(_arr),*arr1(otherC->_arr);
+  if(!arr0 && !arr1)
+    return true;
+  if((arr0 && !arr1) || (!arr0 && arr1))
+    {
+      what="DataArrayPartDefinition::isEqual : array is not defined both in other and this !";
+      return false;
+    }
+  std::string what1;
+  bool ret(arr0->isEqualIfNotWhy(*arr1,what1));
+  if(!ret)
+    {
+      what=std::string("DataArrayPartDefinition::isEqual : arrays are not equal :\n")+what1;
+      return false;
+    }
+  return true;
+}
+
+DataArrayPartDefinition *DataArrayPartDefinition::deepCpy() const
+{
+  const DataArrayInt *arr(_arr);
+  if(!arr)
+    throw INTERP_KERNEL::Exception("DataArrayPartDefinition::deepCpy : array is null !");
+  return DataArrayPartDefinition::New(const_cast<DataArrayInt *>(arr));
 }
 
 int DataArrayPartDefinition::getNumberOfElems() const
@@ -127,6 +184,11 @@ PartDefinition *DataArrayPartDefinition::tryToSimplify() const
     }
 }
 
+void DataArrayPartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const
+{
+  bigArraysI.push_back(_arr);
+}
+
 DataArrayInt *DataArrayPartDefinition::toDAI() const
 {
   checkInternalArrayOK();
@@ -196,6 +258,33 @@ SlicePartDefinition *SlicePartDefinition::New(int start, int stop, int step)
   return new SlicePartDefinition(start,stop,step);
 }
 
+bool SlicePartDefinition::isEqual(const PartDefinition *other, std::string& what) const
+{
+  if(!other)
+    {
+      what="SlicePartDefinition::isEqual : other is null, this is not null !";
+      return false;
+    }
+  const SlicePartDefinition *otherC(dynamic_cast<const SlicePartDefinition *>(other));
+  if(!otherC)
+    {
+      what="SlicePartDefinition::isEqual : other is not SlicePartDefinition !";
+      return false;
+    }
+  bool ret((_start==otherC->_start) && (_stop==otherC->_stop) && (_step==otherC->_step));
+  if(!ret)
+    {
+      what="SlicePartDefinition::isEqual : values are not the same !";
+      return false;
+    }
+  return true;
+}
+
+SlicePartDefinition *SlicePartDefinition::deepCpy() const
+{
+  return SlicePartDefinition::New(_start,_stop,_step);
+}
+
 DataArrayInt *SlicePartDefinition::toDAI() const
 {
   return DataArrayInt::Range(_start,_stop,_step);
@@ -252,6 +341,13 @@ PartDefinition *SlicePartDefinition::tryToSimplify() const
   PartDefinition *ret(const_cast<SlicePartDefinition *>(this));
   ret->incrRef();
   return ret;
+}
+
+void SlicePartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const
+{
+  tinyInt.push_back(_start);
+  tinyInt.push_back(_stop);
+  tinyInt.push_back(_step);
 }
 
 std::string SlicePartDefinition::getRepr() const

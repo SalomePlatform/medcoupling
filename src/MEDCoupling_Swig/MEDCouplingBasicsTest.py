@@ -16234,6 +16234,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testSwig2PartDefinitionComposeWith1(self):
         f=PartDefinition.New(DataArrayInt([0,1,2,3,6,7,8,9]))
         g=PartDefinition.New(4,14,1)
+        g2=g.deepCpy()
+        self.assertTrue(g2.isEqual(g)[0])
         h=f.composeWith(g)
         self.assertTrue(isinstance(h,DataArrayPartDefinition))
         self.assertTrue(h.toDAI().isEqual(DataArrayInt([4,5,6,7,10,11,12,13])))
@@ -16246,6 +16248,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertNotEqual(p2.getHiddenCppPointer(),p.getHiddenCppPointer())
         self.assertTrue(isinstance(p2,SlicePartDefinition))
         self.assertEqual(p2.getSlice(),slice(2,11,4))
+        self.assertTrue(p2.isEqual(SlicePartDefinition(2,11,4))[0])
+        self.assertTrue(p2.isEqual(p2.deepCpy())[0])
+        self.assertTrue(not p2.isEqual(SlicePartDefinition(1,11,4))[0])
+        self.assertTrue(not p2.isEqual(SlicePartDefinition(2,10,4))[0])
+        self.assertTrue(not p2.isEqual(SlicePartDefinition(2,11,3))[0])
         pass
 
     def testSwig2DAIGetIdsStrictlyNegative1(self):

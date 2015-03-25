@@ -75,7 +75,7 @@ SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURREN
 INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_SCRIPT_PYTHON})
 
 INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingRefCountObject.i MEDCouplingMemArray.i MEDCouplingFieldDiscretization.i MEDCouplingTimeDiscretization.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingDataArrayTypemaps.i DESTINATION ${SALOME_INSTALL_HEADERS})
-INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py DESTINATION ${SALOME_INSTALL_SCRIPT_PYTHON})
+INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py MEDCouplingPickleTest.py DESTINATION ${SALOME_INSTALL_SCRIPT_PYTHON})
 INSTALL(FILES MEDCouplingExamplesTest.py DESTINATION ${SALOME_INSTALL_SCRIPT_PYTHON})
 
 SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)

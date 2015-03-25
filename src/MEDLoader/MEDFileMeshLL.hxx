@@ -177,6 +177,8 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coords);
     void forceComputationOfPartsFromUMesh() const;
     const PartDefinition *getPartDefOfWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
+    void serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const;
+    void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI);
   private:
     std::size_t getTimeOfParts() const;
     std::size_t getTimeOfUMesh() const;
@@ -242,13 +244,18 @@ namespace ParaMEDMEM
     //
     void renumberNodesInConn(const int *newNodeNumbersO2N);
     //
+    void serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const;
+    void unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI);
+    //
     static void ClearNonDiscrAttributes(const MEDCouplingMesh *tmp);
     static std::vector<int> GetNewFamiliesNumber(int nb, const std::map<std::string,int>& families);
     static void TraduceFamilyNumber(const std::vector< std::vector<int> >& fidsGrps, std::map<std::string,int>& familyIds,
                                     std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);
     static DataArrayInt *Renumber(const DataArrayInt *renum, const DataArrayInt *da);
     static MEDCouplingUMesh *Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds);
+    static MEDFileUMeshSplitL1 *Unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI);
   private:
+    MEDFileUMeshSplitL1();
     void assignCommonPart();
     MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
     DataArrayInt *renumIfNeededArr(const DataArrayInt *da) const;

@@ -5731,6 +5731,23 @@ namespace ParaMEDMEM
       {
         return (*self)+other;
       }
+
+      virtual PyObject *isEqual(const PartDefinition *other) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0(self->isEqual(other,ret1));
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
+      }
+
+      virtual PyObject *deepCpy() const throw(INTERP_KERNEL::Exception)
+      {
+        return convertPartDefinition(self->deepCpy(),SWIG_POINTER_OWN | 0);
+      }
     }
   protected:
     virtual ~PartDefinition();

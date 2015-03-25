@@ -842,6 +842,10 @@ void MEDFileUMeshSplitL1::assignParts(const std::vector< const MEDCoupling1GTUMe
   assignCommonPart();
 }
 
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1():_m(this)
+{
+}
+
 void MEDFileUMeshSplitL1::assignCommonPart()
 {
   _fam=DataArrayInt::New();
@@ -1026,6 +1030,20 @@ void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N)
   _m_by_types.renumberNodesInConnWithoutComputation(newNodeNumbersO2N);
 }
 
+void MEDFileUMeshSplitL1::serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const
+{
+  bigArraysI.push_back(_fam);
+  bigArraysI.push_back(_num);
+  _m_by_types.serialize(tinyInt,bigArraysI);
+}
+
+void MEDFileUMeshSplitL1::unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI)
+{
+  _fam=bigArraysI.back(); bigArraysI.pop_back();
+  _num=bigArraysI.back(); bigArraysI.pop_back();
+  _m_by_types.unserialize(name,coo,tinyInt,bigArraysI);
+}
+
 void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId)
 {
   DataArrayInt *arr=_fam;
@@ -1086,6 +1104,13 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::Renumber2(const DataArrayInt *renum, MEDC
       m->renumberCells(locnum->getConstPointer(),true);
     }
   return m;
+}
+
+MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::Unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret(new MEDFileUMeshSplitL1);
+  ret->unserialize(name,coo,tinyInt,bigArraysI);
+  return ret.retn();
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const
@@ -1345,6 +1370,86 @@ const PartDefinition *MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputati
   throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::getPartDefOfWithoutComputation : The input geo type is not existing in this !");
 }
 
+void MEDFileUMeshAggregateCompute::serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const
+{
+  if(_mp_time<_m_time)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::serialize : the parts require a computation !");
+  std::size_t sz(_m_parts.size());
+  tinyInt.push_back((int)sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDCoupling1GTUMesh *mesh(_m_parts[i]);
+      if(!mesh)
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::serialize : one part is empty !");
+      tinyInt.push_back(mesh->getCellModelEnum());
+      const MEDCoupling1SGTUMesh *mesh1(dynamic_cast<const MEDCoupling1SGTUMesh *>(mesh));
+      const MEDCoupling1DGTUMesh *mesh2(dynamic_cast<const MEDCoupling1DGTUMesh *>(mesh));
+      if(mesh1)
+        {
+          DataArrayInt *elt(mesh1->getNodalConnectivity());
+          if(elt)
+            elt->incrRef();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elt1(elt);
+          bigArraysI.push_back(elt1);
+        }
+      else if(mesh2)
+        {
+          DataArrayInt *elt1(mesh2->getNodalConnectivity()),*elt2(mesh2->getNodalConnectivityIndex());
+          if(elt1)
+            elt1->incrRef();
+          if(elt2)
+            elt2->incrRef();
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elt11(elt1),elt22(elt2);
+          bigArraysI.push_back(elt11); bigArraysI.push_back(elt22);
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::serialize : unrecognized single geo type mesh !");
+      const PartDefinition *pd(_part_def[i]);
+      if(!pd)
+        tinyInt.push_back(-1);
+      else
+        {
+          std::vector<int> tinyTmp;
+          pd->serialize(tinyTmp,bigArraysI);
+          tinyInt.push_back((int)tinyTmp.size());
+          tinyInt.insert(tinyInt.end(),tinyTmp.begin(),tinyTmp.end());
+        }
+    }
+}
+
+void MEDFileUMeshAggregateCompute::unserialize(const std::string& name, DataArrayDouble *coo, std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI)
+{
+  int nbParts(tinyInt.back()); tinyInt.pop_back();
+  _part_def.clear(); _part_def.resize(nbParts);
+  _m_parts.clear(); _m_parts.resize(nbParts);
+  for(int i=0;i<nbParts;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType tp((INTERP_KERNEL::NormalizedCellType) tinyInt.back()); tinyInt.pop_back();
+      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> mesh(MEDCoupling1GTUMesh::New(name,tp));
+      mesh->setCoords(coo);
+      MEDCoupling1SGTUMesh *mesh1(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *) mesh));
+      MEDCoupling1DGTUMesh *mesh2(dynamic_cast<MEDCoupling1DGTUMesh *>((MEDCoupling1GTUMesh *) mesh));
+      if(mesh1)
+        {
+          mesh1->setNodalConnectivity(bigArraysI.back()); bigArraysI.pop_back();
+        }
+      else if(mesh2)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elt0,elt1;
+          elt0=bigArraysI.back(); bigArraysI.pop_back();
+          elt1=bigArraysI.back(); bigArraysI.pop_back();
+          mesh2->setNodalConnectivity(elt0,elt1);
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::unserialize : unrecognized single geo type mesh !");
+      _m_parts[i]=mesh;
+      int pdid(tinyInt.back()); tinyInt.pop_back();
+      if(pdid!=-1)
+        _part_def[i]=PartDefinition::Unserialize(tinyInt,bigArraysI);
+      _mp_time=std::max(_mp_time,_m_time)+1;
+    }
+}
+
 /*!
  * This method returns true if \a this is stored split by type false if stored in a merged unstructured mesh.
  */
@@ -1419,6 +1524,14 @@ MEDFileUMeshAggregateCompute MEDFileUMeshAggregateCompute::deepCpy(DataArrayDoub
       ret._m=static_cast<ParaMEDMEM::MEDCouplingUMesh*>(_m->deepCpy());
       ret._m->setCoords(coords);
     }
+  std::size_t sz(_part_def.size());
+  ret._part_def.clear(); ret._part_def.resize(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const PartDefinition *elt(_part_def[i]);
+      if(elt)
+        ret._part_def[i]=elt->deepCpy();
+    }
   return ret;
 }
 
@@ -1439,6 +1552,26 @@ bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& o
           what=std::string("meshes at a sublevel are not deeply equal (")+what2+std::string(")!");
           return false;
         }
+    }
+  std::size_t sz(_part_def.size());
+  if(sz!=other._part_def.size())
+    {
+      what=std::string("number of subdivision per geo type for part definition is not the same !");
+      return false;
+    }
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const PartDefinition *pd0(_part_def[i]),*pd1(other._part_def[i]);
+      if(!pd0 && !pd1)
+        continue;
+      if((!pd0 && pd1) || (pd0 && !pd1))
+        {
+          what=std::string("a cell part def is defined only for one among this or other !");
+          return false;
+        }
+      bool ret(pd0->isEqual(pd1,what));
+      if(!ret)
+        return false;
     }
   return true;
 }
