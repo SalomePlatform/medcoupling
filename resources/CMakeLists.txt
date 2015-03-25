@@ -222,7 +222,7 @@ IF(MED_ENABLE_GUI)
     med_mesh.png
     med_field.png
     mesh_selection.png
-    )  
+    )
 ENDIF(MED_ENABLE_GUI)
 
 INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
