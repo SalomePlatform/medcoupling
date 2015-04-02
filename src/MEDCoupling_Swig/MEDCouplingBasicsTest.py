@@ -16418,6 +16418,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m2D.getNodalConnectivity().isEqual(DataArrayInt([4,1,2,6,5,4,5,6,10,9])))
         self.assertTrue(m2D.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10])))
         pass
+
+    def testPointSetAreAllNodesFetched1(self):
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble(10) ; arr.iota()
+        m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        self.assertTrue(m.areAllNodesFetched())
+        m2=m[[0,2,3,4,5]]
+        self.assertTrue(not m2.areAllNodesFetched())
+        m2.zipCoords()
+        self.assertTrue(m2.areAllNodesFetched())
+        pass
     pass
 
 if __name__ == '__main__':

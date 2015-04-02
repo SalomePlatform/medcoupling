@@ -1424,6 +1424,20 @@ DataArrayInt *MEDCouplingPointSet::zipConnectivityTraducer(int compType, int sta
 }
 
 /*!
+ * This const method states if the nodal connectivity of this fetches all nodes in \a this.
+ * In other words, this method looks is there are no orphan nodes in \a this.
+ * \sa zipCoordsTraducer, getNodeIdsInUse, computeFetchedNodeIds.
+ */
+bool MEDCouplingPointSet::areAllNodesFetched() const
+{
+  checkFullyDefined();
+  int nbNodes(getNumberOfNodes());
+  std::vector<bool> fetchedNodes(nbNodes,false);
+  computeNodeIdsAlg(fetchedNodes);
+  return std::find(fetchedNodes.begin(),fetchedNodes.end(),false)==fetchedNodes.end();
+}
+
+/*!
  * Checks if \a this and \a other meshes are geometrically equivalent, else an
  * exception is thrown. The meshes are
  * considered equivalent if (1) \a this mesh contains the same nodes as the \a other

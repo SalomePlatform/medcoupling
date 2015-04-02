@@ -1011,7 +1011,7 @@ struct MEDCouplingAccVisit
  * the format of returned DataArrayInt instance.
  *
  * \return a newly allocated DataArrayInt sorted ascendingly of fetched node ids.
- * \sa MEDCoupling1SGTUMesh::getNodeIdsInUse
+ * \sa MEDCoupling1SGTUMesh::getNodeIdsInUse, areAllNodesFetched
  */
 DataArrayInt *MEDCoupling1SGTUMesh::computeFetchedNodeIds() const
 {
@@ -1040,7 +1040,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeFetchedNodeIds() const
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
- *  \sa MEDCoupling1SGTUMesh::computeFetchedNodeIds
+ *  \sa MEDCoupling1SGTUMesh::computeFetchedNodeIds, areAllNodesFetched
  */
 DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 {
@@ -3046,7 +3046,7 @@ void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
- *  \sa MEDCoupling1DGTUMesh::computeFetchedNodeIds
+ *  \sa MEDCoupling1DGTUMesh::getNodeIdsInUse, areAllNodesFetched
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeFetchedNodeIds() const
 {
@@ -3075,7 +3075,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeFetchedNodeIds() const
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
- *  \sa MEDCoupling1DGTUMesh::computeFetchedNodeIds
+ *  \sa MEDCoupling1DGTUMesh::computeFetchedNodeIds, areAllNodesFetched
  */
 DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 {

@@ -1391,7 +1391,7 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps)
  * the format of returned DataArrayInt instance.
  * 
  * \return a newly allocated DataArrayInt sorted ascendingly of fetched node ids.
- * \sa MEDCouplingUMesh::getNodeIdsInUse
+ * \sa MEDCouplingUMesh::getNodeIdsInUse, areAllNodesFetched
  */
 DataArrayInt *MEDCouplingUMesh::computeFetchedNodeIds() const
 {
@@ -1421,7 +1421,7 @@ DataArrayInt *MEDCouplingUMesh::computeFetchedNodeIds() const
 
 /*!
  * \param [in,out] nodeIdsInUse an array of size typically equal to nbOfNodes.
- * \sa MEDCouplingUMesh::getNodeIdsInUse
+ * \sa MEDCouplingUMesh::getNodeIdsInUse, areAllNodesFetched
  */
 void MEDCouplingUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
@@ -1579,6 +1579,7 @@ DataArrayInt *MEDCouplingUMesh::computeNbOfFacesPerCell() const
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
+ *  \sa areAllNodesFetched
  *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcumesh_zipCoordsTraducer "Here is a C++ example".<br>
