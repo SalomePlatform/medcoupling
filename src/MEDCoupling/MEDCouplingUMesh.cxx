@@ -4629,7 +4629,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *me
       else
         throw INTERP_KERNEL::Exception("Invalid 2D mesh and 1D mesh because 2D mesh has quadratic cells and 1D is not fully quadratic !");
     }
-  int oldNbOfNodes=getNumberOfNodes();
+  int oldNbOfNodes(getNumberOfNodes());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords;
   switch(policy)
   {
@@ -4647,7 +4647,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *me
       throw INTERP_KERNEL::Exception("Not implemented extrusion policy : must be in (0) !");
   }
   setCoords(newCoords);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=buildExtrudedMeshFromThisLowLev(oldNbOfNodes,isQuad);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret(buildExtrudedMeshFromThisLowLev(oldNbOfNodes,isQuad));
   updateTime();
   return ret.retn();
 }
@@ -4897,16 +4897,14 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const
 {
-  int nbOf1DCells=getNumberOfNodes()/nbOfNodesOf1Lev-1;
-  int nbOf2DCells=getNumberOfCells();
-  int nbOf3DCells=nbOf2DCells*nbOf1DCells;
-  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("Extruded",getMeshDimension()+1);
-  const int *conn=_nodal_connec->getConstPointer();
-  const int *connI=_nodal_connec_index->getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
+  int nbOf1DCells(getNumberOfNodes()/nbOfNodesOf1Lev-1);
+  int nbOf2DCells(getNumberOfCells());
+  int nbOf3DCells(nbOf2DCells*nbOf1DCells);
+  MEDCouplingUMesh *ret(MEDCouplingUMesh::New("Extruded",getMeshDimension()+1));
+  const int *conn(_nodal_connec->begin()),*connI(_nodal_connec_index->begin());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn(DataArrayInt::New()),newConnI(DataArrayInt::New());
   newConnI->alloc(nbOf3DCells+1,1);
-  int *newConnIPtr=newConnI->getPointer();
+  int *newConnIPtr(newConnI->getPointer());
   *newConnIPtr++=0;
   std::vector<int> newc;
   for(int j=0;j<nbOf2DCells;j++)
@@ -4915,17 +4913,18 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(int nbOfNode
       *newConnIPtr++=(int)newc.size();
     }
   newConn->alloc((int)(newc.size())*nbOf1DCells,1);
-  int *newConnPtr=newConn->getPointer();
-  int deltaPerLev=isQuad?2*nbOfNodesOf1Lev:nbOfNodesOf1Lev;
+  int *newConnPtr(newConn->getPointer());
+  int deltaPerLev(isQuad?2*nbOfNodesOf1Lev:nbOfNodesOf1Lev);
   newConnIPtr=newConnI->getPointer();
   for(int iz=0;iz<nbOf1DCells;iz++)
     {
       if(iz!=0)
         std::transform(newConnIPtr+1,newConnIPtr+1+nbOf2DCells,newConnIPtr+1+iz*nbOf2DCells,std::bind2nd(std::plus<int>(),newConnIPtr[iz*nbOf2DCells]));
+      const int *posOfTypeOfCell(newConnIPtr);
       for(std::vector<int>::const_iterator iter=newc.begin();iter!=newc.end();iter++,newConnPtr++)
         {
-          int icell=(int)(iter-newc.begin());
-          if(std::find(newConnIPtr,newConnIPtr+nbOf2DCells,icell)==newConnIPtr+nbOf2DCells)
+          int icell((int)(iter-newc.begin()));//std::distance unfortunately cannot been called here in C++98
+          if(icell!=*posOfTypeOfCell)
             {
               if(*iter!=-1)
                 *newConnPtr=(*iter)+iz*deltaPerLev;
@@ -4933,7 +4932,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(int nbOfNode
                 *newConnPtr=-1;
             }
           else
-            *newConnPtr=(*iter);
+            {
+              *newConnPtr=*iter;
+              posOfTypeOfCell++;
+            }
         }
     }
   ret->setConnectivity(newConn,newConnI,true);
