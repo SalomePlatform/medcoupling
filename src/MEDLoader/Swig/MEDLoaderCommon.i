@@ -112,6 +112,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::extractNumberFieldOnGeoType;
 %newobject ParaMEDMEM::MEDFileUMesh::zipCoords;
 %newobject ParaMEDMEM::MEDFileUMesh::buildExtrudedMesh;
+%newobject ParaMEDMEM::MEDFileUMesh::__getitem__;
 %newobject ParaMEDMEM::MEDFileCMesh::New;
 %newobject ParaMEDMEM::MEDFileCurveLinearMesh::New;
 %newobject ParaMEDMEM::MEDFileMeshMultiTS::New;
@@ -898,6 +899,11 @@ namespace ParaMEDMEM
                }
              self->unserialize(a0,a1,a2,a3,a4);
            }
+         }
+
+         MEDCouplingUMesh *__getitem__(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         {
+           return self->getMeshAtLevel(meshDimRelToMaxExt,false);
          }
 
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
