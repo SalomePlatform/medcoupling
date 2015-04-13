@@ -3986,10 +3986,10 @@ class MEDLoaderTest(unittest.TestCase):
         mm.setName("MyFirstMEDCouplingMEDmesh")
         mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
         mm.setCoords(c)
-        mm.setMeshAtLevel(-1,m1);
-        mm.setMeshAtLevel(0,m);
+        mm[-1]=m1;
+        mm[0]=m;
         mm.setRenumFieldArr(0,DataArrayInt([32,41,50,56,7]))
-        mm.setMeshAtLevel(-2,m2);
+        mm[-2]=m2;
         mm.setRenumFieldArr(-2,DataArrayInt([102,52,45,63]))
         # playing with groups
         g1_2=DataArrayInt.New()

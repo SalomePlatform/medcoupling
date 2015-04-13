@@ -906,6 +906,25 @@ namespace ParaMEDMEM
            return self->getMeshAtLevel(meshDimRelToMaxExt,false);
          }
 
+         void __setitem__(int meshDimRelToMax, MEDCouplingPointSet *mesh) throw(INTERP_KERNEL::Exception)
+         {
+           if(!mesh)
+             throw INTERP_KERNEL::Exception("MEDFileUMesh::__setitem__ : Input mesh is NULL !");
+           MEDCouplingUMesh *m0(dynamic_cast<MEDCouplingUMesh *>(mesh));
+           if(m0)
+             {
+               self->setMeshAtLevel(meshDimRelToMax,m0,false);
+               return ;
+             }
+           MEDCoupling1GTUMesh *m1(dynamic_cast<MEDCoupling1GTUMesh *>(mesh));
+           if(m1)
+             {
+               self->setMeshAtLevel(meshDimRelToMax,m1);
+               return ;
+             }
+           throw INTERP_KERNEL::Exception("MEDFileUMesh::__setitem__ : Not recognized input mesh !");
+         }
+
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
          {
            std::vector<const MEDCouplingUMesh *> ms;
