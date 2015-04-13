@@ -127,6 +127,7 @@ using namespace ParaMEDMEM;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFields::LoadPartOf;
+%newobject ParaMEDMEM::MEDFileFields::LoadSpecificEntities;
 %newobject ParaMEDMEM::MEDFileFields::deepCpy;
 %newobject ParaMEDMEM::MEDFileFields::shallowCpy;
 %newobject ParaMEDMEM::MEDFileFields::getFieldWithName;
@@ -2424,6 +2425,19 @@ namespace ParaMEDMEM
          std::string __str__() const throw(INTERP_KERNEL::Exception)
          {
            return self->simpleRepr();
+         }
+
+         static MEDFileFields *LoadSpecificEntities(const std::string& fileName, PyObject *entities, bool loadAll=true) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
+           std::size_t sz(tmp.size());
+           std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(sz);
+           for(std::size_t i=0;i<sz;i++)
+             {
+               entitiesCpp[i].first=(TypeOfField)tmp[i].first;
+               entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
+             }
+           return MEDFileFields::LoadSpecificEntities(fileName,entitiesCpp,loadAll);
          }
 
          PyObject *getCommonIterations() const throw(INTERP_KERNEL::Exception)

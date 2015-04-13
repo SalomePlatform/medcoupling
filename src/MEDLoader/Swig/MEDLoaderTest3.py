@@ -4034,6 +4034,71 @@ class MEDLoaderTest(unittest.TestCase):
         mm2=cPickle.loads(st)
         self.assertTrue(mm.isEqual(mm2,1e-12)[0])
         pass
+
+    def testMEDFileFieldsLoadSpecificEntities1(self):
+        nbNodes=11
+        fieldName="myField"
+        fileName="Pyfile87.med"
+        nbPdt=10
+        meshName="Mesh"
+        #
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble(nbNodes) ; arr.iota()
+        m.setCoords(arr)
+        m=m.buildUnstructured()
+        m.setName(meshName)
+        #
+        fmts=MEDFileFieldMultiTS()
+        for i in xrange(nbPdt):
+            f=MEDCouplingFieldDouble(ON_NODES)
+            f.setMesh(m)
+            arr=DataArrayDouble(nbNodes) ; arr.iota() ; arr*=i
+            f.setArray(arr)
+            f.setName(fieldName)
+            f.setTime(float(i),i,0)
+            fmts.appendFieldNoProfileSBT(f)
+            pass
+        #
+        mm=MEDFileUMesh() ; mm[0]=m
+        fmts.write(fileName,2)
+        mm.write(fileName,0)
+        #
+        fs=MEDFileFields(fileName,False)
+        fs2=MEDFileFields.LoadSpecificEntities(fileName,[(ON_NODES,NORM_ERROR)],False)
+        fs.loadArraysIfNecessary()
+        fs2.loadArraysIfNecessary()
+        for i in xrange(nbPdt):
+            self.assertTrue(fs[fieldName][i].getUndergroundDataArray().isEqual(fs2[fieldName][i].getUndergroundDataArray(),1e-12))
+            pass
+        m1=MEDCouplingCMesh() ; m1.setCoords(DataArrayDouble([0,1,2,3]),DataArrayDouble([0,1])) ; m1=m1.buildUnstructured() ; m1.simplexize(0)
+        m2=MEDCouplingCMesh() ; m2.setCoords(DataArrayDouble([3,4,5]),DataArrayDouble([0,1])) ; m2=m2.buildUnstructured()
+        m3=MEDCouplingUMesh.MergeUMeshes(m1,m2) ; m3.setName(meshName)
+        fmts=MEDFileFieldMultiTS()
+        for i in xrange(nbPdt):
+            f=MEDCouplingFieldDouble(ON_CELLS)
+            f.setMesh(m3)
+            arr=DataArrayDouble(8) ; arr.iota() ; arr*=i
+            f.setArray(arr)
+            f.setName(fieldName)
+            f.setTime(float(i),i,0)
+            fmts.appendFieldNoProfileSBT(f)
+            pass
+        mm=MEDFileUMesh() ; mm[0]=m3
+        fmts.write(fileName,2)
+        fs=MEDFileFields(fileName,False)
+        fs2=MEDFileFields.LoadSpecificEntities(fileName,[(ON_CELLS,NORM_TRI3)],False)
+        fs3=MEDFileFields.LoadSpecificEntities(fileName,[(ON_CELLS,NORM_QUAD4)],False)
+        fs4=MEDFileFields.LoadSpecificEntities(fileName,[(ON_CELLS,NORM_TRI3),(ON_CELLS,NORM_QUAD4)],False)
+        fs.loadArraysIfNecessary()
+        fs2.loadArraysIfNecessary()
+        fs3.loadArraysIfNecessary()
+        fs4.loadArraysIfNecessary()
+        for i in xrange(nbPdt):
+            self.assertTrue(fs[fieldName][i].getUndergroundDataArray()[:6].isEqual(fs2[fieldName][i].getUndergroundDataArray(),1e-12))
+            self.assertTrue(fs[fieldName][i].getUndergroundDataArray()[6:8].isEqual(fs3[fieldName][i].getUndergroundDataArray(),1e-12))
+            self.assertTrue(fs[fieldName][i].getUndergroundDataArray().isEqual(fs4[fieldName][i].getUndergroundDataArray(),1e-12))
+            pass
+        pass
     pass
 
 unittest.main()
