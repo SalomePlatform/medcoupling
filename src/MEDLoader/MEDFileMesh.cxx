@@ -3624,7 +3624,6 @@ MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int p
     {
       int lev(levs[ii]);
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt(zeList[ii]);
-      int nbCellsB4Extrusion(getNumberOfCellsAtLevel(lev));
       if(lev<=-1)
         {
           MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> elt1(getMeshAtLevel(lev+1));
