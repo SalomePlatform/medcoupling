@@ -4103,6 +4103,82 @@ class MEDLoaderTest(unittest.TestCase):
             self.assertTrue(fs[fieldName][i].getUndergroundDataArray().isEqual(fs4[fieldName][i].getUndergroundDataArray(),1e-12))
             pass
         pass
+
+    def testMEDFileLotsOfTSRW1(self):
+        nbNodes=11
+        fieldName="myField"
+        fileName="out.med"
+        nbPdt=300 # <- perftest = 30000
+        meshName="Mesh"
+        #
+        maxPdt=100 # <- optimum = 500
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble(nbNodes) ; arr.iota()
+        m.setCoords(arr)
+        m=m.buildUnstructured()
+        m.setName(meshName)
+        #
+        nbOfField=nbPdt/maxPdt
+        fs=MEDFileFields()
+        for j in xrange(nbOfField):
+            fmts=MEDFileFieldMultiTS()
+            s=DataArray.GetSlice(slice(0,nbPdt,1),j,nbOfField)
+            for i in xrange(s.start,s.stop,s.step):
+                f=MEDCouplingFieldDouble(ON_NODES)
+                f.setMesh(m)
+                arr=DataArrayDouble(nbNodes) ; arr.iota() ; arr*=i
+                f.setArray(arr)
+                f.setName("%s_%d"%(fieldName,j))
+                f.setTime(float(i),i,0)
+                fmts.appendFieldNoProfileSBT(f)
+                pass
+            fs.pushField(fmts)
+            pass
+        #
+        mm=MEDFileUMesh() ; mm[0]=m
+        fs.write(fileName,2)
+        mm.write(fileName,0)
+        ############
+        def appendInDict(d,key,val):
+            if key in d:
+                d[key].append(val)
+            else:
+                d[key]=[val]
+            pass
+        import re
+        allFields=MEDLoader.GetAllFieldNames(fileName)
+        allFieldsDict={}
+        pat=re.compile("([\d]+)([\s\S]+)$")
+        for st in allFields:
+            stRev=st[::-1]
+            m=pat.match(stRev)
+            if m:
+                appendInDict(allFieldsDict,m.group(2)[::-1],m.group(1)[::-1])
+                pass
+            else:
+                appendInDict(allFieldsDict,st,'')
+                pass
+            pass
+        fs2=MEDFileFields()
+        for k in allFieldsDict:
+            if allFieldsDict[k]!=['']:
+                allFieldsDict[k]=sorted(allFieldsDict[k],key=lambda x: int(x))
+                pass
+            fmts2=[]
+            for it in allFieldsDict[k]:
+                fmts2.append(MEDFileFieldMultiTS.LoadSpecificEntities(fileName,k+it,[(ON_NODES,NORM_ERROR)]))
+                pass
+            fmts2.reverse()
+            zeResu=fmts2.pop()
+            nbIter=len(fmts2)
+            for ii in xrange(nbIter):
+                zeResu.pushBackTimeSteps(fmts2.pop())
+                pass
+            zeResu.setName(k)
+            fs2.pushField(zeResu)
+            pass
+        self.assertEqual(fs2[0].getTimeSteps(),[(i,0,float(i)) for i in xrange(nbPdt)])
+        pass
     pass
 
 unittest.main()

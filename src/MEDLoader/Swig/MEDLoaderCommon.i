@@ -2090,9 +2090,18 @@ namespace ParaMEDMEM
 
       void pushBackTimeSteps(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
-        std::vector<MEDFileAnyTypeField1TS *> tmp;
-        convertFromPyObjVectorOfObj<ParaMEDMEM::MEDFileAnyTypeField1TS *>(li,SWIGTYPE_p_ParaMEDMEM__MEDFileAnyTypeField1TS,"MEDFileAnyTypeField1TS",tmp);
-        self->pushBackTimeSteps(tmp);
+        void *argp(0);
+        int status(SWIG_ConvertPtr(li,&argp,SWIGTYPE_p_ParaMEDMEM__MEDFileAnyTypeFieldMultiTS,0|0));
+        if(SWIG_IsOK(status))
+          {
+            self->pushBackTimeSteps(reinterpret_cast<MEDFileAnyTypeFieldMultiTS *>(argp));
+          }
+        else
+          {
+            std::vector<MEDFileAnyTypeField1TS *> tmp;
+            convertFromPyObjVectorOfObj<ParaMEDMEM::MEDFileAnyTypeField1TS *>(li,SWIGTYPE_p_ParaMEDMEM__MEDFileAnyTypeField1TS,"MEDFileAnyTypeField1TS",tmp);
+            self->pushBackTimeSteps(tmp);
+          }
       }
 
       static PyObject *MEDFileAnyTypeFieldMultiTS::SplitIntoCommonTimeSeries(PyObject *li) throw(INTERP_KERNEL::Exception)

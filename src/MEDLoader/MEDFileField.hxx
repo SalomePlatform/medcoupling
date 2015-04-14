@@ -968,6 +968,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const;
     MEDLOADER_EXPORT std::vector< std::pair<int,int> > getIterations() const;
     MEDLOADER_EXPORT void pushBackTimeSteps(const std::vector<MEDFileAnyTypeField1TS *>& f1ts);
+    MEDLOADER_EXPORT void pushBackTimeSteps(MEDFileAnyTypeFieldMultiTS *fmts);
     MEDLOADER_EXPORT void pushBackTimeStep(MEDFileAnyTypeField1TS *f1ts);
     MEDLOADER_EXPORT void synchronizeNameScope();
     MEDLOADER_EXPORT int getPosOfTimeStep(int iteration, int order) const;

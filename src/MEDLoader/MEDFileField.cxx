@@ -8379,6 +8379,18 @@ void MEDFileAnyTypeFieldMultiTS::pushBackTimeSteps(const std::vector<MEDFileAnyT
     pushBackTimeStep(*it);
 }
 
+void MEDFileAnyTypeFieldMultiTS::pushBackTimeSteps(MEDFileAnyTypeFieldMultiTS *fmts)
+{
+  if(!fmts)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::pushBackTimeSteps : Input fmts is NULL !");
+  int nbOfTS(fmts->getNumberOfTS());
+  for(int i=0;i<nbOfTS;i++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt(fmts->getTimeStepAtPos(i));
+      pushBackTimeStep(elt);
+    }
+}
+
 void MEDFileAnyTypeFieldMultiTS::pushBackTimeStep(MEDFileAnyTypeField1TS *f1ts)
 {
   if(!f1ts)
