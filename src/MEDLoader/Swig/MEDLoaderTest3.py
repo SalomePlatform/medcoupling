@@ -4084,10 +4084,14 @@ class MEDLoaderTest(unittest.TestCase):
             fmts.appendFieldNoProfileSBT(f)
             pass
         mm=MEDFileUMesh() ; mm[0]=m3
+        del mm[0]
+        self.assertEqual(mm.getNonEmptyLevels(),())
+        mm[0]=m3
+        self.assertEqual(mm.getNonEmptyLevels(),(0,))
         fmts.write(fileName,2)
         fs=MEDFileFields(fileName,False)
         fs2=MEDFileFields.LoadSpecificEntities(fileName,[(ON_CELLS,NORM_TRI3)],False)
-        fs3=MEDFileFields.LoadSpecificEntities(fileName,[(ON_CELLS,NORM_QUAD4)],False)
+        fs3=MEDFileFieldMultiTS.LoadSpecificEntities(fileName,fieldName,[(ON_CELLS,NORM_QUAD4)],False)
         fs4=MEDFileFields.LoadSpecificEntities(fileName,[(ON_CELLS,NORM_TRI3),(ON_CELLS,NORM_QUAD4)],False)
         fs.loadArraysIfNecessary()
         fs2.loadArraysIfNecessary()
@@ -4095,7 +4099,7 @@ class MEDLoaderTest(unittest.TestCase):
         fs4.loadArraysIfNecessary()
         for i in xrange(nbPdt):
             self.assertTrue(fs[fieldName][i].getUndergroundDataArray()[:6].isEqual(fs2[fieldName][i].getUndergroundDataArray(),1e-12))
-            self.assertTrue(fs[fieldName][i].getUndergroundDataArray()[6:8].isEqual(fs3[fieldName][i].getUndergroundDataArray(),1e-12))
+            self.assertTrue(fs[fieldName][i].getUndergroundDataArray()[6:8].isEqual(fs3[i].getUndergroundDataArray(),1e-12))
             self.assertTrue(fs[fieldName][i].getUndergroundDataArray().isEqual(fs4[fieldName][i].getUndergroundDataArray(),1e-12))
             pass
         pass

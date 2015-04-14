@@ -7027,13 +7027,13 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(const
 /*!
  * \param [in] fieldId field id in C mode
  */
-MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
 {
   med_field_type typcha;
   std::string dtunitOut;
   int nbOfStep=MEDFileAnyTypeField1TS::LocateField2(fid,"",fieldId,false,_name,typcha,_infos,dtunitOut);
   setDtUnit(dtunitOut.c_str());
-  loadStructureOrStructureAndBigArraysRecursively(fid,nbOfStep,typcha,loadAll,ms,0);
+  loadStructureOrStructureAndBigArraysRecursively(fid,nbOfStep,typcha,loadAll,ms,entities);
 }
 
 MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
@@ -7956,8 +7956,8 @@ MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(const std::string& 
 /*!
  * \param [in] fieldId field id in C mode
  */
-MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldId,loadAll,ms)
+MEDFileFieldMultiTSWithoutSDA::MEDFileFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldId,loadAll,ms,entities)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -8051,7 +8051,7 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
 }
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
 {
   med_field_type typcha;
   std::vector<std::string> infos;
@@ -8063,12 +8063,12 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   {
     case MED_FLOAT64:
       {
-        ret=new MEDFileFieldMultiTSWithoutSDA(fid,i,loadAll,ms);
+        ret=new MEDFileFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
         break;
       }
     case MED_INT32:
       {
-        ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,i,loadAll,ms);
+        ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,i,loadAll,ms,entities);
         break;
       }
     default:
@@ -8093,12 +8093,12 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileAnyTypeFieldMultiTS::BuildContentFr
   {
     case MED_FLOAT64:
       {
-        ret=new MEDFileFieldMultiTSWithoutSDA(fid,0,loadAll,ms);
+        ret=new MEDFileFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
         break;
       }
     case MED_INT32:
       {
-        ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,0,loadAll,ms);
+        ret=new MEDFileIntFieldMultiTSWithoutSDA(fid,0,loadAll,ms,0);
         break;
       }
     default:
@@ -8132,12 +8132,12 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromCont
   throw INTERP_KERNEL::Exception("MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent : internal error ! a content of type different from FLOAT64 and INT32 has been built but not intercepted !");
 }
 
-MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
+MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
 try:MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  _content=BuildContentFrom(fid,fileName,fieldName,loadAll,ms);
+  _content=BuildContentFrom(fid,fileName,fieldName,loadAll,ms,entities);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -8170,8 +8170,8 @@ catch(INTERP_KERNEL::Exception& e)
 /*!
  * \param [in] fieldId field id in C mode
  */
-MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldId,loadAll,ms)
+MEDFileIntFieldMultiTSWithoutSDA::MEDFileIntFieldMultiTSWithoutSDA(med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldId,loadAll,ms,entities)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -8260,7 +8260,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileAnyTypeFieldMultiTS::New(const std::string& f
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> c=BuildContentFrom(fid,fileName,fieldName,loadAll,0);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTSWithoutSDA> c(BuildContentFrom(fid,fileName,fieldName,loadAll,0,0));
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ret=BuildNewInstanceFromContent(c,fileName);
   ret->loadGlobals(fid);
   return ret.retn();
@@ -8970,6 +8970,13 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const MEDFileFieldMultiTSWithoutSD
   return new MEDFileFieldMultiTS(other,shallowCopyOfContent);
 }
 
+MEDFileFieldMultiTS *MEDFileFieldMultiTS::LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ret(new MEDFileFieldMultiTS(fileName,fieldName,loadAll,0,&entities));
+  ret->contentNotNull();//to check that content type matches with \a this type.
+  return ret.retn();
+}
+
 MEDFileAnyTypeFieldMultiTS *MEDFileFieldMultiTS::shallowCpy() const
 {
   return new MEDFileFieldMultiTS(*this);
@@ -9301,8 +9308,8 @@ try:MEDFileAnyTypeFieldMultiTS(fileName,loadAll,ms)
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileFieldMultiTS::MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll,ms)
+MEDFileFieldMultiTS::MEDFileFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll,ms,entities)
 {
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -9415,6 +9422,13 @@ MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const std::string& fileName,
 MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::New(const MEDFileIntFieldMultiTSWithoutSDA& other, bool shallowCopyOfContent)
 {
   return new MEDFileIntFieldMultiTS(other,shallowCopyOfContent);
+}
+
+MEDFileIntFieldMultiTS *MEDFileIntFieldMultiTS::LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileIntFieldMultiTS> ret=new MEDFileIntFieldMultiTS(fileName,fieldName,loadAll,0,&entities);
+  ret->contentNotNull();//to check that content type matches with \a this type.
+  return ret.retn();
 }
 
 /*!
@@ -9751,8 +9765,8 @@ try:MEDFileAnyTypeFieldMultiTS(fileName,loadAll,ms)
 catch(INTERP_KERNEL::Exception& e)
 { throw e; }
 
-MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms)
-try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll,ms)
+MEDFileIntFieldMultiTS::MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+try:MEDFileAnyTypeFieldMultiTS(fileName,fieldName,loadAll,ms,entities)
 {
 }
 catch(INTERP_KERNEL::Exception& e)

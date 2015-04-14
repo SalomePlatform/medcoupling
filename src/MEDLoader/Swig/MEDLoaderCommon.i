@@ -145,6 +145,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileAnyTypeFieldMultiTS::getTimeStepGivenTime;
 %newobject ParaMEDMEM::MEDFileAnyTypeFieldMultiTS::__iter__;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::LoadSpecificEntities;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
@@ -152,6 +153,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getUndergroundDataArray;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::convertToInt;
 %newobject ParaMEDMEM::MEDFileIntFieldMultiTS::New;
+%newobject ParaMEDMEM::MEDFileIntFieldMultiTS::LoadSpecificEntities;
 %newobject ParaMEDMEM::MEDFileIntFieldMultiTS::getUndergroundDataArray;
 %newobject ParaMEDMEM::MEDFileIntFieldMultiTS::convertToDouble;
 
@@ -924,6 +926,11 @@ namespace ParaMEDMEM
                return ;
              }
            throw INTERP_KERNEL::Exception("MEDFileUMesh::__setitem__ : Not recognized input mesh !");
+         }
+
+         void __delitem__(int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
+         {
+           self->removeMeshAtLevel(meshDimRelToMax);
          }
 
          void setMeshes(PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
@@ -2177,6 +2184,19 @@ namespace ParaMEDMEM
          {
            return MEDFileFieldMultiTS::New(fileName,fieldName,loadAll);
          }
+
+         static MEDFileFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
+         {
+           std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
+           std::size_t sz(tmp.size());
+           std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(sz);
+           for(std::size_t i=0;i<sz;i++)
+             {
+               entitiesCpp[i].first=(TypeOfField)tmp[i].first;
+               entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
+             }
+           return MEDFileFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
+         }
          
          std::string __str__() const throw(INTERP_KERNEL::Exception)
          {
@@ -2307,6 +2327,19 @@ namespace ParaMEDMEM
       MEDFileIntFieldMultiTS(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception)
       {
         return MEDFileIntFieldMultiTS::New(fileName,fieldName,loadAll);
+      }
+
+      static MEDFileIntFieldMultiTS *LoadSpecificEntities(const std::string& fileName, const std::string& fieldName, PyObject *entities, bool loadAll=true)
+      {
+        std::vector<std::pair<int,int> > tmp(convertTimePairIdsFromPy(entities));
+        std::size_t sz(tmp.size());
+        std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > entitiesCpp(sz);
+        for(std::size_t i=0;i<sz;i++)
+          {
+            entitiesCpp[i].first=(TypeOfField)tmp[i].first;
+            entitiesCpp[i].second=(INTERP_KERNEL::NormalizedCellType)tmp[i].second;
+          }
+        return MEDFileIntFieldMultiTS::LoadSpecificEntities(fileName,fieldName,entitiesCpp,loadAll);
       }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
