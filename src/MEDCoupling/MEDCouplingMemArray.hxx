@@ -458,6 +458,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isFittingWith(const std::vector<bool>& v) const;
+    MEDCOUPLING_EXPORT void switchOnTupleEqualTo(int val, std::vector<bool>& vec) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildPermutationArr(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT DataArrayInt *sumPerTuple() const;
     MEDCOUPLING_EXPORT void sort(bool asc=true);

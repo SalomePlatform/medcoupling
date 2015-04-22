@@ -661,6 +661,81 @@ std::vector<std::string> MEDFileMesh::removeOrphanFamilies()
 }
 
 /*!
+ * This method operates only on maps in \a this. The arrays are not considered here. So this method will remove a family (except "FAMILLE_ZERO" family) if no group lies on it whatever
+ * this family is orphan or not.
+ *
+ * \warning this method is different from removeOrphanFamilies that scans family field array to find orphan families.
+ */
+void MEDFileMesh::removeFamiliesReferedByNoGroups()
+{
+  std::map<std::string,int> fams;
+  std::set<std::string> sfams;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    sfams.insert((*it).first);
+  for(std::map<std::string, std::vector<std::string> >::const_iterator it0=_groups.begin();it0!=_groups.end();it0++)
+    for(std::vector<std::string>::const_iterator it1=(*it0).second.begin();it1!=(*it0).second.end();it1++)
+      sfams.erase(*it1);
+  for(std::set<std::string>::const_iterator it=sfams.begin();it!=sfams.end();it++)
+    if(*it!=DFT_FAM_NAME)
+      _families.erase(*it);
+}
+
+/*!
+ * This method has no impact on groups. This method only works on families. This method firstly removes families not refered by any groups in \a this, then all unused entities
+ * are put as belonging to family 0 ("FAMILLE_ZERO"). Finally, all orphanFamilies are killed.
+ * This method raises an exception if "FAMILLE_ZERO" is already belonging to a group.
+ *
+ * \sa MEDFileMesh::removeOrphanFamilies
+ */
+void MEDFileMesh::rearrangeFamilies()
+{
+  checkOrphanFamilyZero();
+  removeFamiliesReferedByNoGroups();
+  //
+  std::vector<int> levels(getNonEmptyLevelsExt());
+  std::set<int> idsRefed;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    idsRefed.insert((*it).second);
+  for(std::vector<int>::const_iterator it=levels.begin();it!=levels.end();it++)
+    {
+      const DataArrayInt *fams(0);
+      try
+      {
+          fams=getFamilyFieldAtLevel(*it);
+      }
+      catch(INTERP_KERNEL::Exception& e) { }
+      if(!fams)
+        continue;
+      std::vector<bool> v(fams->getNumberOfTuples(),false);
+      for(std::set<int>::const_iterator pt=idsRefed.begin();pt!=idsRefed.end();pt++)
+        fams->switchOnTupleEqualTo(*pt,v);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> unfetchedIds(DataArrayInt::BuildListOfSwitchedOff(v));
+      if(!unfetchedIds->empty())
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFams(fams->deepCpy());
+          newFams->setPartOfValuesSimple3(0,unfetchedIds->begin(),unfetchedIds->end(),0,1,1);
+          setFamilyFieldArr(*it,newFams);
+        }
+    }
+  removeOrphanFamilies();
+}
+
+/*!
+ * This method only checks that "FAMILLE_ZERO" is orphan (not belonging to a group).
+ */
+void MEDFileMesh::checkOrphanFamilyZero() const
+{
+  for(std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.begin();it!=_groups.end();it++)
+    {
+      if(std::find((*it).second.begin(),(*it).second.end(),DFT_FAM_NAME)!=(*it).second.end())
+        {
+          std::ostringstream oss; oss << "MEDFileMesh::rearrangeFamilies : Groups \"" << (*it).first << "\" is lying on family \"" << DFT_FAM_NAME << "\" !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+/*!
  * Renames a group in \a this mesh.
  *  \param [in] oldName - a current name of the group to rename.
  *  \param [in] newName - a new group name.
@@ -3853,6 +3928,10 @@ void MEDFileUMesh::unserialize(std::vector<double>& tinyDouble, std::vector<int>
  * Adds a group of nodes to \a this mesh.
  *  \param [in] ids - a DataArrayInt providing ids and a name of the group to add.
  *          The ids should be sorted and different each other (MED file norm).
+ *
+ *  \warning this method can alter default "FAMILLE_ZERO" family.
+ *  For users sensitive to this a call to MEDFileMesh::rearrangeFamilies will be necessary after addGroup session.
+ *
  *  \throw If the node coordinates array is not set.
  *  \throw If \a ids == \c NULL.
  *  \throw If \a ids->getName() == "".
@@ -3873,8 +3952,13 @@ void MEDFileUMesh::addNodeGroup(const DataArrayInt *ids)
 
 /*!
  * Adds a group of nodes/cells/faces/edges to \a this mesh.
+ *
  *  \param [in] ids - a DataArrayInt providing ids and a name of the group to add.
  *          The ids should be sorted and different each other (MED file norm).
+ *
+ * \warning this method can alter default "FAMILLE_ZERO" family.
+ * For users sensitive to this a call to MEDFileMesh::rearrangeFamilies will be necessary after addGroup session.
+ *
  *  \throw If the node coordinates array is not set.
  *  \throw If \a ids == \c NULL.
  *  \throw If \a ids->getName() == "".

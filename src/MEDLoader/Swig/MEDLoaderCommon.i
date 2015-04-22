@@ -543,6 +543,9 @@ namespace ParaMEDMEM
     void removeFamily(const std::string& name) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> removeOrphanGroups() throw(INTERP_KERNEL::Exception);
     std::vector<std::string> removeOrphanFamilies() throw(INTERP_KERNEL::Exception);
+    void removeFamiliesReferedByNoGroups() throw(INTERP_KERNEL::Exception);
+    void rearrangeFamilies() throw(INTERP_KERNEL::Exception);
+    void checkOrphanFamilyZero() const throw(INTERP_KERNEL::Exception);
     void changeGroupName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
     void changeFamilyName(const std::string& oldName, const std::string& newName) throw(INTERP_KERNEL::Exception);
     void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);

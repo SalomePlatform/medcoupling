@@ -4107,7 +4107,7 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDFileLotsOfTSRW1(self):
         nbNodes=11
         fieldName="myField"
-        fileName="out.med"
+        fileName="Pyfile88.med"
         nbPdt=300 # <- perftest = 30000
         meshName="Mesh"
         #
@@ -4179,6 +4179,66 @@ class MEDLoaderTest(unittest.TestCase):
             pass
         self.assertEqual(fs2[0].getTimeSteps(),[(i,0,float(i)) for i in xrange(nbPdt)])
         pass
+    
+    def testMEDFileMeshRearrangeFamIds1(self):
+        """ Test for bug EDF10720. The aim of this test is the call of MEDFileMesh.rearrangeFamilies."""
+        fileName="Pyfile89.med"
+        meshName='Maillage_2'
+        mm=MEDFileUMesh()
+        coords=DataArrayDouble([(0.,0.,0.),(0.,0.,200.),(0.,200.,200.),(0.,200.,0.),(200.,0.,0.),(200.,0.,200.),(200.,200.,200.),(200.,200.,0.),(0.,0.,100.),(0.,100.,200.),(0.,200.,100.),(0.,100.,0.),(200.,0.,100.),(200.,100.,200.),(200.,200.,100.),(200.,100.,0.),(100.,0.,0.),(100.,0.,200.),(100.,200.,0.),(100.,200.,200.),(0.,116.87743909766768,83.12256090233232),(200.,116.87743909766768,83.12256090233232),(116.87743909766769,0.,116.87743909766769),(116.87743909766769,200.,116.87743909766769),(116.87743909766769,116.87743909766769,0.),(116.87743909766769,116.87743909766769,200.),(63.3851584383713,56.1391811199829,119.728314479261),(138.008709441123,116.039297556044,119.903790959468)])
+        #
+        c0=DataArrayInt([14,1,26,9,8,14,17,26,1,8,14,27,26,17,22,14,26,16,20,8,14,8,0,16,11,14,16,20,11,24,14,25,20,26,27,14,22,26,24,27,14,26,16,22,24,14,8,26,22,17,14,20,9,25,26,14,19,20,25,23,14,23,6,27,25,14,19,23,10,20,14,27,22,21,24,14,27,21,14,18,14,26,9,25,17,14,13,27,25,17,14,27,18,24,21,14,22,21,15,12,14,27,20,24,18,14,23,25,27,20,14,13,27,6,25,14,23,27,6,14,14,15,16,22,12,14,27,17,13,22,14,22,27,21,13,14,24,16,22,15,14,24,18,7,21,14,12,4,15,16,14,22,12,5,13,14,8,26,16,22,14,13,27,21,14,14,20,18,10,3,14,14,27,18,23,14,14,27,6,13,14,21,22,13,12,14,25,26,17,27,14,19,9,25,20,14,26,24,20,16,14,22,24,15,21,14,9,26,1,17,14,23,27,18,20,14,20,11,18,3,14,14,18,21,7,14,19,2,9,10,14,19,23,25,6,14,18,23,20,10,14,20,26,8,9,14,22,13,5,17,14,24,11,18,20,14,21,15,7,24,14,19,20,10,9,14,20,26,27,24,14,16,8,11,20])
+        c0i=DataArrayInt([0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150,155,160,165,170,175,180,185,190,195,200,205,210,215,220,225,230,235,240,245,250,255,260,265,270,275])
+        m0=MEDCouplingUMesh(meshName,3) ; m0.setCoords(coords)
+        m0.setConnectivity(c0,c0i)
+        mm[0]=m0
+        #
+        c1=DataArrayInt([3,8,20,11,3,8,9,20,3,9,2,10,3,20,9,10,3,0,8,11,3,9,8,1,3,20,10,3,3,11,20,3,3,15,21,12,3,5,12,13,3,21,13,12,3,15,12,4,3,14,6,13,3,14,13,21,3,7,14,21,3,7,21,15,3,5,22,12,3,4,12,16,3,17,1,8,3,16,8,0,3,5,17,22,3,12,22,16,3,22,17,8,3,16,22,8,3,10,2,19,3,7,18,14,3,14,23,6,3,3,10,18,3,23,19,6,3,18,23,14,3,10,19,23,3,10,23,18,3,3,18,11,3,7,24,18,3,15,4,16,3,11,16,0,3,7,15,24,3,18,24,11,3,24,15,16,3,11,24,16,3,9,19,2,3,19,25,6,3,17,5,13,3,1,17,9,3,25,13,6,3,9,25,19,3,17,13,25,3,17,25,9])
+        c1i=DataArrayInt([0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192])
+        m1=MEDCouplingUMesh(meshName,2) ; m1.setCoords(coords)
+        m1.setConnectivity(c1,c1i)
+        mm[-1]=m1
+        #
+        c2=DataArrayInt([0,8,8,1,1,9,9,2,3,10,10,2,0,11,11,3,4,12,12,5,5,13,13,6,7,14,14,6,4,15,15,7,0,16,16,4,1,17,17,5,3,18,18,7,2,19,19,6])
+        m2=MEDCoupling1SGTUMesh(meshName,NORM_SEG2)
+        m2.setNodalConnectivity(c2) ; m2.setCoords(coords)
+        mm[-2]=m2.buildUnstructured()
+        #
+        ref0=DataArrayInt(55) ; ref0[:]=0
+        mm.setFamilyFieldArr(0,ref0)
+        mm.setFamilyFieldArr(1,DataArrayInt([0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]))
+        ref1=DataArrayInt([0,0,0,0,0,0,0,0,-6,-6,-6,-6,-6,-6,-6,-6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        mm.setFamilyFieldArr(-1,ref1)
+        ref2=DataArrayInt([0,0,-7,-7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        mm.setFamilyFieldArr(-2,ref2)
+        #
+        for f,fid in (('FAMILLE_ZERO',0),('FAM_-6_Groupe_1',-6),('FAM_-7_Groupe_2',-7),('FAM_2_Groupe_3',2)):
+            mm.setFamilyId(f,fid)
+        for grp,fams in [('Groupe_1',('FAM_-6_Groupe_1',)),('Groupe_2',('FAM_-7_Groupe_2',)),('Groupe_3',('FAM_2_Groupe_3',))]:
+            mm.setFamiliesOnGroup(grp,fams)
+        mm.write(fileName,2)
+        #
+        mm=MEDFileMesh.New(fileName)
+        grp=mm.getGroup(-1,"Groupe_1")
+        dai=grp.computeFetchedNodeIds()
+        dai.setName("TOTO")
+        mm.addGroup(1,dai)
+        mm.rearrangeFamilies() # <- the aim of the test
+        self.assertTrue(dai.isEqual(mm.getGroupArr(1,"TOTO")))
+        self.assertTrue(mm.getFamilyFieldAtLevel(0).isEqual(ref0))
+        self.assertTrue(mm.getFamilyFieldAtLevel(-1).isEqual(ref1))
+        self.assertTrue(mm.getFamilyFieldAtLevel(-2).isEqual(ref2))
+        self.assertTrue(mm.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([0,0,2,0,9,9,9,9,0,0,0,0,9,9,9,9,0,0,0,0,0,9,0,0,0,0,0,0])))
+        allGrps=[('Groupe_1',('FAM_-6_Groupe_1',)),('Groupe_2',('FAM_-7_Groupe_2',)),('Groupe_3',('FAM_2_Groupe_3',)),('TOTO',('Family_9',))]
+        allFams=[('FAMILLE_ZERO',0),('FAM_-6_Groupe_1',-6),('FAM_-7_Groupe_2',-7),('FAM_2_Groupe_3',2),('Family_9',9)]
+        self.assertEqual(list(mm.getGroupsNames()),[elt[0] for elt in allGrps])
+        for elt,fams in allGrps:
+            self.assertEqual(mm.getFamiliesOnGroup(elt),fams)
+        self.assertEqual(list(mm.getFamiliesNames()),[elt[0] for elt in allFams])
+        for elt,eltId in allFams:
+            self.assertEqual(mm.getFamilyId(elt),eltId)
+        pass
+
     pass
 
 unittest.main()
