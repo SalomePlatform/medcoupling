@@ -4239,6 +4239,46 @@ class MEDLoaderTest(unittest.TestCase):
             self.assertEqual(mm.getFamilyId(elt),eltId)
         pass
 
+    def testNonRegrCMeshSetFieldPfl1(self):
+        """ Non regression test. For structured mesh, push a false partial field in MEDFileField1TS using setFieldProfile."""
+        ff=MEDFileField1TS()
+        meshName="mesh"
+        mm=MEDFileCMesh()
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble(5) ; arr.iota()
+        m.setCoords(arr)
+        m.setName(meshName)
+        mm.setMesh(m)
+        field=MEDCouplingFieldDouble(ON_CELLS)
+        field.setMesh(m)
+        field.setArray(DataArrayDouble([1.2,2.3,3.4,4.5]))
+        field.setName("Field")
+        field.checkCoherency()
+        pfl=DataArrayInt([0,1,2,3]) ; pfl.setName("TUTU") #<- false profile because defined on all cells !
+        ff.setFieldProfile(field,mm,0,pfl) # <- bug was revealed here !
+        self.assertEqual(ff.getPfls(),())
+        field2=ff.getFieldOnMeshAtLevel(ON_CELLS,0,mm)
+        self.assertTrue(field.isEqual(field2,1e-12,1e-12))
+        del ff,mm,field,field2,pfl
+        # same with unstructured mesh
+        ff=MEDFileField1TS()
+        meshName="mesh"
+        mm=MEDFileUMesh()
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble(5) ; arr.iota()
+        m.setCoords(arr)
+        m.setName(meshName)
+        m=m.buildUnstructured()
+        mm[0]=m
+        field=MEDCouplingFieldDouble(ON_CELLS)
+        field.setMesh(m)
+        field.setArray(DataArrayDouble([1.2,2.3,3.4,4.5]))
+        field.setName("Field")
+        field.checkCoherency()
+        pfl=DataArrayInt([0,1,2,3]) ; pfl.setName("TUTU")
+        ff.setFieldProfile(field,mm,0,pfl)
+        self.assertEqual(ff.getPfls(),())
+        field2=ff.getFieldOnMeshAtLevel(ON_CELLS,0,mm)
+        self.assertTrue(field.isEqual(field2,1e-12,1e-12))
+        pass
     pass
 
 unittest.main()

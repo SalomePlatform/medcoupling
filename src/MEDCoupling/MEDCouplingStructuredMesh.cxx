@@ -316,15 +316,15 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile is NULL or not allocated !");
   if(profile->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::splitProfilePerType : input profile should have exactly one component !");
-  int nbTuples=profile->getNumberOfTuples();
+  int nbTuples(profile->getNumberOfTuples());
   int nbOfCells=getNumberOfCells();
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getTypeOfCell(0); code[1]=nbOfCells;
   idsInPflPerType.resize(1);
-  if(profile->isIdentity() && nbTuples==nbOfCells)
+  if(profile->isIdentity2(nbOfCells))
     {
       code[2]=-1;
-      idsInPflPerType[0]=0;
+      idsInPflPerType[0]=profile->deepCpy();
       idsPerType.clear();
       return ;
     }

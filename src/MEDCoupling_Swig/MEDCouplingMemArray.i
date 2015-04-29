@@ -2612,6 +2612,7 @@ namespace ParaMEDMEM
     DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
     bool isIdentity() const throw(INTERP_KERNEL::Exception);
+    bool isIdentity2(int sizeExpected) const throw(INTERP_KERNEL::Exception);
     bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);

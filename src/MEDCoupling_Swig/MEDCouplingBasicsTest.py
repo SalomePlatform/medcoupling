@@ -16538,7 +16538,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=MEDCoupling1SGTUMesh("mesh",NORM_TETRA4) ; m.setCoords(coo)
         exp8=1.7131322579364157
         self.assertAlmostEqual(exp8,coo.buildEuclidianDistanceDenseMatrix().getMaxValue()[0],12)# <- the definition of diameter
-        for c in [[0,1,2,3],[0,1,3,2],[0,3,2,1],[0,3,1,2]]:
+        for c in [[0,1,2,3],[0,3,2,1],[0,1,3,2],[0,2,3,1],[0,3,1,2],[0,2,1,3]]:
             for i in xrange(4):
                 m.setNodalConnectivity(DataArrayInt([(elt+i)%4 for elt in c]))
                 self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp8,12)

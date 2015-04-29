@@ -7729,22 +7729,44 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const
 /*!
  * Checks if contents of \a this array are equal to that of an array filled with
  * iota(). This method is particularly useful for DataArrayInt instances that represent
- * a renumbering array to check the real need in renumbering. 
+ * a renumbering array to check the real need in renumbering. In this case it is better to use isIdentity2
+ * method of isIdentity method.
+ *
  *  \return bool - \a true if \a this array contents == \a range( \a this->getNumberOfTuples())
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
+ *  \sa isIdentity2
  */
 bool DataArrayInt::isIdentity() const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     return false;
-  int nbOfTuples=getNumberOfTuples();
+  int nbOfTuples(getNumberOfTuples());
   const int *pt=getConstPointer();
   for(int i=0;i<nbOfTuples;i++,pt++)
     if(*pt!=i)
       return false;
   return true;
+}
+
+/*!
+ * This method is stronger than isIdentity method. This method checks than \a this can be considered as an identity function
+ * of a set having \a sizeExpected elements into itself.
+ *
+ * \param [in] sizeExpected - The number of elements
+ * \return bool - \a true if \a this array contents == \a range( \a this->getNumberOfTuples()) and if \a this has \a sizeExpected tuples in it.
+ *
+ *  \throw If \a this is not allocated.
+ *  \throw If \a this->getNumberOfComponents() != 1.
+ * \sa isIdentity
+ */
+bool DataArrayInt::isIdentity2(int sizeExpected) const
+{
+  bool ret0(isIdentity());
+  if(!ret0)
+    return false;
+  return getNumberOfTuples()==sizeExpected;
 }
 
 /*!

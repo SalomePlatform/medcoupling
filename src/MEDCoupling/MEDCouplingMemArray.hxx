@@ -511,6 +511,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, const int *arr, const int *arrIBg, const int *arrIEnd, int &newNbOfTuples);
     MEDCOUPLING_EXPORT DataArrayInt *buildPermArrPerLevel() const;
     MEDCOUPLING_EXPORT bool isIdentity() const;
+    MEDCOUPLING_EXPORT bool isIdentity2(int sizeExpected) const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
