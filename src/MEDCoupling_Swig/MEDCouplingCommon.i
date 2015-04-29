@@ -260,6 +260,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingPointSet::getBoundingBoxForBBTree;
 %newobject ParaMEDMEM::MEDCouplingPointSet::computeFetchedNodeIds;
 %newobject ParaMEDMEM::MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells;
+%newobject ParaMEDMEM::MEDCouplingPointSet::computeDiameterField;
 %newobject ParaMEDMEM::MEDCouplingPointSet::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
@@ -1174,6 +1175,7 @@ namespace ParaMEDMEM
       virtual DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
       virtual void renumberNodesWithOffsetInConn(int offset) throw(INTERP_KERNEL::Exception);
       virtual bool areAllNodesFetched() const throw(INTERP_KERNEL::Exception);
+      virtual MEDCouplingFieldDouble *computeDiameterField() const throw(INTERP_KERNEL::Exception);
       %extend 
          {
            std::string __str__() const throw(INTERP_KERNEL::Exception)

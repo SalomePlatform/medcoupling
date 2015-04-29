@@ -16429,6 +16429,123 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m2.zipCoords()
         self.assertTrue(m2.areAllNodesFetched())
         pass
+
+    def testMEDCouplingPointSetComputeDiameterField1(self):
+        arrX=DataArrayDouble([0.,1.1,1.7,2.1])
+        arrY=DataArrayDouble([0.,0.7,0.8,1.9])
+        arrZ=DataArrayDouble([0.,1.3,2.1,2.4])
+        m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY,arrZ) ; m=m.buildUnstructured()
+        f=m.computeDiameterField()
+        f.checkCoherency()
+        exp=DataArrayDouble([1.8411952639521971,1.5937377450509227,1.5297058540778357,1.705872210923198,1.4352700094407325,1.3638181696985856,2.0273134932713295,1.8055470085267789,1.7492855684535902,1.5297058540778357,1.2206555615733703,1.1357816691600546,1.3638181696985856,1.004987562112089,0.9,1.7492855684535902,1.4866068747318506,1.4177446878757824,1.3379088160259651,0.9695359714832656,0.8602325267042626,1.1445523142259597,0.6782329983125266,0.5099019513592785,1.5842979517754858,1.2884098726725124,1.208304597359457])
+        self.assertTrue(exp.isEqual(f.getArray(),1e-12))
+        m1=m[::2]
+        m2=m[1::2]
+        m2.simplexize(PLANAR_FACE_5)
+        m3=MEDCouplingUMesh.MergeUMeshesOnSameCoords(m1,m2)
+        f=m3.computeDiameterField()
+        f.checkCoherency()
+        exp2=DataArrayDouble([1.8411952639521971,1.5297058540778357,1.4352700094407325,2.0273134932713295,1.7492855684535902,1.2206555615733703,1.3638181696985856,0.9,1.4866068747318506,1.3379088160259651,0.8602325267042626,0.6782329983125266,1.5842979517754858,1.208304597359457,1.47648230602334,1.47648230602334,1.47648230602334,1.47648230602334,1.47648230602334,1.7029386365926402,1.7029386365926402,1.7029386365926402,1.7029386365926402,1.7029386365926402,1.3601470508735445,1.3601470508735445,1.3601470508735445,1.3601470508735445,1.3601470508735445,1.70293863659264,1.70293863659264,1.70293863659264,1.70293863659264,1.70293863659264,1.3601470508735445,1.3601470508735445,1.3601470508735445,1.3601470508735445,1.3601470508735445,1.063014581273465,1.063014581273465,1.063014581273465,1.063014581273465,1.063014581273465,1.0,1.0,1.0,1.0,1.0,1.5556349186104046,1.5556349186104046,1.5556349186104046,1.5556349186104046,1.5556349186104046,1.3601470508735443,1.3601470508735443,1.3601470508735443,1.3601470508735443,1.3601470508735443,0.9219544457292886,0.9219544457292886,0.9219544457292886,0.9219544457292886,0.9219544457292886,1.140175425099138,1.140175425099138,1.140175425099138,1.140175425099138,1.140175425099138,0.5,0.5,0.5,0.5,0.5,1.2529964086141667,1.2529964086141667,1.2529964086141667,1.2529964086141667,1.2529964086141667])
+        self.assertTrue(exp2.isEqual(f.getArray(),1e-12))
+        # TRI3 - spacedim = 2
+        coo=DataArrayDouble([(1,1),(5,1.9),(2.1,3)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_TRI3) ; m.setCoords(coo)
+        for c in [[0,1,2],[0,2,1],[2,1,0]]:
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],4.1,12)
+        # TRI3 - spacedim = 3
+        coo=DataArrayDouble([(1.3198537928820775,1.0991902391274959,-0.028645697595823361),(5.2486835106806335,2.2234012799688281,0.30368935050077939),(2.2973688139447361,3.1572023778066649,0.10937756365410012)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_TRI3) ; m.setCoords(coo)
+        for c in [[0,1,2],[0,2,1],[2,1,0]]:
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],4.1,12)
+        # QUAD4 - spacedim = 2
+        coo=DataArrayDouble([(0,2),(2,0),(6,4),(4,9)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.setCoords(coo)
+        exp3=sqrt(85.)
+        for delta in xrange(4):
+            c=[(elt+delta)%4 for elt in xrange(4)]
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+            c.reverse()
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+        # QUAD4 - spacedim = 3
+        coo=DataArrayDouble([(0.26570992384234871,2.0405889913271817,-0.079134238105786903),(2.3739976619218064,0.15779148692781009,0.021842842914139737),(6.1207841448393197,4.3755532938679655,0.43666375769970678),(3.8363255342943359,9.2521096041694229,0.41551170895942313)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.setCoords(coo)
+        for delta in xrange(4):
+            c=[(elt+delta)%4 for elt in xrange(4)]
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+            c.reverse()
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+        # PENTA6
+        # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(0,0,2),(1,0,2),(0,1,2)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
+        coo=DataArrayDouble([(-0.28594726851554486,-0.23715005500928255,-0.10268080010083136),(0.6167364988633947,-0.008923258436324799,-0.08574087516687756),(-0.6132873463333834,0.6943403970881654,-0.2806118260037991),(-0.40705974936532896,-0.05868487929989308,1.7724055544436323),(0.5505955507861958,0.19145393798144705,1.8788156352163994),(-0.6092686217773406,0.812502961290914,1.685712743757831)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_PENTA6) ; m.setCoords(coo)
+        exp4=2.5041256256889888
+        self.assertAlmostEqual(exp4,coo.buildEuclidianDistanceDenseMatrix().getMaxValue()[0],12)# <- the definition of diameter
+        for delta in xrange(3):
+            c=[(elt+delta)%3 for elt in xrange(3)]
+            c+=[elt+3 for elt in c]
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp4,12)
+            c.reverse()
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp4,12)
+        # HEXA8
+        # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0,0,2),(1,0,2),(1,1,2),(0,1,2)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
+        coo=DataArrayDouble([(-0.21266406388867243,-0.3049569460042527,-0.11012394815006032),(0.7641037943272584,-0.06990814759929553,-0.0909613877456491),(0.47406560768559974,0.8681310650341907,-0.2577311403703061),(-0.5136830410871793,0.644390554940524,-0.21319015989794698),(-0.4080167737381202,-0.12853761670628505,1.7869166291979348),(0.5650318811550441,0.20476257733110748,1.8140158890821603),(0.3230844436386215,1.1660778242678538,1.7175073141333406),(-0.6656588358432984,0.918357550969698,1.7566470691880265)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_HEXA8) ; m.setCoords(coo)
+        exp5=2.5366409441884215
+        self.assertAlmostEqual(exp5,coo.buildEuclidianDistanceDenseMatrix().getMaxValue()[0],12)# <- the definition of diameter
+        for delta in xrange(4):
+            c=[(elt+delta)%4 for elt in xrange(4)]
+            c+=[elt+4 for elt in c]
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp5,12)
+            c.reverse()
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp5,12)
+        # PYRA5 (1) 5th node is further 
+        # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0.5,0.5,2)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
+        coo=DataArrayDouble([(-0.31638393672228626,-0.3157865246451914,-0.12555467233075002),(0.7281379795666488,0.03836511217237115,-0.08431662762197323),(0.4757967840735147,0.8798897996143908,-0.2680890320119049),(-0.5386339871809047,0.5933159894201252,-0.2975311238319419),(0.012042592988768974,0.534282135495012,1.7859521682027926)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_PYRA5) ; m.setCoords(coo)
+        exp6=2.1558368027391386
+        self.assertAlmostEqual(exp6,coo.buildEuclidianDistanceDenseMatrix().getMaxValue()[0],12)# <- the definition of diameter
+        for delta in xrange(4):
+            c=[(elt+delta)%4 for elt in xrange(4)]
+            c+=[4]
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp6,12)
+            pass
+        # PYRA5 (2) 5th node is closer
+        # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0.5,0.5,0.1)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
+        coo=DataArrayDouble([(-0.31638393672228626,-0.3157865246451914,-0.12555467233075002),(0.7281379795666488,0.03836511217237115,-0.08431662762197323),(0.4757967840735147,0.8798897996143908,-0.2680890320119049),(-0.5386339871809047,0.5933159894201252,-0.2975311238319419),(0.092964408350795,0.33389670321297005,-0.10171764888060142)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_PYRA5) ; m.setCoords(coo)
+        exp7=1.4413563787228953
+        self.assertAlmostEqual(exp7,coo.buildEuclidianDistanceDenseMatrix().getMaxValue()[0],12)# <- the definition of diameter
+        for delta in xrange(4):
+            c=[(elt+delta)%4 for elt in xrange(4)]
+            c+=[4]
+            m.setNodalConnectivity(DataArrayInt(c))
+            self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp7,12)
+            pass
+        # TETRA4
+        # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(1,1,1)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
+        coo=DataArrayDouble([(-0.2256894071281369,-0.27631691290428106,-0.20266086543995965),(0.655458695100186,-0.08173323565551605,-0.19254662462061933),(-0.49893490718947264,0.5848097154568599,-0.3039928255382145),(0.2988102920828487,1.0582266398878504,0.7347375047372364)])
+        m=MEDCoupling1SGTUMesh("mesh",NORM_TETRA4) ; m.setCoords(coo)
+        exp8=1.7131322579364157
+        self.assertAlmostEqual(exp8,coo.buildEuclidianDistanceDenseMatrix().getMaxValue()[0],12)# <- the definition of diameter
+        for c in [[0,1,2,3],[0,1,3,2],[0,3,2,1],[0,3,1,2]]:
+            for i in xrange(4):
+                m.setNodalConnectivity(DataArrayInt([(elt+i)%4 for elt in c]))
+                self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp8,12)
+                pass
+            pass
+        pass
+
     pass
 
 if __name__ == '__main__':

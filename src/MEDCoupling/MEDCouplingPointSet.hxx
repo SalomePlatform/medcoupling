@@ -139,6 +139,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellsInBoundingBox(const double *bbox, double eps) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *computeDiameterField() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *zipCoordsTraducer();
     MEDCOUPLING_EXPORT virtual DataArrayInt *zipConnectivityTraducer(int compType, int startCellId=0);
     MEDCOUPLING_EXPORT virtual bool areAllNodesFetched() const;

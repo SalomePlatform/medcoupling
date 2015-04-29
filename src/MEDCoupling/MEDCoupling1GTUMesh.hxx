@@ -136,6 +136,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
     // overload of MEDCoupling1GTUMesh
     MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);
@@ -229,6 +230,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
     // overload of MEDCoupling1GTUMesh
     MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);

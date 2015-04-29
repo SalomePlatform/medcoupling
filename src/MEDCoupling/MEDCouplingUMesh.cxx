@@ -29,6 +29,7 @@
 #include "BBTree.txx"
 #include "BBTreeDst.txx"
 #include "SplitterTetra.hxx"
+#include "DiameterCalculator.hxx"
 #include "DirectedBoundingBox.hxx"
 #include "InterpKernelMatrixTools.hxx"
 #include "InterpKernelMeshQuality.hxx"
@@ -3145,16 +3146,7 @@ MEDCouplingUMesh::~MEDCouplingUMesh()
  */
 void MEDCouplingUMesh::computeTypes()
 {
-  if(_nodal_connec && _nodal_connec_index)
-    {
-      _types.clear();
-      const int *conn=_nodal_connec->getConstPointer();
-      const int *connIndex=_nodal_connec_index->getConstPointer();
-      int nbOfElem=_nodal_connec_index->getNbOfElems()-1;
-      if (nbOfElem > 0)
-        for(const int *pt=connIndex;pt !=connIndex+nbOfElem;pt++)
-          _types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
-    }
+  ComputeAllTypesInternal(_types,_nodal_connec,_nodal_connec_index);
 }
 
 /*!
@@ -6512,6 +6504,34 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getSkewField() const
     }
   ret->setName("Skew");
   ret->synchronizeTimeWithSupport();
+  return ret.retn();
+}
+
+/*!
+ * Returns the cell field giving for each cell in \a this its diameter. Diameter means the max length of all possible SEG2 in the cell.
+ *
+ * \return a new instance of field containing the result. The returned instance has to be deallocated by the caller.
+ *
+ * \sa getSkewField, getWarpField, getAspectRatioField, getEdgeRatioField
+ */
+MEDCouplingFieldDouble *MEDCouplingUMesh::computeDiameterField() const
+{
+  checkCoherency();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME));
+  ret->setMesh(this);
+  std::set<INTERP_KERNEL::NormalizedCellType> types;
+  ComputeAllTypesInternal(types,_nodal_connec,_nodal_connec_index);
+  int spaceDim(getSpaceDimension()),nbCells(getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New());
+  arr->alloc(nbCells,1);
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=types.begin();it!=types.end();it++)
+    {
+      INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::DiameterCalculator> dc(INTERP_KERNEL::CellModel::GetCellModel(*it).buildInstanceOfDiameterCalulator(spaceDim));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds(giveCellsWithType(*it));
+      dc->computeForListOfCellIdsUMeshFrmt(cellIds->begin(),cellIds->end(),_nodal_connec_index->begin(),_nodal_connec->begin(),getCoords()->begin(),arr->getPointer());
+    }
+  ret->setArray(arr);
+  ret->setName("Diameter");
   return ret.retn();
 }
 
@@ -11533,6 +11553,19 @@ int MEDCouplingUMesh::split2DCellsQuadratic(const DataArrayInt *desc, const Data
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::Aggregate(getCoords(),addCoo));//info are copied from getCoords() by using Aggregate
   setCoords(coo);
   return addCoo->getNumberOfTuples();
+}
+
+void MEDCouplingUMesh::ComputeAllTypesInternal(std::set<INTERP_KERNEL::NormalizedCellType>& types, const DataArrayInt *nodalConnec, const DataArrayInt *nodalConnecIndex)
+{
+  if(nodalConnec && nodalConnecIndex)
+    {
+      types.clear();
+      const int *conn(nodalConnec->getConstPointer()),*connIndex(nodalConnecIndex->getConstPointer());
+      int nbOfElem(nodalConnecIndex->getNbOfElems()-1);
+      if(nbOfElem>0)
+        for(const int *pt=connIndex;pt!=connIndex+nbOfElem;pt++)
+          types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
+    }
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),

@@ -194,6 +194,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getAspectRatioField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getWarpField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getSkewField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
     //utilities for MED File RW
     MEDCOUPLING_EXPORT std::vector<int> getDistributionOfTypes() const;
     MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
@@ -333,6 +334,7 @@ namespace ParaMEDMEM
     void split2DCellsLinear(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI);
     int split2DCellsQuadratic(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *subNodesInSeg, const DataArrayInt *subNodesInSegI, const DataArrayInt *mid, const DataArrayInt *midI);
     static bool Colinearize2DCell(const double *coords, const int *connBg, const int *connEnd, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords);
+    static void ComputeAllTypesInternal(std::set<INTERP_KERNEL::NormalizedCellType>& types, const DataArrayInt *nodalConnec, const DataArrayInt *nodalConnecIndex);
   public:
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeRangesFromTypeDistribution(const std::vector<int>& code);
     MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=24;

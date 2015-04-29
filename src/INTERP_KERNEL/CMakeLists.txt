@@ -26,6 +26,7 @@ SET(interpkernel_SOURCES
   TranslationRotationMatrix.cxx
   TetraAffineTransform.cxx
   CellModel.cxx
+  DiameterCalculator.cxx
   UnitTetraIntersectionBary.cxx
   InterpolationOptions.cxx
   BoxSplittingOptions.cxx

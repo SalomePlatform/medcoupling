@@ -21,6 +21,7 @@
 #include "CellModel.hxx"
 
 #include "InterpKernelException.hxx"
+#include "DiameterCalculator.hxx"
 
 #include <algorithm>
 #include <sstream>
@@ -735,5 +736,67 @@ namespace INTERP_KERNEL
           }
       }
   }
-
+  
+  DiameterCalculator *CellModel::buildInstanceOfDiameterCalulator(int spaceDim) const
+  {
+    switch(_type)
+      {
+      case NORM_TRI3:
+        {
+          switch(spaceDim)
+            {
+            case 2:
+              return new DiameterCalulatorTRI3S2;
+            case 3:
+              return new DiameterCalulatorTRI3S3;
+            default:
+              throw Exception("CellModel::buildInstanceOfDiameterCalulator : For TRI3 only space dimension 2 and 3 implemented !");
+            }
+          break;
+        }
+      case NORM_QUAD4:
+        {
+          switch(spaceDim)
+            {
+            case 2:
+              return new DiameterCalulatorQUAD4S2;
+            case 3:
+              return new DiameterCalulatorQUAD4S3;
+            default:
+              throw Exception("CellModel::buildInstanceOfDiameterCalulator : For QUAD4 only space dimension 2 and 3 implemented !");
+            }
+          break;
+        }
+      case NORM_TETRA4:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorTETRA4;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For TETRA4 space dimension 3 expected !");
+        }
+      case NORM_HEXA8:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorHEXA8;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For HEXA8 space dimension 3 expected !");
+        }
+      case NORM_PENTA6:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorPENTA6;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For PENTA6 space dimension 3 expected !");
+        }
+      case NORM_PYRA5:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorPYRA5;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For PYRA5 space dimension 3 expected !");
+        }
+      default:
+        throw Exception("CellModel::buildInstanceOfDiameterCalulator : implemented only for TRI3, QUAD4, TETRA4, HEXA8, PENTA6, PYRA5 !");
+      }
+  }
 }

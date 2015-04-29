@@ -29,6 +29,8 @@
 
 namespace INTERP_KERNEL
 {
+  class DiameterCalculator;
+  
   /*!
    * This class descibes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
    */
@@ -74,6 +76,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT unsigned fillSonEdgesNodalConnectivity3D(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
     INTERPKERNEL_EXPORT void changeOrientationOf2D(int *nodalConn, unsigned int sz) const;
     INTERPKERNEL_EXPORT void changeOrientationOf1D(int *nodalConn, unsigned int sz) const;
+    INTERPKERNEL_EXPORT DiameterCalculator *buildInstanceOfDiameterCalulator(int spaceDim) const;
   private:
     bool _dyn;
     bool _quadratic;

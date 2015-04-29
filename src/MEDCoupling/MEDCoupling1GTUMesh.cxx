@@ -24,6 +24,8 @@
 #include "MEDCouplingCMesh.hxx"
 
 #include "SplitterTetra.hxx"
+#include "DiameterCalculator.hxx"
+#include "InterpKernelAutoPtr.hxx"
 
 using namespace ParaMEDMEM;
 
@@ -2113,6 +2115,26 @@ DataArrayDouble *MEDCoupling1SGTUMesh::getBoundingBoxForBBTree(double arcDetEps)
   return ret.retn();
 }
 
+/*!
+ * Returns the cell field giving for each cell in \a this its diameter. Diameter means the max length of all possible SEG2 in the cell.
+ *
+ * \return a new instance of field containing the result. The returned instance has to be deallocated by the caller.
+ */
+MEDCouplingFieldDouble *MEDCoupling1SGTUMesh::computeDiameterField() const
+{
+  checkFullyDefined();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME));
+  int nbCells(getNumberOfCells());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New());
+  arr->alloc(nbCells,1);
+  INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::DiameterCalculator> dc(_cm->buildInstanceOfDiameterCalulator(getSpaceDimension()));
+  dc->computeFor1SGTUMeshFrmt(nbCells,_conn->begin(),getCoords()->begin(),arr->getPointer());
+  ret->setMesh(this);
+  ret->setArray(arr);
+  ret->setName("Diameter");
+  return ret.retn();
+}
+
 //== 
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New()
@@ -3592,6 +3614,16 @@ DataArrayDouble *MEDCoupling1DGTUMesh::getBoundingBoxForBBTree(double arcDetEps)
         }
     }
   return ret.retn();
+}
+
+/*!
+ * Returns the cell field giving for each cell in \a this its diameter. Diameter means the max length of all possible SEG2 in the cell.
+ *
+ * \return a new instance of field containing the result. The returned instance has to be deallocated by the caller.
+ */
+MEDCouplingFieldDouble *MEDCoupling1DGTUMesh::computeDiameterField() const
+{
+  throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::computeDiameterField : not implemented yet for dynamic types !");
 }
 
 std::vector<int> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::vector< std::vector<int> >& parts)
