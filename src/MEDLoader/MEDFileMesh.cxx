@@ -3294,7 +3294,7 @@ const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt
     throw INTERP_KERNEL::Exception("Dimension request is invalid (>1) !");
   int tracucedRk=-meshDimRelToMaxExt;
   if(tracucedRk>=(int)_ms.size())
-    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! To low !");
+    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! Too low !");
   if((const MEDFileUMeshSplitL1 *)_ms[tracucedRk]==0)
     throw INTERP_KERNEL::Exception("On specified lev (or entity) no cells exists !");
   return _ms[tracucedRk];
@@ -3308,7 +3308,7 @@ MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt)
     throw INTERP_KERNEL::Exception("Dimension request is invalid (>1) !");
   int tracucedRk=-meshDimRelToMaxExt;
   if(tracucedRk>=(int)_ms.size())
-    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! To low !");
+    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! Too low !");
   if((const MEDFileUMeshSplitL1 *)_ms[tracucedRk]==0)
     throw INTERP_KERNEL::Exception("On specified lev (or entity) no cells exists !");
   return _ms[tracucedRk];
@@ -4331,7 +4331,7 @@ void MEDFileUMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famAr
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : Dimension request is invalid (>1) !");
   int traducedRk=-meshDimRelToMaxExt;
   if(traducedRk>=(int)_ms.size())
-    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! To low !");
+    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! Too low !");
   if((MEDFileUMeshSplitL1 *)_ms[traducedRk]==0)
     throw INTERP_KERNEL::Exception("On specified lev (or entity) no cells exists !");
   return _ms[traducedRk]->setFamilyArr(famArr);
@@ -4367,7 +4367,7 @@ void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumA
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumArr : Dimension request is invalid (>1) !");
   int traducedRk=-meshDimRelToMaxExt;
   if(traducedRk>=(int)_ms.size())
-    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! To low !");
+    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! Too low !");
   if((MEDFileUMeshSplitL1 *)_ms[traducedRk]==0)
     throw INTERP_KERNEL::Exception("On specified lev (or entity) no cells exists !");
   return _ms[traducedRk]->setRenumArr(renumArr);
@@ -4401,7 +4401,7 @@ void MEDFileUMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiCha
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setNameFieldAtLevel : Dimension request is invalid (>1) !");
   int traducedRk=-meshDimRelToMaxExt;
   if(traducedRk>=(int)_ms.size())
-    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! To low !");
+    throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! Too low !");
   if((MEDFileUMeshSplitL1 *)_ms[traducedRk]==0)
     throw INTERP_KERNEL::Exception("On specified lev (or entity) no cells exists !");
   return _ms[traducedRk]->setNameArr(nameArr);

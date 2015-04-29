@@ -248,7 +248,10 @@ namespace INTERP_KERNEL
     virtual double getCurveLength() const = 0;
     virtual void getBarycenter(double *bary) const = 0;
     virtual void getBarycenterOfZone(double *bary) const = 0;
+    //! return the middle of two points
     virtual void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const = 0;
+    //! return the middle of two points respecting the orientation defined by this (relevant for arc of circle). By default same as getMiddleOfPoints()
+    virtual void getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const;
     //! Retrieves a point that is owning to this, well placed for IN/OUT detection of this. Typically midlle of this is returned.
     virtual Node *buildRepresentantOfMySelf() const = 0;
     //! Given a magnitude specified by sub-type returns if in or not. See getCharactValue method.

@@ -726,6 +726,11 @@ void Edge::unApplySimilarity(double xBary, double yBary, double dimChar)
   _bounds.unApplySimilarity(xBary,yBary,dimChar);
 }
 
+void Edge::getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const
+{
+  return getMiddleOfPoints(p1, p2, mid);
+}
+
 bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
                      ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {

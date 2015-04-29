@@ -1190,5 +1190,97 @@ void QuadraticPlanarInterpTest::checkIsInOrOut()
   delete pol1;
 }
 
+void QuadraticPlanarInterpTest::checkGetMiddleOfPoints()
+{
+  { // from testIntersect2DMeshWith1DLine6()
+    double p1[] = {0.51641754716735844, 2.0};
+    double p2[] = {0.0, 1.0};
+    double e_center[] = {-0.71, 2.0};
+    double mid[] = {0.0,0.0}; // out
+    double mide[] = {0.0,0.0}; // expected
+
+    Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
+    // start, end, center_x, center_y, radius, angle0, angle
+    EdgeArcCircle e(start, end, e_center, 1.2264175471673588, -0.9533904350433241, 0.95339043504332388);
+
+    e.getMiddleOfPoints(p1, p2, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.37969180470645592, mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.4372640310451197, mid[1], 1.e-7);
+
+    e.getMiddleOfPoints(p2, p1, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.37969180470645592, mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.4372640310451197, mid[1], 1.e-7);
+
+    start->decrRef(); end->decrRef();
+  }
+  { // from testSwig2Intersect2DMeshWith1DLine11()
+    double p1[] = {-1., 0.23453685964236054};
+    double p2[] = {-0.23453685964235979, 1.0};
+    double e_center[] = {-4.85, 4.85};
+    double mid[] = {0.0,0.0}; // out
+
+    Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
+    // start, end, center_x, center_y, radius, angle0, angle
+    EdgeArcCircle e(start, end, e_center, 6.0104076400856474, -0.69522150912422953, -0.18035330854643861);
+
+    e.getMiddleOfPoints(p1, p2, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.6, mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, mid[1], 1.e-7);
+
+    e.getMiddleOfPoints(p2, p1, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.6, mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, mid[1], 1.e-7);
+
+    start->decrRef(); end->decrRef();
+  }
+  { // from testSwig2Intersect2DMeshWith1DLine11()
+    double p1[] = {-0.1303327636866019, -1.0};
+    double p2[] = {-1.0, -0.1303327636866019};
+    double e_center[] = {-1.9833333333333298, -1.9833333333333298};
+    double mid[] = {0.0,0.0}; // out
+
+    Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
+    // start, end, center_x, center_y, radius, angle0, angle
+    EdgeArcCircle e(start, end, e_center, 2.0977501175200861, 1.0829141821052615, -0.59503203741562627);
+
+    e.getMiddleOfPoints(p1, p2, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5, mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5, mid[1], 1.e-7);
+
+    e.getMiddleOfPoints(p2, p1, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5, mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5, mid[1], 1.e-7);
+
+    start->decrRef(); end->decrRef();
+  }
+}
+
+void QuadraticPlanarInterpTest::checkGetMiddleOfPointsOriented()
+{
+  { // from testSwig2Colinearize2D3()
+    double p1[] = {-0.70710678118654746, 0.70710678118654757};
+    double p2[] = {-0.70710678118654768, -0.70710678118654746};
+    double e_center[] = {0., 0.};
+    double mid[] = {0.0,0.0}; // out
+
+    Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
+    // start, end, center_x, center_y, radius, angle0, angle
+    EdgeArcCircle e(start, end, e_center, 1.0, -0.7853981633974485, -1.5707963267948966);
+
+    e.getMiddleOfPointsOriented(p1, p2, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1., mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0., mid[1], 1.e-7);
+
+    e.getMiddleOfPoints(p1, p2, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-1., mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0., mid[1], 1.e-7);
+
+    e.getMiddleOfPointsOriented(p2, p1, mid);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-1., mid[0], 1.e-7);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0., mid[1], 1.e-7);
+
+    start->decrRef(); end->decrRef();
+  }
+}
 
 }

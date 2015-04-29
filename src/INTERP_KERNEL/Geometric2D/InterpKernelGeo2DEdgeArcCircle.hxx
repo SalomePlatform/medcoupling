@@ -83,6 +83,7 @@ namespace INTERP_KERNEL
     void getBarycenter(double *bary) const;
     void getBarycenterOfZone(double *bary) const;
     void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const;
+    void getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const;
     bool isIn(double characterVal) const;
     Node *buildRepresentantOfMySelf() const;
     bool isLower(double val1, double val2) const;

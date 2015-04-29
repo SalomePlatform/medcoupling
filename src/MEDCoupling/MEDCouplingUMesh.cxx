@@ -242,6 +242,14 @@ void MEDCouplingUMesh::checkCoherency1(double eps) const
             oss << " nodes whereas in connectivity there is " << nbOfNodesInCell << " nodes ! Looks very bad !";
             throw INTERP_KERNEL::Exception(oss.str().c_str());
           }
+      if(cm.isQuadratic() && cm.isDynamic() && meshDim == 2)
+        if (nbOfNodesInCell % 2 || nbOfNodesInCell < 4)
+          {
+            std::ostringstream oss;
+            oss << "MEDCouplingUMesh::checkCoherency1 : cell #" << i << " with quadratic type '" << cm.getRepr() << "' has " <<  nbOfNodesInCell;
+            oss << " nodes. This should be even, and greater or equal than 4!! Looks very bad!";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(const int *w=ptr+ptrI[i]+1;w!=ptr+ptrI[i+1];w++)
         {
           int nodeId=*w;
@@ -249,20 +257,20 @@ void MEDCouplingUMesh::checkCoherency1(double eps) const
             {
               if(nodeId>=nbOfNodes)
                 {
-                  std::ostringstream oss; oss << "Cell #" << i << " is consituted of node #" << nodeId << " whereas there are only " << nbOfNodes << " nodes !";
+                  std::ostringstream oss; oss << "Cell #" << i << " is built with node #" << nodeId << " whereas there are only " << nbOfNodes << " nodes in the mesh !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
           else if(nodeId<-1)
             {
-              std::ostringstream oss; oss << "Cell #" << i << " is consituted of node #" << nodeId << " in connectivity ! sounds bad !";
+              std::ostringstream oss; oss << "Cell #" << i << " is built with node #" << nodeId << " in connectivity ! sounds bad !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           else
             {
               if((INTERP_KERNEL::NormalizedCellType)(ptr[ptrI[i]])!=INTERP_KERNEL::NORM_POLYHED)
                 {
-                  std::ostringstream oss; oss << "Cell #" << i << " is consituted of node #-1 in connectivity ! sounds bad !";
+                  std::ostringstream oss; oss << "Cell #" << i << " is built with node #-1 in connectivity ! sounds bad !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
@@ -11358,6 +11366,21 @@ int InternalAddPoint(const INTERP_KERNEL::Edge *e, int id, const double *coo, in
     }
 }
 
+int InternalAddPointOriented(const INTERP_KERNEL::Edge *e, int id, const double *coo, int startId, int endId, DataArrayDouble& addCoo, int& nodesCnter)
+{
+  if(id!=-1)
+    return id;
+  else
+    {
+      int ret(nodesCnter++);
+      double newPt[2];
+      e->getMiddleOfPointsOriented(coo+2*startId,coo+2*endId,newPt);
+      addCoo.insertAtTheEnd(newPt,newPt+2);
+      return ret;
+    }
+}
+
+
 /// @cond INTERNAL
 
 void EnterTheResultOf2DCellFirst(const INTERP_KERNEL::Edge *e, int start, int stp, int nbOfEdges, bool linOrArc, const double *coords, const int *connBg, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords, std::vector<int>& middles)
@@ -11371,7 +11394,7 @@ void EnterTheResultOf2DCellFirst(const INTERP_KERNEL::Edge *e, int start, int st
       if(stp-start>1)
         {
           int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
-          InternalAddPoint(e,-1,coords,tmp[1],tmp[2],*appendedCoords,tmp2);
+          InternalAddPointOriented(e,-1,coords,tmp[1],tmp[2],*appendedCoords,tmp2);
           middles.push_back(tmp3+offset);
         }
       else
@@ -11388,7 +11411,7 @@ void EnterTheResultOf2DCellMiddle(const INTERP_KERNEL::Edge *e, int start, int s
       if(stp-start>1)
         {
           int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
-          InternalAddPoint(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
+          InternalAddPointOriented(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
           middles.push_back(tmp3+offset);
         }
       else
@@ -11398,13 +11421,14 @@ void EnterTheResultOf2DCellMiddle(const INTERP_KERNEL::Edge *e, int start, int s
 
 void EnterTheResultOf2DCellEnd(const INTERP_KERNEL::Edge *e, int start, int stp, int nbOfEdges, bool linOrArc, const double *coords, const int *connBg, int offset, DataArrayInt *newConnOfCell, DataArrayDouble *appendedCoords, std::vector<int>& middles)
 {
+  // only the quadratic point to deal with:
   if(linOrArc)
     {
       if(stp-start>1)
         {
           int tmpSrt(connBg[start]),tmpEnd(connBg[stp]);
           int tmp2(0),tmp3(appendedCoords->getNumberOfTuples()/2);
-          InternalAddPoint(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
+          InternalAddPointOriented(e,-1,coords,tmpSrt,tmpEnd,*appendedCoords,tmp2);
           middles.push_back(tmp3+offset);
         }
       else
@@ -11426,22 +11450,47 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
   sz--;
   INTERP_KERNEL::AutoPtr<int> tmpConn(new int[sz]);
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connBg[0]));
-  unsigned nbs(cm.getNumberOfSons2(connBg+1,sz)),nbOfHit(0);
+  unsigned nbs(cm.getNumberOfSons2(connBg+1,sz));
+  unsigned nbOfHit(0); // number of fusions operated
   int posBaseElt(0),posEndElt(0),nbOfTurn(0);
+  const unsigned int maxNbOfHit = cm.isQuadratic() ? nbs-2 : nbs-3;  // a quad cell is authorized to end up with only two edges, a linear one has to keep 3 at least
   INTERP_KERNEL::NormalizedCellType typeOfSon;
   std::vector<int> middles;
   bool ret(false);
-  for(;nbOfHit<nbs;nbOfTurn++)
+  for(;(nbOfTurn+nbOfHit)<nbs;nbOfTurn++)
     {
       cm.fillSonCellNodalConnectivity2(posBaseElt,connBg+1,sz,tmpConn,typeOfSon);
       std::map<MEDCouplingAutoRefCountObjectPtr<INTERP_KERNEL::Node>,int> m;
       INTERP_KERNEL::Edge *e(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
-      posEndElt++;
-      nbOfHit++;
-      unsigned endI(nbs-nbOfHit);
-      for(unsigned i=0;i<endI;i++)
+      posEndElt = posBaseElt+1;
+
+      // Look backward first: are the final edges of the cells colinear with the first ones?
+      // This initializes posBaseElt.
+      if(nbOfTurn==0)
         {
-          cm.fillSonCellNodalConnectivity2(posBaseElt+(int)i+1,connBg+1,sz,tmpConn,typeOfSon);
+          for(unsigned i=1;i<nbs && nbOfHit<maxNbOfHit;i++) // 2nd condition is to avoid ending with a cell wih one single edge
+            {
+              cm.fillSonCellNodalConnectivity2(nbs-i,connBg+1,sz,tmpConn,typeOfSon);
+              INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
+              INTERP_KERNEL::EdgeIntersector *eint(INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand));
+              bool isColinear=eint->areColinears();
+              if(isColinear)
+                {
+                  nbOfHit++;
+                  posBaseElt--;
+                  ret=true;
+                }
+              delete eint;
+              eCand->decrRef();
+              if(!isColinear)
+                break;
+            }
+        }
+      // Now move forward:
+      const unsigned fwdStart = (nbOfTurn == 0 ? 0 : posBaseElt);  // the first element to be inspected going forward
+      for(unsigned j=fwdStart+1;j<nbs && nbOfHit<maxNbOfHit;j++)  // 2nd condition is to avoid ending with a cell wih one single edge
+        {
+          cm.fillSonCellNodalConnectivity2((int)j,connBg+1,sz,tmpConn,typeOfSon); // get edge #j's connectivity
           INTERP_KERNEL::Edge *eCand(MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m));
           INTERP_KERNEL::EdgeIntersector *eint(INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand));
           bool isColinear(eint->areColinears());
@@ -11454,37 +11503,18 @@ bool MEDCouplingUMesh::Colinearize2DCell(const double *coords, const int *connBg
           delete eint;
           eCand->decrRef();
           if(!isColinear)
-            {
-              if(nbOfTurn==0)
-                {//look if the first edge of cell is not colinear with last edges in this case the start of nodal connectivity is shifted back
-                  unsigned endII(nbs-nbOfHit-1);//warning nbOfHit can be modified, so put end condition in a variable.
-                  for(unsigned ii=0;ii<endII;ii++)
-                    {
-                      cm.fillSonCellNodalConnectivity2(nbs-ii-1,connBg+1,sz,tmpConn,typeOfSon);
-                      eCand=MEDCouplingUMeshBuildQPFromEdge2(typeOfSon,tmpConn,coords,m);
-                      eint=INTERP_KERNEL::Edge::BuildIntersectorWith(e,eCand);
-                      isColinear=eint->areColinears();
-                      if(isColinear)
-                        {
-                          nbOfHit++;
-                          posBaseElt--;
-                          ret=true;
-                        }
-                      delete eint;
-                      eCand->decrRef();
-                      if(!isColinear)
-                        break;
-                    }
-                }
               break;
-            }
         }
       //push [posBaseElt,posEndElt) in newConnOfCell using e
+      // The if clauses below are (volontary) not mutually exclusive: on a quad cell with 2 edges, the end of the connectivity is also its begining!
       if(nbOfTurn==0)
+        // at the begining of the connectivity (insert type)
         EnterTheResultOf2DCellFirst(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
-      else if(nbOfHit!=nbs)
+      else if((nbOfHit+nbOfTurn) != (nbs-1))
+        // in the middle
         EnterTheResultOf2DCellMiddle(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
-      else
+      if ((nbOfHit+nbOfTurn) == (nbs-1))
+        // at the end (only quad points to deal with)
         EnterTheResultOf2DCellEnd(e,posBaseElt,posEndElt,(int)nbs,cm.isQuadratic(),coords,connBg+1,offset,newConnOfCell,appendedCoords,middles);
       posBaseElt=posEndElt;
       e->decrRef();

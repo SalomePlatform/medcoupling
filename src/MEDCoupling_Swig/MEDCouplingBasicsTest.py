@@ -14747,9 +14747,58 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m.colinearize2D(1e-12)
         m.checkCoherency2()
         self.assertEqual(refPtr,m.getCoords().getHiddenCppPointer())
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,0,2,3,4])))
+        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([NORM_POLYGON,0,2,3,4])))
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5])))
         pass
+
+    def testSwig2Colinearize2D3(self):
+        """ colinearize was too agressive, potentially producing cells with one edge """
+        # Flat polygon  with 3 edges - nothing should happen (min number of edges for a linear polyg)
+        coo = DataArrayDouble([0.0,0.0,  2.0,0.0,   1.5,0.0,  1.0,0.0,  0.5,0.0], 5,2)   
+        m = MEDCouplingUMesh("m", 2)
+        c, cI = [DataArrayInt(l) for l in [[NORM_POLYGON, 0,1,2], [0,4]] ]
+        m.setCoords(coo); m.setConnectivity(c, cI)
+        m.colinearize2D(1e-10)
+        m.checkCoherency2()
+        self.assertEqual(c.getValues(), m.getNodalConnectivity().getValues())
+        self.assertEqual(cI.getValues(), m.getNodalConnectivityIndex().getValues())
+        
+        # Flat quad polygon, 2 edges - nothing should happen (min number of edges for a quad polyg) 
+        m = MEDCouplingUMesh("m", 2)
+        c, cI = [DataArrayInt(l) for l in [[NORM_QPOLYG, 0,1,  2,3], [0,5]] ]
+        m.setCoords(coo); m.setConnectivity(c, cI)
+        m.colinearize2D(1e-10)
+        m.checkCoherency2()
+        self.assertEqual(c.getValues(), m.getNodalConnectivity().getValues())
+        self.assertEqual(cI.getValues(), m.getNodalConnectivityIndex().getValues())
+        
+        # Flat polygon, 4 edges - one reduction should happen
+        m = MEDCouplingUMesh("m", 2)
+        c, cI = [DataArrayInt(l) for l in [[NORM_POLYGON, 0,1,2,3], [0,5]] ]
+        m.setCoords(coo); m.setConnectivity(c, cI)
+        m.colinearize2D(1e-10)
+        m.checkCoherency2()
+        self.assertEqual([NORM_POLYGON, 3,1,2], m.getNodalConnectivity().getValues())
+        self.assertEqual([0,4], m.getNodalConnectivityIndex().getValues())
+                
+        # Flat quad polygon, 3 edges - one reduction expected 
+        m = MEDCouplingUMesh("m", 2)
+        c, cI = [DataArrayInt(l) for l in [[NORM_QPOLYG, 0,1,3,  3,2,4], [0,7]] ]
+        m.setCoords(coo); m.setConnectivity(c, cI)
+        m.colinearize2D(1e-10)
+        m.checkCoherency2()
+        self.assertEqual([NORM_QPOLYG, 3,1, 5,2], m.getNodalConnectivity().getValues())
+        self.assertTrue( m.getCoords()[5].isEqual( DataArrayDouble([(1.5,0.0)]), 1.0e-12 ) )
+        self.assertEqual([0,5], m.getNodalConnectivityIndex().getValues())
+        
+        # Now an actual (neutronic) case: circle made of 4 SEG3. Should be reduced to 2 SEG3
+        m = MEDCouplingDataForTest.buildCircle2(0.0, 0.0, 1.0)
+        c, cI = [DataArrayInt(l) for l in [[NORM_QPOLYG, 7,5,3,1,  6,4,2,0], [0,9]] ]
+        m.colinearize2D(1e-10)
+        m.checkCoherency2()
+        self.assertEqual([NORM_QPOLYG, 3,5,  8,4], m.getNodalConnectivity().getValues())
+        self.assertTrue( m.getCoords()[8].isEqual( DataArrayDouble([(1.0,0.0)]), 1.0e-12 ) )
+        self.assertEqual([0,5], m.getNodalConnectivityIndex().getValues())
 
     def testSwig2CheckAndPreparePermutation2(self):
         a=DataArrayInt([10003,9999999,5,67])

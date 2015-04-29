@@ -529,25 +529,7 @@ double EdgeArcCircle::GetAbsoluteAngle(const double *vect, double& normVect)
  */
 double EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(double ux, double uy)
 {
-  //When arc is lower than 0.707 Using Asin 
-  if(fabs(ux)<0.707)
-    {
-      double ret=SafeAcos(ux);
-      if(uy>0.)
-        return ret;
-      ret=-ret;
-      return ret;
-    }
-  else
-    {
-      double ret=SafeAsin(uy);
-      if(ux>0.)
-        return ret;
-      if(ret>0.)
-        return M_PI-ret;
-      else
-        return -M_PI-ret;
-    }
+  return atan2(uy, ux);
 }
 
 void EdgeArcCircle::GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
@@ -649,6 +631,12 @@ void EdgeArcCircle::getBarycenterOfZone(double *bary) const
         +tmp2*(tmp4-tmp3+(tmp3*tmp3*tmp3-tmp4*tmp4*tmp4)/3.)/2.;
 }
 
+/**
+ * Compute the "middle" of two points on the arc of circle.
+ * The order (p1,p2) or (p2,p1) doesn't matter. p1 and p2 have to be localized on the edge defined by this.
+ * \param[out] mid the point located half-way between p1 and p2 on the arc defined by this.
+ * \sa getMiddleOfPointsOriented() a generalisation working also when p1 and p2 are not on the arc.
+ */
 void EdgeArcCircle::getMiddleOfPoints(const double *p1, const double *p2, double *mid) const
 {
   double dx1((p1[0]-_center[0])/_radius),dy1((p1[1]-_center[1])/_radius),dx2((p2[0]-_center[0])/_radius),dy2((p2[1]-_center[1])/_radius);
@@ -656,13 +644,41 @@ void EdgeArcCircle::getMiddleOfPoints(const double *p1, const double *p2, double
   //
   double myDelta1(angle1-_angle0),myDelta2(angle2-_angle0);
   if(_angle>0.)
-    { myDelta1=myDelta1>=0.?myDelta1:myDelta1+2.*M_PI; myDelta2=myDelta2>=0.?myDelta2:myDelta2+2.*M_PI; }
+    { myDelta1=myDelta1>-QUADRATIC_PLANAR::_precision?myDelta1:myDelta1+2.*M_PI; myDelta2=myDelta2>-QUADRATIC_PLANAR::_precision?myDelta2:myDelta2+2.*M_PI; }
   else
-    { myDelta1=myDelta1<=0.?myDelta1:myDelta1-2.*M_PI; myDelta2=myDelta2<=0.?myDelta2:myDelta2-2.*M_PI; }
+    { myDelta1=myDelta1<QUADRATIC_PLANAR::_precision?myDelta1:myDelta1-2.*M_PI; myDelta2=myDelta2<QUADRATIC_PLANAR::_precision?myDelta2:myDelta2-2.*M_PI; }
   ////
   mid[0]=_center[0]+_radius*cos(_angle0+(myDelta1+myDelta2)/2.);
   mid[1]=_center[1]+_radius*sin(_angle0+(myDelta1+myDelta2)/2.);
 }
+
+/**
+ * Compute the "middle" of two points on the arc of circle.
+ * Walk on the circle from p1 to p2 using the rotation direction indicated by this->_angle (i.e. by the orientation of the arc).
+ * This function is sensitive to the ordering of p1 and p2.
+ * \param[out] mid the point located half-way between p1 and p2
+ * \sa getMiddleOfPoints() to be used when the order of p1 and p2 is not relevant.
+ */
+void EdgeArcCircle::getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const
+{
+  double dx1((p1[0]-_center[0])/_radius),dy1((p1[1]-_center[1])/_radius),dx2((p2[0]-_center[0])/_radius),dy2((p2[1]-_center[1])/_radius);
+  double angle1(GetAbsoluteAngleOfNormalizedVect(dx1,dy1)),angle2(GetAbsoluteAngleOfNormalizedVect(dx2,dy2));
+
+  if (angle1 <= 0.0)
+    angle1 += 2.*M_PI;
+  if (angle2 <= 0.0)
+    angle2 += 2.*M_PI;
+
+  double avg;
+  if((_angle>0. && angle1 <= angle2) || (_angle<=0. && angle1 >= angle2))
+    avg = (angle1+angle2)/2.;
+  else
+    avg = (angle1+angle2)/2. - M_PI;
+
+  mid[0]=_center[0]+_radius*cos(avg);
+  mid[1]=_center[1]+_radius*sin(avg);
+}
+
 
 /*!
  * Characteristic value used is angle in ]_Pi;Pi[ from axe 0x.
