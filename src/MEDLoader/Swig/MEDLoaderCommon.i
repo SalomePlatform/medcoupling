@@ -113,6 +113,8 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::zipCoords;
 %newobject ParaMEDMEM::MEDFileUMesh::buildExtrudedMesh;
 %newobject ParaMEDMEM::MEDFileUMesh::__getitem__;
+%newobject ParaMEDMEM::MEDFileUMesh::linearToQuadratic;
+%newobject ParaMEDMEM::MEDFileUMesh::quadraticToLinear;
 %newobject ParaMEDMEM::MEDFileCMesh::New;
 %newobject ParaMEDMEM::MEDFileCurveLinearMesh::New;
 %newobject ParaMEDMEM::MEDFileMeshMultiTS::New;
@@ -789,6 +791,8 @@ namespace ParaMEDMEM
     DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const throw(INTERP_KERNEL::Exception);
+    MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDFileUMesh *quadraticToLinear(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     %extend
        { 
          MEDFileUMesh(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception)

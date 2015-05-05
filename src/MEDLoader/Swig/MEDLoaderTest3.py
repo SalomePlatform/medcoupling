@@ -4279,6 +4279,49 @@ class MEDLoaderTest(unittest.TestCase):
         field2=ff.getFieldOnMeshAtLevel(ON_CELLS,0,mm)
         self.assertTrue(field.isEqual(field2,1e-12,1e-12))
         pass
+
+    def testMEDFileUMeshLinearToQuadraticAndRev1(self):
+        meshName="mesh"
+        fileName="Pyfile90.med"
+        fileName2="Pyfile91.med"
+        arr=DataArrayDouble(5) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        d=DataArrayInt([3,7,11,15])
+        m1=m[d]
+        m1.simplexize(0)
+        m2=m[d.buildComplement(m.getNumberOfCells())]
+        m=MEDCouplingUMesh.MergeUMeshesOnSameCoords(m1,m2)
+        m.changeSpaceDimension(3,0.)
+        arr=DataArrayDouble(3) ; arr.iota()
+        m1D=MEDCouplingCMesh() ; m1D.setCoords(arr) ; m1D=m1D.buildUnstructured() ; m1D.changeSpaceDimension(3,0.)
+        m1D.setCoords(m1D.getCoords()[:,[1,2,0]])
+        delta=m.getNumberOfNodes()*(m1D.getNumberOfNodes()-1)
+        m3D=m.buildExtrudedMesh(m1D,0)
+        m3D.sortCellsInMEDFileFrmt()
+        m3D.setName(meshName)
+        m2D=m ; m2D.setCoords(m3D.getCoords()) ; m2D.shiftNodeNumbersInConn(delta) ; m2D.setName(meshName) ; m2D.checkCoherency2()
+        m1D=m2D.computeSkin() ; m1D.setName(meshName)
+        #
+        mm=MEDFileUMesh()
+        mm[0]=m3D ; mm[-1]=m2D ; mm[-2]=m1D
+        grpEdge0=DataArrayInt([1,2,3,5]) ; grpEdge0.setName("East")
+        grpEdge1=DataArrayInt([0,1]) ; grpEdge1.setName("Corner1")
+        grpFaceSouth=DataArrayInt([0,1,8,9,10]) ; grpFaceSouth.setName("SouthFace")
+        grpFaceNorth=DataArrayInt([6,7,17,18,19]) ; grpFaceNorth.setName("NorthFace")
+        diagFace=DataArrayInt([0,1,13,15,17]) ; diagFace.setName("DiagFace")
+        vol1=DataArrayInt([20,21,23,24]) ; vol1.setName("vol1")
+        vol2=DataArrayInt([2,3,4,5,21,24]) ; vol2.setName("vol2")
+        mm.setGroupsAtLevel(0,[vol1,vol2])
+        mm.setGroupsAtLevel(-1,[grpFaceSouth,grpFaceNorth,diagFace])
+        mm.setGroupsAtLevel(-2,[grpEdge0,grpEdge1])
+        #
+        mmOut1=mm.linearToQuadratic(0,0.)
+        mmOut1.write(fileName2,2)
+        mmOut2=mmOut1.quadraticToLinear(0.)
+        self.assertTrue(mm.isEqual(mmOut2,1e-12)[0])
+        pass
+
     pass
 
 unittest.main()

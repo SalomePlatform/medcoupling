@@ -3793,6 +3793,143 @@ MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int p
   return ret.retn();
 }
 
+/*!
+ * This method converts all linear cells in \a this into quadratic cells (following the \a conversionType policy).
+ * All the cells converted are put in the returned instance. This method applies all the groups and families in \a this to returned instance.
+ * Groups on nodes and families on nodes are copied directly to the returned instance without transformation.
+ *
+ * \param [in] conversionType - conversionType specifies the type of conversion expected. Only 0 (default) and 1 are supported presently. 0 those that creates the 'most' simple
+ *             corresponding quadratic cells. 1 is those creating the 'most' complex.
+ * \param [in] eps - detection threshold for coordinates.
+ * \return A new instance that is the result of the conversion. The caller has the ownership of this returned instance.
+ *
+ * \sa MEDCouplingUMesh::convertLinearCellsToQuadratic , quadraticToLinear
+ */
+MEDFileUMesh *MEDFileUMesh::linearToQuadratic(int conversionType, double eps) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
+  int initialNbNodes(getNumberOfNodes());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Tmp(getMeshAtLevel(0));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0(dynamic_cast<MEDCouplingUMesh *>(m0Tmp->deepCpy()));
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> notUsed(m0->convertLinearCellsToQuadratic(conversionType));
+  }
+  DataArrayDouble *zeCoords(m0->getCoords());
+  ret->setMeshAtLevel(0,m0);
+  std::vector<int> levs(getNonEmptyLevels());
+  const DataArrayInt *famField(getFamilyFieldAtLevel(0));
+  if(famField)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famFieldCpy(famField->deepCpy());
+      ret->setFamilyFieldArr(0,famFieldCpy);
+    }
+  famField=getFamilyFieldAtLevel(1);
+  if(famField)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam(DataArrayInt::New()); fam->alloc(zeCoords->getNumberOfTuples(),1);
+      fam->fillWithZero();
+      fam->setPartOfValues1(famField,0,initialNbNodes,1,0,1,1);
+      ret->setFamilyFieldArr(1,fam);
+    }
+  ret->copyFamGrpMapsFrom(*this);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> partZeCoords(zeCoords->selectByTupleId2(initialNbNodes,zeCoords->getNumberOfTuples(),1));
+  for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
+    {
+      if(*lev==0)
+        continue;
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1Tmp(getMeshAtLevel(*lev));
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1(dynamic_cast<MEDCouplingUMesh *>(m1Tmp->deepCpy()));
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> notUsed(m1->convertLinearCellsToQuadratic(conversionType));
+      }
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m1Coords(m1->getCoords()->selectByTupleId2(initialNbNodes,m1->getNumberOfNodes(),1));
+      DataArrayInt *b(0);
+      bool a(partZeCoords->areIncludedInMe(m1Coords,eps,b));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bSafe(b);
+      if(!a)
+        {
+          std::ostringstream oss; oss << "MEDFileUMesh::linearCellsToQuadratic : for level " << *lev << " problem to identify nodes generated !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      b->applyLin(1,initialNbNodes);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> l0(DataArrayInt::New()); l0->alloc(initialNbNodes,1); l0->iota();
+      std::vector<const DataArrayInt *> v(2); v[0]=l0; v[1]=b;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum(DataArrayInt::Aggregate(v));
+      m1->renumberNodesInConn(renum->begin());
+      m1->setCoords(zeCoords);
+      ret->setMeshAtLevel(*lev,m1);
+      famField=getFamilyFieldAtLevel(*lev);
+      if(famField)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famFieldCpy(famField->deepCpy());
+          ret->setFamilyFieldArr(*lev,famFieldCpy);
+        }
+    }
+  return ret.retn();
+}
+
+/*!
+ * This method converts all quadratic cells in \a this into linear cells.
+ * All the cells converted are put in the returned instance. This method applies all the groups and families in \a this to returned instance.
+ * Groups on nodes and families on nodes are copied directly to the returned instance without transformation.
+ *
+ * \param [in] eps - detection threshold for coordinates.
+ * \return A new instance that is the result of the conversion. The caller has the ownership of this returned instance.
+ *
+ * \sa MEDCouplingUMesh::convertLinearCellsToQuadratic , linearToQuadratic
+ */
+MEDFileUMesh *MEDFileUMesh::quadraticToLinear(double eps) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Tmp(getMeshAtLevel(0));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0(dynamic_cast<MEDCouplingUMesh *>(m0Tmp->deepCpy()));
+  m0->convertQuadraticCellsToLinear();
+  m0->zipCoords();
+  DataArrayDouble *zeCoords(m0->getCoords());
+  ret->setMeshAtLevel(0,m0);
+  std::vector<int> levs(getNonEmptyLevels());
+  const DataArrayInt *famField(getFamilyFieldAtLevel(0));
+  if(famField)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famFieldCpy(famField->deepCpy());
+      ret->setFamilyFieldArr(0,famFieldCpy);
+    }
+  famField=getFamilyFieldAtLevel(1);
+  if(famField)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam(famField->selectByTupleId2(0,zeCoords->getNumberOfTuples(),1));
+      ret->setFamilyFieldArr(1,fam);
+    }
+  ret->copyFamGrpMapsFrom(*this);
+  for(std::vector<int>::const_iterator lev=levs.begin();lev!=levs.end();lev++)
+    {
+      if(*lev==0)
+        continue;
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1Tmp(getMeshAtLevel(*lev));
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1(dynamic_cast<MEDCouplingUMesh *>(m1Tmp->deepCpy()));
+      m1->convertQuadraticCellsToLinear();
+      m1->zipCoords();
+      DataArrayInt *b(0);
+      bool a(zeCoords->areIncludedInMe(m1->getCoords(),eps,b));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bSafe(b);
+      if(!a)
+        {
+          std::ostringstream oss; oss << "MEDFileUMesh::quadraticToLinear : for level " << *lev << " problem to identify nodes generated !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      m1->renumberNodesInConn(b->begin());
+      m1->setCoords(zeCoords);
+      ret->setMeshAtLevel(*lev,m1);
+      famField=getFamilyFieldAtLevel(*lev);
+      if(famField)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famFieldCpy(famField->deepCpy());
+          ret->setFamilyFieldArr(*lev,famFieldCpy);
+        }
+    }
+  return ret.retn();
+}
+
 void MEDFileUMesh::serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI, MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& bigArrayD)
 {
   clearNonDiscrAttributes();
