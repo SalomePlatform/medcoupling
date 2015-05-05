@@ -16502,12 +16502,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for c in [[0,1,2],[0,2,1],[2,1,0]]:
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],4.1,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],4.1,12)
+            m3=m.buildUnstructured() ; m3.convertLinearCellsToQuadratic(1)
+            self.assertAlmostEqual(m3.computeDiameterField().getArray()[0],4.1,12)
         # TRI3 - spacedim = 3
         coo=DataArrayDouble([(1.3198537928820775,1.0991902391274959,-0.028645697595823361),(5.2486835106806335,2.2234012799688281,0.30368935050077939),(2.2973688139447361,3.1572023778066649,0.10937756365410012)])
         m=MEDCoupling1SGTUMesh("mesh",NORM_TRI3) ; m.setCoords(coo)
         for c in [[0,1,2],[0,2,1],[2,1,0]]:
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],4.1,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],4.1,12)
+            m3=m.buildUnstructured() ; m3.convertLinearCellsToQuadratic(1)
+            self.assertAlmostEqual(m3.computeDiameterField().getArray()[0],4.1,12)
         # QUAD4 - spacedim = 2
         coo=DataArrayDouble([(0,2),(2,0),(6,4),(4,9)])
         m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.setCoords(coo)
@@ -16516,9 +16524,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             c=[(elt+delta)%4 for elt in xrange(4)]
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp3,12)
+            m3=m.buildUnstructured() ; m3.convertLinearCellsToQuadratic(1)
+            self.assertAlmostEqual(m3.computeDiameterField().getArray()[0],exp3,12)
             c.reverse()
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp3,12)
+            m3=m.buildUnstructured() ; m3.convertLinearCellsToQuadratic(1)
+            self.assertAlmostEqual(m3.computeDiameterField().getArray()[0],exp3,12)
         # QUAD4 - spacedim = 3
         coo=DataArrayDouble([(0.26570992384234871,2.0405889913271817,-0.079134238105786903),(2.3739976619218064,0.15779148692781009,0.021842842914139737),(6.1207841448393197,4.3755532938679655,0.43666375769970678),(3.8363255342943359,9.2521096041694229,0.41551170895942313)])
         m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.setCoords(coo)
@@ -16526,9 +16542,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             c=[(elt+delta)%4 for elt in xrange(4)]
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp3,12)
+            m3=m.buildUnstructured() ; m3.convertLinearCellsToQuadratic(1)
+            self.assertAlmostEqual(m3.computeDiameterField().getArray()[0],exp3,12)
             c.reverse()
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp3,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp3,12)
+            m3=m.buildUnstructured() ; m3.convertLinearCellsToQuadratic(1)
+            self.assertAlmostEqual(m3.computeDiameterField().getArray()[0],exp3,12)
         # PENTA6
         # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(0,0,2),(1,0,2),(0,1,2)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
         coo=DataArrayDouble([(-0.28594726851554486,-0.23715005500928255,-0.10268080010083136),(0.6167364988633947,-0.008923258436324799,-0.08574087516687756),(-0.6132873463333834,0.6943403970881654,-0.2806118260037991),(-0.40705974936532896,-0.05868487929989308,1.7724055544436323),(0.5505955507861958,0.19145393798144705,1.8788156352163994),(-0.6092686217773406,0.812502961290914,1.685712743757831)])
@@ -16540,9 +16564,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             c+=[elt+3 for elt in c]
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp4,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp4,12)
             c.reverse()
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp4,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp4,12)
         # HEXA8
         # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0,0,2),(1,0,2),(1,1,2),(0,1,2)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
         coo=DataArrayDouble([(-0.21266406388867243,-0.3049569460042527,-0.11012394815006032),(0.7641037943272584,-0.06990814759929553,-0.0909613877456491),(0.47406560768559974,0.8681310650341907,-0.2577311403703061),(-0.5136830410871793,0.644390554940524,-0.21319015989794698),(-0.4080167737381202,-0.12853761670628505,1.7869166291979348),(0.5650318811550441,0.20476257733110748,1.8140158890821603),(0.3230844436386215,1.1660778242678538,1.7175073141333406),(-0.6656588358432984,0.918357550969698,1.7566470691880265)])
@@ -16554,9 +16582,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             c+=[elt+4 for elt in c]
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp5,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp5,12)
             c.reverse()
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp5,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp5,12)
         # PYRA5 (1) 5th node is further 
         # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0.5,0.5,2)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
         coo=DataArrayDouble([(-0.31638393672228626,-0.3157865246451914,-0.12555467233075002),(0.7281379795666488,0.03836511217237115,-0.08431662762197323),(0.4757967840735147,0.8798897996143908,-0.2680890320119049),(-0.5386339871809047,0.5933159894201252,-0.2975311238319419),(0.012042592988768974,0.534282135495012,1.7859521682027926)])
@@ -16568,6 +16600,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             c+=[4]
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp6,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp6,12)
             pass
         # PYRA5 (2) 5th node is closer
         # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(0.5,0.5,0.1)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
@@ -16580,6 +16614,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             c+=[4]
             m.setNodalConnectivity(DataArrayInt(c))
             self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp7,12)
+            m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+            self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp7,12)
             pass
         # TETRA4
         # noise of coo=DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(1,1,1)]) + rotation([0.7,-1.2,0.6],[-4,-1,10],0.3)
@@ -16591,6 +16627,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             for i in xrange(4):
                 m.setNodalConnectivity(DataArrayInt([(elt+i)%4 for elt in c]))
                 self.assertAlmostEqual(m.computeDiameterField().getArray()[0],exp8,12)
+                m2=m.buildUnstructured() ; m2.convertLinearCellsToQuadratic(0)
+                self.assertAlmostEqual(m2.computeDiameterField().getArray()[0],exp8,12)
                 pass
             pass
         pass

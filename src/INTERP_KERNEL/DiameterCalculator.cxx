@@ -32,17 +32,43 @@ NormalizedCellType DiameterCalulatorTRI3S2::TYPE=NORM_TRI3;
 
 NormalizedCellType DiameterCalulatorTRI3S3::TYPE=NORM_TRI3;
 
+NormalizedCellType DiameterCalulatorTRI6S2::TYPE=NORM_TRI6;
+
+NormalizedCellType DiameterCalulatorTRI6S3::TYPE=NORM_TRI6;
+
+NormalizedCellType DiameterCalulatorTRI7S2::TYPE=NORM_TRI7;
+
+NormalizedCellType DiameterCalulatorTRI7S3::TYPE=NORM_TRI7;
+
 NormalizedCellType DiameterCalulatorQUAD4S2::TYPE=NORM_QUAD4;
 
 NormalizedCellType DiameterCalulatorQUAD4S3::TYPE=NORM_QUAD4;
 
+NormalizedCellType DiameterCalulatorQUAD8S2::TYPE=NORM_QUAD8;
+
+NormalizedCellType DiameterCalulatorQUAD8S3::TYPE=NORM_QUAD8;
+
+NormalizedCellType DiameterCalulatorQUAD9S2::TYPE=NORM_QUAD9;
+
+NormalizedCellType DiameterCalulatorQUAD9S3::TYPE=NORM_QUAD9;
+
 NormalizedCellType DiameterCalulatorTETRA4::TYPE=NORM_TETRA4;
+
+NormalizedCellType DiameterCalulatorTETRA10::TYPE=NORM_TETRA10;
 
 NormalizedCellType DiameterCalulatorHEXA8::TYPE=NORM_HEXA8;
 
+NormalizedCellType DiameterCalulatorHEXA20::TYPE=NORM_HEXA20;
+
+NormalizedCellType DiameterCalulatorHEXA27::TYPE=NORM_HEXA27;
+
 NormalizedCellType DiameterCalulatorPENTA6::TYPE=NORM_PENTA6;
 
+NormalizedCellType DiameterCalulatorPENTA15::TYPE=NORM_PENTA15;
+
 NormalizedCellType DiameterCalulatorPYRA5::TYPE=NORM_PYRA5;
+
+NormalizedCellType DiameterCalulatorPYRA13::TYPE=NORM_PYRA13;
 
 inline double SqNormV2(const double tab[2])
 {
@@ -77,7 +103,7 @@ void ComputeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const
     {
       int offset(indPtr[*it]);
       if(connPtr[offset]==cti)
-        resPtr[*it]=evtor.computeForOneCellInternal(connPtr+offset+1,connPtr+indPtr[(*it)+1],coordsPtr);
+        resPtr[*it]=evtor.ComputeForOneCellInternal(connPtr+offset+1,connPtr+indPtr[(*it)+1],coordsPtr);
       else
         {
           std::ostringstream oss; oss << "DiameterCalculator::computeForListOfCellIdsUMeshFrmt : invalid nodal connectivity format at cell # " << *it <<  " !";
@@ -96,7 +122,7 @@ void ComputeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, c
     {
       int offset(indPtr[it]);
       if(connPtr[offset]==cti)
-        resPtr[it]=evtor.computeForOneCellInternal(connPtr+offset+1,connPtr+indPtr[it+1],coordsPtr);
+        resPtr[it]=evtor.ComputeForOneCellInternal(connPtr+offset+1,connPtr+indPtr[it+1],coordsPtr);
       else
         {
           std::ostringstream oss; oss << "DiameterCalculator::computeForListOfCellIdsUMeshFrmt : invalid nodal connectivity format at cell # " << it <<  " !";
@@ -114,10 +140,12 @@ void ComputeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *co
   unsigned nbNodes(cm.getNumberOfNodes());
   const int *ptr(connPtr);
   for(int i=0;i<nbOfCells;i++,ptr+=nbNodes,resPtr++)
-    *resPtr=evtor.computeForOneCellInternal(ptr,ptr+nbNodes,coordsPtr);
+    *resPtr=evtor.ComputeForOneCellInternal(ptr,ptr+nbNodes,coordsPtr);
 }
 
-double DiameterCalulatorTRI3S2::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorTRI3S2::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==3)
     {
@@ -131,7 +159,7 @@ double DiameterCalulatorTRI3S2::computeForOneCellInternal(const int *bg, const i
       return std::sqrt(res);
     }
   else
-    throw Exception("DiameterCalulatorTRI3S2::computeForOneCellInternal : input connectivity must be of size 3 !");
+    throw Exception("DiameterCalulatorTRI3S2::ComputeForOneCellInternal : input connectivity must be of size 3 !");
 }
 
 void DiameterCalulatorTRI3S2::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -149,7 +177,9 @@ void DiameterCalulatorTRI3S2::computeFor1SGTUMeshFrmt(int nbOfCells, const int *
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorTRI3S2>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorTRI3S3::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorTRI3S3::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==3)
     {
@@ -163,7 +193,7 @@ double DiameterCalulatorTRI3S3::computeForOneCellInternal(const int *bg, const i
       return std::sqrt(res);
     }
   else
-    throw Exception("DiameterCalulatorTRI3S2::computeForOneCellInternal : input connectivity must be of size 3 !");
+    throw Exception("DiameterCalulatorTRI3S2::ComputeForOneCellInternal : input connectivity must be of size 3 !");
 }
 
 void DiameterCalulatorTRI3S3::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -181,7 +211,109 @@ void DiameterCalulatorTRI3S3::computeFor1SGTUMeshFrmt(int nbOfCells, const int *
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorTRI3S3>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorQUAD4S2::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorTRI6S2::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==6)
+    return DiameterCalulatorTRI3S2::ComputeForOneCellInternal(bg,bg+3,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorTRI6S2::ComputeForOneCellInternal : input connectivity must be of size 6 !");
+}
+
+void DiameterCalulatorTRI6S2::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorTRI6S2>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI6S2::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorTRI6S2>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI6S2::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorTRI6S2>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorTRI6S3::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==6)
+    return DiameterCalulatorTRI3S3::ComputeForOneCellInternal(bg,bg+3,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorTRI6S3::ComputeForOneCellInternal : input connectivity must be of size 6 !");
+}
+
+void DiameterCalulatorTRI6S3::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorTRI6S3>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI6S3::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorTRI6S3>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI6S3::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorTRI6S3>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorTRI7S2::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==7)
+    return DiameterCalulatorTRI3S2::ComputeForOneCellInternal(bg,bg+3,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorTRI7S2::ComputeForOneCellInternal : input connectivity must be of size 7 !");
+}
+
+void DiameterCalulatorTRI7S2::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorTRI7S2>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI7S2::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorTRI7S2>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI7S2::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorTRI7S2>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorTRI7S3::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==7)
+    return DiameterCalulatorTRI3S3::ComputeForOneCellInternal(bg,bg+3,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorTRI7S3::ComputeForOneCellInternal : input connectivity must be of size 7 !");
+}
+
+void DiameterCalulatorTRI7S3::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorTRI7S3>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI7S3::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorTRI7S3>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTRI7S3::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorTRI7S3>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorQUAD4S2::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==4)
     {
@@ -192,7 +324,7 @@ double DiameterCalulatorQUAD4S2::computeForOneCellInternal(const int *bg, const 
       return std::sqrt(std::max(SqNormV2(l0),SqNormV2(l1)));
     }
   else
-    throw Exception("DiameterCalulatorQUAD4S2::computeForOneCellInternal : input connectivity must be of size 4 !");
+    throw Exception("DiameterCalulatorQUAD4S2::ComputeForOneCellInternal : input connectivity must be of size 4 !");
 }
 
 void DiameterCalulatorQUAD4S2::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -210,7 +342,9 @@ void DiameterCalulatorQUAD4S2::computeFor1SGTUMeshFrmt(int nbOfCells, const int 
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorQUAD4S2>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorQUAD4S3::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorQUAD4S3::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==4)
     {
@@ -221,7 +355,7 @@ double DiameterCalulatorQUAD4S3::computeForOneCellInternal(const int *bg, const 
       return std::sqrt(std::max(SqNormV3(l0),SqNormV3(l1)));
     }
   else
-    throw Exception("DiameterCalulatorQUAD4S3::computeForOneCellInternal : input connectivity must be of size 4 !");
+    throw Exception("DiameterCalulatorQUAD4S3::ComputeForOneCellInternal : input connectivity must be of size 4 !");
 }
 
 void DiameterCalulatorQUAD4S3::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -239,7 +373,109 @@ void DiameterCalulatorQUAD4S3::computeFor1SGTUMeshFrmt(int nbOfCells, const int 
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorQUAD4S3>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorTETRA4::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorQUAD8S2::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==8)
+    return DiameterCalulatorQUAD4S2::ComputeForOneCellInternal(bg,bg+4,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorQUAD8S2::ComputeForOneCellInternal : input connectivity must be of size 8 !");
+}
+
+void DiameterCalulatorQUAD8S2::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorQUAD8S2>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD8S2::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorQUAD8S2>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD8S2::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorQUAD8S2>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorQUAD8S3::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==8)
+    return DiameterCalulatorQUAD4S3::ComputeForOneCellInternal(bg,bg+4,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorQUAD8S3::ComputeForOneCellInternal : input connectivity must be of size 8 !");
+}
+
+void DiameterCalulatorQUAD8S3::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorQUAD8S3>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD8S3::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorQUAD8S3>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD8S3::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorQUAD8S3>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorQUAD9S2::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==9)
+    return DiameterCalulatorQUAD4S2::ComputeForOneCellInternal(bg,bg+4,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorQUAD9S2::ComputeForOneCellInternal : input connectivity must be of size 9 !");
+}
+
+void DiameterCalulatorQUAD9S2::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorQUAD9S2>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD9S2::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorQUAD9S2>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD9S2::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorQUAD9S2>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorQUAD9S3::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==9)
+    return DiameterCalulatorQUAD4S3::ComputeForOneCellInternal(bg,bg+4,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorQUAD8S3::ComputeForOneCellInternal : input connectivity must be of size 9 !");
+}
+
+void DiameterCalulatorQUAD9S3::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorQUAD9S3>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD9S3::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorQUAD9S3>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorQUAD9S3::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorQUAD9S3>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorTETRA4::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==4)
     {
@@ -256,7 +492,7 @@ double DiameterCalulatorTETRA4::computeForOneCellInternal(const int *bg, const i
       return std::sqrt(*std::max_element(tmp,tmp+6));
     }
   else
-    throw Exception("DiameterCalulatorTETRA4::computeForOneCellInternal : input connectivity must be of size 4 !");
+    throw Exception("DiameterCalulatorTETRA4::ComputeForOneCellInternal : input connectivity must be of size 4 !");
 }
 
 void DiameterCalulatorTETRA4::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -274,7 +510,34 @@ void DiameterCalulatorTETRA4::computeFor1SGTUMeshFrmt(int nbOfCells, const int *
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorTETRA4>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorHEXA8::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorTETRA10::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==10)
+    return DiameterCalulatorTETRA4::ComputeForOneCellInternal(bg,bg+4,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorTETRA10::ComputeForOneCellInternal : input connectivity must be of size 10 !");
+}
+
+void DiameterCalulatorTETRA10::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorTETRA10>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTETRA10::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorTETRA10>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorTETRA10::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorTETRA10>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorHEXA8::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==8)
     {
@@ -289,7 +552,7 @@ double DiameterCalulatorHEXA8::computeForOneCellInternal(const int *bg, const in
       return std::sqrt(*std::max_element(tmp,tmp+4));
     }
   else
-    throw Exception("DiameterCalulatorHEXA8::computeForOneCellInternal : input connectivity must be of size 8 !");
+    throw Exception("DiameterCalulatorHEXA8::ComputeForOneCellInternal : input connectivity must be of size 8 !");
 }
 
 void DiameterCalulatorHEXA8::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -307,7 +570,59 @@ void DiameterCalulatorHEXA8::computeFor1SGTUMeshFrmt(int nbOfCells, const int *c
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorHEXA8>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorPENTA6::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorHEXA20::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==20)
+    return DiameterCalulatorHEXA8::ComputeForOneCellInternal(bg,bg+8,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorHEXA20::ComputeForOneCellInternal : input connectivity must be of size 20 !");
+}
+
+void DiameterCalulatorHEXA20::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorHEXA20>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorHEXA20::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorHEXA20>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorHEXA20::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorHEXA20>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorHEXA27::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==27)
+    return DiameterCalulatorHEXA8::ComputeForOneCellInternal(bg,bg+8,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorHEXA27::ComputeForOneCellInternal : input connectivity must be of size 27 !");
+}
+
+void DiameterCalulatorHEXA27::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorHEXA27>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorHEXA27::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorHEXA27>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorHEXA27::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorHEXA27>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorPENTA6::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==6)
     {
@@ -324,7 +639,7 @@ double DiameterCalulatorPENTA6::computeForOneCellInternal(const int *bg, const i
       return std::sqrt(*std::max_element(tmp,tmp+6));
     }
   else
-    throw Exception("DiameterCalulatorPENTA6::computeForOneCellInternal : input connectivity must be of size 6 !");
+    throw Exception("DiameterCalulatorPENTA6::ComputeForOneCellInternal : input connectivity must be of size 6 !");
 }
 
 void DiameterCalulatorPENTA6::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -342,7 +657,34 @@ void DiameterCalulatorPENTA6::computeFor1SGTUMeshFrmt(int nbOfCells, const int *
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorPENTA6>(nbOfCells,connPtr,coordsPtr,resPtr);
 }
 
-double DiameterCalulatorPYRA5::computeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr) const
+//=================================================================
+
+double DiameterCalulatorPENTA15::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==15)
+    return DiameterCalulatorPENTA6::ComputeForOneCellInternal(bg,bg+6,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorPENTA15::ComputeForOneCellInternal : input connectivity must be of size 15 !");
+}
+
+void DiameterCalulatorPENTA15::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorPENTA15>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorPENTA15::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorPENTA15>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorPENTA15::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorPENTA15>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorPYRA5::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
 {
   if(std::distance(bg,endd)==5)
     {
@@ -359,7 +701,7 @@ double DiameterCalulatorPYRA5::computeForOneCellInternal(const int *bg, const in
       return std::sqrt(*std::max_element(tmp,tmp+6));
     }
   else
-    throw Exception("DiameterCalulatorPYRA5::computeForOneCellInternal : input connectivity must be of size 5 !");
+    throw Exception("DiameterCalulatorPYRA5::ComputeForOneCellInternal : input connectivity must be of size 5 !");
 }
 
 void DiameterCalulatorPYRA5::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
@@ -375,4 +717,29 @@ void DiameterCalulatorPYRA5::computeForRangeOfCellIdsUMeshFrmt(int bgId, int end
 void DiameterCalulatorPYRA5::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
 {
   ComputeFor1SGTUMeshFrmt<DiameterCalulatorPYRA5>(nbOfCells,connPtr,coordsPtr,resPtr);
+}
+
+//=================================================================
+
+double DiameterCalulatorPYRA13::ComputeForOneCellInternal(const int *bg, const int *endd, const double *coordsPtr)
+{
+  if(std::distance(bg,endd)==13)
+    return DiameterCalulatorPYRA5::ComputeForOneCellInternal(bg,bg+5,coordsPtr);
+  else
+    throw Exception("DiameterCalulatorPYRA13::ComputeForOneCellInternal : input connectivity must be of size 13 !");
+}
+
+void DiameterCalulatorPYRA13::computeForListOfCellIdsUMeshFrmt(const int *bgIds, const int *endIds, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForListOfCellIdsUMeshFrmt<DiameterCalulatorPYRA13>(bgIds,endIds,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorPYRA13::computeForRangeOfCellIdsUMeshFrmt(int bgId, int endId, const int *indPtr, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeForRangeOfCellIdsUMeshFrmt<DiameterCalulatorPYRA13>(bgId,endId,indPtr,connPtr,coordsPtr,resPtr);
+}
+
+void DiameterCalulatorPYRA13::computeFor1SGTUMeshFrmt(int nbOfCells, const int *connPtr, const double *coordsPtr, double *resPtr) const
+{
+  ComputeFor1SGTUMeshFrmt<DiameterCalulatorPYRA13>(nbOfCells,connPtr,coordsPtr,resPtr);
 }

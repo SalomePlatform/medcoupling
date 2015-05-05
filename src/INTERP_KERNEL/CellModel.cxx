@@ -767,12 +767,71 @@ namespace INTERP_KERNEL
             }
           break;
         }
+      case NORM_TRI6:
+        {
+          switch(spaceDim)
+          {
+            case 2:
+              return new DiameterCalulatorTRI6S2;
+            case 3:
+              return new DiameterCalulatorTRI6S3;
+            default:
+              throw Exception("CellModel::buildInstanceOfDiameterCalulator : For TRI6 only space dimension 2 and 3 implemented !");
+          }
+          break;
+        }
+      case NORM_TRI7:
+        {
+          switch(spaceDim)
+          {
+            case 2:
+              return new DiameterCalulatorTRI7S2;
+            case 3:
+              return new DiameterCalulatorTRI7S3;
+            default:
+              throw Exception("CellModel::buildInstanceOfDiameterCalulator : For TRI7 only space dimension 2 and 3 implemented !");
+          }
+          break;
+        }
+      case NORM_QUAD8:
+        {
+          switch(spaceDim)
+          {
+            case 2:
+              return new DiameterCalulatorQUAD8S2;
+            case 3:
+              return new DiameterCalulatorQUAD8S3;
+            default:
+              throw Exception("CellModel::buildInstanceOfDiameterCalulator : For QUAD8 only space dimension 2 and 3 implemented !");
+          }
+          break;
+        }
+      case NORM_QUAD9:
+        {
+          switch(spaceDim)
+          {
+            case 2:
+              return new DiameterCalulatorQUAD9S2;
+            case 3:
+              return new DiameterCalulatorQUAD9S3;
+            default:
+              throw Exception("CellModel::buildInstanceOfDiameterCalulator : For QUAD9 only space dimension 2 and 3 implemented !");
+          }
+          break;
+        }
       case NORM_TETRA4:
         {
           if(spaceDim==3)
             return new DiameterCalulatorTETRA4;
           else
             throw Exception("CellModel::buildInstanceOfDiameterCalulator : For TETRA4 space dimension 3 expected !");
+        }
+      case NORM_TETRA10:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorTETRA10;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For TETRA10 space dimension 3 expected !");
         }
       case NORM_HEXA8:
         {
@@ -781,6 +840,20 @@ namespace INTERP_KERNEL
           else
             throw Exception("CellModel::buildInstanceOfDiameterCalulator : For HEXA8 space dimension 3 expected !");
         }
+      case NORM_HEXA20:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorHEXA20;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For HEXA20 space dimension 3 expected !");
+        }
+      case NORM_HEXA27:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorHEXA27;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For HEXA27 space dimension 3 expected !");
+        }
       case NORM_PENTA6:
         {
           if(spaceDim==3)
@@ -788,12 +861,26 @@ namespace INTERP_KERNEL
           else
             throw Exception("CellModel::buildInstanceOfDiameterCalulator : For PENTA6 space dimension 3 expected !");
         }
+      case NORM_PENTA15:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorPENTA15;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For PENTA15 space dimension 3 expected !");
+        }
       case NORM_PYRA5:
         {
           if(spaceDim==3)
             return new DiameterCalulatorPYRA5;
           else
             throw Exception("CellModel::buildInstanceOfDiameterCalulator : For PYRA5 space dimension 3 expected !");
+        }
+      case NORM_PYRA13:
+        {
+          if(spaceDim==3)
+            return new DiameterCalulatorPYRA13;
+          else
+            throw Exception("CellModel::buildInstanceOfDiameterCalulator : For PYRA13 space dimension 3 expected !");
         }
       default:
         throw Exception("CellModel::buildInstanceOfDiameterCalulator : implemented only for TRI3, QUAD4, TETRA4, HEXA8, PENTA6, PYRA5 !");
