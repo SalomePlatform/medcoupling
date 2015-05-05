@@ -60,6 +60,8 @@ SET(MEDOPGUITS_SOURCES
   MED_msg_en.ts
   MED_msg_fr.ts
   MED_msg_ja.ts
+  MEDOP_msg_en.ts
+  MEDOP_msg_fr.ts
   MEDOP_msg_ja.ts
 )
 
