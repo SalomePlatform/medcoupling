@@ -147,6 +147,8 @@ namespace MEDPARTITIONER
 
     int convertGlobalNode(int iglobal, int idomain);
     
+    std::vector<MEDPARTITIONER::ConnectZone*>& getCZ();
+
     //adding a face to the topology
     void appendFace(int idomain, int ilocal, int iglobal);
 
@@ -161,10 +163,10 @@ namespace MEDPARTITIONER
     typedef INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> > TGlob2DomainLoc;
 
     TGlob2DomainLoc _glob_to_loc;
-    std::vector<std::vector<int> >  _loc_to_glob;
-    INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> > _node_glob_to_loc;
+    TGlob2DomainLoc _node_glob_to_loc;
 
     //mapping local -> global
+    std::vector<std::vector<int> >  _loc_to_glob;
     std::vector<std::vector <int> > _node_loc_to_glob;
 
     // global numbers in parallel mode
@@ -185,6 +187,10 @@ namespace MEDPARTITIONER
     int _nb_total_faces;
     int _nb_domain;
     int _mesh_dimension;
+
+    //links to connectzones
+    std::vector<MEDPARTITIONER::ConnectZone*> _connect_zones;
+
   };
 }
 #endif

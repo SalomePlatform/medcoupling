@@ -34,7 +34,6 @@ namespace MEDPARTITIONER
 {
   class Graph;
   class ConnectZone;
-  class SkyLineArray;
   class MeshCollection;
   class MEDPARTITIONER_FaceModel;
     
@@ -105,6 +104,8 @@ namespace MEDPARTITIONER
     virtual int convertGlobalFace(int iglobal, int idomain) = 0;
     /*! converting a global node number to a local representation */
     virtual int convertGlobalNode(int iglobal, int idomain) = 0;
+    /*! getting a reference to connect zones vector */
+    virtual std::vector<MEDPARTITIONER::ConnectZone*>& getCZ() = 0;
   };
 }
 

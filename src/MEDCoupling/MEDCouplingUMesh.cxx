@@ -22,6 +22,7 @@
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 #include "CellModel.hxx"
 #include "VolSurfUser.txx"
 #include "InterpolationUtils.hxx"
@@ -8677,6 +8678,82 @@ DataArrayInt *MEDCouplingUMesh::buildUnionOf3DMesh() const
       work=std::copy(conn+connI[i]+1,conn+connI[i+1],work);
     }
   return ret.retn();
+}
+
+/*!
+ * \brief Creates a graph of cell neighbors
+ *  \return MEDCouplingSkyLineArray * - an sky line array the user should delete.
+ *  In the sky line array, graph arcs are stored in terms of (index,value) notation.
+ *  For example
+ *  - index:  0 3 5 6 6
+ *  - value:  1 2 3 2 3 3
+ *  means 6 arcs (0,1), (0,2), (0,3), (1,2), (1,3), (2,3)
+ *  Arcs are not doubled but reflexive (1,1) arcs are present for each cell
+ */
+MEDCouplingSkyLineArray *MEDCouplingUMesh::generateGraph() const
+{
+  checkConnectivityFullyDefined();
+
+  int meshDim = this->getMeshDimension();
+  ParaMEDMEM::DataArrayInt* indexr=ParaMEDMEM::DataArrayInt::New();
+  ParaMEDMEM::DataArrayInt* revConn=ParaMEDMEM::DataArrayInt::New();
+  this->getReverseNodalConnectivity(revConn,indexr);
+  const int* indexr_ptr=indexr->getConstPointer();
+  const int* revConn_ptr=revConn->getConstPointer();
+
+  const ParaMEDMEM::DataArrayInt* index;
+  const ParaMEDMEM::DataArrayInt* conn;
+  conn=this->getNodalConnectivity(); // it includes a type as the 1st element!!!
+  index=this->getNodalConnectivityIndex();
+  int nbCells=this->getNumberOfCells();
+  const int* index_ptr=index->getConstPointer();
+  const int* conn_ptr=conn->getConstPointer();
+
+  //creating graph arcs (cell to cell relations)
+  //arcs are stored in terms of (index,value) notation
+  // 0 3 5 6 6
+  // 1 2 3 2 3 3
+  // means 6 arcs (0,1), (0,2), (0,3), (1,2), (1,3), (2,3)
+  // in present version arcs are not doubled but reflexive (1,1) arcs are present for each cell
+
+  //warning here one node have less than or equal effective number of cell with it
+  //but cell could have more than effective nodes
+  //because other equals nodes in other domain (with other global inode)
+  std::vector <int> cell2cell_index(nbCells+1,0);
+  std::vector <int> cell2cell;
+  cell2cell.reserve(3*nbCells);
+
+  for (int icell=0; icell<nbCells;icell++)
+    {
+      std::map<int,int > counter;
+      for (int iconn=index_ptr[icell]+1; iconn<index_ptr[icell+1];iconn++)
+        {
+          int inode=conn_ptr[iconn];
+          for (int iconnr=indexr_ptr[inode]; iconnr<indexr_ptr[inode+1];iconnr++)
+            {
+              int icell2=revConn_ptr[iconnr];
+              std::map<int,int>::iterator iter=counter.find(icell2);
+              if (iter!=counter.end()) (iter->second)++;
+              else counter.insert(std::make_pair(icell2,1));
+            }
+        }
+      for (std::map<int,int>::const_iterator iter=counter.begin();
+           iter!=counter.end(); iter++)
+        if (iter->second >= meshDim)
+          {
+            cell2cell_index[icell+1]++;
+            cell2cell.push_back(iter->first);
+          }
+    }
+  indexr->decrRef();
+  revConn->decrRef();
+  cell2cell_index[0]=0;
+  for (int icell=0; icell<nbCells;icell++)
+    cell2cell_index[icell+1]=cell2cell_index[icell]+cell2cell_index[icell+1];
+
+  //filling up index and value to create skylinearray structure
+  MEDCouplingSkyLineArray* array=new MEDCouplingSkyLineArray(cell2cell_index,cell2cell);
+  return array;
 }
 
 /*!

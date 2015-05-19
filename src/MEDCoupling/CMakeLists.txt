@@ -59,6 +59,7 @@ SET(medcoupling_SOURCES
   MEDCouplingAMRAttribute.cxx
   MEDCouplingMatrix.cxx
   MEDCouplingPartDefinition.cxx
+  MEDCouplingSkyLineArray.cxx
   )
 
 SET(medcouplingremapper_SOURCES

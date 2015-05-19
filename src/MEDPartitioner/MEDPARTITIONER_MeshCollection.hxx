@@ -36,6 +36,7 @@ namespace ParaMEDMEM
 {
   class MEDCouplingUMesh;
   class DataArrayInt;
+  class MEDCouplingSkyLineArray;
 }
 
 namespace MEDPARTITIONER
@@ -43,7 +44,6 @@ namespace MEDPARTITIONER
   class Topology;
   class MeshCollectionDriver;
   class ParaDomainSelector;
-  class SkyLineArray;
   class ConnectZone;
   class JointFinder;
   
@@ -75,9 +75,9 @@ namespace MEDPARTITIONER
     void setDriverType(MEDPARTITIONER::DriverType type) { _driver_type=type; }
 
     //creation of the cell graph
-    void buildCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
+    void buildCellGraph(ParaMEDMEM::MEDCouplingSkyLineArray* & array,int *& edgeweights );
    //creation of the cell graph
-    void buildParallelCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
+    void buildParallelCellGraph(ParaMEDMEM::MEDCouplingSkyLineArray* & array,int *& edgeweights );
 
     //creation and partition of the associated graph
     Topology* createPartition(int nbdomain, Graph::splitter_type type = Graph::METIS,
@@ -122,14 +122,17 @@ namespace MEDPARTITIONER
     //getting a pointer to topology
     Topology* getTopology() const ;
     ParaDomainSelector* getParaDomainSelector() const { return _domain_selector; }
+    void setParaDomainSelector(ParaDomainSelector* pds) { _domain_selector = pds; }
     //setting a new topology
-    void setTopology(Topology* topology);
+    void setTopology(Topology* topology, bool takeOwneship);
 
     //getting/setting the name of the global mesh (as opposed 
     //to the name of a subdomain \a nn, which is name_nn) 
     std::string getName() const { return _name; }
     void setName(const std::string& name) { _name=name; }
     void setDomainNames(const std::string& name);
+
+    void setNonEmptyMesh(int number) { _i_non_empty_mesh=number;}
 
     //getting/setting the description of the global mesh
     std::string getDescription() const { return _description; }
@@ -140,7 +143,8 @@ namespace MEDPARTITIONER
                            std::multimap<std::pair<int,int>,std::pair<int,int> >& nodeMapping);
     
     void castCellMeshes(MeshCollection& initialCollection, 
-                        std::vector<std::vector<std::vector<int> > >& new2oldIds);
+                        std::vector<std::vector<std::vector<int> > >& new2oldIds,
+                        std::vector<ParaMEDMEM::DataArrayInt*> & o2nRenumber);
     
     //creates faces on the new collection
     void castFaceMeshes(MeshCollection& initialCollection,
@@ -148,7 +152,12 @@ namespace MEDPARTITIONER
                         std::vector<std::vector<std::vector<int> > >& new2oldIds);
 
     //constructing connect zones
-    void buildConnectZones();
+    void buildConnectZones( const NodeMapping& nodeMapping,
+                            const std::vector<ParaMEDMEM::DataArrayInt*> & o2nRenumber,
+                            int nbInitialDomains );
+
+    // Find faces common with neighbor domains and put them in groups
+    void buildBoundaryFaces();
 
   private:
     void castIntField(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
@@ -199,9 +208,6 @@ namespace MEDPARTITIONER
     //index of a non empty mesh within _mesh (in parallel mode all of meshes can be empty)
     int _i_non_empty_mesh;
     
-    //links to connectzones
-    std::vector<MEDPARTITIONER::ConnectZone*> _connect_zones;
-
     //family ids storages
     std::vector<ParaMEDMEM::DataArrayInt*> _cell_family_ids;
     std::vector<ParaMEDMEM::DataArrayInt*> _face_family_ids;

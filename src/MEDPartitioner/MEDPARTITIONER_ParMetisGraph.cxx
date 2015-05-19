@@ -38,7 +38,7 @@ ParMETISGraph::ParMETISGraph():Graph()
 {
 }
 
-ParMETISGraph::ParMETISGraph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight)
+ParMETISGraph::ParMETISGraph(MEDCouplingSkyLineArray* graph, int* edgeweight)
   :Graph(graph,edgeweight)
 {
 }
@@ -136,7 +136,7 @@ void ParMETISGraph::partGraph(int ndomain,
   //the fifth argument true specifies that only the pointers are passed 
   //to the object
   
-  _partition = new MEDPARTITIONER::SkyLineArray(index,value);
+  _partition = new MEDCouplingSkyLineArray(index,value);
 #endif
 }
 

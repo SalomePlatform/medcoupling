@@ -22,9 +22,10 @@
 
 #include "MEDPARTITIONER.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDPARTITIONER_SkyLineArray.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace MEDPARTITIONER
@@ -47,9 +48,11 @@ namespace MEDPARTITIONER
     const int *getNodeCorrespIndex() const;
     const int *getNodeCorrespValue() const;
     int getNodeNumber() const;
+    const ParaMEDMEM::MEDCouplingSkyLineArray * getNodeCorresp() const;
     const int *getFaceCorrespIndex() const;
     const int *getFaceCorrespValue() const;
     int getFaceNumber() const;
+    const ParaMEDMEM::MEDCouplingSkyLineArray * getFaceCorresp() const;
     const int *getEntityCorrespIndex(int localEntity,
                                      int distantEntity) const;
     const int *getEntityCorrespValue(int localEntity,
@@ -58,6 +61,10 @@ namespace MEDPARTITIONER
                                int distantEntity) const;
     int getEntityCorrespLength(int localEntity,
                                int distantEntity) const;
+    const ParaMEDMEM::MEDCouplingSkyLineArray * getEntityCorresp(int localEntity,
+                                                                 int distantEntity) const;
+    std::vector< std::pair< int,int > > getEntities() const;
+
     void setName(const std::string& name) ;
     void setDescription(const std::string& description) ;
     void setDistantDomainNumber(int distantDomainNumber) ;
@@ -65,14 +72,14 @@ namespace MEDPARTITIONER
     void setLocalMesh(ParaMEDMEM::MEDCouplingUMesh * localMesh) ;
     void setDistantMesh(ParaMEDMEM::MEDCouplingUMesh * distantMesh) ;
 
-    void setNodeCorresp(int * nodeCorresp, int nbnode);
-    void setNodeCorresp(MEDPARTITIONER::SkyLineArray* array);
-    void setFaceCorresp(int * faceCorresp, int nbface);
-    void setFaceCorresp(MEDPARTITIONER::SkyLineArray* array);
+    void setNodeCorresp(const int * nodeCorresp, int nbnode);
+    void setNodeCorresp(ParaMEDMEM::MEDCouplingSkyLineArray* array);
+    void setFaceCorresp(const int * faceCorresp, int nbface);
+    void setFaceCorresp(ParaMEDMEM::MEDCouplingSkyLineArray* array);
     void setEntityCorresp(int localEntity, int distantEntity,
-                          int * entityCorresp, int nbentity);
+                          const int * entityCorresp, int nbentity);
     void setEntityCorresp(int localEntity, int distantEntity,
-                          MEDPARTITIONER::SkyLineArray *array);
+                          ParaMEDMEM::MEDCouplingSkyLineArray *array);
   private :
     std::string _name;
     std::string _description;
@@ -82,10 +89,10 @@ namespace MEDPARTITIONER
     ParaMEDMEM::MEDCouplingUMesh * _local_mesh;
     ParaMEDMEM::MEDCouplingUMesh * _distant_mesh;
 
-    SkyLineArray * _node_corresp;
-    SkyLineArray * _face_corresp;
+    ParaMEDMEM::MEDCouplingSkyLineArray * _node_corresp;
+    ParaMEDMEM::MEDCouplingSkyLineArray * _face_corresp;
   
-    std::map < std::pair <int,int>, SkyLineArray * > _entity_corresp;
+    std::map < std::pair <int,int>, ParaMEDMEM::MEDCouplingSkyLineArray * > _entity_corresp;
   };
 }
 # endif

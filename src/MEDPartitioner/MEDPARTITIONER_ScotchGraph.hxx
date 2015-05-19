@@ -26,12 +26,11 @@
 
 namespace MEDPARTITIONER
 {
-  class SkyLineArray;
   class MEDPARTITIONER_EXPORT SCOTCHGraph : public Graph
   {
   public:
     SCOTCHGraph();
-    SCOTCHGraph(MEDPARTITIONER::SkyLineArray*, int* edgeweight=0);
+    SCOTCHGraph(ParaMEDMEM::MEDCouplingSkyLineArray*, int* edgeweight=0);
     virtual ~SCOTCHGraph();
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
   };

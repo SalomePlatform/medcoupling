@@ -91,18 +91,21 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
         ret->loadUMeshFromFile(fid,ms.front(),dt,it,mrs);
+        ret->loadJointsFromFile(fid);
         return (MEDFileUMesh *)ret.retn();
       }
     case CARTESIAN:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
         ret->loadCMeshFromFile(fid,ms.front(),dt,it,mrs);
+        ret->loadJointsFromFile(fid);
         return (MEDFileCMesh *)ret.retn();
       }
     case CURVE_LINEAR:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=MEDFileCurveLinearMesh::New();
         ret->loadCLMeshFromFile(fid,ms.front(),dt,it,mrs);
+        ret->loadJointsFromFile(fid);
         return (MEDFileCurveLinearMesh *)ret.retn();
       }
     default:
@@ -121,13 +124,16 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
  *  \param [in] mName - the name of the mesh to read.
  *  \param [in] dt - the number of a time step.
  *  \param [in] it - the number of an iteration.
+ *  \param [in] joints - the sub-domain joints to use instead of those that can be read
+ *          from the MED file. Usually this joints are those just read by another iteration
+ *          of mName mesh, when this method is called by MEDFileMeshMultiTS::New()
  *  \return MEDFileMesh * - a new instance of MEDFileMesh. The caller is to delete this
  *          mesh using decrRef() as it is no more needed. 
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is of a not supported type.
  */
-MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs, MEDFileJoints* joints)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   ParaMEDMEM::MEDCouplingMeshType meshType;
@@ -141,18 +147,21 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mN
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
         ret->loadUMeshFromFile(fid,mName,dt,it,mrs);
+        ret->loadJointsFromFile(fid,joints);
         return (MEDFileUMesh *)ret.retn();
       }
     case CARTESIAN:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
         ret->loadCMeshFromFile(fid,mName,dt,it,mrs);
+        ret->loadJointsFromFile(fid,joints);
         return (MEDFileCMesh *)ret.retn();
       }
     case CURVE_LINEAR:
       {
         MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=MEDFileCurveLinearMesh::New();
         ret->loadCLMeshFromFile(fid,mName,dt,it,mrs);
+        ret->loadJointsFromFile(fid,joints);
         return (MEDFileCurveLinearMesh *)ret.retn();
       }
     default:
@@ -2401,7 +2410,8 @@ MEDFileUMesh::MEDFileUMesh(med_idt fid, const std::string& mName, int dt, int it
 try
 {
     loadUMeshFromFile(fid,mName,dt,it,mrs);
-}
+    loadJointsFromFile(fid);
+  }
 catch(INTERP_KERNEL::Exception& e)
 {
     throw e;
@@ -2430,6 +2440,62 @@ void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, 
 }
 
 /*!
+ * \brief Write joints in a file
+ */
+void MEDFileMesh::writeJoints(med_idt fid) const
+{
+  if ( (const MEDFileJoints*) _joints )
+    _joints->write(fid);
+}
+
+/*!
+ * \brief Load joints in a file or use provided ones
+ */
+//================================================================================
+/*!
+ * \brief Load joints in a file or use provided ones
+ *  \param [in] fid - MED file descriptor
+ *  \param [in] toUseInstedOfReading - optional joints to use instead of reading,
+ *          Usually this joints are those just read by another iteration
+ *          of namesake mesh, when this method is called by MEDFileMeshMultiTS::New()
+ */
+//================================================================================
+
+void MEDFileMesh::loadJointsFromFile(med_idt fid, MEDFileJoints* toUseInstedOfReading)
+{
+  if ( toUseInstedOfReading )
+    setJoints( toUseInstedOfReading );
+  else
+    _joints = MEDFileJoints::New( fid, _name );
+}
+
+/*!
+ * \brief Return number of joints, which is equal to number of adjacent mesh domains
+ */
+int MEDFileMesh::getNumberOfJoints()
+{
+  return ( (MEDFileJoints*) _joints ) ? _joints->getNumberOfJoints() : 0;
+}
+
+/*!
+ * \brief Return joints with all adjacent mesh domains
+ */
+MEDFileJoints * MEDFileMesh::getJoints() const
+{
+  return (MEDFileJoints*) & (*_joints);
+}
+
+void MEDFileMesh::setJoints( MEDFileJoints* joints )
+{
+  if ( joints != _joints )
+    {
+      _joints = joints;
+      if ( joints )
+        joints->incrRef();
+    }
+}
+
+/*!
  * This method loads \b all \b the \b mesh \a mName in the file with \a fid descriptor.
  *
  * \sa loadPartUMeshFromFile
@@ -2448,7 +2514,6 @@ void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const std::string& mName, int 
     }
   loaderl2.loadAll(fid,mid,mName,dt,it,mrs);
   dispatchLoadedPart(fid,loaderl2,mName,mrs);
-
 }
 
 void MEDFileUMesh::dispatchLoadedPart(med_idt fid, const MEDFileUMeshL2& loaderl2, const std::string& mName, MEDFileMeshReadSelector *mrs)
@@ -2515,6 +2580,8 @@ void MEDFileUMesh::writeLL(med_idt fid) const
     if((const MEDFileUMeshSplitL1 *)(*it)!=0)
       (*it)->write(fid,meshName,mdim);
   MEDFileUMeshL2::WriteFamiliesAndGrps(fid,meshName,_families,_groups,_too_long_str);
+
+  writeJoints(fid);
 }
 
 /*!
@@ -5924,6 +5991,7 @@ MEDFileCMesh::MEDFileCMesh(med_idt fid, const std::string& mName, int dt, int it
 try
 {
     loadCMeshFromFile(fid,mName,dt,it,mrs);
+    loadJointsFromFile(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -6009,6 +6077,8 @@ void MEDFileCMesh::writeLL(med_idt fid) const
   //
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileStructuredMesh::writeStructuredLL(fid,meshName);
+
+  writeJoints(fid);
 }
 
 void MEDFileCMesh::synchronizeTinyInfoOnLeaves() const
@@ -6176,6 +6246,7 @@ MEDFileCurveLinearMesh::MEDFileCurveLinearMesh(med_idt fid, const std::string& m
 try
 {
     loadCLMeshFromFile(fid,mName,dt,it,mrs);
+    loadJointsFromFile(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -6215,6 +6286,8 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
   //
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileStructuredMesh::writeStructuredLL(fid,meshName);
+
+  writeJoints(fid);
 }
 
 void MEDFileCurveLinearMesh::loadCLMeshFromFile(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
@@ -6320,13 +6393,41 @@ void MEDFileMeshMultiTS::setOneTimeStep(MEDFileMesh *mesh1TimeStep)
   _mesh_one_ts[0]=mesh1TimeStep;
 }
 
+MEDFileJoints * MEDFileMeshMultiTS::getJoints() const
+{
+  if ( MEDFileMesh* m = getOneTimeStep() )
+    return m->getJoints();
+  return 0;
+}
+
+/*!
+ * \brief Set Joints that are common to all time-stamps
+ */
+void MEDFileMeshMultiTS::setJoints( MEDFileJoints* joints )
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    {
+      (*it)->setJoints( joints );
+    }
+}
+
 void MEDFileMeshMultiTS::write(med_idt fid) const
 {
+  MEDFileJoints * joints = getJoints();
+  bool jointsWritten = false;
+
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
     {
+      if ( jointsWritten )
+        const_cast<MEDFileMesh&>(**it).setJoints( 0 );
+      else
+        jointsWritten = true;
+
       (*it)->copyOptionsFrom(*this);
       (*it)->write(fid);
     }
+
+  ((MEDFileMeshMultiTS*)this)->setJoints( joints ); // restore joints
 }
 
 void MEDFileMeshMultiTS::write(const std::string& fileName, int mode) const
@@ -6339,9 +6440,16 @@ void MEDFileMeshMultiTS::write(const std::string& fileName, int mode) const
 }
 
 void MEDFileMeshMultiTS::loadFromFile(const std::string& fileName, const std::string& mName)
-{//for the moment to be improved
-  _mesh_one_ts.resize(1);
-  _mesh_one_ts[0]=MEDFileMesh::New(fileName,mName,-1,-1);
+{
+  MEDFileJoints* joints = 0;
+  if ( !_mesh_one_ts.empty() && getOneTimeStep() )
+    {
+      // joints of mName already read, pass them to MEDFileMesh::New() to prevent repeated reading
+      joints = getOneTimeStep()->getJoints();
+    }
+
+  _mesh_one_ts.clear();  //for the moment to be improved
+  _mesh_one_ts.push_back( MEDFileMesh::New(fileName,mName,-1,-1,0, joints ));
 }
 
 MEDFileMeshMultiTS::MEDFileMeshMultiTS()
@@ -6464,6 +6572,16 @@ std::vector<std::string> MEDFileMeshes::getMeshesNames() const
     }
   return ret;
 }
+/*const MEDFileJoints* MEDFileMeshes::getJoints() const
+{
+  const MEDFileJoints *ret=_joints;
+  if(!ret)
+  {
+    std::ostringstream oss; oss << "MEDFileMeshes::getJoints : joints is not defined !";
+    throw INTERP_KERNEL::Exception(oss.str().c_str());
+  }
+  return ret;
+}*/
 
 bool MEDFileMeshes::changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
 {

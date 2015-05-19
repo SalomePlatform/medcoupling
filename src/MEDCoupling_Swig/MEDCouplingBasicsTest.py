@@ -16633,6 +16633,67 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
+    def testMEDCouplingSkyLineArray(self):
+        index = DataArrayInt([ 0, 3, 5, 6, 6 ])
+        value = DataArrayInt([ 1, 2, 3, 2, 3, 3 ])
+
+        sla0 = MEDCouplingSkyLineArray()
+        self.assertEqual( -1, sla0.getNumberOf() )
+        self.assertEqual( 0,  sla0.getLength() )
+        sla0.set( index, value )
+        self.assertTrue( index.isEqual( sla0.getIndexArray() ))
+        self.assertTrue( value.isEqual( sla0.getValueArray() ))
+        self.assertEqual( 4, sla0.getNumberOf() )
+        self.assertEqual( 6, sla0.getLength() )
+
+        sla1 = MEDCouplingSkyLineArray( index, value )
+        self.assertTrue( index.isEqual( sla1.getIndexArray() ))
+        self.assertTrue( value.isEqual( sla1.getValueArray() ))
+        self.assertEqual( 4, sla1.getNumberOf() )
+        self.assertEqual( 6, sla1.getLength() )
+
+        sla2 = MEDCouplingSkyLineArray( sla1 )
+        self.assertTrue( index.isEqual( sla2.getIndexArray() ))
+        self.assertTrue( value.isEqual( sla2.getValueArray() ))
+        self.assertEqual( 4, sla2.getNumberOf() )
+        self.assertEqual( 6, sla2.getLength() )
+
+        indexVec = ivec(); indexVec.reserve( len( index ))
+        for i in index: indexVec.push_back( i[0] )
+        valueVec = ivec(); valueVec.reserve( len( value ))
+        for i in value: valueVec.push_back( i[0] )
+        sla3 = MEDCouplingSkyLineArray( indexVec, valueVec )
+        self.assertTrue( index.isEqual( sla3.getIndexArray() ))
+        self.assertTrue( value.isEqual( sla3.getValueArray() ))
+        self.assertEqual( 4, sla3.getNumberOf() )
+        self.assertEqual( 6, sla3.getLength() )
+
+        pass
+   
+    def testMEDCouplingUMeshgenerateGraph(self):
+        # cartesian mesh 3x3
+        arr=DataArrayDouble(4) ; arr.iota()
+        c=MEDCouplingCMesh() ; c.setCoords(arr,arr)
+        m=c.buildUnstructured()
+        graph = m.generateGraph()
+        # 0 1 2
+        # 3 4 5
+        # 6 7 8
+        valRef=[ 0,1,3,
+                 0,1,2,4,
+                 1,2,5,
+                 0,3,4,6,
+                 1,3,4,5,7,
+                 2,4,5,8,
+                 3,6,7,
+                 4,6,7,8,
+                 5,7,8]
+        self.assertEqual(valRef,list(graph.getValueArray().getValues()));
+
+        indRef=[0, 3, 7, 10, 14, 19, 23, 26, 30, 33]
+        self.assertEqual(indRef,list(graph.getIndexArray().getValues()));
+        pass
+
     pass
 
 if __name__ == '__main__':

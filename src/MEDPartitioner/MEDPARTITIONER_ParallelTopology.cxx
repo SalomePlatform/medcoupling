@@ -278,7 +278,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
 
   _nb_domain=nb_domain;
   _mesh_dimension=mesh_dimension;
-  
+
   if (MyGlobals::_Verbose>200)
     std::cout << "proc " << MyGlobals::_Rank << " : new topology oldNbDomain " <<
       oldTopology->nbDomain() << " newNbDomain " << _nb_domain << std::endl;
@@ -316,22 +316,79 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
 
   if (MyGlobals::_Verbose>300)
     for (int idomain=0; idomain<_nb_domain; idomain++)
-      std::cout << "proc " << MyGlobals::_Rank << " : nbCells in new domain " << idomain << " : " << _nb_cells[idomain] << std::endl; 
+      std::cout << "proc " << MyGlobals::_Rank << " : nbCells in new domain " << idomain << " : " << _nb_cells[idomain] << std::endl;
+
+  // JOINTs
+
+  if ( MyGlobals::_Create_Joints && nb_domain > 1 )
+    {
+      std::vector< std::vector< std::vector< int > > > cellCorresp( nb_domain );
+      for ( int idomain = 0; idomain < nb_domain; ++idomain )
+        {
+          cellCorresp[ idomain ].resize( nb_domain );
+        }
+      const ParaMEDMEM::MEDCouplingSkyLineArray* skylinegraph = graph->getGraph();
+      const int*  index = skylinegraph->getIndex();
+      const int*  value = skylinegraph->getValue();
+      const int nbCells = skylinegraph->getNumberOf();
+
+      for ( int iGlob = 0; iGlob < nbCells; ++iGlob )
+        {
+          int iGlobDom = part[ iGlob ];
+          for ( int i = index[ iGlob ]; i < index[ iGlob+1 ]; i++ )
+            {
+              int iGlobNear = value[ i ];
+              if ( iGlob > iGlobNear )
+                continue; // treat ( iGlob, iGlobNear ) pair once
+              int iGlobNearDom = part[ iGlobNear ];
+              if ( iGlobDom != iGlobNearDom )
+                {
+                  int iLoc     = convertGlobalCell( iGlob ).second     - 1; // to MEDCoupling fmt
+                  int iLocNear = convertGlobalCell( iGlobNear ).second - 1;
+                  cellCorresp[ iGlobDom ][ iGlobNearDom ].push_back( iLoc );
+                  cellCorresp[ iGlobDom ][ iGlobNearDom ].push_back( iLocNear );
+                  cellCorresp[ iGlobNearDom ][ iGlobDom ].push_back( iLocNear );
+                  cellCorresp[ iGlobNearDom ][ iGlobDom ].push_back( iLoc );
+                }
+            }
+        }
+      for ( int idomain = 0; idomain < nb_domain; ++idomain )
+        {
+          for ( int idomainNear = 0; idomainNear < nb_domain; ++idomainNear )
+            {
+              std::vector< int > & corresp = cellCorresp[ idomain ][ idomainNear ];
+              if ( corresp.empty() )
+                continue;
+              MEDPARTITIONER::ConnectZone* cz = new MEDPARTITIONER::ConnectZone();
+              cz->setName( "Connect Zone defined by MEDPARTITIONER" );
+              cz->setDistantDomainNumber( idomainNear );
+              cz->setLocalDomainNumber  ( idomain );
+              cz->setEntityCorresp( 0,0, &corresp[0], corresp.size()/2 );
+              _connect_zones.push_back( cz );
+            }
+        }
+    }
 }
 
 ParallelTopology::~ParallelTopology()
 {
-} 
+  for ( size_t i = 0; i < _connect_zones.size(); ++i )
+    {
+      delete _connect_zones[i];
+      _connect_zones[i] = 0;
+    }
+  _connect_zones.clear();
+}
 
 /*!Converts a list of global node numbers
  * to a distributed array with local cell numbers.
- * 
+ *
  * If a node in the list is represented on several domains,
  * only the first value is returned
  * */
 void ParallelTopology::convertGlobalNodeList(const int* node_list, int nbnode, int* local, int* ip)
 {
-  if (_node_glob_to_loc.empty()) 
+  if (_node_glob_to_loc.empty())
     throw INTERP_KERNEL::Exception("Node mapping has not yet been built");
   for (int i=0; i< nbnode; i++)
     {
@@ -598,6 +655,11 @@ int ParallelTopology::convertGlobalNode(int iglobal, int idomain)
         return it->second.second;
     }
   return -1;
+}
+
+std::vector<MEDPARTITIONER::ConnectZone*>& ParallelTopology::getCZ()
+{
+  return _connect_zones;
 }
 
 /*!

@@ -36,7 +36,7 @@ METISGraph::METISGraph():Graph()
 {
 }
 
-METISGraph::METISGraph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight)
+METISGraph::METISGraph(ParaMEDMEM::MEDCouplingSkyLineArray* graph, int* edgeweight)
   :Graph(graph,edgeweight)
 {
 }
@@ -112,7 +112,7 @@ void METISGraph::partGraph(int ndomain,
   //creating a skylinearray with no copy of the index and partition array
   //the fifth argument true specifies that only the pointers are passed 
   //to the object
-  _partition = new MEDPARTITIONER::SkyLineArray(index,value);
+  _partition = new ParaMEDMEM::MEDCouplingSkyLineArray(index,value);
 #endif
 }
 

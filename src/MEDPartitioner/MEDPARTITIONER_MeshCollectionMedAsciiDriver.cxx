@@ -52,6 +52,40 @@ MeshCollectionMedAsciiDriver::MeshCollectionMedAsciiDriver(MeshCollection* colle
  *\param filename ascii file containing the list of MED v2.3 files
  * */
 
+int MeshCollectionMedAsciiDriver::read(ParaMEDMEM::MEDFileData* filedata)
+{
+  readMEDFileData(filedata);
+
+  std::vector<MEDPARTITIONER::ConnectZone*> cz; // to fill from filedata
+  std::vector<int*> cellglobal;
+  std::vector<int*> nodeglobal;
+  std::vector<int*> faceglobal;
+  int size = (_collection->getMesh()).size();
+  cellglobal.resize(size);
+  nodeglobal.resize(size);
+  faceglobal.resize(size);
+  for ( int idomain = 0; idomain < size; ++idomain )
+    {
+      cellglobal[idomain]=0;
+      faceglobal[idomain]=0;
+      nodeglobal[idomain]=0;
+      if ( (_collection->getMesh())[idomain] && (_collection->getMesh())[idomain]->getNumberOfNodes() > 0 )
+        _collection->setNonEmptyMesh(idomain);
+    }
+  //creation of topology from mesh and connect zones
+  ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()), cz, cellglobal, nodeglobal, faceglobal);
+  _collection->setTopology(aPT,true);
+
+  return 0;
+}
+
+/*!reads a MED File v>=2.3
+ * and mounts the corresponding meshes in memory
+ * the connect zones are created from the joints
+ *
+ *\param filename ascii file containing the list of MED v2.3 files
+ * */
+
 int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector* domainSelector)
 {
   //distributed meshes
@@ -105,7 +139,7 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
               throw INTERP_KERNEL::Exception("domain must be written from 1 to N in ASCII file descriptor");
             }
           if ( !domainSelector || domainSelector->isMyDomain(i))
-            readSubdomain(cellglobal,faceglobal,nodeglobal, i);
+            readSubdomain(i);
 
         } //loop on domains
     } //of try
@@ -116,7 +150,7 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
 
   //creation of topology from mesh and connect zones
   ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()), (_collection->getCZ()), cellglobal, nodeglobal, faceglobal);
-  _collection->setTopology(aPT);
+  _collection->setTopology(aPT, true);
 
   for (int i=0; i<nbdomain; i++)
     {
@@ -126,7 +160,6 @@ int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector*
     }
   return 0;
 }
-
 
 /*! writes the collection of meshes in a MED v2.3 file
  * with the connect zones being written as joints

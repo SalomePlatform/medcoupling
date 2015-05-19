@@ -21,9 +21,14 @@
 #define __MEDPARTITIONER_GRAPH_HXX__
 
 #include "MEDPARTITIONER.hxx"
-#include "MEDPARTITIONER_SkyLineArray.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 
 #include <string>
+
+namespace ParaMEDMEM
+{
+  class MEDCouplingSkyLineArray;
+}
 
 namespace MEDPARTITIONER 
 {
@@ -33,28 +38,32 @@ namespace MEDPARTITIONER
   public:
     typedef enum {METIS,SCOTCH} splitter_type;
 
-    Graph() { }
+    Graph(){};
     //creates a graph from a SKYLINEARRAY
-    Graph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight=0);
+    Graph(ParaMEDMEM::MEDCouplingSkyLineArray* graph, int* edgeweight=0);
     virtual ~Graph();
 
     void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
     void setVerticesWeights(int *cellweight) { _cell_weight=cellweight; }
     
     //computes partitioning of the graph
-    virtual void partGraph(int ndomain, const std::string&, ParaDomainSelector *sel=0) = 0;
+    virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) = 0;
     
     //returns the partitioning
     const int *getPart() const { return _partition->getValue(); }
     
     //returns the number of graph vertices (which can correspond to the cells in the mesh!)
     int nbVertices() const { return _graph->getNumberOf(); }
+
+    // returns nb of domains in _partition
+    int nbDomains() const;
     
-    const SkyLineArray *getGraph() const { return _graph; }
+    const ParaMEDMEM::MEDCouplingSkyLineArray *getGraph() const { return _graph; }
+    const ParaMEDMEM::MEDCouplingSkyLineArray *getPartition() const { return _partition; }
 
   protected:
-    SkyLineArray* _graph;
-    SkyLineArray* _partition;
+    ParaMEDMEM::MEDCouplingSkyLineArray* _graph;
+    ParaMEDMEM::MEDCouplingSkyLineArray* _partition;
     int* _edge_weight;  
     int* _cell_weight;
   };

@@ -370,8 +370,8 @@ std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherG
   // Make graph
   // -----------
 
-  //   MEDPARTITIONER::SkyLineArray* array =
-  //     new MEDPARTITIONER::SkyLineArray( index_size-1, value_size, graph_index, graph_value, true );
+  //   MEDCouplingSkyLineArray* array =
+  //     new MEDCouplingSkyLineArray( index_size-1, value_size, graph_index, graph_value, true );
 
   //   glob_graph = new UserGraph( array, partition, index_size-1 );
 

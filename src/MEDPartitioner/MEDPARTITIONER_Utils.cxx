@@ -45,6 +45,7 @@ int MEDPARTITIONER::MyGlobals::_World_Size=-1;
 int MEDPARTITIONER::MyGlobals::_Randomize=0;
 int MEDPARTITIONER::MyGlobals::_Atomize=0;
 int MEDPARTITIONER::MyGlobals::_Creates_Boundary_Faces=0;
+int MEDPARTITIONER::MyGlobals::_Create_Joints=0;
 std::vector<std::string> MEDPARTITIONER::MyGlobals::_File_Names;
 std::vector<std::string> MEDPARTITIONER::MyGlobals::_Mesh_Names;
 std::vector<std::string> MEDPARTITIONER::MyGlobals::_Field_Descriptions;

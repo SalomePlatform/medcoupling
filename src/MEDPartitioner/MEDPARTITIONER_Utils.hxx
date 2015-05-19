@@ -127,6 +127,7 @@ namespace MEDPARTITIONER
     static int _Randomize;
     static int _Atomize;
     static int _Creates_Boundary_Faces;
+    static int _Create_Joints;
     static int _Is0verbose; //trace cout if rank 0 and verbose
     static std::vector<std::string> _File_Names;    //on [iold]
     static std::vector<std::string> _Mesh_Names;    //on [iold]

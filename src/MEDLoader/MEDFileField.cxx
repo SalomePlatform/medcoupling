@@ -4346,10 +4346,10 @@ std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> 
       for(std::vector<TypeOfField>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
         allEnt.insert(*it2);
     }
-	if(allEnt.size()!=1)
-	  throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes : this field is expected to be defined only on one spatial discretization !");
-	if(nbOfMDPGT==0)
-	  throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes : empty field !");
+  if(allEnt.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes : this field is expected to be defined only on one spatial discretization !");
+  if(nbOfMDPGT==0)
+    throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::splitMultiDiscrPerGeoTypes : empty field !");
   if(nbOfMDPGT==1)
     {
       std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TSWithoutSDA> > ret0(1);

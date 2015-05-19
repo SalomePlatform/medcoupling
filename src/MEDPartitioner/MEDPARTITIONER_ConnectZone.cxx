@@ -21,6 +21,8 @@
 
 #include <map>
 
+using namespace ParaMEDMEM;
+
 MEDPARTITIONER::ConnectZone::ConnectZone():
   _name("")
   ,_description("")
@@ -35,7 +37,7 @@ MEDPARTITIONER::ConnectZone::~ConnectZone()
 {
   delete _node_corresp;
   delete _face_corresp;
-  for(std::map < std::pair <int, int>,SkyLineArray * >::iterator iter=_entity_corresp.begin(); iter!=_entity_corresp.end();iter++)
+  for(std::map < std::pair <int, int>,MEDCouplingSkyLineArray * >::iterator iter=_entity_corresp.begin(); iter!=_entity_corresp.end();iter++)
     {
       delete iter->second;
     }
@@ -84,7 +86,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDPARTITIONER::ConnectZone::getDistantMesh() cons
 
 bool MEDPARTITIONER::ConnectZone::isEntityCorrespPresent(int localEntity, int distantEntity) const
 {
-  typedef std::map<std::pair<int,int>, SkyLineArray*>::const_iterator map_iter;
+  typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
   for(map_iter iter=_entity_corresp.begin(); iter != _entity_corresp.end(); iter++)
     {
       if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
@@ -108,6 +110,11 @@ int MEDPARTITIONER::ConnectZone::getNodeNumber() const
   return _node_corresp->getNumberOf();
 }
 
+const ParaMEDMEM::MEDCouplingSkyLineArray * MEDPARTITIONER::ConnectZone::getNodeCorresp() const
+{
+  return _node_corresp;
+}
+
 const int *MEDPARTITIONER::ConnectZone::getFaceCorrespIndex() const
 {
   return _face_corresp->getIndex();
@@ -123,56 +130,88 @@ int MEDPARTITIONER::ConnectZone::getFaceNumber() const
   return _face_corresp->getNumberOf();
 }
 
-const int *MEDPARTITIONER::ConnectZone::getEntityCorrespIndex(int localEntity,
-                                               int distantEntity) const
+const ParaMEDMEM::MEDCouplingSkyLineArray * MEDPARTITIONER::ConnectZone::getFaceCorresp() const
 {
-  typedef std::map<std::pair<int,int>, SkyLineArray*>::const_iterator map_iter;
+  return _face_corresp;
+}
+
+const int *MEDPARTITIONER::ConnectZone::getEntityCorrespIndex(int localEntity,
+                                                              int distantEntity) const
+{
+  typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
 
   for(map_iter iter=_entity_corresp.begin();iter!=_entity_corresp.end();iter++)
-    {
-      if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
-        return iter->second->getIndex();
-    }
+  {
+    if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
+      return iter->second->getIndex();
+  }
   return 0;
 }
 
 const int *MEDPARTITIONER::ConnectZone::getEntityCorrespValue(int localEntity,
-                                               int distantEntity) const
+                                                              int distantEntity) const
 {
-  typedef std::map<std::pair<int,int>, SkyLineArray*>::const_iterator map_iter;
+  typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
 
   for (map_iter iter=_entity_corresp.begin();iter!=_entity_corresp.end();iter++)
-    {
-      if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
-        return iter->second->getValue();
-    }
+  {
+    if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
+      return iter->second->getValue();
+  }
   return 0;
 }
 
 int MEDPARTITIONER::ConnectZone::getEntityCorrespNumber(int localEntity,
-                                        int distantEntity) const
+                                                        int distantEntity) const
 {
-  typedef std::map<std::pair<int,int>, SkyLineArray*>::const_iterator map_iter;
+  typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
 
   for(map_iter iter=_entity_corresp.begin();iter!=_entity_corresp.end();iter++)
-    {
-      if((iter->first).first==localEntity && (iter->first).second==distantEntity)
-        return iter->second->getNumberOf();
-    }
+  {
+    if((iter->first).first==localEntity && (iter->first).second==distantEntity)
+      return iter->second->getNumberOf();
+  }
   return 0;
 }
 
 int MEDPARTITIONER::ConnectZone::getEntityCorrespLength(int localEntity,
-                                        int distantEntity) const
+                                                        int distantEntity) const
 {
-  typedef std::map<std::pair<int,int>, SkyLineArray*>::const_iterator map_iter;
-  
+  typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
+
   for (map_iter iter=_entity_corresp.begin(); iter != _entity_corresp.end(); iter++)
-    {
-      if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
-        return iter->second->getLength();
-    }
+  {
+    if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
+      return iter->second->getLength();
+  }
   return 0;
+}
+
+const ParaMEDMEM::MEDCouplingSkyLineArray *
+MEDPARTITIONER::ConnectZone::getEntityCorresp(int localEntity, int distantEntity) const
+{
+  typedef std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator map_iter;
+
+  for (map_iter iter=_entity_corresp.begin(); iter != _entity_corresp.end(); iter++)
+  {
+    if ((iter->first).first==localEntity && (iter->first).second==distantEntity)
+      return iter->second;
+  }
+  return 0;
+}
+
+std::vector< std::pair< int,int > > MEDPARTITIONER::ConnectZone::getEntities() const
+{
+  std::vector< std::pair< int,int > > types;
+
+  std::map<std::pair<int,int>, MEDCouplingSkyLineArray*>::const_iterator
+    iter = _entity_corresp.begin();
+  for ( ; iter != _entity_corresp.end(); iter++)
+    {
+      types.push_back( iter->first );
+    }
+
+  return types;
 }
 
 void MEDPARTITIONER::ConnectZone::setName(const std::string& name) 
@@ -207,33 +246,44 @@ void MEDPARTITIONER::ConnectZone::setDistantMesh(ParaMEDMEM::MEDCouplingUMesh * 
 
 /*! transforms an int array containing 
  * the node-node connections
- * to a SkyLineArray
+ * to a MEDCouplingSkyLineArray
  */
-void MEDPARTITIONER::ConnectZone::setNodeCorresp(int * nodeCorresp, int nbnode)
+void MEDPARTITIONER::ConnectZone::setNodeCorresp(const int * nodeCorresp, int nbnode)
 {
-  std::vector<int> index(nbnode+1),value(2*nbnode);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> indexArr( DataArrayInt::New() );
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> valueArr( DataArrayInt::New() );
+  indexArr->alloc( nbnode+1 );
+  valueArr->alloc( 2*nbnode );
+  int * index = indexArr->getPointer();
+  int * value = valueArr->getPointer();
   for (int i=0; i<nbnode; i++)
     {
       index[i]=2*i;
-      value[2*i]=nodeCorresp[2*i];
+      value[2*i  ]=nodeCorresp[2*i];
       value[2*i+1]=nodeCorresp[2*i+1];
     }
   index[nbnode]=2*nbnode;
-  _node_corresp = new SkyLineArray(index,value);
+  setNodeCorresp( new MEDCouplingSkyLineArray( indexArr, valueArr ));
 }
 
-void MEDPARTITIONER::ConnectZone::setNodeCorresp(SkyLineArray* array)
+void MEDPARTITIONER::ConnectZone::setNodeCorresp(MEDCouplingSkyLineArray* array)
 {
+  if ( _node_corresp ) delete _node_corresp;
   _node_corresp = array;
 }
 
 /*! transforms an int array containing 
  * the face-face connections
- * to a SkyLineArray
+ * to a MEDCouplingSkyLineArray
  */
-void MEDPARTITIONER::ConnectZone::setFaceCorresp(int * faceCorresp, int nbface)
+void MEDPARTITIONER::ConnectZone::setFaceCorresp(const int * faceCorresp, int nbface)
 {
-  std::vector<int> index(nbface+1),value(2*nbface);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> indexArr( DataArrayInt::New() );
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> valueArr( DataArrayInt::New() );
+  indexArr->alloc( nbface+1 );
+  valueArr->alloc( 2*nbface );
+  int * index = indexArr->getPointer();
+  int * value = valueArr->getPointer();
   for (int i=0; i<nbface; i++)
     {
       index[i]=2*i;
@@ -241,43 +291,47 @@ void MEDPARTITIONER::ConnectZone::setFaceCorresp(int * faceCorresp, int nbface)
       value[2*i+1]=faceCorresp[2*i+1];
     }
   index[nbface]=2*nbface;
-  _face_corresp = new MEDPARTITIONER::SkyLineArray(index,value);
+  setFaceCorresp( new MEDCouplingSkyLineArray( indexArr, valueArr ));
 }
 
-void MEDPARTITIONER::ConnectZone::setFaceCorresp(SkyLineArray* array)
+void MEDPARTITIONER::ConnectZone::setFaceCorresp(MEDCouplingSkyLineArray* array)
 {
+  if ( _face_corresp ) delete _face_corresp;
   _face_corresp = array;
 }
 
 /*! transforms an int array containing 
  * the entity-entity connections
- * to a SkyLineArray
+ * to a MEDCouplingSkyLineArray
  * 
- * the resulting SkyLineArray is put in the map
+ * the resulting MEDCouplingSkyLineArray is put in the map
  */
 void MEDPARTITIONER::ConnectZone::setEntityCorresp(int localEntity, int distantEntity,
-                                                   int *entityCorresp, int nbentity)
+                                                   const int *entityCorresp, int nbentity)
 { 
-  std::vector<int> index(nbentity+1),value(2*nbentity);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> indexArr( DataArrayInt::New() );
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> valueArr( DataArrayInt::New() );
+  indexArr->alloc( nbentity+1 );
+  valueArr->alloc( 2*nbentity );
+  int * index = indexArr->getPointer();
+  int * value = valueArr->getPointer();
   for (int i=0; i<nbentity; i++)
     {
       index[i]=2*i;
-      value[2*i]=entityCorresp[2*i];
+      value[2*i  ]=entityCorresp[2*i];
       value[2*i+1]=entityCorresp[2*i+1];
     }
   index[nbentity]=2*nbentity;
-  _entity_corresp[std::make_pair(localEntity,distantEntity)] = new SkyLineArray(index,value);
+  setEntityCorresp( localEntity, distantEntity, new MEDCouplingSkyLineArray(indexArr,valueArr));
 }
 
 void MEDPARTITIONER::ConnectZone::setEntityCorresp(int localEntity, int distantEntity,
-                                                   SkyLineArray *array)
+                                                   MEDCouplingSkyLineArray *array)
 {
-  _entity_corresp[std::make_pair(localEntity,distantEntity)]=array;
+  ParaMEDMEM::MEDCouplingSkyLineArray * nullArray = 0;
+  std::map < std::pair <int,int>, ParaMEDMEM::MEDCouplingSkyLineArray * >::iterator it;
+  it = _entity_corresp.insert
+    ( std::make_pair( std::make_pair(localEntity,distantEntity), nullArray )).first;
+  if ( it->second != nullArray ) delete it->second;
+  it->second = array;
 }
-
-
-
-
-
-
-

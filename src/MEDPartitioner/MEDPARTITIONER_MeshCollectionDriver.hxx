@@ -21,9 +21,14 @@
 #define __MEDPARTITIONER_MESHCOLLECTIONDRIVER_HXX__
 
 #include "MEDPARTITIONER.hxx"
-
+#include "MEDFileData.hxx"
 #include <vector>
 #include <string>
+
+namespace ParaMEDMEM
+{
+  class MEDFileData;
+}
 
 namespace MEDPARTITIONER
 {
@@ -37,12 +42,15 @@ namespace MEDPARTITIONER
     virtual ~MeshCollectionDriver() { }
     virtual int read(const char*, ParaDomainSelector* sel=0) = 0;
     int readSeq(const char*,const char*);
+    ParaMEDMEM::MEDFileData *getMEDFileData();
     virtual void write(const char*, ParaDomainSelector* sel=0) const = 0;
+    void readMEDFileData(const ParaMEDMEM::MEDFileData* filedata);
   protected:
-    void readSubdomain(std::vector<int*>& cellglobal,
-                       std::vector<int*>& faceglobal,
-                       std::vector<int*>& nodeglobal, int idomain);
     void readSubdomain(int idomain);
+    void readData(ParaMEDMEM::MEDFileUMesh* mfm, int idomain) const;
+    void readFileData(std::string file,std::string meshname,int idomain) const;
+    ParaMEDMEM::MEDFileMesh* getMesh(int idomain) const;
+    ParaMEDMEM::MEDCouplingFieldDouble* getField(std::string key, std::string description, ParaMEDMEM::DataArrayDouble* data, ParaMEDMEM::MEDFileMesh* mfm, int idomain) const;
     void writeMedFile(int idomain, const std::string& distfilename) const;
   protected:
     MeshCollection* _collection;

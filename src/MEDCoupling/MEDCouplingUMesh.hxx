@@ -35,6 +35,7 @@ namespace ParaMEDMEM
   class MEDCouplingUMeshCellIterator;
   class MEDCoupling1SGTUMesh;
   class MEDCoupling1GTUMesh;
+  class MEDCouplingSkyLineArray;
 
   class MEDCouplingUMesh : public MEDCouplingPointSet
   {
@@ -271,6 +272,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf2DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *buildUnionOf3DMesh() const;
     MEDCOUPLING_EXPORT DataArrayInt *orderConsecutiveCells1D() const;
+    MEDCOUPLING_EXPORT MEDCouplingSkyLineArray *generateGraph() const;
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy);

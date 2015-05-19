@@ -27,6 +27,7 @@
 
 %{
 #include "MEDLoader.hxx"
+#include "MEDFileJoint.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileParameter.hxx"
@@ -93,6 +94,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::getNodeFamiliesArr;
 %newobject ParaMEDMEM::MEDFileMesh::getAllFamiliesIdsReferenced;
 %newobject ParaMEDMEM::MEDFileMesh::computeAllFamilyIdsInUse;
+%newobject ParaMEDMEM::MEDFileData::getJoints;
 %newobject ParaMEDMEM::MEDFileStructuredMesh::getImplicitFaceMesh;
 %newobject ParaMEDMEM::MEDFileUMesh::New;
 %newobject ParaMEDMEM::MEDFileUMesh::LoadPartOf;
@@ -191,6 +193,21 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileParameters::getParamWithName;
 %newobject ParaMEDMEM::MEDFileParameters::__getitem__;
 
+%newobject ParaMEDMEM::MEDFileJointCorrespondence::New;
+%newobject ParaMEDMEM::MEDFileJointCorrespondence::deepCpy;
+%newobject ParaMEDMEM::MEDFileJointCorrespondence::shallowCpy;
+%newobject ParaMEDMEM::MEDFileJointOneStep::New;
+%newobject ParaMEDMEM::MEDFileJointOneStep::deepCpy;
+%newobject ParaMEDMEM::MEDFileJointOneStep::shallowCpy;
+%newobject ParaMEDMEM::MEDFileJoint::New;
+%newobject ParaMEDMEM::MEDFileJoint::deepCpy;
+%newobject ParaMEDMEM::MEDFileJoint::shallowCpy;
+%newobject ParaMEDMEM::MEDFileJoints::New;
+%newobject ParaMEDMEM::MEDFileJoints::deepCpy;
+%newobject ParaMEDMEM::MEDFileJoints::getJointAtPos;
+%newobject ParaMEDMEM::MEDFileJoints::getJointWithName;
+%newobject ParaMEDMEM::MEDFileJoints::__getitem__;
+
 %newobject ParaMEDMEM::SauvWriter::New;
 %newobject ParaMEDMEM::SauvReader::New;
 %newobject ParaMEDMEM::SauvReader::loadInMEDFileDS;
@@ -219,6 +236,10 @@ using namespace ParaMEDMEM;
 %feature("unref") MEDFileParameterDouble1TS "$this->decrRef();"
 %feature("unref") MEDFileParameterMultiTS "$this->decrRef();"
 %feature("unref") MEDFileParameters "$this->decrRef();"
+%feature("unref") MEDFileJointCorrespondence "$this->decrRef();"
+%feature("unref") MEDFileJointOneStep "$this->decrRef();"
+%feature("unref") MEDFileJoint "$this->decrRef();"
+%feature("unref") MEDFileJoints "$this->decrRef();"
 %feature("unref") MEDFileData "$this->decrRef();"
 %feature("unref") SauvReader "$this->decrRef();"
 %feature("unref") SauvWriter "$this->decrRef();"
@@ -476,6 +497,208 @@ namespace ParaMEDMEM
       }
     }
   };
+  class MEDFileJointCorrespondence : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileJointCorrespondence *New() throw(INTERP_KERNEL::Exception);
+    static MEDFileJointCorrespondence *New(DataArrayInt* correspondence) // nodes
+      throw(INTERP_KERNEL::Exception);
+    static MEDFileJointCorrespondence *New(DataArrayInt* correspondence,  // cells
+                                           INTERP_KERNEL::NormalizedCellType loc_geo_type,
+                                           INTERP_KERNEL::NormalizedCellType rem_geo_type)
+      throw(INTERP_KERNEL::Exception);
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDFileJointCorrespondence *deepCpy() const;
+    MEDFileJointCorrespondence *shallowCpy() const;
+    void setIsNodal(bool isNodal);
+    bool getIsNodal() const;
+    bool isEqual(const MEDFileJointCorrespondence *other) const;
+    void setLocalGeometryType(INTERP_KERNEL::NormalizedCellType type);
+    INTERP_KERNEL::NormalizedCellType getLocalGeometryType() const;
+    void setRemoteGeometryType(INTERP_KERNEL::NormalizedCellType type);
+    INTERP_KERNEL::NormalizedCellType getRemoteGeometryType() const;
+    void setCorrespondence(DataArrayInt *corr) throw(INTERP_KERNEL::Exception);
+    const DataArrayInt *getCorrespondence() const throw(INTERP_KERNEL::Exception);
+    void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDFileJointCorrespondence()
+      {
+        return MEDFileJointCorrespondence::New();
+      }
+      MEDFileJointCorrespondence(DataArrayInt* correspondence) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileJointCorrespondence::New(correspondence);
+      }
+      MEDFileJointCorrespondence(DataArrayInt* correspondence,  // cells
+                                 INTERP_KERNEL::NormalizedCellType loc_geo_type,
+                                 INTERP_KERNEL::NormalizedCellType rem_geo_type) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileJointCorrespondence::New(correspondence, loc_geo_type, rem_geo_type);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+    }
+  };
+
+  class MEDFileJointOneStep : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileJointOneStep *New(int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
+    static MEDFileJointOneStep *New(const std::string& fileName, const std::string& mName, const std::string& jointName, int number=1) throw(INTERP_KERNEL::Exception);
+    MEDFileJointOneStep *deepCpy() const;
+    MEDFileJointOneStep *shallowCpy() const;
+    bool isEqual(const MEDFileJointOneStep *other) const;
+    void setOrder(int order);
+    int getOrder() const;
+    void setIteration(int it);
+    int getIteration() const;
+    void pushCorrespondence(MEDFileJointCorrespondence* correspondence);
+    int getNumberOfCorrespondences() const;
+    MEDFileJointCorrespondence *getCorrespondenceAtPos(int i) const;
+    void write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDFileJointOneStep()
+      {
+        return MEDFileJointOneStep::New();
+      }
+
+      MEDFileJointOneStep(const std::string& fileName, const std::string& mName, const std::string& jointName, int number) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileJointOneStep::New(fileName,mName,jointName,number);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+    }
+  };
+  class MEDFileJoint : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileJoint *New() throw(INTERP_KERNEL::Exception);
+    static MEDFileJoint *New(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception);
+    static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum ) throw(INTERP_KERNEL::Exception);
+    MEDFileJoint *deepCpy() const;
+    MEDFileJoint *shallowCpy() const;
+    bool isEqual(const MEDFileJoint *other) const;
+    void setLocalMeshName(const std::string& name);
+    std::string getLocalMeshName() const;
+    void setRemoteMeshName(const std::string& name);
+    std::string getRemoteMeshName() const;
+    void setDescription(const std::string& name);
+    std::string getDescription() const;
+    void setJointName(const std::string& name);
+    std::string getJointName() const;
+    bool changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    void setDomainNumber(const int& number);
+    int getDomainNumber() const;
+    void pushStep(MEDFileJointOneStep* step);
+    int getNumberOfSteps() const;
+    MEDFileJointOneStep *getStepAtPos(int i) const;
+    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    %extend
+    {
+      MEDFileJoint()
+      {
+        return MEDFileJoint::New();
+      }
+      
+      MEDFileJoint(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileJoint::New(fileName,mName,num);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+    }
+  };
+
+  class MEDFileJoints : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileJoints *New() throw(INTERP_KERNEL::Exception);
+    static MEDFileJoints *New(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+    MEDFileJoints *deepCpy() const;
+    std::string simpleRepr() const;
+    void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    std::string getMeshName() const;
+    int getNumberOfJoints() const;
+    std::vector<std::string> getJointsNames() const;
+    bool changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    void pushJoint(MEDFileJoint *joint);
+    void setJointAtPos(int i, MEDFileJoint *joint) throw(INTERP_KERNEL::Exception);
+    void destroyJointAtPos(int i) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      MEDFileJoints()
+      {
+        return MEDFileJoints::New();
+      }
+      
+      MEDFileJoints(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception)
+      {
+        return MEDFileJoints::New(fileName,meshName);
+      }
+
+      std::string __str__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->simpleRepr();
+      }
+
+      MEDFileJoint *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      {
+        if(PyInt_Check(obj))
+          {
+            MEDFileJoint *ret=self->getJointAtPos(InterpreteNegativeInt((int)PyInt_AS_LONG(obj),self->getNumberOfJoints()));
+            if(ret)
+              ret->incrRef();
+            return ret;
+          }
+        else if(PyString_Check(obj))
+          {
+            MEDFileJoint *ret=self->getJointWithName(PyString_AsString(obj));
+            if(ret)
+              ret->incrRef();
+            return ret;
+          }
+        else
+          throw INTERP_KERNEL::Exception("MEDFileJoints::__getitem__ : only integer or string with meshname supported !");
+      }
+
+      int __len__() const throw(INTERP_KERNEL::Exception)
+      {
+        return self->getNumberOfJoints();
+      }
+
+      MEDFileJoint *getJointAtPos(int i) const throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileJoint *ret=self->getJointAtPos(i);
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      MEDFileJoint *getJointWithName(const std::string& paramName) const throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileJoint *ret=self->getJointWithName(paramName);
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+    }
+  };
 
   class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
@@ -590,6 +813,9 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getNodeFamilyArr(const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfJoints();
+    MEDFileJoints *getJoints();
+    void           setJoints( MEDFileJoints* joints );
     %extend
        {
          std::string __str__() const throw(INTERP_KERNEL::Exception)

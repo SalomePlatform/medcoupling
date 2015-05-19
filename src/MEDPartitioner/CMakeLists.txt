@@ -78,8 +78,8 @@ SET(medpartitionercpp_HEADERS_HXX
   MEDPARTITIONER.hxx
   MEDPARTITIONER_ParaDomainSelector.hxx
   MEDPARTITIONER_ConnectZone.hxx
-  MEDPARTITIONER_SkyLineArray.hxx
   MEDPARTITIONER_Topology.hxx
+  MEDPARTITIONER_MEDPartitioner.hxx
   )
 
 SET(medpartitionercpp_SOURCES
@@ -93,8 +93,8 @@ SET(medpartitionercpp_SOURCES
   MEDPARTITIONER_Utils.cxx
   MEDPARTITIONER_ParaDomainSelector.cxx
   MEDPARTITIONER_ConnectZone.cxx
-  MEDPARTITIONER_SkyLineArray.cxx
   MEDPARTITIONER_metis.c
+  MEDPARTITIONER_MEDPartitioner.cxx
   )
 
 SET(medpartitionercpp_LDFLAGS

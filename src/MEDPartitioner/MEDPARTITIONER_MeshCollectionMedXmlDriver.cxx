@@ -169,7 +169,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       //to know nb of cells on each proc to compute global cell ids from locally global
       domainSelector->gatherNbOf(_collection->getMesh());
     }
-  _collection->setTopology(aPT);
+  _collection->setTopology(aPT, true);
   _collection->setDomainNames(_collection->getName());
   return 0;
 }
@@ -245,7 +245,19 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   int nbdomains= _collection->getMesh().size();
 
   //loop on the domains
-  std::string finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
+  std::string finalMeshName="";
+  if (MyGlobals::_General_Informations.size()!=0)
+    {
+      std::size_t found=MyGlobals::_General_Informations[0].find("finalMeshName=");
+     if ((found!=std::string::npos) && (found>0))
+       {
+         finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
+       }
+    }
+  if (finalMeshName.empty())
+    {
+      finalMeshName=_collection->getName();
+    }
   for (int idomain=nbdomains-1; idomain>=0;idomain--)
     {
       std::string distfilename;
@@ -277,7 +289,7 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
           node = xmlNewChild(mesh_node,0, BAD_CAST "chunk",0);
           xmlNewProp(node, BAD_CAST "subdomain", BAD_CAST buff);
           xmlNewChild(node,0,BAD_CAST "name", BAD_CAST finalMeshName.c_str());
-          //xmlNewChild(node,0,BAD_CAST "name", BAD_CAST (_collection->getMesh())[idomain]->getName());
+          //xmlNewChild(node,0,BAD_CAST "name", BAD_CAST ((_collection->getMesh())[idomain]->getName()).c_str());
         }
     }
   

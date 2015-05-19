@@ -26,6 +26,7 @@
 #include "MEDFileUtilities.hxx"
 #include "MEDCouplingPartDefinition.hxx"
 #include "MEDFileMeshReadSelector.hxx"
+#include "MEDFileJoint.hxx"
 
 #include <map>
 #include <list>
@@ -39,7 +40,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0);
-    MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    MEDLOADER_EXPORT static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0, MEDFileJoints* joints=0);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT virtual MEDFileMesh *createNewEmpty() const = 0;
@@ -169,6 +170,9 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const;
     // tools
     MEDLOADER_EXPORT virtual bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) = 0;
+    MEDLOADER_EXPORT int                  getNumberOfJoints();
+    MEDLOADER_EXPORT MEDFileJoints *getJoints() const;
+    MEDLOADER_EXPORT void                 setJoints( MEDFileJoints* joints );
   protected:
     MEDFileMesh();
     //! protected because no way in MED file API to specify this name
@@ -187,6 +191,8 @@ namespace ParaMEDMEM
     static std::string FindOrCreateAndGiveFamilyWithId(std::map<std::string,int>& families, int id, bool& created);
     static std::string CreateNameNotIn(const std::string& nameTry, const std::vector<std::string>& namesToAvoid);
     static int PutInThirdComponentOfCodeOffset(std::vector<int>& code, int strt);
+    void writeJoints(med_idt fid) const;
+    void loadJointsFromFile(med_idt fid, MEDFileJoints* toUseInstedOfReading=0);
   protected:
     int _order;
     int _iteration;
@@ -197,6 +203,7 @@ namespace ParaMEDMEM
     mutable std::string _univ_name;
     bool _univ_wr_status;
     std::string _desc_name;
+    MEDCouplingAutoRefCountObjectPtr<MEDFileJoints> _joints;
   protected:
     std::map<std::string, std::vector<std::string> > _groups;
     std::map<std::string,int> _families;
@@ -478,6 +485,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void write(med_idt fid) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
+    MEDLOADER_EXPORT MEDFileJoints *getJoints() const;
+    MEDLOADER_EXPORT void                 setJoints( MEDFileJoints* joints );
   private:
     ~MEDFileMeshMultiTS() { }
     void loadFromFile(const std::string& fileName, const std::string& mName);
