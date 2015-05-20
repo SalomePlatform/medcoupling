@@ -4322,6 +4322,43 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(mm.isEqual(mmOut2,1e-12)[0])
         pass
 
+    def testMEDFileMeshAddGroup1(self):
+        m=MEDCouplingCMesh()
+        arrX=DataArrayDouble(9) ; arrX.iota()
+        arrY=DataArrayDouble(4) ; arrY.iota()
+        m.setCoords(arrX,arrY)
+        m.setName("mesh")
+        mm=MEDFileCMesh()
+        mm.setMesh(m)
+        grp0=DataArrayInt([3,5,6,21,22]) ; grp0.setName("grp0")
+        mm.addGroup(0,grp0)
+        grp1=DataArrayInt([3,4,5,8,18,19,22]) ; grp1.setName("grp1")
+        mm.addGroup(0,grp1)
+        grp2=DataArrayInt([0,1,2,10,11]) ; grp2.setName("grp2")
+        mm.addGroup(0,grp2)
+        grp3=DataArrayInt([23]) ; grp3.setName("grp3")
+        mm.addGroup(0,grp3)
+        for grp in [grp0,grp1,grp2,grp3]:
+            self.assertTrue(mm.getGroupArr(0,grp.getName()).isEqual(grp))
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grp2','grp3'))
+        delta=12
+        for grp in [grp0,grp1,grp2,grp3]:
+            grpNode=grp.deepCpy() ; grpNode+=delta ; grpNode.setName("%s_node"%grp.getName())
+            mm.addGroup(1,grpNode)
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp0_node','grp1','grp1_node','grp2','grp2_node','grp3','grp3_node'))
+        for grp in [grp0,grp1,grp2,grp3]:
+            self.assertTrue(mm.getGroupArr(0,grp.getName()).isEqual(grp))
+        for grp in [grp0,grp1,grp2,grp3]:
+            grpExp=grp+delta ; grpExp.setName("%s_node"%grp.getName())
+            self.assertTrue(mm.getGroupArr(1,"%s_node"%grp.getName()).isEqual(grpExp))
+        mm.normalizeFamIdsMEDFile()
+        for grp in [grp0,grp1,grp2,grp3]:
+            self.assertTrue(mm.getGroupArr(0,grp.getName()).isEqual(grp))
+        for grp in [grp0,grp1,grp2,grp3]:
+            grpExp=grp+delta ; grpExp.setName("%s_node"%grp.getName())
+            self.assertTrue(mm.getGroupArr(1,"%s_node"%grp.getName()).isEqual(grpExp))
+        pass
+
     pass
 
 unittest.main()

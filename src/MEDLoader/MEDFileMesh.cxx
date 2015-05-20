@@ -1142,6 +1142,85 @@ void MEDFileMesh::addFamilyOnAllGroupsHaving(const std::string& famName, const s
     }
 }
 
+/*!
+ * \param [in] ids ids and group name of the new group to add. The ids should be sorted and different each other (MED file norm).
+ * \parma [in,out] famArr family array on level of interest to be renumbered. The input pointer should be not \c NULL (no check of that will be performed)
+ */
+void MEDFileMesh::addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr)
+{
+  if(!ids)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::addGroup : NULL pointer in input !");
+  std::string grpName(ids->getName());
+  if(grpName.empty())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::addGroup : empty group name ! MED file format do not accept empty group name !");
+  ids->checkStrictlyMonotonic(true);
+  famArr->incrRef(); MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famArrTmp(famArr);
+  std::vector<std::string> grpsNames=getGroupsNames();
+  if(std::find(grpsNames.begin(),grpsNames.end(),grpName)!=grpsNames.end())
+    {
+      std::ostringstream oss; oss << "MEDFileUMesh::addGroup : Group with name \"" << grpName << "\" already exists ! Destroy it before calling this method !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > allFamIds(getAllNonNullFamilyIds());
+  allFamIds.erase(std::find(allFamIds.begin(),allFamIds.end(),famArrTmp));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famIds=famArr->selectByTupleIdSafe(ids->begin(),ids->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diffFamIds=famIds->getDifferentValues();
+  std::vector<int> familyIds;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerfamiliyIds;
+  int maxVal=getTheMaxAbsFamilyId()+1;
+  std::map<std::string,int> families(_families);
+  std::map<std::string, std::vector<std::string> > groups(_groups);
+  std::vector<std::string> fams;
+  bool created(false);
+  for(const int *famId=diffFamIds->begin();famId!=diffFamIds->end();famId++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2Tmp=famIds->getIdsEqual(*famId);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=ids->selectByTupleId(ids2Tmp->begin(),ids2Tmp->end());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids1=famArr->getIdsEqual(*famId);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0(ids1->buildSubstractionOptimized(ids2));
+      if(ret0->empty())
+        {
+          bool isFamPresent=false;
+          for(std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator itl=allFamIds.begin();itl!=allFamIds.end() && !isFamPresent;itl++)
+            isFamPresent=(*itl)->presenceOfValue(*famId);
+          if(!isFamPresent)
+            { familyIds.push_back(*famId); idsPerfamiliyIds.push_back(ret0); fams.push_back(FindOrCreateAndGiveFamilyWithId(families,*famId,created)); } // adding *famId in grp
+          else
+            {
+              familyIds.push_back(isNodeGroup?maxVal:-maxVal); idsPerfamiliyIds.push_back(ids2);
+              std::string locFamName=FindOrCreateAndGiveFamilyWithId(families,isNodeGroup?maxVal:-maxVal,created);
+              fams.push_back(locFamName);
+              if(existsFamily(*famId))
+                {
+                  std::string locFamName2=getFamilyNameGivenId(*famId); std::vector<std::string> v(2); v[0]=locFamName2; v[1]=locFamName;
+                  ChangeAllGroupsContainingFamily(groups,getFamilyNameGivenId(*famId),v);
+                }
+              maxVal++;
+            } // modifying all other groups on *famId to lie on maxVal and lie the grp on maxVal
+        }
+      else
+        {
+          familyIds.push_back(isNodeGroup?maxVal:-maxVal); idsPerfamiliyIds.push_back(ret0); // modifying all other groups on *famId to lie on maxVal and on maxVal+1
+          familyIds.push_back(isNodeGroup?maxVal+1:-maxVal-1); idsPerfamiliyIds.push_back(ids2);//grp lie only on maxVal+1
+          std::string n2(FindOrCreateAndGiveFamilyWithId(families,isNodeGroup?maxVal+1:-maxVal-1,created)); fams.push_back(n2);
+          if(existsFamily(*famId))
+            {
+              std::string n1(FindOrCreateAndGiveFamilyWithId(families,isNodeGroup?maxVal:-maxVal,created)); std::vector<std::string> v(2); v[0]=n1; v[1]=n2;
+              ChangeAllGroupsContainingFamily(groups,getFamilyNameGivenId(*famId),v);
+            }
+          maxVal+=2;
+        }
+    }
+  for(std::size_t i=0;i<familyIds.size();i++)
+    {
+      DataArrayInt *da=idsPerfamiliyIds[i];
+      famArr->setPartOfValuesSimple3(familyIds[i],da->begin(),da->end(),0,1,1);
+    }
+  _families=families;
+  _groups=groups;
+  _groups[grpName]=fams;
+}
+
 void MEDFileMesh::changeAllGroupsContainingFamily(const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames)
 {
   ChangeAllGroupsContainingFamily(_groups,familyNameToChange,newFamiliesNames);
@@ -1648,6 +1727,22 @@ std::string MEDFileMesh::simpleRepr() const
   oss << "- Name of the mesh : <<" << getName() << ">>\n";
   oss << "- Description associated to the mesh : " << getDescription() << std::endl;
   return oss.str();
+}
+
+/*!
+ * This method is nearly like getFamilyFieldAtLevel method. Except that if the array does not exist at the specified level \a meshDimRelToMaxExt
+ * an empty one is created.
+ */
+DataArrayInt *MEDFileMesh::getOrCreateAndGetFamilyFieldAtLevel(int meshDimRelToMaxExt)
+{
+  DataArrayInt *ret(getFamilyFieldAtLevel(meshDimRelToMaxExt));
+  if(ret)
+    return ret;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(DataArrayInt::New());
+  arr->alloc(getSizeAtLevel(meshDimRelToMaxExt),1);
+  arr->fillWithZero();
+  setFamilyFieldArr(meshDimRelToMaxExt,arr);
+  return getFamilyFieldAtLevel(meshDimRelToMaxExt);
 }
 
 /*!
@@ -2818,7 +2913,15 @@ const DataArrayInt *MEDFileUMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) 
 {
   if(meshDimRelToMaxExt==1)
     return _fam_coords;
-  const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  const MEDFileUMeshSplitL1 *l1(getMeshAtLevSafe(meshDimRelToMaxExt));
+  return l1->getFamilyField();
+}
+
+DataArrayInt *MEDFileUMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt)
+{
+  if(meshDimRelToMaxExt==1)
+    return _fam_coords;
+  MEDFileUMeshSplitL1 *l1(getMeshAtLevSafe(meshDimRelToMaxExt));
   return l1->getFamilyField();
 }
 
@@ -2861,7 +2964,7 @@ const PartDefinition *MEDFileUMesh::getPartDefAtLevel(int meshDimRelToMaxExt, IN
 
 int MEDFileUMesh::getNumberOfNodes() const
 {
-  const DataArrayDouble *coo=_coords;
+  const DataArrayDouble *coo(_coords);
   if(!coo)
     throw INTERP_KERNEL::Exception(" MEDFileUMesh::getNumberOfNodes : no coords set !");
   return coo->getNumberOfTuples();
@@ -2869,7 +2972,7 @@ int MEDFileUMesh::getNumberOfNodes() const
 
 int MEDFileUMesh::getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const
 {
-  const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  const MEDFileUMeshSplitL1 *l1(getMeshAtLevSafe(meshDimRelToMaxExt));
   return l1->getNumberOfCells();
 }
 
@@ -4077,10 +4180,10 @@ void MEDFileUMesh::unserialize(std::vector<double>& tinyDouble, std::vector<int>
  */
 void MEDFileUMesh::addNodeGroup(const DataArrayInt *ids)
 {
-  const DataArrayDouble *coords=_coords;
+  const DataArrayDouble *coords(_coords);
   if(!coords)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::addNodeGroup : no coords set !");
-  int nbOfNodes=coords->getNumberOfTuples();
+  int nbOfNodes(coords->getNumberOfTuples());
   if(!((DataArrayInt *)_fam_coords))
     { _fam_coords=DataArrayInt::New(); _fam_coords->alloc(nbOfNodes,1); _fam_coords->fillWithZero(); }
   //
@@ -4104,7 +4207,7 @@ void MEDFileUMesh::addNodeGroup(const DataArrayInt *ids)
  */
 void MEDFileUMesh::addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids)
 {
-  std::vector<int> levs=getNonEmptyLevelsExt();
+  std::vector<int> levs(getNonEmptyLevelsExt());
   if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)==levs.end())
     { 
       std::ostringstream oss; oss << "MEDFileUMesh::addGroup : level " << meshDimRelToMaxExt << " not available ! Should be in ";
@@ -4112,88 +4215,9 @@ void MEDFileUMesh::addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids)
     }
   if(meshDimRelToMaxExt==1)
     { addNodeGroup(ids); return ; }
-  MEDFileUMeshSplitL1 *lev=getMeshAtLevSafe(meshDimRelToMaxExt);
-  DataArrayInt *fam=lev->getOrCreateAndGetFamilyField();
+  MEDFileUMeshSplitL1 *lev(getMeshAtLevSafe(meshDimRelToMaxExt));
+  DataArrayInt *fam(lev->getOrCreateAndGetFamilyField());
   addGroupUnderground(false,ids,fam);
-}
-
-/*!
- * \param [in] ids ids and group name of the new group to add. The ids should be sorted and different each other (MED file norm).
- * \parma [in,out] famArr family array on level of interest to be renumbered. The input pointer should be not \c NULL (no check of that will be performed)
- */
-void MEDFileUMesh::addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr)
-{
-  if(!ids)
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::addGroup : NULL pointer in input !");
-  std::string grpName(ids->getName());
-  if(grpName.empty())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::addGroup : empty group name ! MED file format do not accept empty group name !");
-  ids->checkStrictlyMonotonic(true);
-  famArr->incrRef(); MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famArrTmp(famArr);
-  std::vector<std::string> grpsNames=getGroupsNames();
-  if(std::find(grpsNames.begin(),grpsNames.end(),grpName)!=grpsNames.end())
-    {
-      std::ostringstream oss; oss << "MEDFileUMesh::addGroup : Group with name \"" << grpName << "\" already exists ! Destroy it before calling this method !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > allFamIds=getAllNonNullFamilyIds();
-  allFamIds.erase(std::find(allFamIds.begin(),allFamIds.end(),famArrTmp));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famIds=famArr->selectByTupleIdSafe(ids->begin(),ids->end());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diffFamIds=famIds->getDifferentValues();
-  std::vector<int> familyIds;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerfamiliyIds;
-  int maxVal=getTheMaxAbsFamilyId()+1;
-  std::map<std::string,int> families(_families);
-  std::map<std::string, std::vector<std::string> > groups(_groups);
-  std::vector<std::string> fams;
-  bool created(false);
-  for(const int *famId=diffFamIds->begin();famId!=diffFamIds->end();famId++)
-    {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2Tmp=famIds->getIdsEqual(*famId);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=ids->selectByTupleId(ids2Tmp->begin(),ids2Tmp->end());
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids1=famArr->getIdsEqual(*famId);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0(ids1->buildSubstractionOptimized(ids2));
-      if(ret0->empty())
-        {
-          bool isFamPresent=false;
-          for(std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator itl=allFamIds.begin();itl!=allFamIds.end() && !isFamPresent;itl++)
-            isFamPresent=(*itl)->presenceOfValue(*famId);
-          if(!isFamPresent)
-            { familyIds.push_back(*famId); idsPerfamiliyIds.push_back(ret0); fams.push_back(FindOrCreateAndGiveFamilyWithId(families,*famId,created)); } // adding *famId in grp
-          else
-            {
-              familyIds.push_back(isNodeGroup?maxVal:-maxVal); idsPerfamiliyIds.push_back(ids2);
-              std::string locFamName=FindOrCreateAndGiveFamilyWithId(families,isNodeGroup?maxVal:-maxVal,created);
-              fams.push_back(locFamName);
-              if(existsFamily(*famId))
-                {
-                  std::string locFamName2=getFamilyNameGivenId(*famId); std::vector<std::string> v(2); v[0]=locFamName2; v[1]=locFamName;
-                  ChangeAllGroupsContainingFamily(groups,getFamilyNameGivenId(*famId),v);
-                }
-              maxVal++;
-            } // modifying all other groups on *famId to lie on maxVal and lie the grp on maxVal
-        }
-      else
-        {
-          familyIds.push_back(isNodeGroup?maxVal:-maxVal); idsPerfamiliyIds.push_back(ret0); // modifying all other groups on *famId to lie on maxVal and on maxVal+1
-          familyIds.push_back(isNodeGroup?maxVal+1:-maxVal-1); idsPerfamiliyIds.push_back(ids2);//grp lie only on maxVal+1
-          std::string n2(FindOrCreateAndGiveFamilyWithId(families,isNodeGroup?maxVal+1:-maxVal-1,created)); fams.push_back(n2);
-          if(existsFamily(*famId))
-            {
-              std::string n1(FindOrCreateAndGiveFamilyWithId(families,isNodeGroup?maxVal:-maxVal,created)); std::vector<std::string> v(2); v[0]=n1; v[1]=n2;
-              ChangeAllGroupsContainingFamily(groups,getFamilyNameGivenId(*famId),v);
-            }
-          maxVal+=2;
-        }
-    }
-  for(std::size_t i=0;i<familyIds.size();i++)
-    {
-      DataArrayInt *da=idsPerfamiliyIds[i];
-      famArr->setPartOfValuesSimple3(familyIds[i],da->begin(),da->end(),0,1,1);
-    }
-  _families=families;
-  _groups=groups;
-  _groups[grpName]=fams;
 }
 
 /*!
@@ -5070,6 +5094,47 @@ void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArra
 }
 
 /*!
+ * Adds a group of nodes to \a this mesh.
+ *  \param [in] ids - a DataArrayInt providing ids and a name of the group to add.
+ *          The ids should be sorted and different each other (MED file norm).
+ *
+ *  \warning this method can alter default "FAMILLE_ZERO" family.
+ *  For users sensitive to this a call to MEDFileMesh::rearrangeFamilies will be necessary after addGroup session.
+ *
+ *  \throw If the node coordinates array is not set.
+ *  \throw If \a ids == \c NULL.
+ *  \throw If \a ids->getName() == "".
+ *  \throw If \a ids does not respect the MED file norm.
+ *  \throw If a group with name \a ids->getName() already exists.
+ */
+void MEDFileStructuredMesh::addNodeGroup(const DataArrayInt *ids)
+{
+  addGroup(1,ids);
+}
+
+/*!
+ * Adds a group of nodes/cells/faces/edges to \a this mesh.
+ *
+ *  \param [in] ids - a DataArrayInt providing ids and a name of the group to add.
+ *          The ids should be sorted and different each other (MED file norm).
+ *
+ * \warning this method can alter default "FAMILLE_ZERO" family.
+ * For users sensitive to this a call to MEDFileMesh::rearrangeFamilies will be necessary after addGroup session.
+ *
+ *  \throw If the node coordinates array is not set.
+ *  \throw If \a ids == \c NULL.
+ *  \throw If \a ids->getName() == "".
+ *  \throw If \a ids does not respect the MED file norm.
+ *  \throw If a group with name \a ids->getName() already exists.
+ */
+void MEDFileStructuredMesh::addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids)
+{
+  DataArrayInt *fam(getOrCreateAndGetFamilyFieldAtLevel(meshDimRelToMaxExt));
+  addGroupUnderground(false,ids,fam);
+  return ;
+}
+
+/*!
  * Returns the family field for mesh entities of a given dimension.
  *  \param [in] meshDimRelToMaxExt - the relative dimension of mesh entities.
  *  \return const DataArrayInt * - the family field. It is an array of ids of families
@@ -5077,6 +5142,28 @@ void MEDFileStructuredMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArra
  *  \throw If \a meshDimRelToMaxExt != 0 and \a meshDimRelToMaxExt != 1.
  */
 const DataArrayInt *MEDFileStructuredMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) const
+{
+  switch(meshDimRelToMaxExt)
+  {
+    case 0:
+      return _fam_cells;
+    case 1:
+      return _fam_nodes;
+    case -1:
+      return _fam_faces;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getFamilyFieldAtLevel : Only available for levels 0 or 1 or -1 !");
+  }
+}
+
+/*!
+ * Returns the family field for mesh entities of a given dimension.
+ *  \param [in] meshDimRelToMaxExt - the relative dimension of mesh entities.
+ *  \return const DataArrayInt * - the family field. It is an array of ids of families
+ *          each mesh entity belongs to. It can be \c NULL.
+ *  \throw If \a meshDimRelToMaxExt != 0 and \a meshDimRelToMaxExt != 1.
+ */
+DataArrayInt *MEDFileStructuredMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt)
 {
   switch(meshDimRelToMaxExt)
   {
@@ -5258,6 +5345,21 @@ void MEDFileStructuredMesh::changeFamilyIdArr(int oldId, int newId)
     arr->changeValue(oldId,newId);
 }
 
+std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > MEDFileStructuredMesh::getAllNonNullFamilyIds() const
+{
+  std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > ret;
+  const DataArrayInt *da(_fam_nodes);
+  if(da)
+    { da->incrRef(); ret.push_back(MEDCouplingAutoRefCountObjectPtr<DataArrayInt>(const_cast<DataArrayInt *>(da))); }
+  da=_fam_cells;
+  if(da)
+    { da->incrRef(); ret.push_back(MEDCouplingAutoRefCountObjectPtr<DataArrayInt>(const_cast<DataArrayInt *>(da))); }
+  da=_fam_faces;
+  if(da)
+    { da->incrRef(); ret.push_back(MEDCouplingAutoRefCountObjectPtr<DataArrayInt>(const_cast<DataArrayInt *>(da))); }
+  return ret;
+}
+
 void MEDFileStructuredMesh::deepCpyAttributes()
 {
   if((const DataArrayInt*)_fam_nodes)
@@ -5356,6 +5458,22 @@ int MEDFileStructuredMesh::getNumberOfNodes() const
   if(!cmesh)
     throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberOfNodes : no cartesian mesh set !");
   return cmesh->getNumberOfNodes();
+}
+
+int MEDFileStructuredMesh::getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const
+{
+  const MEDCouplingStructuredMesh *cmesh(getStructuredMesh());
+  if(!cmesh)
+    throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberOfNodes : no cartesian mesh set !");
+  switch(meshDimRelToMaxExt)
+  {
+    case 0:
+      return cmesh->getNumberOfCells();
+    case -1:
+      return cmesh->getNumberOfCellsOfSubLevelMesh();
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getNumberOfNodes : only meshDimRelToMax=0 and meshDimRelToMax=-1 supported !");
+    }
 }
 
 bool MEDFileStructuredMesh::hasImplicitPart() const

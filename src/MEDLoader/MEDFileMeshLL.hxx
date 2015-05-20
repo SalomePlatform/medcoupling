@@ -238,6 +238,7 @@ namespace ParaMEDMEM
     void write(med_idt fid, const std::string& mName, int mdim) const;
     //
     void setFamilyArr(DataArrayInt *famArr);
+    DataArrayInt *getFamilyField();
     void setRenumArr(DataArrayInt *renumArr);
     void setNameArr(DataArrayAsciiChar *nameArr);
     void changeFamilyIdArr(int oldId, int newId);

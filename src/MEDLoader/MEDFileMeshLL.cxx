@@ -1064,6 +1064,11 @@ void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
   _fam=famArr;
 }
 
+DataArrayInt *MEDFileUMeshSplitL1::getFamilyField()
+{
+  return _fam;
+}
+
 void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
 {
   if(!renumArr)

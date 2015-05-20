@@ -67,6 +67,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDLOADER_EXPORT virtual int getNumberOfNodes() const = 0;
+    MEDLOADER_EXPORT virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const = 0;
     MEDLOADER_EXPORT virtual bool hasImplicitPart() const = 0;
     MEDLOADER_EXPORT virtual int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const = 0;
     MEDLOADER_EXPORT virtual void releaseImplicitPartIfAny() const = 0;
@@ -150,7 +151,11 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) = 0;
     MEDLOADER_EXPORT virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) = 0;
     MEDLOADER_EXPORT virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) = 0;
+    MEDLOADER_EXPORT virtual void addNodeGroup(const DataArrayInt *ids) = 0;
+    MEDLOADER_EXPORT virtual void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids) = 0;
     MEDLOADER_EXPORT virtual const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const = 0;
+    MEDLOADER_EXPORT virtual DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) = 0;
+    MEDLOADER_EXPORT DataArrayInt *getOrCreateAndGetFamilyFieldAtLevel(int meshDimRelToMaxExt);
     MEDLOADER_EXPORT virtual const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const = 0;
     MEDLOADER_EXPORT virtual const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const = 0;
     MEDLOADER_EXPORT virtual const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const = 0;
@@ -175,6 +180,8 @@ namespace ParaMEDMEM
     void getFamilyRepr(std::ostream& oss) const;
     virtual void appendFamilyEntries(const DataArrayInt *famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
     virtual void changeFamilyIdArr(int oldId, int newId) = 0;
+    virtual std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const = 0;
+    void addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr);
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
     static void ChangeAllGroupsContainingFamily(std::map<std::string, std::vector<std::string> >& groups, const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames);
     static std::string FindOrCreateAndGiveFamilyWithId(std::map<std::string,int>& families, int id, bool& created);
@@ -224,6 +231,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::string advancedRepr() const;
     MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const;
+    MEDLOADER_EXPORT DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt);
     MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
@@ -312,7 +320,6 @@ namespace ParaMEDMEM
     void synchronizeTinyInfoOnLeaves() const;
     void changeFamilyIdArr(int oldId, int newId);
     std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const;
-    void addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr);
     MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1>& checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
@@ -337,9 +344,12 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
     MEDLOADER_EXPORT const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const;
+    MEDLOADER_EXPORT DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt);
     MEDLOADER_EXPORT void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
     MEDLOADER_EXPORT void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
     MEDLOADER_EXPORT void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr);
+    MEDLOADER_EXPORT void addNodeGroup(const DataArrayInt *ids);
+    MEDLOADER_EXPORT void addGroup(int meshDimRelToMaxExt, const DataArrayInt *ids);
     MEDLOADER_EXPORT const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT const DataArrayAsciiChar *getNameFieldAtLevel(int meshDimRelToMaxExt) const;
@@ -351,6 +361,7 @@ namespace ParaMEDMEM
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
     MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
+    MEDLOADER_EXPORT int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT bool hasImplicitPart() const;
     MEDLOADER_EXPORT int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDLOADER_EXPORT void releaseImplicitPartIfAny() const;
@@ -363,6 +374,7 @@ namespace ParaMEDMEM
   protected:
     ~MEDFileStructuredMesh() { }
     void changeFamilyIdArr(int oldId, int newId);
+    std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const;
     void deepCpyAttributes();
     void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void writeStructuredLL(med_idt fid, const std::string& maa) const;
