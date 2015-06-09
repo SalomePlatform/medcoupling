@@ -322,7 +322,7 @@ namespace ParaMEDMEM
     struct RequestStruct *aRequestStruct = _map_of_request_struct[ RequestId ] ;
     if ( aRequestStruct )
       return aRequestStruct->MPIDatatype;
-    return (MPI_Datatype ) NULL ;
+    return MPI_DATATYPE_NULL;
   }
 
   // Returns the size of the receiving message of the request corresponding to
