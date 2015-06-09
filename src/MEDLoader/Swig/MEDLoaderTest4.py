@@ -4976,6 +4976,144 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(v.isEqual(vExp,1e-12))
         pass
 
+    def test36(self):
+        """Bug EDF11027. Here mesh at level 0 (TRI3) does not fetch all the nodes. Level -1 (SEG2) does not fetch all the nodes neither. But all TRI3 + all SEG2 fetch all nodes.
+        aaa field on GAUSSPoints lying only on TRI3 share the same support than profile node field ccc.
+        But bbb field on all nodes is not on the same support. Past optimization that make the assumtion a support on all lev0 cells lies on all nodes is now over."""
+        meshName="mesh"
+        fname="ForMEDReader36.med"
+        c=DataArrayDouble([(0,0),(1,0),(1,1),(0,1),(2,0),(-1,0),(1,2)])
+        m0=MEDCoupling1SGTUMesh(meshName,NORM_TRI3)
+        m0.setCoords(c)
+        m0.setNodalConnectivity(DataArrayInt([0,2,1,3,2,0,2,4,1]))
+        mm=MEDFileUMesh()
+        mm[0]=m0
+        m1=MEDCoupling1SGTUMesh(meshName,NORM_SEG2)
+        m1.setCoords(c)
+        m1.setNodalConnectivity(DataArrayInt([5,0,0,3,3,2,2,6]))
+        mm[-1]=m1
+        #
+        zeTime=(1.1,2,3)
+        ff1=MEDFileField1TS()
+        f1=MEDCouplingFieldDouble(ON_NODES) ; f1.setMesh(m0)
+        arr=DataArrayDouble(7) ; arr.iota(2000)
+        f1.setArray(arr)
+        f1.setName("bbb")
+        f1.checkCoherency()
+        f1.setTime(*zeTime)
+        ff1.setFieldNoProfileSBT(f1)
+        #
+        ff2=MEDFileField1TS()
+        f2=MEDCouplingFieldDouble(ON_GAUSS_NE) ; f2.setMesh(m0)
+        arr=DataArrayDouble(9) ; arr.iota(4000)
+        f2.setArray(arr)
+        f2.setName("ddd")
+        f2.checkCoherency()
+        f2.setTime(*zeTime)
+        ff2.setFieldNoProfileSBT(f2)
+        #
+        ff3=MEDFileField1TS()
+        f3=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f3.setMesh(m0)
+        f3.setGaussLocalizationOnType(NORM_TRI3,[0,0,1,0,0,1],[0.333333,0.333333],[0.5])
+        arr=DataArrayDouble(3) ; arr.iota(1000)
+        f3.setArray(arr)
+        f3.checkCoherency()
+        f3.setTime(*zeTime)
+        f3.setName("aaa")
+        ff3.setFieldNoProfileSBT(f3)
+        #
+        ff4=MEDFileField1TS()
+        m0d=m0.deepCpy() ; m0d.zipCoords()
+        f4=MEDCouplingFieldDouble(ON_NODES) ; f4.setMesh(m0d)
+        arr=DataArrayDouble(5) ; arr.iota(3000)
+        f4.setArray(arr)
+        f4.setName("ccc")
+        f4.checkCoherency()
+        f4.setTime(*zeTime)
+        pfl=DataArrayInt([0,1,2,3,4]) ; pfl.setName("PFL")
+        ff4.setFieldProfile(f4,mm,0,pfl)
+        #
+        mm.write(fname,2)
+        ff3.write(fname,0)
+        ff1.write(fname,0)
+        ff4.write(fname,0)
+        ###
+        ms=MEDFileMeshes(fname)
+        fields=MEDFileFields(fname,False)
+        fields.removeFieldsWithoutAnyTimeStep()
+        fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
+        allFMTSLeavesToDisplay=[]
+        for fields in fields_per_mesh:
+            allFMTSLeavesToDisplay2=[]
+            for fmts in fields:
+                tmp=fmts.splitDiscretizations()
+                for itmp in tmp:
+                    self.assertTrue(not itmp.presenceOfMultiDiscPerGeoType())
+                    pass
+                allFMTSLeavesToDisplay2+=tmp
+                pass
+            allFMTSLeavesToDisplay.append(allFMTSLeavesToDisplay2)
+            pass
+        self.assertEqual(len(allFMTSLeavesToDisplay),1)
+        self.assertEqual(len(allFMTSLeavesToDisplay[0]),3)
+        allFMTSLeavesPerTimeSeries=MEDFileAnyTypeFieldMultiTS.SplitIntoCommonTimeSeries(sum(allFMTSLeavesToDisplay,[]))
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries),1)
+        self.assertEqual(len(allFMTSLeavesPerTimeSeries[0]),3)
+        allFMTSLeavesPerCommonSupport1=MEDFileAnyTypeFieldMultiTS.SplitPerCommonSupport(allFMTSLeavesToDisplay[0],ms[ms.getMeshesNames()[0]])
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1),2)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[0][0]),2)
+        self.assertEqual(len(allFMTSLeavesPerCommonSupport1[1][0]),1)
+        #
+        mst=MEDFileMeshStruct.New(ms[0])
+        fcscp=allFMTSLeavesPerCommonSupport1[0][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)# here ncc=False because the coordinates are not in ms neither in children.
+        self.assertTrue(a0.isEqual(DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(2,0,0)]),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([5,5,5])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,4,8])))
+        self.assertTrue(a3.isEqual(DataArrayInt([3,0,2,1,3,3,2,0,3,2,4,1])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        for i in xrange(1):
+            ffCell=allFMTSLeavesPerCommonSupport1[0][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+            ffCell.loadArraysIfNecessary()
+            v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+            self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+            v.isEqual(DataArrayDouble([1000,1001,1002]),1e-12)
+            #
+            ffCell=allFMTSLeavesPerCommonSupport1[0][0][1][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+            ffCell.loadArraysIfNecessary()
+            v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+            self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+            v.isEqual(DataArrayDouble([3000,3001,3002,3003,3004]),1e-12)
+            pass
+        fcscp=allFMTSLeavesPerCommonSupport1[1][1]
+        mml=fcscp.buildFromScratchDataSetSupport(0,fields)
+        mml2=mml.prepare()
+        self.assertTrue(isinstance(mml2,MEDUMeshMultiLev))
+        ncc,a0,a1,a2,a3,a4,a5=mml2.buildVTUArrays()
+        self.assertTrue(not ncc)# here ncc=False because the coordinates are not in ms neither in children.
+        self.assertTrue(a0.isEqual(DataArrayDouble([(0,0,0),(1,0,0),(1,1,0),(0,1,0),(2,0,0),(-1,0,0),(1,2,0)]),1e-12))
+        self.assertTrue(a1.isEqual(DataArrayByte([5,5,5,3,3,3,3])))
+        self.assertTrue(a2.isEqual(DataArrayInt([0,4,8,12,15,18,21])))
+        self.assertTrue(a3.isEqual(DataArrayInt([3,0,2,1,3,3,2,0,3,2,4,1,2,5,0,2,0,3,2,3,2,2,2,6])))
+        self.assertTrue(a4 is None)
+        self.assertTrue(a5 is None)
+        for i in xrange(1):
+            ffCell=allFMTSLeavesPerCommonSupport1[1][0][0][i]
+            fsst=MEDFileField1TSStructItem.BuildItemFrom(ffCell,mst)
+            ffCell.loadArraysIfNecessary()
+            v=mml2.buildDataArray(fsst,fields,ffCell.getUndergroundDataArray())
+            self.assertEqual(v.getHiddenCppPointer(),ffCell.getUndergroundDataArray().getHiddenCppPointer())
+            v.isEqual(DataArrayDouble([2000,2001,2002,2003,2004,2005,2006]),1e-12)
+            pass
+        pass
+
     pass
 
 unittest.main()

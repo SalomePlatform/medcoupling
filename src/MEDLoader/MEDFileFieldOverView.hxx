@@ -241,7 +241,7 @@ namespace ParaMEDMEM
   class MEDFileField1TSStructItem : public BigMemoryObject
   {
   public:
-    MEDFileField1TSStructItem() { }
+    MEDFileField1TSStructItem():_computed(false),_type(ON_CELLS) { }
     MEDFileField1TSStructItem(TypeOfField a, const std::vector< MEDFileField1TSStructItem2 >& b);
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     bool operator==(const MEDFileField1TSStructItem& other) const;

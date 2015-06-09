@@ -1921,18 +1921,23 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
   int theFirstLevFull;
   bool ret0=isFullyOnOneLev(meshSt,theFirstLevFull);
   const MEDFileField1TSStructItem2& otherNodeIt(other._items[0]);
+  int nbOfNodes(meshSt->getNumberOfNodes());
   if(otherNodeIt.getPflName().empty())
     {//on all nodes
       if(!ret0)
         return false;
-      return theFirstLevFull==0;
+      std::vector<bool> nodesFetched(nbOfNodes,false);
+      meshSt->getTheMesh()->whichAreNodesFetched(*this,globs,nodesFetched);
+      if(std::find(nodesFetched.begin(),nodesFetched.end(),false)==nodesFetched.end())
+        return theFirstLevFull==0;
+      else
+        return false;
     }
   else
     {
       const DataArrayInt *pfl=globs->getProfile(otherNodeIt.getPflName().c_str());
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cpyPfl(pfl->deepCpy());
       cpyPfl->sort();
-      int nbOfNodes(meshSt->getNumberOfNodes());
       if(cpyPfl->isIdentity() && cpyPfl->getNumberOfTuples()==nbOfNodes)
         {//on all nodes also !
           if(!ret0)
