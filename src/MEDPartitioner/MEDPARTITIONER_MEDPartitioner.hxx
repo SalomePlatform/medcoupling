@@ -20,6 +20,7 @@
 #ifndef __MEDPARTITIONER_MEDPARTITIONER_HXX__
 #define __MEDPARTITIONER_MEDPARTITIONER_HXX__
 
+#include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 
 #include <map>
@@ -27,19 +28,15 @@
 
 namespace ParaMEDMEM
 {
-  class DataArrayInt;
   class MEDFileData;
-  class MEDCouplingSkyLineArray;
 }
 
 namespace MEDPARTITIONER
 {
   class Topology;
   class MeshCollection;
-  class ParaDomainSelector;
-  class Graph;
-  
-  class MEDPartitioner
+
+  class MEDPARTITIONER_EXPORT MEDPartitioner
   {
   public:
     MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);

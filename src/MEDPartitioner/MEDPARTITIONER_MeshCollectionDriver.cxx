@@ -27,7 +27,9 @@
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDFileData.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileJoint.hxx"
 #include "MEDFileMesh.hxx"

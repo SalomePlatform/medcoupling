@@ -21,13 +21,17 @@
 #define __MEDPARTITIONER_MESHCOLLECTIONDRIVER_HXX__
 
 #include "MEDPARTITIONER.hxx"
-#include "MEDFileData.hxx"
+
 #include <vector>
 #include <string>
 
 namespace ParaMEDMEM
 {
+  class DataArrayDouble;
+  class MEDCouplingFieldDouble;
   class MEDFileData;
+  class MEDFileMesh;
+  class MEDFileUMesh;
 }
 
 namespace MEDPARTITIONER

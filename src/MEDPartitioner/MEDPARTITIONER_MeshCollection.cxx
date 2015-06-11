@@ -38,6 +38,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"

@@ -27,7 +27,9 @@
 #include "MEDPARTITIONER_MetisGraph.hxx"
 #include "MEDPARTITIONER_ScotchGraph.hxx"
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
+
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 
 #include <iostream>
 #include <vector>

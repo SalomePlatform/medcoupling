@@ -22,8 +22,6 @@
 
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
-#include "MEDPARTITIONER_ParaDomainSelector.hxx"
-
 
 #include "InterpKernelHashMap.hxx"
 
@@ -34,7 +32,7 @@ namespace MEDPARTITIONER
 {
   class Graph;
   class MeshCollection;
-  class MEDPARTITIONER_FaceModel;
+  class ParaDomainSelector;
 
   class MEDPARTITIONER_EXPORT ParallelTopology : public Topology
   {

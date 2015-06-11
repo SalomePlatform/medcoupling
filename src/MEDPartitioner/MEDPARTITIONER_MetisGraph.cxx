@@ -21,6 +21,7 @@
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
+#include "MEDCouplingSkyLineArray.hxx"
 #include "InterpKernelException.hxx"
 
 #include <iostream>

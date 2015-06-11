@@ -21,8 +21,12 @@
 #define __MEDPARTITIONER_CONNECTZONE_HXX__
 
 #include "MEDPARTITIONER.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingSkyLineArray.hxx"
+
+namespace ParaMEDMEM
+{
+  class MEDCouplingUMesh;
+  class MEDCouplingSkyLineArray;
+}
 
 #include <map>
 #include <vector>

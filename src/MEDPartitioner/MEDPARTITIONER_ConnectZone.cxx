@@ -19,6 +19,8 @@
 
 #include "MEDPARTITIONER_ConnectZone.hxx"
 
+#include "MEDCouplingSkyLineArray.hxx"
+
 #include <map>
 
 using namespace ParaMEDMEM;

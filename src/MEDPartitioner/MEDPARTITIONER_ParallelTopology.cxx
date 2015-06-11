@@ -20,10 +20,12 @@
 #include "MEDPARTITIONER_MeshCollection.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
+#include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_ConnectZone.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
+#include "MEDCouplingSkyLineArray.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "InterpKernelHashMap.hxx"
 

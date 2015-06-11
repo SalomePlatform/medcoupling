@@ -21,7 +21,6 @@
 #define __MEDPARTITIONER_GRAPH_HXX__
 
 #include "MEDPARTITIONER.hxx"
-#include "MEDCouplingSkyLineArray.hxx"
 
 #include <string>
 
@@ -50,10 +49,10 @@ namespace MEDPARTITIONER
     virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) = 0;
     
     //returns the partitioning
-    const int *getPart() const { return _partition->getValue(); }
+    const int *getPart() const;
     
     //returns the number of graph vertices (which can correspond to the cells in the mesh!)
-    int nbVertices() const { return _graph->getNumberOf(); }
+    int nbVertices() const;
 
     // returns nb of domains in _partition
     int nbDomains() const;

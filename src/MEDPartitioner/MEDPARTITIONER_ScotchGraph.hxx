@@ -21,6 +21,7 @@
 #define __MEDPARTITIONER_SCOTCHGRAPH_HXX__
 
 #include "MEDPARTITIONER.hxx"
+#include "MEDPARTITIONER_Graph.hxx"
 
 #include <string>
 

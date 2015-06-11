@@ -21,6 +21,8 @@
 #include "MEDPARTITIONER_ScotchGraph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
+#include "MEDCouplingSkyLineArray.hxx"
+
 #include <cstdio>
 
 #ifdef MED_ENABLE_SCOTCH

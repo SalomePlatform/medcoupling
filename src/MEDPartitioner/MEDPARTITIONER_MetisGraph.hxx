@@ -20,6 +20,7 @@
 #ifndef __MEDPARTITIONER_METISGRAPH_HXX__
 #define __MEDPARTITIONER_METISGRAPH_HXX__
 
+#include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 
 #include <string>

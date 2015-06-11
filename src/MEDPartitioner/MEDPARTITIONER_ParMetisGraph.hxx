@@ -20,6 +20,7 @@
 #ifndef __MEDPARTITIONER_ParMETISGraph_HXX__
 #define __MEDPARTITIONER_ParMETISGraph_HXX__
 
+#include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 
 #include <string>
@@ -30,7 +31,7 @@ namespace MEDPARTITIONER
   {
   public:
     ParMETISGraph();
-    ParMETISGraph(MEDCouplingSkyLineArray*, int *edgeweight=0);
+    ParMETISGraph(ParaMEDMEM::MEDCouplingSkyLineArray*, int *edgeweight=0);
     virtual ~ParMETISGraph();
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0);
   };

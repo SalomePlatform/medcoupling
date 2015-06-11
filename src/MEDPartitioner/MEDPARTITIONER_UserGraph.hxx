@@ -27,8 +27,6 @@
 
 namespace MEDPARTITIONER
 {
-  class MEDCouplingSkyLineArray;
-  class ParaDomainSelector;
   class MEDPARTITIONER_EXPORT UserGraph : public Graph
   {
   public:

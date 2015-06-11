@@ -20,6 +20,8 @@
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_UserGraph.hxx"
 
+#include "MEDCouplingSkyLineArray.hxx"
+
 #include <iostream>
 #include <vector>
 

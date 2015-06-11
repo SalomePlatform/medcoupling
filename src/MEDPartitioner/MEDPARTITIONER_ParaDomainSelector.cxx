@@ -22,6 +22,7 @@
 #include "MEDPARTITIONER_Utils.hxx"
 
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 
 #include <iostream>
 #include <numeric>

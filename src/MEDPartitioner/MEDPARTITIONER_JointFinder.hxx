@@ -20,6 +20,8 @@
 #ifndef __MEDPARTITIONER_JOINTFINDER_HXX__
 #define __MEDPARTITIONER_JOINTFINDER_HXX__
 
+#include "MEDPARTITIONER.hxx"
+
 #include <map>
 #include <vector>
 
@@ -29,7 +31,7 @@ namespace MEDPARTITIONER
   class MeshCollection;
   class ParaDomainSelector;
   
-  class JointFinder
+  class MEDPARTITIONER_EXPORT JointFinder
   {
   public:
     JointFinder(const MeshCollection& mc);

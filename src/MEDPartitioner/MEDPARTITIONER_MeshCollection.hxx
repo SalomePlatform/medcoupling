@@ -24,8 +24,6 @@
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
-#include "MEDCouplingUMesh.hxx"
-
 #include <map>
 #include <vector>
 #include <string>

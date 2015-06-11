@@ -20,12 +20,13 @@
 #ifndef __MEDPARTITIONER_MESHCOLLECTIONMEDXMLDRIVER_HXX__
 #define __MEDPARTITIONER_MESHCOLLECTIONMEDXMLDRIVER_HXX__
 
+#include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
 
 namespace MEDPARTITIONER
 {
   class MeshCollection;
-  class MeshCollectionMedXmlDriver : public MeshCollectionDriver
+  class MEDPARTITIONER_EXPORT MeshCollectionMedXmlDriver : public MeshCollectionDriver
   {
   public:
     MeshCollectionMedXmlDriver(MeshCollection*);

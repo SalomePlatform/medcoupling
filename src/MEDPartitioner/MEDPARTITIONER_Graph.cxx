@@ -19,6 +19,8 @@
 
 #include "MEDPARTITIONER_Graph.hxx"
 
+#include "MEDCouplingSkyLineArray.hxx"
+
 #include <set>
 
 MEDPARTITIONER::Graph::Graph(ParaMEDMEM::MEDCouplingSkyLineArray *array, int *edgeweight):_graph(array),_partition(0),_edge_weight(edgeweight),_cell_weight(0)
@@ -41,4 +43,14 @@ int MEDPARTITIONER::Graph::nbDomains() const
         domains.insert( *dom );
     }
   return domains.size();
+}
+
+const int *MEDPARTITIONER::Graph::getPart() const
+{
+  return _partition->getValue();
+}
+
+int MEDPARTITIONER::Graph::nbVertices() const
+{
+  return _graph->getNumberOf();
 }
