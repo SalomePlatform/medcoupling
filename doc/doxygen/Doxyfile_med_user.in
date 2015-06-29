@@ -58,6 +58,7 @@ ENABLED_SECTIONS       = user MEDCOUPLING_ug
 MAX_INITIALIZER_LINES  = 30
 OPTIMIZE_OUTPUT_FOR_C  = NO
 SHOW_USED_FILES        = NO
+SORT_BRIEF_DOCS        = YES
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
@@ -126,7 +127,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          MEDCoupling1GTUMesh.* \
                          MEDCouplingPointSet.* \
                          MEDCouplingCMesh.* \
-			 MEDCouplingIMesh.* \
+                         MEDCouplingIMesh.* \
                          MEDCouplingStructuredMesh.* \
                          MEDCouplingCurveLinearMesh.* \
                          MEDCouplingExtrudedMesh.* \
@@ -137,8 +138,8 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          MEDCouplingFieldTemplate.* \
                          MEDCouplingFieldDiscretization.* \
                          MEDCouplingTimeDiscretization.* \
-			 MEDCouplingAMRAttribute.* \
-			 MEDCouplingCartesianAMRMesh.* \
+                         MEDCouplingAMRAttribute.* \
+                         MEDCouplingCartesianAMRMesh.* \
                          MEDCouplingTimeLabel.* \
                          MEDCouplingRefCountObject.* \
                          MEDCouplingMemArray.* \

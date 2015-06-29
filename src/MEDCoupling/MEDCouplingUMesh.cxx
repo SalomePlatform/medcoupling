@@ -5529,11 +5529,14 @@ void MEDCouplingUMesh::tessellate2DCurve(double eps)
  * The semantic of \a policy is:
  * - 0 - to split QUAD4 by cutting it along 0-2 diagonal (for 2D mesh only).
  * - 1 - to split QUAD4 by cutting it along 1-3 diagonal (for 2D mesh only).
- * - INTERP_KERNEL::PLANAR_FACE_5 - to split HEXA8  into 5 TETRA4 (for 3D mesh only).
- * - INTERP_KERNEL::PLANAR_FACE_6 - to split HEXA8  into 6 TETRA4 (for 3D mesh only).
+ * - INTERP_KERNEL::PLANAR_FACE_5 - to split HEXA8  into 5 TETRA4 (for 3D mesh only - see INTERP_KERNEL::SplittingPolicy for an image).
+ * - INTERP_KERNEL::PLANAR_FACE_6 - to split HEXA8  into 6 TETRA4 (for 3D mesh only - see INTERP_KERNEL::SplittingPolicy for an image).
+ *
+ *
  *  \return DataArrayInt * - a new instance of DataArrayInt holding, for each new cell,
  *          an id of old cell producing it. The caller is to delete this array using
- *         decrRef() as it is no more needed. 
+ *         decrRef() as it is no more needed.
+ *
  *  \throw If \a policy is 0 or 1 and \a this->getMeshDimension() != 2.
  *  \throw If \a policy is INTERP_KERNEL::PLANAR_FACE_5 or INTERP_KERNEL::PLANAR_FACE_6
  *          and \a this->getMeshDimension() != 3. 
@@ -11329,7 +11332,7 @@ DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vec
  * more tuples (nodes) than in \a this. Anyway, all the nodes in \a this (with the same order) will be in the returned mesh.
  *
  * \param [in] policy - the policy of splitting that must be in (PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48). The policy will be used only for INTERP_KERNEL::NORM_HEXA8 cells.
- *                      For all other cells, the splitting policy will be ignored.
+ *                      For all other cells, the splitting policy will be ignored. See INTERP_KERNEL::SplittingPolicy for the images.
  * \param [out] nbOfAdditionalPoints - number of nodes added to \c this->_coords. If > 0 a new coordinates object will be constructed result of the aggregation of the old one and the new points added. 
  * \param [out] n2oCells - A new instance of DataArrayInt holding, for each new cell,
  *          an id of old cell producing it. The caller is to delete this array using
