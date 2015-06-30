@@ -316,8 +316,8 @@ void MEDCouplingUMesh::setMeshDimension(int meshDim)
 }
 
 /*!
- * Allocates memory to store an estimation of the given number of cells. Closer is the estimation to the number of cells effectively inserted,
- * less will be the needs to realloc. If the number of cells to be inserted is not known simply put 0 to this parameter.
+ * Allocates memory to store an estimation of the given number of cells. The closer is the estimation to the number of cells effectively inserted,
+ * the less will the library need to reallocate memory. If the number of cells to be inserted is not known simply put 0 to this parameter.
  * If a nodal connectivity previouly existed before the call of this method, it will be reset.
  *
  *  \param [in] nbOfCells - estimation of the number of cell \a this mesh will contain.

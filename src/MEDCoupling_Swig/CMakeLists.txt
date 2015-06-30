@@ -43,12 +43,22 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
+  ${PROJECT_BINARY_DIR}/doc
   )
 
 # _ABR_ Ensure dependency mechanism on all SWIG files and headers
 SET (SWIG_MODULE_MEDCoupling_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES}
     ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
+
+# SWIG must run after the doc if we want to have the docstrings extracted from Doxygen
+# into the Python module:
+IF(SALOME_BUILD_DOC)
+    LIST(APPEND SWIG_MODULE_MEDCoupling_EXTRA_FLAGS -DWITH_DOCSTRINGS)
+    LIST(APPEND SWIG_MODULE_MEDCoupling_EXTRA_DEPS 
+        ${PROJECT_BINARY_DIR}/doc/MEDCoupling_doc.i
+        swig_ready)
+ENDIF()
 
 SWIG_ADD_MODULE(MEDCoupling python MEDCoupling.i)
 SWIG_LINK_LIBRARIES(MEDCoupling ${PYTHON_LIBRARIES} ${PLATFORM_LIBS} medcoupling)

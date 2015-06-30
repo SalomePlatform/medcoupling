@@ -20,6 +20,10 @@
 
 %module MEDCoupling
 
+#ifdef WITH_DOCSTRINGS
+%include MEDCoupling_doc.i
+#endif
+
 %include std_vector.i
 %include std_string.i
 

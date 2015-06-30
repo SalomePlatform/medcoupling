@@ -23,6 +23,10 @@
 #define MEDCOUPLING_EXPORT
 #define MEDLOADER_EXPORT
 
+#ifdef WITH_DOCSTRINGS
+%include "MEDLoader_doc.i"
+#endif
+
 %include "MEDCouplingCommon.i"
 
 %{
