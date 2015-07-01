@@ -22,12 +22,6 @@
 namespace INTERP_KERNEL
 {
   /**
-   * \defgroup interpolation3D Interpolation3D
-   * \class Interpolation3D
-   * \brief Class used to calculate the volumes of intersection between the elements of two 3D meshes.
-   * 
-   */
-  /**
    * Default constructor
    * 
    */

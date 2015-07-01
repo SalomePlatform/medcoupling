@@ -41,9 +41,7 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
     typedef typename std::map<int,std::set<int> > DuplicateFacesType;
   public:
-    //! \addtogroup InterpKerGrpIntPlan @{
     PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
-    //! @}
     virtual ~PlanarIntersector();
     void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
     void adjustBoundingBoxes(std::vector<double>& bbox, double surf3DAdjustmentEps, double surf3DAdjustmentEpsAbs);

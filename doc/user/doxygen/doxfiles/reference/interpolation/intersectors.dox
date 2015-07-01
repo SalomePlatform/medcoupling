@@ -1,0 +1,17 @@
+/*!
+
+\page InterpKerIntersectors Intersectors
+
+The various interpolation methods often require the computation of the intersection between
+a cell of the source mesh and a cell of the target mesh. The intersectors implemented in the
+library take care of this job. 
+
+Before reading on, remember the definition of a \ref glossary "P0 and P1 field".
+
+- \subpage intersec-specifics
+- \subpage interpkernelGeo2D
+- \subpage barycoords (used in some P1 intersectors) 
+
+Some implementation details of the C++ code can also be found here: \ref interpkernel 
+
+*/

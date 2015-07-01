@@ -380,7 +380,7 @@ DataArrayInt *DataArrayChar::convertToIntArr() const
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \this one.
  * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
  */
@@ -402,7 +402,7 @@ void DataArrayChar::renumberInPlace(const int *old2New)
  * Permutes values of \a this array as required by \a new2Old array. The values are
  * permuted so that \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of tuples remains
  * the same as in \this one.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
  */
@@ -425,7 +425,7 @@ void DataArrayChar::renumberInPlaceR(const int *new2Old)
  * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ].
  * Number of tuples in the result array remains the same as in \this one.
  * If a permutation reduction is needed, renumberAndReduce() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *          giving a new position for i-th old value.
  *  \return DataArrayChar * - the new instance of DataArrayChar that the caller
@@ -453,7 +453,7 @@ DataArrayChar *DataArrayChar::renumber(const int *old2New) const
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \this one.
  * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
  *  \return DataArrayChar * - the new instance of DataArrayChar that the caller
@@ -481,7 +481,7 @@ DataArrayChar *DataArrayChar::renumberR(const int *new2Old) const
  * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ] for all
  * \a old2New[ i ] >= 0. In other words every i-th tuple in \a this array, for which 
  * \a old2New[ i ] is negative, is missing from the result array.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old tuple and giving negative position for
  *     for i-th old tuple that should be omitted.
@@ -514,7 +514,7 @@ DataArrayChar *DataArrayChar::renumberAndReduce(const int *old2New, int newNbOfT
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
  * This method is equivalent to renumberAndReduce() except that convention in input is
  * \c new2old and \b not \c old2new.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
  *              tuple index in \a this array to fill the i-th tuple in the new array.
  *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
@@ -537,7 +537,7 @@ DataArrayChar *DataArrayChar::selectByTupleId(const int *new2OldBg, const int *n
  * \c new2old and \b not \c old2new.
  * This method is equivalent to selectByTupleId() except that it prevents coping data
  * from behind the end of \a this array.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
  *              tuple index in \a this array to fill the i-th tuple in the new array.
  *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
@@ -574,7 +574,7 @@ DataArrayChar *DataArrayChar::selectByTupleIdSafe(const int *new2OldBg, const in
  * command \c range( \a bg, \a end2, \a step ).
  * This method is equivalent to selectByTupleIdSafe() except that the input array is
  * not constructed explicitly.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] bg - index of the first tuple to copy from \a this array.
  *  \param [in] end2 - index of the tuple before which the tuples to copy are located.
  *  \param [in] step - index increment to get index of the next tuple to copy.
@@ -1417,7 +1417,7 @@ void DataArrayChar::setContigPartOfSelectedValues2(int tupleIdStart, const DataA
 /*!
  * Returns a shorten copy of \a this array. The new DataArrayChar contains ranges
  * of tuples specified by \a ranges parameter.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] ranges - std::vector of std::pair's each of which defines a range
  *              of tuples in [\c begin,\c end) format.
  *  \return DataArrayChar * - the new instance of DataArrayChar that the caller

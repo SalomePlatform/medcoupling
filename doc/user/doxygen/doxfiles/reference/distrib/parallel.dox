@@ -1,0 +1,33 @@
+/*!
+\page parallel Parallelism 
+
+\section para-over Base elements
+
+Several classes and methods are available in the MED library to ease the exchange of information
+in a parallel context.
+For historical reasons, they are all in the same namespace as the non-parallel MEDCoupling functionalities,
+<b>%ParaMEDMEM</b>.
+
+The core elements of the API are:
+- \ref ParaFIELD-det "ParaFIELD", the parallel instanciation of a MEDCoupling field
+- \ref CommInterface-det "CommInterface", communication interface to the gateway to the MPI library
+- \ref MPIProcessorGroup-det "MPIProcessorGroup", a group of processor in a parallel computation
+
+along with all the DEC explained below.
+
+\section para-dec Data Exchange Channel - DEC
+
+A Data Exchange Channel allows the transfer of information between two processor groups.
+There are several variants of DEC depending on what you are aiming at:
+
+- \ref DisjointDEC-det "DisjointDEC"
+- \ref InterpKernelDEC-det "InterpKernelDEC"
+- \ref NonCoincidentDEC-det "NonCoincidentDEC" 
+- \ref OverlapDEC-det "OverlapDEC"
+- \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
+- \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
+ 
+  TODO: more on DEC.
+
+
+*/

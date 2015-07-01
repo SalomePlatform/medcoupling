@@ -1,0 +1,42 @@
+/*!
+
+\page intro-start What can I do with MED? 
+
+Simulation studies require the manipulation of \ref meshes "meshes" and \ref fields "fields" for data
+pre-processing, in calculation schemes (including chaining and coupling
+of codes), or even for results post-processing.
+
+Corresponding computer codes can be viewed as software components accessing
+input \ref meshes "meshes" and \ref fields "fields" (with specific constraints) along with parameters
+(datasets), and producing output \ref meshes "meshes" and \ref fields "fields". Each code presents by
+construction the specificities of its discipline.
+
+The \ref library "MED module" aims at pooling operations on those items, facilitating
+their use by various codes involved in a simulation process. This includes
+making codes communicate while preserving as much as possible the integrity of
+their content.
+
+To fulfill its objective, the \ref library "MED module" includes:
+- Handling \ref meshes "meshes" and \ref fields "fields" to satisfy code input requirements.
+- Extraction of field information to post-process computation results of
+a code.
+- \ref interpolation "Projections" and serialization to \ref para-dec "exchange meshes and fields" between codes.
+
+In addition, the \ref library "MED module" offers several interfacing levels; users can thus
+benefit from an interaction level adapted to their codes.
+
+The main services offered by \ref library "MEDCoupling" are:
+- Manipulation of \ref fields "fields" and their support \ref meshes "mesh", serialized with the 
+\ref medloader "MED format".
+- Operations on scalars, vectors, and second order tensors.
+- 1D/2D/3D \ref interpolation "interpolation" on nodes, cells, Gauss points and nodes by element.
+
+MEDCoupling thus considers:
+- the \ref MEDCouplingMeshes "data dimension".
+- the \ref NatureOfField "physical nature" of the information stored in a field, as well as conservation laws.
+- the field profiles and the mesh connectivity.
+
+\image html projectionHQ_600.png
+<br />
+
+*/

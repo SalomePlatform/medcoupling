@@ -1,0 +1,21 @@
+/*!
+\page discretization Spatial and temporal discretizations
+
+TODO: enhance this page
+
+\section field-space Spatial discretization
+A field can be supported by: 
+- the nodes (vertices) of the mesh: built with the 
+\ref ParaMEDMEM::MEDCouplingFieldDouble::New "ON_NODES" keyword. This is sometimes called a P1 field.
+- the cells (or "elements") of the mesh: built with the 
+\ref ParaMEDMEM::MEDCouplingFieldDouble::New "ON_CELLS" keyword. This is sometimes called a P0 field.
+- or more complex items (Gauss points, etc ...)
+
+\section field-time Temporal discretization
+
+A field has a temporal discretization. It can be one of:
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::New "NO_TIME"
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::New "ONE_TIME"
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::New "CONST_ON_TIME_INTERVAL"
+
+*/

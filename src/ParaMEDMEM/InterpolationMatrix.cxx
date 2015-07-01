@@ -39,27 +39,20 @@
 
 #include <algorithm>
 
-// class InterpolationMatrix
-// This class enables the storage of an interpolation matrix Wij mapping 
-// source field Sj to target field Ti via Ti=Vi^(-1).Wij.Sj.
-// The matrix is built and stored on the processors belonging to the source
-// group. 
-
 using namespace std;
 
 namespace ParaMEDMEM
 {
 
-  //   ====================================================================
-  //   Creates an empty matrix structure linking two distributed supports.
-  //   The method must be called by all processors belonging to source
-  //   and target groups.
-  //   param source_support local support
-  //   param source_group processor group containing the local processors
-  //   param target_group processor group containing the distant processors
-  //   param method interpolation method
-  //   ====================================================================
-
+  /**!
+     Creates an empty matrix structure linking two distributed supports.
+     The method must be called by all processors belonging to source
+     and target groups.
+     \param source_support local support
+     \param source_group processor group containing the local processors
+     \param target_group processor group containing the distant processors
+     \param method interpolation method
+  */
   InterpolationMatrix::InterpolationMatrix(const ParaMEDMEM::ParaFIELD *source_field, 
                                            const ProcessorGroup& source_group,
                                            const ProcessorGroup& target_group,
@@ -84,22 +77,21 @@ namespace ParaMEDMEM
   }
 
 
-  //   ======================================================================
-  //   \brief Adds the contribution of a distant subdomain to the*
-  //   interpolation matrix.
-  //   The method adds contribution to the interpolation matrix.
-  //   For each row of the matrix, elements are addded as
-  //   a (column, coeff) pair in the _coeffs array. This column number refers
-  //   to an element on the target side via the _col_offsets array.
-  //   It is made of a series of (iproc, ielem) pairs. 
-  //   The number of elements per row is stored in the row_offsets array.
+  /*!
+     \brief Adds the contribution of a distant subdomain to the*
+     interpolation matrix.
+     The method adds contribution to the interpolation matrix.
+     For each row of the matrix, elements are addded as
+     a (column, coeff) pair in the _coeffs array. This column number refers
+     to an element on the target side via the _col_offsets array.
+     It is made of a series of (iproc, ielem) pairs.
+     The number of elements per row is stored in the row_offsets array.
 
-  //   param distant_support local representation of the distant subdomain
-  //   param iproc_distant id of the distant subdomain (in the distant group)
-  //   param distant_elems mapping between the local representation of
-  //   the subdomain and the actual elem ids on the distant subdomain
-  //   ======================================================================
-
+     param distant_support local representation of the distant subdomain
+     param iproc_distant id of the distant subdomain (in the distant group)
+     param distant_elems mapping between the local representation of
+     the subdomain and the actual elem ids on the distant subdomain
+   */
   void InterpolationMatrix::addContribution ( MEDCouplingPointSet& distant_support,
                                               int iproc_distant,
                                               const int* distant_elems,
@@ -840,14 +832,13 @@ namespace ParaMEDMEM
       }
   }
 
-  // ==================================================================
-  // The call to this method updates the arrays on the target side
-  //   so that they know which amount of data from which processor they 
-  //   should expect. 
-  //   That call makes actual interpolations via multiply method 
-  //   available.
-  // ==================================================================
 
+ /**!  The call to this method updates the arrays on the target side
+     so that they know which amount of data from which processor they
+     should expect.
+     That call makes actual interpolations via multiply method
+     available.
+     */
   void InterpolationMatrix::prepare()
   {
     int nbelems = _source_field->getField()->getNumberOfTuples();
@@ -859,18 +850,18 @@ namespace ParaMEDMEM
   }
 
 
-  //   =======================================================================
-  //   brief performs t=Ws, where t is the target field, s is the source field
 
-  //   The call to this method must be called both on the working side 
-  //   and on the idle side. On the working side, the vector  T=VT^(-1).(W.S)
-  //   is computed and sent. On the idle side, no computation is done, but the 
-  //   result from the working side is received and the field is updated.
+  /*!
+     \brief performs t=Ws, where t is the target field, s is the source field
 
-  //   param field source field on processors involved on the source side,
-  //   target field on processors on the target side
-  //   =======================================================================
+     The call to this method must be called both on the working side
+     and on the idle side. On the working side, the vector  T=VT^(-1).(W.S)
+     is computed and sent. On the idle side, no computation is done, but the
+     result from the working side is received and the field is updated.
 
+     \param field source field on processors involved on the source side,
+     target field on processors on the target side
+   */
   void InterpolationMatrix::multiply(MEDCouplingFieldDouble& field) const
   {
     int nbcomp = field.getArray()->getNumberOfComponents();
@@ -917,20 +908,19 @@ namespace ParaMEDMEM
   }
   
 
-  // =========================================================================
-  // brief performs s=WTt, where t is the target field, s is the source field,
-  // WT is the transpose matrix from W
+  /**!
+   \brief performs s=WTt, where t is the target field, s is the source field,
+   WT is the transpose matrix from W
 
-  //   The call to this method must be called both on the working side 
-  //   and on the idle side. On the working side, the target vector T is
-  //   received and the vector  S=VS^(-1).(WT.T) is computed to update
-  //   the field. 
-  //   On the idle side, no computation is done, but the field is sent.
+     The call to this method must be called both on the working side
+     and on the idle side. On the working side, the target vector T is
+     received and the vector  S=VS^(-1).(WT.T) is computed to update
+     the field.
+     On the idle side, no computation is done, but the field is sent.
 
-  //   param field source field on processors involved on the source side,
-  //   target field on processors on the target side
-  // =========================================================================
-
+     param field source field on processors involved on the source side,
+     target field on processors on the target side
+     */
   void InterpolationMatrix::transposeMultiply(MEDCouplingFieldDouble& field) const
   {
     int nbcomp = field.getArray()->getNumberOfComponents();

@@ -366,7 +366,8 @@ void MEDCouplingField::clearGaussLocalizations()
  *          problem.
  *  \param [in] locId - the id of the Gauss localization object of interest.
  *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
- *  \return \ref MEDCouplingGaussLocalization & - the Gauss localization object.
+ *  \return \ref ParaMEDMEM::MEDCouplingGaussLocalization "MEDCouplingGaussLocalization" & - the
+ *  Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If \a locId is not within the valid range.
  *  \throw If the spatial discretization of \a this field is NULL.
@@ -460,7 +461,7 @@ void MEDCouplingField::getCellIdsHavingGaussLocalization(int locId, std::vector<
  * \warning This method is const, so the returned object is not apt for modification.
  *  \param [in] locId - the id of the Gauss localization object of interest.
  *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
- *  \return \ref const MEDCouplingGaussLocalization & - the Gauss localization object.
+ *  \return const \ref MEDCouplingGaussLocalization & - the Gauss localization object.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If \a locId is not within the valid range.
  *  \throw If the spatial discretization of \a this field is NULL.

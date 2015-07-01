@@ -26,8 +26,11 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-  /*! \defgroup mpi_access MPIAccess
-    Class \a MPIAccess is the gateway to the MPI library.
+  /**!
+    \anchor MPIAccess-det
+    \class MPIAccess
+
+    The class \a MPIAccess is the gateway to the MPI library.
     It is a helper class that gathers the calls to the MPI
     library that are made in the ParaMEDMEM library. This gathering
     allows easier gathering of information about the communication

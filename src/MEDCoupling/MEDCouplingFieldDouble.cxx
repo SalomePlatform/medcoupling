@@ -1866,7 +1866,7 @@ void MEDCouplingFieldDouble::applyFuncFast64(const std::string& func)
 
 /*!
  * Returns number of components in the data array. For more info on the data arrays,
- * see \ref MEDCouplingArrayPage.
+ * see \ref arrays.
  *  \return int - the number of components in the data array.
  *  \throw If the data array is not set.
  */
@@ -1894,7 +1894,7 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
  * So \b this \b method \b behaves \b exactly \b as MEDCouplingField::getNumberOfTuplesExpected \b method.
  *
  * \warning No checkCoherency() is done here.
- * For more info on the data arrays, see \ref MEDCouplingArrayPage.
+ * For more info on the data arrays, see \ref arrays.
  *  \return int - the number of tuples.
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
@@ -1913,7 +1913,7 @@ int MEDCouplingFieldDouble::getNumberOfTuples() const
 
 /*!
  * Returns number of atomic double values in the data array of \a this field.
- * For more info on the data arrays, see \ref MEDCouplingArrayPage.
+ * For more info on the data arrays, see \ref arrays.
  *  \return int - (number of tuples) * (number of components) of the
  *  data array.
  *  \throw If the data array is not set.

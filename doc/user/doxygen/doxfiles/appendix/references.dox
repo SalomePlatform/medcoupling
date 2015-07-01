@@ -1,0 +1,13 @@
+/*!
+
+\page references References 
+
+Here follows a list of useful references :
+
+-# \anchor RefManualMedFile Reference Manual for Med File, V. Lefebvre,  E. Fayolle, Projet PAL: D&eacute;finition du mod&egrave;le d'&eacute;change de donn&eacute;es MED V2.2,  Note technique EDF/SINETICS, HI-26-03-012/A, https://hammi.extra.cea.fr/static/MED/web_med/index.html
+-# VTK home page: \c http://public.kitware.com/VTK
+-# Med File Data Model : V. Lefebvre,  E. Fayolle, D&eacute;finition du mod&egrave;le d'&eacute;change de donn&eacute;es MED v2.2, https://hammi.extra.cea.fr/static/MED/web_med/pdf/NOTE_HI_26_03_012_A.pdf
+-# Jeffrey Grandy, Conservative remapping and region overlays by intersecting arbitrary polyhedra, Journal of Computational Physics, vol 148, 433-466 (1999)
+-# F. Preparata and M. Shamos Computational Geometry. Springer-Verlag, New York, 1985
+
+*/

@@ -3767,12 +3767,14 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
   return ret;
 }
 
+/*! \cond HIDDEN_ITEMS */
 struct MEDLoaderAccVisit1
 {
   MEDLoaderAccVisit1():_new_nb_of_nodes(0) { }
   int operator()(bool val) { return val?_new_nb_of_nodes++:-1; }
   int _new_nb_of_nodes;
 };
+/*! \endcond */
 
 /*!
  * Array returned is the correspondance in \b old \b to \b new format. The returned array is newly created and should be dealt by the caller.

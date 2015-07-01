@@ -34,7 +34,9 @@ using namespace std;
 namespace ParaMEDMEM
 {
 
-  /*! \defgroup structuredcoincidentdec StructuredCoincidentDEC
+  /*!
+    \anchor StructuredCoincidentDEC-det
+    \class StructuredCoincidentDEC
 
     This class is meant for remapping fields that have identical
     supports with different parallel topologies. It can be used to couple
@@ -43,12 +45,13 @@ namespace ParaMEDMEM
     the computation is much faster than the other. It can also be used 
     to couple together codes that share an interface that was generated
     in the same manner (with identical global ids). 
-    Also, this \ref dec can be used for fields that have component topologies, 
+    Also, this \ref para-dec can be used for fields that have component topologies,
     i.e., components that are scattered over several processors.
 
     The remapping between the two supports is based on identity of global
     ids, instead of geometrical considerations as it is the case for
-    \ref NonCoincidentDEC and \ref InterpKernelDEC. Therefore, this \ref dec must not be used 
+    \ref NonCoincidentDEC-det "NonCoincidentDEC" and \ref InterpKernelDEC-det "InterpKernelDEC".
+    Therefore, this \ref para-dec "DEC" must not be used
     for coincident meshes that do not have the same numbering.
 
     As all the other DECs, its use is made of two phases :
@@ -75,7 +78,7 @@ namespace ParaMEDMEM
     other DECs in the case when the remapping concerns similar meshes 
     that only have different partitionings. In the case when the
     fields have also different component topologies, creating the ParaFIELD 
-    requires some more effort. See \ref parafield section for more details. 
+    requires some more effort. See the \ref para-over section for more details.
   */
 
 
@@ -101,10 +104,6 @@ namespace ParaMEDMEM
       delete _topo_target;
   }
 
-  /*!
-    \addtogroup structuredcoincidentdec
-    @{
-  */
   StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DisjointDEC(local_group,distant_group),
                                                                                                                _topo_source(0),_topo_target(0),
                                                                                                                _send_counts(0),_recv_counts(0),
@@ -409,8 +408,5 @@ namespace ParaMEDMEM
         prepareTargetDE();
       }
   }
-  /*!
-    @}
-  */
 }
 

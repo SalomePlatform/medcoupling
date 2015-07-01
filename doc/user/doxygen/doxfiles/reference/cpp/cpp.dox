@@ -1,0 +1,25 @@
+/*!
+  \page cpp Note for C++ developpers
+  
+Using the C++ API provided by MED requires you to be familiar with some specificities which are not
+visible to the Python user.
+
+- \ref ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr"
+- \subpage MEDCouplingTimeLabelPage
+
+\b Note: all the standard (sequential) MEDCoupling API lies in the \ref ParaMEDMEM "ParaMEDMEM namespace".
+This is quite unfortunate but due to historical reasons. The true parallel functionalities
+of the \ref library "MED library" are detailed here: \ref parallel
+
+The memory management of the various strucutres is eased by the class 
+\ref ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr". It acts as an auto pointer and takes care of deleting the
+memory automatically when going out of scope. See an example usage in \ref cpp_mcfielddouble_WriteVTK .
+Beware however that not all functions return a pointer that should be deleted when going out of scope.
+Some methods only return an observer to the data, see for example \ref ParaMEDMEM::MEDCouplingPointSet::getCoords() "getCoords()". The API documentation of each method indicates whether the caller is responsible of the returned
+data or not. 
+
+For advanced usage, one has to be aware of the stamping mechanism used internally to know
+whether an instance has been modified or not. This is described in the second page above:
+ \ref MEDCouplingTimeLabelPage
+  
+  */
