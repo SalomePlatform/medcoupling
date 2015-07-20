@@ -22,6 +22,8 @@ SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
   
 IF(SALOME_MED_ENABLE_PYTHON)
+  INCLUDE(doxy2swig/doxy2swig.cmake)
+
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/tmp/medcouplingexamples.in" input)
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BuildPyExamplesFromCPP.py" pythondocexamplesgenerator)
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" output)
@@ -62,6 +64,13 @@ IF(SALOME_MED_ENABLE_PYTHON)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   
+  # Create dummy target gathering the generation of all .i files:
+  ADD_CUSTOM_TARGET(swig_ready)
+  ADD_DEPENDENCIES(swig_ready usr_docs)
+  
+  SALOME_MED_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDCoupling)
+  SALOME_MED_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDLoader)
+    
   SET(doxyfile_med_user ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_med_user)
   FILE(STRINGS ${doxyfile_med_user} enabled_sections REGEX "ENABLED_SECTIONS")
   IF(enabled_sections)
@@ -73,6 +82,9 @@ IF(SALOME_MED_ENABLE_PYTHON)
       "#Temporary variable to enable python documentation sections\nENABLED_SECTIONS = ENABLE_EXAMPLES")
   ENDIF()
   
+  # Swig generation to have docstrings correctly populated:
+  INCLUDE(doxy2swig/doxy2swig.cmake)
+  
 ELSE()
   ADD_CUSTOM_TARGET(usr_docs ALL
     COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile_med_user
@@ -81,7 +93,7 @@ ELSE()
   )
 ENDIF()
  
-INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
+#INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc_ref_user/html/ DESTINATION ${SALOME_INSTALL_DOC}/gui/MED)
 INSTALL(FILES images/head.png DESTINATION ${SALOME_INSTALL_DOC}/gui/MED) 
 
