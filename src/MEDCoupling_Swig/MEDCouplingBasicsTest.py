@@ -16694,6 +16694,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(indRef,list(graph.getIndexArray().getValues()));
         pass
 
+    def testSwig2MEDCouplingCurveLinearReprQuick1(self):
+        """Non regression test. Error in m.__str__ when m is a MEDCouplingCurveLinear with spaceDim != meshDim."""
+        arr=DataArrayDouble(12) ; arr.iota() ; arr.rearrange(2)
+        m=MEDCouplingCurveLinearMesh()
+        m.setCoords(arr)
+        m.setNodeGridStructure([3,2])
+        m.checkCoherency()
+        self.assertEqual(m.getMeshDimension(),2)
+        self.assertEqual(m.getSpaceDimension(),2)
+        self.assertTrue(not "mismatch" in m.__str__())
+        self.assertTrue(not "mismatch" in m.__repr__())
+        #
+        arr=DataArrayDouble(18) ; arr.iota() ; arr.rearrange(3)
+        m.setCoords(arr)
+        self.assertEqual(m.getMeshDimension(),2)
+        self.assertEqual(m.getSpaceDimension(),3)
+        self.assertTrue(not "mismatch" in m.__str__())
+        self.assertTrue(not "mismatch" in m.__repr__())# bug was here !
+        pass
+
     pass
 
 if __name__ == '__main__':

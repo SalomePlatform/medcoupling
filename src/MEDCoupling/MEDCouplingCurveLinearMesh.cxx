@@ -910,8 +910,16 @@ void MEDCouplingCurveLinearMesh::reprQuickOverview(std::ostream& stream) const
     { stream << std::endl << "No coordinates set !"; return ; }
   if(!coo->isAllocated())
     { stream << std::endl << "Coordinates set but not allocated !"; return ; }
-  int nbOfCompo=coo->getNumberOfComponents();
-  if(nbOfCompo!=(int)_structure.size())
+  int nbOfCompo(coo->getNumberOfComponents());
+  int nbOfCompoExp(-1);
+  try
+    {
+      nbOfCompoExp=getSpaceDimension();
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+    }
+  if(nbOfCompo!=nbOfCompoExp)
     { stream << std::endl << "Coordinates set and allocated but mismatch number of components !"; return ; }
   stream << std::endl << "Coordinates ( number of tuples = " << coo->getNumberOfTuples() << " ) : ";
   coo->reprQuickOverviewData(stream,200);
