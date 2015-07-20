@@ -333,6 +333,8 @@ class MEDLoaderTest(unittest.TestCase):
         da.setInfoOnComponent(0,"ZZ [um]")
         m1.setCoordsAt(2,da)
         m.setMesh(m1)
+        self.assertTrue(m[0].isEqual(m1,1e-12))
+        self.assertTrue(isinstance(m[0],MEDCouplingCMesh))
         m.setName("myFirstCartMesh")
         m.setDescription("mmmmpppppppp")
         m.setTimeValue(2.3)
