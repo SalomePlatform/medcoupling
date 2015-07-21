@@ -17,5 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(xmedpy)
-ADD_SUBDIRECTORY(medpresentation)
+SET(PYFILES_TO_INSTALL
+  __init__.py
+  medpresentation.py
+  )
+
+SALOME_INSTALL_SCRIPTS("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_PYTHON}/medpresentation)

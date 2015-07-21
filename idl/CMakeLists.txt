@@ -31,6 +31,7 @@ SET(SalomeIDLMED_IDLSOURCES
   MEDDataManager.idl
   MEDCalculator.idl
   MEDEventListener.idl
+  MEDPresentationManager.idl
   MEDOPFactory.idl
 )
 

@@ -35,8 +35,10 @@ INCLUDE_DIRECTORIES(
 SET(MEDOPFactoryEngine_SOURCES
   MEDDataManager_i.cxx
   MEDCalculator_i.cxx
+  MEDPresentationManager_i.cxx
   MEDOPFactory_i.cxx
 )
+
 SET(COMMON_LIBS
   medloader
   SalomeIDLMED
