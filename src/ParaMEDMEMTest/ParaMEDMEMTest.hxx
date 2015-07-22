@@ -64,7 +64,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
 #ifdef MED_ENABLE_FVM
   //can be added again after FVM correction for 2D
   //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
-  CPPUNIT_TEST(testNonCoincidentDEC_3D); 
+  CPPUNIT_TEST(testNonCoincidentDEC_3D);
 #endif
   CPPUNIT_TEST(testStructuredCoincidentDEC);
   CPPUNIT_TEST(testStructuredCoincidentDEC);
