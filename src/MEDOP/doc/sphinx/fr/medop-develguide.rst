@@ -65,14 +65,14 @@ lancés depuis une session shell SALOME. Dans un nouveau shell, taper::
 
 L'exécution imprime un rapport détaillant le résultat pour chaque
 fonction de test::
- 
+
  test_Calculator_applyFunc (__main__.MyTestSuite) ... ok
  test_Calculator_basics (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getFieldListInFieldseries (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getFieldseriesListOnMesh (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getMesh (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getMeshList (__main__.MyTestSuite) ... ok
- test_addDatasource (__main__.MyTestSuite) ... ok
+ test_loadDatasource (__main__.MyTestSuite) ... ok
  test_getDataManager (__main__.MyTestSuite) ... ok
  test_getFieldHandlerList (__main__.MyTestSuite) ... ok
  test_getFieldRepresentation (__main__.MyTestSuite) ... ok
@@ -150,7 +150,7 @@ valeurs des champs et les maillages support sont chargés au besoin.
 
 Le chargement des métadonnées de description se fait par la méthode::
 
-  addDatasource(const char \*filepath)
+  loadDatasource(const char \*filepath)
 
 
 
@@ -164,16 +164,16 @@ Ecrire un service CORBA qui retourne une sequence de FieldHandler:
   MEDOP::FieldHandlerList * MyFunction(...) {
     vector<MEDOP::FieldHandler*> fieldHandlerList;
     ...
-  
+
     fieldHandlerList.push_back(fieldHandler);
-  
+
     // Map the resulting list to a CORBA sequence for return:
     MEDOP::FieldHandlerList_var fieldHandlerSeq = new MEDOP::FieldHandlerList();
     int nbFieldHandler = fieldHandlerList.size();
     fieldHandlerSeq->length(nbFieldHandler);
     for (int i=0; i<nbFieldHandler; i++) {
       fieldHandlerSeq[i] = *fieldHandlerList[i];
-    } 
+    }
     return fieldHandlerSeq._retn();
   }
 
@@ -245,7 +245,7 @@ moyen de la commande::
 
 Cette commande installe un répertoire ``xsalome`` contenant l'ensemble
 des sources de la bibliothèque XSALOME.
- 
+
 .. note:: La bibliothèque XSALOME n'est pas un module SALOME mais une
    simple bibliothèque de fonctions qui complète ou rend plus facile
    d'utilisation les fonctions de SALOME. Elle NE DOIT EN AUCUN CAS
@@ -281,5 +281,5 @@ manipulation de champs::
 Cette commande génére un répertoire ``appli`` à l'emplacement où elle
 est exécutée. Il reste à lancer l'application SALOME au moyen de la
 commande::
- 
+
  $ ./appli/runAppli -k
