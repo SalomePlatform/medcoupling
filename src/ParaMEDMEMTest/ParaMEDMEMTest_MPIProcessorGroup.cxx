@@ -58,11 +58,9 @@ using namespace ParaMEDMEM;
 void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
 {
   CommInterface comm_interface;
-  MPIProcessorGroup* group;
+  MPIProcessorGroup* group = new MPIProcessorGroup(comm_interface);;
   int size;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-  group= new MPIProcessorGroup(comm_interface);
   CPPUNIT_ASSERT_EQUAL(size,group->size());
   int size2;
   const MPI_Comm* communicator=group->getComm();
