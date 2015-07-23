@@ -938,7 +938,7 @@ void MEDCouplingRemapperTest::testExtruded2()
   //
   MEDCouplingRemapper remapper;
   remapper.setPrecision(1e-12);
-  remapper.setIntersectionType(INTERP_KERNEL::Geometric2D);
+  remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(meshNE,meshTTE,"P0P0"));
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
   srcField->setNature(IntegralGlobConstraint);
