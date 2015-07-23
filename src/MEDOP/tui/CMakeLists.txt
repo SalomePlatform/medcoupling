@@ -18,4 +18,4 @@
 #
 
 ADD_SUBDIRECTORY(xmedpy)
-ADD_SUBDIRECTORY(medpresentation)
+ADD_SUBDIRECTORY(presentation)

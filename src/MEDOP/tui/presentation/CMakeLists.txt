@@ -20,7 +20,7 @@
 SET(PYFILES_TO_INSTALL
   __init__.py
   medpresentation.py
-  xmedimages.py
+  medimages.py
   )
 
-SALOME_INSTALL_SCRIPTS("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_PYTHON}/medpresentation)
+SALOME_INSTALL_SCRIPTS("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_PYTHON}/medcalc)
