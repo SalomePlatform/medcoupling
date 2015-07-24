@@ -32,7 +32,7 @@ SET(SalomeIDLMED_IDLSOURCES
   MEDCalculator.idl
   MEDEventListener.idl
   MEDPresentationManager.idl
-  MEDOPFactory.idl
+  MEDFactory.idl
 )
 
 IF(SALOME_USE_MPI)
