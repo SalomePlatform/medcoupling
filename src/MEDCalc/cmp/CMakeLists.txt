@@ -33,6 +33,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(MEDFactoryEngine_SOURCES
+  MEDFactoryClient.cxx
   MEDDataManager_i.cxx
   MEDCalculator_i.cxx
   MEDPresentationManager_i.cxx

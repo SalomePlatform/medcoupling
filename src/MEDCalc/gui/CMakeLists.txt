@@ -26,7 +26,6 @@ ADD_SUBDIRECTORY(dialogs)
 
 
 SET(MEDCALCGUI_SOURCES
-  MEDFactoryClient.cxx
   XmedConsoleDriver.cxx
   WorkspaceController.cxx
   XmedDataModel.cxx
