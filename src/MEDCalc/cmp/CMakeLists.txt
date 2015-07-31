@@ -24,6 +24,7 @@ INCLUDE_DIRECTORIES(
   ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${PTHREAD_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${PROJECT_BINARY_DIR}/idl
   ${PROJECT_SOURCE_DIR}/src/MEDCoupling
@@ -38,27 +39,20 @@ SET(MEDFactoryEngine_SOURCES
   MEDCalculator_i.cxx
   MEDPresentationManager_i.cxx
   MEDFactory_i.cxx
+  MEDPresentation.cxx
 )
 
 SET(COMMON_LIBS
-  medloader
+  ${PLATFORM_LIBRARIES}
   SalomeIDLMED
-  ${KERNEL_TOOLSDS}
-  ${KERNEL_SalomeHDFPersist}
-  ${KERNEL_SalomeContainer}
-  ${KERNEL_SalomeCommunication}
-  ${KERNEL_SalomeKernelHelpers}
-  ${KERNEL_SalomeLifeCycleCORBA}
-  ${KERNEL_SALOMELocalTrace}
-  ${KERNEL_SALOMEBasics}
+  ${KERNEL_TOOLSDS} ${KERNEL_SalomeHDFPersist} ${KERNEL_SalomeContainer} ${KERNEL_SalomeCommunication}
+  ${KERNEL_SalomeKernelHelpers} ${KERNEL_SalomeLifeCycleCORBA} ${KERNEL_SALOMELocalTrace} ${KERNEL_SALOMEBasics}
   ${KERNEL_SalomeGenericObj}
-  medcoupling
-  medcouplingremapper
-  interpkernel
+  medloader medcoupling medcouplingremapper interpkernel
   ${MEDFILE_C_LIBRARIES}
   ${HDF5_LIBRARIES}
   ${OMNIORB_LIBRARIES}
-  ${PLATFORM_LIBRARIES}
+  ${PYTHON_LIBRARIES}
 )
 
 # This undefines the macros MIN and MAX which are specified in the windows headers
@@ -68,7 +62,7 @@ ENDIF(WIN32)
 
 ADD_LIBRARY(MEDFactoryEngine SHARED ${MEDFactoryEngine_SOURCES})
 SET_TARGET_PROPERTIES(MEDFactoryEngine PROPERTIES COMPILE_FLAGS "${COMMON_FLAGS}")
-TARGET_LINK_LIBRARIES(MEDFactoryEngine SalomeIDLMED ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(MEDFactoryEngine ${COMMON_LIBS})
 
 INSTALL(TARGETS MEDFactoryEngine DESTINATION ${SALOME_INSTALL_LIBS})
 
