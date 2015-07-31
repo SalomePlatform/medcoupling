@@ -21,6 +21,7 @@
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileUtilities.hxx"
+#include "MEDFileSafeCaller.txx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "CellModel.hxx"
@@ -174,10 +175,10 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
   med_sorting_type sortingType;
   med_int nstep;
   med_axis_type axisType;
-  int naxis=MEDmeshnAxis(fid,meshId);
+  int naxis(MEDmeshnAxis(fid,meshId));
   INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-  MEDmeshInfo(fid,meshId,nommaa,&Sdim,&Mdim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit);
+  MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,meshId,nommaa,&Sdim,&Mdim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit));
   // limitation
   if(nstep!=1)
     {
@@ -185,14 +186,14 @@ int MEDLoaderNS::readUMeshDimFromFile(const std::string& fileName, const std::st
     } 
   med_int numdt,numit;
   med_float dt;
-  MEDmeshComputationStepInfo(fid,nommaa,1,&numdt,&numit,&dt);
+  MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,nommaa,1,&numdt,&numit,&dt));
   // endlimitation
   for(int i=0;i<MED_N_CELL_GEO_FIXED_CON;i++)
     {
       med_geometry_type curMedType=typmai[i];
       med_bool changement,transformation;
-      int curNbOfElemM=MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation);
-      int curNbOfElemF=MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation);//limitation
+      int curNbOfElemM(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+      int curNbOfElemF(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));//limitation
       int curNbOfElem;
       med_entity_type whichEntity;
       MEDLoaderNS::dispatchElems(curNbOfElemM,curNbOfElemF,curNbOfElem,whichEntity);
@@ -254,11 +255,11 @@ std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
   std::vector<std::string> ret(n);
   for(int i=0;i<n;i++)
     {
-      int naxis=MEDmeshnAxis(fid,i+1);
+      int naxis(MEDmeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       int nstep;
-      MEDmeshInfo(fid,i+1,nommaa,&space_dim,&mesh_dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit);
+      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&space_dim,&mesh_dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));
       std::string cur=MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa));
       ret[i]=cur;
     }
@@ -357,10 +358,10 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   med_sorting_type sortingType;
   med_int nstep;
   med_axis_type axisType;
-  int naxis=MEDmeshnAxis(fid,meshId);
+  int naxis(MEDmeshnAxis(fid,meshId));
   INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-  MEDmeshInfo(fid,meshId,nommaa,&spaceDim,&meshDim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit); 
+  MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,meshId,nommaa,&spaceDim,&meshDim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit));
   if(type_maillage!=MED_UNSTRUCTURED_MESH)
     {
       std::ostringstream oss; oss << "MEDLoader::GetUMeshGlobalInfo : Mesh \""<< meshName << "\" in file \"" << fileName;
@@ -372,7 +373,7 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
     throw INTERP_KERNEL::Exception("MEDLoader::GetUMeshGlobalInfo : multisteps on mesh not managed !");
   med_int numdt,numit;
   med_float dt;
-  MEDmeshComputationStepInfo(fid,nommaa,1,&numdt,&numit,&dt);
+  MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,nommaa,1,&numdt,&numit,&dt));
   // endlimitation
   std::vector<int> dims;
   std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > geoTypes;
@@ -380,7 +381,7 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   for(int i=0;i<MED_N_CELL_FIXED_GEO;i++)
     {
       med_geometry_type curMedType=typmai[i];
-      int curNbOfElemM=MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation);
+      int curNbOfElemM(MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
       if(curNbOfElemM>0)
         {
           INTERP_KERNEL::NormalizedCellType typp=typmai2[i];
@@ -418,12 +419,12 @@ std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesO
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  med_int nbFields=MEDnField(fid);
+  med_int nbFields(MEDnField(fid));
   std::vector<std::string> fields(nbFields);
   med_field_type typcha;
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
@@ -431,7 +432,7 @@ std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesO
       med_bool localmesh;
       INTERP_KERNEL::AutoPtr<char> maa_ass=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
       INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string meshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE);
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
@@ -465,12 +466,12 @@ std::vector<std::string> MEDLoader::GetMeshNamesOnField(const std::string& fileN
   //
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       med_int nbPdt;
       INTERP_KERNEL::AutoPtr<char> maa_ass=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string meshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE);
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
@@ -637,7 +638,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNames(const std::string& fileName
   med_field_type typcha;
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -645,7 +646,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNames(const std::string& fileName
       INTERP_KERNEL::AutoPtr<char> dt_unit=new char[MED_LNAME_SIZE+1];
       med_int nbPdt;
       med_bool localmesh;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       ret.push_back(std::string(nomcha));
     }
   return ret;
@@ -664,13 +665,13 @@ std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const std::string& fi
   //
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> dt_unit=new char[MED_LNAME_SIZE+1];
       med_int nbPdt;
       med_bool localmesh;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
       //
@@ -717,10 +718,10 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const std::string& f
   //
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
       int profilesize,nbi;
@@ -731,9 +732,9 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const std::string& f
             {
               if(nbPdt>0)
                 {
-                  MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
-                  med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                      pflname,&profilesize,locname,&nbi);
+                  MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,1,&numdt,&numo,&dt));
+                  med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
+                                                            pflname,&profilesize,locname,&nbi));
                   if(nbOfVal>0)
                     {
                       found=true;
@@ -765,19 +766,19 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const std::string& f
   //
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       med_int nbPdt;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
       if(nbPdt>0)
         {
           int profilesize,nbi;
-          MEDfieldComputingStepInfo(fid,nomcha,1,&numdt,&numo,&dt);
-          med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-              pflname,&profilesize,locname,&nbi);
+          MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,1,&numdt,&numo,&dt));
+          med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
+                                                    pflname,&profilesize,locname,&nbi));
           if(curMeshName==meshName && nbOfVal>0)
             {
               ret.push_back(curFieldName);
@@ -805,17 +806,17 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
   std::ostringstream oss; oss << "MEDLoader::GetAllFieldIterations : No field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       med_int nbPdt;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
         {
           for(int k=0;k<nbPdt;k++)
             {
-              MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
+              MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,k+1,&numdt,&numo,&dt));
               ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
             }
           return ret;
@@ -849,18 +850,18 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const std::string& fileName, c
   double ret=std::numeric_limits<double>::max();
   for(int i=0;i<nbFields && !found;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       med_int nbPdt;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&local,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&local,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
         {
           found=true;
           for(int k=0;k<nbPdt;k++)
             {
-              MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
+              MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,k+1,&numdt,&numo,&dt));
               if(numdt==iteration && numo==order)
                 {
                   found2=true;
@@ -914,11 +915,11 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::s
   std::set<std::string> s2;
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       med_int nbPdt;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
         {
@@ -928,9 +929,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::s
               for(int k=0;k<nbPdt;k++)
                 {
                   int profilesize,nbi;
-                  MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
-                  med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                      pflname,&profilesize,locname,&nbi);
+                  MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,k+1,&numdt,&numo,&dt));
+                  med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
+                                                            pflname,&profilesize,locname,&nbi));
                   std::string maa_ass_cpp(maa_ass);
                   if(nbOfVal>0)
                     {
@@ -986,20 +987,20 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const std::s
   std::set<std::string> s2;
   for(int i=0;i<nbFields;i++)
     {
-      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      med_int ncomp(MEDfieldnComponent(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
       INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
       med_int nbPdt;
-      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      MEDFILESAFECALLERRD0(MEDfieldInfo,(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt));
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
         {
           for(int k=0;k<nbPdt;k++)
             {
               int profilesize,nbi;
-              MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
-              med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-                  pflname,&profilesize,locname,&nbi);
+              MEDFILESAFECALLERRD0(MEDfieldComputingStepInfo,(fid,nomcha,k+1,&numdt,&numo,&dt));
+              med_int nbOfVal(MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
+                                                        pflname,&profilesize,locname,&nbi));
               std::string maa_ass_cpp(maa_ass);
               if(nbOfVal>0)
                 {
