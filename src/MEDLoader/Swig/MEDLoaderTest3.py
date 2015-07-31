@@ -21,6 +21,7 @@
 
 from MEDLoader import *
 import unittest
+import platform
 from math import pi,e,sqrt
 from MEDLoaderDataForTest import MEDLoaderDataForTest
 
@@ -3370,7 +3371,6 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3])))
         pass
 
-    #@unittest.skipUnless(False,"requires Vadim's green light")
     def testWRQPolyg1(self):
         fname="Pyfile72.med"
         m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.allocateCells()
@@ -4363,7 +4363,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     pass
     def testMEDFileJoint1(self):
-        fileName="Pyfile88.med"
+        fileName="Pyfile92.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
         coo.setInfoOnComponents(["x [cm]","y [cm]","z [cm]"])
         mm=MEDFileUMesh()
@@ -4402,7 +4402,7 @@ class MEDLoaderTest(unittest.TestCase):
         
     pass
     def testMEDFileJoint2(self):
-        fileNameWr="Pyfile89.med"
+        fileNameWr="Pyfile93.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
         coo.setInfoOnComponents(["x [cm]","y [cm]","z [cm]"])
         mm=MEDFileUMesh()
@@ -4487,6 +4487,72 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual( 1, one_joint.getDomainNumber())
         self.assertEqual( "joint_1", one_joint.getJointName())
         pass
+
+    @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
+    def testMEDFileSafeCall0(self):
+        """ EDF11242 : check status of MED file calls to detect problems immediately. Sorry this test generates awful messages !"""
+        fname="Pyfile94.med"
+        errfname="Pyfile94.err"
+        class StdOutRedirect(object):
+            def __init__(self,fileName):
+                import os,sys
+                sys.stderr.flush()
+                self.stdoutOld=os.dup(2)
+                self.fdOfSinkFile=os.open(fileName,os.O_CREAT | os.O_RDWR)
+                fd2=os.dup2(self.fdOfSinkFile,2)
+                self.origPyVal=sys.stderr
+                class FlushFile(object):
+                    def __init__(self,f):
+                        self.f=f
+                    def write(self,st):
+                        self.f.write(st)
+                        self.f.flush()
+                    def flush(self):
+                        return self.f.flush()
+                    def isatty(self):
+                        return self.f.isatty()
+                sys.stderr=FlushFile(os.fdopen(self.fdOfSinkFile,"w"))
+            def __del__(self):
+                import os,sys
+                sys.stderr=self.origPyVal
+                #os.fsync(self.fdOfSinkFile)
+                os.fsync(2)
+                os.dup2(self.stdoutOld,2)
+                os.close(self.stdoutOld)
+        import os
+        # first clean file if needed
+        if os.path.exists(fname):
+            os.remove(fname)
+            pass
+        # second : build a file from scratch
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble(11) ; arr.iota()
+        m.setCoords(arr,arr)
+        mm=MEDFileCMesh()
+        mm.setMesh(m)
+        mm.setName("mesh")
+        mm.write(fname,2)
+        # third : change permissions to remove write access on created file
+        os.chmod(fname,0444)
+        # four : try to append data on file -> check that it raises Exception
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setName("field")
+        f.setMesh(m)
+        f.setArray(DataArrayDouble(100))
+        f.getArray()[:]=100.
+        f.checkCoherency()
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        # redirect stderr
+        tmp=StdOutRedirect(errfname)
+        self.assertRaises(InterpKernelException,f1ts.write,fname,0) # it should raise !
+        del tmp
+        #
+        if os.path.exists(errfname):
+            os.remove(errfname)
+        #
+        pass
+
     pass
 
 unittest.main()
