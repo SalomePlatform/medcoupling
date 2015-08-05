@@ -36,5 +36,6 @@ SET(MED_RESOURCES_FILES
   MEDCalc_small.png
   workspace_clean.png
   workspace_save.png
+  pqAppIcon16.png
   )
 INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
