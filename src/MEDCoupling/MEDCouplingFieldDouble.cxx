@@ -1131,14 +1131,14 @@ double MEDCouplingFieldDouble::normMax() const
 }
 
 /*!
- * Computes sums of values of each component of \a this field wighted with
+ * Computes the weighted average of values of each component of \a this field, the weights being the
  * values returned by buildMeasureField().  
  *  \param [out] res - pointer to an array of result sum values, of size at least \a
  *         this->getNumberOfComponents(), that is to be allocated by the caller.
- *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weighs computed by
- *         buildMeasureField() that makes this method slower. If a user is sure that all
- *         cells of the underlying mesh have correct orientation, he can put \a isWAbs ==
- *         \c false that speeds up this method.
+ *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weights computed by
+ *         buildMeasureField(). It makes this method slower. If you are sure that all
+ *         the cells of the underlying mesh have a correct orientation (no negative volume), you can put \a isWAbs ==
+ *         \c false to speed up the method.
  *  \throw If the mesh is not set.
  *  \throw If the data array is not set.
  */
@@ -1150,18 +1150,19 @@ void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) c
   double deno=w->getArray()->accumulate(0);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=getArray()->deepCpy();
   arr->multiplyEqual(w->getArray());
-  std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::multiplies<double>(),1./deno));
   arr->accumulate(res);
+  int nCompo = getArray()->getNumberOfComponents();
+  std::transform(res,res+nCompo,res,std::bind2nd(std::multiplies<double>(),1./deno));
 }
 
 /*!
- * Computes a sum of values of a given component of \a this field wighted with
+ * Computes the weighted average of values of a given component of \a this field, the weights being the
  * values returned by buildMeasureField().
  *  \param [in] compId - an index of the component of interest.
- *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weighs computed by
- *         buildMeasureField() that makes this method slower. If a user is sure that all
- *         cells of the underlying mesh have correct orientation, he can put \a isWAbs ==
- *         \c false that speeds up this method.
+ *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weights computed by
+ *         buildMeasureField(). It makes this method slower. If you are sure that all
+ *         the cells of the underlying mesh have a correct orientation (no negative volume), you can put \a isWAbs ==
+ *         \c false to speed up the method.
  *  \throw If the mesh is not set.
  *  \throw If the data array is not set.
  *  \throw If \a compId is not valid.
