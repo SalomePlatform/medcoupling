@@ -3265,8 +3265,11 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
           // Issue 0021311. Use case: a gibi group has references (recorded in pile 1)
           // and several names (pile 27) refer (pile 10) to this group.
           // We create a copy of this group per each named reference
+          std::set<std::string> uniqueNames;
+          uniqueNames.insert( grp._name );
           for ( unsigned iRef = 0 ; iRef < grp._refNames.size(); ++iRef )
-            if ( !grp._refNames[ iRef ].empty() )
+            if ( !grp._refNames[ iRef ].empty() &&
+                 uniqueNames.insert( grp._refNames[ iRef ]).second ) // for name uniqueness (23155)
               {
                 refGroups.push_back( grp._medGroup->deepCpy() );
                 refGroups.back()->setName( grp._refNames[ iRef ].c_str() );
