@@ -26,6 +26,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(SalomeIDLMED_IDLSOURCES
+  MED_Gen.idl
   MEDCouplingCorbaServant.idl
   ParaMEDCouplingCorbaServant.idl
   MEDDataManager.idl
