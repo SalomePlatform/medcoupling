@@ -670,6 +670,62 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,field.setNature,Integral);
         self.assertRaises(InterpKernelException,field.setNature,IntegralGlobConstraint);
         pass
+      
+    def testNatureOperations(self):
+        """ Check nature constraints on field operations """
+        m = MEDCouplingCMesh()
+        m.setCoordsAt(0, DataArrayDouble([1.0,2.0,3.0]))
+        m.setCoordsAt(1, DataArrayDouble([1.0,2.0,3.0]))
+        m = m.buildUnstructured()
+        f1, f2 = MEDCouplingFieldDouble.New(ON_CELLS, NO_TIME), MEDCouplingFieldDouble.New(ON_CELLS, NO_TIME)
+        f1.setNature(Integral)
+        f2.setNature(ConservativeVolumic)
+        self.assertEqual(Integral, f1.getNature())
+        self.assertEqual(ConservativeVolumic, f2.getNature())
+        
+        da = DataArrayDouble([1.0,2.0,3.0,4.0])
+        f1.setMesh(m); f2.setMesh(m)
+        f1.setArray(da); f2.setArray(da.deepCpy())
+        # All this should complain about nature:
+        self.assertRaises(InterpKernelException, f1.__add__, f2)
+        self.assertRaises(InterpKernelException, f1.__iadd__, f2)
+        self.assertRaises(InterpKernelException, f1.__sub__, f2)
+        self.assertRaises(InterpKernelException, f1.__isub__, f2)
+        self.assertRaises(InterpKernelException, f1.__radd__, f2)
+        self.assertRaises(InterpKernelException, f1.__rsub__, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.AddFields, f1, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.SubstractFields, f1, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.MaxFields, f1, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.MinFields, f1, f2)
+        # Not those ones:
+        f3 = MEDCouplingFieldDouble.MultiplyFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1*f2
+        self.assertEqual(NoNature, f3.getNature())
+        f1Tmp = f1.deepCpy(); f1Tmp.setMesh(m);  f1Tmp *= f2
+        self.assertEqual(NoNature, f1Tmp.getNature())
+        f3 = MEDCouplingFieldDouble.DivideFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1/f2
+        self.assertEqual(NoNature, f3.getNature())
+        f1Tmp = f1.deepCpy();  f1Tmp.setMesh(m);  f1Tmp /= f2
+        self.assertEqual(NoNature, f1Tmp.getNature())
+#         f3 = MEDCouplingFieldDouble.PowFields(f1,f2)
+#         self.assertEqual(NoNature, f3.getNature())
+        f3 = f1**f2
+        self.assertEqual(NoNature, f3.getNature())
+        f1Tmp = f1.deepCpy();  f1Tmp.setMesh(m);  f1Tmp **= f2
+        self.assertEqual(NoNature, f1Tmp.getNature())
+        f3 = MEDCouplingFieldDouble.DotFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1.dot(f2)
+        self.assertEqual(NoNature, f3.getNature())
+        
+        da = DataArrayDouble.Meld([da, da, da])
+        f1.setArray(da); f2.setArray(da.deepCpy())
+        f3 = MEDCouplingFieldDouble.CrossProductFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1.crossProduct(f2)
 
     def testBuildSubMeshData(self):
         targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1()

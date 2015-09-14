@@ -145,6 +145,21 @@ bool MEDCouplingField::areStrictlyCompatible(const MEDCouplingField *other) cons
   return _mesh==other->_mesh;
 }
 
+/*!
+ * This method is less strict than MEDCouplingField::areStrictlyCompatible method.
+ * The difference is that the nature is not checked.
+ * This method is used for multiplication and division on fields to operate a first check before attempting operation.
+ */
+bool MEDCouplingField::areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingField::areStrictlyCompatible : input field is NULL !");
+  if(!_type->isEqual(other->_type,1.e-12))
+    return false;
+  return _mesh==other->_mesh;
+}
+
+
 void MEDCouplingField::updateTime() const
 {
   if(_mesh)
