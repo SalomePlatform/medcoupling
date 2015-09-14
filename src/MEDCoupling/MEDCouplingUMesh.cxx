@@ -1396,9 +1396,9 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps)
 }
 
 /*!
- * This method returns all node ids used in \b this. The data array returned has to be dealt by the caller.
- * The returned node ids are sortes ascendingly. This method is closed to MEDCouplingUMesh::getNodeIdsInUse except
- * the format of returned DataArrayInt instance.
+ * This method returns all node ids used in the connectivity of \b this. The data array returned has to be dealt by the caller.
+ * The returned node ids are sorted ascendingly. This method is close to MEDCouplingUMesh::getNodeIdsInUse except
+ * the format of the returned DataArrayInt instance.
  * 
  * \return a newly allocated DataArrayInt sorted ascendingly of fetched node ids.
  * \sa MEDCouplingUMesh::getNodeIdsInUse, areAllNodesFetched
@@ -2325,13 +2325,13 @@ DataArrayInt *MEDCouplingUMesh::findCellIdsOnBoundary() const
 }
 
 /*!
- * This method find in \b this cells ids that lie on mesh \b otherDimM1OnSameCoords.
+ * This method finds in \b this the cell ids that lie on mesh \b otherDimM1OnSameCoords.
  * \b this and \b otherDimM1OnSameCoords have to lie on the same coordinate array pointer. The coherency of that coords array with connectivity
  * of \b this and \b otherDimM1OnSameCoords is not important here because this method works only on connectivity.
  * this->getMeshDimension() - 1 must be equal to otherDimM1OnSameCoords.getMeshDimension()
  *
- * s0 is the cells ids set in \b this lying on at least one node in fetched nodes in \b otherDimM1OnSameCoords.
- * This method method returns cells ids set s = s1 + s2 where :
+ * s0 is the cell ids set in \b this lying on at least one node in the fetched nodes in \b otherDimM1OnSameCoords.
+ * This method returns the cells ids set s = s1 + s2 where:
  * 
  *  - s1 are cells ids in \b this whose dim-1 constituent equals a cell in \b otherDimM1OnSameCoords.
  *  - s2 are cells ids in \b s0 - \b s1 whose at least two neighbors are in s1.
@@ -2339,8 +2339,8 @@ DataArrayInt *MEDCouplingUMesh::findCellIdsOnBoundary() const
  * \throw if \b otherDimM1OnSameCoords is not part of constituent of \b this, or if coordinate pointer of \b this and \b otherDimM1OnSameCoords
  *        are not same, or if this->getMeshDimension()-1!=otherDimM1OnSameCoords.getMeshDimension()
  *
- * \param [out] cellIdsRk0 a newly allocated array containing cells ids in \b this containg s0 in above algorithm.
- * \param [out] cellIdsRk1 a newly allocated array containing cells ids of s1+s2 \b into \b cellIdsRk0 subset. To get absolute ids of s1+s2 simply invoke
+ * \param [out] cellIdsRk0 a newly allocated array containing the cell ids of s0 (which are cell ids of \b this) in the above algorithm.
+ * \param [out] cellIdsRk1 a newly allocated array containing the cell ids of s1+s2 \b into the \b cellIdsRk0 subset. To get the absolute ids of s1+s2, simply invoke
  *              cellIdsRk1->transformWithIndArr(cellIdsRk0->begin(),cellIdsRk0->end());
  */
 void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *&cellIdsRk0, DataArrayInt *&cellIdsRk1) const
@@ -2466,19 +2466,60 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   cellIdsRk1->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
   //
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIdsRk1->begin(),cellIdsRk1->end(),true));
+  int nCells2 = m0Part2->getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
+  // Neighbor information of the mesh without considering the crack (serves to count how many connex pieces it is made of)
+  DataArrayInt *tmp00=0,*tmp11=0;
+  MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00, tmp00, tmp11);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighInit00(tmp00);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighIInit00(tmp11);
+  // Neighbor information of the mesh WITH the crack (some neighbors are removed):
   DataArrayInt *idsTmp=0;
   bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(idsTmp);
   if(!b)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the given mdim-1 mesh in other is not a constituent of this !");
+  // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
+  // of the frontier given in parameter (i.e. the cells of low dimension from the group delimiting the crack):
   MEDCouplingUMesh::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
   DataArrayInt *tmp0=0,*tmp1=0;
+  // Compute the neighbor of each cell in m0Part2, taking into account the broken link above. Two
+  // cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
   ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum=MEDCouplingUMesh::ComputeSpreadZoneGradually(neigh00,neighI00);
+
+
+  // For each initial connex part of the sub-mesh (or said differently for each independent crack):
+  int seed = 0, nIter = 0;
+  int nIterMax = nCells2+1; // Safety net for the loop
+  bool * hitCells = new bool[nCells2];
+  for (int iii=0; iii<nCells2; iii++) hitCells[iii] = false;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum = DataArrayInt::New();
+  cellsToModifyConn0_torenum->alloc(0,1);
+  while (nIter < nIterMax)
+    {
+      if (std::find(hitCells, hitCells+nCells2, false) == hitCells+nCells2)
+        break;
+      // Connex zone without the crack (to compute the next seed really)
+      int dnu;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
+      int cnt = 0;
+      for (int * ptr = connexCheck->getPointer(); cnt < connexCheck->getNumberOfTuples(); ptr++, cnt++)
+        hitCells[*ptr] = true;
+      // Connex zone WITH the crack (to identify cells lying on either part of the crack)
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh00,neighI00, -1, dnu);
+      cellsToModifyConn0_torenum = DataArrayInt::Aggregate(cellsToModifyConn0_torenum, spreadZone, 0);
+      // Compute next seed, i.e. a cell in another connex part:
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> comple = cellsToModifyConn0_torenum->buildComplement(nCells2);
+      seed = comple->getIJ(0,0);
+      nIter++;
+    }
+  delete[] hitCells;
+  if (nIter >= nIterMax)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate(): internal error - too many iterations.");
+
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
   cellsToModifyConn0_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   cellsToModifyConn1_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
@@ -11021,7 +11062,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, c
 /*!
  * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arr indexes is in \b arrIndxIn.
  * This method expects that these two input arrays come from the output of MEDCouplingUMesh::computeNeighborsOfCells method.
- * This method start from id 0 that will be contained in output DataArrayInt. It searches then all neighbors of id0 regarding arrIn[arrIndxIn[0]:arrIndxIn[0+1]].
+ * This method start from id 0 that will be contained in output DataArrayInt. It searches then all neighbors of id0 looking at arrIn[arrIndxIn[0]:arrIndxIn[0+1]].
  * Then it is repeated recursively until either all ids are fetched or no more ids are reachable step by step.
  * A negative value in \b arrIn means that it is ignored.
  * This method is useful to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.

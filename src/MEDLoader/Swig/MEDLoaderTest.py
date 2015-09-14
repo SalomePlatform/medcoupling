@@ -752,4 +752,5 @@ class MEDLoaderTest(unittest.TestCase):
         pass
     pass
 
-unittest.main()
+if __name__ == "__main__":
+  unittest.main()

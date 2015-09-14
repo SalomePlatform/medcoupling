@@ -3581,7 +3581,8 @@ void MEDFileUMesh::optimizeFamilies()
     _groups.erase(*it);
 }
 
-void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
+void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
+                                           DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
 {
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
