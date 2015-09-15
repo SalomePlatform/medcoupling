@@ -2490,17 +2490,16 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
 
-
   // For each initial connex part of the sub-mesh (or said differently for each independent crack):
   int seed = 0, nIter = 0;
   int nIterMax = nCells2+1; // Safety net for the loop
-  bool * hitCells = new bool[nCells2];
-  for (int iii=0; iii<nCells2; iii++) hitCells[iii] = false;
+  std::vector<bool> hitCells(nCells2);
+  hitCells.assign(nCells2, false);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum = DataArrayInt::New();
   cellsToModifyConn0_torenum->alloc(0,1);
   while (nIter < nIterMax)
     {
-      if (std::find(hitCells, hitCells+nCells2, false) == hitCells+nCells2)
+      if (std::find(hitCells.begin(), hitCells.end(), false) == hitCells.end())
         break;
       // Connex zone without the crack (to compute the next seed really)
       int dnu;
@@ -2516,7 +2515,6 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
       seed = comple->getIJ(0,0);
       nIter++;
     }
-  delete[] hitCells;
   if (nIter >= nIterMax)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate(): internal error - too many iterations.");
 
