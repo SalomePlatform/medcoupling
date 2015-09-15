@@ -34,6 +34,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(COMMON_SOURCES
+  MEDCommandsHistoryManager_i.cxx
   MEDFactoryClient.cxx
   MEDDataManager_i.cxx
   MEDCalculator_i.cxx
