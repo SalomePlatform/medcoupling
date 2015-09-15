@@ -3581,7 +3581,26 @@ void MEDFileUMesh::optimizeFamilies()
     _groups.erase(*it);
 }
 
-void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
+/**
+ * \b this must be filled at level 0 and -1, typically the -1 level being (part of) the descending connectivity
+ * of the top level. This method build a "crack" in \b this along the group of level -1 named grpNameM1.
+ * The "crack" is built according to the following method:
+ *  - all nodes along the crack which are not lying on an internal extremity of the crack are duplicated (so the
+ * coordinates array is extended). The
+ *  - new (-1)-level cells are built lying on those new nodes. So the edges/faces along the crack are duplicated.
+ *  After this operation a top-level cell bordering the crack will loose some neighbor (typically the cell which is  on the
+ *  other side of the crack is no more a neighbor)
+ *   - finally, the connectivity of (part of) the top level-cells bordering the crack is also modified so that some cells
+ *  bordering the crack use the newly computed nodes.
+ *
+ *  \param[in] grpNameM1 name of the (-1)-level group defining the crack
+ *  \param[out] nodesDuplicated ids of the initial nodes which have been duplicated (and whose copy is put at the end of
+ *  the coord array)
+ *  \param[out] cellsModified ids of the cells whose connectivity has been modified (to use the newly created nodes)
+ *  \param[out] cellsNotModified ids of the rest of cells bordering the crack whose connectivity remains unchanged.
+ */
+void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
+                                           DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
 {
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
