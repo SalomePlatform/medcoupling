@@ -21,6 +21,7 @@
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
 
 #include "MEDCouplingUMesh.hxx"
@@ -66,10 +67,10 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
   med_axis_type axistype;
   for(int i=0;i<n && !found;i++)
     {
-      int naxis=MEDmeshnAxis(fid,i+1);
+      int naxis(MEDmeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
-      MEDmeshInfo(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit);
+      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));
       dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
       std::string cur=MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa));
       ms.push_back(cur);
@@ -94,7 +95,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
     case MED_STRUCTURED_MESH:
       {
         med_grid_type gt;
-        MEDmeshGridTypeRd(fid,mname.c_str(),&gt);
+        MEDFILESAFECALLERRD0(MEDmeshGridTypeRd,(fid,mname.c_str(),&gt));
         switch(gt)
         {
           case MED_CARTESIAN_GRID:
@@ -113,7 +114,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
   }
   med_int numdt,numit;
   med_float dtt;
-  MEDmeshComputationStepInfo(fid,mname.c_str(),1,&numdt,&numit,&dtt);
+  MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,mname.c_str(),1,&numdt,&numit,&dtt));
   dt=numdt; it=numit;
   return ret;
 }
@@ -126,7 +127,7 @@ double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const std::string& mName, i
   std::vector< std::pair<int,int> > p(nstep);
   for(int i=0;i<nstep;i++)
     {
-      MEDmeshComputationStepInfo(fid,mName.c_str(),i+1,&numdt,&numit,&dtt);
+      MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,mName.c_str(),i+1,&numdt,&numit,&dtt));
       p[i]=std::make_pair<int,int>(numdt,numit);
       found=(numdt==dt) && (numit==numit);
     }
@@ -147,7 +148,7 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   med_int spaceDim;
   med_sorting_type stype;
   med_axis_type axistype;
-  int naxis=MEDmeshnAxis(fid,mId);
+  int naxis(MEDmeshnAxis(fid,mId));
   INTERP_KERNEL::AutoPtr<char> nameTmp=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
@@ -155,7 +156,7 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
   if(MEDmeshInfo(fid,mId,nameTmp,&spaceDim,&Mdim,&type_maillage,_description.getPointer(),_dt_unit.getPointer(),
       &stype,&nstep,&axistype,axisname,axisunit)!=0)
     throw INTERP_KERNEL::Exception("A problem has been detected when trying to get info on mesh !");
-  MEDmeshUniversalNameRd(fid,nameTmp,_univ_name.getPointer());
+  MEDmeshUniversalNameRd(fid,nameTmp,_univ_name.getPointer());// do not protect  MEDFILESAFECALLERRD0 call : Thanks to fra.med.
   switch(type_maillage)
   {
     case MED_UNSTRUCTURED_MESH:
@@ -164,7 +165,7 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
     case MED_STRUCTURED_MESH:
       {
         med_grid_type gt;
-        MEDmeshGridTypeRd(fid,mName.c_str(),&gt);
+        MEDFILESAFECALLERRD0(MEDmeshGridTypeRd,(fid,mName.c_str(),&gt));
         switch(gt)
         {
           case MED_CARTESIAN_GRID:
@@ -335,12 +336,12 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
   _coords=DataArrayDouble::New();
   _coords->alloc(nCoords,spaceDim);
   double *coordsPtr(_coords->getPointer());
-  MEDmeshNodeCoordinateRd(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,coordsPtr);
+  MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateRd,(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,coordsPtr));
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       _fam_coords=DataArrayInt::New();
       _fam_coords->alloc(nCoords,1);
-      MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_fam_coords->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshEntityFamilyNumberRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_fam_coords->getPointer()));
     }
   else
     _fam_coords=0;
@@ -348,7 +349,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
     {
       _num_coords=DataArrayInt::New();
       _num_coords->alloc(nCoords,1);
-      MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_num_coords->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshEntityNumberRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_num_coords->getPointer()));
     }
   else
     _num_coords=0;
@@ -356,7 +357,7 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
     {
       _name_coords=DataArrayAsciiChar::New();
       _name_coords->alloc(nCoords+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-      MEDmeshEntityNameRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_name_coords->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshEntityNameRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,_name_coords->getPointer()));
       _name_coords->reAlloc(nCoords);//not a bug to avoid the memory corruption due to last \0 at the end
     }
   else
@@ -377,7 +378,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
                            MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
                            /*start*/nMin+1,/*stride*/1,/*count*/1,/*blocksize*/nbNodesToLoad,
                            /*lastblocksize=useless because count=1*/0,&filter);
-  MEDmeshNodeCoordinateAdvancedRd(fid,mName.c_str(),dt,it,&filter,_coords->getPointer());
+  MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateAdvancedRd,(fid,mName.c_str(),dt,it,&filter,_coords->getPointer()));
   _part_coords=PartDefinition::New(nMin,nMax,1);
   MEDfilterClose(&filter);
   MEDfilterBlockOfEntityCr(fid,nCoords,1,1,MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,
@@ -386,7 +387,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
     {
       _fam_coords=DataArrayInt::New();
       _fam_coords->alloc(nbNodesToLoad,1);
-      MEDmeshEntityAttributeAdvancedRd(fid,mName.c_str(),MED_FAMILY_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_fam_coords->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_FAMILY_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_fam_coords->getPointer()));
     }
   else
     _fam_coords=0;
@@ -394,7 +395,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
     {
       _num_coords=DataArrayInt::New();
       _num_coords->alloc(nbNodesToLoad,1);
-      MEDmeshEntityAttributeAdvancedRd(fid,mName.c_str(),MED_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_num_coords->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_NUMBER,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_num_coords->getPointer()));
     }
   else
     _num_coords=0;
@@ -402,7 +403,7 @@ void MEDFileUMeshL2::loadPartCoords(med_idt fid, int mId, const std::vector<std:
     {
       _name_coords=DataArrayAsciiChar::New();
       _name_coords->alloc(nbNodesToLoad+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-      MEDmeshEntityAttributeAdvancedRd(fid,mName.c_str(),MED_NAME,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_name_coords->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshEntityAttributeAdvancedRd,(fid,mName.c_str(),MED_NAME,dt,it,MED_NODE,MED_NO_GEOTYPE,&filter2,_name_coords->getPointer()));
       _name_coords->reAlloc(nbNodesToLoad);//not a bug to avoid the memory corruption due to last \0 at the end
     }
   else
@@ -448,11 +449,11 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, 
 {
   if(!coords)
     return ;
-  MEDmeshNodeCoordinateWr(fid,mname.c_str(),dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getConstPointer());
+  MEDFILESAFECALLERWR0(MEDmeshNodeCoordinateWr,(fid,mname.c_str(),dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getConstPointer()));
   if(famCoords)
-    MEDmeshEntityFamilyNumberWr(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityFamilyNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer()));
   if(numCoords)
-    MEDmeshEntityNumberWr(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityNumberWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer()));
   if(nameCoords)
     {
       if(nameCoords->getNumberOfComponents()!=MED_SNAME_SIZE)
@@ -461,7 +462,7 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const std::string& mname, int dt, 
           oss << " ! The array has " << nameCoords->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDmeshEntityNameWr(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDmeshEntityNameWr,(fid,mname.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,nameCoords->getNumberOfTuples(),nameCoords->getConstPointer()));
     }
 }
 
@@ -507,7 +508,7 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
   _order=it;
   //
   med_grid_type gridtype;
-  MEDmeshGridTypeRd(fid,mName.c_str(),&gridtype);
+  MEDFILESAFECALLERRD0(MEDmeshGridTypeRd,(fid,mName.c_str(),&gridtype));
   if(gridtype!=MED_CARTESIAN_GRID)
     throw INTERP_KERNEL::Exception("Invalid structured mesh ! Expected cartesian mesh type !");
   _cmesh=MEDCouplingCMesh::New();
@@ -515,11 +516,11 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
     {
       med_data_type dataTypeReq=GetDataTypeCorrespondingToSpaceId(i);
       med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-      int nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,dataTypeReq,MED_NO_CMODE,&chgt,&trsf);
+      int nbOfElt(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,dataTypeReq,MED_NO_CMODE,&chgt,&trsf));
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::New();
       da->alloc(nbOfElt,1);
       da->setInfoOnComponent(0,infosOnComp[i]);
-      MEDmeshGridIndexCoordinateRd(fid,mName.c_str(),dt,it,i+1,da->getPointer());
+      MEDFILESAFECALLERRD0(MEDmeshGridIndexCoordinateRd,(fid,mName.c_str(),dt,it,i+1,da->getPointer()));
       _cmesh->setCoordsAt(i,da);
     }
 }
@@ -558,14 +559,14 @@ void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, in
   //
   _clmesh=MEDCouplingCurveLinearMesh::New();
   INTERP_KERNEL::AutoPtr<int> stGrid=new int[Mdim];
-  MEDmeshGridStructRd(fid,mName.c_str(),dt,it,stGrid);
+  MEDFILESAFECALLERRD0(MEDmeshGridStructRd,(fid,mName.c_str(),dt,it,stGrid));
   _clmesh->setNodeGridStructure(stGrid,((int *)stGrid)+Mdim);
   med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-  int nbNodes=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf);
+  int nbNodes(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf));
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::New();
   da->alloc(nbNodes,infosOnComp.size());
   da->setInfoOnComponents(infosOnComp);
-  MEDmeshNodeCoordinateRd(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,da->getPointer());
+  MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateRd,(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,da->getPointer()));
   _clmesh->setCoords(da);
 }
 

@@ -26,6 +26,7 @@
 #include "CurveIntersectorP1P0.txx"
 #include "CurveIntersectorP0P1.txx"
 #include "CurveIntersectorP1P1.txx"
+#include "CurveIntersectorP1P1PL.txx"
 #include "BBTree.txx"
 
 #include <time.h>
@@ -90,39 +91,78 @@ namespace INTERP_KERNEL
     CurveIntersector<MyMeshType,MatrixType>* intersector=0;
     if(method=="P0P0")
       {
-        intersector = new CurveIntersectorP0P0<MyMeshType,MatrixType>
-          (myMeshT, myMeshS,
-           InterpolationOptions::getPrecision(),
-           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-           InterpolationOptions::getMedianPlane(),
-           InterpolationOptions::getPrintLevel());
+        switch (InterpolationOptions::getIntersectionType())
+          {
+            case Triangulation:
+              {
+                intersector = new CurveIntersectorP0P0<MyMeshType,MatrixType>(myMeshT, myMeshS,
+                                                                              InterpolationOptions::getPrecision(),
+                                                                              InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                                                              InterpolationOptions::getMedianPlane(),
+                                                                              InterpolationOptions::getPrintLevel());
+                break;
+              }
+            default:
+              throw INTERP_KERNEL::Exception("For P0P0 in 1D or 2D curve only Triangulation supported for the moment !");
+          }
       }
     else if(method=="P0P1")
       {
-        intersector = new CurveIntersectorP0P1<MyMeshType,MatrixType>
-          (myMeshT, myMeshS,
-           InterpolationOptions::getPrecision(),
-           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-           InterpolationOptions::getMedianPlane(),
-           InterpolationOptions::getPrintLevel());
+        switch (InterpolationOptions::getIntersectionType())
+          {
+            case Triangulation:
+              {
+                intersector = new CurveIntersectorP0P1<MyMeshType,MatrixType>(myMeshT, myMeshS,
+                                                                              InterpolationOptions::getPrecision(),
+                                                                              InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                                                              InterpolationOptions::getMedianPlane(),
+                                                                              InterpolationOptions::getPrintLevel());
+                break;
+              }
+            default:
+              throw INTERP_KERNEL::Exception("For P0P1 in 1D or 2D curve only Triangulation supported for the moment !");
+          }
       }
     else if(method=="P1P0")
       {
-        intersector = new CurveIntersectorP1P0<MyMeshType,MatrixType>
-          (myMeshT, myMeshS,
-           InterpolationOptions::getPrecision(),
-           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-           InterpolationOptions::getMedianPlane(),
-           InterpolationOptions::getPrintLevel());
+        switch (InterpolationOptions::getIntersectionType())
+          {
+            case Triangulation:
+              {
+                intersector = new CurveIntersectorP1P0<MyMeshType,MatrixType>(myMeshT, myMeshS,
+                                                                              InterpolationOptions::getPrecision(),
+                                                                              InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+                                                                              InterpolationOptions::getMedianPlane(),
+                                                                              InterpolationOptions::getPrintLevel());
+                break;
+              }
+            default:
+              throw INTERP_KERNEL::Exception("For P1P0 in 1D or 2D curve only Triangulation supported for the moment !");
+          }
       }
     else if(method=="P1P1")
       {
-        intersector = new CurveIntersectorP1P1<MyMeshType,MatrixType>
-          (myMeshT, myMeshS,
-           InterpolationOptions::getPrecision(),
-           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-           InterpolationOptions::getMedianPlane(),
-           InterpolationOptions::getPrintLevel());
+        switch (InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector = new CurveIntersectorP1P1<MyMeshType,MatrixType>
+              (myMeshT, myMeshS,
+               InterpolationOptions::getPrecision(),
+               InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+               InterpolationOptions::getMedianPlane(),
+               InterpolationOptions::getPrintLevel());
+            break;
+          case PointLocator:
+            intersector = new CurveIntersectorP1P1PL<MyMeshType,MatrixType>
+              (myMeshT, myMeshS,
+               InterpolationOptions::getPrecision(),
+               InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+               InterpolationOptions::getMedianPlane(),
+               InterpolationOptions::getPrintLevel());
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("For P1P1 in 1D or 2D curve only Triangulation and PointLocator supported !");
+          }
       }
     else
       throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");

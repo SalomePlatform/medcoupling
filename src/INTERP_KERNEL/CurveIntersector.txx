@@ -103,12 +103,9 @@ namespace INTERP_KERNEL
       }
   }
 
-  //================================================================================
   /*!
     Computes the bouding box of a given element. iP in numPol mode.
   */
-  //================================================================================
-
   template<class MyMeshType, class MyMatrix>
   void CurveIntersector<MyMeshType,MyMatrix>::getElemBB (double*           bb,
                                                          const MyMeshType& mesh,
@@ -138,15 +135,26 @@ namespace INTERP_KERNEL
           }
       }
   }
+  
+  /*!
+   * \param [in] startOfSeg - input coming from intersectSegments or intersectSegmentsInternal
+   * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. Assume that endOfSeg>startOfSeg.
+   * \param [in] pt - position of point that the method computes the bary coords for.
+   */
+  template<class MyMeshType, class MyMatrix>
+  bool CurveIntersector<MyMeshType,MyMatrix>::ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos)
+  {
+    double deno(endOfSeg-startOfSeg);
+    startPos=(endOfSeg-pt)/deno;
+    endPos=1.-startPos;
+    return startPos>=0. && endPos>=0.;
+  }
 
-  //================================================================================
   /*! Readjusts a set of bounding boxes so that they are extended
     in all dimensions for avoiding missing interesting intersections
 
     \param bbox vector containing the bounding boxes
   */
-  //================================================================================
-
   template<class MyMeshType, class MyMatrix>
   void CurveIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes (std::vector<double>& bbox,
                                                                    double adjustmentEpsAbs)
@@ -162,7 +170,6 @@ namespace INTERP_KERNEL
       }
   }
 
-  //================================================================================
   /*!
    * @param icellT id in target mesh in format of MyMeshType.
    * @param coordsT output val that stores coordinates of the target cell
@@ -170,14 +177,10 @@ namespace INTERP_KERNEL
    * @return true if segment is quadratic and in this case coordinates of medium node
    * are placed in the middle of coordsT
    */
-  //================================================================================
-
   template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates
-  (ConnType icellT, std::vector<double>& coordsT)
+  bool CurveIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const
   {
-    int nbNodesT = _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] -
-      _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
+    int nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
     coordsT.resize(SPACEDIM*nbNodesT);
     for (ConnType iT=0; iT<nbNodesT; iT++)
       {
@@ -195,22 +198,27 @@ namespace INTERP_KERNEL
       }
     return false;
   }
+  
+  template<class MyMeshType, class MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const
+  {
+    int nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
+    if(nodeIdInCellT>=0 && nodeIdInCellT<nbNodesT)
+      return OTT<ConnType,numPol>::coo2C(_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+nodeIdInCellT)]);
+    else
+      throw Exception("getNodeIdOfTargetCellAt : error in nodeId in cell");
+  }
 
-  //================================================================================
   /*!
    * @param icellS id in source mesh in format of MyMeshType.
    * @param coordsS output val that stores coordinates of the source cell automatically resized to the right length.
    * @return true if segment is quadratic and in this case coordinates of medium node
    * are placed in the middle of coordsS
    */
-  //================================================================================
-
   template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates
-  (ConnType icellS, std::vector<double>& coordsS)
+  bool CurveIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const
   {
-    int nbNodesS = _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] -
-      _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
+    int nbNodesS = _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
     coordsS.resize(SPACEDIM*nbNodesS);
     for(ConnType iS=0; iS<nbNodesS; iS++)
       {
@@ -229,15 +237,22 @@ namespace INTERP_KERNEL
     return false;
   }
 
-  //================================================================================
+  template<class MyMeshType, class MyMatrix>
+  typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfSourceCellAt(ConnType icellS, ConnType nodeIdInCellS) const
+  {
+    int nbNodesS(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]);
+    if(nodeIdInCellS>=0 && nodeIdInCellS<nbNodesS)
+      return OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+nodeIdInCellS)]);
+    else
+      throw Exception("getNodeIdOfSourceCellAt : error in nodeId in cell");
+  }
+
   /*!
    * \brief Return dual segments of given segment
    *  \param icell - given segment in C mode
    *  \param mesh - mesh
    *  \param segments - dual segments
    */
-  //================================================================================
-
   template<class MyMeshType, class MyMatrix>
   void CurveIntersector<MyMeshType,MyMatrix>::getDualSegments(ConnType                   icell,
                                                               const MyMeshType&          mesh,
@@ -300,18 +315,12 @@ namespace INTERP_KERNEL
       }
   }
 
-  //================================================================================
-  /*!
-   * \brief Return length of intersection of two segments
-   */
-  //================================================================================
-
   template<class MyMeshType, class MyMatrix>
-  double CurveIntersector<MyMeshType,MyMatrix>::intersectSegments(double *Coords_T,
-                                                                  double *Coords_S)
+  bool CurveIntersector<MyMeshType,MyMatrix>::projectionThis(const double *coordsT, const double *coordsS,
+                                                             double& xs0, double& xs1, double& xt0, double& xt1) const
   {
-    double xt0 = Coords_T[0], xt1 = Coords_T[1];
-    double xs0 = Coords_S[0], xs1 = Coords_S[1];
+    xt0 = coordsT[0]; xt1 = coordsT[1];
+    xs0 = coordsS[0]; xs1 = coordsS[1];
     if ( SPACEDIM == 2 )
       {
         // Pass 2D->1D
@@ -320,15 +329,16 @@ namespace INTERP_KERNEL
 
         // check if two segments overlap in 2D within tolerance
 
-        double* t0 = Coords_T;
-        double* t1 = Coords_T + 2;
+        const double* t0 = coordsT;
+        const double* t1 = coordsT + 2;
         double t01[2] = { t1[X]-t0[X], t1[Y]-t0[Y] }; // tgt segment direction
         double tSize = sqrt( t01[X]*t01[X] + t01[Y]*t01[Y] ); // tgt segment size
-        if ( tSize < _precision ) return 0; // degenerated segment
+        if ( tSize < _precision )
+          return false; // degenerated segment
         t01[X] /= tSize, t01[Y] /= tSize; // normalize t01
 
-        double* s0 = Coords_S;
-        double* s1 = Coords_S + 2;
+        const double* s0 = coordsS;
+        const double* s1 = coordsS + 2;
         double t0s0[2] = { s0[X]-t0[X], s0[Y]-t0[Y] };
         double t0s1[2] = { s1[X]-t0[X], s1[Y]-t0[Y] };
         double nt01_x_t0s0 = t0s0[X] * t01[Y] - t0s0[Y] * t01[X]; // t0s0 dot norm of t01
@@ -338,7 +348,7 @@ namespace INTERP_KERNEL
         bool s0_out_of_tol = ( dist_ts0 > _tolerance );
         bool s1_out_of_tol = ( dist_ts1 > _tolerance );
         if ( nt01_x_t0s0 * nt01_x_t0s1 > 0 && ( s0_out_of_tol || s1_out_of_tol ))
-          return 0; // tgt segment is to far from src segment
+          return false; // tgt segment is to far from src segment
 
         double S0[2] = { s0[X], s0[Y] };
         double S1[2] = { s1[X], s1[Y] };
@@ -361,7 +371,8 @@ namespace INTERP_KERNEL
 
         double s01[2] = { S1[X]-S0[X], S1[Y]-S0[Y] }; // src segment direction
         double sSize = sqrt( s01[X]*s01[X] + s01[Y]*s01[Y] ); // src segment size
-        if ( sSize < _precision ) return 0; // degenerated segment
+        if ( sSize < _precision )
+          return false; // degenerated segment
         s01[X] /= sSize, s01[Y] /= sSize; // normalize s01
 
         // make t01 and s01 codirected
@@ -375,7 +386,7 @@ namespace INTERP_KERNEL
         };
         double medianSize = sqrt( medianDir[X]*medianDir[X] + medianDir[Y]*medianDir[Y] );
         if ( medianSize < std::numeric_limits<double>::min() )
-          return 0; // strange...
+          return false; // strange...
         medianDir[X] /= medianSize, medianDir[Y] /= medianSize;
 
         xt0 = t0[X] * medianDir[X] + t0[Y] * medianDir[Y];
@@ -384,13 +395,34 @@ namespace INTERP_KERNEL
         xs1 = S1[X] * medianDir[X] + S1[Y] * medianDir[Y];
 
       } // if ( SPACEDIM == 2 )
-
+    return true;
+  }
+  
+  /*!
+   * \brief Return length of intersection of two segments
+   */
+  template<class MyMeshType, class MyMatrix>
+  double CurveIntersector<MyMeshType,MyMatrix>::intersectSegmentsInternal(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const
+  {
+    if(!projectionThis(coordsT,coordsS,xs0,xs1,xt0,xt1))
+      return 0.;
+    
     if ( xt0 > xt1 ) std::swap( xt0, xt1 );
     if ( xs0 > xs1 ) std::swap( xs0, xs1 );
 
     double x0 = std::max( xt0, xs0 );
     double x1 = std::min( xt1, xs1 );
     return ( x0 < x1 ) ? ( x1 - x0 ) : 0.;
+  }
+  
+  /*!
+   * \brief Return length of intersection of two segments
+   */
+  template<class MyMeshType, class MyMatrix>
+  double CurveIntersector<MyMeshType,MyMatrix>::intersectSegments(const double *coordsT, const double *coordsS) const
+  {
+    double xs0,xs1,xt0,xt1;
+    return intersectSegmentsInternal(coordsT,coordsS,xs0,xs1,xt0,xt1);
   }
 
 }

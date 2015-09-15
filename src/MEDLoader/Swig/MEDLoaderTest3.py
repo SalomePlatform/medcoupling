@@ -21,6 +21,7 @@
 
 from MEDLoader import *
 import unittest
+import platform
 from math import pi,e,sqrt
 from MEDLoaderDataForTest import MEDLoaderDataForTest
 
@@ -333,6 +334,8 @@ class MEDLoaderTest(unittest.TestCase):
         da.setInfoOnComponent(0,"ZZ [um]")
         m1.setCoordsAt(2,da)
         m.setMesh(m1)
+        self.assertTrue(m[0].isEqual(m1,1e-12))
+        self.assertTrue(isinstance(m[0],MEDCouplingCMesh))
         m.setName("myFirstCartMesh")
         m.setDescription("mmmmpppppppp")
         m.setTimeValue(2.3)
@@ -1328,6 +1331,48 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         mm.write(fname,2)       
         pass
+
+    def testDuplicateNodesOnM1Group3(self):
+        """ Test duplicateNodesOnM1Group() with *non-connex* cracks """
+        fname = "Pyfile73.med"
+        m = MEDCouplingCMesh.New()
+        m.setCoordsAt(0, DataArrayDouble([0.0,1.1,2.3,3.6,5.0]))
+        m.setCoordsAt(1, DataArrayDouble([0.,1.,2.]))
+        m = m.buildUnstructured(); m.setName("simple")
+        m2 = m.buildDescendingConnectivity()[0]
+        m2.setName(m.getName())
+            
+        # A crack in two non connected parts of the mesh:
+        grpSeg = DataArrayInt([2,11]) ; grpSeg.setName("Grp") 
+
+        mm = MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,m)
+        mm.setMeshAtLevel(-1,m2)
+        mm.setGroupsAtLevel(-1,[grpSeg])
+        nodes, cellsMod, cellsNotMod = mm.duplicateNodesOnM1Group("Grp")
+        self.assertEqual([5,9],nodes.getValues());
+        self.assertEqual([0,3],cellsMod.getValues());
+        self.assertEqual([4,7],cellsNotMod.getValues());
+        self.assertEqual(17,mm.getNumberOfNodes())
+        self.assertEqual([2,11],mm.getGroupArr(-1,"Grp").getValues())
+        self.assertEqual([22,23],mm.getGroupArr(-1,"Grp_dup").getValues())
+        ref0=[4, 1, 0, 15, 6, 4, 4, 3, 8, 16]
+        ref1=[4, 6, 5, 10, 11, 4, 9, 8, 13, 14]
+        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[0,3]].getNodalConnectivity().getValues())
+        self.assertEqual(ref1,mm.getMeshAtLevel(0)[[4,7]].getNodalConnectivity().getValues())
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),2,1e-12);# Grp_dup and Grp are not equal considering connectivity only
+        mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith(mm.getGroup(-1,"Grp"),12,1e-12)# Grp_dup and Grp are equal considering connectivity and coordinates
+
+        refValues=DataArrayDouble([1.1, 1.2, 1.3, 1.4, 1.1, 1.2, 1.3, 1.4])
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues) ; delta.abs()
+        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        #
+        mm.getCoords()[-len(nodes):]+=[0.,-0.3]
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
+        refValues2=refValues[:] ; refValues2[0] = 0.935; refValues2[3] = 1.19
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
+        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        mm.write(fname,2)   
 
     def testBasicConstructors(self):
         fname="Pyfile18.med"
@@ -3368,7 +3413,6 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([-1,-1,-1,-1,-1,-2,-2,-2,-2,-2,-2,0,-1,-3,-3,-3])))
         pass
 
-    #@unittest.skipUnless(False,"requires Vadim's green light")
     def testWRQPolyg1(self):
         fname="Pyfile72.med"
         m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4) ; m.allocateCells()
@@ -4361,7 +4405,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     pass
     def testMEDFileJoint1(self):
-        fileName="Pyfile88.med"
+        fileName="Pyfile92.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
         coo.setInfoOnComponents(["x [cm]","y [cm]","z [cm]"])
         mm=MEDFileUMesh()
@@ -4400,7 +4444,7 @@ class MEDLoaderTest(unittest.TestCase):
         
     pass
     def testMEDFileJoint2(self):
-        fileNameWr="Pyfile89.med"
+        fileNameWr="Pyfile93.med"
         coo=DataArrayDouble([(0,0,0),(1,0,0),(2,0,0)])
         coo.setInfoOnComponents(["x [cm]","y [cm]","z [cm]"])
         mm=MEDFileUMesh()
@@ -4485,6 +4529,73 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual( 1, one_joint.getDomainNumber())
         self.assertEqual( "joint_1", one_joint.getJointName())
         pass
+
+    @unittest.skipUnless('linux'==platform.system().lower(),"stderr redirection not ported on Windows ?")
+    def testMEDFileSafeCall0(self):
+        """ EDF11242 : check status of MED file calls to detect problems immediately. Sorry this test generates awful messages !"""
+        fname="Pyfile94.med"
+        errfname="Pyfile94.err"
+        class StdOutRedirect(object):
+            def __init__(self,fileName):
+                import os,sys
+                sys.stderr.flush()
+                self.stdoutOld=os.dup(2)
+                self.fdOfSinkFile=os.open(fileName,os.O_CREAT | os.O_RDWR)
+                fd2=os.dup2(self.fdOfSinkFile,2)
+                self.origPyVal=sys.stderr
+                class FlushFile(object):
+                    def __init__(self,f):
+                        self.f=f
+                    def write(self,st):
+                        self.f.write(st)
+                        self.f.flush()
+                    def flush(self):
+                        return self.f.flush()
+                    def isatty(self):
+                        return self.f.isatty()
+                sys.stderr=FlushFile(os.fdopen(self.fdOfSinkFile,"w"))
+            def __del__(self):
+                import os,sys
+                sys.stderr=self.origPyVal
+                #os.fsync(self.fdOfSinkFile)
+                os.fsync(2)
+                os.dup2(self.stdoutOld,2)
+                os.close(self.stdoutOld)
+        import os
+        # first clean file if needed
+        if os.path.exists(fname):
+            os.remove(fname)
+            pass
+        # second : build a file from scratch
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble(11) ; arr.iota()
+        m.setCoords(arr,arr)
+        mm=MEDFileCMesh()
+        mm.setMesh(m)
+        mm.setName("mesh")
+        mm.write(fname,2)
+        # third : change permissions to remove write access on created file
+        os.chmod(fname,0444)
+        # four : try to append data on file -> check that it raises Exception
+        f=MEDCouplingFieldDouble(ON_CELLS)
+        f.setName("field")
+        f.setMesh(m)
+        f.setArray(DataArrayDouble(100))
+        f.getArray()[:]=100.
+        f.checkCoherency()
+        f1ts=MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        # redirect stderr
+        tmp=StdOutRedirect(errfname)
+        self.assertRaises(InterpKernelException,f1ts.write,fname,0) # it should raise !
+        del tmp
+        #
+        if os.path.exists(errfname):
+            os.remove(errfname)
+        #
+        pass
+
     pass
 
-unittest.main()
+if __name__ == "__main__":
+  unittest.main()

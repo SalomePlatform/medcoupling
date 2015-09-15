@@ -47,6 +47,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;

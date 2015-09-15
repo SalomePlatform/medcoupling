@@ -534,12 +534,12 @@ bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other
 }
 
 /*!
- * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
+ * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatibleForMulDiv method except that
  * number of components between \a this and 'other' can be different here (for operator*).
  */
 bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) const
 {
-  if(!MEDCouplingField::areStrictlyCompatible(other))
+  if(!MEDCouplingField::areStrictlyCompatibleForMulDiv(other))
     return false;
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
@@ -550,12 +550,12 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
 }
 
 /*!
- * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
+ * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatibleForMulDiv method except that
  * number of components between \a this and 'other' can be different here (for operator/).
  */
 bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) const
 {
-  if(!MEDCouplingField::areStrictlyCompatible(other))
+  if(!MEDCouplingField::areStrictlyCompatibleForMulDiv(other))
     return false;
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
@@ -1131,14 +1131,14 @@ double MEDCouplingFieldDouble::normMax() const
 }
 
 /*!
- * Computes sums of values of each component of \a this field wighted with
+ * Computes the weighted average of values of each component of \a this field, the weights being the
  * values returned by buildMeasureField().  
  *  \param [out] res - pointer to an array of result sum values, of size at least \a
  *         this->getNumberOfComponents(), that is to be allocated by the caller.
- *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weighs computed by
- *         buildMeasureField() that makes this method slower. If a user is sure that all
- *         cells of the underlying mesh have correct orientation, he can put \a isWAbs ==
- *         \c false that speeds up this method.
+ *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weights computed by
+ *         buildMeasureField(). It makes this method slower. If you are sure that all
+ *         the cells of the underlying mesh have a correct orientation (no negative volume), you can put \a isWAbs ==
+ *         \c false to speed up the method.
  *  \throw If the mesh is not set.
  *  \throw If the data array is not set.
  */
@@ -1150,18 +1150,19 @@ void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) c
   double deno=w->getArray()->accumulate(0);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=getArray()->deepCpy();
   arr->multiplyEqual(w->getArray());
-  std::transform(arr->begin(),arr->end(),arr->getPointer(),std::bind2nd(std::multiplies<double>(),1./deno));
   arr->accumulate(res);
+  int nCompo = getArray()->getNumberOfComponents();
+  std::transform(res,res+nCompo,res,std::bind2nd(std::multiplies<double>(),1./deno));
 }
 
 /*!
- * Computes a sum of values of a given component of \a this field wighted with
+ * Computes the weighted average of values of a given component of \a this field, the weights being the
  * values returned by buildMeasureField().
  *  \param [in] compId - an index of the component of interest.
- *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weighs computed by
- *         buildMeasureField() that makes this method slower. If a user is sure that all
- *         cells of the underlying mesh have correct orientation, he can put \a isWAbs ==
- *         \c false that speeds up this method.
+ *  \param [in] isWAbs - if \c true (default), \c abs() is applied to the weights computed by
+ *         buildMeasureField(). It makes this method slower. If you are sure that all
+ *         the cells of the underlying mesh have a correct orientation (no negative volume), you can put \a isWAbs ==
+ *         \c false to speed up the method.
  *  \throw If the mesh is not set.
  *  \throw If the data array is not set.
  *  \throw If \a compId is not valid.
@@ -2771,7 +2772,7 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc)
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1->areCompatibleForMerge(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MergeFields on them ! Check support mesh, field nature, and spatial and time discretisation.");
   const MEDCouplingMesh *m1(f1->getMesh()),*m2(f2->getMesh());
   if(!f1->_time_discr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no time discr of f1 !");
@@ -2822,7 +2823,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : presence of NULL instance in first place of input vector !");
   for(;it!=a.end();it++)
     if(!ref->areCompatibleForMerge(*it))
-      throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
+      throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MergeFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   for(int i=0;i<(int)a.size();i++)
     {
       if(a[i]->getMesh())
@@ -2863,7 +2864,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1->areCompatibleForMeld(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MeldFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MeldFields on them ! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->meld(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -2889,11 +2890,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingField
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::DotFields : input field is NULL !");
-  if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply DotFields on them !");
+  if(!f1->areStrictlyCompatibleForMulDiv(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply DotFields on them!  Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->dot(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret;
 }
@@ -2920,11 +2921,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCoup
 {
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::CrossProductFields : input field is NULL !");
-  if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply CrossProductFields on them !");
+  if(!f1->areStrictlyCompatibleForMulDiv(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply CrossProductFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->crossProduct(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -2951,7 +2952,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingField
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MaxFields : input field is NULL !");
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MaxFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MaxFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->max(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -2981,7 +2982,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingField
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MinFields : input field is NULL !");
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MinFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MinFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->min(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -3027,7 +3028,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingField
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::AddFields : input field is NULL !");
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply AddFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply AddFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->add(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -3048,7 +3049,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingField
 const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
 {
   if(!areStrictlyCompatible(&other))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply += on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply += on them! Check support mesh, field nature, and spatial and time discretisation.");
   _time_discr->addEqual(other._time_discr);
   return *this;
 }
@@ -3071,7 +3072,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplin
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::SubstractFields : input field is NULL !");
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply SubstractFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply SubstractFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->substract(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -3092,7 +3093,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplin
 const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
 {
   if(!areStrictlyCompatible(&other))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply -= on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply -= on them! Check support mesh, field nature, and spatial and time discretisation.");
   _time_discr->substractEqual(other._time_discr);
   return *this;
 }
@@ -3110,11 +3111,11 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCoupli
  * The two fields must have same number of tuples and same underlying mesh.
  *  \param [in] f1 - a factor field.
  *  \param [in] f2 - another factor field.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble.
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, with no nature set.
  *          The caller is to delete this result field using decrRef() as it is no more
  *          needed.
  *  \throw If either \a f1 or \a f2 is NULL.
- *  \throw If the fields are not compatible for production (areCompatibleForMul()),
+ *  \throw If the fields are not compatible for multiplication (areCompatibleForMul()),
  *         i.e. they differ not only in values and possibly number of components.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
@@ -3122,10 +3123,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCoupling
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MultiplyFields : input field is NULL !");
   if(!f1->areCompatibleForMul(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MultiplyFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MultiplyFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3143,19 +3144,20 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCoupling
  *
  * The two fields must have same number of tuples and same underlying mesh.
  *  \param [in] other - an field to multiply to \a this one.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble.
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, with no nature set.
  *          The caller is to delete this result field using decrRef() as it is no more
  *          needed.
  *  \throw If \a other is NULL.
- *  \throw If the fields are not strictly compatible for production
+ *  \throw If the fields are not strictly compatible for multiplication
  *         (areCompatibleForMul()),
  *         i.e. they differ not only in values and possibly in number of components.
  */
 const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForMul(&other))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply *= on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply *= on them! Check support mesh, and spatial and time discretisation.");
   _time_discr->multiplyEqual(other._time_discr);
+  _nature = NoNature;
   return *this;
 }
 
@@ -3170,7 +3172,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCoupli
  *
  *  \param [in] f1 - a numerator field.
  *  \param [in] f2 - a denominator field.
- *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble.
+ *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble, with no nature set.
  *          The caller is to delete this result field using decrRef() as it is no more
  *          needed.
  *  \throw If either \a f1 or \a f2 is NULL.
@@ -3182,10 +3184,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFi
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::DivideFields : input field is NULL !");
   if(!f1->areCompatibleForDiv(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply DivideFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply DivideFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3210,8 +3212,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFi
 const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForDiv(&other))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply /= on them! Check support mesh, and spatial and time discretisation.");
   _time_discr->divideEqual(other._time_discr);
+  _nature = NoNature;
   return *this;
 }
 
@@ -3225,10 +3228,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingField
   if(!f1)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::PowFields : input field is NULL !");
   if(!f1->areCompatibleForMul(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply PowFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply PowFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->pow(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3246,8 +3249,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::operator^(const MEDCouplingField
 const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator^=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForDiv(&other))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply ^= on them!  Check support mesh, and spatial and time discretisation.");
   _time_discr->powEqual(other._time_discr);
+  _nature = NoNature;
   return *this;
 }
 

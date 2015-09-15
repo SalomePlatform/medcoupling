@@ -110,12 +110,19 @@ namespace ParaMEDMEM
     copy<set<int>::const_iterator,int*> (_proc_ids.begin(), _proc_ids.end(), ranks);
     for (int i=0; i< (int)_proc_ids.size();i++)
       if (ranks[i]>size_world-1)
-        throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
+        {
+          delete[] ranks;
+          _comm_interface.groupFree(&group_world);  // MPI_Group is a C structure and won't get de-allocated automatically?
+          throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
+        }
       
     _comm_interface.groupIncl(group_world, _proc_ids.size(), ranks, &_group);
   
     _comm_interface.commCreate(_world_comm, _group, &_comm);
+
+    // clean-up
     delete[] ranks;
+    _comm_interface.groupFree(&group_world);  // MPI_Group is a C structure and won't get de-allocated automatically?
   }
 
   /*! Creates a processor group that is based on the processors between \a pstart and \a pend.
@@ -138,7 +145,10 @@ namespace ParaMEDMEM
     _comm_interface.commGroup(_world_comm, &group_world);
 
     if (pend>size_world-1 || pend <pstart || pstart<0)
-      throw INTERP_KERNEL::Exception("invalid argument in MPIProcessorGroup constructor (comm,pfirst,plast)");
+      {
+        _comm_interface.groupFree(&group_world);
+        throw INTERP_KERNEL::Exception("invalid argument in MPIProcessorGroup constructor (comm,pfirst,plast)");
+      }
     int nprocs=pend-pstart+1;
     int* ranks=new int[nprocs];
     for (int i=pstart; i<=pend;i++)
@@ -149,7 +159,10 @@ namespace ParaMEDMEM
     _comm_interface.groupIncl(group_world, nprocs, ranks, &_group);
   
     _comm_interface.commCreate(_world_comm, _group, &_comm);
+
+    // clean-up
     delete[] ranks;
+    _comm_interface.groupFree(&group_world);  // MPI_Group is a C structured and won't get de-allocated automatically?
   }
   /*!
     @}

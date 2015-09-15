@@ -786,6 +786,74 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(coarse.isEqual(trgField.getArray(),1e-12))
         pass
     
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
+    def test1DPointLocator1(self):
+        """This test focuses on PointLocator for P1P1 in 1D and 2DCurve."""
+        from numpy import array
+        from scipy.sparse import diags,csr_matrix,identity
+        ## basic case 1D
+        arrS=DataArrayInt.Range(0,11,1).convertToDblArr()
+        arrT=DataArrayDouble([0.1,1.7,5.5,9.6])
+        mS=MEDCouplingCMesh() ; mS.setCoords(arrS)
+        mT=MEDCouplingCMesh() ; mT.setCoords(arrT)
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        self.assertEqual(rem.prepare(mS.buildUnstructured(),mT.buildUnstructured(),"P1P1"),1)
+        m=rem.getCrudeCSRMatrix()
+        rowSum=m.sum(axis=1)
+        m=diags(array(1/rowSum.transpose()),[0])*m
+        # expected matrix
+        row=array([0,0,1,1,2,2,3,3])
+        col=array([0,1,1,2,5,6,9,10])
+        data=array([0.9,0.1,0.3,0.7,0.5,0.5,0.4,0.6])
+        mExp0=csr_matrix((data,(row,col)),shape=(4,11))
+        # compute diff and check
+        diff=abs(m-mExp0)
+        self.assertAlmostEqual(diff.max(),0.,14)
+        ## full specific case 1D where target=source
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        self.assertEqual(rem.prepare(mS.buildUnstructured(),mS.buildUnstructured(),"P1P1"),1)
+        m=rem.getCrudeCSRMatrix()
+        rowSum=m.sum(axis=1)
+        m=diags(array(1/rowSum.transpose()),[0])*m
+        # expected matrix
+        mExp1=identity(11)
+        diff=abs(m-mExp1)
+        self.assertAlmostEqual(diff.max(),0.,14)
+        ## case where some points in target are not in source
+        arrT=DataArrayDouble([-0.2,0.1,1.7,5.5,10.3])
+        mT=MEDCouplingCMesh() ; mT.setCoords(arrT)
+        mT=mT.buildUnstructured()
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        self.assertEqual(rem.prepare(mS.buildUnstructured(),mT,"P1P1"),1)
+        m=rem.getCrudeCSRMatrix()
+        row=array([1,1,2,2,3,3])
+        col=array([0,1,1,2,5,6])
+        data=array([0.9,0.1,0.3,0.7,0.5,0.5])
+        mExp2=csr_matrix((data,(row,col)),shape=(5,11))
+        diff=abs(m-mExp2)
+        self.assertAlmostEqual(diff.max(),0.,14)
+        ## basic case 2D Curve
+        arrS=DataArrayInt.Range(0,11,1).convertToDblArr()
+        arrT=DataArrayDouble([0.1,1.7,5.5,9.6])
+        mS=MEDCouplingCMesh() ; mS.setCoords(arrS)
+        mT=MEDCouplingCMesh() ; mT.setCoords(arrT)
+        mS=mS.buildUnstructured() ; mS.changeSpaceDimension(2)
+        mT=mT.buildUnstructured() ; mT.changeSpaceDimension(2)
+        mS.rotate([-1.,-1.],1.2)
+        mT.rotate([-1.,-1.],1.2)
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        self.assertEqual(rem.prepare(mS,mT,"P1P1"),1)
+        m=rem.getCrudeCSRMatrix()
+        rowSum=m.sum(axis=1)
+        m=diags(array(1/rowSum.transpose()),[0])*m
+        diff=abs(m-mExp0)
+        self.assertAlmostEqual(diff.max(),0.,14)
+        pass
+    
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]

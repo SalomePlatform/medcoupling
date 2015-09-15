@@ -58,7 +58,7 @@ using namespace ParaMEDMEM;
 void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
 {
   CommInterface comm_interface;
-  MPIProcessorGroup* group= new MPIProcessorGroup(comm_interface);
+  MPIProcessorGroup* group = new MPIProcessorGroup(comm_interface);;
   int size;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   CPPUNIT_ASSERT_EQUAL(size,group->size());
@@ -67,9 +67,9 @@ void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
   MPI_Comm_size(*communicator, &size2);
   CPPUNIT_ASSERT_EQUAL(size,size2);
   delete group;
-  
+
   set <int> procs;
-  
+
   procs.insert(0);
   procs.insert(1);
   if (size==1)
@@ -80,8 +80,7 @@ void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
       CPPUNIT_ASSERT_EQUAL (group->size(),2);
       delete group;
     }
-  
-  
+
   //throws because plast<pfirst
   CPPUNIT_ASSERT_THROW(group=new MPIProcessorGroup(comm_interface,1,0),INTERP_KERNEL::Exception);
   //throws because plast is beyond size-1
@@ -92,7 +91,7 @@ void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
       CPPUNIT_ASSERT_EQUAL(group->size(),size-1);
       delete group;
     }
-  
+
 }
  
 void ParaMEDMEMTest::testMPIProcessorGroup_boolean()

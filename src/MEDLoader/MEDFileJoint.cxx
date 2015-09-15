@@ -21,6 +21,7 @@
 #include "MEDFileUtilities.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDFileSafeCaller.txx"
 
 #include "CellModel.hxx"
 #include "InterpKernelAutoPtr.hxx"
@@ -131,21 +132,21 @@ void MEDFileJointCorrespondence::writeLL(med_idt fid, const std::string& localMe
 {
   if ( _is_nodal )
     {
-      MEDsubdomainCorrespondenceWr(fid, localMeshName.c_str(), jointName.c_str(),
-                                   order, iteration,
-                                   MED_NODE, MED_NONE,
-                                   MED_NODE, MED_NONE,
-                                   _correspondence->getNbOfElems()/2,
-                                   _correspondence->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDsubdomainCorrespondenceWr,(fid, localMeshName.c_str(), jointName.c_str(),
+                                                         order, iteration,
+                                                         MED_NODE, MED_NONE,
+                                                         MED_NODE, MED_NONE,
+                                                         _correspondence->getNbOfElems()/2,
+                                                         _correspondence->getConstPointer()));
     }
   else
     {
-      MEDsubdomainCorrespondenceWr(fid, localMeshName.c_str(), jointName.c_str(),
-                                   order, iteration,
-                                   MED_CELL, typmai3[ _loc_geo_type ],
-                                   MED_CELL, typmai3[ _rem_geo_type ],
-                                   _correspondence->getNbOfElems()/2,
-                                   _correspondence->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDsubdomainCorrespondenceWr,(fid, localMeshName.c_str(), jointName.c_str(),
+                                                         order, iteration,
+                                                         MED_CELL, typmai3[ _loc_geo_type ],
+                                                         MED_CELL, typmai3[ _rem_geo_type ],
+                                                         _correspondence->getNbOfElems()/2,
+                                                         _correspondence->getConstPointer()));
     }
 }
 
@@ -263,7 +264,7 @@ MEDFileJointOneStep* MEDFileJointOneStep::New(med_idt fid, const std::string& mN
 MEDFileJointOneStep::MEDFileJointOneStep(med_idt fid, const std::string& mName, const std::string& jointName, int num)
 {
   int order, iteration, ncorrespondence;
-  MEDsubdomainComputingStepInfo(fid, mName.c_str(), jointName.c_str(), num, &order, &iteration, &ncorrespondence);
+  MEDFILESAFECALLERRD0(MEDsubdomainComputingStepInfo,(fid, mName.c_str(), jointName.c_str(), num, &order, &iteration, &ncorrespondence));
   MEDFileJointOneStep::setOrder(order);
   MEDFileJointOneStep::setIteration(iteration);
   for ( int cur_it = 1; cur_it <= ncorrespondence; ++cur_it )
@@ -271,14 +272,14 @@ MEDFileJointOneStep::MEDFileJointOneStep(med_idt fid, const std::string& mName, 
       int num_entity;
       med_entity_type loc_ent_type, rem_ent_type;
       med_geometry_type loc_geo_type, rem_geo_type;
-      MEDsubdomainCorrespondenceSizeInfo(fid, mName.c_str(), jointName.c_str(), order, iteration, cur_it,
-                                         &loc_ent_type, &loc_geo_type, &rem_ent_type, &rem_geo_type, &num_entity);
+      MEDFILESAFECALLERRD0(MEDsubdomainCorrespondenceSizeInfo,(fid, mName.c_str(), jointName.c_str(), order, iteration, cur_it,
+                                                               &loc_ent_type, &loc_geo_type, &rem_ent_type, &rem_geo_type, &num_entity));
       if ( num_entity > 0 )
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> correspondence=DataArrayInt::New();
           correspondence->alloc(num_entity*2, 1);
-          MEDsubdomainCorrespondenceRd(fid, mName.c_str(), jointName.c_str(), order, iteration, loc_ent_type,
-                                       loc_geo_type, rem_ent_type, rem_geo_type, correspondence->getPointer());
+          MEDFILESAFECALLERRD0(MEDsubdomainCorrespondenceRd,(fid, mName.c_str(), jointName.c_str(), order, iteration, loc_ent_type,
+                                                             loc_geo_type, rem_ent_type, rem_geo_type, correspondence->getPointer()));
           MEDFileJointCorrespondence *cor=MEDFileJointCorrespondence::New();
           cor->setIsNodal( loc_ent_type == MED_NODE );
           cor->setLocalGeometryType ( convertGeometryType( loc_geo_type ));
@@ -480,8 +481,8 @@ MEDFileJoint::MEDFileJoint(med_idt fid, const std::string& mName, int curJoint)
   INTERP_KERNEL::AutoPtr<char> desc_name=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
   INTERP_KERNEL::AutoPtr<char> rem_mesh_name=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   int domain_number=0, nstep=0, nocstpncorrespondence=0;
-  MEDsubdomainJointInfo(fid,mName.c_str(), curJoint, joint_name, desc_name, &domain_number,rem_mesh_name,
-                        &nstep, &nocstpncorrespondence);
+  MEDFILESAFECALLERRD0(MEDsubdomainJointInfo,(fid,mName.c_str(), curJoint, joint_name, desc_name, &domain_number,rem_mesh_name,
+                                              &nstep, &nocstpncorrespondence));
   setLocalMeshName(mName);
   setRemoteMeshName(MEDLoaderBase::buildStringFromFortran(rem_mesh_name,MED_NAME_SIZE));
   setDescription(MEDLoaderBase::buildStringFromFortran(desc_name,MED_COMMENT_SIZE));
@@ -517,7 +518,7 @@ void MEDFileJoint::write(med_idt fid) const
 {
   // if ( _loc_mesh_name.empty() )
   //   throw INTERP_KERNEL::Exception("MEDFileJoint::write : name of a local mesh not defined!");
-  MEDsubdomainJointCr(fid,getLocalMeshName().c_str(),getJointName().c_str(),getDescription().c_str(),getDomainNumber(),getRemoteMeshName().c_str());
+  MEDFILESAFECALLERWR0(MEDsubdomainJointCr,(fid,getLocalMeshName().c_str(),getJointName().c_str(),getDescription().c_str(),getDomainNumber(),getRemoteMeshName().c_str()));
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++) {
     (*it)->writeLL(fid, getLocalMeshName(),getJointName());
   }

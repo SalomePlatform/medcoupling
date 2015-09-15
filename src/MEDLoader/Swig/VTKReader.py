@@ -124,6 +124,11 @@ class VTURawReader:
     VTKTypes_2_MC=[-1,0,-1,1,33,3,-1,5,-1,4,14,-1,NORM_HEXA8,16,15,-1,22,-1,-1,-1,-1,2,6,8,20,30,25,23,9,27,-1,-1,-1,-1,7,-1,-1,-1,-1,-1,-1,-1,31]
 
     class NormalException(Exception):
+        def __init__(self,lineNb):
+            Exception.__init__(self)
+            self._line_nb=lineNb
+        def getLineNb(self):
+            return self._line_nb
         pass
     
     class NotRawVTUException(Exception):
@@ -190,10 +195,13 @@ class VTURawReader:
         import xml.sax
         class VTU_SAX_Reader(xml.sax.ContentHandler):
             def __init__(self):
+                self._loc=None
                 self._data_array={0:self.DAPoints,1:self.DACells,2:self.DAPointData,3:self.DACellData}
                 self._node_fields=[]
                 self._cell_fields=[]
                 pass
+            def setLocator(self,loc):
+                self._loc=loc
             def DAPoints(self,attrs):
                 self._space_dim=int(attrs["NumberOfComponents"])
                 self._type_coords=str(attrs["type"]).lower()
@@ -246,7 +254,7 @@ class VTURawReader:
                     return
                 if name=="AppendedData":
                     if str(attrs["encoding"])=="raw":
-                        raise VTURawReader.NormalException("")
+                        raise VTURawReader.NormalException(self._loc.getLineNumber())
                     else:
                         raise VTURawReader.NotRawVTUException("The file is not a raw VTU ! Change reader !")
                 pass
@@ -254,13 +262,15 @@ class VTURawReader:
         rd=VTU_SAX_Reader()
         parser=xml.sax.make_parser()
         parser.setContentHandler(rd)
+        locator=xml.sax.expatreader.ExpatLocator(parser)
+        rd.setLocator(locator)
         isOK=False
         try:
             parser.parse(fd)
         except self.NormalException as e:
             isOK=True
             fd.seek(0)
-            for i in xrange(31): fd.readline()
+            for i in xrange(e.getLineNb()): fd.readline()
             ref=fd.tell()+5
             pass
         if not isOK:

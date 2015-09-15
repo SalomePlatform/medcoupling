@@ -23,6 +23,10 @@
 #define MEDCOUPLING_EXPORT
 #define MEDLOADER_EXPORT
 
+#ifdef WITH_DOCSTRINGS
+%include "MEDLoader_doc.i"
+#endif
+
 %include "MEDCouplingCommon.i"
 
 %{
@@ -84,6 +88,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::deepCpy;
 %newobject ParaMEDMEM::MEDFileMesh::shallowCpy;
 %newobject ParaMEDMEM::MEDFileMesh::getGenMeshAtLevel;
+%newobject ParaMEDMEM::MEDFileMesh::__getitem__;
 %newobject ParaMEDMEM::MEDFileMesh::getGroupArr;
 %newobject ParaMEDMEM::MEDFileMesh::getGroupsArr;
 %newobject ParaMEDMEM::MEDFileMesh::getFamilyArr;
@@ -114,7 +119,6 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::extractNumberFieldOnGeoType;
 %newobject ParaMEDMEM::MEDFileUMesh::zipCoords;
 %newobject ParaMEDMEM::MEDFileUMesh::buildExtrudedMesh;
-%newobject ParaMEDMEM::MEDFileUMesh::__getitem__;
 %newobject ParaMEDMEM::MEDFileUMesh::linearToQuadratic;
 %newobject ParaMEDMEM::MEDFileUMesh::quadraticToLinear;
 %newobject ParaMEDMEM::MEDFileCMesh::New;
@@ -823,6 +827,11 @@ namespace ParaMEDMEM
            return self->simpleRepr();
          }
 
+         MEDCouplingMesh *__getitem__(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+         {
+           return self->getGenMeshAtLevel(meshDimRelToMaxExt,false);
+         }
+
          PyObject *getTime() throw(INTERP_KERNEL::Exception)
          {
            int tmp1,tmp2;
@@ -1143,11 +1152,6 @@ namespace ParaMEDMEM
                }
              self->unserialize(a0,a1,a2,a3,a4);
            }
-         }
-
-         MEDCouplingUMesh *__getitem__(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
-         {
-           return self->getMeshAtLevel(meshDimRelToMaxExt,false);
          }
 
          void __setitem__(int meshDimRelToMax, MEDCouplingPointSet *mesh) throw(INTERP_KERNEL::Exception)

@@ -23,6 +23,7 @@
 #include "MEDFileFieldOverView.hxx"
 #include "MEDFileField.hxx"
 #include "MEDLoader.hxx"
+#include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
 
 #include "MEDCouplingUMesh.hxx"
@@ -2482,7 +2483,7 @@ int MEDFileMesh::getNumberOfJoints()
  */
 MEDFileJoints * MEDFileMesh::getJoints() const
 {
-  return (MEDFileJoints*) & (*_joints);
+  return const_cast<MEDFileJoints*>(& (*_joints));
 }
 
 void MEDFileMesh::setJoints( MEDFileJoints* joints )
@@ -2572,8 +2573,8 @@ void MEDFileUMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDmeshCr(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
-  MEDmeshUniversalNameWr(fid,maa);
+  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
+  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileUMeshL2::WriteCoords(fid,meshName,_iteration,_order,_time,_coords,_fam_coords,_num_coords,_name_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
@@ -3580,7 +3581,26 @@ void MEDFileUMesh::optimizeFamilies()
     _groups.erase(*it);
 }
 
-void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
+/**
+ * \b this must be filled at level 0 and -1, typically the -1 level being (part of) the descending connectivity
+ * of the top level. This method build a "crack" in \b this along the group of level -1 named grpNameM1.
+ * The "crack" is built according to the following method:
+ *  - all nodes along the crack which are not lying on an internal extremity of the crack are duplicated (so the
+ * coordinates array is extended). The
+ *  - new (-1)-level cells are built lying on those new nodes. So the edges/faces along the crack are duplicated.
+ *  After this operation a top-level cell bordering the crack will loose some neighbor (typically the cell which is  on the
+ *  other side of the crack is no more a neighbor)
+ *   - finally, the connectivity of (part of) the top level-cells bordering the crack is also modified so that some cells
+ *  bordering the crack use the newly computed nodes.
+ *
+ *  \param[in] grpNameM1 name of the (-1)-level group defining the crack
+ *  \param[out] nodesDuplicated ids of the initial nodes which have been duplicated (and whose copy is put at the end of
+ *  the coord array)
+ *  \param[out] cellsModified ids of the cells whose connectivity has been modified (to use the newly created nodes)
+ *  \param[out] cellsNotModified ids of the rest of cells bordering the crack whose connectivity remains unchanged.
+ */
+void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
+                                           DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
 {
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
@@ -5674,7 +5694,7 @@ void MEDFileStructuredMesh::LoadStrMeshDAFromFile(med_idt fid, int meshDim, int 
         {
           famCells=DataArrayInt::New();
           famCells->alloc(nbOfElt,1);
-          MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,famCells->getPointer());
+          MEDFILESAFECALLERRD0(MEDmeshEntityFamilyNumberRd,(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,famCells->getPointer()));
         }
     }
   nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_NUMBER,MED_NODAL,&chgt,&trsf);
@@ -5684,7 +5704,7 @@ void MEDFileStructuredMesh::LoadStrMeshDAFromFile(med_idt fid, int meshDim, int 
         {
           numCells=DataArrayInt::New();
           numCells->alloc(nbOfElt,1);
-          MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,numCells->getPointer());
+          MEDFILESAFECALLERRD0(MEDmeshEntityNumberRd,(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,numCells->getPointer()));
         }
     }
   nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,MED_NAME,MED_NODAL,&chgt,&trsf);
@@ -5694,7 +5714,7 @@ void MEDFileStructuredMesh::LoadStrMeshDAFromFile(med_idt fid, int meshDim, int 
         {
           namesCells=DataArrayAsciiChar::New();
           namesCells->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-          MEDmeshEntityNameRd(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,namesCells->getPointer());
+          MEDFILESAFECALLERRD0(MEDmeshEntityNameRd,(fid,mName.c_str(),dt,it,MED_CELL,geoTypeReq,namesCells->getPointer()));
           namesCells->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
         }
     }
@@ -5711,7 +5731,7 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
   setTimeUnit(strm->getTimeUnit());
   MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups,mrs);
   med_bool chgt=MED_FALSE,trsf=MED_FALSE;
-  int nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
+  int nbOfElt(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf));
   if(nbOfElt>0)
     {
       if(!mrs || mrs->isNodeFamilyFieldReading())
@@ -5723,7 +5743,7 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
           _fam_nodes->alloc(nbNodes,1);//yes nbNodes and not nbOfElt see next line.
           if(nbNodes>nbOfElt)//yes it appends some times... It explains surely the mdump implementation. Bug revealed by PARAVIS EDF #2475 on structured.med file where only 12 first nodes are !=0 so nbOfElt=12 and nbOfNodes=378...
             _fam_nodes->fillWithZero();
-          MEDmeshEntityFamilyNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer());
+          MEDFILESAFECALLERRD0(MEDmeshEntityFamilyNumberRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer()));
         }
     }
   nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_NUMBER,MED_NODAL,&chgt,&trsf);
@@ -5733,7 +5753,7 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
         {
           _num_nodes=DataArrayInt::New();
           _num_nodes->alloc(nbOfElt,1);
-          MEDmeshEntityNumberRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_num_nodes->getPointer());
+          MEDFILESAFECALLERRD0(MEDmeshEntityNumberRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_num_nodes->getPointer()));
         }
     }
   nbOfElt=MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,MED_NAME,MED_NODAL,&chgt,&trsf);
@@ -5743,7 +5763,7 @@ void MEDFileStructuredMesh::loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt 
         {
           _names_nodes=DataArrayAsciiChar::New();
           _names_nodes->alloc(nbOfElt+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
-          MEDmeshEntityNameRd(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_names_nodes->getPointer());
+          MEDFILESAFECALLERRD0(MEDmeshEntityNameRd,(fid,mName.c_str(),dt,it,MED_NODE,MED_NONE,_names_nodes->getPointer()));
           _names_nodes->reAlloc(nbOfElt);//not a bug to avoid the memory corruption due to last \0 at the end
         }
     }
@@ -5759,17 +5779,17 @@ void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& ma
   med_geometry_type geoTypeReq(GetGeoTypeFromMeshDim(meshDim)),geoTypeReq2(GetGeoTypeFromMeshDim(meshDim-1));
   //
   if((const DataArrayInt *)_fam_cells)
-    MEDmeshEntityFamilyNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_fam_cells->getNumberOfTuples(),_fam_cells->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityFamilyNumberWr,(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_fam_cells->getNumberOfTuples(),_fam_cells->getConstPointer()));
   if((const DataArrayInt *)_fam_faces)
-    MEDmeshEntityFamilyNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_fam_faces->getNumberOfTuples(),_fam_faces->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityFamilyNumberWr,(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_fam_faces->getNumberOfTuples(),_fam_faces->getConstPointer()));
   if((const DataArrayInt *)_fam_nodes)
-    MEDmeshEntityFamilyNumberWr(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_fam_nodes->getNumberOfTuples(),_fam_nodes->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityFamilyNumberWr,(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_fam_nodes->getNumberOfTuples(),_fam_nodes->getConstPointer()));
   if((const DataArrayInt *)_num_cells)
-    MEDmeshEntityNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_num_cells->getNumberOfTuples(),_num_cells->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityNumberWr,(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_num_cells->getNumberOfTuples(),_num_cells->getConstPointer()));
   if((const DataArrayInt *)_num_faces)
-    MEDmeshEntityNumberWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_num_faces->getNumberOfTuples(),_num_faces->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityNumberWr,(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_num_faces->getNumberOfTuples(),_num_faces->getConstPointer()));
   if((const DataArrayInt *)_num_nodes)
-    MEDmeshEntityNumberWr(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_num_nodes->getNumberOfTuples(),_num_nodes->getConstPointer());
+    MEDFILESAFECALLERWR0(MEDmeshEntityNumberWr,(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_num_nodes->getNumberOfTuples(),_num_nodes->getConstPointer()));
   if((const DataArrayAsciiChar *)_names_cells)
     {
       if(_names_cells->getNumberOfComponents()!=MED_SNAME_SIZE)
@@ -5778,7 +5798,7 @@ void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& ma
           oss << " ! The array has " << _names_cells->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDmeshEntityNameWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_names_cells->getNumberOfTuples(),_names_cells->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDmeshEntityNameWr,(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq,_names_cells->getNumberOfTuples(),_names_cells->getConstPointer()));
     }
   if((const DataArrayAsciiChar *)_names_faces)
     {
@@ -5788,7 +5808,7 @@ void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& ma
           oss << " ! The array has " << _names_faces->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDmeshEntityNameWr(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_names_faces->getNumberOfTuples(),_names_faces->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDmeshEntityNameWr,(fid,maa.c_str(),_iteration,_order,MED_CELL,geoTypeReq2,_names_faces->getNumberOfTuples(),_names_faces->getConstPointer()));
     }
   if((const DataArrayAsciiChar *)_names_nodes)
     {
@@ -5798,7 +5818,7 @@ void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& ma
           oss << " ! The array has " << _names_cells->getNumberOfComponents() << " components !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      MEDmeshEntityNameWr(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_names_nodes->getNumberOfTuples(),_names_nodes->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDmeshEntityNameWr,(fid,maa.c_str(),_iteration,_order,MED_NODE,MED_NONE,_names_nodes->getNumberOfTuples(),_names_nodes->getConstPointer()));
     }
   //
   MEDFileUMeshL2::WriteFamiliesAndGrps(fid,maa.c_str(),_families,_groups,_too_long_str);
@@ -6066,13 +6086,13 @@ void MEDFileCMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDmeshCr(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
-  MEDmeshUniversalNameWr(fid,maa);
-  MEDmeshGridTypeWr(fid,maa,MED_CARTESIAN_GRID);
+  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
+  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CARTESIAN_GRID));
   for(int i=0;i<spaceDim;i++)
     {
       const DataArrayDouble *da=_cmesh->getCoordsAt(i);
-      MEDmeshGridIndexCoordinateWr(fid,maa,_iteration,_order,_time,i+1,da->getNumberOfTuples(),da->getConstPointer());
+      MEDFILESAFECALLERWR0(MEDmeshGridIndexCoordinateWr,(fid,maa,_iteration,_order,_time,i+1,da->getNumberOfTuples(),da->getConstPointer()));
     }
   //
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
@@ -6276,13 +6296,13 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDmeshCr(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
-  MEDmeshUniversalNameWr(fid,maa);
-  MEDmeshGridTypeWr(fid,maa,MED_CURVILINEAR_GRID);
+  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
+  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CURVILINEAR_GRID));
   std::vector<int> nodeGridSt=_clmesh->getNodeGridStructure();
-  MEDmeshGridStructWr(fid,maa,_iteration,_order,_time,&nodeGridSt[0]);
+  MEDFILESAFECALLERWR0(MEDmeshGridStructWr,(fid,maa,_iteration,_order,_time,&nodeGridSt[0]));
 
-  MEDmeshNodeCoordinateWr(fid,maa,_iteration,_order,_time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->begin());
+  MEDFILESAFECALLERWR0(MEDmeshNodeCoordinateWr,(fid,maa,_iteration,_order,_time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->begin()));
   //
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileStructuredMesh::writeStructuredLL(fid,meshName);
@@ -6413,8 +6433,8 @@ void MEDFileMeshMultiTS::setJoints( MEDFileJoints* joints )
 
 void MEDFileMeshMultiTS::write(med_idt fid) const
 {
-  MEDFileJoints * joints = getJoints();
-  bool jointsWritten = false;
+  MEDFileJoints *joints(getJoints());
+  bool jointsWritten(false);
 
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
     {
@@ -6427,7 +6447,7 @@ void MEDFileMeshMultiTS::write(med_idt fid) const
       (*it)->write(fid);
     }
 
-  ((MEDFileMeshMultiTS*)this)->setJoints( joints ); // restore joints
+  (const_cast<MEDFileMeshMultiTS*>(this))->setJoints( joints ); // restore joints
 }
 
 void MEDFileMeshMultiTS::write(const std::string& fileName, int mode) const

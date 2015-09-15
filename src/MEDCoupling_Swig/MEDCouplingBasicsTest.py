@@ -670,6 +670,62 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,field.setNature,Integral);
         self.assertRaises(InterpKernelException,field.setNature,IntegralGlobConstraint);
         pass
+      
+    def testNatureOperations(self):
+        """ Check nature constraints on field operations """
+        m = MEDCouplingCMesh()
+        m.setCoordsAt(0, DataArrayDouble([1.0,2.0,3.0]))
+        m.setCoordsAt(1, DataArrayDouble([1.0,2.0,3.0]))
+        m = m.buildUnstructured()
+        f1, f2 = MEDCouplingFieldDouble.New(ON_CELLS, NO_TIME), MEDCouplingFieldDouble.New(ON_CELLS, NO_TIME)
+        f1.setNature(Integral)
+        f2.setNature(ConservativeVolumic)
+        self.assertEqual(Integral, f1.getNature())
+        self.assertEqual(ConservativeVolumic, f2.getNature())
+        
+        da = DataArrayDouble([1.0,2.0,3.0,4.0])
+        f1.setMesh(m); f2.setMesh(m)
+        f1.setArray(da); f2.setArray(da.deepCpy())
+        # All this should complain about nature:
+        self.assertRaises(InterpKernelException, f1.__add__, f2)
+        self.assertRaises(InterpKernelException, f1.__iadd__, f2)
+        self.assertRaises(InterpKernelException, f1.__sub__, f2)
+        self.assertRaises(InterpKernelException, f1.__isub__, f2)
+        self.assertRaises(InterpKernelException, f1.__radd__, f2)
+        self.assertRaises(InterpKernelException, f1.__rsub__, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.AddFields, f1, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.SubstractFields, f1, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.MaxFields, f1, f2)
+        self.assertRaises(InterpKernelException, MEDCouplingFieldDouble.MinFields, f1, f2)
+        # Not those ones:
+        f3 = MEDCouplingFieldDouble.MultiplyFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1*f2
+        self.assertEqual(NoNature, f3.getNature())
+        f1Tmp = f1.deepCpy(); f1Tmp.setMesh(m);  f1Tmp *= f2
+        self.assertEqual(NoNature, f1Tmp.getNature())
+        f3 = MEDCouplingFieldDouble.DivideFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1/f2
+        self.assertEqual(NoNature, f3.getNature())
+        f1Tmp = f1.deepCpy();  f1Tmp.setMesh(m);  f1Tmp /= f2
+        self.assertEqual(NoNature, f1Tmp.getNature())
+#         f3 = MEDCouplingFieldDouble.PowFields(f1,f2)
+#         self.assertEqual(NoNature, f3.getNature())
+        f3 = f1**f2
+        self.assertEqual(NoNature, f3.getNature())
+        f1Tmp = f1.deepCpy();  f1Tmp.setMesh(m);  f1Tmp **= f2
+        self.assertEqual(NoNature, f1Tmp.getNature())
+        f3 = MEDCouplingFieldDouble.DotFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1.dot(f2)
+        self.assertEqual(NoNature, f3.getNature())
+        
+        da = DataArrayDouble.Meld([da, da, da])
+        f1.setArray(da); f2.setArray(da.deepCpy())
+        f3 = MEDCouplingFieldDouble.CrossProductFields(f1,f2)
+        self.assertEqual(NoNature, f3.getNature())
+        f3 = f1.crossProduct(f2)
 
     def testBuildSubMeshData(self):
         targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1()
@@ -11784,7 +11840,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f.setArray(arr)
         f.checkCoherency()
         self.assertTrue(DataArrayDouble(f.integral(False)).isEqual(DataArrayDouble([-211.66121638700983,-4863.9563007698835]),1e-11))
-        self.assertTrue(DataArrayDouble(f.getWeightedAverageValue()).isEqual(DataArrayDouble([45.496085813113595,1045.496085813114]),1e-11))
+        self.assertTrue(DataArrayDouble(f.getWeightedAverageValue()).isEqual(DataArrayDouble([45.4960858131136,1045.496085813114]),1e-11))
         self.assertTrue(DataArrayDouble(f.normL1()).isEqual(DataArrayDouble([45.49608581311362,1045.496085813114]),1e-11))
         self.assertTrue(DataArrayDouble(f.normL2()).isEqual(DataArrayDouble([58.16846378340898,1046.1241521947334]),1e-11))
         pass
@@ -16692,6 +16748,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
         indRef=[0, 3, 7, 10, 14, 19, 23, 26, 30, 33]
         self.assertEqual(indRef,list(graph.getIndexArray().getValues()));
+        pass
+
+    def testSwig2MEDCouplingCurveLinearReprQuick1(self):
+        """Non regression test. Error in m.__str__ when m is a MEDCouplingCurveLinear with spaceDim != meshDim."""
+        arr=DataArrayDouble(12) ; arr.iota() ; arr.rearrange(2)
+        m=MEDCouplingCurveLinearMesh()
+        m.setCoords(arr)
+        m.setNodeGridStructure([3,2])
+        m.checkCoherency()
+        self.assertEqual(m.getMeshDimension(),2)
+        self.assertEqual(m.getSpaceDimension(),2)
+        self.assertTrue(not "mismatch" in m.__str__())
+        self.assertTrue(not "mismatch" in m.__repr__())
+        #
+        arr=DataArrayDouble(18) ; arr.iota() ; arr.rearrange(3)
+        m.setCoords(arr)
+        self.assertEqual(m.getMeshDimension(),2)
+        self.assertEqual(m.getSpaceDimension(),3)
+        self.assertTrue(not "mismatch" in m.__str__())
+        self.assertTrue(not "mismatch" in m.__repr__())# bug was here !
         pass
 
     pass
