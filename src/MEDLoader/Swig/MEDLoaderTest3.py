@@ -1232,7 +1232,7 @@ class MEDLoaderTest(unittest.TestCase):
             pass
         pass
 
-    def testDuplicateNodesOnM1Group1(self):
+    def testBuildInnerBoundaryAlongM1Group1(self):
         fname="Pyfile44.med"
         m=MEDCouplingCMesh.New()
         m.setCoordsAt(0,DataArrayDouble.New([0.,1.1,2.3,3.6,5.,6.5]))
@@ -1257,7 +1257,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(ref0,mm.getMeshAtLevel(0)[[12,13,14]].getNodalConnectivity().getValues())
         self.assertEqual(ref1,mm.getMeshAtLevel(0)[[7,8,9]].getNodalConnectivity().getValues())
         #
-        nodes,cells,cells2=mm.duplicateNodesOnM1Group("Grp")
+        nodes,cells,cells2=mm.buildInnerBoundaryAlongM1Group("Grp")
         self.assertEqual([15,16,17],nodes.getValues());
         self.assertEqual([7,8,9],cells.getValues());
         self.assertEqual([12,13,14],cells2.getValues());
@@ -1282,7 +1282,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write(fname,2)
         pass
 
-    def testDuplicateNodesOnM1Group2(self):
+    def testBuildInnerBoundaryAlongM1Group2(self):
         fname="Pyfile45.med"
         m=MEDCouplingCMesh.New()
         m.setCoordsAt(0,DataArrayDouble.New([0.,1.1,2.3,3.6,5.,6.5]))
@@ -1307,7 +1307,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(ref0,mm.getMeshAtLevel(0)[[12,13,14]].getNodalConnectivity().getValues())
         self.assertEqual(ref1,mm.getMeshAtLevel(0)[[7,8]].getNodalConnectivity().getValues())
         #
-        nodes,cells,cells2=mm.duplicateNodesOnM1Group("Grp")
+        nodes,cells,cells2=mm.buildInnerBoundaryAlongM1Group("Grp")
         self.assertEqual([15],nodes.getValues());
         self.assertEqual([7,8],cells.getValues());
         self.assertEqual([12,13],cells2.getValues());
@@ -1332,8 +1332,8 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write(fname,2)       
         pass
 
-    def testDuplicateNodesOnM1Group3(self):
-        """ Test duplicateNodesOnM1Group() with *non-connex* cracks """
+    def testBuildInnerBoundaryAlongM1Group3(self):
+        """ Test buildInnerBoundaryAlongM1Group() with *non-connex* cracks """
         fname = "Pyfile73.med"
         m = MEDCouplingCMesh.New()
         m.setCoordsAt(0, DataArrayDouble([0.0,1.1,2.3,3.6,5.0]))
@@ -1349,7 +1349,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.setMeshAtLevel(0,m)
         mm.setMeshAtLevel(-1,m2)
         mm.setGroupsAtLevel(-1,[grpSeg])
-        nodes, cellsMod, cellsNotMod = mm.duplicateNodesOnM1Group("Grp")
+        nodes, cellsMod, cellsNotMod = mm.buildInnerBoundaryAlongM1Group("Grp")
         self.assertEqual([1,13],nodes.getValues());
         self.assertEqual([0,6],cellsMod.getValues());
         self.assertEqual([1,7],cellsNotMod.getValues());
