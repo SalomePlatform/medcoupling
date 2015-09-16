@@ -1343,34 +1343,34 @@ class MEDLoaderTest(unittest.TestCase):
         m2.setName(m.getName())
             
         # A crack in two non connected parts of the mesh:
-        grpSeg = DataArrayInt([2,11]) ; grpSeg.setName("Grp") 
+        grpSeg = DataArrayInt([3,19]) ; grpSeg.setName("Grp") 
 
         mm = MEDFileUMesh.New()
         mm.setMeshAtLevel(0,m)
         mm.setMeshAtLevel(-1,m2)
         mm.setGroupsAtLevel(-1,[grpSeg])
         nodes, cellsMod, cellsNotMod = mm.duplicateNodesOnM1Group("Grp")
-        self.assertEqual([5,9],nodes.getValues());
-        self.assertEqual([0,3],cellsMod.getValues());
-        self.assertEqual([4,7],cellsNotMod.getValues());
+        self.assertEqual([1,13],nodes.getValues());
+        self.assertEqual([0,6],cellsMod.getValues());
+        self.assertEqual([1,7],cellsNotMod.getValues());
         self.assertEqual(17,mm.getNumberOfNodes())
-        self.assertEqual([2,11],mm.getGroupArr(-1,"Grp").getValues())
+        self.assertEqual([3,19],mm.getGroupArr(-1,"Grp").getValues())
         self.assertEqual([22,23],mm.getGroupArr(-1,"Grp_dup").getValues())
-        ref0=[4, 1, 0, 15, 6, 4, 4, 3, 8, 16]
-        ref1=[4, 6, 5, 10, 11, 4, 9, 8, 13, 14]
-        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[0,3]].getNodalConnectivity().getValues())
-        self.assertEqual(ref1,mm.getMeshAtLevel(0)[[4,7]].getNodalConnectivity().getValues())
+        ref0=[4, 15, 0, 5, 6, 4, 8, 7, 12, 16]
+        ref1=[4, 2, 1, 6, 7, 4, 9, 8, 13, 14]
+        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[0,6]].getNodalConnectivity().getValues())
+        self.assertEqual(ref1,mm.getMeshAtLevel(0)[[1,7]].getNodalConnectivity().getValues())
         self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),2,1e-12);# Grp_dup and Grp are not equal considering connectivity only
         mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith(mm.getGroup(-1,"Grp"),12,1e-12)# Grp_dup and Grp are equal considering connectivity and coordinates
 
         refValues=DataArrayDouble([1.1, 1.2, 1.3, 1.4, 1.1, 1.2, 1.3, 1.4])
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues) ; delta.abs()
-        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        self.assertTrue(delta.getMaxValue()[0]<1e-10)
         #
         mm.getCoords()[-len(nodes):]+=[0.,-0.3]
         self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
-        refValues2=refValues[:] ; refValues2[0] = 0.935; refValues2[3] = 1.19
-        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
+        refValues2=refValues[:] ; refValues2[0] = 1.265; refValues2[6] = 1.105
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ;     delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         mm.write(fname,2)   
 
