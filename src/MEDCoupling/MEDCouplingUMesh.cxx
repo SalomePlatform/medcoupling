@@ -2331,16 +2331,14 @@ DataArrayInt *MEDCouplingUMesh::findCellIdsOnBoundary() const
  * this->getMeshDimension() - 1 must be equal to otherDimM1OnSameCoords.getMeshDimension()
  *
  * s0 is the cell ids set in \b this lying on at least one node in the fetched nodes in \b otherDimM1OnSameCoords.
- * This method returns the cells ids set s = s1 + s2 where:
- * 
- *  - s1 are cells ids in \b this whose dim-1 constituent equals a cell in \b otherDimM1OnSameCoords.
- *  - s2 are cells ids in \b s0 - \b s1 whose at least two neighbors are in s1.
+ * This method also returns the cells ids set s1 which contains the cell ids in \b this for which one of the dim-1 constituent
+ * equals a cell in \b otherDimM1OnSameCoords.
  *
  * \throw if \b otherDimM1OnSameCoords is not part of constituent of \b this, or if coordinate pointer of \b this and \b otherDimM1OnSameCoords
  *        are not same, or if this->getMeshDimension()-1!=otherDimM1OnSameCoords.getMeshDimension()
  *
  * \param [out] cellIdsRk0 a newly allocated array containing the cell ids of s0 (which are cell ids of \b this) in the above algorithm.
- * \param [out] cellIdsRk1 a newly allocated array containing the cell ids of s1+s2 \b into the \b cellIdsRk0 subset. To get the absolute ids of s1+s2, simply invoke
+ * \param [out] cellIdsRk1 a newly allocated array containing the cell ids of s1 \b indexed into the \b cellIdsRk0 subset. To get the absolute ids of s1, simply invoke
  *              cellIdsRk1->transformWithIndArr(cellIdsRk0->begin(),cellIdsRk0->end());
  */
 void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *&cellIdsRk0, DataArrayInt *&cellIdsRk1) const
@@ -2366,23 +2364,10 @@ void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSa
   for(const int *idOther=idsOtherInConsti->begin();idOther!=idsOtherInConsti->end();idOther++)
     s1.insert(revDescThisPartPtr+revDescIThisPartPtr[*idOther],revDescThisPartPtr+revDescIThisPartPtr[*idOther+1]);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1arr_renum1=DataArrayInt::New(); s1arr_renum1->alloc((int)s1.size(),1); std::copy(s1.begin(),s1.end(),s1arr_renum1->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1Comparr_renum1=s1arr_renum1->buildComplement(s0arr->getNumberOfTuples());
-  DataArrayInt *neighThisPart=0,*neighIThisPart=0;
-  ComputeNeighborsOfCellsAdv(descThisPart,descIThisPart,revDescThisPart,revDescIThisPart,neighThisPart,neighIThisPart);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighThisPartAuto(neighThisPart),neighIThisPartAuto(neighIThisPart);
-  ExtractFromIndexedArrays(s1Comparr_renum1->begin(),s1Comparr_renum1->end(),neighThisPart,neighIThisPart,neighThisPart,neighIThisPart);// reuse of neighThisPart and neighIThisPart
-  neighThisPartAuto=neighThisPart; neighIThisPartAuto=neighIThisPart;
-  RemoveIdsFromIndexedArrays(s1Comparr_renum1->begin(),s1Comparr_renum1->end(),neighThisPart,neighIThisPart);
-  neighThisPartAuto=0;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2_tmp=neighIThisPart->deltaShiftIndex();
-  const int li[2]={0,1};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2_renum2=s2_tmp->getIdsNotEqualList(li,li+2);
-  s2_renum2->transformWithIndArr(s1Comparr_renum1->begin(),s1Comparr_renum1->end());//s2_renum2==s2_renum1
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s_renum1=DataArrayInt::Aggregate(s2_renum2,s1arr_renum1,0);
-  s_renum1->sort();
-  //
+  s1arr_renum1->sort();
   cellIdsRk0=s0arr.retn();
-  cellIdsRk1=s_renum1.retn();
+  //cellIdsRk1=s_renum1.retn();
+  cellIdsRk1=s1arr_renum1.retn();
 }
 
 /*!
@@ -2448,6 +2433,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
 void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
                                             DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const
 {
+  typedef MEDCouplingAutoRefCountObjectPtr<DataArrayInt> DAInt;
+
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
   if(getCoords()!=otherDimM1OnSameCoords.getCoords())
@@ -2456,28 +2443,28 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the mesh given in other parameter must have this->getMeshDimension()-1 !");
   DataArrayInt *cellIdsRk0=0,*cellIdsRk1=0;
   findCellIdsLyingOn(otherDimM1OnSameCoords,cellIdsRk0,cellIdsRk1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsRk0Auto(cellIdsRk0),cellIdsRk1Auto(cellIdsRk1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s0=cellIdsRk1->buildComplement(cellIdsRk0->getNumberOfTuples());
+  DAInt cellIdsRk0Auto(cellIdsRk0),cellIdsRk1Auto(cellIdsRk1);
+  DAInt s0=cellIdsRk1->buildComplement(cellIdsRk0->getNumberOfTuples());
   s0->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(s0->begin(),s0->end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1=m0Part->computeFetchedNodeIds();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2=otherDimM1OnSameCoords.computeFetchedNodeIds();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s3=s2->buildSubstraction(s1);
+  DAInt s1=m0Part->computeFetchedNodeIds();
+  DAInt s2=otherDimM1OnSameCoords.computeFetchedNodeIds();
+  DAInt s3=s2->buildSubstraction(s1);
   cellIdsRk1->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
   //
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIdsRk1->begin(),cellIdsRk1->end(),true));
   int nCells2 = m0Part2->getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
+  DAInt desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
   // Neighbor information of the mesh without considering the crack (serves to count how many connex pieces it is made of)
   DataArrayInt *tmp00=0,*tmp11=0;
   MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00, tmp00, tmp11);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighInit00(tmp00);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighIInit00(tmp11);
+  DAInt neighInit00(tmp00);
+  DAInt neighIInit00(tmp11);
   // Neighbor information of the mesh WITH the crack (some neighbors are removed):
   DataArrayInt *idsTmp=0;
   bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(idsTmp);
+  DAInt ids(idsTmp);
   if(!b)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the given mdim-1 mesh in other is not a constituent of this !");
   // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
@@ -2487,38 +2474,44 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   // Compute the neighbor of each cell in m0Part2, taking into account the broken link above. Two
   // cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
   ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
+  DAInt neigh00(tmp0);
+  DAInt neighI00(tmp1);
 
   // For each initial connex part of the sub-mesh (or said differently for each independent crack):
   int seed = 0, nIter = 0;
   int nIterMax = nCells2+1; // Safety net for the loop
-  std::vector<bool> hitCells(nCells2);
-  hitCells.assign(nCells2, false);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum = DataArrayInt::New();
+  DAInt hitCells = DataArrayInt::New(); hitCells->alloc(nCells2);
+  hitCells->fillWithValue(-1);
+  DAInt cellsToModifyConn0_torenum = DataArrayInt::New();
   cellsToModifyConn0_torenum->alloc(0,1);
   while (nIter < nIterMax)
     {
-      if (std::find(hitCells.begin(), hitCells.end(), false) == hitCells.end())
+      DAInt t = hitCells->getIdsEqual(-1);
+      if (!t->getNumberOfTuples())
         break;
       // Connex zone without the crack (to compute the next seed really)
       int dnu;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
+      DAInt connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
       int cnt = 0;
       for (int * ptr = connexCheck->getPointer(); cnt < connexCheck->getNumberOfTuples(); ptr++, cnt++)
-        hitCells[*ptr] = true;
+        hitCells->setIJ(*ptr,0,1);
       // Connex zone WITH the crack (to identify cells lying on either part of the crack)
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh00,neighI00, -1, dnu);
+      DAInt spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh00,neighI00, -1, dnu);
       cellsToModifyConn0_torenum = DataArrayInt::Aggregate(cellsToModifyConn0_torenum, spreadZone, 0);
-      // Compute next seed, i.e. a cell in another connex part:
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> comple = cellsToModifyConn0_torenum->buildComplement(nCells2);
-      seed = comple->getIJ(0,0);
+      // Compute next seed, i.e. a cell in another connex part, which was not covered by the previous iterations
+      DAInt comple = cellsToModifyConn0_torenum->buildComplement(nCells2);
+      DAInt nonHitCells = hitCells->getIdsEqual(-1);
+      DAInt intersec = nonHitCells->buildIntersection(comple);
+      if (intersec->getNumberOfTuples())
+        { seed = intersec->getIJ(0,0); }
+      else
+        { break; }
       nIter++;
     }
   if (nIter >= nIterMax)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate(): internal error - too many iterations.");
 
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
+  DAInt cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
   cellsToModifyConn0_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   cellsToModifyConn1_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   //
