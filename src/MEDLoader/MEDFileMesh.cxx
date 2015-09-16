@@ -3650,7 +3650,13 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
     throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : internal problem !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFam=DataArrayInt::New();
   newFam->alloc(newm1->getNumberOfCells(),1);
-  int idd=getMaxFamilyId()+1;
+  // Get a new family ID: care must be taken if we need a positive ID or a negative one:
+  // Positive ID for family of nodes, negative for all the rest.
+  int idd;
+  if (m1->getMeshDimension() == 0)
+    idd=getMaxFamilyId()+1;
+  else
+    idd=getMinFamilyId()-1;
   int globStart=0,start=0,end,globEnd;
   int nbOfChunks=szOfCellGrpOfSameType->getNumberOfTuples();
   for(int i=0;i<nbOfChunks;i++)
