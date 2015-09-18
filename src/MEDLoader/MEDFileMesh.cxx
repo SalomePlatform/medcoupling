@@ -2574,7 +2574,8 @@ void MEDFileUMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
-  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  if(_univ_wr_status)
+    MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileUMeshL2::WriteCoords(fid,meshName,_iteration,_order,_time,_coords,_fam_coords,_num_coords,_name_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
@@ -6093,7 +6094,8 @@ void MEDFileCMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
-  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  if(_univ_wr_status)
+    MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CARTESIAN_GRID));
   for(int i=0;i<spaceDim;i++)
     {
@@ -6303,7 +6305,8 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
-  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  if(_univ_wr_status)
+    MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CURVILINEAR_GRID));
   std::vector<int> nodeGridSt=_clmesh->getNodeGridStructure();
   MEDFILESAFECALLERWR0(MEDmeshGridStructWr,(fid,maa,_iteration,_order,_time,&nodeGridSt[0]));

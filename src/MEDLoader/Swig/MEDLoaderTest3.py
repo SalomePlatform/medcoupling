@@ -4595,6 +4595,22 @@ class MEDLoaderTest(unittest.TestCase):
         #
         pass
 
+    def testUnivStatus1(self):
+        """ Non regression test to check the effectiveness of univ write status."""
+        fname="Pyfile95.med"
+        arr=DataArrayDouble(10) ; arr.iota()
+        m=MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m.setName("mesh")
+        mm=MEDFileCMesh() ; mm.setMesh(m)
+        mm.setUnivNameWrStatus(False) # test is here
+        mm.write(fname,2)
+        mm=MEDFileCMesh(fname)
+        self.assertEqual(mm.getUnivName(),"")
+        mm.setUnivNameWrStatus(True)
+        mm.write(fname,2)
+        mm=MEDFileCMesh(fname)
+        self.assertTrue(mm.getUnivName()!="")
+        pass
+
     pass
 
 if __name__ == "__main__":
