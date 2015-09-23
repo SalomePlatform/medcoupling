@@ -5114,19 +5114,6 @@ class MEDLoaderTest4(unittest.TestCase):
             pass
         pass
 
-    def testEmptyMesh(self):
-      fname = "empty_mesh.med" 
-      m = MEDCouplingUMesh('toto', 2)
-      m.setCoords(DataArrayDouble([], 0, 2))
-      m.setConnectivity(DataArrayInt([]), DataArrayInt([0]))
-      mfu = MEDFileUMesh()
-      mfu.setMeshAtLevel(0, m)
-      mfu.write(fname, 2)
-      mfu2 = MEDFileUMesh(fname)
-      self.assertEqual('toto', mfu2.getName())
-      lvl = mfu2.getNonEmptyLevels()
-      self.assertEqual((), lvl)
-    
     pass
 
 if __name__ == "__main__":

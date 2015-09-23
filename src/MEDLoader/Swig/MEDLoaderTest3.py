@@ -4611,6 +4611,21 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(mm.getUnivName()!="")
         pass
 
+    def testEmptyMesh(self):
+      """ MEDLoader should be able to consistently write and read an empty mesh (coords array
+      with 0 tuples """
+      fname = "Pyfile96.med" 
+      m = MEDCouplingUMesh('toto', 2)
+      m.setCoords(DataArrayDouble([], 0, 2))
+      m.setConnectivity(DataArrayInt([]), DataArrayInt([0]))
+      mfu = MEDFileUMesh()
+      mfu.setMeshAtLevel(0, m)
+      mfu.write(fname, 2)
+      mfu2 = MEDFileUMesh(fname)
+      self.assertEqual('toto', mfu2.getName())
+      lvl = mfu2.getNonEmptyLevels()
+      self.assertEqual((), lvl)
+
     pass
 
 if __name__ == "__main__":
