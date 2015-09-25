@@ -4036,23 +4036,26 @@ MEDFileUMesh *MEDFileUMesh::linearToQuadratic(int conversionType, double eps) co
         continue;
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1Tmp(getMeshAtLevel(*lev));
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1(dynamic_cast<MEDCouplingUMesh *>(m1Tmp->deepCpy()));
-      {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> notUsed(m1->convertLinearCellsToQuadratic(conversionType));
-      }
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m1Coords(m1->getCoords()->selectByTupleId2(initialNbNodes,m1->getNumberOfNodes(),1));
-      DataArrayInt *b(0);
-      bool a(partZeCoords->areIncludedInMe(m1Coords,eps,b));
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bSafe(b);
-      if(!a)
+      if(m1->getMeshDimension()!=0)
         {
-          std::ostringstream oss; oss << "MEDFileUMesh::linearCellsToQuadratic : for level " << *lev << " problem to identify nodes generated !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          {
+            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> notUsed(m1->convertLinearCellsToQuadratic(conversionType));
+          }//kill unused notUsed var
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m1Coords(m1->getCoords()->selectByTupleId2(initialNbNodes,m1->getNumberOfNodes(),1));
+          DataArrayInt *b(0);
+          bool a(partZeCoords->areIncludedInMe(m1Coords,eps,b));
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bSafe(b);
+          if(!a)
+            {
+              std::ostringstream oss; oss << "MEDFileUMesh::linearCellsToQuadratic : for level " << *lev << " problem to identify nodes generated !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          b->applyLin(1,initialNbNodes);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> l0(DataArrayInt::New()); l0->alloc(initialNbNodes,1); l0->iota();
+          std::vector<const DataArrayInt *> v(2); v[0]=l0; v[1]=b;
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum(DataArrayInt::Aggregate(v));
+          m1->renumberNodesInConn(renum->begin());
         }
-      b->applyLin(1,initialNbNodes);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> l0(DataArrayInt::New()); l0->alloc(initialNbNodes,1); l0->iota();
-      std::vector<const DataArrayInt *> v(2); v[0]=l0; v[1]=b;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum(DataArrayInt::Aggregate(v));
-      m1->renumberNodesInConn(renum->begin());
       m1->setCoords(zeCoords);
       ret->setMeshAtLevel(*lev,m1);
       famField=getFamilyFieldAtLevel(*lev);

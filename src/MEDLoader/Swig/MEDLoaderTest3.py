@@ -4346,9 +4346,10 @@ class MEDLoaderTest(unittest.TestCase):
         m3D.setName(meshName)
         m2D=m ; m2D.setCoords(m3D.getCoords()) ; m2D.shiftNodeNumbersInConn(delta) ; m2D.setName(meshName) ; m2D.checkCoherency2()
         m1D=m2D.computeSkin() ; m1D.setName(meshName)
+        m0D=MEDCouplingUMesh.Build0DMeshFromCoords(m3D.getCoords()) ; m0D.setName(meshName) ; m0D=m0D[[2,4,10]]
         #
         mm=MEDFileUMesh()
-        mm[0]=m3D ; mm[-1]=m2D ; mm[-2]=m1D
+        mm[0]=m3D ; mm[-1]=m2D ; mm[-2]=m1D ; mm[-3]=m0D
         grpEdge0=DataArrayInt([1,2,3,5]) ; grpEdge0.setName("East")
         grpEdge1=DataArrayInt([0,1]) ; grpEdge1.setName("Corner1")
         grpFaceSouth=DataArrayInt([0,1,8,9,10]) ; grpFaceSouth.setName("SouthFace")
