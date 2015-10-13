@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingRefCountObject.hxx"
-#include "MED_version.h"
+#include "MEDtool_version.h"
 
 #include <sstream>
 #include <algorithm>
@@ -28,17 +28,17 @@ using namespace ParaMEDMEM;
 
 const char *ParaMEDMEM::MEDCouplingVersionStr()
 {
-  return SALOMEMED_VERSION_STR;
+  return MEDTOOL_VERSION_STR;
 }
 
 int ParaMEDMEM::MEDCouplingVersion()
 {
-  return SALOMEMED_VERSION;
+  return MEDTOOL_VERSION;
 }
 
 void ParaMEDMEM::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
 {
-  int ver=SALOMEMED_VERSION;
+  int ver=MEDTOOL_VERSION;
   maj=(ver & 0xFF0000) >> 16;
   minor=(ver & 0xFF00) >> 8;
   releas=(ver & 0xFF);
