@@ -197,12 +197,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
+  protected:
+    ~MEDCouplingFieldDouble();
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
-    ~MEDCouplingFieldDouble();
   private:
     MEDCouplingTimeDiscretization *_time_discr;
   };
