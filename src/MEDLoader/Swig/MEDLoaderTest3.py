@@ -4627,6 +4627,32 @@ class MEDLoaderTest(unittest.TestCase):
       lvl = mfu2.getNonEmptyLevels()
       self.assertEqual((), lvl)
 
+    @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
+    def testMEDFileUMeshPickeling2(self):
+      """ Check that pickalization can be performed on a unpickalized instance. Non regression test."""
+      name="Mesh_1"
+      grpName1="HAUT"
+      grpName2="BASE"
+      hauteur=1.
+      nbOfNodesPerAxis=3
+      arr=DataArrayDouble(nbOfNodesPerAxis) ; arr.iota() ; arr/=(nbOfNodesPerAxis-1) ; arr*=hauteur
+      m=MEDCouplingCMesh() ; m.setCoords(arr,arr,arr) ; m=m.buildUnstructured() ; m.setName(name)
+      mesh=MEDFileUMesh() ; mesh[0]=m
+      m1=m.computeSkin() ; mesh[-1]=m1
+      #
+      bary1=m1.getBarycenterAndOwner()[:,2]
+      grp1=bary1.getIdsInRange(hauteur-1e-12,hauteur+1e-12) ; grp1.setName(grpName1)
+      grp2=bary1.getIdsInRange(0.-1e-12,0.+1e-12) ; grp2.setName(grpName2)
+      mesh.setGroupsAtLevel(-1,[grp1,grp2])
+      
+      import cPickle
+      st=cPickle.dumps(mesh,2)
+      mm=cPickle.loads(st)
+      st2=cPickle.dumps(mm,2)
+      mm2=cPickle.loads(st2)
+      self.assertTrue(mesh.isEqual(mm2,1e-12)[0])
+      pass
+
     pass
 
 if __name__ == "__main__":

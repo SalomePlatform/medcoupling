@@ -1348,7 +1348,12 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
 {
   const MEDCouplingUMesh *m(_m);
   if(!m)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh : null UMesh !");
+    {
+      if(_m_parts.empty())
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh : null UMesh !");
+      else
+        return ;// no needs to compte parts they are already here !
+    }
   std::vector<MEDCouplingUMesh *> ms(m->splitByType());
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(ms.begin(),ms.end());
   std::size_t sz(msMSafe.size());
