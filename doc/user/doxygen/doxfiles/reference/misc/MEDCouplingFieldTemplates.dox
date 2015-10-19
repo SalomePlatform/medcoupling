@@ -1,0 +1,18 @@
+
+/*!
+  \page MEDCouplingFieldTemplatesPage Field templates in MEDCoupling
+
+This concept appears in ICOCO API.
+A field template is the adequate data structure to perform costly interpolation matrix computation as \ref remapper "Remapper class" does.
+A field template can be seen as field without its double values. The double values are only used for light matrix vector multiplication.
+
+Concretely a field template is a pair containing :
+
+- a \ref meshes "mesh"
+- a spatial discretization (on cells, on nodes, on Gauss points (including localizations, reference elements), )
+
+TODO enhance here
+
+*/
+
+ LocalWords:  discretization

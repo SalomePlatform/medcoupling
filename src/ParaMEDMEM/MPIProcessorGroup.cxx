@@ -29,35 +29,33 @@
 
 using namespace std;
 
-/*! \defgroup processor_group Processor Groups
- * 
- * \section processor_group_overview Overview
- * The MPIProcessorGroup class is used to set up processor groups that help to define
- * the MPI topology of the couplings. They can be set up in various ways, the most common being
- * the use of the \c MPIProcessorGroup(Comminterface, int pfirst, int plast) 
- * constructor.
- * 
- * The following code excerpt creates two processor groups on respectively 3 and 2 processors.
- \verbatim
- int main()
- {
- MPI_Init(&argc,&argv);
- CommInterface comm_interface;
- MPIProcessorGroup codeA_group(comm_interface, 0, 2);
- MPIProcessorGroup codeB_group(comm_interface, 3, 4);
-   
- ...
- }
- \endverbatim
-*/
-
 
 namespace ParaMEDMEM
 {
-  /*! 
-    \addtogroup processor_group
-    @{ 
+  /*!
+   * \anchor MPIProcessorGroup-det
+   * \class MPIProcessorGroup
+   *
+   * \section processor_group_overview Overview
+   * The MPIProcessorGroup class is used to set up processor groups that help to define
+   * the MPI topology of the couplings. They can be set up in various ways, the most common being
+   * the use of the \c MPIProcessorGroup(Comminterface, int pfirst, int plast)
+   * constructor.
+   *
+   * The following code excerpt creates two processor groups on respectively 3 and 2 processors.
+   \verbatim
+   int main()
+   {
+   MPI_Init(&argc,&argv);
+   CommInterface comm_interface;
+   MPIProcessorGroup codeA_group(comm_interface, 0, 2);  // groups processors 0, 1 and 2
+   MPIProcessorGroup codeB_group(comm_interface, 3, 4);  // groups processors 3 and 4
+
+   ...
+   }
+   \endverbatim
   */
+
 
   /*! 
    * Creates a processor group that is based on all the
@@ -164,9 +162,6 @@ namespace ParaMEDMEM
     delete[] ranks;
     _comm_interface.groupFree(&group_world);  // MPI_Group is a C structured and won't get de-allocated automatically?
   }
-  /*!
-    @}
-  */
 
   MPIProcessorGroup::MPIProcessorGroup (const ProcessorGroup& proc_group, set<int> proc_ids) :
     ProcessorGroup(proc_group.getCommInterface()),_world_comm(MPI_COMM_WORLD)
@@ -188,10 +183,6 @@ namespace ParaMEDMEM
       _comm_interface.commFree(&_comm);
   
   }
-  /*!
-    \addtogroup processor_group
-    @{
-  */
 
   /*! Translation of the rank id between two processor groups. This method translates rank \a rank
     on the current processor group to the rank on group pointed by \a group.
@@ -251,9 +242,6 @@ namespace ParaMEDMEM
     return rank;
   }
   
-  /*!
-    @}
-  */
   ProcessorGroup* MPIProcessorGroup::createProcGroup() const
   {
     set <int> procs;

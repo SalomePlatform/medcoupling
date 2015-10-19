@@ -38,18 +38,18 @@ namespace ParaMEDMEM
 {
 
   /*!
-    \defgroup noncoincidentdec NonCoincidentDEC
-
-    \section overview Overview
+    \anchor NonCoincidentDEC-det
+    \class NonCoincidentDEC
 
     \c NonCoincidentDEC enables nonconservative remapping of fields 
     between two parallel codes. 
     The computation is possible for 3D meshes and 2D meshes.
     It is not available for 3D surfaces. The computation enables fast parallel localization, and is based on a point in element search, followed 
     by a field evaluation at the point location. Thus, it is typically
-    faster than the \ref interpkerneldec which gives a \ref conservativeremapping.
+    faster than the \ref InterpKernelDEC-det "InterpKernelDEC" which gives a
+    \ref InterpKerRemapGlobal "conservative remapping".
     It is particularly true for the initialisation phase (synchronize)
-    which is very computationnaly intensive in \ref interpkerneldec.
+    which is very computationnaly intensive in \ref InterpKernelDEC-det.
 
     In the present version, only fields lying on elements are considered. 
     The value is estimated by locating the barycenter of the target
@@ -242,12 +242,7 @@ namespace ParaMEDMEM
   {  
   }
 
-  /*!
-    \addtogroup noncoincidentdec
-    @{
-  */
-
-  /*! Constructor of a non coincident \ref dec with 
+  /*! Constructor of a non coincident \ref para-dec "DEC" with
    * a source group on which lies a field lying on a mesh and a 
    * target group on which lies a mesh.
    * 
@@ -392,7 +387,4 @@ namespace ParaMEDMEM
       renormalizeTargetField();
 
   }
-  /*!
-    @}
-  */  
 }

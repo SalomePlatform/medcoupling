@@ -51,6 +51,7 @@ void ComposedEdge::setValueAt(int i, Edge *e, bool direction)
   *it=new ElementaryEdge(e,direction);
 }
 
+/*! \cond HIDDEN_ITEMS */
 struct AbsEdgeCmp
 {
   AbsEdgeCmp(ElementaryEdge *b):_b1(b) { }
@@ -58,6 +59,7 @@ struct AbsEdgeCmp
 
   ElementaryEdge *_b1;
 };
+/*! \endcond */
 
 double ComposedEdge::getCommonLengthWith(const ComposedEdge& other) const
 {

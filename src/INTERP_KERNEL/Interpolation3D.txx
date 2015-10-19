@@ -36,7 +36,7 @@
 #include "PointLocator3DIntersectorP1P1.txx"
 #include "Barycentric3DIntersectorP1P1.txx"
 #include "Log.hxx"
-/// If defined, use recursion to traverse the binary search tree, else use the BBTree class
+// If defined, use recursion to traverse the binary search tree, else use the BBTree class
 //#define USE_RECURSIVE_BBOX_FILTER
 
 #ifdef USE_RECURSIVE_BBOX_FILTER

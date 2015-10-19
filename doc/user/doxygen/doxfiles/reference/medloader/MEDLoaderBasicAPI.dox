@@ -1,0 +1,236 @@
+
+/*!
+\page MEDLoaderBasicAPIPage Basic MEDLoader API
+
+[TOC]
+
+The aim of this page is to present MEDLoader basic API. The goal of
+this basic API is to perform a read or a write in one shot without any
+internal state. That's why the basic API of MEDLoader offers \b only \b static methods whose names have the first
+character in capital. You are intended to use these methods. The following
+chapters will try to describe in details some of important ones.
+
+The basic idea of MEDLoader is to exploit as much as possible MED
+ file capabilities to store MEDCoupling data file in a MED file and
+reversely to load from a MED file into a MEDCoupling data structure.
+Basically, the info on components of ParaMEDMEM::DataArrayDouble instances are stored into components and units into MED files. The
+name of meshes and fields are used by MEDLoader as is into
+MED file. From a field f with \ref ParaMEDMEM::MEDCouplingTimeDiscretization
+"time discretization" set to ONE_TIME, calls to
+\c f->getTime(time,iteration,order) are used by MEDLoader to store the field into MED file. All strings used by MEDLoader should fulfill the rules of MED file where string length
+is limited.
+That's why the user should be aware of these constraints when trying to read/write a MED file using MEDLoader.
+MEDLoader tries to manage that by protecting the user by throwing exceptions when the rules are not followed.
+
+\section BasicMEDLoaderBasicAPIGlobalInfo Retrieving tiny global information from MED files using basic API
+
+The MEDLoader::CheckFileForRead method will perform such a check before any attempt of read.
+A field is also discriminated by its name. The methods MEDLoader::GetCellFieldNamesOnMesh and MEDLoader::GetNodeFieldNamesOnMesh are available to know all fields
+respectively on cells and on nodes lying on a specified mesh.
+
+ A field is defined by several time steps discriminated by a pair of ints
+(iteration,order). It is \b not possible to store 2 time steps of a same
+field having the same iteration and order
+numbers. The floating point value attached to this couple of ids (iteration,order) is only present for information.
+Static methods MEDLoader::GetCellFieldIterations and
+MEDLoader::GetNodeFieldIterations return a vector of pairs (iteration, order).
+
+A field time step lies on one \b or \b more mesh(es) specified by its \b or \b their name(s). A field time step in
+MED file could be defined on point \b and on cell \b and, \b or on Gauss points \b and, \b or on point per element.
+
+This recalled specificities of MED file explain that it is necessary to specify each time, at field-read time, the type of field, the iteration and order number the mesh you are interested in.
+
+Let's recall basic principles that explains some of the aspect of MEDLoade API.
+\anchor MEDLoaderMeshNameConstraint MED file can contain several meshes. These meshes are
+discriminated by their names (two meshes could not have the same
+name). In the same way a MED file can contain several fields.
+So MEDLoader offers the MEDLoader::GetMeshNames method to
+discover all the mesh names contained in your file.
+
+\section BasicMEDLoaderBasicAPIMesh Reading and writing meshes in MED files using basic API
+
+In MED file meshes could combine in one unstructured mesh cells that
+have different dimension. For example it is possible to mix
+MED_TETRA4, MED_TRIA6, MED_SEG2, MED_POINT1, MED_POLYGON,
+MED_POLYHEDRA in a same mesh. In MEDCouplingUMesh such a mix is not
+allowed as described \ref MEDCouplingMeshes "here". So to \b read such mesh it
+is important to know which mesh dimension you are interested in. The parameter \b meshDimRelToMax of method MEDLoader::ReadUMeshFromFile corresponds to the mesh dimension you are
+interested in, expressed relatively to the maximal dimension of cells contained
+in the mesh in file.
+
+Let's take 2 examples :
+
+- If you have a mesh called "MyMesh" in file "file1.med" with
+MED_POLYGON, MED_TRI3, MED_SEG2 and MED_SEG3 : The max dimension of
+cells is 2 (for MED_POLYGON and MED_TRI3). So if you want exclusively
+cells with type MED_POLYGON and MED_TRI3 you should use :
+
+\snippet MEDLoaderExamplesTest.py PySnippetMeshAdvAPI1_9
+
+If you are interested in MED_SEG2 and MED_SEG3 you should use :
+
+\snippet MEDLoaderExamplesTest.py PySnippetMeshAdvAPI1_10
+
+The method MEDLoader::ReadUMeshDimFromFile could
+help you to have this mesh dimension.
+
+Here is a \ref MEDLoaderExample2 "Python example".<br>
+
+To finish this subsection, it is important to know that MEDLoader
+takes into account the cell numbers stored in a mesh of a med
+file. This renumbering allows MEDLoader to conserve the order of
+MEDCoupling cells into the file. So if the renumbering of cells in MED
+file is not correct an exception will be thrown.
+
+\subsection BasicMEDLoaderAPIPoMesh Part of meshes in MED files
+
+A mesh contains one or more families on nodes and/or on cells. A family is a partition
+(mathematical sense) of the mesh it lies on. A family can be described
+by an integer value on \b all nodes and on \b all cells of a same mesh.
+All cells and nodes having the same id define this family. This id
+is called the familyId. A family is discriminated by its id. MED file
+attaches a name to its id to be more user friendly. So by construction, 2 different
+families could not share anything. The user can retrieve all the
+families names available on a mesh with the static method MEDLoader::GetMeshFamiliesNames.
+
+A group is a set of families. So groups can overlap each other,
+contrary to families. Groups are also discriminated by a name. As for
+families the static method to retrieve the groups of a specified mesh is MEDLoader::GetMeshGroupsNames.
+
+MEDLoader allows you to retrieve the
+corresponding "part of meshes" thanks to static methods
+MEDLoader::ReadUMeshFromFamilies and MEDLoader::ReadUMeshFromGroups.
+These methods allow you to combine several families and groups in the
+same returned mesh.
+
+\subsection BasicMEDLoaderAPIField Reading a field at one time step in MED files
+
+A field at one time step on one mesh, with one entity (cell, node)
+lies on all mesh on a part of it. In this last case a definition of
+a profile is needed. Even if the notions of profile on mesh and group
+on mesh could appear close, these two concepts are totally
+disconnected in MED file.
+The aspect of profile is managed by MEDLoader, that is why this
+aspect does not appear in the MEDLoader API.
+
+\if ENABLE_EXAMPLES
+Here is a \ref py_mcfield_loadfile_onetimestep_basic "Python example".
+\endif
+
+\subsection MEDLoaderMEDFieldsRead Reading several field time steps at a time in MED files
+
+It is possible with MEDLoader to read several time steps of a field at once.
+The advantage with this approach is to avoid reading and loading the same mesh several
+times.
+
+\if ENABLE_EXAMPLES
+Here is a \ref py_mcfield_loadfile_alltimesteps_basic "Python example".
+\endif
+
+\section MEDLoaderWriteMain Writing a MED file with MEDLoader
+
+As MED file does, MEDLoader write process clearly separates
+meshes from fields. The reason is that a common use case in write mode
+is to write in a first time a mesh and then to write several time steps
+of a same field in appended mode.
+
+The fact that the write process is rarely in a one shot puts a
+constraint on API to precise to MEDLoader if you intend
+to append data to an existing file, or if you want to create a new
+file from scratch. This explains the presence of boolean parameter \b
+writeFromScratch in API of MEDLoader starting with \b
+MEDLoader::Write* .
+
+If \b writeFromScratch parameter is set to \b true and if the file
+already exists the file will be crashed and replaced by the new
+corresponding data. If \b writeFromScratch parameter is set to \b false and if the
+file does \b not \b exist the new file is created, but if the file
+exists MEDLoader will enter in appended mode.
+
+Two classes of MEDLoader write methods exist when \b writeFromScratch
+is set to \b false :
+
+-  Methods \b MEDLoader::Write*Dep : The write operation is performed without any question in file. The
+   responsibility is let to the user because the MED file could be
+   corrupted. The advantage of this method is that it is faster
+   because no check is done.
+- Methods \b MEDLoader::Write* : MEDLoader will not corrupt your file
+   by always trying to append data. The consequence is that a
+   read of part (and data processing) of MED file could be needed before any attempt of
+   writing. So these methods could be in some cases much time and memory consuming.
+
+The behaviour of MEDLoader when \b writeFromScratch is set to false will be precised
+for each \b MEDLoader::Write* methods is the next subsections.
+
+\subsection MEDLoaderWriteMesh Writing one mesh in a MED file with MEDLoader
+
+The first think to know is that MEDLoader is using the \b meshName in
+ParaMEDMEM::MEDCouplingMesh instance to put it in MED file.
+
+As explained in previous section \ref MEDLoaderMeshNameConstraint "here",
+a mesh in MED file is discriminated by a name, so the \b meshName
+\b should \b be \b non \b empty. If it is the case an
+INTERP_KERNEL::Exception will be thrown.
+
+\if ENABLE_EXAMPLES
+Here is a \ref py_mcumesh_writefile_onemesh_basic "Python example".
+\endif
+
+\subsection MEDLoaderWriteMeshes Writing several meshes in a MED file with MEDLoader
+
+It could be interesting to write several meshes in one shot. Two
+possibilities:
+
+- Write several instances of ParaMEDMEM::MEDCouplingUMesh
+  lying \b on \b same \b coords \b with \b different \b mesh \b dimensions. In this case MEDLoader::WriteUMeshes is the method you should
+  use. Typically this method should be used to write files such as
+  defined \ref MEDLoaderExample2 "here".
+  This method first checks that all instances share the same
+  ParaMEDMEM::DataArrayDouble instance as coords. If not an
+  INTERP_KERNEL::Exception will be thrown and an invocation on
+  ParaMEDMEM::MEDCouplingPointSet::tryToShareSameCoords will be necessary.
+
+- Write a partition of meshes having \b same \b mesh \b dimension, that is to say a set of
+  groups and families from given meshes. As in the previous case the
+  check of same coords will be done (if not an INTERP_KERNEL::Exception is
+  thrown). After this step this method will
+  merge input (preserving order) and will simplify the
+  merged mesh. After this operation, the groups will be constituted by
+  assigning the group names with the corresponding names of
+  instance. That's why all meshes must have a not empty name which is different from one mesh to the other. The method to use in this case is
+  MEDLoader::WriteUMeshesPartition.
+
+For these 2 described methods the semantic of \b writeFromScratch when
+\b false is the same, that is to say : no writing
+(INTERP_KERNEL::Exception thrown) will be done if the
+file already exists and contains a mesh with name 'meshName'
+for MEDLoader::WriteUMeshesPartition method and the name of first element
+of unstructured mesh vector passed as first parameter of
+MEDLoader::WriteUMeshes.
+
+\subsection MEDLoaderWriteField Writing one time step of a field in a MED file with MEDLoader
+
+To write \b one \b time \b step of a field from scratch with MEDLoader
+use MEDLoader::WriteField method. The behaviour of this method depends
+on the value of the \b writeFromScratch parameter :
+
+- When \b writeFromScratch equals to \b true, this method performs two things, it
+writes the underlying mesh and writes the specified time step on it.
+
+- When \b writeFromScatch equals to \b false, this method checks that
+  the underlying mesh exists (by looking to the contents of \c field->getMesh()->getName()) in file. If not, the behaviour is the
+  same that previous case with \b writeFromScratch parameter set to
+  \b true. If the mesh already exists, MEDLoader reads the field and
+  tries to apply field on it. This operation could be rather time
+  consuming because a read operation is performed and a reorder
+  operation too. If the file already contains the same field at the
+  same time step (iteration and order ids) the corresponding time step
+  will be replaced by the field passed in parameter.
+
+\subsection MEDLoaderWriteFields Writing several time steps of a field in a MED file with MEDLoader
+
+\if ENABLE_EXAMPLES
+Here is a \ref py_mcfield_writefile_severaltimesteps_basic "Python example".
+\endif
+
+*/

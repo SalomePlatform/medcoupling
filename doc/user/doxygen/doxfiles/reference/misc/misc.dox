@@ -1,0 +1,12 @@
+/*! 
+\page misc Miscellaneous - Specialized interfaces and tools
+
+This page references miscellaneous tools available in MEDCoupling that do not fit
+anywhere else in the documentation.
+ 
+- \subpage tools
+- \subpage icoco
+- \subpage MEDCouplingFieldTemplatesPage
+
+
+*/

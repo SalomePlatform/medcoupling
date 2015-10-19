@@ -31,49 +31,47 @@
 #include <cmath>
 #include <iostream>
 
-/*! \defgroup dec DEC
- *
- * \section decintroduction Introduction
- *
- * Interface class for creation of a link between two 
- * processor groups for exhanging mesh or field data.
- * The \c DEC is defined by attaching a field on the receiving or on the 
- * sending side. 
- * On top of attaching a \c ParaMEDMEM::FIELD, it is possible to
- * attach a ICoCo::Field. This class is an abstract class that enables 
- * coupling of codes that respect the ICoCo interface \ref icoco. It has two implementations:
- * one for codes that express their fields as \ref medoupling fields (ICoCo::MEDField).
- * 
- * \section dec_options DEC Options
- * Options supported by \c DEC objects are
- *
- * <TABLE BORDER=1 >
- * <TR><TD>Option</TD><TD>Description</TD><TD>Default value</TD></TR>
- * <TR><TD>ForcedRenormalization</TD><TD>After receiving data, the target field is renormalized so that L2-norms of the source and target fields match.</TD><TD> false </TD></TR>
- *</TABLE>
-
-
- The following code excerpt shows how to set options for an object that inherits from \c DEC :
-
- \code
- InterpKernelDEC dec(source_group,target_group);
- dec.setOptions("ForcedRenormalization",true);
- dec.attachLocalField(field);
- dec.synchronize();
- if (source_group.containsMyRank())
- dec.sendData();
- else
- dec.recvData();
- \endcode
-*/
 
 namespace ParaMEDMEM
 {
 
+  /*!
+   * \anchor DisjointDEC-det
+   * \class DisjointDEC
+   *
+   * Interface class for creation of a link between two
+   * processor groups for exhanging mesh or field data.
+   * The \c DEC is defined by attaching a field on the receiving or on the
+   * sending side.
+   * On top of attaching a \c ParaMEDMEM::ParaFIELD, it is possible to
+   * attach a ICoCo::Field. This class is an abstract class that enables
+   * coupling of codes that respect the ICoCo interface \ref icoco. It has two implementations:
+   * one for codes that express their fields as \ref fields "MEDCoupling fields" (ICoCo::MEDField).
+   *
+   * \section dec_options DEC Options
+   * Options supported by \c DEC objects are
+   *
+   * <TABLE BORDER=1 >
+   * <TR><TD>Option</TD><TD>Description</TD><TD>Default value</TD></TR>
+   * <TR><TD>ForcedRenormalization</TD><TD>After receiving data, the target field is renormalized so that L2-norms of the source and target fields match.</TD><TD> false </TD></TR>
+   *</TABLE>
 
-  /*! \addtogroup dec
-    @{ 
+
+   The following code excerpt shows how to set options for an object that inherits from \c DEC :
+
+   \code
+   InterpKernelDEC dec(source_group,target_group);
+   dec.setOptions("ForcedRenormalization",true);
+   dec.attachLocalField(field);
+   dec.synchronize();
+   if (source_group.containsMyRank())
+     dec.sendData();
+   else
+     dec.recvData();
+   \endcode
   */
+
+
   DisjointDEC::DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):_local_field(0), 
                                                                                        _source_group(&source_group),
                                                                                        _target_group(&target_group),
@@ -305,7 +303,6 @@ namespace ParaMEDMEM
           }
       }
   }
-  /*! @} */
 
   bool DisjointDEC::isInSourceSide() const
   {

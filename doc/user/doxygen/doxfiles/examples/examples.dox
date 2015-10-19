@@ -1,0 +1,11 @@
+/*!
+
+\page examples Code examples
+
+Several code examples are provided with the library. 
+Be sure to take a look at the page \ref python-api before proceeding with the Python examples.
+
+- \subpage medcouplingpyexamples
+- \subpage medcouplingcppexamples
+
+*/

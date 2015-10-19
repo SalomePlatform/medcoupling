@@ -1,0 +1,39 @@
+/*!
+\page medcoupling Core data structures (MEDCoupling)
+
+<h1>Overview</h1>
+
+The MEDCoupling library gather the core structures used everywhere in the MED world.
+
+- \subpage arrays 
+- \subpage numbering
+- \subpage meshes
+- \subpage fields
+
+<h1>Design philosophy</h1>
+
+The structures described above (arrays, meshes and fields), with the algorithms associated to it
+form the core of the MEDCoupling library (\b libmedcoupling.so or \b medcoupling.dll). 
+It is fully written in C++ and wrapped in Python.
+
+The MEDCoupling C++ library implements a data structure which is the result of the following tradeoff:
+- compliant with \ref glossary "code coupling":
+  - fields data structure containing enough information to perform a well defined interpolation
+  - data structure exchangeable through processes, as well in \ref parallel "parallel" (SPMD paradigm - 
+  \ref library "sometimes called ParaMEDMEM"), as in a \ref corba-distrib "distributed paradigm" (using CORBA).
+- minimize as much as possible the number of external software prerequisites needed to use it (the core of the 
+library, MEDCoupling, can be built as a standalone tool).
+- light and agile enough to:
+   - maximize the amount of possible algorithms being applied on it
+   - ease the implementation of other projects using MEDCoupling as a prerequisite.
+- large enough to be used for MED file I/O (thanks to the \ref medloader "MEDLoader" part).
+- compliant with VTK visualization data structures
+- integrate HPC constraints (compact structures, limitation of copies and launching of CPU consuming algorithms only when absolutely needed ).
+- compliant with the \ref icoco "ICoCo API"
+
+The MEDCoupling also implements a set of algorithms linked to this data structure. The 
+\ref functionalities "functionalities" section gives an insight of the avalaible algorithm. 
+
+
+
+*/
