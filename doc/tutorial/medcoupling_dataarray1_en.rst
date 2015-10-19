@@ -237,12 +237,9 @@ Now allocate the number of cells with an upper bound of the actual number of cel
 
 Finally thanks to o2n we know the connectivity of all 7 hexagons using the coordinates stored in d3.
 
-Do not forget to invoke MEDCouplingUMesh.finishInsertingCells() (this last bit should disappear after the release 6.6) ::
-
 	for i in xrange(7):
 	  m.insertNextCell(NORM_POLYGON,o2n[6*i:6*(i+1)].getValues())
 	  pass
-	m.finishInsertingCells()
 
 Check that m is coherent. ::
 

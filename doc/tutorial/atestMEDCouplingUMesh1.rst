@@ -29,7 +29,6 @@ Playing with unstructured mesh
 	mesh3D.insertNextCell(mc.NORM_HEXA8,conn[0:8]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[8:51]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[51:59]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[59:67]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[67:110]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[110:118]);
 	mesh3D.insertNextCell(mc.NORM_HEXA8,conn[118:126]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[126:169]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[169:177]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[177:185]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[185:228]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[228:236]);
 	mesh3D.insertNextCell(mc.NORM_HEXA8,conn[236:244]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[244:287]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[287:295]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[295:303]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[303:346]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[346:354]);
-	mesh3D.finishInsertingCells();
 	myCoords = mc.DataArrayDouble(coords,60,3);
 	myCoords.setInfoOnComponents(["X [m]","Y [m]","Z [m]"])
 	mesh3D.setCoords(myCoords);

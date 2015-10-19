@@ -18,7 +18,6 @@ Reading, Writing a MED file using MEDLoader advanced API
 	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[0:4])
 	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[10:14])
 	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[14:18])
-	targetMesh.finishInsertingCells()
 	myCoords = ml.DataArrayDouble(targetCoords,9,2)
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
 	targetMesh.setCoords(myCoords)

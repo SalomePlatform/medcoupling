@@ -56,7 +56,6 @@ Playing with regular hexagons using DataArrayDouble
 		cell_connec = o2n[6*i:6*(i+1)]
 		m.insertNextCell(mc.NORM_POLYGON, cell_connec.getValues())
 		pass
-	m.finishInsertingCells()
 	# Check that everything is coherent (will throw if not)
 	m.checkCoherency()
 	# Write the result into a VTU file that can be read with ParaView

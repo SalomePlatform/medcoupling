@@ -28,19 +28,18 @@ Writing/Reading a mesh
 
 First of all, creation of a mesh "targetMesh". ::
 
-	targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
-        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-        targetMesh=MEDCouplingUMesh.New("MyMesh",2);
-        targetMesh.allocateCells(5);
-        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
-        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
-	targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
-        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
-        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New(targetCoords,9,2);
+	targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
+        targetMesh=MEDCouplingUMesh.New("MyMesh",2)
+        targetMesh.allocateCells(5)
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+	targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+        myCoords=DataArrayDouble.New(targetCoords,9,2)
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
-        targetMesh.setCoords(myCoords);
+        targetMesh.setCoords(myCoords)
         
 .. note:: targetMesh is ordered by geometric type.
 

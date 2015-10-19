@@ -49,15 +49,14 @@ Faire un bon gros copier-coller des lignes suivantes pour construire la mesh (l'
               22,27,29,28,37,42,44,43, 30,41,31,33,45,56,46,48,  31,32,34,37,43,36,-1,31,46,51,36,-1,36,51,58,43,-1,43,37,52,58,-1,37,34,49,52,-1,34,32,47,49,-1,32,31,46,47,-1,46,51,58,52,49,47,
               31,36,35,33,46,51,50,48,  43,40,39,36,58,55,54,51, 41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
               37,42,44,43,52,57,59,58]
-	mesh3D = mc.MEDCouplingUMesh("mesh3D",3);
-	mesh3D.allocateCells(18);
+	mesh3D = mc.MEDCouplingUMesh("mesh3D",3)
+	mesh3D.allocateCells(18)
 	mesh3D.insertNextCell(mc.NORM_HEXA8,conn[0:8]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[8:51]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[51:59]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[59:67]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[67:110]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[110:118]);
 	mesh3D.insertNextCell(mc.NORM_HEXA8,conn[118:126]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[126:169]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[169:177]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[177:185]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[185:228]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[228:236]);
 	mesh3D.insertNextCell(mc.NORM_HEXA8,conn[236:244]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[244:287]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[287:295]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[295:303]); mesh3D.insertNextCell(mc.NORM_POLYHED,conn[303:346]); mesh3D.insertNextCell(mc.NORM_HEXA8,conn[346:354]);
-	mesh3D.finishInsertingCells();
-	myCoords = mc.DataArrayDouble(coords,60,3);
+	myCoords = mc.DataArrayDouble(coords,60,3)
 	myCoords.setInfoOnComponents(["X [m]","Y [m]","Z [m]"])
-	mesh3D.setCoords(myCoords);
+	mesh3D.setCoords(myCoords)
 	mesh3D.orientCorrectlyPolyhedrons()
 	mesh3D.sortCellsInMEDFileFrmt()
 	mesh3D.checkCoherency()
@@ -250,6 +249,8 @@ Puis aggréger ``mesh3DSlice2`` avec sa copie translatée ``mesh3DSlice2bis``, e
 
 .. note:: Pour information pour merger deux (ou plus) maillages non structurés, il faut invoquer ``MEDCouplingUMesh.MergeUMeshes()``
 	puis ``MEDCouplingUMesh.mergeNodes()`` sur le résultat, et enfin ``MEDCouplingUMesh.zipConnectivity()``.
+
+.. _exo-umesh-desc-connec:
 
 Connectivité descendante
 ~~~~~~~~~~~~~~~~~~~~~~~~

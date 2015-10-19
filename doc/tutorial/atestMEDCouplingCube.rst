@@ -65,7 +65,6 @@
 	for i in range(nbOfCells):
 		mesh.insertNextCell(NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
 		pass
-	mesh.finishInsertingCells()
 
 	print "5 ********************"
 	# Settings of coordinates and verify if it's OK
@@ -169,7 +168,6 @@
 
 	for i in range(NbCell2D):
 		m1.insertNextCell(NORM_QUAD4,4,Connectivities[4*i:4*(i+1)])
-	m1.finishInsertingCells()
 	m1.changeSpaceDimension(3)
 
 	# Creation of 1D meshing
@@ -181,7 +179,6 @@
 	m2.insertNextCell(NORM_SEG2,2,conn[0:2])
 	m2.insertNextCell(NORM_SEG2,2,conn[2:4])
 	m2.insertNextCell(NORM_SEG2,2,conn[4:6])
-	m2.finishInsertingCells()
 	myCoords1D=DataArrayDouble.New()
 	myCoords1D.setValues(coords,4,1)
 	m2.setCoords(myCoords1D)

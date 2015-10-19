@@ -47,7 +47,6 @@ Nous créons tout d'abord le même maillage ``targetMesh`` que pour l'API simple
 	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[0:4])
 	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[10:14])
 	targetMesh.insertNextCell(ml.NORM_QUAD4,4,targetConn[14:18])
-	targetMesh.finishInsertingCells()
 	myCoords = ml.DataArrayDouble(targetCoords,9,2)
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
 	targetMesh.setCoords(myCoords)        
@@ -55,7 +54,10 @@ Nous créons tout d'abord le même maillage ``targetMesh`` que pour l'API simple
 .. note:: Le maillage ``targetMesh`` est ordonné par type géométrique.
 
 Nous construisons ensuite ``targetMesh1`` représentant les sous-constituants (*faces*) du maillage
-``targetMesh`` reduits aux cellules [3,4,7,8]. Cela peut par exemple représenter un ensemble d'intérêt pour un calcul : ::
+``targetMesh``, et nous en extrayons seulement les cellules (donc ici des surfaces) [3,4,7,8]. 
+Pour plus de détails sur la connectivité descendante, 
+consulter la section :ref:`exo-umesh-desc-connec` du deuxième exercise.
+Cet ensemble peut par exemple représenter un ensemble d'intérêt pour un calcul : ::
 
 	targetMeshConsti, _, _, _, _ = targetMesh.buildDescendingConnectivity()
 	targetMesh1 = targetMeshConsti[[3,4,7,8]]

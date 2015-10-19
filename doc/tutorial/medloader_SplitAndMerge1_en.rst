@@ -22,9 +22,11 @@ Each of the even cell of "m0" is "simplexized" (cut in triangles - method MEDCou
 	arr=DataArrayDouble(31,1) ; arr.iota(0.)
 	m0.setCoords(arr,arr)
 	m0=m0.buildUnstructured()
-	m00=m0[::2] ; m00.simplexize(0) ; m01=m0[1::2]
+	m00=m0[::2]                # Extract even cells 
+	m00.simplexize(0)
+	m01=m0[1::2]
 	m0=MEDCouplingUMesh.MergeUMeshes([m00,m01])
-	m0.getCoords()[:]*=1/15.
+	m0.getCoords()[:]*=1/15.   # Illustrate how to quickly rescale a mesh
 	m0.setName("mesh")
 
 .. note:: The call to setName() on "m0" is mandatory. Don't forget that the correct naming of the meshes is paramount in the MED file context.

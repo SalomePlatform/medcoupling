@@ -159,7 +159,8 @@ l'agrégation de maillages et de champs respecte exactement le même principe po
 faciliter l'accès et le repérage des données. C'est par exemple une différence essentielle avec le
 modèle MED fichier comme on le verra plus tard.
 
-.. note:: La méthode similaire permettant d'agréger par composante (plutôt que par tuples) s'appelle ``Meld()``.
+.. note:: La méthode permettant d'agréger par composante (c'est-à-dire de concaténer des tableaux
+    colonne par colonne, plutôt que par tuples) s'appelle ``Meld()``.
 
 Trouver les tuples égaux
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -311,9 +312,6 @@ des 7 hexagones utilisant les coordonnées ``d3``. ::
 		cell_connec = o2n[6*i:6*(i+1)]
 		m.insertNextCell(mc.NORM_POLYGON, cell_connec.getValues())
 		pass
-	m.finishInsertingCells()
-
-.. note:: Après SALOME 6.6, l'appel à ``MEDCouplingUMesh.finishInsertingCells()`` n'est plus nécessaire.
 
 Vérifier que ``m`` est correct et ne contient pas d'anomalie. ::
 

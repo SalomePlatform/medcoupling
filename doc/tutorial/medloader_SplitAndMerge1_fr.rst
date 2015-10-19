@@ -27,11 +27,11 @@ Chacune des cellules paires du maillage sera *simplexisée* (i.e. coupée en tri
 	arr = ml.DataArrayDouble(31,1) ; arr.iota(0.)
 	m0.setCoords(arr,arr)
 	m0 = m0.buildUnstructured()
-	m00 = m0[::2]      # Extract even cells
+	m00 = m0[::2]                # Extract even cells
 	m00.simplexize(0) 
 	m01 = m0[1::2]
 	m0 = ml.MEDCouplingUMesh.MergeUMeshes([m00,m01])
-	m0.getCoords()[:] *= 1/15.
+	m0.getCoords()[:] *= 1/15.   # Illustrate how to quickly rescale a mesh
 	m0.setName("mesh")
 
 .. note:: Le ``setName()`` sur "m0" est obligatoire. Ne pas oublier que dans le contexte MED fichier 

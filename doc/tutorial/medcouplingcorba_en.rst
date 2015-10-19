@@ -9,7 +9,7 @@ The following use cases can also be mentioned:
 
 * YACS, to create visualization nodes
 * create a Python mock-up script and use the standard Python interpreter whilst benefiting
-from the ParaViS graphical interface
+  from the ParaViS graphical interface
 
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
