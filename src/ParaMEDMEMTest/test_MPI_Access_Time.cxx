@@ -42,7 +42,7 @@ using namespace ParaMEDMEM;
 
 void MPIAccessTest::test_MPI_Access_Time() {
 
-  cout << "test_MPI_Access_Time" << endl ;
+  debugStream << "test_MPI_Access_Time" << endl ;
 
   //  MPI_Init(&argc, &argv) ; 
 
@@ -54,11 +54,12 @@ void MPIAccessTest::test_MPI_Access_Time() {
   if ( size < 2 ) {
     ostringstream strstream ;
     strstream << "test_MPI_Access_Time must be runned with 2 procs" << endl ;
-    cout << strstream.str() << endl ;
-    CPPUNIT_FAIL( strstream.str() ) ;
+    cerr << strstream.str() << endl ;
+    //CPPUNIT_FAIL( strstream.str() ) ;
+    return;
   }
 
-  cout << "test_MPI_Access_Time" << myrank << endl ;
+  debugStream << "test_MPI_Access_Time" << myrank << endl ;
 
   ParaMEDMEM::CommInterface interface ;
 
@@ -69,11 +70,11 @@ void MPIAccessTest::test_MPI_Access_Time() {
 #define maxreq 10
 
   if ( myrank >= 2 ) {
-    cout << "test_MPI_Access_Time_0 rank" << myrank << " --> mpi_access->Barrier" << endl ;
+    debugStream << "test_MPI_Access_Time_0 rank" << myrank << " --> mpi_access->Barrier" << endl ;
     mpi_access.barrier() ;
-    cout << "test_MPI_Access_Time_0 rank" << myrank << " <-- mpi_access->Barrier" << endl ;
+    debugStream << "test_MPI_Access_Time_0 rank" << myrank << " <-- mpi_access->Barrier" << endl ;
     delete group ;
-    cout << "test_MPI_Access_Time" << myrank << " OK" << endl ;
+    debugStream << "test_MPI_Access_Time" << myrank << " OK" << endl ;
     return ;
   }
 
@@ -100,11 +101,11 @@ void MPIAccessTest::test_MPI_Access_Time() {
       sts = mpi_access.ISend( &aSendTimeMsg[i] , 1 ,
                               mpi_access.timeType() , target ,
                               SendTimeRequestId[i]) ;
-      cout << "test" << myrank << " ISend RequestId " << SendTimeRequestId[i]
+      debugStream << "test" << myrank << " ISend RequestId " << SendTimeRequestId[i]
            << " tag " << mpi_access.sendMPITag(target) << endl ;
       sendbuf[i] = i ;
       sts = mpi_access.ISend(&sendbuf[i],1,MPI_INT,target, SendRequestId[i]) ;
-      cout << "test" << myrank << " ISend RequestId " << SendRequestId[i]
+      debugStream << "test" << myrank << " ISend RequestId " << SendRequestId[i]
            << " tag " << mpi_access.sendMPITag(target) << endl ;
     }
     else {
@@ -112,10 +113,10 @@ void MPIAccessTest::test_MPI_Access_Time() {
       sts = mpi_access.IRecv( &aRecvTimeMsg[i] , 1 ,
                               mpi_access.timeType() , target ,
                               RecvTimeRequestId[i]) ;
-      cout << "test" << myrank << " IRecv RequestId " << RecvTimeRequestId[i]
+      debugStream << "test" << myrank << " IRecv RequestId " << RecvTimeRequestId[i]
            << " tag " << mpi_access.recvMPITag(target) << endl ;
       sts = mpi_access.IRecv(&recvbuf[i],1,MPI_INT,target, RecvRequestId[i]) ;
-      cout << "test" << myrank << " IRecv RequestId " << RecvRequestId[i]
+      debugStream << "test" << myrank << " IRecv RequestId " << RecvRequestId[i]
            << " tag " << mpi_access.recvMPITag(target) << endl ;
     }
     int j ;
@@ -132,14 +133,14 @@ void MPIAccessTest::test_MPI_Access_Time() {
         if ( myrank == 0 ) {
           mpi_access.status( SendTimeRequestId[j], target, tag, error, outcount,
                              true ) ;
-          cout << "test" << myrank << " Test(Send TimeRequestId " << SendTimeRequestId[j]
+          debugStream << "test" << myrank << " Test(Send TimeRequestId " << SendTimeRequestId[j]
                << ") : target " << target << " tag " << tag << " error " << error
                << " flag " << flag << aSendTimeMsg[j] << endl ;
         }
         else {
           mpi_access.status( RecvTimeRequestId[j], source, tag, error, outcount,
                              true ) ;
-          cout << "test" << myrank << " Test(Recv TimeRequestId "
+          debugStream << "test" << myrank << " Test(Recv TimeRequestId "
                << RecvTimeRequestId[j] << ") : source " << source << " tag " << tag
                << " error " << error << " outcount " << outcount
                << " flag " << flag << aRecvTimeMsg[j] << endl ;
@@ -150,11 +151,11 @@ void MPIAccessTest::test_MPI_Access_Time() {
                       << " RecvTimeRequestId " << RecvTimeRequestId[j] << endl
                       << "==========================================================="
                       << endl ;
-            cout << strstream.str() << endl ;
+            debugStream << strstream.str() << endl ;
             CPPUNIT_FAIL( strstream.str() ) ;
           }
           else {
-            cout << "==========================================================="
+            debugStream << "==========================================================="
                  << endl << "test" << myrank << " outcount " << outcount
                  << " RecvTimeRequestId " << RecvTimeRequestId[j] << " OK" << endl
                  << "==========================================================="
@@ -173,14 +174,14 @@ void MPIAccessTest::test_MPI_Access_Time() {
         if ( myrank == 0 ) {
           mpi_access.status( SendRequestId[j], target, tag, error, outcount,
                              true ) ;
-          cout << "test" << myrank << " Test(Send RequestId " << SendRequestId[j]
+          debugStream << "test" << myrank << " Test(Send RequestId " << SendRequestId[j]
                << ") : target " << target << " tag " << tag << " error " << error
                << " flag " << flag << endl ;
         }
         else {
           mpi_access.status( RecvRequestId[j], source, tag, error, outcount,
                              true ) ;
-          cout << "test" << myrank << " Test(Recv RequestId "
+          debugStream << "test" << myrank << " Test(Recv RequestId "
                << RecvRequestId[j] << ") : source " << source << " tag " << tag
                << " error " << error << " outcount " << outcount
                << " flag " << flag << endl ;
@@ -191,11 +192,11 @@ void MPIAccessTest::test_MPI_Access_Time() {
                       << outcount << " recvbuf " << recvbuf[j] << " KO" << endl
                       << "==========================================================="
                       << endl ;
-            cout << strstream.str() << endl ;
+            debugStream << strstream.str() << endl ;
             CPPUNIT_FAIL( strstream.str() ) ;
           }
           else {
-            cout << "==========================================================="
+            debugStream << "==========================================================="
                  << endl << "test" << myrank << " outcount " << outcount
                  << " RequestId " << RecvRequestId[j] << " OK" << endl
                  << "==========================================================="
@@ -207,7 +208,7 @@ void MPIAccessTest::test_MPI_Access_Time() {
     char msgerr[MPI_MAX_ERROR_STRING] ;
     int lenerr ;
     mpi_access.errorString(sts, msgerr, &lenerr) ;
-    cout << "test" << myrank << " lenerr " << lenerr << " "
+    debugStream << "test" << myrank << " lenerr " << lenerr << " "
          << msgerr << endl ;
 
     if ( sts != MPI_SUCCESS ) {
@@ -216,13 +217,13 @@ void MPIAccessTest::test_MPI_Access_Time() {
                 << "test" << myrank << " KO"
                 << "==========================================================="
                 << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
     i = i + 1 ;
   }
 
-  mpi_access.check() ;
+  if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
   if ( myrank == 0 ) {
     mpi_access.waitAll(maxreq, SendTimeRequestId) ;
     mpi_access.deleteRequests(maxreq, SendTimeRequestId) ;
@@ -235,7 +236,7 @@ void MPIAccessTest::test_MPI_Access_Time() {
     mpi_access.waitAll(maxreq, RecvRequestId) ;
     mpi_access.deleteRequests(maxreq, RecvRequestId) ;
   }
-  mpi_access.check() ;
+  if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
 
   if ( myrank == 0 ) {
     int sendrequests[2*maxreq] ;
@@ -245,11 +246,11 @@ void MPIAccessTest::test_MPI_Access_Time() {
       strstream << "=========================================================" << endl
                 << "test" << myrank << " sendreqsize " << sendreqsize << " KO" << endl
                 << "=========================================================" << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
     else {
-      cout << "=========================================================" << endl
+      debugStream << "=========================================================" << endl
            << "test" << myrank << " sendreqsize " << sendreqsize << " OK" << endl
            << "=========================================================" << endl ;
     }
@@ -262,25 +263,25 @@ void MPIAccessTest::test_MPI_Access_Time() {
       strstream << "=========================================================" << endl
                 << "test" << myrank << " recvreqsize " << recvreqsize << " KO" << endl
                 << "=========================================================" << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
     else {
-      cout << "=========================================================" << endl
+      debugStream << "=========================================================" << endl
            << "test" << myrank << " recvreqsize " << recvreqsize << " OK" << endl
            << "=========================================================" << endl ;
     }
   }
 
-  cout << "test_MPI_Access_Time_0 rank" << myrank << " --> mpi_access->Barrier" << endl ;
+  debugStream << "test_MPI_Access_Time_0 rank" << myrank << " --> mpi_access->Barrier" << endl ;
   mpi_access.barrier() ;
-  cout << "test_MPI_Access_Time_0 rank" << myrank << " <-- mpi_access->Barrier" << endl ;
+  debugStream << "test_MPI_Access_Time_0 rank" << myrank << " <-- mpi_access->Barrier" << endl ;
 
   delete group ;
 
   //  MPI_Finalize();
 
-  cout << "test_MPI_Access_Time" << myrank << " OK" << endl ;
+  debugStream << "test_MPI_Access_Time" << myrank << " OK" << endl ;
 
   return ;
 }

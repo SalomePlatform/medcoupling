@@ -42,7 +42,7 @@ using namespace ParaMEDMEM;
 
 void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
 
-  cout << "test_MPI_Access_ISend_IRecv_Length" << endl ;
+  debugStream << "test_MPI_Access_ISend_IRecv_Length" << endl ;
 
   //  MPI_Init(&argc, &argv) ; 
 
@@ -54,11 +54,12 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
   if ( size < 2 ) {
     ostringstream strstream ;
     strstream << "test_MPI_Access_ISend_IRecv_Length must be runned with 2 procs" << endl ;
-    cout << strstream.str() << endl ;
-    CPPUNIT_FAIL( strstream.str() ) ;
+    cerr << strstream.str() << endl ;
+    //CPPUNIT_FAIL( strstream.str() ) ;
+    return;
   }
 
-  cout << "test_MPI_Access_ISend_IRecv_Length" << myrank << endl ;
+  debugStream << "test_MPI_Access_ISend_IRecv_Length" << myrank << endl ;
 
   ParaMEDMEM::CommInterface interface ;
 
@@ -87,13 +88,13 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
   for ( i = 0 ; i < maxreq ; i++ ) {
     if ( myrank == 0 ) {
       sts = mpi_access.ISend( sendbuf, 1000*i, MPI_INT, target, SendRequestId[i] ) ;
-      cout << "test" << myrank << " ISend RequestId " << SendRequestId[i]
+      debugStream << "test" << myrank << " ISend RequestId " << SendRequestId[i]
            << " tag " << mpi_access.sendMPITag(target) << endl ;
     }
     else {
       sts = mpi_access.IRecv( recvbuf[i], 1000*i, MPI_INT, target,
                               RecvRequestId[i] ) ;
-      cout << "test" << myrank << " IRecv RequestId " << RecvRequestId[i]
+      debugStream << "test" << myrank << " IRecv RequestId " << RecvRequestId[i]
            << " tag " << mpi_access.recvMPITag(target) << endl ;
     }
     int j ;
@@ -110,14 +111,14 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
         if ( myrank == 0 ) {
           mpi_access.status( SendRequestId[j], target, tag, error, outcount,
                              true ) ;
-          cout << "test" << myrank << " Test(Send RequestId " << SendRequestId[j]
+          debugStream << "test" << myrank << " Test(Send RequestId " << SendRequestId[j]
                << ") : target " << target << " tag " << tag << " error " << error
                << " flag " << flag << endl ;
         }
         else {
           mpi_access.status( RecvRequestId[j], source, tag, error, outcount,
                              true ) ;
-          cout << "test" << myrank << " Test(Recv RequestId "
+          debugStream << "test" << myrank << " Test(Recv RequestId "
                << RecvRequestId[j] << ") : source " << source << " tag " << tag
                << " error " << error << " outcount " << outcount
                << " flag " << flag << endl ;
@@ -131,11 +132,11 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
                         << endl
                         << "==========================================================="
                         << endl ;
-              cout << strstream.str() << endl ;
+              debugStream << strstream.str() << endl ;
               CPPUNIT_FAIL( strstream.str() ) ;
             }
             else {
-              cout << "==========================================================="
+              debugStream << "==========================================================="
                    << endl << "test" << myrank << " outcount " << outcount
                    << " RequestId " << RecvRequestId[j] << " recvbuf "
                    << recvbuf[j][outcount-1] << " OK" << endl
@@ -144,7 +145,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
             }
           }
           else {
-            cout << "==========================================================="
+            debugStream << "==========================================================="
                  << endl << "test" << myrank << " outcount " << outcount
                  << " RequestId " << RecvRequestId[j] << " OK" << endl
                  << "==========================================================="
@@ -156,7 +157,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
     char msgerr[MPI_MAX_ERROR_STRING] ;
     int lenerr ;
     mpi_access.errorString(sts, msgerr, &lenerr) ;
-    cout << "test" << myrank << " lenerr " << lenerr << " "
+    debugStream << "test" << myrank << " lenerr " << lenerr << " "
          << msgerr << endl ;
 
     if ( sts != MPI_SUCCESS ) {
@@ -165,13 +166,13 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
                 << "test" << myrank << " KO"
                 << "==========================================================="
                 << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
   }
 
-  mpi_access.check() ;
-  cout << "test" << myrank << " WaitAll" << endl ;
+  if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
+  debugStream << "test" << myrank << " WaitAll" << endl ;
   if ( myrank == 0 ) {
     mpi_access.waitAll(maxreq, SendRequestId) ;
     mpi_access.deleteRequests(maxreq, SendRequestId) ;
@@ -180,7 +181,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
     mpi_access.waitAll(maxreq, RecvRequestId) ;
     mpi_access.deleteRequests(maxreq, RecvRequestId) ;
   }
-  mpi_access.check() ;
+  if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
 
   if ( myrank == 0 ) {
     int sendrequests[maxreq] ;
@@ -191,11 +192,11 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
       strstream << "=========================================================" << endl
                 << "test" << myrank << " sendreqsize " << sendreqsize << " KO" << endl
                 << "=========================================================" << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
     else {
-      cout << "=========================================================" << endl
+      debugStream << "=========================================================" << endl
            << "test" << myrank << " sendreqsize " << sendreqsize << " OK" << endl
            << "=========================================================" << endl ;
     }
@@ -208,11 +209,11 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
       strstream << "=========================================================" << endl
                 << "test" << myrank << " recvreqsize " << recvreqsize << " KO" << endl
                 << "=========================================================" << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
     else {
-      cout << "=========================================================" << endl
+      debugStream << "=========================================================" << endl
            << "test" << myrank << " recvreqsize " << recvreqsize << " OK" << endl
            << "=========================================================" << endl ;
     }
@@ -224,7 +225,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
 
   //  MPI_Finalize();
 
-  cout << "test" << myrank << " OK" << endl ;
+  debugStream << "test" << myrank << " OK" << endl ;
 
   return ;
 }

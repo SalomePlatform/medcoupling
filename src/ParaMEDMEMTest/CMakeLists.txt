@@ -111,6 +111,21 @@ FOREACH(bintestparamem ${TESTSParaMEDMEM})
   TARGET_LINK_LIBRARIES(${bintestparamem} ParaMEDMEMTest)
 ENDFOREACH(bintestparamem ${TESTSParaMEDMEM})
 
+# Now add CMake tests - test_perf, ParaMEDMEMTestMPI2_1 and ParaMEDMEMTestMPI2_2
+# are left aside, as they are too specific
+#   
+#  -- some tests require 2, 3, 4 or 5 procs --
+ADD_TEST(NAME TestParaMEDMEM_Proc2 COMMAND ${MPIEXEC} -np 2 $<TARGET_FILE:TestParaMEDMEM>)
+ADD_TEST(NAME TestParaMEDMEM_Proc3 COMMAND ${MPIEXEC} -np 3 $<TARGET_FILE:TestParaMEDMEM>)
+ADD_TEST(NAME TestParaMEDMEM_Proc4 COMMAND ${MPIEXEC} -np 4 $<TARGET_FILE:TestParaMEDMEM>)
+ADD_TEST(NAME TestParaMEDMEM_Proc5 COMMAND ${MPIEXEC} -np 5 $<TARGET_FILE:TestParaMEDMEM>)
+
+ADD_TEST(NAME TestMPIAccess_Proc2 COMMAND ${MPIEXEC} -np 2 $<TARGET_FILE:TestMPIAccess>)
+ADD_TEST(NAME TestMPIAccess_Proc3 COMMAND ${MPIEXEC} -np 3 $<TARGET_FILE:TestMPIAccess>)
+
+ADD_TEST(NAME TestMPIAccessDEC_Proc4 COMMAND ${MPIEXEC} -np 4 $<TARGET_FILE:TestMPIAccessDEC>)
+
+# Installation rules
 INSTALL(TARGETS ${TESTSParaMEDMEM} DESTINATION ${SALOME_INSTALL_BINS})
 SET(COMMON_HEADERS_HXX
   MPIMainTest.hxx
