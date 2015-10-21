@@ -85,7 +85,7 @@ namespace ParaMEDMEM
   */
 
   MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface, set<int> proc_ids, const MPI_Comm& world_comm):
-    ProcessorGroup(interface, proc_ids),_world_comm(world_comm)
+    ProcessorGroup(interface, proc_ids), _world_comm(world_comm)
   {
     updateMPISpecificAttributes();
   }

@@ -72,16 +72,28 @@ namespace ParaMEDMEM
   */
 
 
-  DisjointDEC::DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):_local_field(0), 
-                                                                                       _source_group(&source_group),
-                                                                                       _target_group(&target_group),
-                                                                                       _owns_field(false),
-                                                                                       _owns_groups(false)
+  DisjointDEC::DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
+      _local_field(0),
+      _source_group(&source_group),
+      _target_group(&target_group),
+      _comm_interface(0),
+      _owns_field(false),
+      _owns_groups(false),
+      _union_comm(MPI_COMM_NULL)
   {
     _union_group = source_group.fuse(target_group);  
   }
   
-  DisjointDEC::DisjointDEC(const DisjointDEC& s):DEC(s),_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false)
+  DisjointDEC::DisjointDEC(const DisjointDEC& s):
+      DEC(s),
+      _local_field(0),
+      _union_group(0),
+      _source_group(0),
+      _target_group(0),
+      _comm_interface(0),
+      _owns_field(false),
+      _owns_groups(false),
+      _union_comm(MPI_COMM_NULL)
   {
     copyInstance(s);
   }
@@ -111,9 +123,14 @@ namespace ParaMEDMEM
       _union_group = _source_group->fuse(*_target_group);
   }
 
-  DisjointDEC::DisjointDEC(const std::set<int>& source_ids, const std::set<int>& target_ids, const MPI_Comm& world_comm):_local_field(0), 
-                                                                                                                         _owns_field(false),
-                                                                                                                         _owns_groups(true)
+  DisjointDEC::DisjointDEC(const std::set<int>& source_ids,
+                           const std::set<int>& target_ids,
+                           const MPI_Comm& world_comm):
+     _local_field(0),
+     _owns_field(false),
+     _owns_groups(true),
+     _comm_interface(0),
+     _union_comm(MPI_COMM_NULL)
   {
     ParaMEDMEM::CommInterface comm;
     // Create the list of procs including source and target
@@ -129,15 +146,15 @@ namespace ParaMEDMEM
     MPI_Group union_group,world_group;
     comm.commGroup(world_comm,&world_group);
     comm.groupIncl(world_group,union_ids.size(),union_ranks_world,&union_group);
-    MPI_Comm union_comm;
-    comm.commCreate(world_comm,union_group,&union_comm);
+    comm.commCreate(world_comm,union_group,&_union_comm);
     delete[] union_ranks_world;
-
-    if (union_comm==MPI_COMM_NULL)
+    if (_union_comm==MPI_COMM_NULL)
       { // This process is not in union
         _source_group=0;
         _target_group=0;
         _union_group=0;
+        comm.groupFree(&union_group);
+        comm.groupFree(&world_group);
         return;
       }
 
@@ -162,10 +179,11 @@ namespace ParaMEDMEM
     delete [] target_ranks_union;
 
     // Create the MPIProcessorGroups
-    _source_group = new MPIProcessorGroup(comm,source_ids_union,union_comm);
-    _target_group = new MPIProcessorGroup(comm,target_ids_union,union_comm);
+    _source_group = new MPIProcessorGroup(comm,source_ids_union,_union_comm);
+    _target_group = new MPIProcessorGroup(comm,target_ids_union,_union_comm);
     _union_group = _source_group->fuse(*_target_group);
-
+    comm.groupFree(&union_group);
+    comm.groupFree(&world_group);
   }
 
   DisjointDEC::~DisjointDEC()
@@ -191,6 +209,8 @@ namespace ParaMEDMEM
     _target_group=0;
     delete _union_group;
     _union_group=0;
+    if (_union_comm != MPI_COMM_NULL)
+      _comm_interface->commFree(&_union_comm);
   }
 
   void DisjointDEC::setNature(NatureOfField nature)
