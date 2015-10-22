@@ -203,9 +203,11 @@ namespace ParaMEDMEM
 
     The method in charge to perform this is : ParaMEDMEM::OverlapMapping::prepare.
 */
-  OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):_own_group(true),_interpolation_matrix(0),
-                                                                                   _source_field(0),_own_source_field(false),
-                                                                                   _target_field(0),_own_target_field(false)
+  OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
+      _own_group(true),_interpolation_matrix(0),
+      _source_field(0),_own_source_field(false),
+      _target_field(0),_own_target_field(false),
+      _comm(MPI_COMM_NULL)
   {
     ParaMEDMEM::CommInterface comm;
     int *ranks_world=new int[procIds.size()]; // ranks of sources and targets in world_comm
@@ -214,10 +216,10 @@ namespace ParaMEDMEM
     comm.commGroup(world_comm,&world_group);
     comm.groupIncl(world_group,procIds.size(),ranks_world,&group);
     delete [] ranks_world;
-    MPI_Comm theComm;
-    comm.commCreate(world_comm,group,&theComm);
+    comm.commCreate(world_comm,group,&_comm);
     comm.groupFree(&group);
-    if(theComm==MPI_COMM_NULL)
+    comm.groupFree(&world_group);
+    if(_comm==MPI_COMM_NULL)
       {
         _group=0;
         return ;
@@ -225,7 +227,7 @@ namespace ParaMEDMEM
     std::set<int> idsUnion;
     for(std::size_t i=0;i<procIds.size();i++)
       idsUnion.insert(i);
-    _group=new MPIProcessorGroup(comm,idsUnion,theComm);
+    _group=new MPIProcessorGroup(comm,idsUnion,_comm);
   }
 
   OverlapDEC::~OverlapDEC()
@@ -237,6 +239,11 @@ namespace ParaMEDMEM
     if(_own_target_field)
       delete _target_field;
     delete _interpolation_matrix;
+    if (_comm != MPI_COMM_NULL)
+      {
+        ParaMEDMEM::CommInterface comm;
+        comm.commFree(&_comm);
+      }
   }
 
   void OverlapDEC::sendRecvData(bool way)
