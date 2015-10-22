@@ -1910,6 +1910,10 @@ void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
   delete target_group;
   delete source_group;
   delete dec;
+  if(partialComm != MPI_COMM_NULL)
+    comm.commFree(&partialComm);
+  comm.groupFree(&grp);
+  comm.groupFree(&group_world);
   MPI_Barrier(MPI_COMM_WORLD);
 }
 

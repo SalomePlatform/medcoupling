@@ -48,14 +48,14 @@ static void chksts( int sts , int myrank , ParaMEDMEM::MPIAccess mpi_access ) {
   int lenerr ;
   if ( sts != MPI_SUCCESS ) {
     mpi_access.errorString(sts, msgerr, &lenerr) ;
-    cout << "test" << myrank << " lenerr " << lenerr << " "
+    debugStream << "test" << myrank << " lenerr " << lenerr << " "
          << msgerr << endl ;
     ostringstream strstream ;
     strstream << "===========================================================" << endl
               << "test_AllToAllDEC" << myrank << " KO" << endl
               << "==========================================================="
               << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
   return ;
@@ -63,7 +63,7 @@ static void chksts( int sts , int myrank , ParaMEDMEM::MPIAccess mpi_access ) {
 
 void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
 
-  cout << "test_AllToAllDEC" << endl ;
+  debugStream << "test_AllToAllDEC" << endl ;
 
   //  MPI_Init(&argc, &argv) ; 
 
@@ -79,11 +79,11 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
               << " (nbprocs >=2)" << endl
               << "test must be runned with more than 1 proc and less than 12 procs"
               << endl ;
-    cout << strstream.str() << endl ;
+    cerr << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
 
-  cout << "test_AllToAllDEC" << myrank << endl ;
+  debugStream << "test_AllToAllDEC" << myrank << endl ;
 
   ParaMEDMEM::CommInterface interface ;
   std::set<int> sourceprocs;
@@ -133,7 +133,7 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
   }
 
   int nSendReq = mpi_access->sendRequestIdsSize() ;
-  cout << "test_AllToAllDEC" << myrank << " final SendRequestIds " << nSendReq << " SendRequests"
+  debugStream << "test_AllToAllDEC" << myrank << " final SendRequestIds " << nSendReq << " SendRequests"
        << endl ;
   if ( nSendReq ) {
     int *ArrayOfSendRequests = new int[nSendReq] ;
@@ -147,11 +147,11 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
     ostringstream strstream ;
     strstream << "test_AllToAllDEC" << myrank << " final RecvRequestIds " << nRecvReq
               << " RecvRequests # 0 Error" << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
   else {
-    cout << "test_AllToAllDEC" << myrank << " final RecvRequestIds " << nRecvReq
+    debugStream << "test_AllToAllDEC" << myrank << " final RecvRequestIds " << nRecvReq
          << " RecvRequests = 0 OK" << endl ;
   }
 
@@ -164,7 +164,7 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
 
   //  MPI_Finalize();
 
-  cout << "test_AllToAllDEC" << myrank << " OK" << endl ;
+  debugStream << "test_AllToAllDEC" << myrank << " OK" << endl ;
 
   return ;
 }
