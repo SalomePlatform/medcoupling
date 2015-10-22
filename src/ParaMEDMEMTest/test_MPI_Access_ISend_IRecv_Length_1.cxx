@@ -78,7 +78,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
   int RecvRequestId[maxreq] ;
   int sts ;
   int sendbuf[1000*(maxreq-1)] ;
-  int recvbuf[maxreq-1][1000*(maxreq-1)] ;
+  int recvbuf[maxreq][1000*(maxreq-1)] ;
   int maxirecv = 1 ;
   int i ;
   RecvRequestId[0] = -1 ;

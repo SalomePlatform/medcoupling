@@ -80,7 +80,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
   int RecvRequestId[maxreq] ;
   int sts ;
   int sendbuf[1000*(maxreq-1)] ;
-  int recvbuf[maxreq-1][1000*(maxreq-1)] ;
+  int recvbuf[maxreq][1000*(maxreq-1)] ;
   int i ;
   for ( i = 0 ; i < 1000*(maxreq-1) ; i++ ) {
     sendbuf[i] = i ;
@@ -186,7 +186,6 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
   if ( myrank == 0 ) {
     int sendrequests[maxreq] ;
     int sendreqsize = mpi_access.sendRequestIds( target , maxreq , sendrequests ) ;
-    sendreqsize = mpi_access.sendRequestIds( target , maxreq , sendrequests ) ;
     if ( sendreqsize != 0 ) {
       ostringstream strstream ;
       strstream << "=========================================================" << endl
@@ -203,7 +202,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
   }
   else {
     int recvrequests[maxreq] ;
-    int recvreqsize = mpi_access.sendRequestIds( target , maxreq , recvrequests ) ;
+    int recvreqsize = mpi_access.recvRequestIds( target , maxreq , recvrequests ) ;
     if ( recvreqsize != 0 ) {
       ostringstream strstream ;
       strstream << "=========================================================" << endl
