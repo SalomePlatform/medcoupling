@@ -50,18 +50,35 @@ using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
 
 #if defined(HAVE_MPI)
+std::string MEDPARTITIONERTest::getPartitionerParaExe() const
+{
+  std::string execName;
+  if ( getenv("MEDTOOL_ROOT_DIR") )
+    {
+      execName=getenv("MEDTOOL_ROOT_DIR");  //.../INSTALL/MED
+      execName+="/bin/medpartitioner_para";
+    }
+  else
+    {
+      execName = get_current_dir_name();
+      execName += "/../../MEDPartitioner/medpartitioner_para";
+      if (! std::ifstream(execName.c_str()))
+        CPPUNIT_FAIL("Can't find medpartitioner_para, please set MEDTOOL_ROOT_DIR");
+    }
+  return execName;
+}
+
 void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner_para";
+  execName=getPartitionerParaExe();
   fileName=_file_name_with_faces;
-  
+
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
   ParaMEDMEM::MEDCouplingUMesh* faceMesh=initialMesh->getLevelM1Mesh(false);
-  
+
   cmd="mpirun -np 5 "+execName+" --ndomains=5 --split-method=metis";  //on same proc
   sourceName=fileName;
   targetName=fileName;
@@ -71,7 +88,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   input=targetName+".xml";
-  
+
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
   MEDPARTITIONER::MeshCollection collection(input,parallelizer);
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
@@ -81,14 +98,14 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   for (std::size_t i = 0; i < cellMeshes.size(); i++)
     nbcells+=cellMeshes[i]->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
-  
+
   std::vector<ParaMEDMEM::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
   int nbfaces=0;
   for (std::size_t i=0; i < faceMeshes.size(); i++)
     nbfaces+=faceMeshes[i]->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
-  
+
   //merge split meshes and test equality
   cmd="mpirun -np 1 "+execName+" --ndomains=1 --split-method=metis";  //on same proc
   sourceName=targetName+".xml";
@@ -98,25 +115,25 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
+
   string refusedName=targetName+"1.med";
   ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
   ParaMEDMEM::MEDCouplingUMesh* refusedFaceMesh=refusedMesh->getLevelM1Mesh(false);
-  
+
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), refusedFaceMesh->getNumberOfCells());
-  
+
   /*not the good job
     ParaMEDMEM::MEDCouplingMesh* mergeCell=cellMesh->mergeMyselfWith(refusedCellMesh);
     CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), mergeCell->getNumberOfCells());
-  
+
     ParaMEDMEM::MEDCouplingMesh* mergeFace=faceMesh->mergeMyselfWith(refusedFaceMesh);
     CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), mergeFace->getNumberOfCells());
-  
+
     CPPUNIT_ASSERT(faceMesh->isEqual(refusedFaceMesh,1e-12));
   */
-  
+
   std::vector<const MEDCouplingUMesh *> meshes;
   std::vector<DataArrayInt *> corr;
   meshes.push_back(cellMesh);
@@ -124,7 +141,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   meshes.push_back(refusedCellMesh);
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
-  
+
   meshes.resize(0);
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
@@ -134,7 +151,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   meshes.push_back(refusedFaceMesh);
   MEDCouplingUMesh* fusedFace=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), fusedFace->getNumberOfCells());
-  
+
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
   fusedFace->decrRef();
@@ -152,14 +169,13 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner_para";
+  execName=getPartitionerParaExe();
   fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnCells.med");
-  
+
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
-  
+
   cmd="mpirun -np 5 "+execName+" --ndomains=5 --split-method=metis";  //on same proc
   sourceName=fileName;
   targetName=fileName;
@@ -169,7 +185,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   input=targetName+".xml";
-  
+
   //merge split meshes and test equality
   cmd="mpirun -np 1 "+execName+" --ndomains=1 --split-method=metis";  //on same proc
   sourceName=targetName+".xml";
@@ -179,13 +195,13 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
+
   string refusedName=targetName+"1.med";
   ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
-  
+
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
-  
+
   std::vector<const MEDCouplingUMesh *> meshes;
   std::vector<DataArrayInt *> corr;
   meshes.push_back(cellMesh);
@@ -193,22 +209,22 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   meshes.push_back(refusedCellMesh);
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
-  
+
   MEDCouplingFieldDouble* field1=MEDLoader::ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
   MEDCouplingFieldDouble* field2=MEDLoader::ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
-  
+
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
   //use corr to test equality of field
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
-  if (_verbose>300) 
+  if (_verbose>300)
     {
       cout<<"\nf1 : "<<f1->reprZip();
       cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
       for (std::size_t i = 0; i < corr.size(); i++)
         cout << "\ncorr " << i << " : " << corr[i]->reprZip();
-    
+
     }
   int nbequal=0;
   int nbcomp=field1->getNumberOfComponents();
@@ -226,7 +242,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
         }
     }
   CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp, nbequal);
-  
+
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
   field1->decrRef();
@@ -240,14 +256,13 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner_para";
+  execName=getPartitionerParaExe();
   fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnGaussNe.med");
-  
+
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
-  
+
   cmd="mpirun -np 5 "+execName+" --ndomains=5 --split-method=metis";  //on same proc
   sourceName=fileName;
   targetName=fileName;
@@ -257,7 +272,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   input=targetName+".xml";
-  
+
   //merge split meshes and test equality
   cmd="mpirun -np 1 "+execName+" --ndomains=1 --split-method=metis";  //on same proc
   sourceName=targetName+".xml";
@@ -267,13 +282,13 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
+
   string refusedName=targetName+"1.med";
   ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
-  
+
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
-  
+
   std::vector<const MEDCouplingUMesh *> meshes;
   std::vector<DataArrayInt *> corr;
   meshes.push_back(cellMesh);
@@ -281,22 +296,22 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   meshes.push_back(refusedCellMesh);
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
-  
+
   MEDCouplingFieldDouble* field1=MEDLoader::ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
   MEDCouplingFieldDouble* field2=MEDLoader::ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
-  
+
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
   //use corr to test equality of field
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
-  if (_verbose>300) 
+  if (_verbose>300)
     {
       cout << "\nf1 : " << f1->reprZip(); //123.4 for 12th cell,3rd component, 4th gausspoint
       cout << "\nf2 : " << f2->reprZip(); //field2->advancedRepradvancedRepr();
       for (std::size_t i = 0; i < corr.size(); i++)
         cout << "\ncorr " << i << " : " << corr[i]->reprZip();
-    
+
     }
   int nbequal=0;
   int nbptgauss=8;
@@ -315,7 +330,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
         }
     }
   CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp*nbptgauss, nbequal);
-  
+
   for (std::size_t i = 0; i < corr.size(); i++)
     corr[i]->decrRef();
   field1->decrRef();
@@ -327,8 +342,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
 
 void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
 {
-  
-  /* examples 
+
+  /* examples
      export INFI=/home/vb144235/resources/blade.med
      //no need export MESH=Fuse_1
      export INFI=tmp_testMeshxxx.med
@@ -339,17 +354,16 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   */
   int res;
   string cmd,execName,sourceName,targetName;
-  
+
   res=system("which mpirun 2>/dev/null 1>/dev/null"); //no trace
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner_para";
-  
+
+  execName=getPartitionerParaExe();
+
   cmd="which "+execName+" 2>/dev/null 1>/dev/null";  //no trace
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
+
   cmd="mpirun -np 2 "+execName+" --ndomains=2 --split-method=metis";  //on same proc
   sourceName=_file_name;
   targetName=_file_name;
@@ -358,7 +372,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
+
   cmd="mpirun -np 3 "+execName+" --ndomains=5 --split-method=metis"; //on less proc
   sourceName=_file_name;
   targetName=_file_name;
@@ -367,7 +381,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-  
+
   cmd="mpirun -np 1 "+execName+" --ndomains=1 --split-method=metis";  //on 1 proc
   sourceName=targetName+".xml";
   targetName=_file_name;
@@ -385,14 +399,13 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-}  
+}
 
 void MEDPARTITIONERTest::launchMedpartitionerOnHugeTestMeshes()
 {
   int res=0;
   string cmd,execName,sourceName,targetName;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner_para";
+  execName=getPartitionerParaExe();
 
   string snbTarget=IntToStr(_nb_target_huge);
   cmd="mpirun -np "+snbTarget+" "+execName+" --ndomains="+snbTarget+" --split-method=metis";  //on same proc
@@ -404,7 +417,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnHugeTestMeshes()
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
-}  
+}
 
 void MEDPARTITIONERTest::testMpirunSmallSize()
 {

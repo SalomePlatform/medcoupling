@@ -56,7 +56,7 @@ class MEDPARTITIONERTEST_EXPORT MEDPARTITIONERTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testMeshCollectionComplexPartitionScotch );
   CPPUNIT_TEST( testScotchSmallSize );
 #endif
-  
+
 #if defined(HAVE_MPI)
 #if defined(MED_ENABLE_PARMETIS)
   //test with mpi on system
@@ -85,13 +85,14 @@ public:
   int _nb_target_huge;
   std::string _mesh_name; //initial test mesh file med
   int _verbose;
-  
+
   //for utils
   void setSize(int ni, int nj, int nk);
   void setSmallSize();
   void setMedianSize();
   void setbigSize();
   std::string getPartitionerExe() const;
+  std::string getPartitionerParaExe() const;
   ParaMEDMEM::MEDCouplingUMesh * buildCUBE3DMesh();
   ParaMEDMEM::MEDCouplingUMesh * buildFACE3DMesh();
   ParaMEDMEM::MEDCouplingUMesh * buildCARRE3DMesh();
@@ -113,7 +114,7 @@ public:
   void launchMedpartitionerOnTestMeshes();
   void launchMedpartitionerOnHugeTestMeshes();
   void deleteTestMeshes();
-  
+
   //for CPPUNIT_TEST
   void setUp();
   void tearDown();
@@ -129,7 +130,7 @@ public:
   void testMeshCollectionComplexPartitionScotch();
   void testScotchSmallSize();
 #endif
-  
+
 #if defined(HAVE_MPI)
   void testMpirunSmallSize();
   void testMpirunMedianSize();

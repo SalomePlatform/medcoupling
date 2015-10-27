@@ -31,7 +31,7 @@
 
 #include "VectorUtils.hxx"
 
-// levels : 
+// levels :
 // 1 - titles and volume results
 // 2 - symmetry / diagonal results and intersection matrix output
 // 3 - empty
@@ -79,7 +79,7 @@ void Interpolation3DTest::getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double 
 
 double Interpolation3DTest::sumVolume(const IntersectionMatrix& m) const
 {
-  
+
   std::vector<double> volumes;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
@@ -89,7 +89,7 @@ double Interpolation3DTest::sumVolume(const IntersectionMatrix& m) const
           //    vol += std::abs(iter2->second);
         }
     }
-  
+
   // sum in ascending order to avoid rounding errors
 
   sort(volumes.begin(), volumes.end());
@@ -163,7 +163,7 @@ bool Interpolation3DTest::areCompatitable(const IntersectionMatrix& m1, const In
     }
   return compatitable;
 }
-      
+
 bool Interpolation3DTest::testSymmetric(const IntersectionMatrix& m1, const IntersectionMatrix& m2) const
 {
 
@@ -242,9 +242,9 @@ void Interpolation3DTest::dumpIntersectionMatrix(const IntersectionMatrix& m) co
     {
       for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
-    
+
           std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << std::endl;
-    
+
         }
       ++i;
     }
@@ -259,18 +259,25 @@ void Interpolation3DTest::setUp()
 void Interpolation3DTest::tearDown()
 {
   delete interpolator;
-} 
+}
 
 void Interpolation3DTest::calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) const
 {
-  const string dataBaseDir = getenv("MED_ROOT_DIR");
-  const string dataDir = dataBaseDir + "/share/salome/resources/med/";
+  string dataDir = "";
+  if ( getenv("MEDTOOL_ROOT_DIR") ) {
+    dataDir = getenv("MEDTOOL_ROOT_DIR");
+    dataDir += "/share/resources/med/";
+  }
+  else {
+    dataDir = get_current_dir_name();
+    dataDir += "/../../resources/";
+  }
 
   LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
 
   LOG(5, "Loading " << mesh1 << " from " << mesh1path);
   MESH sMesh(MED_DRIVER, dataDir+mesh1path, mesh1);
-  
+
   LOG(5, "Loading " << mesh2 << " from " << mesh2path);
   MESH tMesh(MED_DRIVER, dataDir+mesh2path, mesh2);
 
@@ -284,7 +291,7 @@ void Interpolation3DTest::calcIntersectionMatrix(const char* mesh1path, const ch
     }
 
   LOG(1, "Intersection calculation done. " << std::endl );
-  
+
 }
 
 void Interpolation3DTest::intersectMeshes(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, const double correctVol, const double prec, bool doubleTest) const
@@ -300,7 +307,7 @@ void Interpolation3DTest::intersectMeshes(const char* mesh1path, const char* mes
   IntersectionMatrix matrix1;
   calcIntersectionMatrix(mesh1path, mesh1, mesh2path, mesh2, matrix1);
 
-#if LOG_LEVEL >= 2 
+#if LOG_LEVEL >= 2
   dumpIntersectionMatrix(matrix1);
 #endif
 
@@ -320,14 +327,14 @@ void Interpolation3DTest::intersectMeshes(const char* mesh1path, const char* mes
     }
   else
     {
-      
+
       IntersectionMatrix matrix2;
-      calcIntersectionMatrix(mesh2path, mesh2, mesh1path, mesh1, matrix2);    
+      calcIntersectionMatrix(mesh2path, mesh2, mesh1path, mesh1, matrix2);
 
 #if LOG_LEVEL >= 2
       dumpIntersectionMatrix(matrix2);
 #endif
-      
+
       const double vol2 = sumVolume(matrix2);
 
       LOG(1, "vol1 =  " << vol1 << ", vol2 = " << vol2 << ", correctVol = " << correctVol );

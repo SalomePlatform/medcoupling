@@ -134,51 +134,51 @@ SET(MED_RESOURCES_FILES
   # TimeStamps.med
   # zzzz121b.med
   # zzzz121b_without_tr6.med
-  # UnitTetra.med
-  # GeneralTetra.med
-  # NudgedSimpler.med
-  # NudgedTetra.med
-  # CornerTetra.med
-  # SimpleIncludedTetra.med
-  # SimpleIncludingTetra.med
+  UnitTetra.med
+  GeneralTetra.med
+  NudgedSimpler.med
+  NudgedTetra.med
+  CornerTetra.med
+  SimpleIncludedTetra.med
+  SimpleIncludingTetra.med
   Test2D.med
   Test2Dpoly.med
   Test3D.med
   Test3Dpoly.med
-  #UnitTetraDegenT.med
-  # DegenEdgeXY.med
-  # DegenFaceXYZ.med
-  # DegenTranslatedInPlane.med
-  # ComplexIncludedTetra.med
-  # ComplexIncludingTetra.med
-  # HalfstripOnly.med
-  # HalfstripOnly2.med
-  #SimpleHalfstripOnly.med
-  #GenTetra1.med
-  #GenTetra2.med
-  #TrickyTetra1.med
+  UnitTetraDegenT.med
+  DegenEdgeXY.med
+  DegenFaceXYZ.med
+  DegenTranslatedInPlane.med
+  ComplexIncludedTetra.med
+  ComplexIncludingTetra.med
+  HalfstripOnly.med
+  HalfstripOnly2.med
+  SimpleHalfstripOnly.med
+  GenTetra1.med
+  GenTetra2.med
+  TrickyTetra1.med
   LargeUnitTetra.med
   # LargeInconsistentTetra.med
-  # DividedUnitTetraSimpler.med
-  # DividedUnitTetra.med
-  # NudgedDividedUnitTetra.med
-  # NudgedDividedUnitTetraSimpler.med
-  # DividedGenTetra1.med
-  # DividedGenTetra2.med
-  # Box1.med
-  # Box2.med
-  # Box3.med
-  # Box1Moderate.med
-  # Box2Moderate.med
-  # BoxModSmall1.med
-  # BoxModSmall2.med
-  # BoxEvenSmaller1.med
-  # TinyBox.med
-  # BoxHexa1.med
-  # BoxHexa2.med
-  # MovedHexaBox1.med
-  # MovedHexaBox2.med
-  # BoxTetra2.med
+  DividedUnitTetraSimpler.med
+  DividedUnitTetra.med
+  NudgedDividedUnitTetra.med
+  NudgedDividedUnitTetraSimpler.med
+  DividedGenTetra1.med
+  DividedGenTetra2.med
+  Box1.med
+  Box2.med
+  Box3.med
+  Box1Moderate.med
+  Box2Moderate.med
+  BoxModSmall1.med
+  BoxModSmall2.med
+  BoxEvenSmaller1.med
+  TinyBox.med
+  BoxHexa1.med
+  BoxHexa2.med
+  MovedHexaBox1.med
+  MovedHexaBox2.med
+  BoxTetra2.med
   square1.med
   # square1_split
   # square1_split1.med
@@ -203,9 +203,9 @@ SET(MED_RESOURCES_FILES
   # blow5_ascii_pd_displacement
   # blow5_ascii_pd_thickness
   #test_2D.sauve
-  #allPillesTest.sauv
-  #BDC-714.sauv
-  #portico_3subs.sauv
+  allPillesTest.sauv
+  BDC-714.sauv
+  portico_3subs.sauv
   agitateur.med
   )
 
@@ -224,6 +224,10 @@ SET(MED_RESOURCES_FILES
 #     mesh_selection.png
 #     )
 # ENDIF(MED_ENABLE_GUI)
+
+FOREACH(resfile ${MED_RESOURCES_FILES})
+  CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/${resfile}" "${CMAKE_CURRENT_BINARY_DIR}/${resfile}" COPYONLY)
+ENDFOREACH(resfile)
 
 INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${MEDTOOL_INSTALL_RES_DATA})
 

@@ -189,21 +189,9 @@ class RenumberingTest(unittest.TestCase):
         pass
 
     def setUp(self):
-        srcdir   = os.getenv("srcdir")
-        med_root = os.getenv("MED_ROOT_DIR")
-        if srcdir:
-            # make test is being performed
-            self.dir_renumber="./renumber"
-            self.dir_mesh = os.path.join( srcdir, "../../resources")
-        elif med_root:
-            # hope renumber has been already installed
-            self.dir_renumber=os.path.join( med_root, "bin/salome/renumber")
-            self.dir_mesh = os.path.join( med_root, "share/salome/resources/med")
-        else:
-            # initial version
-            self.dir_renumber="../../../MED_INSTALL/bin/salome/renumber"
-            self.dir_mesh="../../resources"
-            pass
+        med_root_dir=os.getenv("MEDTOOL_ROOT_DIR")
+        self.dir_renumber=os.path.join(med_root_dir, "bin/renumber")
+        self.dir_mesh=os.path.join(med_root_dir, "share","resources","med")
         pass
     pass
 

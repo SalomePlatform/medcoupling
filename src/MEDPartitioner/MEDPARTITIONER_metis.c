@@ -38,42 +38,42 @@
   typedef int idxtype;
 #endif // defined(MED_ENABLE_METIS) & !defined(MED_ENABLE_PARMETIS)
 
-void MEDPARTITIONER_METIS_PartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
-                                             idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
+void MEDPARTITIONER_METIS_PartGraphRecursive(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt,
+                                             idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts,
                                              int *options, int *edgecut, idxtype *part)
 {
 #if defined(MED_ENABLE_METIS)
   #ifndef MED_ENABLE_METIS_V5
-  METIS_PartGraphRecursive(nvtxs, xadj, adjncy, vwgt, 
-    adjwgt, wgtflag, numflag, nparts, 
+  METIS_PartGraphRecursive(nvtxs, xadj, adjncy, vwgt,
+    adjwgt, wgtflag, numflag, nparts,
                            options, edgecut, part);
   #else
   int ncon=1;
   options[METIS_OPTION_NCUTS]=1;
   options[METIS_OPTION_NITER]=1;
   options[METIS_OPTION_UFACTOR]=1;
-  METIS_PartGraphRecursive(nvtxs, &ncon, xadj, adjncy, vwgt, 0 /* vsize*/, 
+  METIS_PartGraphRecursive(nvtxs, &ncon, xadj, adjncy, vwgt, 0 /* vsize*/,
                            adjwgt, nparts,/* tpwgts*/ 0,/* ubvec */ 0,
                            options, edgecut, part);
   #endif
 #endif
 }
 
-void MEDPARTITIONER_METIS_PartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
-                                        idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, 
+void MEDPARTITIONER_METIS_PartGraphKway(int *nvtxs, idxtype *xadj, idxtype *adjncy, idxtype *vwgt,
+                                        idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts,
                                         int *options, int *edgecut, idxtype *part)
 {
 #if defined(MED_ENABLE_METIS)
   #ifndef MED_ENABLE_METIS_V5
-  METIS_PartGraphKway(nvtxs, xadj, adjncy, vwgt, 
-    adjwgt, wgtflag, numflag, nparts, 
+  METIS_PartGraphKway(nvtxs, xadj, adjncy, vwgt,
+    adjwgt, wgtflag, numflag, nparts,
     options, edgecut, part);
   #else
   int ncon=1;
   options[METIS_OPTION_NCUTS]=1;
   options[METIS_OPTION_NITER]=1;
   options[METIS_OPTION_UFACTOR]=1;
-  METIS_PartGraphKway(nvtxs, &ncon, xadj, adjncy, vwgt, 0 /* vsize*/, 
+  METIS_PartGraphKway(nvtxs, &ncon, xadj, adjncy, vwgt, 0 /* vsize*/,
                       adjwgt, nparts, 0 , 0 /* ubvec */,
                       options, edgecut, part);
   #endif

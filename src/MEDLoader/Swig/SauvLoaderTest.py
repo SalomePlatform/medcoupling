@@ -25,11 +25,18 @@ from MEDLoaderDataForTest import MEDLoaderDataForTest
 
 class SauvLoaderTest(unittest.TestCase):
 
+    def __getResourcesDirectory(self):
+        med_root_dir=os.getenv("MEDTOOL_ROOT_DIR")
+        if med_root_dir:
+            return os.path.join( os.getenv("MEDTOOL_ROOT_DIR"), "share","resources","med")
+        else:
+            current_dir = os.path.dirname(os.path.realpath(__file__))
+            return os.path.join(current_dir, "..", "..", "..", "resources")
+        pass
+
     def testSauv2Med(self):
         # get a file containing all types of readable piles
-        self.assertTrue( os.getenv("MED_ROOT_DIR") )
-        sauvFile = os.path.join( os.getenv("MED_ROOT_DIR"), "share","salome",
-                                 "resources","med","allPillesTest.sauv")
+        sauvFile = os.path.join( self.__getResourcesDirectory(),"allPillesTest.sauv")
         self.assertTrue( os.access( sauvFile, os.F_OK))
 
         # read SAUV and write MED
@@ -38,7 +45,7 @@ class SauvLoaderTest(unittest.TestCase):
         d2=sr.loadInMEDFileDS();
         d2.write(medFile,0);
 
-        # check 
+        # check
         self.assertEqual(1,d2.getNumberOfMeshes())
         self.assertEqual(8+97,d2.getNumberOfFields())
         mm = d2.getMeshes()
@@ -50,9 +57,7 @@ class SauvLoaderTest(unittest.TestCase):
 
     def testMed2Sauv(self):
         # read pointe.med
-        self.assertTrue( os.getenv("MED_ROOT_DIR") )
-        medFile = os.path.join( os.getenv("MED_ROOT_DIR"), "share","salome",
-                                "resources","med","pointe.med")
+        medFile = os.path.join(self.__getResourcesDirectory(),"pointe.med")
         self.assertTrue( os.access( medFile, os.F_OK))
         pointeMed = MEDFileData.New( medFile )
 
@@ -241,9 +246,7 @@ class SauvLoaderTest(unittest.TestCase):
     @unittest.skipUnless(MEDLoader.HasXDR(),"requires XDR")
     def testMissingGroups(self):
         """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
-        self.assertTrue( os.getenv("MED_ROOT_DIR") )
-        sauvFile = os.path.join( os.getenv("MED_ROOT_DIR"), "share","salome",
-                                 "resources","med","BDC-714.sauv")
+        sauvFile = os.path.join(self.__getResourcesDirectory(),"BDC-714.sauv")
         self.assertTrue( os.access( sauvFile, os.F_OK))
         name_of_group_on_cells='Slice10:ABSORBER'
         name_of_group_on_cells2='Slice10:00LR'
@@ -336,13 +339,13 @@ class SauvLoaderTest(unittest.TestCase):
         sw.setCpyGrpIfOnASingleFamilyStatus(True)
         self.assertTrue(sw.getCpyGrpIfOnASingleFamilyStatus())
         sw.write(sauvFile)
-        
+
         f = open(sauvFile)
         # String pattern for the header of the sub meshes record ("PILE" number, number of named objects, number of objects)
         pattern_pile= re.compile(r'\sPILE\sNUMERO\s+(?P<number>[0-9]+)NBRE\sOBJETS\sNOMMES\s+(?P<nbnamed>[0-9]+)NBRE\sOBJETS\s+(?P<nbobjects>[0-9]+)')
         # String pattern for a sub mesh header (cell type, number of components and three numbers)
         pattern_header=re.compile(r'\s+(?P<type>[0-9]+)\s+(?P<nbsubs>[0-9]+)\s+[0-9]+\s+[0-9]+\s+[0-9]+')
-        
+
         nbobjects=0
         line = f.readline()
         while(line):
@@ -356,13 +359,13 @@ class SauvLoaderTest(unittest.TestCase):
                 pass
             line=f.readline()
             pass
-        
+
         # Skipping the objects names
         f.readline()
         # Skipping the objects ids
         f.readline()
 
-        # Looking for each sub-mesh header 
+        # Looking for each sub-mesh header
         line = f.readline()
         cur_object=0
         while(line and cur_object < nbobjects):

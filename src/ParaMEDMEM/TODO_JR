@@ -1,0 +1,50 @@
+
+MPI_Access :
+============
+
+. Creer des methodes [I]SendRecv en point a point avec un "target"
+  pour le Send et un "target" pour le Recv comme le SendRecv MPI.
+
+. Ne pas creer de structure RequestStruct en mode synchrone.
+
+
+MPI_AccessDEC :
+===============
+
+. AllToAll, AllToAllv, AllToAllTime et AllToAllvTime comportent
+  des sequences de code semblables qui pourraient etre regroupees
+  sans que cela nuise a la lisibilite du code.
+
+. En mode asynchrone, il n'y a pas de controle d'engorgement des
+  messages envoyes dans CheckSent(). Il est vrai qu'en pratique
+  une synchronisation des temps est faite dans AllToAllTime et
+  AllToAllvTime. Mais ce probleme pourrait se produire avec
+  AllToAll et AllToAllv. Il serait possible de fixer un nombre
+  maximum de messages envoyes et "en cours" et de le comparer avec
+  le nombre de requetes rendu par MPI_Access. En cas de depassement
+  de ?n?*UnionGroupSize par exemple, CheckSent pourrait fonctionner
+  en mode "WithWait". Ce qui ferait qu'on apellerait Wait au lieu de Test.
+
+. Meme si le prototype d'interpolateur comporte des parametres
+  int nStepBefore et int nStepAfter, le codage actuel considere
+  qu'on n'a que nStepBefore=1 et nStepAfter=1.
+  Ainsi on a (*_TimeMessages)[target][0] et (*_TimeMessages)[target][1]
+  ainsi que &(*_DataMessages)[target][0] et &(*_DataMessages)[target][1].
+
+. Les champs nStepBefore et nStepAfter correspondent a un maximum
+  requis. On devrait avoir les champs correspondants qui valent les
+  nombres disponibles a un moment donne.
+
+. Il existe un champs OutOfTime qui n'est pas utilise actuellement.
+  Il faudrait definir son usage et le transmettre sans doute à
+  l'interpolateur. Actuellement, L'interpolateur lineaire effectue une
+  extrapolation si OutOfTime vaut true.
+
+. Dans CheckTime, on alloue et detruit les (*_DataMessages)[target][]
+  alors qu'on pourrait considerer que pour un "target" donne, les
+  recvcount sont constants pendant toute la boucle de temps. Ainsi
+  on n'allouerait les buffers qu'une fois au depart et ils ne seraient
+  liberes qu'a la fin.
+
+
+

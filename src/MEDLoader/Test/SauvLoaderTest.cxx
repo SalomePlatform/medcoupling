@@ -44,7 +44,7 @@ void SauvLoaderTest::testSauv2Med()
   MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
   // write MED
   d2->write("allPillesTest.med",0);
-  // check 
+  // check
   CPPUNIT_ASSERT_EQUAL(1,d2->getNumberOfMeshes());
   CPPUNIT_ASSERT_EQUAL(8+97,d2->getNumberOfFields());
   MEDFileMesh * m = d2->getMeshes()->getMeshAtPos(0);
@@ -332,16 +332,16 @@ std::string SauvLoaderTest::getResourceFile( const std::string& filename )
 {
   std::string resourceFile = "";
 
-  if ( getenv("top_srcdir") ) {
-    // we are in 'make test' step
-    resourceFile = getenv("top_srcdir");
-    resourceFile += "/resources/";
+  if ( getenv("MEDTOOL_ROOT_DIR") ) {
+    // use MEDTOOL_ROOT_DIR env.var
+    resourceFile = getenv("MEDTOOL_ROOT_DIR");
+    resourceFile += "/share/resources/med/";
   }
-  else if ( getenv("MED_ROOT_DIR") ) {
-    // use MED_ROOT_DIR env.var
-    resourceFile = getenv("MED_ROOT_DIR");
-    resourceFile += "/share/salome/resources/med/";
+  else {
+    resourceFile = get_current_dir_name();
+    resourceFile += "/../../../resources/";
   }
+
   resourceFile += filename;
 #ifdef WIN32
   std::string fixedpath = resourceFile;

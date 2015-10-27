@@ -38,7 +38,7 @@
 #include <algorithm>
 
 
-// levels : 
+// levels :
 // 1 - titles and volume results
 // 2 - symmetry / diagonal results and intersection matrix output
 // 3 - empty
@@ -138,7 +138,7 @@ namespace INTERP_TEST
   }
 
   /**
-   * Verifies if for a given intersection matrix the sum of each row is equal to the volumes 
+   * Verifies if for a given intersection matrix the sum of each row is equal to the volumes
    * of the corresponding source elements and the sum of each column is equal to the volumes
    * of the corresponding target elements. This will be true as long as the meshes correspond
    * to the same geometry. The equalities are in the "epsilon-sense", making sure the relative
@@ -252,7 +252,7 @@ namespace INTERP_TEST
             //if(m2[j - 1].count(i+1) > 0)
             //  {
             std::map<int, double> theMap =  m2.at(j);
-            const double v2 = fabs(theMap[i]); 
+            const double v2 = fabs(theMap[i]);
             if(v1 != v2)
               {
                 LOG(2, "V1( " << i << ", " << j << ") = " << v1 << " which is different from V2( " << j << ", " << i << ") = " << v2 << " | diff = " << v1 - v2 );
@@ -267,7 +267,7 @@ namespace INTERP_TEST
       }
     if(!isSymmetric)
       {
-        LOG(1, "*** matrices are not symmetric"); 
+        LOG(1, "*** matrices are not symmetric");
       }
     return isSymmetric;
   }
@@ -335,9 +335,9 @@ namespace INTERP_TEST
    * Calculates the intersection matrix for two meshes.
    * If the source and target meshes are the same, a CppUnit assertion raised if testVolumes() returns false.
    *
-   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MED_ROOT_DIR}/share/salome/resources/med/
+   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
    * @param  mesh1       the name of the source mesh
-   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MED_ROOT_DIR}/share/salome/resources/med/
+   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
    * @param  mesh2       the name of the target mesh
    * @param  m           intersection matrix in which to store the result of the intersection
    */
@@ -397,9 +397,9 @@ namespace INTERP_TEST
    * it will be confirmed that the intersection matrix is diagonal, otherwise the intersection matrices will be
    * calculated once which each mesh as source mesh, and it will be verified that the they are each others' transpose.
    *
-   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MED_ROOT_DIR}/share/salome/resources/med/
+   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
    * @param  mesh1       the name of the source mesh
-   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MED_ROOT_DIR}/share/salome/resources/med/
+   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
    * @param  mesh2       the name of the target mesh
    * @param  correctVol  the total volume of the intersection of the two meshes
    * @param  prec        maximum relative error to be tolerated in volume comparisions
@@ -420,7 +420,7 @@ namespace INTERP_TEST
     IntersectionMatrix matrix1;
     calcIntersectionMatrix(mesh1path, mesh1, mesh2path, mesh2, matrix1);
 
-#if LOG_LEVEL >= 2 
+#if LOG_LEVEL >= 2
     dumpIntersectionMatrix(matrix1);
 #endif
 
@@ -441,7 +441,7 @@ namespace INTERP_TEST
     else
       {
         IntersectionMatrix matrix2;
-        calcIntersectionMatrix(mesh2path, mesh2, mesh1path, mesh1, matrix2);    
+        calcIntersectionMatrix(mesh2path, mesh2, mesh1path, mesh1, matrix2);
 
 #if LOG_LEVEL >= 2
         dumpIntersectionMatrix(matrix2);
@@ -460,7 +460,7 @@ namespace INTERP_TEST
 
   /**
    * Utility method used to facilitate the call to intersect meshes.
-   * It calls intersectMeshes, using "mesh1.med" as file name for the mesh with name "mesh1" and 
+   * It calls intersectMeshes, using "mesh1.med" as file name for the mesh with name "mesh1" and
    * "mesh2.med" as file name for the mesh with name "mesh2". The rest of the arguments are passed
    * along as they are.
    *

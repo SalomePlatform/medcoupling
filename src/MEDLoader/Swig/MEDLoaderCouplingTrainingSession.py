@@ -480,8 +480,13 @@ print "IntegralGlobConstraint %lf == %lf"%(srcField.getArray().accumulate()[0],t
 from numpy import *
 from math import acos
 
-med_root_dir=os.getenv("MED_ROOT_DIR")
-agitateur_file=os.path.join(os.getenv("MED_ROOT_DIR"),"share","salome","resources","med","agitateur.med")
+med_root_dir=os.getenv("MEDTOOL_ROOT_DIR")
+if med_root_dir:
+  agitateur_file=os.path.join(os.getenv("MEDTOOL_ROOT_DIR"),"share","resources","med","agitateur.med")
+else:
+  current_dir = os.path.dirname(os.path.realpath(__file__))
+  agitateur_file=os.path.join(current_dir, "..", "..", "..", "resources","agitateur.med")
+  pass
 data=MEDFileData(agitateur_file)
 ts=data.getFields()[0].getTimeSteps()
 print ts
