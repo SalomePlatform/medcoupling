@@ -53,7 +53,7 @@ SET (SWIG_MODULE_MEDCoupling_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES}
 
 # SWIG must run after the doc if we want to have the docstrings extracted from Doxygen
 # into the Python module:
-IF(SALOME_BUILD_DOC)
+IF(MEDTOOL_BUILD_DOC)
     LIST(APPEND SWIG_MODULE_MEDCoupling_EXTRA_FLAGS -DWITH_DOCSTRINGS)
     LIST(APPEND SWIG_MODULE_MEDCoupling_EXTRA_DEPS
         ${PROJECT_BINARY_DIR}/doc/MEDCoupling_doc.i
@@ -81,8 +81,6 @@ IF(WIN32)
 ENDIF(WIN32)
 INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRemapper_REAL_NAME} DESTINATION ${MEDTOOL_INSTALL_PYTHON})
 
-#SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py)
-#SALOME_INSTALL_SCRIPTS("${PYFILES_TO_INSTALL}" ${SALOME_INSTALL_PYTHON})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py DESTINATION ${MEDTOOL_INSTALL_PYTHON})
 
 INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingRefCountObject.i MEDCouplingMemArray.i MEDCouplingFieldDiscretization.i MEDCouplingTimeDiscretization.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingDataArrayTypemaps.i DESTINATION ${MEDTOOL_INSTALL_HEADERS})
