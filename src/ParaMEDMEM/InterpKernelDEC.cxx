@@ -34,21 +34,34 @@ namespace ParaMEDMEM
 {  
 
   /*!
-    \defgroup interpkerneldec InterpKernelDEC
+    \anchor InterpKernelDEC-det
+    \class InterpKernelDEC
 
-    \section overview Overview
+    \section dec-over Overview
 
-    The InterpKernelDEC enables the \ref conservativeremapping of fields between two parallel codes. This remapping is based on the computation of intersection volumes between elements from code A and elements from code B. The computation is possible for 3D meshes, 2D meshes, and 3D-surface meshes. Dimensions must be similar for code A and code B (for instance, though it could be desirable, it is not yet possible to couple 3D surfaces with 2D surfaces).
+    The InterpKernelDEC enables the \ref InterpKerRemapGlobal "remapping" of fields between two parallel codes.
+    This remapping is based on the computation of intersection volumes between elements from code A
+    and elements from code B. The computation is possible for 3D meshes, 2D meshes, and 3D-surface
+    meshes. Dimensions must be similar for code A and code B (for instance, though it could be
+    desirable, it is not yet possible to couple 3D surfaces with 2D surfaces).
 
     In the present version, only fields lying on elements are considered.
 
-    \image html NonCoincident_small.png "Example showing the transfer from a field based on a quadrangular mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle, the values on quadrangles are weighted by their intersection area and summed."
+    \image html NonCoincident_small.png "Example showing the transfer from a field based on a
+    quadrangular mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle,
+    the values on quadrangles are weighted by their intersection area and summed."
 
-    \image latex NonCoincident_small.eps "Example showing the transfer from a field based on a quadrangular mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle, the values on quadrangles are weighted by their intersection area and summed."
+    \image latex NonCoincident_small.eps "Example showing the transfer from a field based on a quadrangular
+     mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle, the values
+     on quadrangles are weighted by their intersection area and summed."
 
     A typical use of InterpKernelDEC encompasses two distinct phases :
-    - A setup phase during which the intersection volumes are computed and the communication structures are setup. This corresponds to calling the InterpKernelDEC::synchronize() method.
-    - A use phase during which the remappings are actually performed. This corresponds to the calls to sendData() and recvData() which actually trigger the data exchange. The data exchange are synchronous in the current version of the library so that recvData() and sendData() calls must be synchronized on code A and code B processor groups. 
+    - A setup phase during which the intersection volumes are computed and the communication structures are
+    setup. This corresponds to calling the InterpKernelDEC::synchronize() method.
+    - A use phase during which the remappings are actually performed. This corresponds to the calls to
+    sendData() and recvData() which actually trigger the data exchange. The data exchange are synchronous
+    in the current version of the library so that recvData() and sendData() calls must be synchronized
+    on code A and code B processor groups.
 
     The following code excerpt illutrates a typical use of the InterpKernelDEC class.
 
@@ -63,12 +76,19 @@ namespace ParaMEDMEM
     dec.sendData();
     ...
     \endcode
-    A \ref conservativeremapping of the field from the source mesh to the target mesh is performed by the function synchronise(), which computes the \ref remappingmatrix.
+    A \ref InterpKerRemapGlobal "remapping" of the field from the source mesh to the target mesh is performed by
+    the function synchronise(), which computes the interpolation matrix.
 
-    Computing the field on the receiving side can be expressed in terms of a matrix-vector product : \f$ \phi_t=W.\phi_s\f$, with \f$ \phi_t \f$ the field on the target side and \f$ \phi_s \f$ the field on the source side.
-    When remapping a 3D surface to another 3D surface, a projection phase is necessary to match elements from both sides. Care must be taken when defining this projection to obtain a \ref conservative remapping.
+    Computing the field on the receiving side can be expressed in terms of a matrix-vector product :
+    \f$ \phi_t=W.\phi_s\f$, with \f$ \phi_t \f$ the field on the target side and \f$ \phi_s \f$ the field
+    on the source side.
+    When remapping a 3D surface to another 3D surface, a projection phase is necessary to match elements
+    from both sides. Care must be taken when defining this projection to obtain a
+    \ref InterpKerRemapGlobal "conservative remapping".
 
-    In the P0-P0 case, this matrix is a plain rectangular matrix with coefficients equal to the intersection areas between triangle and quadrangles. For instance, in the above figure, the matrix is :
+    In the P0-P0 case, this matrix is a plain rectangular matrix with coefficients equal to the
+    intersection areas between triangle and quadrangles. For instance, in the above figure, the matrix
+    is :
 
     \f[
     \begin{tabular}{|cccc|}
@@ -85,7 +105,8 @@ namespace ParaMEDMEM
     On top of \ref dec_options, options supported by %InterpKernelDEC objects are
     related to the underlying Intersector class. 
     All the options available in the intersector objects are
-    available for the %InterpKernelDEC object. The various options available for  * intersectors can be reviewed in \ref InterpKerIntersectors.
+    available for the %InterpKernelDEC object. The various options available for  * intersectors can
+    be reviewed in \ref InterpKerIntersectors.
  
     For instance :
     \verbatim
@@ -97,11 +118,6 @@ namespace ParaMEDMEM
     \endverbatim
 
     \warning{  Options must be set before calling the synchronize method. }
-  */
-
-  /*!
-    \addtogroup interpkerneldec
-    @{
   */
   
   InterpKernelDEC::InterpKernelDEC():_interpolation_matrix(0)
@@ -272,9 +288,5 @@ namespace ParaMEDMEM
     _interpolation_matrix->getAccessDEC()->setTime(time,deltatime);
     sendData() ;
   }
-
-  /*!
-    @}
-  */
   
 }

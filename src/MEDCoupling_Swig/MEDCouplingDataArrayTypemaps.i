@@ -69,6 +69,11 @@ int InterpreteNegativeInt(int val, int nbelem)
 
 #ifdef WITH_NUMPY
 #include <numpy/arrayobject.h>
+#if NPY_API_VERSION <= 0x00000006
+#  define MED_NUMPY_OWNDATA NPY_OWNDATA
+#else
+#  define MED_NUMPY_OWNDATA NPY_ARRAY_OWNDATA
+#endif
 
 // specific DataArray deallocator callback. This deallocator is used both in the constructor of DataArray and in the toNumPyArr
 // method. This dellocator uses weakref to determine if the linked numArr is still alive or not. If alive the ownership is given to it.
@@ -82,7 +87,7 @@ void numarrdeal(void *pt, void *wron)
     {
       Py_XINCREF(obj);
       PyArrayObject *objC=reinterpret_cast<PyArrayObject *>(obj);
-      objC->flags|=NPY_ARRAY_OWNDATA;
+      objC->flags|=MED_NUMPY_OWNDATA;
       Py_XDECREF(weakRefOnOwner);
       Py_XDECREF(obj);
     }
@@ -282,8 +287,8 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
   if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order
     {
       PyArrayObject *elt0C=reinterpret_cast<PyArrayObject *>(elt0);
-      PyArrayObject *eltOwning=(PyArray_FLAGS(elt0C) & NPY_ARRAY_OWNDATA)?elt0C:NULL;
-      int mask=NPY_ARRAY_OWNDATA; mask=~mask;
+      PyArrayObject *eltOwning=(PyArray_FLAGS(elt0C) & MED_NUMPY_OWNDATA)?elt0C:NULL;
+      int mask=MED_NUMPY_OWNDATA; mask=~mask;
       elt0C->flags&=mask;
       PyObject *deepestObj=elt0;
       PyObject *base=elt0C->base;
@@ -294,7 +299,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
           if(PyArray_Check(base))
             {
               PyArrayObject *baseC=reinterpret_cast<PyArrayObject *>(base);
-              eltOwning=(PyArray_FLAGS(baseC) & NPY_ARRAY_OWNDATA)?baseC:eltOwning;
+              eltOwning=(PyArray_FLAGS(baseC) & MED_NUMPY_OWNDATA)?baseC:eltOwning;
               baseC->flags&=mask;
               base=baseC->base;
               if(base) deepestObj=base;
@@ -375,7 +380,7 @@ int NumpyArrSetBaseObjectExt(PyArrayObject *arr, PyObject *obj)
  
 
         /* If this array owns its own data, stop collapsing */
-        if (PyArray_CHKFLAGS(obj_arr, NPY_ARRAY_OWNDATA )) { 
+        if (PyArray_CHKFLAGS(obj_arr, MED_NUMPY_OWNDATA )) { 
             break;
         }   
 

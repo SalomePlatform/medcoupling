@@ -697,9 +697,9 @@ private:
  * Creates a new MEDCouplingUMesh containing cells, of dimension one less than \a
  * this->getMeshDimension(), that bound cells of \a this mesh. In addition arrays
  * describing correspondence between cells of \a this and the result meshes are
- * returned. The arrays \a desc and \a descIndx describe the descending connectivity,
+ * returned. The arrays \a desc and \a descIndx (\ref numbering-indirect) describe the descending connectivity,
  * i.e. enumerate cells of the result mesh bounding each cell of \a this mesh. The
- * arrays \a revDesc and \a revDescIndx describe the reverse descending connectivity,
+ * arrays \a revDesc and \a revDescIndx (\ref numbering-indirect) describe the reverse descending connectivity,
  * i.e. enumerate cells of  \a this mesh bounded by each cell of the result mesh. 
  * \warning For speed reasons, this method does not check if node ids in the nodal
  *          connectivity correspond to the size of node coordinates array.
@@ -761,7 +761,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::explode3DMeshTo1D(DataArrayInt *desc, DataAr
  * Creates a new MEDCouplingUMesh containing cells, of dimension one less than \a
  * this->getMeshDimension(), that bound cells of \a this mesh. In
  * addition arrays describing correspondence between cells of \a this and the result
- * meshes are returned. The arrays \a desc and \a descIndx describe the descending
+ * meshes are returned. The arrays \a desc and \a descIndx (\ref numbering-indirect) describe the descending
  * connectivity, i.e. enumerate cells of the result mesh bounding each cell of \a this
  *  mesh. This method differs from buildDescendingConnectivity() in that apart
  * from cell ids, \a desc returns mutual orientation of cells in \a this and the
@@ -769,7 +769,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::explode3DMeshTo1D(DataArrayInt *desc, DataAr
  * of two meshes is same, and a negative id means a reverse order of nodes. Since a
  * cell with id #0 can't be negative, the array \a desc returns ids in FORTRAN mode,
  * i.e. cell ids are one-based.
- * Arrays \a revDesc and \a revDescIndx describe the reverse descending connectivity,
+ * Arrays \a revDesc and \a revDescIndx (\ref numbering-indirect) describe the reverse descending connectivity,
  * i.e. enumerate cells of  \a this mesh bounded by each cell of the result mesh. 
  * \warning For speed reasons, this method does not check if node ids in the nodal
  *          connectivity correspond to the size of node coordinates array.
@@ -815,13 +815,19 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *d
 
 /*!
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
- * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
- * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * For speed reasons no check of this will be done. This method calls
+ * MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
+ * This method lists cell by cell in \b this which are its neighbors. To compute the result
+ * only connectivities are considered.
  * The neighbor cells of cell having id 'cellId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
+ * The format of return is hence \ref numbering-indirect.
  *
- * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
- *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
- * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly
+ * allocated and should be dealt by the caller. \b neighborsIndx 2nd output
+ * parameter allows to select the right part in this array (\ref numbering-indirect). The number of tuples
+ * is equal to the last values in \b neighborsIndx.
+ * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be
+ * dealt by the caller. This arrays allow to use the first output parameter \b neighbors (\ref numbering-indirect).
  */
 void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx) const
 {
@@ -835,17 +841,21 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
 }
 
 /*!
- * This method is called by MEDCouplingUMesh::computeNeighborsOfCells. This methods performs the algorithm of MEDCouplingUMesh::computeNeighborsOfCells.
- * This method is useful for users that want to reduce along a criterion the set of neighbours cell. This is typically the case to extract a set a neighbours,
+ * This method is called by MEDCouplingUMesh::computeNeighborsOfCells. This methods performs the algorithm
+ * of MEDCouplingUMesh::computeNeighborsOfCells.
+ * This method is useful for users that want to reduce along a criterion the set of neighbours cell. This is
+ * typically the case to extract a set a neighbours,
  * excluding a set of meshdim-1 cells in input descending connectivity.
- * Typically \b desc, \b descIndx, \b revDesc and \b revDescIndx input params are the result of MEDCouplingUMesh::buildDescendingConnectivity.
- * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * Typically \b desc, \b descIndx, \b revDesc and \b revDescIndx (\ref numbering-indirect) input params are
+ * the result of MEDCouplingUMesh::buildDescendingConnectivity.
+ * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities
+ * are considered.
  * The neighbor cells of cell having id 'cellId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  *
  * \param [in] desc descending connectivity array.
- * \param [in] descIndx descending connectivity index array used to walk through \b desc.
+ * \param [in] descIndx descending connectivity index array used to walk through \b desc (\ref numbering-indirect).
  * \param [in] revDesc reverse descending connectivity array.
- * \param [in] revDescIndx reverse descending connectivity index array used to walk through \b revDesc.
+ * \param [in] revDescIndx reverse descending connectivity index array used to walk through \b revDesc (\ref numbering-indirect).
  * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
  *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
  * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
@@ -882,13 +892,18 @@ void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
 
 /*!
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
- * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
- * This method lists node by node in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * For speed reasons no check of this will be done. This method calls
+ * MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
+ * This method lists node by node in \b this which are its neighbors. To compute the result
+ * only connectivities are considered.
  * The neighbor nodes of node having id 'nodeId' are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  *
- * \param [out] neighbors is an array storing all the neighbors of all nodes in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
- *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
- * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ * \param [out] neighbors is an array storing all the neighbors of all nodes in \b this. This array
+ * is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
+ * parameter allows to select the right part in this array (\ref numbering-indirect).
+ * The number of tuples is equal to the last values in \b neighborsIndx.
+ * \param [out] neighborsIdx is an array of size this->getNumberOfCells()+1 newly allocated and should
+ * be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
  */
 void MEDCouplingUMesh::computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const
 {
@@ -1794,8 +1809,9 @@ bool MEDCouplingUMesh::AreCellsEqualInPool(const std::vector<int>& candidates, i
 }
 
 /*!
- * This method find cells that are cells equal (regarding \a compType) in \a this. The comparison is specified by \a compType.
- * This method keeps the coordiantes of \a this. This method is time consuming and is called 
+ * This method find cells that are equal (regarding \a compType) in \a this. The comparison is specified
+ * by \a compType.
+ * This method keeps the coordiantes of \a this. This method is time consuming.
  *
  * \param [in] compType input specifying the technique used to compare cells each other.
  *   - 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
@@ -1804,8 +1820,8 @@ bool MEDCouplingUMesh::AreCellsEqualInPool(const std::vector<int>& candidates, i
  *   - 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy. This policy
  * can be used for users not sensitive to orientation of cell
  * \param [in] startCellId specifies the cellId starting from which the equality computation will be carried out. By default it is 0, which it means that all cells in \a this will be scanned.
- * \param [out] commonCells
- * \param [out] commonCellsI
+ * \param [out] commonCellsArr common cells ids (\ref numbering-indirect)
+ * \param [out] commonCellsIArr common cells ids (\ref numbering-indirect)
  * \return the correspondance array old to new in a newly allocated array.
  * 
  */
@@ -1948,6 +1964,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
  * The main difference is that this method is not expected to throw exception.
  * This method has two outputs :
  *
+ * \param other other mesh
  * \param arr is an output parameter that returns a \b newly created instance. This array is of size 'other->getNumberOfCells()'.
  * \return If \a other is fully included in 'this 'true is returned. If not false is returned.
  */
@@ -2004,6 +2021,9 @@ MEDCouplingPointSet *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCoup
  * By default coordinates are kept. This method is close to MEDCouplingUMesh::buildPartOfMySelf except that here input
  * cellIds is not given explicitely but by a range python like.
  * 
+ * \param start
+ * \param end
+ * \param step
  * \param keepCoords that specifies if you want or not to keep coords as this or zip it (see ParaMEDMEM::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
  * \return a newly allocated
  * 
@@ -2071,8 +2091,8 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const
  * Size of [ \b cellIdsBg, \b cellIdsEnd ) ) must be equal to the number of cells of otherOnSameCoordsThanThis.
  * The number of cells of \b this will remain the same with this method.
  *
- * \param [in] begin begin of cell ids (included) of cells in this to assign
- * \param [in] end end of cell ids (excluded) of cells in this to assign
+ * \param [in] cellIdsBg begin of cell ids (included) of cells in this to assign
+ * \param [in] cellIdsEnd end of cell ids (excluded) of cells in this to assign
  * \param [in] otherOnSameCoordsThanThis an another mesh with same meshdimension than \b this with exactly the same number of cells than cell ids list in [\b cellIdsBg, \b cellIdsEnd ).
  *             Coordinate pointer of \b this and those of \b otherOnSameCoordsThanThis must be the same
  */
@@ -2331,16 +2351,15 @@ DataArrayInt *MEDCouplingUMesh::findCellIdsOnBoundary() const
  * this->getMeshDimension() - 1 must be equal to otherDimM1OnSameCoords.getMeshDimension()
  *
  * s0 is the cell ids set in \b this lying on at least one node in the fetched nodes in \b otherDimM1OnSameCoords.
- * This method returns the cells ids set s = s1 + s2 where:
- * 
- *  - s1 are cells ids in \b this whose dim-1 constituent equals a cell in \b otherDimM1OnSameCoords.
- *  - s2 are cells ids in \b s0 - \b s1 whose at least two neighbors are in s1.
+ * This method also returns the cells ids set s1 which contains the cell ids in \b this for which one of the dim-1 constituent
+ * equals a cell in \b otherDimM1OnSameCoords.
  *
  * \throw if \b otherDimM1OnSameCoords is not part of constituent of \b this, or if coordinate pointer of \b this and \b otherDimM1OnSameCoords
  *        are not same, or if this->getMeshDimension()-1!=otherDimM1OnSameCoords.getMeshDimension()
  *
+ * \param [in] otherDimM1OnSameCoords
  * \param [out] cellIdsRk0 a newly allocated array containing the cell ids of s0 (which are cell ids of \b this) in the above algorithm.
- * \param [out] cellIdsRk1 a newly allocated array containing the cell ids of s1+s2 \b into the \b cellIdsRk0 subset. To get the absolute ids of s1+s2, simply invoke
+ * \param [out] cellIdsRk1 a newly allocated array containing the cell ids of s1 \b indexed into the \b cellIdsRk0 subset. To get the absolute ids of s1, simply invoke
  *              cellIdsRk1->transformWithIndArr(cellIdsRk0->begin(),cellIdsRk0->end());
  */
 void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *&cellIdsRk0, DataArrayInt *&cellIdsRk1) const
@@ -2366,23 +2385,10 @@ void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSa
   for(const int *idOther=idsOtherInConsti->begin();idOther!=idsOtherInConsti->end();idOther++)
     s1.insert(revDescThisPartPtr+revDescIThisPartPtr[*idOther],revDescThisPartPtr+revDescIThisPartPtr[*idOther+1]);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1arr_renum1=DataArrayInt::New(); s1arr_renum1->alloc((int)s1.size(),1); std::copy(s1.begin(),s1.end(),s1arr_renum1->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1Comparr_renum1=s1arr_renum1->buildComplement(s0arr->getNumberOfTuples());
-  DataArrayInt *neighThisPart=0,*neighIThisPart=0;
-  ComputeNeighborsOfCellsAdv(descThisPart,descIThisPart,revDescThisPart,revDescIThisPart,neighThisPart,neighIThisPart);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighThisPartAuto(neighThisPart),neighIThisPartAuto(neighIThisPart);
-  ExtractFromIndexedArrays(s1Comparr_renum1->begin(),s1Comparr_renum1->end(),neighThisPart,neighIThisPart,neighThisPart,neighIThisPart);// reuse of neighThisPart and neighIThisPart
-  neighThisPartAuto=neighThisPart; neighIThisPartAuto=neighIThisPart;
-  RemoveIdsFromIndexedArrays(s1Comparr_renum1->begin(),s1Comparr_renum1->end(),neighThisPart,neighIThisPart);
-  neighThisPartAuto=0;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2_tmp=neighIThisPart->deltaShiftIndex();
-  const int li[2]={0,1};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2_renum2=s2_tmp->getIdsNotEqualList(li,li+2);
-  s2_renum2->transformWithIndArr(s1Comparr_renum1->begin(),s1Comparr_renum1->end());//s2_renum2==s2_renum1
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s_renum1=DataArrayInt::Aggregate(s2_renum2,s1arr_renum1,0);
-  s_renum1->sort();
-  //
+  s1arr_renum1->sort();
   cellIdsRk0=s0arr.retn();
-  cellIdsRk1=s_renum1.retn();
+  //cellIdsRk1=s_renum1.retn();
+  cellIdsRk1=s1arr_renum1.retn();
 }
 
 /*!
@@ -2448,6 +2454,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const
 void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
                                             DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const
 {
+  typedef MEDCouplingAutoRefCountObjectPtr<DataArrayInt> DAInt;
+
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
   if(getCoords()!=otherDimM1OnSameCoords.getCoords())
@@ -2456,28 +2464,28 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the mesh given in other parameter must have this->getMeshDimension()-1 !");
   DataArrayInt *cellIdsRk0=0,*cellIdsRk1=0;
   findCellIdsLyingOn(otherDimM1OnSameCoords,cellIdsRk0,cellIdsRk1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsRk0Auto(cellIdsRk0),cellIdsRk1Auto(cellIdsRk1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s0=cellIdsRk1->buildComplement(cellIdsRk0->getNumberOfTuples());
+  DAInt cellIdsRk0Auto(cellIdsRk0),cellIdsRk1Auto(cellIdsRk1);
+  DAInt s0=cellIdsRk1->buildComplement(cellIdsRk0->getNumberOfTuples());
   s0->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(s0->begin(),s0->end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1=m0Part->computeFetchedNodeIds();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2=otherDimM1OnSameCoords.computeFetchedNodeIds();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s3=s2->buildSubstraction(s1);
+  DAInt s1=m0Part->computeFetchedNodeIds();
+  DAInt s2=otherDimM1OnSameCoords.computeFetchedNodeIds();
+  DAInt s3=s2->buildSubstraction(s1);
   cellIdsRk1->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
   //
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIdsRk1->begin(),cellIdsRk1->end(),true));
   int nCells2 = m0Part2->getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
+  DAInt desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
   // Neighbor information of the mesh without considering the crack (serves to count how many connex pieces it is made of)
   DataArrayInt *tmp00=0,*tmp11=0;
   MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00, tmp00, tmp11);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighInit00(tmp00);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighIInit00(tmp11);
+  DAInt neighInit00(tmp00);
+  DAInt neighIInit00(tmp11);
   // Neighbor information of the mesh WITH the crack (some neighbors are removed):
   DataArrayInt *idsTmp=0;
   bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(idsTmp);
+  DAInt ids(idsTmp);
   if(!b)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the given mdim-1 mesh in other is not a constituent of this !");
   // In the neighbor information remove the connection between high dimension cells and its low level constituents which are part
@@ -2487,38 +2495,44 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   // Compute the neighbor of each cell in m0Part2, taking into account the broken link above. Two
   // cells on either side of the crack (defined by the mesh of low dimension) are not neighbor anymore.
   ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
+  DAInt neigh00(tmp0);
+  DAInt neighI00(tmp1);
 
   // For each initial connex part of the sub-mesh (or said differently for each independent crack):
   int seed = 0, nIter = 0;
   int nIterMax = nCells2+1; // Safety net for the loop
-  std::vector<bool> hitCells(nCells2);
-  hitCells.assign(nCells2, false);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum = DataArrayInt::New();
+  DAInt hitCells = DataArrayInt::New(); hitCells->alloc(nCells2);
+  hitCells->fillWithValue(-1);
+  DAInt cellsToModifyConn0_torenum = DataArrayInt::New();
   cellsToModifyConn0_torenum->alloc(0,1);
   while (nIter < nIterMax)
     {
-      if (std::find(hitCells.begin(), hitCells.end(), false) == hitCells.end())
+      DAInt t = hitCells->getIdsEqual(-1);
+      if (!t->getNumberOfTuples())
         break;
       // Connex zone without the crack (to compute the next seed really)
       int dnu;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
+      DAInt connexCheck = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neighInit00,neighIInit00, -1, dnu);
       int cnt = 0;
       for (int * ptr = connexCheck->getPointer(); cnt < connexCheck->getNumberOfTuples(); ptr++, cnt++)
-        hitCells[*ptr] = true;
+        hitCells->setIJ(*ptr,0,1);
       // Connex zone WITH the crack (to identify cells lying on either part of the crack)
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh00,neighI00, -1, dnu);
+      DAInt spreadZone = MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeed(&seed, &seed+1, neigh00,neighI00, -1, dnu);
       cellsToModifyConn0_torenum = DataArrayInt::Aggregate(cellsToModifyConn0_torenum, spreadZone, 0);
-      // Compute next seed, i.e. a cell in another connex part:
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> comple = cellsToModifyConn0_torenum->buildComplement(nCells2);
-      seed = comple->getIJ(0,0);
+      // Compute next seed, i.e. a cell in another connex part, which was not covered by the previous iterations
+      DAInt comple = cellsToModifyConn0_torenum->buildComplement(nCells2);
+      DAInt nonHitCells = hitCells->getIdsEqual(-1);
+      DAInt intersec = nonHitCells->buildIntersection(comple);
+      if (intersec->getNumberOfTuples())
+        { seed = intersec->getIJ(0,0); }
+      else
+        { break; }
       nIter++;
     }
   if (nIter >= nIterMax)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate(): internal error - too many iterations.");
 
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
+  DAInt cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
   cellsToModifyConn0_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   cellsToModifyConn1_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   //
@@ -2614,7 +2628,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>
  *  \warning This method performs no check of validity of new ids. **Use it with care !**
  *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
  *         this->getNumberOfNodes(), in "Old to New" mode. 
- *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
+ *         See \ref numbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  *
  *  \if ENABLE_EXAMPLES
@@ -2722,6 +2736,7 @@ void MEDCouplingUMesh::duplicateNodesInConn(const int *nodeIdsToDuplicateBg, con
  * should be contained in[0;this->getNumberOfCells()).
  * 
  * \param [in] old2NewBg is expected to be a dynamically allocated pointer of size at least equal to this->getNumberOfCells()
+ * \param check
  */
 void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check)
 {
@@ -3148,7 +3163,8 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getTypesOfPart(con
 }
 
 /*!
- * Defines the nodal connectivity using given connectivity arrays. Optionally updates
+ * Defines the nodal connectivity using given connectivity arrays in \ref numbering-indirect format.
+ * Optionally updates
  * a set of types of cells constituting \a this mesh. 
  * This method is for advanced users having prepared their connectivity before. For
  * more info on using this method see \ref MEDCouplingUMeshAdvBuild.
@@ -3233,7 +3249,7 @@ int MEDCouplingUMesh::getNumberOfCells() const
 
 /*!
  * Returns a dimension of \a this mesh, i.e. a dimension of cells constituting \a this
- * mesh. For more info see \ref MEDCouplingMeshesPage.
+ * mesh. For more info see \ref meshes.
  *  \return int - the dimension of \a this mesh.
  *  \throw If the mesh dimension is not defined using setMeshDimension().
  */
@@ -3280,6 +3296,9 @@ bool MEDCouplingUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
 /*!
  * Second step of serialization process.
  * \param tinyInfo must be equal to the result given by getTinySerializationInformation method.
+ * \param a1
+ * \param a2
+ * \param littleStrings
  */
 void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
@@ -6210,7 +6229,7 @@ DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells()
  * This method works only if \a this is a 3D mesh, that is to say a mesh with mesh dimension 3 and a space dimension 3.
  * This method makes the hypothesis that \a this a coherent that is to say MEDCouplingUMesh::checkCoherency2 should throw no exception.
  * 
- * \ret a newly allocated int array with one components containing cell ids renumbered to fit the convention of MED (MED file and MEDCoupling)
+ * \return a newly allocated int array with one components containing cell ids renumbered to fit the convention of MED (MED file and MEDCoupling)
  * \sa MEDCouplingUMesh::orientCorrectlyPolyhedrons, 
  */
 DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DCells()
@@ -6927,11 +6946,12 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
 }
 
 /*!
- * This method makes the hypothesis that \at this is sorted by type. If not an exception will be thrown.
+ * This method makes the hypothesis that \a this is sorted by type. If not an exception will be thrown.
  * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in \a profile it returns a list of sub-profiles sorted by geo type.
  * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
  * This method has 1 input \a profile and 3 outputs \a code \a idsInPflPerType and \a idsPerType.
  * 
+ * \param [in] profile
  * \param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
  * \param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
  *              \a idsInPflPerType[i] stores the tuple ids in \a profile that correspond to the geometric type code[3*i+0]
@@ -7347,6 +7367,12 @@ DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() co
   return connOut.retn();
 }
 
+/*!
+ * Convert the nodal connectivity of the mesh so that all the cells are of dynamic types (polygon or quadratic
+ * polygon). This returns the corresponding new nodal connectivity in \ref numbering-indirect format.
+ * \param nodalConn
+ * \param nodalConnI
+ */
 void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndex) const
 {
   static const char msg0[]="MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : nodal connectivity in this are invalid ! Call checkCoherency2 !";
@@ -7941,7 +7967,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const MEDCouplingUM
  * dimension and sharing the node coordinates array.
  * All cells of the *i*-th mesh precede all cells of the
  * (*i*+1)-th mesh within the result mesh.
- *  \param [in] a - a vector of meshes (MEDCouplingUMesh) to concatenate.
+ *  \param [in] meshes - a vector of meshes (MEDCouplingUMesh) to concatenate.
  *  \return MEDCouplingUMesh * - the result mesh. It is a new instance of
  *          MEDCouplingUMesh. The caller is to delete this mesh using decrRef() as it
  *          is no more needed.
@@ -10122,10 +10148,14 @@ bool IKGeo2DInternalMapper(const INTERP_KERNEL::ComposedEdge& c, const std::map<
 /// @endcond
 
 /**
- * This method split some of edges of 2D cells in \a this. The edges to be split are specified in \a subNodesInSeg and in \a subNodesInSegI using index storage mode.
- * To do the work this method can optionally needs information about middle of subedges for quadratic cases if a minimal creation of new nodes is wanted.
- * So this method try to reduce at most the number of new nodes. The only case that can lead this method to add nodes if a SEG3 is split without information of middle.
- * \b WARNING : is returned value is different from 0 a call to MEDCouplingUMesh::mergeNodes is necessary to avoid to have a non conform mesh.
+ * This method split some of edges of 2D cells in \a this. The edges to be split are specified in \a subNodesInSeg
+ * and in \a subNodesInSegI using \ref numbering-indirect storage mode.
+ * To do the work this method can optionally needs information about middle of subedges for quadratic cases if
+ * a minimal creation of new nodes is wanted.
+ * So this method try to reduce at most the number of new nodes. The only case that can lead this method to add
+ * nodes if a SEG3 is split without information of middle.
+ * \b WARNING : is returned value is different from 0 a call to MEDCouplingUMesh::mergeNodes is necessary to
+ * avoid to have a non conform mesh.
  *
  * \return int - the number of new nodes created (in most of cases 0).
  * 
@@ -10803,10 +10833,11 @@ bool MEDCouplingUMesh::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, cons
 }
 
 /*!
- * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn
+ * (\ref numbering-indirect).
  * This method returns the result of the extraction ( specified by a set of ids in [\b idsOfSelectBg , \b idsOfSelectEnd ) ).
  * The selection of extraction is done standardly in new2old format.
- * This method returns indexed arrays using 2 arrays (arrOut,arrIndexOut).
+ * This method returns indexed arrays (\ref numbering-indirect) using 2 arrays (arrOut,arrIndexOut).
  *
  * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
  * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
@@ -10875,13 +10906,15 @@ void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const 
 }
 
 /*!
- * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn
+ * (\ref numbering-indirect).
  * This method returns the result of the extraction ( specified by a set of ids with a slice given by \a idsOfSelectStart, \a idsOfSelectStop and \a idsOfSelectStep ).
  * The selection of extraction is done standardly in new2old format.
- * This method returns indexed arrays using 2 arrays (arrOut,arrIndexOut).
+ * This method returns indexed arrays (\ref numbering-indirect) using 2 arrays (arrOut,arrIndexOut).
  *
- * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
- * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in] idsOfSelectStart begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectStop end of set of ids of the input extraction (excluded)
+ * \param [in] idsOfSelectStep
  * \param [in] arrIn arr origin array from which the extraction will be done.
  * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
  * \param [out] arrOut the resulting array
@@ -11555,7 +11588,7 @@ void EnterTheResultOf2DCellEnd(const INTERP_KERNEL::Edge *e, int start, int stp,
     }
 }
 
-/// @cond INTERNAL
+/// @endcond
 
 /*!
  * Returns true if a colinearization has been found in the given cell. If false is returned the content pushed in \a newConnOfCell is equal to [ \a connBg , \a connEnd ) .

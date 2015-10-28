@@ -256,7 +256,7 @@ void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& 
  *  \param [out] areNodesMerged - is set to \a true if any coincident nodes found.
  *  \param [out] newNbOfNodes - returns number of unique nodes.
  *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
+ *          info on "Old to New" mode see \ref numbering. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  */
@@ -274,8 +274,7 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, 
 
 /*!
  * Finds nodes coincident within \a prec tolerance.
- * Ids of coincident nodes are stored in output arrays.
- * A pair of arrays (\a comm, \a commIndex) is called "Surjective Format 2".
+ * Ids of coincident nodes are stored in output arrays in the \ref numbering-indirect format.
  *  \param [in] prec - minimal absolute distance (using infinite norm) between two nodes at which they are
  *              considered not coincident.
  *  \param [in] limitNodeId - limit node id. If all nodes within a group of coincident
@@ -286,7 +285,7 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, 
  *               \a comm->getNumberOfTuples() == \a commIndex->back(). The caller
  *               is to delete this array using decrRef() as it is no more needed.
  *  \param [out] commIndex - the array dividing all ids stored in \a comm into
- *               groups of (ids of) coincident nodes. Its every value is a tuple
+ *               groups of (ids of) coincident nodes (\ref numbering-indirect). Its every value is a tuple
  *               index where a next group of nodes begins. For example the second
  *               group of nodes in \a comm is described by following range of indices:
  *               [ \a commIndex[1], \a commIndex[2] ). \a commIndex->getNumberOfTuples()-1
@@ -340,11 +339,11 @@ DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double
  *         parameter. 
  *  \param [in] eps - the lowest distance between (using infinite norm) a point and a node at which the node is
  *         not returned by this method.
- *  \param [out] c - array returning ids of nodes located closer than \a eps to the
+ *  \param [out] c - array (\ref numbering-indirect) returning ids of nodes located closer than \a eps to the
  *         given points. The caller
  *         is to delete this array using decrRef() as it is no more needed.
  *  \param [out] cI - for each i-th given point, the array specifies tuples of \a c
- *         holding ids of nodes close to the i-th point. <br>The i-th value of \a cI is an 
+ *         holding ids of nodes close to the i-th point (\ref numbering-indirect). <br>The i-th value of \a cI is an
  *         index of tuple of \a c holding id of a first (if any) node close to the
  *         i-th given point. Difference between the i-th and (i+1)-th value of \a cI
  *         (i.e. \a cI[ i+1 ] - \a cI[ i ]) defines number of nodes close to the i-th
@@ -369,8 +368,8 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfPoints
 }
 
 /*!
- * @param comm in param in the same format than one returned by findCommonNodes method.
- * @param commI in param in the same format than one returned by findCommonNodes method.
+ * @param comm in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
+ * @param commI in param in the same format than one returned by findCommonNodes method (\ref numbering-indirect).
  * @return the old to new correspondance array.
  */
 DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
@@ -388,7 +387,7 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
  * array is modified accordingly.
  *  \param [in] newNodeNumbers - a permutation array, of length \a
  *         this->getNumberOfNodes(), in "Old to New" mode. 
- *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
+ *         See \ref numbering for more info on renumbering modes.
  *  \param [in] newNbOfNodes - number of nodes remaining after renumbering.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -415,7 +414,7 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
  * of merged nodes (whose new ids coincide) is changed to be at their barycenter.
  *  \param [in] newNodeNumbers - a permutation array, of length \a
  *         this->getNumberOfNodes(), in "Old to New" mode. 
- *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
+ *         See \ref numbering for more info on renumbering modes.
  *  \param [in] newNbOfNodes - number of nodes remaining after renumbering, which is
  *         actually one more than the maximal id in \a newNodeNumbers.
  *  \throw If the coordinates array is not set.
@@ -484,10 +483,12 @@ void MEDCouplingPointSet::zipCoords()
   traducer->decrRef();
 }
 
+/*! \cond HIDDEN_ITEMS */
 struct MEDCouplingCompAbs
 {
   bool operator()(double x, double y) { return std::abs(x)<std::abs(y);}
 };
+/*! \endcond */
 
 /*!
  * Returns the carateristic dimension of \a this point set, that is a maximal
@@ -1648,7 +1649,7 @@ DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer()
  *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
  *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
  *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
+ *          info on "Old to New" mode see \ref numbering. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -1675,7 +1676,7 @@ DataArrayInt *MEDCouplingPointSet::mergeNodes(double precision, bool& areNodesMe
  *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
  *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
  *  \return DataArrayInt * - the permutation array in "Old to New" mode. For more 
- *          info on "Old to New" mode see \ref MEDCouplingArrayRenumbering. The caller
+ *          info on "Old to New" mode see \ref numbering. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.

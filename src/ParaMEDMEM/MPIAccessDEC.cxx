@@ -902,10 +902,13 @@ namespace ParaMEDMEM
       {
         if ( WithWait )
           {
-            cout << "CheckSent" << _my_rank << " " << i << "./" << nSendRequest
-                 << " SendRequestId " << ArrayOfSendRequests[i] << " MPITarget "
-                 << _MPI_access->MPITarget(ArrayOfSendRequests[i]) << " MPITag "
-                 << _MPI_access->MPITag(ArrayOfSendRequests[i]) << " Wait :" << endl ;
+            if (SendTrace)
+              {
+                cout << "CheckSent" << _my_rank << " " << i << "./" << nSendRequest
+                    << " SendRequestId " << ArrayOfSendRequests[i] << " MPITarget "
+                    << _MPI_access->MPITarget(ArrayOfSendRequests[i]) << " MPITag "
+                    << _MPI_access->MPITag(ArrayOfSendRequests[i]) << " Wait :" << endl ;
+              }
             sts = _MPI_access->wait( ArrayOfSendRequests[i] ) ;
           }
         else

@@ -336,7 +336,8 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, const std::vector<std::str
   _coords=DataArrayDouble::New();
   _coords->alloc(nCoords,spaceDim);
   double *coordsPtr(_coords->getPointer());
-  MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateRd,(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,coordsPtr));
+  if (nCoords)
+    MEDFILESAFECALLERRD0(MEDmeshNodeCoordinateRd,(fid,mName.c_str(),dt,it,MED_FULL_INTERLACE,coordsPtr));
   if(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_NODE,MED_NO_GEOTYPE,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       _fam_coords=DataArrayInt::New();
@@ -1347,7 +1348,12 @@ void MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh() const
 {
   const MEDCouplingUMesh *m(_m);
   if(!m)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh : null UMesh !");
+    {
+      if(_m_parts.empty())
+        throw INTERP_KERNEL::Exception("MEDFileUMeshAggregateCompute::forceComputationOfPartsFromUMesh : null UMesh !");
+      else
+        return ;// no needs to compte parts they are already here !
+    }
   std::vector<MEDCouplingUMesh *> ms(m->splitByType());
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(ms.begin(),ms.end());
   std::size_t sz(msMSafe.size());

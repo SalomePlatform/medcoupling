@@ -26,8 +26,11 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-  /*! \defgroup mpi_access MPIAccess
-    Class \a MPIAccess is the gateway to the MPI library.
+  /**!
+    \anchor MPIAccess-det
+    \class MPIAccess
+
+    The class \a MPIAccess is the gateway to the MPI library.
     It is a helper class that gathers the calls to the MPI
     library that are made in the ParaMEDMEM library. This gathering
     allows easier gathering of information about the communication
@@ -231,29 +234,29 @@ namespace ParaMEDMEM
     The default is [ 0 , MPI_TAG_UB], MPI_TAG_UB being the maximum
     value in an implementation of MPI (minimum 32767 = 2**15-1).
     On awa with the implementation lam MPI_TAG_UB value is
-    7353944. The norma MPI specify that value is the same in all
+    7353944. The norm MPI specify that value is the same in all
     processes started by mpirun.
     In the case of the use of the same IntraCommunicator in a process
     for several distinct data flows (or for several IntraCommunicators
-    with common processes), that permits to avoid ambibuity
+    with common processes), that permits to avoid ambiguity
     and may help debug.
 
     . In MPIAccess the tags have two parts (#define MODULO_TAG 10) :
     + The last decimal digit decimal correspond to MPI_DataType ( 1 for
     TimeMessages, 2 for MPI_INT and 3 for MPI_DOUBLE)
-    + The value of other digits correspond to a circular numero for each
+    + The value of other digits correspond to a circular number for each
     message.
-    + A TimeMessage and the associated DataMessage have the same numero
+    + A TimeMessage and the associated DataMessage have the same number
     (but the types are different and the tags also).
 
     . For a Send of a message from a process "source" to a process
     "target", we have _send_MPI_tag[target] in the process
-    source (it contains the last "tag" used for the Send of a pour l'envoi de
+    source (it contains the last "tag" used for the Send of a
     message to the process target).
     And in the process "target" which receive that message, we have
     _recv_MPI_Tag[source] (it contains the last "tag" used for the Recv
     of messages from the process source).
-    Naturally in the MPI norma the values of that tags must be the same.
+    Naturally in the MPI norm the values of that tags must be the same.
   */
   int MPIAccess::newSendTag( MPI_Datatype datatype, int destrank , int method ,
                              bool asynchronous, int &RequestId )

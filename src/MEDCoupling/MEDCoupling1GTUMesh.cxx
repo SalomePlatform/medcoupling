@@ -1118,7 +1118,7 @@ void MEDCoupling1SGTUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,
  *  \warning This method performs no check of validity of new ids. **Use it with care !**
  *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
  *         this->getNumberOfNodes(), in "Old to New" mode. 
- *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
+ *         See \ref numbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  */
 void MEDCoupling1SGTUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
@@ -3195,7 +3195,7 @@ void MEDCoupling1DGTUMesh::renumberNodesInConn(const INTERP_KERNEL::HashMap<int,
  *  \warning This method performs no check of validity of new ids. **Use it with care !**
  *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
  *         this->getNumberOfNodes(), in "Old to New" mode. 
- *         See \ref MEDCouplingArrayRenumbering for more info on renumbering modes.
+ *         See \ref numbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  */
 void MEDCoupling1DGTUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)

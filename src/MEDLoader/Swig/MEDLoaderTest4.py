@@ -5116,4 +5116,5 @@ class MEDLoaderTest4(unittest.TestCase):
 
     pass
 
-unittest.main()
+if __name__ == "__main__":
+  unittest.main()

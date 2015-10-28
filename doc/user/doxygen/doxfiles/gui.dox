@@ -1,0 +1,23 @@
+/*!
+\page gui Graphical user interface
+
+<h1>A graphical interface for standard use cases</h1>
+
+The MED module in SALOME comes with a graphical interface that helps
+you deal with the most standard use cases of field manipulation. The
+user guide can be found here:
+
+- <a class="el" target="_new"
+  href="../../dev/MED/medcalc-userguide-gui.html">User guide of the MED Graphical Interface</a>
+
+You could also be interested to read the software specifications and
+requirements for this graphical module, and even the technical
+considerations for development:
+
+- <a class="el" target="_new"
+  href="../../dev/MED/medcalc-specifications.html">Software
+  specifications and requirements of the MED Graphical Interface (in french)</a>
+- <a class="el" target="_new"
+  href="../../dev/MED/medcalc-develguide.html">Developer guide of the MED Graphical Interface (in french)</a>
+
+*/

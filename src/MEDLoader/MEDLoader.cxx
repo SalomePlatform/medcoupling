@@ -44,6 +44,15 @@
 #include <iterator>
 #include <algorithm>
 
+/*! \class MEDLoader
+ *
+ * \brief Static class offering the "basic" API to read and write MED files/
+ *
+ * This class implements only static methods and offers the high level API to access MED files.
+ * Take a look at \ref medloader for more details.
+ *
+ */
+
 med_geometry_type typmai[MED_N_CELL_FIXED_GEO] = { MED_POINT1,
   MED_SEG2,
   MED_SEG3,

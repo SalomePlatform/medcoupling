@@ -1215,10 +1215,10 @@ namespace ParaMEDMEM
            return const_cast<PartDefinition *>(ret);
          }
 
-         PyObject *duplicateNodesOnM1Group(const std::string& grpNameM1) throw(INTERP_KERNEL::Exception)
+         PyObject *buildInnerBoundaryAlongM1Group(const std::string& grpNameM1) throw(INTERP_KERNEL::Exception)
          {
            DataArrayInt *ret0=0,*ret1=0,*ret2=0;
-           self->duplicateNodesOnM1Group(grpNameM1,ret0,ret1,ret2);
+           self->buildInnerBoundaryAlongM1Group(grpNameM1,ret0,ret1,ret2);
            PyObject *ret=PyTuple_New(3);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
            PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));

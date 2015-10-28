@@ -859,8 +859,11 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
   ParaMEDMEM::ParaFIELD* parafield;
   ICoCo::MEDField* icocofield ;
   
-  string tmp_dir                    = getenv("TMP");
-  if (tmp_dir == "")
+  char * tmp_dir_c                    = getenv("TMP");
+  string tmp_dir;
+  if (tmp_dir_c != NULL)
+    tmp_dir = string(tmp_dir_c);
+  else
     tmp_dir = "/tmp";
   string filename_xml1              = getResourceFile("Mesh3D_10_2d");
   string filename_xml2              = getResourceFile("Mesh3D_11");
@@ -1907,6 +1910,10 @@ void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
   delete target_group;
   delete source_group;
   delete dec;
+  if(partialComm != MPI_COMM_NULL)
+    comm.commFree(&partialComm);
+  comm.groupFree(&grp);
+  comm.groupFree(&group_world);
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
@@ -2108,8 +2115,11 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
   
   ICoCo::MEDField* icocofield ;
 
-  string tmp_dir                    = getenv("TMP");
-  if (tmp_dir == "")
+  char * tmp_dir_c                    = getenv("TMP");
+  string tmp_dir;
+  if (tmp_dir_c != NULL)
+    tmp_dir = string(tmp_dir_c);
+  else
     tmp_dir = "/tmp";
   string filename_xml1              = getResourceFile("square1_split");
   string filename_xml2              = getResourceFile("square2_split"); 

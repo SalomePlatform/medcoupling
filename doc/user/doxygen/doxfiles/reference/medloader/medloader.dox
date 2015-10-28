@@ -1,0 +1,16 @@
+/*!
+\page medloader MEDLoader: Writing, reading MED files
+
+MEDLoader is built on top of the **MEDCoupling** library and uses its core structure 
+(\ref arrays DataArray,  \ref meshes Meshes, \ref fields Fields).
+It is an extension dedicated to the writing and reading of mesh and fields to MED files (files with a .med
+extension). 
+
+- \subpage intro-medloader
+- \subpage MEDLoaderBasicAPIPage
+- \subpage MEDLoaderAdvancedAPIPage
+
+More information on the MED file format itself can be found at:
+- \ref med-file 
+
+*/

@@ -35,17 +35,22 @@
 namespace ParaMEDMEM
 {
   /*!
-    \defgroup parafield ParaFIELD
-    This class encapsulates parallel fields. It basically encapsulates
+    \anchor ParaFIELD-det
+    \class ParaFIELD
+
+    This class encapsulates parallel fields.
+
+    It basically encapsulates
     a MEDCouplingField with extra information related to parallel 
     topology.
+
     It is most conveniently created by giving a pointer to a MEDCouplingField
     object and a \c ProcessorGroup.
     By default, a ParaFIELD object will be constructed with all field components
     located on the same processors. In some specific cases, it might be necessary to scatter components over several processors. In this case, the constructor
     using a ComponentTopology is required.
 
-    @{ */
+    */
 
   /*!
 

@@ -2570,7 +2570,7 @@ MFFPMIter2::MFFPMIter2(const std::vector<INTERP_KERNEL::NormalizedCellType>& cts
     }
 }
 
-/// @cond INTERNAL
+/// @endcond
 
 MEDFileFieldPerMesh::MEDFileFieldPerMesh(med_idt fid, MEDFileAnyTypeField1TSWithoutSDA *fath, int meshCsit, int meshIteration, int meshOrder, const MEDFileFieldNameScope& nasc, const MEDFileMesh *mm, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities):_mesh_iteration(meshIteration),_mesh_order(meshOrder),
     _father(fath)
@@ -2942,6 +2942,7 @@ const MEDFileFieldLoc& MEDFileFieldGlobs::getLocalizationFromId(int locId) const
   return *_locs[locId];
 }
 
+/// @cond INTERNAL
 namespace ParaMEDMEMImpl
 {
   class LocFinder
@@ -2962,6 +2963,7 @@ namespace ParaMEDMEMImpl
     const std::string& _pfl;
   };
 }
+/// @endcond
 
 int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
 {

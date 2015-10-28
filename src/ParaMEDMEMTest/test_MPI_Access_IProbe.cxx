@@ -47,7 +47,7 @@ using namespace ParaMEDMEM;
 
 void MPIAccessTest::test_MPI_Access_IProbe() {
 
-  cout << "test_MPI_Access_IProbe" << endl ;
+  debugStream << "test_MPI_Access_IProbe" << endl ;
 
 //  MPI_Init(&argc, &argv) ; 
 
@@ -59,11 +59,12 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
   if ( size < 2 ) {
     ostringstream strstream ;
     strstream << "test_MPI_Access_IProbe must be runned with 2 procs" << endl ;
-    cout << strstream.str() << endl ;
-    CPPUNIT_FAIL( strstream.str() ) ;
+    cerr << strstream.str() << endl ;
+    //CPPUNIT_FAIL( strstream.str() ) ;
+    return;
   }
 
-  cout << "test_MPI_Access_IProbe" << myrank << endl ;
+  debugStream << "test_MPI_Access_IProbe" << myrank << endl ;
 
   ParaMEDMEM::CommInterface interface ;
 
@@ -86,7 +87,7 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
      if ( myrank == 0 ) {
        sendbuf[i] = i ;
        sts = mpi_access.ISend(&sendbuf[i],1,MPI_INT,target, RequestId[i]) ;
-       cout << "test" << myrank << " Send RequestId " << RequestId[i]
+       debugStream << "test" << myrank << " Send RequestId " << RequestId[i]
             << endl ;
      }
      else {
@@ -96,12 +97,12 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
             MPI_Datatype datatype ;
             sts = mpi_access.IProbe(target, source, tag, datatype, outcount, flag ) ;
             if ( flag ) {
-              cout << "test" << myrank << " " << i << " IProbe target " << target
+              debugStream << "test" << myrank << " " << i << " IProbe target " << target
                    << " source " << source << " tag " << tag
                    << " outcount " << outcount << " flag " << flag << endl ;
             }
             else {
-              cout << "test" << myrank << " IProbe flag " << flag << endl ;
+              debugStream << "test" << myrank << " IProbe flag " << flag << endl ;
               sleep( 1 ) ;
             }
             if ( flag ) {
@@ -115,10 +116,10 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
                           << " recvbuf " << recvbuf << " KO" << endl
                           << "==========================================================="
                           << endl ;
-                cout << strstream.str() << endl ;
+                debugStream << strstream.str() << endl ;
                 CPPUNIT_FAIL( strstream.str() ) ;
               }
-              cout << "==========================================================="
+              debugStream << "==========================================================="
                    << endl << "test" << myrank << " outcount " << outcount
                    << " recvbuf " << recvbuf << " OK" << endl
                    << "==========================================================="
@@ -129,7 +130,7 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
      char msgerr[MPI_MAX_ERROR_STRING] ;
      int lenerr ;
      mpi_access.errorString(sts, msgerr, &lenerr) ;
-     cout << "test" << myrank << " lenerr " << lenerr << " "
+     debugStream << "test" << myrank << " lenerr " << lenerr << " "
           << msgerr << endl ;
 
      if ( sts != MPI_SUCCESS ) {
@@ -138,10 +139,10 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
                  << "test" << myrank << " KO"
                  << "==========================================================="
                  << endl ;
-       cout << strstream.str() << endl ;
+       debugStream << strstream.str() << endl ;
        CPPUNIT_FAIL( strstream.str() ) ;
      }
-     mpi_access.check() ;
+     if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
   }
   int flag ;
   mpi_access.testAll(10,RequestId,flag) ;
@@ -151,10 +152,10 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
   if ( !flag ) {
     ostringstream strstream ;
     strstream << "test" << myrank << " flag " << flag << " KO" << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
-  mpi_access.check() ;
+  if(MPI_ACCESS_VERBOSE) mpi_access.check() ;
 
   mpi_access.barrier() ;
 
@@ -162,7 +163,7 @@ void MPIAccessTest::test_MPI_Access_IProbe() {
 
 //  MPI_Finalize();
 
-  cout << "test" << myrank << " OK" << endl ;
+  debugStream << "test" << myrank << " OK" << endl ;
 
   return ;
 }

@@ -1,0 +1,10 @@
+/*!
+\page distrib Distribution and parallelism in MEDCoupling
+
+The MEDCoupling library features several functionalities to allow its efficient usage
+in a parallel and/or distributed setup: 
+- \subpage parallel
+- \subpage corba-distrib
+
+
+*/

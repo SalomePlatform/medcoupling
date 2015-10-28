@@ -54,6 +54,7 @@ namespace ParaMEDMEM
     bool _own_source_field;
     ParaFIELD *_target_field;
     bool _own_target_field;
+    MPI_Comm _comm;
   };
 }
 

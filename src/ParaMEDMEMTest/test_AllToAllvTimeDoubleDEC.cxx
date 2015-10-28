@@ -55,14 +55,14 @@ static void chksts( int sts , int myrank , ParaMEDMEM::MPIAccess * mpi_access ) 
   int lenerr ;
   if ( sts != MPI_SUCCESS ) {
     mpi_access->errorString(sts, msgerr, &lenerr) ;
-    cout << "test" << myrank << " lenerr " << lenerr << " "
+    debugStream << "test" << myrank << " lenerr " << lenerr << " "
          << msgerr << endl ;
     ostringstream strstream ;
     strstream << "==========================================================="
               << "test" << myrank << " KO"
               << "==========================================================="
               << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
   return ;
@@ -70,7 +70,7 @@ static void chksts( int sts , int myrank , ParaMEDMEM::MPIAccess * mpi_access ) 
 
 void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
 
-  cout << "test_AllToAllvTimeDoubleDEC" << endl ;
+  debugStream << "test_AllToAllvTimeDoubleDEC" << endl ;
 
 //  MPI_Init(&argc, &argv) ; 
 
@@ -86,13 +86,13 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
               << " (nbprocs >=2)" << endl
               << "test must be runned with more than 1 proc and less than 12 procs"
               << endl ;
-    cout << strstream.str() << endl ;
+    cerr << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
 
 //  int Asynchronous = atoi(argv[1]) ;
 
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " Asynchronous " << Asynchronous << endl ;
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " Asynchronous " << Asynchronous << endl ;
 
   ParaMEDMEM::CommInterface interface ;
   std::set<int> sourceprocs;
@@ -115,7 +115,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
   MyMPIAccessDEC->setTimeInterpolator( LinearTimeInterp ) ;
   MPIAccess * mpi_access = MyMPIAccessDEC->getMPIAccess() ;
 
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " Barrier :" << endl ;
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " Barrier :" << endl ;
   mpi_access->barrier() ;
 
 #define maxproc 11
@@ -170,34 +170,34 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
         }
      }
      MyMPIAccessDEC->setTime( timeLoc[myrank] , nextdeltatime[myrank] ) ;
-     cout << "test" << myrank << "=====TIME " << timeLoc[myrank] << "=====DELTATIME "
+     debugStream << "test" << myrank << "=====TIME " << timeLoc[myrank] << "=====DELTATIME "
           << nextdeltatime[myrank] << "=====MAXTIME " << maxtime[myrank] << " ======"
           << endl ; 
      double * sendbuf = new double[datamsglength*size] ;
 //     double * sendbuf = (double *) malloc(sizeof(double)*datamsglength*size) ;
      double * recvbuf = new double[datamsglength*size] ;
      int j ;
-     //cout << "test_AllToAllvTimeDoubleDEC" << myrank << " sendbuf" ;
+     //debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " sendbuf" ;
      for ( target = 0 ; target < size ; target++ ) {
         for ( j = 0 ; j < datamsglength ; j++ ) {
            //sendbuf[j] = myrank*10000 + (j/datamsglength)*100 + j ;
            sendbuf[target*datamsglength+j] = myrank*1000000 + target*10000 +
                                              (timeLoc[myrank]/deltatime[myrank])*100 + j ;
-           //cout << " " << (int ) sendbuf[target*datamsglength+j] ;
+           //debugStream << " " << (int ) sendbuf[target*datamsglength+j] ;
            recvbuf[target*datamsglength+j] = -1 ;
         }
-        //cout << endl ;
+        //debugStream << endl ;
      }
 
      int sts = MyMPIAccessDEC->allToAllvTime( sendbuf, sendcounts , sdispls , MPI_DOUBLE ,
                                             recvbuf, recvcounts , rdispls , MPI_DOUBLE ) ;
      chksts( sts , myrank , mpi_access ) ;
 
-//     cout << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf before CheckSent" ;
+//     debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf before CheckSent" ;
 //     for ( i = 0 ; i < datamsglength*size ; i++ ) {
-//        cout << " " << recvbuf[i] ;
+//        debugStream << " " << recvbuf[i] ;
 //     }
-//     cout << endl ;
+//     debugStream << endl ;
 
      int nRecvReq = mpi_access->recvRequestIdsSize() ;
      if ( nRecvReq != 0 ) {
@@ -211,11 +211,11 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
        int nReq = mpi_access->recvRequestIds( nRecvReq, ArrayOfRecvRequests ) ;
        mpi_access->waitAll( nReq , ArrayOfRecvRequests ) ;
        delete [] ArrayOfRecvRequests ;
-       cout << strstream.str() << endl ;
+       debugStream << strstream.str() << endl ;
        CPPUNIT_FAIL( strstream.str() ) ;
      }
 
-//     cout << "test_AllToAllvTimeDoubleDEC" << myrank << " check of recvbuf" << endl ;
+//     debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " check of recvbuf" << endl ;
      bool badrecvbuf = false ;
      for ( target = 0 ; target < size ; target++ ) {
         int j ;
@@ -225,21 +225,21 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
              if ( fabs(recvbuf[index] - (target*1000000 + myrank*10000 +
                   (timeLoc[target]/deltatime[target])*100 + j)) > 101) {
                badrecvbuf = true ;
-               cout << "test_AllToAllvTimeDoubleDEC" << myrank << " target " << target << " timeLoc[target] "
+               debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " target " << target << " timeLoc[target] "
                     << timeLoc[target] << " recvbuf[" << index << "] " << (int ) recvbuf[index]
                     << " # " << (int ) (target*1000000 +
                        myrank*10000 + (timeLoc[target]/deltatime[target])*100 + j)
                     << endl ;
              }
              else if ( badrecvbuf ) {
-               cout << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf[" << index << "] "
+               debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf[" << index << "] "
                     << recvbuf[index] << " ~= " << (int ) (target*1000000 +
                        myrank*10000 + (timeLoc[target]/deltatime[target])*100 + j) << endl ;
              }
            }
            else if ( recvbuf[index] != -1 ) {
              badrecvbuf = true ;
-             cout << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf[" << index << "] "
+             debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf[" << index << "] "
                   << recvbuf[index] << " # -1" << endl ;
            }
         }
@@ -250,16 +250,16 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
                  << "test_AllToAllvTimeDoubleDEC" << myrank << " badrecvbuf"
                  << endl << "=================================================================="
                  << endl ;
-       cout << strstream.str() << endl ;
+       debugStream << strstream.str() << endl ;
        CPPUNIT_FAIL( strstream.str() ) ;
      }
      delete [] recvbuf ;
   }
 
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " Barrier :" << endl ;
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " Barrier :" << endl ;
   mpi_access->barrier() ;
 
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " CheckFinalSent" << endl ;
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " CheckFinalSent" << endl ;
   sts = MyMPIAccessDEC->checkFinalSent() ;
   if ( sts != MPI_SUCCESS ) {
     ostringstream strstream ;
@@ -267,11 +267,11 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
               << "test_AllToAllvTimeDoubleDEC" << myrank << " CheckFinalSent ERROR"
               << endl << "================================================================="
               << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
 
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " CheckFinalRecv" << endl ;
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " CheckFinalRecv" << endl ;
   sts = MyMPIAccessDEC->checkFinalRecv() ;
   if ( sts != MPI_SUCCESS ) {
     ostringstream strstream ;
@@ -279,7 +279,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
               << "test_AllToAllvTimeDoubleDEC" << myrank << " CheckFinalRecv ERROR"
               << endl << "================================================================"
               << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
 
@@ -291,20 +291,20 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
               << " RecvRequests # 0 Error"
               << endl << "==============================================================="
               << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
   else {
-    cout << "test_AllToAllvTimeDoubleDEC" << myrank << " RecvRequestIds " << nRecvReq
+    debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " RecvRequestIds " << nRecvReq
          << " RecvRequests = 0 OK" << endl ;
   }
 
   time_t endtime = time(NULL) ;
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " begintime " << begintime << " endtime " << endtime
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " begintime " << begintime << " endtime " << endtime
        << " elapse " << endtime-begintime << " " << maxtime[myrank]/deltatime[myrank]
        << " calls to AllToAll" << endl ;
 
-  cout << "test" << myrank << " Barrier :" << endl ;
+  debugStream << "test" << myrank << " Barrier :" << endl ;
   mpi_access->barrier() ;
 
   delete sourcegroup ;
@@ -325,7 +325,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
 
   endtime = time(NULL) ;
 
-  cout << "test_AllToAllvTimeDoubleDEC" << myrank << " OK begintime " << begintime << " endtime " << endtime
+  debugStream << "test_AllToAllvTimeDoubleDEC" << myrank << " OK begintime " << begintime << " endtime " << endtime
        << " elapse " << endtime-begintime << " " << maxtime[myrank]/deltatime[myrank]
        << " calls to AllToAll" << endl ;
 

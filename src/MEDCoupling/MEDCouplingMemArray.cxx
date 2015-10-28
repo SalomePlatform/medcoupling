@@ -903,7 +903,7 @@ void DataArrayDouble::pushBackSilent(double val)
  * This method adds at the end of \a this a serie of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
  * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
  *
- *  \param [in] valsBg - an array of values to push at the end of \this.
+ *  \param [in] valsBg - an array of values to push at the end of \c this.
  *  \param [in] valsEnd - specifies the end of the array \a valsBg, so that
  *              the last value of \a valsBg is \a valsEnd[ -1 ].
  * \throw If \a this has already been allocated with number of components different from one.
@@ -1447,9 +1447,9 @@ DataArrayDouble *DataArrayDouble::toNoInterlace() const
 /*!
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
- * the same as in \this one.
+ * the same as in \c this one.
  * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
  */
@@ -1479,8 +1479,8 @@ void DataArrayDouble::renumberInPlace(const int *old2New)
 /*!
  * Permutes values of \a this array as required by \a new2Old array. The values are
  * permuted so that \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of tuples remains
- * the same as in \this one.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * the same as in \c this one.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
@@ -1512,9 +1512,9 @@ void DataArrayDouble::renumberInPlaceR(const int *new2Old)
 /*!
  * Returns a copy of \a this array with values permuted as required by \a old2New array.
  * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ].
- * Number of tuples in the result array remains the same as in \this one.
+ * Number of tuples in the result array remains the same as in \c this one.
  * If a permutation reduction is needed, renumberAndReduce() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *          giving a new position for i-th old value.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
@@ -1540,9 +1540,9 @@ DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
 /*!
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
- * tuples in the result array remains the same as in \this one.
+ * tuples in the result array remains the same as in \c this one.
  * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
@@ -1570,7 +1570,7 @@ DataArrayDouble *DataArrayDouble::renumberR(const int *new2Old) const
  * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ] for all
  * \a old2New[ i ] >= 0. In other words every i-th tuple in \a this array, for which 
  * \a old2New[ i ] is negative, is missing from the result array.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old tuple and giving negative position for
  *     for i-th old tuple that should be omitted.
@@ -1603,7 +1603,7 @@ DataArrayDouble *DataArrayDouble::renumberAndReduce(const int *old2New, int newN
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
  * This method is equivalent to renumberAndReduce() except that convention in input is
  * \c new2old and \b not \c old2new.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
  *              tuple index in \a this array to fill the i-th tuple in the new array.
  *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
@@ -1637,7 +1637,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const in
  * \c new2old and \b not \c old2new.
  * This method is equivalent to selectByTupleId() except that it prevents coping data
  * from behind the end of \a this array.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
  *              tuple index in \a this array to fill the i-th tuple in the new array.
  *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
@@ -1674,7 +1674,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, cons
  * command \c range( \a bg, \a end2, \a step ).
  * This method is equivalent to selectByTupleIdSafe() except that the input array is
  * not constructed explicitly.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] bg - index of the first tuple to copy from \a this array.
  *  \param [in] end2 - index of the tuple before which the tuples to copy are located.
  *  \param [in] step - index increment to get index of the next tuple to copy.
@@ -1700,7 +1700,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end2, int step) c
 /*!
  * Returns a shorten copy of \a this array. The new DataArrayDouble contains ranges
  * of tuples specified by \a ranges parameter.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] ranges - std::vector of std::pair's each of which defines a range
  *              of tuples in [\c begin,\c end) format.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
@@ -2385,7 +2385,7 @@ void DataArrayDouble::setPartOfValues1(const DataArrayDouble *a, int bgTuples, i
  *  \throw If \a this is not allocated.
  *  \throw If parameters specifying tuples and components to assign to, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for \this array.
+ *            for \c this array.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvaluessimple1 "Here is a Python example".
@@ -2576,7 +2576,7 @@ void DataArrayDouble::setPartOfValuesSimple2(double a, const int *bgTuples, cons
  *         defined by <em>(bgComp,endComp,stepComp)</em>.
  *  \throw If parameters specifying components to assign to, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for \this array.
+ *            for \c this array.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvalues3 "Here is a Python example".
@@ -2650,7 +2650,7 @@ void DataArrayDouble::setPartOfValues3(const DataArrayDouble *a, const int *bgTu
  *         \a this array.
  *  \throw If parameters specifying components to assign to, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for \this array.
+ *            for \c this array.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarraydouble_setpartofvaluessimple3 "Here is a Python example".
@@ -6090,7 +6090,7 @@ void DataArrayInt::pushBackSilent(int val)
  * This method adds at the end of \a this a serie of values [\c valsBg,\c valsEnd). This method do \b not update its time label to avoid useless incrementation
  * of counter. So the caller is expected to call TimeLabel::declareAsNew on \a this at the end of the push session.
  *
- *  \param [in] valsBg - an array of values to push at the end of \this.
+ *  \param [in] valsBg - an array of values to push at the end of \c this.
  *  \param [in] valsEnd - specifies the end of the array \a valsBg, so that
  *              the last value of \a valsBg is \a valsEnd[ -1 ].
  * \throw If \a this has already been allocated with number of components different from one.
@@ -6653,7 +6653,7 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
  * Creates a one-dimensional DataArrayInt of given length, whose contents are computed
  * from values of \a this array, which is supposed to contain a renumbering map in 
  * "Old to New" mode. The result array contains a renumbering map in "New to Old" mode.
- * To know how to use the renumbering maps see \ref MEDCouplingArrayRenumbering.
+ * To know how to use the renumbering maps see \ref numbering.
  *  \param [in] newNbOfElem - the number of tuples in the result array.
  *  \return DataArrayInt * - the new instance of DataArrayInt.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -6720,7 +6720,7 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
  * Creates a one-dimensional DataArrayInt of given length, whose contents are computed
  * from values of \a this array, which is supposed to contain a renumbering map in 
  * "New to Old" mode. The result array contains a renumbering map in "Old to New" mode.
- * To know how to use the renumbering maps see \ref MEDCouplingArrayRenumbering.
+ * To know how to use the renumbering maps see \ref numbering.
  *  \param [in] newNbOfElem - the number of tuples in the result array.
  *  \return DataArrayInt * - the new instance of DataArrayInt.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -7157,9 +7157,9 @@ DataArrayInt *DataArrayInt::toNoInterlace() const
 /*!
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
- * the same as in \this one.
+ * the same as in \c this one.
  * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
  */
@@ -7189,8 +7189,8 @@ void DataArrayInt::renumberInPlace(const int *old2New)
 /*!
  * Permutes values of \a this array as required by \a new2Old array. The values are
  * permuted so that \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of tuples remains
- * the same as in \this one.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * the same as in \c this one.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
  *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
@@ -7222,9 +7222,9 @@ void DataArrayInt::renumberInPlaceR(const int *new2Old)
 /*!
  * Returns a copy of \a this array with values permuted as required by \a old2New array.
  * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ].
- * Number of tuples in the result array remains the same as in \this one.
+ * Number of tuples in the result array remains the same as in \c this one.
  * If a permutation reduction is needed, renumberAndReduce() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *          giving a new position for i-th old value.
  *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
@@ -7250,9 +7250,9 @@ DataArrayInt *DataArrayInt::renumber(const int *old2New) const
 /*!
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
- * tuples in the result array remains the same as in \this one.
+ * tuples in the result array remains the same as in \c this one.
  * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
  *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
@@ -7280,7 +7280,7 @@ DataArrayInt *DataArrayInt::renumberR(const int *new2Old) const
  * The values are permuted so that  \c new[ \a old2New[ i ]] = \c old[ i ] for all
  * \a old2New[ i ] >= 0. In other words every i-th tuple in \a this array, for which 
  * \a old2New[ i ] is negative, is missing from the result array.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old tuple and giving negative position for
  *     for i-th old tuple that should be omitted.
@@ -7313,7 +7313,7 @@ DataArrayInt *DataArrayInt::renumberAndReduce(const int *old2New, int newNbOfTup
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2OldBg[ i ]].
  * This method is equivalent to renumberAndReduce() except that convention in input is
  * \c new2old and \b not \c old2new.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
  *              tuple index in \a this array to fill the i-th tuple in the new array.
  *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
@@ -7347,7 +7347,7 @@ DataArrayInt *DataArrayInt::selectByTupleId(const int *new2OldBg, const int *new
  * \c new2old and \b not \c old2new.
  * This method is equivalent to selectByTupleId() except that it prevents coping data
  * from behind the end of \a this array.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] new2OldBg - pointer to the beginning of a permutation array that gives a
  *              tuple index in \a this array to fill the i-th tuple in the new array.
  *  \param [in] new2OldEnd - specifies the end of the permutation array that starts at
@@ -7384,7 +7384,7 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
  * command \c range( \a bg, \a end2, \a step ).
  * This method is equivalent to selectByTupleIdSafe() except that the input array is
  * not constructed explicitly.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] bg - index of the first tuple to copy from \a this array.
  *  \param [in] end2 - index of the tuple before which the tuples to copy are located.
  *  \param [in] step - index increment to get index of the next tuple to copy.
@@ -7410,7 +7410,7 @@ DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end2, int step) const
 /*!
  * Returns a shorten copy of \a this array. The new DataArrayInt contains ranges
  * of tuples specified by \a ranges parameter.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering.
+ * For more info on renumbering see \ref numbering.
  *  \param [in] ranges - std::vector of std::pair's each of which defines a range
  *              of tuples in [\c begin,\c end) format.
  *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
@@ -7478,7 +7478,7 @@ DataArray *DataArrayInt::selectByTupleRanges(const std::vector<std::pair<int,int
  * are [5,6,0,3,2,7,1,4]; if this result array (\a res) is used as an argument in call
  * \a this->renumber(\a res) then the returned array contains [0,3,4,6,7,9,10,11].
  * This method is useful for renumbering (in MED file for example). For more info
- * on renumbering see \ref MEDCouplingArrayRenumbering.
+ * on renumbering see \ref numbering.
  *  \return DataArrayInt * - a new instance of DataArrayInt. The caller is to delete this
  *          array using decrRef() as it is no more needed.
  *  \throw If \a this is not allocated.
@@ -7546,7 +7546,7 @@ DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt 
  * place in the set \a B. The second out array is the index of the first one; it shows how
  * many elements of \a A are mapped into each element of \a B. <br>
  * For more info on
- * mapping and its usage in renumbering see \ref MEDCouplingArrayRenumbering. <br>
+ * mapping and its usage in renumbering see \ref numbering. <br>
  * \b Example:
  * - \a this: [0,3,2,3,2,2,1,2]
  * - \a targetNb: 4
@@ -7613,7 +7613,7 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
  * from a zip representation of a surjective format (returned e.g. by
  * \ref ParaMEDMEM::DataArrayDouble::findCommonTuples() "DataArrayDouble::findCommonTuples()"
  * for example). The result array minimizes the permutation. <br>
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering. <br>
+ * For more info on renumbering see \ref numbering. <br>
  * \b Example: <br>
  * - \a nbOfOldTuples: 10 
  * - \a arr          : [0,3, 5,7,9]
@@ -7674,7 +7674,7 @@ DataArrayInt *DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTu
 /*!
  * Returns a new DataArrayInt containing a renumbering map in "New to Old" mode,
  * which if applied to \a this array would make it sorted ascendingly.
- * For more info on renumbering see \ref MEDCouplingArrayRenumbering. <br>
+ * For more info on renumbering see \ref numbering. <br>
  * \b Example: <br>
  * - \a this: [2,0,1,1,0,1,2,0,1,1,0,0]
  * - result: [10,0,5,6,1,7,11,2,8,9,3,4]
@@ -8150,7 +8150,7 @@ void DataArrayInt::setPartOfValues1(const DataArrayInt *a, int bgTuples, int end
  *  \throw If \a this is not allocated.
  *  \throw If parameters specifying tuples and components to assign to, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for \this array.
+ *            for \c this array.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple1 "Here is a Python example".
@@ -8342,7 +8342,7 @@ void DataArrayInt::setPartOfValuesSimple2(int a, const int *bgTuples, const int 
  *         defined by <em>(bgComp,endComp,stepComp)</em>.
  *  \throw If parameters specifying components to assign to, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for \this array.
+ *            for \c this array.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvalues3 "Here is a Python example".
@@ -8416,7 +8416,7 @@ void DataArrayInt::setPartOfValues3(const DataArrayInt *a, const int *bgTuples, 
  *         \a this array.
  *  \throw If parameters specifying components to assign to, do not give a
  *            non-empty range of increasing indices or indices are out of a valid range
- *            for \this array.
+ *            for \c this array.
  *
  *  \if ENABLE_EXAMPLES
  *  \ref py_mcdataarrayint_setpartofvaluessimple3 "Here is a Python example".

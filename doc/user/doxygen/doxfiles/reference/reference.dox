@@ -1,0 +1,23 @@
+/*!
+\page reference Reference manual
+
+The following pages constitutes the reference manual of the \ref library "MEDCoupling and MEDLoader libraries".
+If you are looking for a more informal overview, you should go to the \ref start "getting started" section.
+
+The basic \ref medcoupling "core structures" are first covered (this is what constitutes the MEDCoupling library), 
+and the manual then moves onto more advanced concepts and methods. 
+
+You can also take a look at the numerous \ref examples "code examples" provided with this documentation.
+
+- \subpage medcoupling
+    - \ref arrays 
+    - \ref numbering
+    - \ref meshes
+    - \ref fields
+- \subpage medloader
+- \subpage interpolation
+- \subpage cpp
+- \subpage distrib
+- \subpage misc
+
+*/

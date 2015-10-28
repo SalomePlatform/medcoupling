@@ -21,14 +21,17 @@
 
 namespace ParaMEDMEM
 {
-  /*! \defgroup comm_interface CommInterface
-    Class \a CommInterface is the gateway to the MPI library.
+  /*! \anchor CommInterface-det
+     \class CommInterface
+
+    The class \a CommInterface is the gateway to the MPI library.
+
     It is a helper class that gathers the calls to the MPI
-    library that are made in the ParaMEDMEM library. This gathering
+    library that are made in the %ParaMEDMEM library. This gathering
     allows easier gathering of information about the communication
     in the library.
 
-    It is typically called after the MPI_Init() call in a program. It is afterwards passed as a parameter to the constructors of ParaMEDMEM objects so that they access the MPI library via the CommInterface.
+    It is typically called after the MPI_Init() call in a program. It is afterwards passed as a parameter to the constructors of %ParaMEDMEM objects so that they access the MPI library via the CommInterface.
 
     As an example, the following code excerpt initializes a processor group made of the zero processor.
 

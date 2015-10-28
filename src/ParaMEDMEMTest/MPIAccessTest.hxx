@@ -27,6 +27,12 @@
 #include <iostream>
 #include "mpi.h"
 
+// (ABN]: too many text output in the MPIAccesTest - this renders
+// the analysis complicated:
+#define MPI_ACCESS_VERBOSE 0
+#define debugStream \
+    if (!MPI_ACCESS_VERBOSE) {} \
+    else std::cout
 
 class MPIAccessTest : public CppUnit::TestFixture
 {

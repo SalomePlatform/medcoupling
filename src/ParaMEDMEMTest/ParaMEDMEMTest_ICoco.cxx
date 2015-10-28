@@ -102,7 +102,7 @@ void ParaMEDMEMTest::testICoco1()
   MPI_Comm_size(MPI_COMM_WORLD,&size);
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-  //the test is meant to run on five processors
+  //the test is meant to run on 2 processors
   if (size !=2) return ;
   
   CommInterface comm;

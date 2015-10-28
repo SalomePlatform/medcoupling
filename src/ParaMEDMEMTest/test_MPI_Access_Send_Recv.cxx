@@ -42,7 +42,7 @@ using namespace ParaMEDMEM;
 
 void MPIAccessTest::test_MPI_Access_Send_Recv() {
 
-  cout << "test_MPI_Access_Send_Recv" << endl ;
+  debugStream << "test_MPI_Access_Send_Recv" << endl ;
 
   int size ;
   int myrank ;
@@ -50,11 +50,12 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
   MPI_Comm_rank(MPI_COMM_WORLD,&myrank) ;
 
   if ( size < 2 ) {
-    cout << "test_MPI_Access_Send_Recv must be runned with 2 procs" << endl ;
-    CPPUNIT_FAIL("test_MPI_Access_Send_Recv must be runned with 2 procs") ;
+    cerr << "test_MPI_Access_Send_Recv must be runned with 2 procs" << endl ;
+    //CPPUNIT_FAIL("test_MPI_Access_Send_Recv must be runned with 2 procs") ;
+    return;
   }
 
-  cout << "test_MPI_Access_Send_Recv" << myrank << endl ;
+  debugStream << "test_MPI_Access_Send_Recv" << myrank << endl ;
 
   ParaMEDMEM::CommInterface interface ;
 
@@ -75,7 +76,7 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
   for ( i = 0 ; i < 10 ; i++ ) {
      if ( myrank == 0 ) {
        sts = mpi_access.send(&i,1,MPI_INT,target, RequestId[i]) ;
-       cout << "test" << myrank << " Send RequestId " << RequestId[i]
+       debugStream << "test" << myrank << " Send RequestId " << RequestId[i]
             << " tag " << mpi_access.sendMPITag(target) << endl ;
      }
      else {
@@ -84,7 +85,7 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
        sts = mpi_access.recv(&recvbuf,1,MPI_INT,target, RequestId[i],&outcount) ;
        //int source, tag, error, outcount ;
        //mpi_access.Status( RequestId[i], source, tag, error, outcount, true) ;
-       cout << "test" << myrank << " Recv RequestId " << RequestId[i]
+       debugStream << "test" << myrank << " Recv RequestId " << RequestId[i]
             << " tag " << mpi_access.recvMPITag(target)
             << " outcount " << outcount << endl ;
        if ( (outcount != 1) | (recvbuf != i) ) {
@@ -94,14 +95,14 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
                    << " recvbuf " << recvbuf << " KO"
                    << "==========================================================="
                    << endl ;
-         cout << strstream.str() << endl ;
+         debugStream << strstream.str() << endl ;
          CPPUNIT_FAIL( strstream.str() ) ;
        }
      }
      char msgerr[MPI_MAX_ERROR_STRING] ;
      int lenerr ;
      mpi_access.errorString(sts, msgerr, &lenerr) ;
-     cout << "test" << myrank << " lenerr " << lenerr << " "
+     debugStream << "test" << myrank << " lenerr " << lenerr << " "
           << msgerr << endl ;
 
      if ( sts != MPI_SUCCESS ) {
@@ -112,18 +113,18 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
                  << endl ;
        CPPUNIT_FAIL( strstream.str() ) ;
      }
-     mpi_access.check() ;
+     if(MPI_ACCESS_VERBOSE) mpi_access.check();
   }
   int flag ;
   mpi_access.testAll(10,RequestId,flag) ;
   if ( !flag ) {
     ostringstream strstream ;
     strstream << "test" << myrank << " flag " << flag << " KO" << endl ;
-    cout << strstream.str() << endl ;
+    debugStream << strstream.str() << endl ;
     CPPUNIT_FAIL( strstream.str() ) ;
   }
   mpi_access.waitAll(10,RequestId) ;
-  mpi_access.check() ;
+  if(MPI_ACCESS_VERBOSE) mpi_access.check();
 
   if ( myrank == 0 ) {
     int sendrequests[10] ;
@@ -133,7 +134,7 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
       strstream << "=========================================================" << endl
                 << "test" << myrank << " sendreqsize " << sendreqsize << " KO" << endl
                 << "=========================================================" << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
   }
@@ -145,7 +146,7 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
       strstream << "=========================================================" << endl
                 << "test" << myrank << " recvreqsize " << recvreqsize << " KO" << endl
                 << "=========================================================" << endl ;
-      cout << strstream.str() << endl ;
+      debugStream << strstream.str() << endl ;
       CPPUNIT_FAIL( strstream.str() ) ;
     }
   }
@@ -156,7 +157,7 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
 
 //  MPI_Finalize();
 
-  cout << "test" << myrank << " OK" << endl ;
+  debugStream << "test" << myrank << " OK" << endl ;
 
   return ;
 }

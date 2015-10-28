@@ -2574,7 +2574,8 @@ void MEDFileUMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
-  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  if(_univ_wr_status)
+    MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileUMeshL2::WriteCoords(fid,meshName,_iteration,_order,_time,_coords,_fam_coords,_num_coords,_name_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
@@ -3583,28 +3584,28 @@ void MEDFileUMesh::optimizeFamilies()
 
 /**
  * \b this must be filled at level 0 and -1, typically the -1 level being (part of) the descending connectivity
- * of the top level. This method build a "crack" in \b this along the group of level -1 named grpNameM1.
- * The "crack" is built according to the following method:
- *  - all nodes along the crack which are not lying on an internal extremity of the crack are duplicated (so the
- * coordinates array is extended). The
- *  - new (-1)-level cells are built lying on those new nodes. So the edges/faces along the crack are duplicated.
- *  After this operation a top-level cell bordering the crack will loose some neighbor (typically the cell which is  on the
- *  other side of the crack is no more a neighbor)
- *   - finally, the connectivity of (part of) the top level-cells bordering the crack is also modified so that some cells
- *  bordering the crack use the newly computed nodes.
+ * of the top level. This method build a "crack", or an inner boundary, in \b this along the group of level -1 named grpNameM1.
+ * The boundary is built according to the following method:
+ *  - all nodes along the boundary which are not lying on an internal extremity of the (-1)-level group are duplicated (so the
+ * coordinates array is extended).
+ *  - new (-1)-level cells are built lying on those new nodes. So the edges/faces along the group are duplicated.
+ *  After this operation a top-level cell bordering the group will loose some neighbors (typically the cell which is  on the
+ *  other side of the group is no more a neighbor)
+ *   - finally, the connectivity of (part of) the top level-cells bordering the group is also modified so that some cells
+ *  bordering the newly created boundary use the newly computed nodes.
  *
- *  \param[in] grpNameM1 name of the (-1)-level group defining the crack
+ *  \param[in] grpNameM1 name of the (-1)-level group defining the boundary
  *  \param[out] nodesDuplicated ids of the initial nodes which have been duplicated (and whose copy is put at the end of
  *  the coord array)
  *  \param[out] cellsModified ids of the cells whose connectivity has been modified (to use the newly created nodes)
- *  \param[out] cellsNotModified ids of the rest of cells bordering the crack whose connectivity remains unchanged.
+ *  \param[out] cellsNotModified ids of the rest of cells bordering the new boundary whose connectivity remains unchanged.
  */
-void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
+void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, DataArrayInt *&nodesDuplicated,
                                            DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified)
 {
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::duplicateNodesOnM1Group : This method works only for mesh definied on level 0 and -1 !");
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : This method works only for mesh definied on level 0 and -1 !");
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0=getMeshAtLevel(0);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1=getMeshAtLevel(-1);
   int nbNodes=m0->getNumberOfNodes();
@@ -3647,10 +3648,16 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const std::string& grpNameM1, DataArr
   newm1->setName(getName());
   const DataArrayInt *fam=getFamilyFieldAtLevel(-1);
   if(!fam)
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::duplicateNodesOnM1Group : internal problem !");
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::buildInnerBoundaryAlongM1Group : internal problem !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFam=DataArrayInt::New();
   newFam->alloc(newm1->getNumberOfCells(),1);
-  int idd=getMaxFamilyId()+1;
+  // Get a new family ID: care must be taken if we need a positive ID or a negative one:
+  // Positive ID for family of nodes, negative for all the rest.
+  int idd;
+  if (m1->getMeshDimension() == 0)
+    idd=getMaxFamilyId()+1;
+  else
+    idd=getMinFamilyId()-1;
   int globStart=0,start=0,end,globEnd;
   int nbOfChunks=szOfCellGrpOfSameType->getNumberOfTuples();
   for(int i=0;i<nbOfChunks;i++)
@@ -3760,12 +3767,14 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
   return ret;
 }
 
+/*! \cond HIDDEN_ITEMS */
 struct MEDLoaderAccVisit1
 {
   MEDLoaderAccVisit1():_new_nb_of_nodes(0) { }
   int operator()(bool val) { return val?_new_nb_of_nodes++:-1; }
   int _new_nb_of_nodes;
 };
+/*! \endcond */
 
 /*!
  * Array returned is the correspondance in \b old \b to \b new format. The returned array is newly created and should be dealt by the caller.
@@ -4029,23 +4038,26 @@ MEDFileUMesh *MEDFileUMesh::linearToQuadratic(int conversionType, double eps) co
         continue;
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1Tmp(getMeshAtLevel(*lev));
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1(dynamic_cast<MEDCouplingUMesh *>(m1Tmp->deepCpy()));
-      {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> notUsed(m1->convertLinearCellsToQuadratic(conversionType));
-      }
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m1Coords(m1->getCoords()->selectByTupleId2(initialNbNodes,m1->getNumberOfNodes(),1));
-      DataArrayInt *b(0);
-      bool a(partZeCoords->areIncludedInMe(m1Coords,eps,b));
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bSafe(b);
-      if(!a)
+      if(m1->getMeshDimension()!=0)
         {
-          std::ostringstream oss; oss << "MEDFileUMesh::linearCellsToQuadratic : for level " << *lev << " problem to identify nodes generated !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          {
+            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> notUsed(m1->convertLinearCellsToQuadratic(conversionType));
+          }//kill unused notUsed var
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m1Coords(m1->getCoords()->selectByTupleId2(initialNbNodes,m1->getNumberOfNodes(),1));
+          DataArrayInt *b(0);
+          bool a(partZeCoords->areIncludedInMe(m1Coords,eps,b));
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bSafe(b);
+          if(!a)
+            {
+              std::ostringstream oss; oss << "MEDFileUMesh::linearCellsToQuadratic : for level " << *lev << " problem to identify nodes generated !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          b->applyLin(1,initialNbNodes);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> l0(DataArrayInt::New()); l0->alloc(initialNbNodes,1); l0->iota();
+          std::vector<const DataArrayInt *> v(2); v[0]=l0; v[1]=b;
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum(DataArrayInt::Aggregate(v));
+          m1->renumberNodesInConn(renum->begin());
         }
-      b->applyLin(1,initialNbNodes);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> l0(DataArrayInt::New()); l0->alloc(initialNbNodes,1); l0->iota();
-      std::vector<const DataArrayInt *> v(2); v[0]=l0; v[1]=b;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum(DataArrayInt::Aggregate(v));
-      m1->renumberNodesInConn(renum->begin());
       m1->setCoords(zeCoords);
       ret->setMeshAtLevel(*lev,m1);
       famField=getFamilyFieldAtLevel(*lev);
@@ -6087,7 +6099,8 @@ void MEDFileCMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
-  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  if(_univ_wr_status)
+    MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CARTESIAN_GRID));
   for(int i=0;i<spaceDim;i++)
     {
@@ -6297,7 +6310,8 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
-  MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
+  if(_univ_wr_status)
+    MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CURVILINEAR_GRID));
   std::vector<int> nodeGridSt=_clmesh->getNodeGridStructure();
   MEDFILESAFECALLERWR0(MEDmeshGridStructWr,(fid,maa,_iteration,_order,_time,&nodeGridSt[0]));
