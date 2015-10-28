@@ -1,9 +1,9 @@
 .. meta::
-   :description: introduction guide for users of the MEDMEM library 
+   :description: introduction guide for users of the MEDMEM library
    :keywords: mesh, field, med, MEDCoupling, MEDLoader
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MEDMEM library: Starter guide for users
@@ -73,11 +73,11 @@ What we call MEDMEM library in this document is represented by the
 orange packages on this diagram. The white packages reprensent the old
 deprecated MEDMEM library. The blue packages represent the aditionnal
 components for field manipulation througth the user interface (TUI and
-GUI). 
+GUI).
 
 The MEDMEM library comes also with this set of atomic libraries for
 advanced users/programmers:
- 
+
 * :tt:`medcouplingcorba`: this library is designed for cross process
   exchange of medcoupling objects.
 * :tt:`medpartitioner`: this library provides functions to split a MED
@@ -88,18 +88,18 @@ modules (using the swig binding technology) so that all the data
 processing can be realized by scripting.
 
 .. warning:: It could happen that some parts of the C++ libraries are
-	     not wrapped into python modules. This coverture will be
-	     extend on demand and if the integrity of the concepts is
-	     preserved.
+             not wrapped into python modules. This coverture will be
+             extend on demand and if the integrity of the concepts is
+             preserved.
 
 Main concepts of the MEDMEM library
 ===================================
 
 .. warning:: TODO avec Antony. Présenter les structure de données de
-	     MEDCoupling principalement. Describe the MEDMEM data
-	     model, the typical content of a med file, the types of
-	     cell that compose the meshes, the types of spatial
-	     discretization of fields, ...
+             MEDCoupling principalement. Describe the MEDMEM data
+             model, the typical content of a med file, the types of
+             cell that compose the meshes, the types of spatial
+             discretization of fields, ...
 
 Basic usages of the MEDMEM library
 ==================================
@@ -109,9 +109,9 @@ library using python examples. The usage of python is just to have a
 light syntax that makes more easy the first understanding.
 
 .. note:: All code examples here after are parts of the tutorial use
-	  cases located in the folder :tt:`src/MEDOP/tut` in the MED
-	  source directory. These use cases are all working executable
-	  programs and they can be used to initiate your own script.
+          cases located in the folder :tt:`src/MEDCalc/tut` in the MED
+          source directory. These use cases are all working executable
+          programs and they can be used to initiate your own script.
 
 Preparing the shell environment
 -------------------------------
@@ -129,18 +129,18 @@ with a set of instructions that looks like::
  export PYTHON_INCLUDE=${PYTHONHOME}/include/python2.6
  export PATH=${PYTHONHOME}/bin:${PATH}
  export LD_LIBRARY_PATH=${PYTHONHOME}/lib:${LD_LIBRARY_PATH}
- 
+
  #------ hdf5 ------
  HDF5HOME=</path/to/hdf5>
  export PATH=${HDF5HOME}/bin:$PATH
  export LD_LIBRARY_PATH=${HDF5HOME}/lib:${LD_LIBRARY_PATH}
  export HDF5_DISABLE_VERSION_CHECK=1
- 
+
  #------ med ------
  MED2HOME=</path/to/med>
  export PATH=${MED2HOME}/bin:${PATH}
  export LD_LIBRARY_PATH=${MED2HOME}/lib:${LD_LIBRARY_PATH}
- 
+
  #------ medmem ---
  MED_ROOT_DIR=<path/to/salome_med_module>
  export LD_LIBRARY_PATH=${MED_ROOT_DIR}/lib/salome:${LD_LIBRARY_PATH}
@@ -153,8 +153,8 @@ Example 01: Explore a med file to get information concerning meshes and fields
 ------------------------------------------------------------------------------
 
 :objectives: This example illustrates how to get information
-	     concerning meshes and fields from a med file, using the
-	     MEDLoader library.
+             concerning meshes and fields from a med file, using the
+             MEDLoader library.
 
 The loading of meshes and fields from a med file to a MEDCoupling data
 structure requires first the knowledge of metadata associated to these
@@ -200,7 +200,7 @@ TypeOfField that is an integer value in this list:
 * :tt:`3 = ON_GAUSS_NE`
 
 .. note:: This constant variables are defined by the MEDLoader module
-	  (:tt:`from MEDLoader import ON_NODES`).
+          (:tt:`from MEDLoader import ON_NODES`).
 
 As a consequence, before loading the physical values of a field, we
 have to determine the types of spatial discretization that come with
@@ -239,7 +239,7 @@ Example 02: Load a mesh and a field from a med file
 ---------------------------------------------------
 
 :objectives: This illustrates how to load the physical data of a
-	     specified mesh and a specified field. 
+             specified mesh and a specified field.
 
 The metadata read from a med file are required to identify the list of
 meshes and fields in the med file. We assume in this example that the
@@ -277,7 +277,7 @@ Example 03: Manage the MEDCoupling data load from a med file
 ------------------------------------------------------------
 
 :objectives: Some suggestions for the MEDCoupling objects management,
-	     in a programming context.
+             in a programming context.
 
 In a real programming case, it could be relevant to explore first the
 med file to load all metadata concerning the whole set of meshes and
@@ -337,9 +337,9 @@ Example 04: Simple arithmetic operations with fields
 ----------------------------------------------------
 
 :objectives: This example illustrates how to load field iterations
-	     from a med file containing a field timeseries and shows
-	     how to use these iterations in simple arithmetic
-	     operations.
+             from a med file containing a field timeseries and shows
+             how to use these iterations in simple arithmetic
+             operations.
 
 We consider a med file :tt:`timeseries.med`, containing one single
 mesh named :tt:`Grid_80x80` that supports a field with values defined
@@ -392,7 +392,7 @@ Exemple 07: Manipulate structured mesh
 --------------------------------------
 
 :objectives: Illustrates the basic usage of the advanced interface of
-	     MEDLoader.
+             MEDLoader.
 
 The MEDLoader frontal interface let you load unstructured meshes:
 
@@ -437,8 +437,8 @@ Exemple 08: Make a projection of a field
 ----------------------------------------
 
 :objectives: Make the projection of a field from a source mesh to a
-	     target meshe. The source mesh and the target mesh are
-	     two different mesh of the same geometry.
+             target meshe. The source mesh and the target mesh are
+             two different mesh of the same geometry.
 
 The input data of this use case are:
 
@@ -448,9 +448,9 @@ The input data of this use case are:
   the figure below)
 
 .. note:: The two meshes are displayed side by side on the figure for
-	  convenience reason, but in the real use case they stand at
-	  the same location in 3D space (they describe the same
-	  geometry).
+          convenience reason, but in the real use case they stand at
+          the same location in 3D space (they describe the same
+          geometry).
 
 .. image:: images/medop_projection_inputs.png
    :align: center

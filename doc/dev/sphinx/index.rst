@@ -15,23 +15,23 @@ References
 .. toctree::
    :maxdepth: 1
 
-   medop-userguide-gui.rst
-   medop-userguide-api.rst
+   medcalc-userguide-gui.rst
+   medcalc-userguide-api.rst
 
 **Technical documentation** (**in french**):
 
 .. toctree::
    :maxdepth: 1
 
-   medop-specifications.rst
-   medop-develguide.rst
+   medcalc-specifications.rst
+   medcalc-develguide.rst
 
 **Additional documentation**
 
 .. toctree::
    :maxdepth: 1
 
-   medop-references.rst
+   medcalc-references.rst
 
 Document archive (in french)
 ============================

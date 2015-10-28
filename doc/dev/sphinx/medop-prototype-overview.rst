@@ -56,11 +56,11 @@ images:
 .. |IMG_VISU| image:: images/medop-gui-visufield_scale.png
 .. |IMG_RESULT| image:: images/medop-gui-result_scale.png
 
-+---------------+---------------+ 
++---------------+---------------+
 | |IMG_SELECT|  | |IMG_ALIAS|   |
-+---------------+---------------+ 
++---------------+---------------+
 | |IMG_VISU|    | |IMG_RESULT|  |
-+---------------+---------------+ 
++---------------+---------------+
 
 La solution technique est construite sur les principes suivants:
 

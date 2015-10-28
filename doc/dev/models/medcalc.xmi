@@ -31,7 +31,7 @@
         <UML:DataType stereotype="datatype" visibility="public" isSpecification="false" namespace="Datatypes" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="ndz0601vw4R2" name="string"/>
        </UML:Namespace.ownedElement>
       </UML:Package>
-      <UML:Package visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="NBqMfPwp0LlT" name="MEDOP">
+      <UML:Package visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="NBqMfPwp0LlT" name="MEDCalc">
        <UML:Namespace.ownedElement>
         <UML:Class visibility="public" isSpecification="false" namespace="NBqMfPwp0LlT" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="KO9M6BTsmDX3" name="DatasourceHandler">
          <UML:Classifier.feature>
@@ -136,7 +136,7 @@
      </UML:Namespace.ownedElement>
      <XMI.extension xmi.extender="umbrello">
       <diagrams>
-       <diagram showopsig="1" linecolor="#ff0000" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="MEDOP_datamodel" font="Ubuntu,10,-1,5,50,0,0,0,0,0" canvasheight="644" canvaswidth="1201" localid="" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#000000" backgroundcolor="#ffffff" usefillcolor="1" fillcolor="#ffff00" zoom="100" xmi.id="yesp3EjZ9T3u" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
+       <diagram showopsig="1" linecolor="#ff0000" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="MEDCALC_datamodel" font="Ubuntu,10,-1,5,50,0,0,0,0,0" canvasheight="644" canvaswidth="1201" localid="" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#000000" backgroundcolor="#ffffff" usefillcolor="1" fillcolor="#ffff00" zoom="100" xmi.id="yesp3EjZ9T3u" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
         <widgets>
          <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="261" showattsigs="601" showstereotype="1" y="101" showattributes="1" font="Ubuntu,10,-1,5,75,0,0,0,0,0" width="193" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="KO9M6BTsmDX3" showscope="1" height="67" showopsigs="601"/>
          <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="273" showattsigs="601" showstereotype="1" y="220" showattributes="1" font="Ubuntu,10,-1,5,75,0,0,0,0,0" width="155" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="mpuQQtzqbsfV" showscope="1" height="67" showopsigs="601"/>
@@ -183,7 +183,7 @@
          </assocwidget>
         </associations>
        </diagram>
-       <diagram showopsig="1" linecolor="#ff0000" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="MEDOP_componentmodel" font="Ubuntu,10,-1,5,50,0,0,0,0,0" canvasheight="436" canvaswidth="596" localid="-1" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#808080" backgroundcolor="#ffffff" usefillcolor="1" fillcolor="#ffffc0" zoom="100" xmi.id="e3MA5ySQiAqG" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
+       <diagram showopsig="1" linecolor="#ff0000" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="MEDCALC_componentmodel" font="Ubuntu,10,-1,5,50,0,0,0,0,0" canvasheight="436" canvaswidth="596" localid="-1" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#808080" backgroundcolor="#ffffff" usefillcolor="1" fillcolor="#ffffc0" zoom="100" xmi.id="e3MA5ySQiAqG" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
         <widgets>
          <classwidget linecolor="#ff0000" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="330" showattsigs="601" showstereotype="1" y="184" showattributes="1" font="Ubuntu,10,-1,5,75,0,0,0,0,0" width="227" isinstance="0" usefillcolor="1" fillcolor="#ffffc0" xmi.id="kG3S8XATRqib" showscope="1" height="52" showopsigs="601"/>
          <interfacewidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="342" showstereotype="1" y="87" font="Ubuntu,10,-1,5,75,1,0,0,0,0" drawascircle="0" width="184" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="BYw7PBW7PaZW" showscope="1" height="44" showopsigs="601"/>
@@ -289,8 +289,8 @@
        <listitem open="0" type="814" id="4CWdiGy6waJd"/>
       </listitem>
      </listitem>
-     <listitem open="0" type="807" id="e3MA5ySQiAqG" label="MEDOP_componentmodel"/>
-     <listitem open="0" type="807" id="yesp3EjZ9T3u" label="MEDOP_datamodel"/>
+     <listitem open="0" type="807" id="e3MA5ySQiAqG" label="MEDCALC_componentmodel"/>
+     <listitem open="0" type="807" id="yesp3EjZ9T3u" label="MEDCALC_datamodel"/>
      <listitem open="0" type="818" id="rEjTH3dMz3kh">
       <listitem open="1" type="817" id="BYw7PBW7PaZW"/>
       <listitem open="1" type="817" id="tDJT9A2gh9I3"/>

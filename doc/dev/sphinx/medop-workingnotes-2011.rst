@@ -2,7 +2,7 @@
    :keywords: maillage, champ, manipulation
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ANNEXE: Note de travail concernant le chantier XMED 2011
@@ -145,7 +145,7 @@ Nouveaux concepts à prendre en compte
 -------------------------------------
 
 Au démarrage du chantier 2011, on observe que les concepts suivants
-sont introduits dans le module MED: 
+sont introduits dans le module MED:
 
 * Le conteneur MED n'existe plus, utiliser MEDFILEBROWSER pour charger
   les fichiers med et obtenir les informations générales sur le
@@ -469,5 +469,5 @@ Petites améliorations du DataspaceController:
   est posé dans le WS. On peut donc proposer en option de lui associer
   un alias pour manipulation dans la console
 
- 
- 
+
+

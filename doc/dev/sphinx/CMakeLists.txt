@@ -20,7 +20,7 @@
 SALOME_CONFIGURE_FILE(conf.py.in conf.py)
 
 SET(_cmd_options -c ${CMAKE_CURRENT_BINARY_DIR} -b html -d doctrees -D latex_paper_size=a4 ${CMAKE_CURRENT_SOURCE_DIR} html)
-SALOME_GENERATE_ENVIRONMENT_SCRIPT(_cmd env_script "${SPHINX_EXECUTABLE}" "${_cmd_options}")            
+SALOME_GENERATE_ENVIRONMENT_SCRIPT(_cmd env_script "${SPHINX_EXECUTABLE}" "${_cmd_options}")
 
 ADD_CUSTOM_TARGET(dev_docs ALL COMMAND ${_cmd})
 

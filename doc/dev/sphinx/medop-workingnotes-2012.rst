@@ -2,7 +2,7 @@
    :keywords: maillage, champ, manipulation
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ANNEXE: Note de travail concernant le chantier XMED 2012
@@ -80,5 +80,5 @@ peut procéder de la manière suivante:
 * Eliminer la dépendance à XSALOME
 * Supprimer la gestion des multiversion SALOME5/6 au niveau de l'engine
 
-.. warning:: TODO: refaire le point sur les tâches initiées en 2011 
+.. warning:: TODO: refaire le point sur les tâches initiées en 2011
 

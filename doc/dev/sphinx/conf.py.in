@@ -132,7 +132,7 @@ html_theme_options = {
 # The stylecheet file will be searched within the static path, while
 # the layout.html file will be searched within the template path
 # (Note that this parameter can't be used together with html_theme. Exclusive)
-html_style = 'medop.css'
+html_style = 'medcalc.css'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -175,7 +175,7 @@ html_copy_source = True
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'medopdoc'
+htmlhelp_basename = 'medcalcdoc'
 
 
 # Options for LaTeX output
@@ -196,11 +196,11 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'medop-alldoc.tex', 'Documentation du module MED', 'G. Boulant', 'manual'),
-  ('medop-specifications', 'medop-specifications.tex', 'Module MED - Specifications', 'G. Boulant', 'manual'),
-  ('medop-develguide', 'medop-develguide.tex', 'Module MED - Guide de developpement', 'G. Boulant', 'manual'),
-  ('medop-userguide-gui', 'medop-userguide-gui.tex', 'Module MED - Guide d\'utilisation de l\'interface graphique', 'G. Boulant', 'howto'),
-  ('medop-userguide-api', 'medop-userguide-api.tex', 'MEDMEM library - Starter guide for users', 'G. Boulant', 'howto')
+  ('index', 'medcalc-alldoc.tex', 'Documentation du module MED', 'G. Boulant', 'manual'),
+  ('medcalc-specifications', 'medcalc-specifications.tex', 'Module MED - Specifications', 'G. Boulant', 'manual'),
+  ('medcalc-develguide', 'medcalc-develguide.tex', 'Module MED - Guide de developpement', 'G. Boulant', 'manual'),
+  ('medcalc-userguide-gui', 'medcalc-userguide-gui.tex', 'Module MED - Guide d\'utilisation de l\'interface graphique', 'G. Boulant', 'howto'),
+  ('medcalc-userguide-api', 'medcalc-userguide-api.tex', 'MEDMEM library - Starter guide for users', 'G. Boulant', 'howto')
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

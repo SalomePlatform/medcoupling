@@ -2,19 +2,19 @@
    :keywords: maillage, champ, manipulation, med, développement
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Module MED: Guide de développement du composant MEDOP
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Module MED: Guide de développement du composant MEDCalc
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Le composant logiciel MEDOP est un élément du module MED. Il fournit
+Le composant logiciel MEDCalc est un élément du module MED. Il fournit
 une interface utilisateur pour la manipulation de maillages et de
 champs, composée d'une interface texte (TUI) et d'une interface
 graphique (GUI). L'interface graphique constitue l'interface graphique
 du module MED.
 
-Ce document est la documentation technique du composant MEDOP. Il
+Ce document est la documentation technique du composant MEDCalc. Il
 fournit les instructions à suivre pour installer le composant en vue
 d'un travail de développement, puis décrit les éléments de conception.
 
@@ -25,54 +25,54 @@ d'un travail de développement, puis décrit les éléments de conception.
 Mise en place de l'espace de développement
 ==========================================
 
-Gestion de configuration du composant MEDOP
+Gestion de configuration du composant MEDCalc
 -------------------------------------------
 
-Le composant logiciel MEDOP est un package du module SALOME MED,
+Le composant logiciel MEDCalc est un package du module SALOME MED,
 hébergé dans l'espace source au niveau du sous-répertoire
-`src/MEDOP`. La gestion des fichiers sources est donc intégrée dans le
+`src/MEDCalc`. La gestion des fichiers sources est donc intégrée dans le
 module SALOME MED.
 
-Organisation des sources du composant MEDOP
+Organisation des sources du composant MEDCalc
 -------------------------------------------
 
-Le répertoire source `src/MEDOP` distingue les sous-répertoires
+Le répertoire source `src/MEDCalc` distingue les sous-répertoires
 suivants:
 
 * cmp: package containing the SALOME components
 * tui: package containing the python user interface
 * gui: package containing the graphical user interface (the GUI part
   of the MED module)
-* res: resources files associated to the MEDOP package (icons, config
+* res: resources files associated to the MEDCalc package (icons, config
   files, data files, ...)
 * exe: additional executable programs that can be launched from the
-  MEDOP framework
+  MEDCalc framework
 
-Construction du composant MEDOP
+Construction du composant MEDCalc
 -------------------------------
 
-Intégré à la construction du module MED. Le composant MEDOP dépend de
+Intégré à la construction du module MED. Le composant MEDCalc dépend de
 MEDCoupling et MEDLoader uniquement.
 
-Exécution des tests unitaires du composant MEDOP
+Exécution des tests unitaires du composant MEDCalc
 ------------------------------------------------
 
 Les tests unitaires peuvent être exécutés au moyen de scripts python
 lancés depuis une session shell SALOME. Dans un nouveau shell, taper::
 
  $ ./appli/runSession
- [NS=mars:2810]$ python appli/bin/salome/med/test_medop_components.py
+ [NS=mars:2810]$ python appli/bin/salome/med/test_medcalc_components.py
 
 L'exécution imprime un rapport détaillant le résultat pour chaque
 fonction de test::
- 
+
  test_Calculator_applyFunc (__main__.MyTestSuite) ... ok
  test_Calculator_basics (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getFieldListInFieldseries (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getFieldseriesListOnMesh (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getMesh (__main__.MyTestSuite) ... ok
  test_MEDDataManager_getMeshList (__main__.MyTestSuite) ... ok
- test_addDatasource (__main__.MyTestSuite) ... ok
+ test_loadDatasource (__main__.MyTestSuite) ... ok
  test_getDataManager (__main__.MyTestSuite) ... ok
  test_getFieldHandlerList (__main__.MyTestSuite) ... ok
  test_getFieldRepresentation (__main__.MyTestSuite) ... ok
@@ -82,7 +82,7 @@ fonction de test::
 
 Les scripts de test sont installés dans le répertoire ``bin/med``. On trouve:
 
-* ``test_medop_components.py``: test les composants SALOME développés pour
+* ``test_medcalc_components.py``: test les composants SALOME développés pour
   la manipulation de champs (``MEDDataManager`` et ``MEDCalculator``).
 * ``test_xmed_fieldOperations.py``: test des operations de champs telles
   qu'elles sont mises en oeuvre depuis l'interface textuelle.
@@ -150,7 +150,7 @@ valeurs des champs et les maillages support sont chargés au besoin.
 
 Le chargement des métadonnées de description se fait par la méthode::
 
-  addDatasource(const char \*filepath)
+  loadDatasource(const char \*filepath)
 
 
 
@@ -161,19 +161,19 @@ Ecrire un service CORBA qui retourne une sequence de FieldHandler:
 
 .. code-block:: cpp
 
-  MEDOP::FieldHandlerList * MyFunction(...) {
-    vector<MEDOP::FieldHandler*> fieldHandlerList;
+  MEDCALC::FieldHandlerList * MyFunction(...) {
+    vector<MEDCALC::FieldHandler*> fieldHandlerList;
     ...
-  
+
     fieldHandlerList.push_back(fieldHandler);
-  
+
     // Map the resulting list to a CORBA sequence for return:
-    MEDOP::FieldHandlerList_var fieldHandlerSeq = new MEDOP::FieldHandlerList();
+    MEDCALC::FieldHandlerList_var fieldHandlerSeq = new MEDCALC::FieldHandlerList();
     int nbFieldHandler = fieldHandlerList.size();
     fieldHandlerSeq->length(nbFieldHandler);
     for (int i=0; i<nbFieldHandler; i++) {
       fieldHandlerSeq[i] = *fieldHandlerList[i];
-    } 
+    }
     return fieldHandlerSeq._retn();
   }
 
@@ -181,7 +181,7 @@ Ecrire un service CORBA qui retourne une structure CORBA:
 
 .. code-block:: cpp
 
-    MEDOP::FieldHandler * fieldHandler = new ...
+    MEDCALC::FieldHandler * fieldHandler = new ...
     _fieldHandlerMap[fieldHandler->id] = fieldHandler;
 
     // >>> WARNING: CORBA struct specification indicates that the
@@ -193,7 +193,7 @@ Ecrire un service CORBA qui retourne une structure CORBA:
     // copy of the structure found in the map and return the copy. The
     // CORBA struct specification indicates that a deep copy can be
     // done using the copy constructor.  <<<
-    return new MEDOP::FieldHandler(*fieldHandler);
+    return new MEDCALC::FieldHandler(*fieldHandler);
 
 
 
@@ -212,7 +212,7 @@ ANNEXE B: Traçabilité avec le module XMED
 =========================================
 
 Le module SALOME de nom XMED est l'espace de développement initial du
-composant logiciel MEDOP, intégré aujourd'hui au module MED. Cette
+composant logiciel MEDCalc, intégré aujourd'hui au module MED. Cette
 annexe est la notice technique de ce module, qui reste disponible mais
 qui n'est plus maintenu.
 
@@ -245,7 +245,7 @@ moyen de la commande::
 
 Cette commande installe un répertoire ``xsalome`` contenant l'ensemble
 des sources de la bibliothèque XSALOME.
- 
+
 .. note:: La bibliothèque XSALOME n'est pas un module SALOME mais une
    simple bibliothèque de fonctions qui complète ou rend plus facile
    d'utilisation les fonctions de SALOME. Elle NE DOIT EN AUCUN CAS
@@ -281,5 +281,5 @@ manipulation de champs::
 Cette commande génére un répertoire ``appli`` à l'emplacement où elle
 est exécutée. Il reste à lancer l'application SALOME au moyen de la
 commande::
- 
+
  $ ./appli/runAppli -k

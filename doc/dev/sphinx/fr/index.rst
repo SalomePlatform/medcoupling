@@ -17,23 +17,23 @@ Documentation de référence
 .. toctree::
    :maxdepth: 1
 
-   medop-userguide-gui.rst
-   medop-userguide-api.rst
+   medcalc-userguide-gui.rst
+   medcalc-userguide-api.rst
 
 **Documentation technique**
 
 .. toctree::
    :maxdepth: 1
 
-   medop-specifications.rst
-   medop-develguide.rst
+   medcalc-specifications.rst
+   medcalc-develguide.rst
 
 **Documentation annexe**
 
 .. toctree::
    :maxdepth: 1
 
-   medop-references.rst
+   medcalc-references.rst
 
 Archives documentaires
 ======================

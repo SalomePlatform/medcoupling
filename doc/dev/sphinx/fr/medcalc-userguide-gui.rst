@@ -2,7 +2,7 @@
    :keywords: maillage, champ, manipulation, guide utilisateur
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Module MED: Guide d'utilisation de l'interface graphique
@@ -16,7 +16,7 @@ champs.
 
 .. warning:: Le document est autonome, mais il est vivement conseillé
    de parcourir au préalable (ou en parallèle) :doc:`le document de
-   spécifications<medop-specifications>`, au moins pour fixer les
+   spécifications<medcalc-specifications>`, au moins pour fixer les
    concepts et la terminologie.
 
 .. contents:: Sommaire
@@ -331,11 +331,11 @@ champ manoeuvré. Pour cela, on tape simplement le nom de la variable
 puis retour::
 
  >>> f3
- field name (id)	 = Pulse (3)
- mesh name (id) 	 = Grid_80x80 (0)
- discretization 	 = ON_NODES
- (iter, order)  	 = (3,-1)
- data source    	 = file:///home/gboulant/development/projets/salome/MEDOP/XMED/xmed/resources/datafiles/timeseries.med
+ field name (id)         = Pulse (3)
+ mesh name (id)          = Grid_80x80 (0)
+ discretization          = ON_NODES
+ (iter, order)           = (3,-1)
+ data source             = file:///home/gboulant/development/projets/salome/MEDOP/XMED/xmed/resources/datafiles/timeseries.med
 
 Elle peut également être utilisée comme argument des commandes de
 gestion disponibles dans l'interface textuelle (dont la liste
@@ -363,16 +363,16 @@ commande ``print``::
 
  >>> print f3
  Data content :
- Tuple #0 : -0.6 
- Tuple #1 : -0.1 
- Tuple #2 : 0.4 
- Tuple #3 : -0.1 
- Tuple #4 : 0.4 
+ Tuple #0 : -0.6
+ Tuple #1 : -0.1
+ Tuple #2 : 0.4
+ Tuple #3 : -0.1
+ Tuple #4 : 0.4
  ...
- Tuple #6556 : 3.5 
- Tuple #6557 : 3.3 
- Tuple #6558 : 1.5 
- Tuple #6559 : 0.3 
+ Tuple #6556 : 3.5
+ Tuple #6557 : 3.3
+ Tuple #6558 : 1.5
+ Tuple #6559 : 0.3
  Tuple #6560 : 0.2
 
 Il est important de noter que les opérations entre champs ne peuvent
@@ -661,25 +661,27 @@ Utilisation de l'interface textuelle du module MED (TUI)
 Toutes les opérations menées au moyen de l'interface graphique peuvent
 être réalisées (avec plus ou moins de facilité) avec l'interface
 textuelle. Le module de manipulation de champs peut même être utilisé
-exclusivement en mode texte. Pour cela, on lance la commande::
+exclusivement en mode texte.
+..
+ Pour cela, on lance la commande::
 
  $ <path/to/appli>/medop.sh
-
-Cette commande ouvre une console de commandes ``medop>``. Un fichier
-med peut être chargé et travaillé, par exemple pour créer des champs à
-partir des données du fichier.
+..
+ Cette commande ouvre une console de commandes ``medop>``. Un fichier
+ med peut être chargé et travaillé, par exemple pour créer des champs à
+ partir des données du fichier.
 
 Que l'on soit en mode texte pur ou en mode graphique, un séquence de
 travail type dans la console peut ressembler au jeu d'instructions
 suivantes::
 
- >>> load("/path/to/mydata.med")
+ >>> medcalc.LoadDataSource("/path/to/mydata.med")
  >>> la
  id=0    name    = testfield1
  id=1    name    = testfield2
- >>> f1=get(0)
- >>> f2=get(1)
- >>>	ls
+ >>> f1=accessField(0)
+ >>> f2=accessField(1)
+ >>>    ls
  f1      (id=0, name=testfield1)
  f2      (id=1, name=testfield2)
  >>> r=f1+f2
@@ -692,37 +694,39 @@ suivantes::
  f1      (id=0, name=testfield1)
  f2      (id=1, name=testfield2)
  r       (id=2, name=toto)
- >>> put(r)
- >>> save("result.med")
+ >>> putInWorkspace(r)
+ >>> saveWorkspace("result.med")
 
 Les commandes principales sont:
 
-* ``load``: charge un fichier med dans la base de données (utile
+* ``LoadDataSource``: charge un fichier med dans la base de données (utile
   uniquement en mode texte pur)::
 
-  >>> load("/path/to/datafile.med")
+  >>> LoadDataSource("/path/to/datafile.med")
+
+* ``LoadImageAsDataSource``: load an image as a med file
 
 * ``la``: affiche la liste de tous les champs chargés en base de données ("list all")
-* ``get``: définit un champ dans l'espace de travail à partir de son
+* ``accessField``: définit un champ dans l'espace de travail à partir de son
   identifiant (utile plutôt en mode texte pur car l'interface
   graphique permet de faire cette opération par sélection d'un champ
   dans le dataspace)::
 
-  >>> f=get(fieldId)
+  >>> f=accessField(fieldId)
 
 * ``ls``: affiche la liste des champs présent dans l'espace de travail ("list")
-* ``put``: met un champ en référence dans l'*espace de gestion*::
+* ``putInWorkspace``: met un champ en référence dans l'*espace de gestion*::
 
-  >>> put(f)
+  >>> putInWorkspace(f)
 
-* ``save``: sauvegarde tous les champs référencés dans l'espace de
+* ``saveWorkspace``: sauvegarde tous les champs référencés dans l'espace de
   gestion dans un fichier med::
 
-  >>> save("/path/to/resultfile.med")
+  >>> saveWorkspace("/path/to/resultfile.med")
 
 .. note:: On peut faire à ce stade plusieurs remarques:
 
-   * la commande ``load`` charge uniquement les méta-informations
+   * la commande ``LoadDataSource`` charge uniquement les méta-informations
      décrivant les maillage et les champs (noms, type de
      discrétisation, liste des pas de temps). Les maillages et les
      valeurs physiques des champs sont chargées ultérieurement (et
@@ -730,7 +734,7 @@ Les commandes principales sont:
      opération. Dans tous les cas, les données med (méta-informations
      et valeurs) sont physiquement stockées au niveau de l'espace
      *base de données*.
-   * la commande ``get`` définit en réalité un *manipulateur de champ*
+   * la commande ``accessField`` définit en réalité un *manipulateur de champ*
      dans l'espace de travail, c'est-à-dire une variable qui fait la
      liaison avec le champ physique hébergé dans la base de
      données. Les données physiques ne circulent jamais entre les
@@ -740,9 +744,9 @@ Les commandes principales sont:
 Les commandes TUI suivantes nécessitent de travailler dans
 l'environnement graphique:
 
-* ``visu``: afficher une carte de champ pour contrôle visuel rapide
-  (pas de paramettrage possible)
-
-  >>> view(f)
-
-
+* ``medcalc.MakeDeflectionShape``
+* ``medcalc.MakeIsoSurface``
+* ``medcalc.MakePointSprite``
+* ``medcalc.MakeScalarMap``
+* ``medcalc.MakeSlices``
+* ``medcalc.MakeVectorField``

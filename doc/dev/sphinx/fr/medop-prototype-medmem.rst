@@ -2,7 +2,7 @@
    :keywords: maillage, champ, MED, MEDMEM
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Note de travail concernant l'utilisation de MEDMEM
@@ -115,7 +115,7 @@ d'entrée/sortie branché sur le fichier (``testfilename`` dans
 l'exemple):
 
 .. code-block:: cpp
-   
+
    MED *myMed = new MED;
    MED_MED_RDONLY_DRIVER *driverIn = new MED_MED_RDONLY_DRIVER(testfilename, myMed);
    driverIn->open();
@@ -140,7 +140,7 @@ Puis le champ qui lui est associé doit être physiquement chargé pour
 permettre la mise à jour du support:
 
 .. code-block:: cpp
-   
+
    MESH * mesh = myMed->getMesh(field);
    mesh->read();
    myMed->updateSupport();
@@ -148,7 +148,7 @@ permettre la mise à jour du support:
 Pour enfin charger les valeurs des composantes du champ:
 
 .. code-block:: cpp
-   
+
    field->read();
 
 La numérotation des éléments de maillage
@@ -204,7 +204,7 @@ Pour exemple, le fragment de code ci-dessous, extrait du fichier
 ``MedDataManager`` dans l'interface:
 
 .. code-block:: cpp
-   
+
    #include "MEDMEM_MedDataManager.hxx"
 
    class MedDataManager
@@ -212,24 +212,24 @@ Pour exemple, le fragment de code ci-dessous, extrait du fichier
      public:
       ~MedDataManager();
       void printFieldDouble(FIELD<double,FullInterlace> * field);
-   
+
       %extend {
         MedDataManager(char * fileName)
         {
-	  return new MedDataManager(string(fileName));
+          return new MedDataManager(string(fileName));
         }
         MedDataManager(MED * med)
         {
           return new MedDataManager(med);
         }
-    
+
         %newobject getFieldDouble(const char * fieldName, const int dt, const int it);
         FIELD<double, FullInterlace> * getFieldDouble(const char * fieldName, const int dt, const int it)
         {
-	  return (FIELD<double, FullInterlace> *) self->getFieldDouble(string(fieldName), dt, it);
+          return (FIELD<double, FullInterlace> *) self->getFieldDouble(string(fieldName), dt, it);
         }
       }
-  
+
    };
 
 
@@ -380,17 +380,17 @@ utilise l'interface swig fournie par MedCorba_Swig). Après l'import
 d'amorce systématique:
 
 .. code-block:: python
-   
+
    import salome
    salome.salome_init()
-   
+
    import SALOME_MED
    from libSALOME_Swig import *
 
 On peut charger le composant SALOME MED:
 
 .. code-block:: python
-   
+
    medComp=salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
 
 grâce auquel les services de chargement de la structure MED peuvent
@@ -398,14 +398,14 @@ grâce auquel les services de chargement de la structure MED peuvent
 structure MED dans l'étude salome passée en argument:
 
 .. code-block:: python
-   
+
    filePathName = "myfile.med"
    medComp.readStructFileWithFieldType(filePathName,salome.myStudyName)
 
 Ce deuxième exemple charge la structure MED mais ne place pas le résultat dans l'étude:
 
 .. code-block:: python
-   
+
    filePathName = "myfile.med"
    medObj = medComp.readStructFile(filePathName,salome.myStudyName)
 
@@ -418,13 +418,13 @@ verra plus bas) à MEDMEM:
    fieldIdx     = 1 # WRN maybe there is no field of idx=1
    iterationIdx = 0
    fieldName = medObj.getFieldNames()[fieldIdx]
-   dtitfield = medObj.getFieldIteration(fieldName,iterationIdx)        
+   dtitfield = medObj.getFieldIteration(fieldName,iterationIdx)
    it = dtitfield[0]
    dt = dtitfield[1]
    fieldObj = medObj.getField(fieldName,it,dt)
    nbOfFields = medObj.getNumberOfFields()
    fieldNames = medObj.getFieldNames()
-    
+
    mesh = fieldObj.getSupport().getMesh()
 
 .. note::
@@ -469,22 +469,22 @@ SALOME_MED, ...) sont supposées avoir été faites au préalable (voir
 les exemples précédents):
 
 .. code-block:: python
-   
+
    # Load the med structure using MED
    medComp=salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
    filePathName = "myfile.med"
    medComp.readStructFileWithFieldType(filePathName,salome.myStudyName)
-    
+
    # Get the VISU component
    import VISU
    visuComp = salome.lcc.FindOrLoadComponent("FactoryServer", "VISU")
    visuComp.SetCurrentStudy(salome.myStudy)
-    
+
    # Get the sobject associated to the med object named "Med"
    aSObject = salome.myStudy.FindObject("Med")
    isPresent, medSObj = aSObject.FindSubObject(1)
-    
-   # Finally, import the med sobject in VISU 
+
+   # Finally, import the med sobject in VISU
    result = visuComp.ImportMed(medSObj)
 
 Il est possible de d'aller plus loin et par exemple de déclencher
@@ -503,7 +503,7 @@ Notes en vrac
 
 Questions:
 
-* Comment obtenir le nom du fichier med à partir d'une structure med? 
+* Comment obtenir le nom du fichier med à partir d'une structure med?
 * Peut-on imaginer un moyen de fournir l'objet MEDMEM::MED à partir de
   la donnée de l'objet CORBA SALOME_MED::MED?
 

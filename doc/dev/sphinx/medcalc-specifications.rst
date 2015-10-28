@@ -2,7 +2,7 @@
    :keywords: maillage, champ, manipulation, med
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Module MED: Spécifications fonctionnelles et techniques
@@ -123,11 +123,11 @@ supplémentaire:
 Par convention, on utilisera par la suite les notations:
 
 * **U(t,p,c)** pour désigner la valeur de la composante c d'un champ U
-  à la position p et prise à l'instant t; 
+  à la position p et prise à l'instant t;
 * **U(t,p,:)** pour signifier que l'on manipule l'ensemble de toutes
   les composantes;
 * **U(t,:,c)** pour signifier que l'on manipule le domaine de
-  définition spatial complet. 
+  définition spatial complet.
 
 Dans une grande majorité des cas d'usage on travaille à temps t fixé
 et sur un domaine spatiale prédéfini. Aussi on utilisera également la
@@ -167,7 +167,7 @@ On formalise donc le concept d'opération par les propriétés suivantes:
 * L'opérateur est caractérisé par un domaine d'application qui
   spécifie la portée de l'opération. Ce domaine comporte plusieurs
   dimensions:
- 
+
   - Un domaine temporel T qui spécifie les pas de temps sur lesquels
     l'opération est appliquée;
   - Un domaine spatial D qui spécifie la limite de portée de
@@ -283,13 +283,13 @@ de changer le maillage support M1 d'un champs par un maillage M2 à
 partir du moment où les maillages M1 et M2 sont identiques
 géométriquement à une erreur près qu'il est possible de spécifier.
 
-.. note:: 
+.. note::
    D'autres situations limites peuvent être évoquées sous l'angle
    informatique. Ce sont des situations qui a priori n'ont pas de
    raison d'exister sur le plan conceptuel mais qui peuvent très bien
    survenir au niveau du module informatique compte-tenu des
    particularités du modèle MED. Par exemple:
-   
+
    * Le nombre et la nature des composantes ne sont pas identiques
      pour tous les champs d'entrée. Par exemple, U défini ses
      composantes comme U(:,:,1)=Ux, U(:,:,2)=Uy, U(:,:,3)=Uz et V les
@@ -408,14 +408,14 @@ de classer ces opérations en deux catégories:
 * les **opérations binaires**, qui prennent deux opérandes en
   argument. C'est le cas des opérations algébriques et des opérations
   vectorielles.
- 
+
 A partir de cette classification, il convient de distinguer trois
 formes d'usage selon la nature des opérandes:
 
 * les opérandes sont exclusivement des scalaires (typiquement des
   valeurs de composantes des champs et des paramètres numériques). Par
   exemple::
- 
+
     W(:,:4) = 1+2xU(:,:,2)+V(:,:,3)
 
 * les opérandes sont exclusivement des champs. Par exemple::
@@ -478,7 +478,7 @@ paramètre numérique ou la composante d'un champ):
 
 .. warning::
    A développer:
-   
+
    * Analyse dimensionnelle du champ résultats pour adapter
      l'unité. Par exemple, si on fait UxV où U et V sont exprimés en
      [m] alors le résultat est en [m2].
@@ -676,7 +676,7 @@ l'interface textuelle:
   l'utilisateur à spécifier un alias pour la variable python qui
   va permettre la manipulation du champ dans l'interface textuelle de
   l'espace de travail (par défaut, le nom complet du champ est
-  proposé). Ici, l'utilisateur spécifie ``f4``: 
+  proposé). Ici, l'utilisateur spécifie ``f4``:
 
 .. image:: images/xmed-gui-datasource-useinworkspace_70pc.png
    :align: center
@@ -709,7 +709,7 @@ Dans le cadre défini ci-dessus, une session d'utilisation type est:
   conséquent de simplification et d'assistance en ligne). Par exemple,
   si ``fa`` et ``fb`` désignent deux champs définis dans l'espace de
   travail, alors on peut en faire la somme par la commande::
-  
+
   >>> r=fa+fb
 
 * Effectuer les contrôles visuel et les diagnostics en ligne de
@@ -727,7 +727,7 @@ Sur cette base, on peut envisager une grande variété de cas d'utilisation:
   chargée dans le dataspace (l'étude SALOME techniquement) et peut
   être explorée au niveau de l'arbre d'étude. L'arbre peut faire
   apparaître:
- 
+
   - les maillages et les groupes (qui peuvent être utilisés
     éventuellement pour restreindre le domaine d'application)
   - les champs dont on peut explorer les composantes et les itérations
@@ -777,7 +777,7 @@ fonction de visualisation:
   choisir l'option "Visualize":
 
 .. image:: images/xmed-gui-datasource-visualize_70pc.png
-   :align: center   
+   :align: center
 
 * Cette option déclenche l'affichage d'une carte de champ sur le cadre
   d'affichage des viewers SALOME:

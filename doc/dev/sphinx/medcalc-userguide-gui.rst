@@ -2,7 +2,7 @@
    :keywords: mesh, field, manipulation, user guide
    :author: Guillaume Boulant
 
-.. include:: medop-definitions.rst
+.. include:: medcalc-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MED module: User guide for graphical interface
@@ -13,7 +13,7 @@ shows how to use this module on the basis of a few reference examples, built
 from use cases identified during requirement analysis stage.
 
 .. warning:: This document is self-contained, but it is strongly advised to
-             read :doc:`the specification document<medop-specifications>` (in
+             read :doc:`the specification document<medcalc-specifications>` (in
              french), at least to clarify concepts and terminology.
 
 .. contents:: Contents
@@ -571,22 +571,23 @@ Using the textual interface (TUI)
 
 All operations driven through GUI can be done (more or less easily) using TUI.
 The field manipulation module can even be used exclusively in textual mode.
-For this run the command::
+..
+ For this run the command::
 
  $ <path/to/appli>/medop.sh
-
-This command opens a command console ``medop>``. A med file can be loaded and
-manipulated, for example to create fields from file data.
+..
+ This command opens a command console ``medop>``. A med file can be loaded and
+ manipulated, for example to create fields from file data.
 
 Whatever textual or graphical mode is used, a typical workflow in console
 looks like the following instructions::
 
- >>> load("/path/to/mydata.med")
+ >>> medcalc.LoadDataSource("/path/to/mydata.med")
  >>> la
  id=0    name    = testfield1
  id=1    name    = testfield2
- >>> f1=get(0)
- >>> f2=get(1)
+ >>> f1=accessField(0)
+ >>> f2=accessField(1)
  >>>    ls
  f1      (id=0, name=testfield1)
  f2      (id=1, name=testfield2)
@@ -600,50 +601,53 @@ looks like the following instructions::
  f1      (id=0, name=testfield1)
  f2      (id=1, name=testfield2)
  r       (id=2, name=toto)
- >>> put(r)
- >>> save("result.med")
+ >>> putInWorkspace(r)
+ >>> saveWorkspace("result.med")
 
 The main commands are:
 
-* ``load``: load a med file in data base (useful in pure textual mode)::
+* ``LoadDataSource``: load a med file in data base (useful in pure textual mode)::
 
-  >>> load("/path/to/datafile.med")
+  >>> LoadDataSource("/path/to/datafile.med")
+
+* ``LoadImageAsDataSource``: load an image as a med file
 
 * ``la``: show the list of all fields loaded in data base ("list all")
-* ``get``: set a field in workspace from its identifier (useful in pure
+* ``accessField``: set a field in workspace from its identifier (useful in pure
   textual mode ; this operation can be done in GUI selecting a field from data
   space).::
 
-  >>> f=get(fieldId)
+  >>> f=accessField(fieldId)
 
 * ``ls``: show the list of fields available in workspace ("list")
-* ``put``: put a reference to a field in *management space*::
+* ``putInWorkspace``: put a reference to a field in *management space*::
 
-  >>> put(f)
+  >>> putInWorkspace(f)
 
-* ``save``: save to a med a file all fields referenced in management space::
+* ``saveWorkspace``: save to a med a file all fields referenced in management space::
 
-  >>> save("/path/to/resultfile.med")
+  >>> saveWorkspace("/path/to/resultfile.med")
 
 .. note::
 
-   * the ``load`` command only loads metadata describing meshes and fields
+   * the ``LoadDataSource`` command only loads metadata describing meshes and fields
      (names, discretization types, list of time steps). Meshes and physical
      quantities on fields are loaded later (and automatically) as soon as an
      operation needs them. In all cases med data (mete-information and values)
      are physically stored in *data base* environment.
-   * the ``get`` command defines a *field handler* in workspace, i.e.
+   * the ``accessField`` command defines a *field handler* in workspace, i.e.
      a variable that links to the physical field hosted in data base. Physical
      data never transit between environments but remain centralized in data
      base.
 
 The following TUI commands need to work in graphical environment:
 
-* ``visu``: display a field map for quick visual control (no parametrization
-  is possible)
-
-  >>> view(f)
-
+* ``medcalc.MakeDeflectionShape``
+* ``medcalc.MakeIsoSurface``
+* ``medcalc.MakePointSprite``
+* ``medcalc.MakeScalarMap``
+* ``medcalc.MakeSlices``
+* ``medcalc.MakeVectorField``
 
 
 ..  LocalWords:  softwares

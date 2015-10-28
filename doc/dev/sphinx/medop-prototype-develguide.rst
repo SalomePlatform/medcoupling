@@ -210,14 +210,14 @@ l'addition de deux champs:
    import salome
    salome.salome_init()
    import SALOME_MED
-   
+
    medComp = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
    medObj  = medComp.readStructFile("myfile.med",salome.myStudyName)
    medOp   = medObj.createMedOperator()
-   
+
    f1 = medObj.getField("testfield1",-1,-1)
    f2 = medObj.getField("testfield2",-1,-1)
-   
+
    somme = medOp.add(f1,f2)
 
 Il est à noter qu'une instance de ``SALOME_MED::MEDOP`` est associé à
@@ -269,7 +269,7 @@ et le numéro d'iteration:
    salome.salome_init()
    import SALOME_MED
 
-   medComp = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")   
+   medComp = salome.lcc.FindOrLoadComponent("FactoryServer", "MED")
    medObj  = medComp.readStructFile("myfile.med",salome.myStudyName)
 
    from xmed import fieldproxy
@@ -312,9 +312,9 @@ graphique en images:
 .. |IMG_SELECT| image:: images/medop-gui-selectfield_scale.png
 .. |IMG_ALIAS| image:: images/medop-gui-aliasfield_scale.png
 
-+---------------+---------------+ 
++---------------+---------------+
 | |IMG_SELECT|  | |IMG_ALIAS|   |
-+---------------+---------------+ 
++---------------+---------------+
 
 L'image de gauche montre la sélection du pas de temps, l'image de
 droite la boîte de dialogue qui permet la saisie de l'alias avec
@@ -353,7 +353,7 @@ un objet CORBA):
 
    // We suppose here that we have a CORBA object reference (object of
    // type *_ptr or *_var), for example a SALOME_MED::MED object.
-   SALOME_MED::MED_ptr medObj = ... // anything to get this object  
+   SALOME_MED::MED_ptr medObj = ... // anything to get this object
 
    // Get the IOR of this object
    QString medIOR = SalomeApp_Application::orb()->object_to_string(medObj);
@@ -363,7 +363,7 @@ un objet CORBA):
    QStringList commands;
    commands+="import salome";
    commands+=QString("med=salome.orb.string_to_object(\"%1\")").arg(medIOR);
-      
+
    QStringListIterator it(commands);
    while (it.hasNext()) {
        pyConsole->exec(it.next());
@@ -411,9 +411,9 @@ commandes suivantes:
 
    from xmed.fieldproxy import getFieldFromMed
    from xmed.medproxy import getMedProxy
-   
+
    med = getMedProxy("IOR:010000001700000049444c3a53414c4f4d455f4d45442f4d45443a312e300000010000000000000064000000010102000e0000003133302e39382e37372e313733009e0a0e000000feadc4ca4c00003169000000001100000200000000000000080000000100000000545441010000001c00000001000000010001000100000001000105090101000100000009010100")
-   
+
    f1=getFieldFromMed(med,"testfield1",-1,-1)
 
 Ce jeu d'instructions reconstitue un pointeur vers le servant CORBA
@@ -543,9 +543,9 @@ module du champ dans l'exemple implémenté par défaut):
 .. |IMG_VISU| image:: images/medop-gui-visufield_scale.png
 .. |IMG_RESULT| image:: images/medop-gui-result_scale.png
 
-+---------------+---------------+ 
++---------------+---------------+
 | |IMG_VISU|    | |IMG_RESULT|  |
-+---------------+---------------+ 
++---------------+---------------+
 
 Cette fonction répond au besoin de contrôle interactif des résultats
 produits par les opérations de manipulation de champs.
@@ -556,7 +556,7 @@ donnée du servant ``SALOME_MED::FIELD`` qui lui est associé
 (représenté par la variable ``field_ptr`` dans l'exemple ci-dessous):
 
 .. code-block:: python
-   
+
    import salome
    import VISU
 
@@ -710,11 +710,11 @@ automatiser proprement):
     et fournit des fonctions de test unitaire (à exécuter ou pour s'en
     inspirer). Après avoir lancé SALOME via une application virtuelle,
     on peut taper::
- 
+
       $ <APPLI_ROOT>/runSession
       [NS=venus:2810] $ python -i test_medoperation.py
-      >>> 
-   
+      >>>
+
   - Ceci permet de tester en particulier l'interface ``MedOp`` et son
     utilisation dans le module python ``fieldproxy.py``.
 
