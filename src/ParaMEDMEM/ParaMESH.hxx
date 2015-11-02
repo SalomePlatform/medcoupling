@@ -33,17 +33,28 @@ namespace ParaMEDMEM
   class BlockTopology;
   class DataArrayInt;
 
+  /*!
+   * \anchor ParaMESH-det
+   *
+   * Parallel representation of an unstructured mesh.
+   *
+   * This class is very specific to the requirement of parallel code computations.
+   * Two main constructors are available:
+   * - the most simple one, taking directly a \ref meshes "MEDCoupling mesh" object
+   * - the second one (for an advanced usage), which can be used to specify an explicit topology
+   * in a parallel computation.
+   */
   class ParaMESH
   {
   public:
+    ParaMESH( MEDCouplingPointSet *mesh,
+              const ProcessorGroup& proc_group, const std::string& name);
     ParaMESH( MEDCouplingPointSet *subdomain_mesh,
               MEDCouplingPointSet *subdomain_face,
               DataArrayInt *CorrespElt_local2global,
               DataArrayInt *CorrespFace_local2global,
               DataArrayInt *CorrespNod_local2global,
               const ProcessorGroup& proc_group ) ;
-    ParaMESH( MEDCouplingPointSet *mesh,
-              const ProcessorGroup& proc_group, const std::string& name);
 
     virtual ~ParaMESH();
     void setNodeGlobal(DataArrayInt *nodeGlobal);

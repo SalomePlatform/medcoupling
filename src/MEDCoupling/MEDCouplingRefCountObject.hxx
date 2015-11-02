@@ -36,6 +36,7 @@ namespace ParaMEDMEM
     CPP_DEALLOC = 3
   } DeallocType;
 
+  //! The various spatial discretization of a field
   typedef enum
   {
     ON_CELLS = 0,
@@ -45,6 +46,7 @@ namespace ParaMEDMEM
     ON_NODES_KR = 4
   } TypeOfField;
 
+  //! The various temporal discretization of a field
   typedef enum
   {
     NO_TIME = 4,

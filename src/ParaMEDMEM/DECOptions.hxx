@@ -24,10 +24,29 @@
 
 namespace ParaMEDMEM
 {
-  //Enum describing the allToAll method used in the communication pattern
+  //! Enum describing the allToAll method used in the communication pattern
   typedef enum { Native, PointToPoint } AllToAllMethod;
+  //! Enum describing the time interpolation method
   typedef enum { WithoutTimeInterp, LinearTimeInterp } TimeInterpolationMethod;
 
+  /*!
+   This class groups the various options accepted by all \ref para-dec "DECs" (which all inherit from %DECOptions).
+
+   The following code excerpt shows how to set options on a %DEC :
+
+   \code
+   InterpKernelDEC dec(source_group,target_group);
+   dec.setForcedRenormalization(true);
+   dec.attachLocalField(field);
+   dec.synchronize();
+   if (source_group.containsMyRank())
+     dec.sendData();
+   else
+     dec.recvData();
+   \endcode
+   *
+   *
+   */
   class DECOptions
   {
   protected:
@@ -54,19 +73,55 @@ namespace ParaMEDMEM
       _allToAllMethod=deco._allToAllMethod;
     }
     
+
+    /*!
+     * \sa setMethod()
+     */
     const std::string& getMethod() const { return _method; }
+    /*!
+     * Set interpolation method. Defaults to "P0".
+     */
     void setMethod(const char *m) { _method=m; }
 
+    /*!
+     * \sa setTimeInterpolationMethod()
+     */
     TimeInterpolationMethod getTimeInterpolationMethod() const { return DECOptions::_timeInterpolationMethod; }
+    /*!
+     * Set time interpolation method. Default to WithoutTimeInterp.
+     */
     void setTimeInterpolationMethod(TimeInterpolationMethod it) { DECOptions::_timeInterpolationMethod=it; }
 
+    /*!
+     * \sa setForcedRenormalization()
+     */
     bool getForcedRenormalization() const { return DECOptions::_forcedRenormalization; }
+
+    /*!
+     * Force renormalization of the field after it has been received so that the total sum
+     * of the field values are the same on both the sending and the receiving side. Defaults to
+     * false.
+     */
     void setForcedRenormalization( bool dr) { DECOptions::_forcedRenormalization = dr; }
 
+
+    /*!
+     * \sa setAsynchronous()
+     */
     bool getAsynchronous() const { return DECOptions::_asynchronous; }
+
+    /*!
+     * Switch to asynchronous data transfer mode. Default is false.
+     */
     void setAsynchronous( bool dr) { DECOptions::_asynchronous = dr; }
      
+    /*!
+     * \sa setAllToAllMethod()
+     */
     AllToAllMethod getAllToAllMethod() const { return _allToAllMethod; }
+    /*!
+     * Set the broadcast method for synchronisation processes. Default to Native.
+     */
     void setAllToAllMethod(AllToAllMethod sp) { _allToAllMethod=sp; }
   };
 }

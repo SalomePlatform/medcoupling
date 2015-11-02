@@ -38,23 +38,29 @@ namespace ParaMEDMEM
     \anchor StructuredCoincidentDEC-det
     \class StructuredCoincidentDEC
 
-    This class is meant for remapping fields that have identical
-    supports with different parallel topologies. It can be used to couple
-    together multiphysics codes that operate on the same domain
-    with different partitionings, which can be useful if one of
+    This class aims at \ref interp "remapping fields" that have identical
+    structured supports (=the same underlying mesh) but different parallel topologies
+    (=different sub-domains in the structured mesh). It can be used to couple
+    together multi-physics codes that operate on the same domain
+    with different partitioning. This can be useful for example if one of
     the computation is much faster than the other. It can also be used 
     to couple together codes that share an interface that was generated
     in the same manner (with identical global ids). 
-    Also, this \ref para-dec can be used for fields that have component topologies,
+    Also, this \ref para-dec "DEC" can be used for fields that have component topologies,
     i.e., components that are scattered over several processors.
 
     The remapping between the two supports is based on identity of global
-    ids, instead of geometrical considerations as it is the case for
-    \ref NonCoincidentDEC-det "NonCoincidentDEC" and \ref InterpKernelDEC-det "InterpKernelDEC".
-    Therefore, this \ref para-dec "DEC" must not be used
-    for coincident meshes that do not have the same numbering.
+    ids, instead of geometrical considerations (as it is the case for
+    \ref InterpKernelDEC-det "InterpKernelDEC").
+    Therefore, beware that this \ref para-dec "DEC" can not be used
+    for coincident meshes if they do *not* have the exact same numbering.
 
-    As all the other DECs, its use is made of two phases :
+    With this %DEC no projection, and no interpolation of the field data is done, contrary
+    to what happens in \ref InterpKernelDEC-det "InterpKernelDEC". It is just
+    a matter of allocating the values from one side to the other, using directly the cell
+    identifiers.
+
+    As all the other DECs, its usage requires two phases :
     - a setup phase during which the topologies are exchanged so that
     the target side knows from which processors it should expect 
     the data.
@@ -74,11 +80,11 @@ namespace ParaMEDMEM
     ...
     \endcode
 
-    Creating a ParaFIELD to be attached to the DEC is exactly the same as for 
-    other DECs in the case when the remapping concerns similar meshes 
-    that only have different partitionings. In the case when the
-    fields have also different component topologies, creating the ParaFIELD 
-    requires some more effort. See the \ref para-over section for more details.
+    Creating a ParaFIELD to be attached to the %DEC is done in exactly the same way as for
+    the other DECs, if only the partitioning of the support mesh differs.
+    In the case where the
+    fields have also different *component* topologies, creating the ParaFIELD
+    requires some more effort. See the \ref para-over "parallelism" section for more details.
   */
 
 
@@ -104,11 +110,12 @@ namespace ParaMEDMEM
       delete _topo_target;
   }
 
-  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DisjointDEC(local_group,distant_group),
-                                                                                                               _topo_source(0),_topo_target(0),
-                                                                                                               _send_counts(0),_recv_counts(0),
-                                                                                                               _send_displs(0),_recv_displs(0),
-                                                                                                               _recv_buffer(0),_send_buffer(0)
+  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):
+      DisjointDEC(local_group,distant_group),
+      _topo_source(0),_topo_target(0),
+      _send_counts(0),_recv_counts(0),
+      _send_displs(0),_recv_displs(0),
+      _recv_buffer(0),_send_buffer(0)
   {
   }
 

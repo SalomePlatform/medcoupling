@@ -26,6 +26,11 @@
 
 namespace ParaMEDMEM
 {
+  /*!
+   * Abstract class defining a group of processors (computation nodes) in a parallel run of a code.
+   *
+   * See the non-abstract child \ref MPIProcessorGroup-det "MPIProcessorGroup"
+   */
   class ProcessorGroup
   {
   public:

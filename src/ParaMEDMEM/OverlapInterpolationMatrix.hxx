@@ -31,6 +31,11 @@ namespace ParaMEDMEM
   class ParaFIELD;
   class MEDCouplingPointSet;
 
+  /*!
+   * Internal class, not part of the public API.
+   *
+   * Similar to InterpolationMatrix, but for the OverlapDEC instead of the InterpKernelDEC.
+   */
   class OverlapInterpolationMatrix : public INTERP_KERNEL::InterpolationOptions,
                                      public DECOptions
   {

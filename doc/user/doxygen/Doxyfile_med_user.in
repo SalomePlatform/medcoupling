@@ -101,8 +101,11 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
 FILE_PATTERNS          = InterpKernelDEC.* \
                          OverlapDEC.* \
                          DEC.* \
+                         DECOptions.* \
                          DisjointDEC.* \
+                         *Topology.* \
                          MPIProcessorGroup.* \
+                         ProcessorGroup.* \
                          MPIAccess.* \
                          StructuredCoincidentDEC.* \
                          ExplicitCoincidentDEC.* \
@@ -128,6 +131,7 @@ FILE_PATTERNS          = InterpKernelDEC.* \
                          InterpKernelGeo2DNode.* \
                          InterpKernelGeo2DQuadraticPolygon.* \
                          ParaFIELD.* \
+                         ParaMESH.* \
                          MEDCouplingMesh.* \
                          MEDCouplingUMesh.* \
                          MEDCoupling1GTUMesh.* \

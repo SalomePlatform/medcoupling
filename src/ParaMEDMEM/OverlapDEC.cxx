@@ -31,22 +31,27 @@ namespace ParaMEDMEM
     \anchor OverlapDEC-det
     \class OverlapDEC
 
+    \section OverlapDEC-over Overview
+
     The \c OverlapDEC enables the \ref InterpKerRemapGlobal "conservative remapping" of fields between
     two parallel codes. This remapping is based on the computation of intersection volumes on
-    a \b same \b processor \b group. On this processor group are defined two field-templates called A
+    a \b single \b processor \b group. On this processor group are defined two field-templates called A
     and B. The computation is possible for 3D meshes, 2D meshes, 3D-surface meshes, 1D meshes and
     2D-curve meshes. Dimensions must be similar for the distribution templates A and B.
-    The main difference with \ref InterpKernelDEC-det is that this \ref para-dec "DEC" manages 2 field templates
-    on each processor of the processor group (A and B) called source and target.
-    Furthermore all processors in processor group cooperates in global interpolation matrix
-    computation. In this respect \ref InterpKernelDEC is a specialization of \c OverlapDEC.
 
-    \section ParaMEDMEMOverlapDECAlgorithmDescription Algorithm Description
+    The main difference with \ref InterpKernelDEC-det "InterpKernelDEC" is that this
+    \ref para-dec "DEC" works with a *single* processor group, in which processors will share the work.
+    Consequently each processor manages two \ref MEDCouplingFieldTemplatesPage "field templates" (A and B)
+    called source and target.
+    Furthermore all processors in the processor group cooperate in the global interpolation matrix
+    computation. In this respect \c InterpKernelDEC is a specialization of \c OverlapDEC.
+
+    \section ParaMEDMEMOverlapDECAlgorithmDescription Algorithm description
 
     Let's consider the following use case that is ran in ParaMEDMEMTest_OverlapDEC.cxx to describes
     the different steps of the computation. The processor group contains 3 processors.
     \anchor ParaMEDMEMOverlapDECImgTest1
-    \image html OverlapDEC1.png "Example showing the use case in order to explain the different steps."
+    \image html OverlapDEC1.png "Example split of the source and target mesh among the 3 procs"
 
     \subsection ParaMEDMEMOverlapDECAlgoStep1 Step 1 : Bounding box exchange and global interaction
     between procs computation.
@@ -161,7 +166,7 @@ namespace ParaMEDMEM
     the \b local TODO list per proc is expected to
     be as well balanced as possible.
 
-    The interpolation is performed as \ref ParaMEDMEM::MEDCouplingRemapper "Remapper" does.
+    The interpolation is performed as the \ref ParaMEDMEM::MEDCouplingRemapper "remapper" does.
 
     This operation is performed by OverlapInterpolationMatrix::addContribution method.
 

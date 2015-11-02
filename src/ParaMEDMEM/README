@@ -1,0 +1,194 @@
+Tests avec CPPUNIT 
+==================
+
+L'appel a MPI_Init n'est fait qu'une seule fois pour chaque suite de test
+(voir TestMPIAccessDEC.cxx, TestMPIAccess.cxx, TestParaMEDMEM.cxx qui inclut
+tous MPIMainTest.hxx)
+Il est suivi par l'execution de toute la suite des tests regroupes
+dans les trois headers MPIAccess.hxx, MPIAccessDEC.hxx, ParaMEDMEMTest.hxx
+On a enfin un seul appel a MPI_Finalize.
+
+Si un des tests d'une suite de tests comporte une anomalie cela
+peut avoir des implications sur l'execution des tests suivants.
+
+[ABN-2015] Lancement des tests avec valgrind
+============================================
+
+Exemple avec MPICH :
+
+rm tmp_log* ; mpirun -np 3 valgrind --leak-check=full --show-reachable=yes --log-file=tmp_log%p  src/ParaMEDMEMTest/TestParaMEDMEM && cat tmp_log*
+
+[ABN-2015] Lancement des tests avec gdb
+=======================================
+
+Exemple avec MPICH :
+
+mpirun -np 2 xterm -e gdb src/ParaMEDMEMTest/TestMPIAccess
+
+
+
+
+
+*************************************************************************************************************
+*********************** ce qui suit est obsolète ??                    **************************************
+*************************************************************************************************************
+
+Lancement des tests de TestParaMEDMEM avec CPPUNIT et TotalView (option -tv) :
+==============================================================================
+
+mpirun -np 5 -ssi rpi tcp C -tv -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} TestParaMEDMEM
+
+Il arrive qu'on ne puisse pas utiliser totalview par manque de
+license.
+
+
+
+Lancement des tests de TestParaMEDMEM avec CPPUNIT et Valgrind avec "memory leaks" :
+====================================================================================
+
+mpirun -np 5 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} valgrind --leak-check=full TestParaMEDMEM
+
+
+Lancement des tests fonctionnels de MPI_AccessDEC avec CPPUNIT :
+================================================================
+
+mpirun -np 11 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} valgrind --leak-check=full TestMPIAccessDEC
+
+
+Lancement des tests unitaires de MPI_Access avec CPPUNIT :
+==========================================================
+
+mpirun -np 3 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} valgrind --leak-check=full TestMPIAccess
+
+
+TestMPIAccess/TestMPIAccessDEC/TestParaMEDMEM et gcov :
+=======================================================
+
+Les resultats sont dans les repertoires suivants de $MED_BUILD_DIR/src/ParaMEDMEM/Test :
+-------------
+
+    TestParaMEDMEM-gcov/
+    TestMPIAccessDEC-gcov/
+    TestMPIAccess-gcov/
+
+Je n'y ai pas trouve d'anomalies.
+
+compilation : -fprofile-arcs -ftest-coverage
+-------------
+
+$MED_BUILD_DIR/src/ParaMEDMEM/makefile.in : LIB=libparamedar.a \
+-------------------------------------------     libparamed.la
+
+$MED_BUILD_DIR/src/ParaMEDMEM/Test/makefile.in : LIB = libParaMEDMEMTestar.a \
+------------------------------------------------       libParaMEDMEMTest.la
+
+execution et gcov :
+-------------------
+
+Pour pouvoir traiter les .cxx de ${MED_BUILD_DIR}/src/ParaMEDMEM et de
+${MED_BUILD_DIR}/src/ParaMEDMEM/Test, on execute deux fois gcov.
+
+cd ${MED_BUILD_DIR}/src/ParaMEDMEM/Test
+
+mpirun -np 3 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} TestMPIAccess
+
+gcov TestMPIAccess.cxx test_MPI_Access_Send_Recv.cxx \
+                       test_MPI_Access_Cyclic_Send_Recv.cxx \
+                       test_MPI_Access_SendRecv.cxx \
+                       test_MPI_Access_ISend_IRecv.cxx \
+                       test_MPI_Access_Cyclic_ISend_IRecv.cxx \
+                       test_MPI_Access_ISendRecv.cxx \
+                       test_MPI_Access_Probe.cxx \
+                       test_MPI_Access_IProbe.cxx \
+                       test_MPI_Access_Cancel.cxx \
+                       test_MPI_Access_Send_Recv_Length.cxx \
+                       test_MPI_Access_ISend_IRecv_Length.cxx \
+                       test_MPI_Access_ISend_IRecv_Length_1.cxx \
+                       test_MPI_Access_Time.cxx \
+                       test_MPI_Access_Time_0.cxx \
+                       test_MPI_Access_ISend_IRecv_BottleNeck.cxx \
+                       ../MPI_Access.cxx
+gcov -o ../ TestMPIAccess.cxx test_MPI_Access_Send_Recv.cxx \
+                              test_MPI_Access_Cyclic_Send_Recv.cxx \
+                              test_MPI_Access_SendRecv.cxx \
+                              test_MPI_Access_ISend_IRecv.cxx \
+                              test_MPI_Access_Cyclic_ISend_IRecv.cxx \
+                              test_MPI_Access_ISendRecv.cxx \
+                              test_MPI_Access_Probe.cxx \
+                              test_MPI_Access_IProbe.cxx \
+                              test_MPI_Access_Cancel.cxx \
+                              test_MPI_Access_Send_Recv_Length.cxx \
+                              test_MPI_Access_ISend_IRecv_Length.cxx \
+                              test_MPI_Access_ISend_IRecv_Length_1.cxx \
+                              test_MPI_Access_Time.cxx \
+                              test_MPI_Access_Time_0.cxx \
+                              test_MPI_Access_ISend_IRecv_BottleNeck.cxx \
+                              ../MPI_Access.cxx
+
+
+cd ${MED_BUILD_DIR}/src/ParaMEDMEM/Test
+mpirun -np 11 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} TestMPIAccessDEC
+
+gcov TestMPIAccessDEC.cxx test_AllToAllDEC.cxx \
+                          test_AllToAllvDEC.cxx \
+                          test_AllToAllTimeDEC.cxx \
+                          test_AllToAllvTimeDEC.cxx \
+                          test_AllToAllvTimeDoubleDEC.cxx \
+                          ../TimeInterpolator.cxx \
+                          ../LinearTimeInterpolator.cxx \
+                          ../MPI_Access.cxx \
+                          ../MPI_AccessDEC.cxx
+gcov -o ../ TestMPIAccessDEC.cxx test_AllToAllDEC.cxx \
+                                 test_AllToAllvDEC.cxx \
+                                 test_AllToAllTimeDEC.cxx \
+                                 test_AllToAllvTimeDEC.cxx \
+                                 test_AllToAllvTimeDoubleDEC.cxx \
+                                 ../TimeInterpolator.cxx \
+                                 ../LinearTimeInterpolator.cxx \
+                                 ../MPI_Access.cxx \
+                                 ../MPI_AccessDEC.cxx
+
+cd ${MED_BUILD_DIR}/src/ParaMEDMEM/Test
+mpirun -np 5 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH} TestParaMEDMEM
+
+gcov TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
+	                      ParaMEDMEMTest_MPIProcessorGroup.cxx \
+	                      ParaMEDMEMTest_BlockTopology.cxx \
+	                      ParaMEDMEMTest_InterpKernelDEC.cxx \
+                        ../BlockTopology.cxx \
+                        ../ComponentTopology.cxx \
+                        ../DEC.cxx \
+                        ../ElementLocator.cxx \
+                        ../InterpolationMatrix.cxx \
+                        ../InterpKernelDEC.cxx \
+                        ../MPIProcessorGroup.cxx \
+                        ../MxN_Mapping.cxx \
+                        ../ParaFIELD.cxx \
+                        ../ParaMESH.cxx \
+                        ../ParaSUPPORT.cxx \
+                        ../ProcessorGroup.cxx \
+                        ../TimeInterpolator.cxx \
+                        ../LinearTimeInterpolator.cxx \
+                        ../MPI_Access.cxx \
+                        ../MPI_AccessDEC.cxx
+
+gcov -o ../ TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
+	                             ParaMEDMEMTest_MPIProcessorGroup.cxx \
+	                             ParaMEDMEMTest_BlockTopology.cxx \
+	                             ParaMEDMEMTest_InterpKernelDEC.cxx \
+                               ../BlockTopology.cxx \
+                               ../ComponentTopology.cxx \
+                               ../DEC.cxx \
+                               ../ElementLocator.cxx \
+                               ../InterpolationMatrix.cxx \
+                               ../InterpKernelDEC.cxx \
+                               ../MPIProcessorGroup.cxx \
+                               ../MxN_Mapping.cxx \
+                               ../ParaFIELD.cxx \
+                               ../ParaMESH.cxx \
+                               ../ParaSUPPORT.cxx \
+                               ../ProcessorGroup.cxx \
+                               ../TimeInterpolator.cxx \
+                               ../LinearTimeInterpolator.cxx \
+                               ../MPI_Access.cxx \
+                               ../MPI_AccessDEC.cxx

@@ -30,6 +30,10 @@ namespace ParaMEDMEM
   class BlockTopology;
   class MEDCouplingCMesh;
 
+  /*!
+   * This class
+   * Equivalent of a ParaMESH for a structured mesh
+   */
   class ParaGRID
   {
   public:

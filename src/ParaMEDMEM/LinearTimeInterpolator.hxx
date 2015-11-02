@@ -29,6 +29,11 @@ namespace ParaMEDMEM
 {
   class DEC;
   
+  /*!
+   * Internal class, not part of the public API.
+   *
+   * Linear interpolation of a block of data between two given times.
+   */
   class LinearTimeInterpolator : public TimeInterpolator
   {
     public:  

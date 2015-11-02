@@ -27,6 +27,12 @@
 
 namespace ParaMEDMEM
 {
+
+  /*!
+   * Internal class, not part of the public API.
+   *
+   * Abstract class for all time-related interpolation in a parallel context.
+   */
   class TimeInterpolator
   {
   public:  

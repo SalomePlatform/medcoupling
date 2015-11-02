@@ -35,13 +35,10 @@ namespace ParaMEDMEM
   class ParaFIELD
   {
   public:
-
     ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* mesh, const ComponentTopology& component_topology); 
-
-
     ParaFIELD(MEDCouplingFieldDouble* field, ParaMESH *sup, const ProcessorGroup& group);
-  
     virtual ~ParaFIELD();
+
     void synchronizeTarget( ParaMEDMEM::ParaFIELD* source_field);
     void synchronizeSource( ParaMEDMEM::ParaFIELD* target_field);
     MEDCouplingFieldDouble* getField() const { return _field; }
@@ -53,6 +50,7 @@ namespace ParaMEDMEM
     int nbComponents() const;
     double getVolumeIntegral(int icomp, bool isWAbs) const;
     double getL2Norm()const { return -1; }
+
   private:
     MEDCouplingFieldDouble* _field;
     ParaMEDMEM::ComponentTopology _component_topology;

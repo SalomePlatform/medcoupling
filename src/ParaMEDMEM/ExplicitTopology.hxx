@@ -33,10 +33,17 @@ namespace ParaMEDMEM
   class Topology;
   class ComponentTopology;
 
+  /*!
+   * \anchor ExplicitTopology-det
+   *
+   * An ExplicitTopology typically represents the split of a mesh among the processors of
+   * a common ProcessorGroup. Each processor gets a user-defined part of the cells in the mesh.
+   * \sa BlockTopology
+   */
   class ExplicitTopology : public Topology
   {
   public:
-    ExplicitTopology() { }
+    ExplicitTopology();
     ExplicitTopology( const ExplicitTopology& topo, int nbcomponents);
     ExplicitTopology(const ParaMESH &mesh);
     virtual ~ExplicitTopology();

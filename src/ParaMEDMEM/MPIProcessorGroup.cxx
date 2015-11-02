@@ -33,16 +33,17 @@ using namespace std;
 namespace ParaMEDMEM
 {
   /*!
-   * \anchor MPIProcessorGroup-det
-   * \class MPIProcessorGroup
-   *
-   * \section processor_group_overview Overview
-   * The MPIProcessorGroup class is used to set up processor groups that help to define
-   * the MPI topology of the couplings. They can be set up in various ways, the most common being
-   * the use of the \c MPIProcessorGroup(Comminterface, int pfirst, int plast)
-   * constructor.
-   *
-   * The following code excerpt creates two processor groups on respectively 3 and 2 processors.
+   \anchor MPIProcessorGroup-det
+   \class MPIProcessorGroup
+
+   The MPIProcessorGroup class represents a set of distinct "processors" (computation nodes)
+   in a MPI code. It is used to define the MPI topology of code couplings.
+
+   Groups can be set up in various ways, the most common being
+   the use of the \c MPIProcessorGroup(Comminterface, int pfirst, int plast)
+   constructor.
+
+   The following code excerpt creates two processor groups on respectively 3 and 2 processors.
    \verbatim
    int main()
    {
@@ -59,7 +60,7 @@ namespace ParaMEDMEM
 
   /*! 
    * Creates a processor group that is based on all the
-   MPI_COMM_WORLD processor.This routine must be called by all processors in MPI_COMM_WORLD.
+   processors of MPI_COMM_WORLD .This routine must be called by all processors in MPI_COMM_WORLD.
    \param interface CommInterface object giving access to the MPI
    communication layer
   */
@@ -164,14 +165,16 @@ namespace ParaMEDMEM
   }
 
   MPIProcessorGroup::MPIProcessorGroup (const ProcessorGroup& proc_group, set<int> proc_ids) :
-    ProcessorGroup(proc_group.getCommInterface()),_world_comm(MPI_COMM_WORLD)
+    ProcessorGroup(proc_group.getCommInterface()),
+    _world_comm(MPI_COMM_WORLD), _group(MPI_GROUP_NULL), _comm(MPI_COMM_NULL)
   {
     cout << "MPIProcessorGroup (const ProcessorGroup& proc_group, set<int> proc_ids)" <<endl;
     cout << "Not implemented yet !"<<endl;
     exit(1);
   }
 
-  MPIProcessorGroup::MPIProcessorGroup(const MPIProcessorGroup& other):ProcessorGroup(other),_world_comm(other._world_comm)
+  MPIProcessorGroup::MPIProcessorGroup(const MPIProcessorGroup& other):
+      ProcessorGroup(other),_world_comm(other._world_comm)
   {
     updateMPISpecificAttributes();
   }

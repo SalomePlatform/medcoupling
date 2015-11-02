@@ -29,9 +29,11 @@ namespace ParaMEDMEM
 {
   class ElementLocator;
 
-  /**! class InterpolationMatrix
+  /*!
+   Internal class, not part of the public API.
+
    This class enables the storage of an interpolation matrix Wij mapping
-   source field Sj to target field Ti via Ti=Vi^(-1).Wij.Sj.
+   a source field Sj to a target field Ti via Ti=Vi^(-1).Wij.Sj.
    The matrix is built and stored on the processors belonging to the source
    group.
    */

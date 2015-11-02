@@ -28,6 +28,14 @@ namespace ParaMEDMEM
 {
   class ProcessorGroup;
 
+  /*!
+   * \anchor ComponentTopology-det
+   *
+   * The ComponentTopology can be used when building a ParaFIELD. It allows the splitting of the components
+   * of the field among different processors within a single processor group.
+   *
+   * \sa ParaFIELD::ParaFIELD(TypeOfField , TypeOfTimeDiscretization , ParaMESH* , const ComponentTopology& )
+   */
   class ComponentTopology
   {
   public:

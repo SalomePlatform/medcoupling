@@ -28,6 +28,7 @@ namespace ParaMEDMEM
 {
   class DEC;
   class BlockTopology;
+
   class StructuredCoincidentDEC : public DisjointDEC
   {
   public:

@@ -31,9 +31,9 @@ using namespace std;
 namespace ParaMEDMEM
 {
   
-  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception)
+  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception) :
+    _global_axis(), _my_domain_id(0)
   {
-  
     _block_topology = dynamic_cast<BlockTopology*>(topology);
     if(_block_topology==0)
       throw INTERP_KERNEL::Exception(LOCALIZED("ParaGRID::ParaGRID topology must be block topology"));

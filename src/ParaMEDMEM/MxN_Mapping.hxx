@@ -31,10 +31,15 @@ namespace ParaMEDMEM
 
   class ProcessorGroup;
 
+  /*!
+   * Internal class, not part of the public API.
+   *
+   * Used by InterpolationMatrix. This class manages the mapping between a given processor and part
+   * of the mesh (cell ids).
+   */
   class MxN_Mapping : public DECOptions
   {
   public:
-    MxN_Mapping();
     MxN_Mapping(const ProcessorGroup& source_group, const ProcessorGroup& target_group, const DECOptions& dec_options);
     virtual ~MxN_Mapping();
     void addElementFromSource(int distant_proc, int distant_elem);

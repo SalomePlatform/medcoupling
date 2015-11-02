@@ -27,13 +27,11 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-  MxN_Mapping::MxN_Mapping()
-  {
-  }
-
 
   MxN_Mapping::MxN_Mapping(const ProcessorGroup& source_group, const ProcessorGroup& target_group,const DECOptions& dec_options)
-    : DECOptions(dec_options),_union_group(source_group.fuse(target_group))
+    : DECOptions(dec_options),
+      _union_group(source_group.fuse(target_group)),
+      _nb_comps(0), _sending_ids(), _recv_ids()
   {
     _access_DEC = new MPIAccessDEC(source_group,target_group,getAsynchronous());
     _access_DEC->setTimeInterpolator(getTimeInterpolationMethod());

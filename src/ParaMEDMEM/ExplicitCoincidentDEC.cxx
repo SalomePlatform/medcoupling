@@ -32,16 +32,69 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
+
   /*!
-   * \anchor ExplicitCoincidentDEC-det
-   * \class ExplicitCoincidentDEC
-   *
-   * TODO: doc
-   */
+    \anchor ExplicitCoincidentDEC-det
+    \class ExplicitCoincidentDEC
+
+
+    This class aims at \ref interp "remapping fields" that have identical
+    supports (=the same underlying mesh) but different parallel topologies
+    (=different sub-domains in the mesh). It can be used to couple
+    together multi-physics codes that operate on the same domain
+    with different partitioning.
+
+    It is very similar to what the \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
+    does, except that it works with an arbitrary user-defined topology.
+
+    The remapping between the two supports is based on identity of global
+    ids, instead of geometrical considerations (as it is the case for
+    \ref InterpKernelDEC-det "InterpKernelDEC").
+    Therefore, beware that this \ref para-dec "DEC" can not be used
+    for coincident meshes if they do *not* have the exact same numbering.
+
+    With this \ref para-dec "DEC" no projection, and no interpolation of the field data is done, contrary
+    to what happens in \ref InterpKernelDEC-det "InterpKernelDEC". It is just
+    a matter of allocating the values from one side to the other, using directly the cell
+    identifiers.
+
+    As all the other DECs, its usage requires two phases :
+    - a setup phase during which the topologies are exchanged so that
+    the target side knows from which processors it should expect
+    the data.
+    - a send/recv phase during which the field data is actually transferred.
+
+    This example illustrates the sending of a field with
+    the \c ExplicitCoincidentDEC :
+    \code
+    ...
+    ExplicitCoincidentDEC dec(groupA, groupB);
+    dec.attachLocalField(field);
+    dec.synchronize();
+    if (groupA.containsMyRank())
+    dec.recvData();
+    else if (groupB.containsMyRank())
+    dec.sendData();
+    ...
+    \endcode
+
+    Creating a ParaFIELD to be attached to the %DEC is done in exactly the same way as for
+    the other DECs, if only the partitioning of the support mesh differs.
+    In the case where the
+    fields have also different *component* topologies, creating the ParaFIELD
+    requires some more effort. See the \ref para-over "parallelism" section for more details.
+  */
+
 
   /*! Constructor
    */
-  ExplicitCoincidentDEC::ExplicitCoincidentDEC():_toposource(0),_topotarget(0)
+  ExplicitCoincidentDEC::ExplicitCoincidentDEC():
+      _toposource(0),_topotarget(0),
+      _targetgroup(0), _sourcegroup(0),
+      _sendcounts(0), _recvcounts(0),
+      _senddispls(0), _recvdispls(0),
+      _recvbuffer(0), _sendbuffer(0),
+      _distant_elems(), _explicit_mapping()
   {  
   }
 
@@ -186,8 +239,7 @@ namespace ParaMEDMEM
 
  
   /*!
-   * Synchronizing a topology so that all the 
-   * group possesses it.
+   * Synchronizing a topology so that all the groups get it.
    * 
    * \param toposend Topology that is transmitted. It is read on processes where it already exists, and it is created and filled on others.
    * \param toporecv Topology which is received.

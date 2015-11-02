@@ -2,11 +2,13 @@
 
 \page interpolation Interpolation
 
-Interpolation (or projection) methods is a key feature of the MEDCoupling library.
+Interpolation (or projection) methods are a key feature of the MEDCoupling library.
 It allows to "transfer" the values of a field on a given source mesh to another, newly created field
 on a target mesh. 
 
 The two meshes/fields need not to have the same \ref MEDCouplingMeshes "mesh/spatial dimension", nor do they need to have the same \ref discretization "discretization".
+
+
 
 - \subpage intro-interp
 - \subpage InterpKerRemapGlobal

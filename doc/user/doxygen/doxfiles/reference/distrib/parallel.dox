@@ -1,33 +1,81 @@
 /*!
 \page parallel Parallelism 
 
-\section para-over Base elements
+\section para-over Building blocks
 
 Several classes and methods are available in the MED library to ease the exchange of information
-in a parallel context.
-For historical reasons, they are all in the same namespace as the non-parallel MEDCoupling functionalities,
+in a parallel context. The DECs (\ref para-dec "detailed further down") then use those classes to enable 
+the parallel remapping (projection) of a field.
+For historical reasons, all those items are in the same namespace as the non-parallel MEDCoupling functionalities,
 <b>%ParaMEDMEM</b>.
 
 The core elements of the API are:
-- \ref ParaFIELD-det "ParaFIELD", the parallel instanciation of a MEDCoupling field
-- \ref CommInterface-det "CommInterface", communication interface to the gateway to the MPI library
-- \ref MPIProcessorGroup-det "MPIProcessorGroup", a group of processor in a parallel computation
+- \ref CommInterface-det "CommInterface", this is the wrapper around the MPI library, and an instance
+of this object is required in many constructors of the following objects.  
+- \ref ParaMESH-det "ParaMESH", the parallel instanciation of a \ref meshes "MEDCoupling mesh" 
+- \ref ParaFIELD-det "ParaFIELD", the parallel instanciation of a \ref fields "MEDCoupling field"
+- \ref MPIProcessorGroup-det "MPIProcessorGroup" (which inherits from the abstract 
+\ref ParaMEDMEM::ProcessorGroup "ProcessorGroup"), a group of processors (typically MPI nodes)
 
-along with all the DEC explained below.
-
+In an advanced usage, the topology of the nodes in the computation is accessed through the following elements:
+- \ref BlockTopology-det "BlockTopology", specification of a topology based on the (structured) mesh.
+The mesh is divided in block (typically a split along the first axis) which are allocated on the various
+processors.
+- <b> %ExplicitTopology </b> (not fully supported yet and only used internally), specification of user-defined
+topology, still based on the mesh.
+- \ref ComponentTopology-det "ComponentTopology", specification of a topology allowing the split of 
+several field *components* among different processors. The mesh is not the support of the topology anymore.   
+ 
 \section para-dec Data Exchange Channel - DEC
 
-A Data Exchange Channel allows the transfer of information between two processor groups.
-There are several variants of DEC depending on what you are aiming at:
+A Data Exchange Channel (%DEC) allows the transfer and/or the interpolation (remapping) of field data between several
+processors in a parallel (MPI) context.
+Some DECs perform a simple renumbering and copy of the data, and some are capable of functionalities similar to the
+\ref remapper "sequential remapper".
 
-- \ref DisjointDEC-det "DisjointDEC"
-- \ref InterpKernelDEC-det "InterpKernelDEC"
-- \ref NonCoincidentDEC-det "NonCoincidentDEC" 
-- \ref OverlapDEC-det "OverlapDEC"
-- \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
-- \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
- 
-  TODO: more on DEC.
+We list here the main characteristics of the DECs, the list being structured in the same 
+way as the class hierarchy:
 
+- \ref DisjointDEC-det "DisjointDEC", works with two disjoint groups of processors. This is an abstract class.
+    - \ref InterpKernelDEC-det "InterpKernelDEC", inherits the properties of the \c %DisjointDEC. The projection
+    methodology is based on the algorithms of %INTERP_KERNEL, that is to say, they work in a similar fashion than
+    what the \ref remapper "sequential remapper" does. The following \ref discretization "projection methods"
+    are supported: P0->P0 (the most common case), P1->P0, P0->P1.
+    - \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC", also inherits the properties 
+    of the \c %DisjointDEC, but this one is \b not based on the %INTERP_KERNEL algorithms. 
+    This DEC does a simple data transfer between two fields having a common (coincident) structured support,
+    but different topologies (i.e. the structured domain is split differently among the processors for the 
+    two fields). Only the cell identifiers are handled, and no kind of interpolation (in the sense of the 
+    computation of a weight matrix) is performed. It is a "mere" reallocation of data from one domain 
+    partitioning to another.
+    - \b ExplicitCoincidentDEC : as above, but based on an explicit topology. This DEC is used internally but
+    rarely directly in the public API.
+- \ref OverlapDEC-det "OverlapDEC", works with a single processor group, but each processor detains 
+both (part of) the source and target fields. This %DEC can really be seen as the true parallelisation of the 
+\ref remapper "sequential remapper". Similarly to the \ref InterpKernelDEC-det "InterpKernelDEC"
+the projection methodology is based on the algorithms of %INTERP_KERNEL, that is to say, 
+it works in a similar fashion than what the \ref remapper "sequential remapper" does. 
+- \b NonCoincidentDEC (deprecated for now)
+
+Besides, all the DECs inherit from the class \ref ParaMEDMEM::DECOptions "DECOptions" which provides 
+the necessary methods to adjust the parameters used in the transfer/remapping.
+
+The most commonly used %DEC is the \c %InterpKernelDEC, and here is a simple example to of its usage:
+
+ \code
+...
+InterpKernelDEC dec(groupA, groupB);   // groupA and groupB are two MPIProcessorGroup
+dec.attachLocalField(field);           // field is a ParaFIELD, a MEDCouplingField or an ICoCo::MEDField
+dec.synchronize();                     // compute the distributed interpolation matrix
+if (groupA.containsMyRank())
+dec.recvData();                        // effectively transfer the field (receiving side)
+else if (groupB.containsMyRank())
+dec.sendData();                        // effectively transfer the field (sending side) 
+...
+\endcode
+
+\n
+\n
+\n
 
 */
