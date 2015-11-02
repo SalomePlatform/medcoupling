@@ -2159,6 +2159,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(9*7,mesh.getNumberOfNodes())
         self.assertEqual(2,mesh.getSpaceDimension())
         self.assertEqual(2,mesh.getMeshDimension())
+# ! [PySnippetCMeshStdBuild1_4]
+# ! [PySnippetCMeshStdBuild1_4]
         return
 
     def testExampleUMeshAdvBuild1(self):

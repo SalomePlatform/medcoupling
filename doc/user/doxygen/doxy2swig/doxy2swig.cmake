@@ -29,12 +29,12 @@ SET(_SWIG_DOC_SUFFIX "doc_class_")
 # MEDCoupling classes to include
 #
 SET(_classes_MEDCoupling
-    ParaMEDMEM_1_1MEDCouplingPointSet
-    ParaMEDMEM_1_1MEDCouplingUMesh
-    ParaMEDMEM_1_1MEDCouplingCMesh
-    ParaMEDMEM_1_1MEDCouplingRemapper
-    ParaMEDMEM_1_1DataArray
-    ParaMEDMEM_1_1DataArrayInt
+#    ParaMEDMEM_1_1MEDCouplingPointSet
+#    ParaMEDMEM_1_1MEDCouplingUMesh
+#    ParaMEDMEM_1_1MEDCouplingCMesh
+#    ParaMEDMEM_1_1MEDCouplingRemapper
+#    ParaMEDMEM_1_1DataArray
+#    ParaMEDMEM_1_1DataArrayInt
     ParaMEDMEM_1_1DataArrayDouble
     )
 
@@ -42,10 +42,10 @@ SET(_classes_MEDCoupling
 # MEDLoader classes to include
 #
 SET(_classes_MEDLoader
-    MEDLoader
-    ParaMEDMEM_1_1MEDFileMeshes
-    ParaMEDMEM_1_1MEDFileMesh
-    ParaMEDMEM_1_1MEDFileUMesh
+#    MEDLoader
+#    ParaMEDMEM_1_1MEDFileMeshes
+#    ParaMEDMEM_1_1MEDFileMesh
+#    ParaMEDMEM_1_1MEDFileUMesh
     ParaMEDMEM_1_1MEDFileCMesh
     )
 

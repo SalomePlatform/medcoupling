@@ -371,7 +371,6 @@ MEDCouplingFieldDouble::getArrays() const;
 MEDCouplingFieldDouble::getEndArray() const;
 MEDCouplingFieldDouble::getEndArray();
 MEDCouplingFieldDouble::getEndTime(int& iteration, int& order) const;
-MEDCouplingFieldDouble::getHeapMemorySize() const;
 MEDCouplingFieldDouble::getStartTime(int& iteration, int& order) const;
 MEDCouplingFieldDouble::getTimeDiscretizationUnderGround() const;
 MEDCouplingFieldDouble::getTimeDiscretizationUnderGround();

@@ -38,7 +38,7 @@ namespace ParaMEDMEM
     \class ExplicitCoincidentDEC
 
 
-    This class aims at \ref interp "remapping fields" that have identical
+    This class aims at \ref interpolation "remapping fields" that have identical
     supports (=the same underlying mesh) but different parallel topologies
     (=different sub-domains in the mesh). It can be used to couple
     together multi-physics codes that operate on the same domain

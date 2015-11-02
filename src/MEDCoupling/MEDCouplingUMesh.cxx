@@ -53,7 +53,9 @@ using namespace ParaMEDMEM;
 
 double MEDCouplingUMesh::EPS_FOR_POLYH_ORIENTATION=1.e-14;
 
+/// @cond INTERNAL
 const INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::MEDMEM_ORDER[N_MEDMEM_ORDER] = { INTERP_KERNEL::NORM_POINT1, INTERP_KERNEL::NORM_SEG2, INTERP_KERNEL::NORM_SEG3, INTERP_KERNEL::NORM_SEG4, INTERP_KERNEL::NORM_POLYL, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_TRI7, INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_QUAD9, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_QPOLYG, INTERP_KERNEL::NORM_TETRA4, INTERP_KERNEL::NORM_PYRA5, INTERP_KERNEL::NORM_PENTA6, INTERP_KERNEL::NORM_HEXA8, INTERP_KERNEL::NORM_HEXGP12, INTERP_KERNEL::NORM_TETRA10, INTERP_KERNEL::NORM_PYRA13, INTERP_KERNEL::NORM_PENTA15, INTERP_KERNEL::NORM_HEXA20, INTERP_KERNEL::NORM_HEXA27, INTERP_KERNEL::NORM_POLYHED };
+/// @endcond
 
 MEDCouplingUMesh *MEDCouplingUMesh::New()
 {
@@ -4160,6 +4162,8 @@ DataArrayDouble *MEDCouplingUMesh::distanceToPoints(const DataArrayDouble *pts, 
   return ret0.retn();
 }
 
+/// @cond INTERNAL
+
 /*!
  * \param [in] pt the start pointer (included) of the coordinates of the point
  * \param [in] cellIdsBg the start pointer (included) of cellIds
@@ -4231,6 +4235,7 @@ void MEDCouplingUMesh::DistanceToPoint2DCurveAlg(const double *pt, const int *ce
       }
     }
 }
+/// @endcond
 
 /*!
  * Finds cells in contact with a ball (i.e. a point with precision). 

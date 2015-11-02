@@ -41,7 +41,7 @@ representing the time range that is covered by the data. It is also specified in
 It can be one of:
 - \ref ParaMEDMEM::TypeOfTimeDiscretization "NO_TIME", in this case no time is attached to the field, and no
 time-related operation is permitted (for example unable to call 
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOnTime() "getValueOnTime()") 
+\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn()") 
 - \ref ParaMEDMEM::TypeOfTimeDiscretization "ONE_TIME", the field data represent a single time step. 
 - \ref ParaMEDMEM::TypeOfTimeDiscretization "LINEAR_TIME", the field data contains \b two arrays, stamped with two
 different time points. A linear interpolation of the field values between those two time steps is then possible. 

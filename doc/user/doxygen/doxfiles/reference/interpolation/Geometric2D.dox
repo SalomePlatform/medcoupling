@@ -154,9 +154,9 @@ The algorithms used are :
 
 As internal architecture is quite general, it is possible to have more than classical intersection on any polygons :
 
-  - \ref INTERP_KERNEL::ComposedEdge::getAreaOfZone "area" computation is available.
-  - \ref INTERP_KERNEL::QuadraticPolygon::getPerimeterFast "perimeter" computation.
-  - \ref INTERP_KERNEL::QuadraticPolygon::getHydraulicDiameter "Hydraulic diameter" computation.
+  - \ref INTERP_KERNEL::ComposedEdge::getArea "area" computation is available.
+  - \ref INTERP_KERNEL::ComposedEdge::getPerimeter "perimeter" computation.
+  - \ref INTERP_KERNEL::ComposedEdge::getHydraulicDiameter "Hydraulic diameter" computation.
 
 \section interpkernelGeo2DUsage Usage
 
