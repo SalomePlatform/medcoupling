@@ -1,0 +1,39 @@
+/*!
+\page barycoords Barycentric coordinates algorithm
+
+Computation of barycentric coordinates is used to fill interpolation
+matrix in case of P1 and P1d types of interpolation. Computation of
+barycentric coordinates consists in finding weights of vertices
+bearing values within the cell. The cell is triangular in 2D space and
+tetrahedral in 3D space.
+
+Input of the algorithm include:
+- coordinates of cell vertices (p1...pn),
+- coordinates of a barycentre of cells intersection (b),
+<br>where n is number of vertices which is either 3 or 4.
+
+Purpose is to find coefficients a1...an so that
+- (a1*p1+...+an*pn)=b and
+- (a1+...+an)=1.0
+
+Combining the last two expressions we get an equation in matrix form
+a * T = ( b - pn )
+where
+- a is a vector of coefficients a1...an
+- b is a vector of cartesian coordinates of barycentre
+- T is a matrix expressed via cartesian coordinates of vertices as
+<br>in 2D case <pre>
+| x1-x3 x2-x3 |
+| y1-y3 y2-y3 |</pre>
+in 3D case <pre>
+| x1-x4 x2-x4 x3-x4 |
+| y1-y4 y2-y4 y3-y4 |
+| z1-z4 z2-z4 z3-z4 |</pre>
+
+In 2D case solution is found by inverting T which is trivial: a = T^(-1) * ( b - pn )
+
+In 3D case we use Gaussian elimination algorithm. First we use elementary
+row operations to transform T into upper triangular form and
+then perform back substitution to find coefficients a.
+
+*/

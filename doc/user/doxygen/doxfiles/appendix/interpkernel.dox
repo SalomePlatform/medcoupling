@@ -1,0 +1,85 @@
+/*!
+\page interpkernel Interpolation kernel - Implementation notes
+
+\section InterpKerIntro Introduction
+
+The main purpose of this module is to propose a set of algorithms for
+mesh interpolation \b fully \b independent \b of \b the \b mesh \b data structure to
+support several type of format. This component is parametrized as
+much as possible using C++ templates.
+For the moment only interpolators for unstructured meshes are present in
+the %interpolation kernel.
+
+\section InterpKerMainArchitecture Main architecture of interpolation kernel.
+
+In the %interpolation kernel, algorithms that computes the intersection \f$ T_i\cap S_j\f$ given the locations and geometries of source cell \f$ S_j \f$
+and target cell \f$ T_i \f$ are called \ref InterpKerIntersectors.
+
+As can be seen in \ref InterpKerRemapGlobal "the theory of interpolation", all the proposed interpolators aim at
+filling the interpolation matrix W (which is generally sparse). For each pair (i,j), \f$ W_{ij} \f$ is obtained
+by calling the desired intersector. The problem is that each call to this algorithm
+is CPU-expensive.
+To reduce the computational time, a first filtering is done to detect
+pairs (i,j) \f$ W_{ij} \f$ is obviously equal to 0. It is typically the case when a cell in the source mesh
+is too far from an another cell in the target mesh each.
+
+So for a given type of interpolation, the computation of W is
+performed in two steps :
+
+-# A filtering process reduces the number of pairs of elements for which the calculation 
+must be carried out by eliminating the pairs whose bounding boxes do not intersect.
+-# For all remaining pairs, call the appropriate \ref InterpKerIntersectors "cell intersector"
+
+Whatever its dimension and type, each interpolator inherits from INTERP_KERNEL::Interpolation which is a
+template (CRTP) class than enable an easy access to the main API without useless CPU cost.
+
+\subsection InterpKerMeshType class MeshType
+
+Each Interpolators and Intersectors are parametrized (templated in
+C++ language) with \c class \c MeshType . This type of generalization
+has been chosen to reduce at maximum overhead. \n
+Thanks to this principle intersectors and interpolators are usable
+with \b several \b mesh \b formats such as \c MED or \c VTK, \b without \b performance \b loss.
+\c MeshType is a concept that should strictly fulfilled the following
+rules :
+
+- Const values / Types
+  - MyConnType : represents type of connectivity index. This is typically \c int or \c long \c int .
+  - MY_SPACEDIM : space dimension. Dimension relative to coordinates.
+  - MY_MESHDIM : the dimension of all cells in meshes.
+  - My_numPol : policy of numbering. C Format ( \f$ [0,n-1] \f$ ) or FORTRAN ( \f$ [1,n] \f$ ).
+- Methods
+  -# \code void getBoundingBox(double *boundingBox) const \endcode
+  -# \code INTERP_KERNEL::NormalizedCellType getTypeOfElement(MyConnType eltId) const \endcode
+  -# \code unsigned char getNumberOfNodesOfElement(MyConnType eltId) const \endcode
+  -# \code unsigned long getNumberOfNodes() const \endcode
+  -# \code unsigned long getNumberOfElements() const \endcode
+  -# \code const MyConnType *getConnectivityPtr() const \endcode
+  -# \code const double *getCoordinatesPtr() const \endcode
+  -# \code const MyConnType *getConnectivityIndexPtr() const \endcode
+  -# \code void releaseTempArrays() \endcode
+- Formats of arrays
+  - the array returned by \c getCoordinatesPtr must be a \b full \b interlace array.
+  - the arrays returned by \c getConnectivityPtr and \c getConnectivityIndexPtr must be with the same principle as it is \ref MEDCouplingUMeshNodalConnectivity "implemented in MEDCouplingUMesh". Of course the numbering format may change according to \a My_numPol policy.
+
+Note that the array format for connectivity is kept close to MED. It is
+close to VTK format too but slightly different. So it may require for the VTK side a copy
+on wrap. To avoid this copy of a part of the connectivity structure, an iterator should be used.
+
+\subsection InterpKerMatrixType class MatrixType
+
+As already said, the matrix returned by interpolator is typically a sparse matrix. Instances of
+\c class \c MatrixType are used to store the resulting interpolation matrix. To be able to be filled by the interpolator the \c MatrixType class has to match the following concept :
+
+- Methods
+  -# \code void resize(uint nbrows) \endcode
+  -# \code Row &operator [] (uint irow) \endcode
+
+\c class \c Row has to match at least the following concept :
+
+- Methods
+  - \code void insert(const std::pair<int,T>& myPair) \endcode
+
+Note that \c std::vector\c < \c std::map<int,double> > is a candidate for \c MatrixType.
+
+*/

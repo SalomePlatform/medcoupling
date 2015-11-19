@@ -1,0 +1,21 @@
+
+/*!
+  \page MEDCouplingPointSetPage Point set mesh
+
+This is a \b non \b instantiable class that implements many algorithm working only on a set of points without any connectivity aspect.
+The presence of this class is only for factorization reasons.
+
+The class that incarnates this concept in \ref medcoupling "MEDCoupling" is : \ref ParaMEDMEM::MEDCouplingPointSet.
+Instantiable class ParaMEDMEM::MEDCouplingUMesh inherits from ParaMEDMEM::MEDCouplingPointSet.
+
+Some of most important implemented methods by \ref ParaMEDMEM::MEDCouplingPointSet "MEDCouplingPointSet" class are :
+
+- \ref ParaMEDMEM::MEDCouplingPointSet::getSpaceDimension "getSpaceDimension"
+- \ref ParaMEDMEM::MEDCouplingPointSet::getNumberOfNodes "getNumberOfNodes"
+- \ref ParaMEDMEM::MEDCouplingPointSet::rotate "rotate"
+- \ref ParaMEDMEM::MEDCouplingPointSet::translate "translate"
+- \ref ParaMEDMEM::MEDCouplingPointSet::scale "scale"
+- \ref ParaMEDMEM::MEDCouplingPointSet::findCommonNodes "findCommonNodes"
+- \ref ParaMEDMEM::MEDCouplingPointSet::renumberNodes "renumberNodes"
+- \ref ParaMEDMEM::MEDCouplingPointSet::getBoundingBox "getBoundingBox"
+*/

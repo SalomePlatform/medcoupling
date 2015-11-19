@@ -1,0 +1,47 @@
+
+/*!
+  \page meshes Meshes
+
+<h1>Overview</h1>
+
+Several types of meshes are available in MEDCoupling:
+
+- \subpage MEDCouplingPointSetPage "Point set mesh" (abstract, can not be instanciated)
+- \subpage MEDCouplingUMeshPage "Unstructured meshes"
+- \subpage MEDCouplingCMeshPage "Cartesian meshes"
+- \subpage MEDCouplingExtrudedPage "3D Extruded meshes"
+
+\anchor MEDCouplingMeshes
+<h1>Common concept shared by all type of Meshes in MEDCoupling</h1>
+
+A mesh has the following properties :
+- a name (a string)
+- **a dimension (called mesh dimension) and only one** (it implies that \b all cells constituting
+mesh have the same dimension, e.g. no mix between a volumic cube and a flat triangle in the same mesh). This 
+point matters as it differs from what the MED file format authorizes. 
+- a space dimension (the space where the coordinates of the points are defined)
+- a set of nodes
+- a set of cells (whose vertices are in the node set above)
+
+In MEDCoupling library there is no explicit notion of faces nor edges. All cells, be it in 3D, 2D or 1D is 
+described by a set of point, or by a set of coordinates. 
+
+As said above, a mesh has only one dimension, which is often called the "mesh dimension". This notion is different
+from the "space dimension", corresponding to the dimension of the space where the nodes are defined.
+
+For example a mesh with a mesh dimension equal to 1 can have \b cells of type
+NORM_SEG2 (simple segments). This mesh can however have a space dimension of 3, meaning that we
+describe a 3D polygonal line. 
+Another example: a mesh with a mesh dimension equal
+to 2, can have \b cells of type NORM_TRI3 (triangles) and NORM_POLYGON (arbitrary 2D polygons) for example.
+It can still have a space dimension of 3, meaning that we describe a planar surface embedded in a 3D space. 
+
+The (abstract) class that covers the concept described above is \ref ParaMEDMEM::MEDCouplingMesh.
+
+<h1>Available (non abstract) mesh types in MEDCoupling</h1>
+
+- \ref MEDCouplingUMeshPage 
+- \ref MEDCouplingCMeshPage 
+- \ref MEDCouplingExtrudedPage
+
+*/

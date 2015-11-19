@@ -1,0 +1,28 @@
+
+/*!
+\page remapper The remapper class.
+
+\section InterpKerHighLevUsage High-level usage
+
+The simplest way of using the \ref intro-interp "interpolations" in sequential mode is to use the class \c ParaMEDMEM::MEDCouplingRemapper . This class fulfills \c HXX2SALOME rules and may be used in YACS coupling graphs.
+
+If you intend to use \ref medcoupling "MEDCoupling data structures", the ParaMEDMEM::MEDCouplingRemapper class should be used.
+
+\if ENABLE_EXAMPLES
+Here is a \ref cpp_mcfield_remapper_highlevel "C++ example".
+\endif
+
+\section InterpKerMidLevUsage Middle-level usage
+
+This mode is the mode that needs the minimum of prerequisites
+(algorithms and the data structure you intend to use). On the other
+hand it is needed to specify precisely nature of interpolator.
+
+As a consequence of the genericity of the interpolators,  they are usable only by
+instantiating an underlying \ref InterpKerMeshType "mesh" and \ref  InterpKerMatrixType "matrix" data structure fulfilling some requirements.
+
+\if ENABLE_EXAMPLES
+Here is a \ref cpp_mcfield_remapper_middlelevel "C++ example".
+\endif
+
+*/

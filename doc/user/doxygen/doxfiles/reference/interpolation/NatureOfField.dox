@@ -1,0 +1,62 @@
+
+/*!
+\page NatureOfField Nature of a field
+
+\section  IntExtFields Overview: intensive and extensive field
+
+\c NatureOfField is an enum which helps in determining some physical significance of the field and affects the choice of the interpolation formula (see \ref TableNatureOfField).
+It has five possible values:
+-      "NoNature", the default value, does not allow the use of any interpolation tools
+
+For intensive fields:
+-      \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pressure fields.
+
+-      \ref TableNatureOfFieldExampleRevIntegral "RevIntegral", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
+
+For extensive fields:
+-      \ref TableNatureOfFieldExampleIntegral "Integral", for extensive field with the maximum principle favored over conservativity. Relevant for power fields.
+
+-      \ref TableNatureOfFieldExampleIntegralGlobConstraint "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle. Relevant for power fields.
+
+\n
+
+By intensive field we mean a field that represents an intensive physical variable such as density (\f$kg.m^{-3}\f$), power density (\f$W.m^{-3}\f$), temperature (\f$K\f$) or pressure (\f$Pa\f$). Typically the physical value doesn't scale with the size of the underlying geometry.<br>
+By extensive (or integral) field we mean a field that represents an extensive physical quantity such as mass (\f$kg\f$), volume (\f$m^3\f$), a momentum (\f$kg.m.s^{-1}\f$) or power \f$(W\f$).
+Typically the field value scales linearly with respect to the underlying geometry size.
+For fields with a P0 representation (cell based), conservativity formulas are different depending on whether the field is extensive or intensive (see \ref InterpKerP0P0Int and \ref InterpKerP0P0Ext).<br>
+These two notions are themselves split into two sub-categories.
+Indeed in some cases (e.g. non \ref MeshOverlap "overlapping meshes"), it is impossible to fulfill both the conservation principle and the maximum principle during the interpolation. The nature of the fields determines the formula to be used for non overlapping cells and thus the property that we will be satisfied.
+
+<b>Finally we consider that fields with P1 or P2 representations are necessarily intensive.</b>
+
+\section Usage
+
+In order to use the various \ref intro-interp "interpolations", you have to specify the nature of your field.
+When the source and target meshes do not overlap, different treatments will be employed depending on the nature of the source and target fields.
+You can specify the nature of the field when you create a \ref fields "MEDCoupling field" 
+with the following constructor:
+\code
+MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
+\endcode
+
+If you read or copy an already existing field, or later after its creation, you may want to change/set its nature.
+In order to do so, you can use the function
+
+\code
+void setNature(NatureOfField nat);
+\endcode
+
+Here is an example
+
+\code
+...
+const char sourceFileName[]="source.med";
+MEDCouplingFieldDouble *sourceField=MEDLoader::ReadFieldCell(sourceFileName,"Source_Mesh",0,"Density",/*iteration*/0,/*order*/0);
+const char targetFileName[]="target.med";
+MEDCouplingUMesh *med_target_mesh=MEDLoader::ReadUMeshFromFile(targetFileName,"Target_Mesh",0);
+//
+sourceField->setNature(ConservativeVolumic);
+...
+\endcode
+
+*/

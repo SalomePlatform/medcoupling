@@ -1,0 +1,11 @@
+/*!
+
+\page icoco The ICoCo API
+
+ICoCo stands for Interface for COde COupling. 
+
+It is a pure abstract API defining a standard way for two physical codes to exchange information between them.
+
+TODO: complete this section.
+
+*/
