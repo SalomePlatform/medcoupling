@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     void synchronize();
     void attachSourceLocalField(ParaFIELD *field, bool ownPt=false);
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
-    ProcessorGroup *getGrp() { return _group; }
+    ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
   private:
     bool _own_group;

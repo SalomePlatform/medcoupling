@@ -48,7 +48,10 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testInterpKernelDECPartialProcs);
   CPPUNIT_TEST(testInterpKernelDEC3DSurfEmptyBBox);
   CPPUNIT_TEST(testOverlapDEC1);
-
+  CPPUNIT_TEST(testOverlapDEC2);
+//    CPPUNIT_TEST(testOverlapDEC_LMEC_seq);
+//    CPPUNIT_TEST(testOverlapDEC_LMEC_para);
+//
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);
   CPPUNIT_TEST(testSynchronousEqualInterpKernelDEC_2D);
@@ -61,11 +64,11 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testAsynchronousSlowerSourceInterpKernelDEC_2D);
   CPPUNIT_TEST(testAsynchronousSlowSourceInterpKernelDEC_2D);
   CPPUNIT_TEST(testAsynchronousFastSourceInterpKernelDEC_2D);
-#ifdef MED_ENABLE_FVM
-  //can be added again after FVM correction for 2D
-  //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
-  CPPUNIT_TEST(testNonCoincidentDEC_3D);
-#endif
+//#ifdef MED_ENABLE_FVM
+//  //can be added again after FVM correction for 2D
+//  //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
+//  CPPUNIT_TEST(testNonCoincidentDEC_3D);
+//#endif
   CPPUNIT_TEST(testStructuredCoincidentDEC);
   CPPUNIT_TEST(testStructuredCoincidentDEC);
   CPPUNIT_TEST(testICoco1);
@@ -104,6 +107,9 @@ public:
   void testInterpKernelDECPartialProcs();
   void testInterpKernelDEC3DSurfEmptyBBox();
   void testOverlapDEC1();
+  void testOverlapDEC2();
+  void testOverlapDEC_LMEC_seq();
+  void testOverlapDEC_LMEC_para();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();
@@ -155,6 +161,7 @@ private:
   void testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC2_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth);
+
 };
 
 // to automatically remove temporary files from disk

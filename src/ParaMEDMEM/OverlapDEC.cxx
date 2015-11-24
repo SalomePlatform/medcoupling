@@ -53,8 +53,7 @@ namespace ParaMEDMEM
     \anchor ParaMEDMEMOverlapDECImgTest1
     \image html OverlapDEC1.png "Example split of the source and target mesh among the 3 procs"
 
-    \subsection ParaMEDMEMOverlapDECAlgoStep1 Step 1 : Bounding box exchange and global interaction
-    between procs computation.
+    \subsection ParaMEDMEMOverlapDECAlgoStep1 Step 1 : Bounding box exchange and global interaction between procs computation.
 
     In order to reduce as much as possible the amount of communications between distant processors,
     every processor computes a bounding box for A and B. Then a AllToAll communication is performed
@@ -274,9 +273,16 @@ namespace ParaMEDMEM
   {
     if(!isInGroup())
       return ;
+    // Check number of components of field on both side (for now allowing void field/mesh on one proc is not allowed)
+    if (!_source_field || !_source_field->getField())
+      throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): currently, having a void source field on a proc is not allowed!");
+    if (!_target_field || !_target_field->getField())
+      throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): currently, having a void target field on a proc is not allowed!");
+    if (_target_field->getField()->getNumberOfComponents() != _source_field->getField()->getNumberOfComponents())
+      throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): source and target field have different number of components!");
     delete _interpolation_matrix;
     _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this);
-    OverlapElementLocator locator(_source_field,_target_field,*_group);
+    OverlapElementLocator locator(_source_field,_target_field,*_group, getBoundingBoxAdjustmentAbs());
     locator.copyOptions(*this);
     locator.exchangeMeshes(*_interpolation_matrix);
     std::vector< std::pair<int,int> > jobs=locator.getToDoList();
@@ -290,7 +296,7 @@ namespace ParaMEDMEM
         const DataArrayInt *trgIds=locator.getTargetIds((*it).second);
         _interpolation_matrix->addContribution(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
       }
-    _interpolation_matrix->prepare(locator.getProcsInInteraction());
+    _interpolation_matrix->prepare(locator.getProcsToSendFieldData());
     _interpolation_matrix->computeDeno();
   }
 

@@ -209,9 +209,9 @@ namespace ParaMEDMEM
     double*  local_bb = _domain_bounding_boxes+_union_group->myRank()*2*_local_cell_mesh_space_dim;
     double*  distant_bb =  _domain_bounding_boxes+irank*2*_local_cell_mesh_space_dim;
 
+    const double eps = 1e-12;
     for (int idim=0; idim < _local_cell_mesh_space_dim; idim++)
       {
-        const double eps =  1e-12;
         bool intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
           && (local_bb[idim*2]<distant_bb[idim*2+1]+eps);
         if (!intersects) return false; 
