@@ -36,7 +36,6 @@ SET(ParaMEDMEMTest_SOURCES
   ParaMEDMEMTest_BlockTopology.cxx
   ParaMEDMEMTest_InterpKernelDEC.cxx
   ParaMEDMEMTest_StructuredCoincidentDEC.cxx
-  ParaMEDMEMTest_MEDLoader.cxx
   ParaMEDMEMTest_ICoco.cxx
   ParaMEDMEMTest_Gauthier1.cxx
   ParaMEDMEMTest_FabienAPI.cxx

@@ -53,6 +53,12 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testWriteUMeshesRW1 );
     CPPUNIT_TEST( testMixCellAndNodesFieldRW1 );
     CPPUNIT_TEST( testGetAllFieldNamesRW1 );
+
+    // Previously in ParaMEDMEM:
+    CPPUNIT_TEST(testMEDLoaderRead1);
+    CPPUNIT_TEST(testMEDLoaderPolygonRead);
+    CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
+
     CPPUNIT_TEST_SUITE_END();
   public:
     void testMesh1DRW();
@@ -77,6 +83,10 @@ namespace ParaMEDMEM
     void testWriteUMeshesRW1();
     void testMixCellAndNodesFieldRW1();
     void testGetAllFieldNamesRW1();
+
+    void testMEDLoaderRead1();
+    void testMEDLoaderPolygonRead();
+    void testMEDLoaderPolyhedronRead();
   private:
     MEDCouplingUMesh *build1DMesh_1();
     MEDCouplingUMesh *build2DCurveMesh_1();
@@ -89,6 +99,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildVecFieldOnNodes_1();
     MEDCouplingFieldDouble *buildVecFieldOnGauss_1();
     MEDCouplingFieldDouble *buildVecFieldOnGaussNE_1();
+
+    std::string getResourceFile( const std::string& filename ) const;
   };
 }
 
