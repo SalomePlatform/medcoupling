@@ -26,6 +26,7 @@
 #include "MEDCouplingMemArray.hxx"
 
 #include <cmath>
+#include <numeric>
 
 using namespace ParaMEDMEM;
 
