@@ -4653,6 +4653,62 @@ class MEDLoaderTest(unittest.TestCase):
       self.assertTrue(mesh.isEqual(mm2,1e-12)[0])
       pass
 
+    def testMEDFileEquivalence1(self):
+      """ First check of equivalence implementation in MEDFileMesh"""
+      fileName="Pyfile97.med"
+      meshName="M_01"
+      mm=MEDFileUMesh()
+      coo=DataArrayDouble([(0,0,0),(6,0,0),(19,0,0),(36,0,0),(0,4,0),(6,4,0),(19,4,0),(36,4,0),(0,13,0),(6,13,0),(19,13,0),(36,13,0),(0,24,0),(6,24,0),(19,24,0),(36,24,0),(0,0,6),(6,0,6),(19,0,6),(36,0,6),(0,4,6),(6,4,6),(19,4,6),(36,4,6),(0,13,6),(6,13,6),(19,13,6),(36,13,6),(0,24,6),(6,24,6),(19,24,6),(36,24,6),(6,0,3),(6,2,0),(12.5,0,0),(19,0,3),(19,2,0),(6,4,3),(12.5,4,0),(19,4,3),(6,2,6),(12.5,0,6),(19,2,6),(12.5,4,6),(6,2,3),(12.5,0,3),(12.5,2,0),(19,2,3),(12.5,4,3),(12.5,2,6),(12.5,2,3)])
+      coo.setInfoOnComponents(["X [Sans_unite]","Y [Sans_unite]","Z [Sans_unite]"])
+      connQ4=DataArrayInt([1,17,21,5,2,18,22,6,21,5,6,22,1,32,44,33,17,40,44,32,21,37,44,40,5,33,44,37,2,35,47,36,18,42,47,35,22,39,47,42,6,36,47,39,21,37,48,43,5,38,48,37,6,39,48,38,22,43,48,39])
+      m1=MEDCoupling1SGTUMesh(meshName,NORM_QUAD4) ; m1.setCoords(coo) ; m1.setNodalConnectivity(connQ4) ; mm[-1]=m1
+      connH8=DataArrayInt([20,16,17,21,4,0,1,5,22,18,19,23,6,2,3,7,24,20,21,25,8,4,5,9,25,21,22,26,9,5,6,10,26,22,23,27,10,6,7,11,28,24,25,29,12,8,9,13,29,25,26,30,13,9,10,14,30,26,27,31,14,10,11,15,21,40,49,43,37,44,50,48,40,17,41,49,44,32,45,50,49,41,18,42,50,45,35,47,43,49,42,22,48,50,47,39,44,32,45,50,33,1,34,46,37,44,50,48,5,33,46,38,48,50,47,39,38,46,36,6,50,45,35,47,46,34,2,36])
+      m0=MEDCoupling1SGTUMesh(meshName,NORM_HEXA8) ; m0.setCoords(coo) ; m0.setNodalConnectivity(connH8) ; mm[0]=m0
+      mm.getFamilyFieldAtLevel(-1)[:]=-2
+      mm.getFamilyFieldAtLevel(0)[:]=0
+      mm.addFamily("HOMARD________-1",-1)
+      mm.addFamily("HOMARD________-2",-2)
+      mm.addFamily("HOMARD________-3",-3)
+      mm.setFamiliesIdsOnGroup("HOMARD",[-1,-2,-3])
+      
+      eqName="MAILLES_A_RECOLLER_APRES_HOMARD"
+      descEq="Cette equivalence decrit les mailles a recoller. Dans chaque correspondance, le premier numero est celui de la maille coupee ; le second numero est celui d'une des petites mailles en regard."
+      mm.initializeEquivalences()
+      eqs=mm.getEquivalences()
+      eq0=eqs.appendEmptyEquivalenceWithName(eqName)
+      eq0.setDescription(descEq)
+      corr=DataArrayInt([(0,3),(0,4),(0,5),(0,6),(1,7),(1,8),(1,9),(1,10),(2,11),(2,12),(2,13),(2,14)])
+      eq0.setArray(-1,corr)
+      self.assertEqual(eq0.getCell().size(),1)
+      self.assertTrue(eq0.getCell().getArray(NORM_QUAD4).isEqual(corr))
+      eq0.getCell().clear()
+      self.assertEqual(eq0.getCell().size(),0)
+      eq0.getCell().setArrayForType(NORM_QUAD4,corr)
+      self.assertEqual(eq0.getCell().size(),1)
+      self.assertTrue(eq0.getCell().getArray(NORM_QUAD4).isEqual(corr))
+      mm.killEquivalences()
+      mm.initializeEquivalences()
+      eqs=mm.getEquivalences()
+      eq0=eqs.appendEmptyEquivalenceWithName(eqName)
+      eq0.setDescription(descEq)
+      c=eq0.initCell()
+      c.setArrayForType(NORM_QUAD4,corr)
+      self.assertEqual(eq0.getCell().size(),1)
+      self.assertTrue(eq0.getCell().getArray(NORM_QUAD4).isEqual(corr))
+      mm2=mm.deepCpy()
+      self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+      self.assertEqual(mm2.getEquivalences().size(),1)
+      self.assertTrue(mm2.getEquivalences().getEquivalence(0).getCell().getArray(NORM_QUAD4).isEqual(corr))
+      mm2.getEquivalences().getEquivalence(0).getCell().getArray(NORM_QUAD4)[0,0]=2
+      self.assertTrue(not mm.isEqual(mm2,1e-12)[0])
+      mm2.getEquivalences().getEquivalence(0).getCell().getArray(NORM_QUAD4)[0,0]=0
+      self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+      mm.write(fileName,2)
+      #
+      mm3=MEDFileMesh.New(fileName)
+      self.assertTrue(mm.isEqual(mm3,1e-12)[0])
+      pass
+
     pass
 
 if __name__ == "__main__":

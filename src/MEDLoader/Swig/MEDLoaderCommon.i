@@ -36,6 +36,7 @@
 #include "MEDFileField.hxx"
 #include "MEDFileParameter.hxx"
 #include "MEDFileData.hxx"
+#include "MEDFileEquivalence.hxx"
 #include "MEDFileMeshReadSelector.hxx"
 #include "MEDFileFieldOverView.hxx"
 #include "MEDLoaderTypemaps.i"
@@ -99,6 +100,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::getNodeFamiliesArr;
 %newobject ParaMEDMEM::MEDFileMesh::getAllFamiliesIdsReferenced;
 %newobject ParaMEDMEM::MEDFileMesh::computeAllFamilyIdsInUse;
+%newobject ParaMEDMEM::MEDFileMesh::getEquivalences;
 %newobject ParaMEDMEM::MEDFileData::getJoints;
 %newobject ParaMEDMEM::MEDFileStructuredMesh::getImplicitFaceMesh;
 %newobject ParaMEDMEM::MEDFileUMesh::New;
@@ -211,6 +213,15 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileJoints::getJointAtPos;
 %newobject ParaMEDMEM::MEDFileJoints::getJointWithName;
 %newobject ParaMEDMEM::MEDFileJoints::__getitem__;
+%newobject ParaMEDMEM::MEDFileEquivalences::getEquivalence;
+%newobject ParaMEDMEM::MEDFileEquivalences::getEquivalenceWithName;
+%newobject ParaMEDMEM::MEDFileEquivalences::appendEmptyEquivalenceWithName;
+%newobject ParaMEDMEM::MEDFileEquivalencePair::initCell;
+%newobject ParaMEDMEM::MEDFileEquivalencePair::initNode;
+%newobject ParaMEDMEM::MEDFileEquivalencePair::getCell;
+%newobject ParaMEDMEM::MEDFileEquivalencePair::getNode;
+%newobject ParaMEDMEM::MEDFileEquivalenceData::getArray;
+%newobject ParaMEDMEM::MEDFileEquivalenceCell::getArray;
 
 %newobject ParaMEDMEM::SauvWriter::New;
 %newobject ParaMEDMEM::SauvReader::New;
@@ -244,6 +255,12 @@ using namespace ParaMEDMEM;
 %feature("unref") MEDFileJointOneStep "$this->decrRef();"
 %feature("unref") MEDFileJoint "$this->decrRef();"
 %feature("unref") MEDFileJoints "$this->decrRef();"
+%feature("unref") MEDFileEquivalences "$this->decrRef();"
+%feature("unref") MEDFileEquivalencePair "$this->decrRef();"
+%feature("unref") MEDFileEquivalenceBase "$this->decrRef();"
+%feature("unref") MEDFileEquivalenceData "$this->decrRef();"
+%feature("unref") MEDFileEquivalenceCell "$this->decrRef();"
+%feature("unref") MEDFileEquivalenceNode "$this->decrRef();"
 %feature("unref") MEDFileData "$this->decrRef();"
 %feature("unref") SauvReader "$this->decrRef();"
 %feature("unref") SauvWriter "$this->decrRef();"
@@ -501,6 +518,7 @@ namespace ParaMEDMEM
       }
     }
   };
+
   class MEDFileJointCorrespondence : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -584,6 +602,7 @@ namespace ParaMEDMEM
       }
     }
   };
+
   class MEDFileJoint : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -703,6 +722,141 @@ namespace ParaMEDMEM
       }
     }
   };
+  
+  class MEDFileEquivalenceBase : public RefCountObject
+  {
+  private:
+    MEDFileEquivalenceBase();
+  };
+
+  class MEDFileEquivalenceData : public MEDFileEquivalenceBase
+  {
+  private:
+    MEDFileEquivalenceData();
+  public:
+    void setArray(DataArrayInt *data);
+    %extend
+    {
+      DataArrayInt *getArray()
+      {
+        DataArrayInt *ret(self->getArray());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+    }
+  };
+
+  class MEDFileEquivalenceNode : public MEDFileEquivalenceData
+  {
+  private:
+    MEDFileEquivalenceNode();
+  };
+
+  class MEDFileEquivalenceCell : public MEDFileEquivalenceBase
+  {
+  private:
+    MEDFileEquivalenceCell();
+  public:
+    void clear();
+    std::size_t size() const;
+    void setArray(int meshDimRelToMax, DataArrayInt *da) throw(INTERP_KERNEL::Exception);
+    void setArrayForType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt *da) throw(INTERP_KERNEL::Exception);
+    %extend
+    {
+      DataArrayInt *getArray(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret(self->getArray(type));
+        if(ret) ret->incrRef();
+        return ret;
+      }
+      
+      PyObject *getTypes() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<INTERP_KERNEL::NormalizedCellType> result(self->getTypes());
+        std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+        PyObject *res=PyList_New(result.size());
+        for(int i=0;iL!=result.end(); i++, iL++)
+          PyList_SetItem(res,i,PyInt_FromLong(*iL));
+        return res;
+      }
+    }
+  };
+
+  class MEDFileEquivalencePair : public RefCountObject
+  {
+  private:
+    MEDFileEquivalencePair();
+  public:
+    std::string getName() const;
+    void setName(const std::string& name);
+    std::string getDescription() const;
+    void setDescription(const std::string& descr);
+    void setArray(int meshDimRelToMaxExt, DataArrayInt *da);;
+    %extend
+    {
+      MEDFileEquivalenceCell *initCell()
+      {
+        MEDFileEquivalenceCell *ret(self->initCell());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+
+      MEDFileEquivalenceNode *initNode()
+      {
+        MEDFileEquivalenceNode *ret(self->initNode());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+      
+      MEDFileEquivalenceCell *getCell()
+      {
+        MEDFileEquivalenceCell *ret(self->getCell());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+      
+      MEDFileEquivalenceNode *getNode()
+      {
+        MEDFileEquivalenceNode *ret(self->getNode());
+        if(ret) ret->incrRef();
+        return ret;
+      }
+    }
+  };
+  
+  class MEDFileEquivalences : public RefCountObject
+  {
+  private:
+    MEDFileEquivalences();
+  public:
+    int size() const;
+    std::vector<std::string> getEquivalenceNames() const throw(INTERP_KERNEL::Exception);
+    void killEquivalenceWithName(const std::string& name) throw(INTERP_KERNEL::Exception);
+    void killEquivalenceAt(int i) throw(INTERP_KERNEL::Exception);
+    void clear();
+    %extend
+    {
+      MEDFileEquivalencePair *getEquivalence(int i) throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileEquivalencePair *ret(self->getEquivalence(i));
+        if(ret) ret->incrRef();
+        return ret;
+      }
+      MEDFileEquivalencePair *getEquivalenceWithName(const std::string& name) throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileEquivalencePair *ret(self->getEquivalenceWithName(name));
+        if(ret) ret->incrRef();
+        return ret;
+      }
+
+      MEDFileEquivalencePair *appendEmptyEquivalenceWithName(const std::string& name) throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileEquivalencePair *ret(self->appendEmptyEquivalenceWithName(name));
+        if(ret) ret->incrRef();
+        return ret;
+      }
+    }
+  };
 
   class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
@@ -734,6 +888,7 @@ namespace ParaMEDMEM
     virtual bool hasImplicitPart() const throw(INTERP_KERNEL::Exception);
     virtual int buildImplicitPartIfAny(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     virtual void releaseImplicitPartIfAny() const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getFamArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNumArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNameArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
@@ -819,7 +974,9 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     int getNumberOfJoints();
     MEDFileJoints *getJoints();
-    void           setJoints( MEDFileJoints* joints );
+    void setJoints( MEDFileJoints* joints );
+    void initializeEquivalences();
+    void killEquivalences();
     %extend
        {
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -987,6 +1144,13 @@ namespace ParaMEDMEM
            PyTuple_SetItem(ret,2,retLev1_1);
            //
            PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(ret3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           return ret;
+         }
+
+         MEDFileEquivalences *getEquivalences() throw(INTERP_KERNEL::Exception)
+         {
+           MEDFileEquivalences *ret(self->getEquivalences());
+           if(ret) ret->incrRef();
            return ret;
          }
        }
