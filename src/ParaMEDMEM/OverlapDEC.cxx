@@ -299,7 +299,7 @@ namespace ParaMEDMEM
         _interpolation_matrix->addContribution(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
       }
     _interpolation_matrix->prepare(_locator->getProcsToSendFieldData());
-    _interpolation_matrix->computeDeno();
+    _interpolation_matrix->computeSurfacesAndDeno();
   }
 
   void OverlapDEC::attachSourceLocalField(ParaFIELD *field, bool ownPt)

@@ -156,8 +156,7 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, int nbO
   updateZipSourceIdsForMultiply();
   //finish to fill _the_matrix_st with already in place matrix in _matrixes_st (local computation)
   finishToFillFinalMatrixST();
-  // Prepare proc lists for future field data exchange (mutliply()):
-  _proc_ids_to_recv_vector_st = _the_matrix_st_source_proc_id;
+  // Prepare proc list for future field data exchange (mutliply()):
   _proc_ids_to_send_vector_st = procsToSendField;
   // Make some space on local proc:
   _matrixes_st.clear();
@@ -167,53 +166,78 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, int nbO
 #endif
 }
 
-///**
-// * Fill the members _proc_ids_to_send_vector_st and _proc_ids_to_recv_vector_st
-// * indicating for each proc to which proc it should send its source field data
-// * and from which proc it should receive source field data.
-// *
-// * Should be called once finishToFillFinalMatrixST() has been executed, i.e. when the
-// * local matrices are completely ready.
+///*!
+// * Compute denominators for IntegralGlobConstraint interp.
+// * TO BE REVISED: needs another communication since some bits are held non locally
 // */
-//void OverlapMapping::fillProcToSendRcvForMultiply(const std::vector< int >& procsToSendField)
+//void OverlapMapping::computeDenoGlobConstraint()
 //{
-////  _proc_ids_to_send_vector_st.clear();
-//  _proc_ids_to_recv_vector_st.clear();
-//  // Receiving side is easy - just inspect non-void terms in the final matrix
-//  int i=0;
-//  std::vector< std::vector< SparseDoubleVec > >::const_iterator it;
-//  std::vector< SparseDoubleVec >::const_iterator it2;
-//  for(it=_the_matrix_st.begin(); it!=_the_matrix_st.end(); it++, i++)
-//    _proc_ids_to_recv_vector_st.push_back(_the_matrix_st_source_proc_id[i]);
-//
-//  // Sending side was computed in OverlapElementLocator::computeBoundingBoxesAndTodoList()
-//  _proc_ids_to_send_vector_st = procsToSendField;
+//  _the_deno_st.clear();
+//  std::size_t sz1=_the_matrix_st.size();
+//  _the_deno_st.resize(sz1);
+//  for(std::size_t i=0;i<sz1;i++)
+//    {
+//      std::size_t sz2=_the_matrix_st[i].size();
+//      _the_deno_st[i].resize(sz2);
+//      for(std::size_t j=0;j<sz2;j++)
+//        {
+//          double sum=0;
+//          SparseDoubleVec& mToFill=_the_deno_st[i][j];
+//          const SparseDoubleVec& m=_the_matrix_st[i][j];
+//          for(SparseDoubleVec::const_iterator it=m.begin();it!=m.end();it++)
+//            sum+=(*it).second;
+//          for(SparseDoubleVec::const_iterator it=m.begin();it!=m.end();it++)
+//            mToFill[(*it).first]=sum;
+//        }
+//    }
+//    printDenoMatrix();
 //}
 
-/*!
- * Compute denominators for IntegralGlobConstraint interp.
- */
-void OverlapMapping::computeDenoGlobConstraint()
+///*! Compute integral denominators
+// * TO BE REVISED: needs another communication since some source areas are held non locally
+// */
+//void OverlapMapping::computeDenoIntegral()
+//{
+//  _the_deno_st.clear();
+//  std::size_t sz1=_the_matrix_st.size();
+//  _the_deno_st.resize(sz1);
+//  for(std::size_t i=0;i<sz1;i++)
+//    {
+//      std::size_t sz2=_the_matrix_st[i].size();
+//      _the_deno_st[i].resize(sz2);
+//      for(std::size_t j=0;j<sz2;j++)
+//        {
+//          SparseDoubleVec& mToFill=_the_deno_st[i][j];
+//          for(SparseDoubleVec::const_iterator it=mToFill.begin();it!=mToFill.end();it++)
+//            mToFill[(*it).first] = sourceAreas;
+//        }
+//    }
+//    printDenoMatrix();
+//}
+
+/*! Compute rev integral denominators
+  */
+void OverlapMapping::computeDenoRevIntegral(const DataArrayDouble & targetAreas)
 {
   _the_deno_st.clear();
   std::size_t sz1=_the_matrix_st.size();
   _the_deno_st.resize(sz1);
+  const double * targetAreasP = targetAreas.getConstPointer();
   for(std::size_t i=0;i<sz1;i++)
     {
       std::size_t sz2=_the_matrix_st[i].size();
       _the_deno_st[i].resize(sz2);
       for(std::size_t j=0;j<sz2;j++)
         {
-          double sum=0;
           SparseDoubleVec& mToFill=_the_deno_st[i][j];
-          const SparseDoubleVec& m=_the_matrix_st[i][j];
-          for(SparseDoubleVec::const_iterator it=m.begin();it!=m.end();it++)
-            sum+=(*it).second;
-          for(SparseDoubleVec::const_iterator it=m.begin();it!=m.end();it++)
-            mToFill[(*it).first]=sum;
+          SparseDoubleVec& mToIterate=_the_matrix_st[i][j];
+          for(SparseDoubleVec::const_iterator it=mToIterate.begin();it!=mToIterate.end();it++)
+            mToFill[(*it).first] = targetAreasP[j];
         }
     }
+//    printDenoMatrix();
 }
+
 
 /*!
  * Compute denominators for ConvervativeVolumic interp.
@@ -226,20 +250,21 @@ void OverlapMapping::computeDenoConservativeVolumic(int nbOfTuplesTrg)
   std::size_t sz1=_the_matrix_st.size();
   _the_deno_st.resize(sz1);
   std::vector<double> deno(nbOfTuplesTrg);
+  // Fills in the vector indexed by target cell ID:
   for(std::size_t i=0;i<sz1;i++)
     {
       const std::vector< SparseDoubleVec >& mat=_the_matrix_st[i];
       int curSrcId=_the_matrix_st_source_proc_id[i];
       std::vector<int>::iterator isItem1=std::find(_sent_trg_proc_st2.begin(),_sent_trg_proc_st2.end(),curSrcId);
       int rowId=0;
-      if(isItem1==_sent_trg_proc_st2.end() || curSrcId==myProcId)//item1 of step2 main algo. Simple, because rowId of mat are directly target ids.
+      if(isItem1==_sent_trg_proc_st2.end() || curSrcId==myProcId) // Local computation: simple, because rowId of mat are directly target cell ids.
         {
           for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
             for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
               deno[rowId]+=(*it2).second;
         }
-      else
-        {//item0 of step2 main algo. More complicated.
+      else  // matrix was received, remote computation
+        {
           std::vector<int>::iterator fnd=isItem1;//std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),curSrcId);
           int locId=std::distance(_sent_trg_proc_st2.begin(),fnd);
           const DataArrayInt *trgIds=_sent_trg_ids_st2[locId];
@@ -249,7 +274,7 @@ void OverlapMapping::computeDenoConservativeVolumic(int nbOfTuplesTrg)
               deno[trgIds2[rowId]]+=(*it2).second;
         }
     }
-  //
+  // Broadcast the vector into a structure similar to the initial sparse matrix of numerators:
   for(std::size_t i=0;i<sz1;i++)
     {
       int rowId=0;
@@ -462,6 +487,7 @@ void OverlapMapping::finishToFillFinalMatrixST()
       }
 }
 
+
 /*!
  * This method performs a transpose multiply of 'fieldInput' and put the result into 'fieldOutput'.
  * 'fieldInput' is expected to be the sourcefield and 'fieldOutput' the targetfield.
@@ -541,6 +567,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
        *        % else (=we did NOT compute the job, hence procID has, and knows the matrix)
        *          => receive 'interp source IDs' set of field values
        */
+      const std::vector< int > & _proc_ids_to_recv_vector_st = _the_matrix_st_source_proc_id;
       if (procID == myProcID)
         nbrecv[procID] = 0;
       else

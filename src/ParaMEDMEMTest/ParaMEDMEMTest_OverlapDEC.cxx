@@ -386,7 +386,7 @@ void ParaMEDMEMTest::testOverlapDEC1()
 
 /*!
  * Same as testOverlapDEC1() but with regular bounding boxes. If you're looking for a nice debug case,
- * testOverlapDEC1() is more appropriate.
+ * testOverlapDEC1() is identical in terms of geometry and field values, and more appropriate.
  */
 void ParaMEDMEMTest::testOverlapDEC2()
 {
@@ -472,6 +472,7 @@ void prepareData2_buildOneSquare(MEDCouplingUMesh* & meshS_0, MEDCouplingUMesh* 
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+3);
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+6);
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+9);
+
 }
 
 /**
@@ -487,7 +488,9 @@ void prepareData2_buildOneSquare(MEDCouplingUMesh* & meshS_0, MEDCouplingUMesh* 
 void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
                   MEDCouplingUMesh *& meshS, MEDCouplingUMesh *& meshT,
                   ParaMESH*& parameshS, ParaMESH*& parameshT,
-                  ParaFIELD*& parafieldS, ParaFIELD*& parafieldT)
+                  ParaFIELD*& parafieldS, ParaFIELD*& parafieldT,
+                  bool stripPartOfSource=false,
+                  int fieldCompoNum=1)
 {
   MEDCouplingUMesh *meshS_0 = 0, *meshT_0 = 0;
   prepareData2_buildOneSquare(meshS_0, meshT_0);
@@ -502,16 +505,26 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
       meshS_2->translate(tr2);
 
       std::vector<const MEDCouplingUMesh*> vec;
-      vec.push_back(meshS_0);vec.push_back(meshS_1);vec.push_back(meshS_2);
+      vec.push_back(meshS_0);vec.push_back(meshS_1);
+      if (!stripPartOfSource)
+        vec.push_back(meshS_2);
       meshS = MEDCouplingUMesh::MergeUMeshes(vec);
       meshS_1->decrRef(); meshS_2->decrRef();
 
-      ComponentTopology comptopo;
+      ComponentTopology comptopo(fieldCompoNum);
       parameshS=new ParaMESH(meshS, *grp,"source mesh");
       parafieldS=new ParaFIELD(ON_CELLS,ONE_TIME,parameshS,comptopo);
       parafieldS->getField()->setNature(nature);
       double *valsS=parafieldS->getField()->getArray()->getPointer();
-      valsS[0]=1.; valsS[1]=2.; valsS[2]=3.;
+      for(int i=0; i < fieldCompoNum; i++)
+        {
+          valsS[i] = 1. * (10^i);
+          valsS[fieldCompoNum+i] = 2. * (10^i);
+          if (!stripPartOfSource)
+            {
+              valsS[2*fieldCompoNum+i] = 3. * (10^i);
+            }
+        }
 
       //
       const double tr3[] = {0.0, -1.5};
@@ -541,12 +554,16 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
       meshS = MEDCouplingUMesh::MergeUMeshes(vec);
       meshS_3->decrRef(); meshS_4->decrRef();
 
-      ComponentTopology comptopo;
+      ComponentTopology comptopo(fieldCompoNum);
       parameshS=new ParaMESH(meshS, *grp,"source mesh");
       parafieldS=new ParaFIELD(ON_CELLS,ONE_TIME,parameshS,comptopo);
       parafieldS->getField()->setNature(nature);
       double *valsS=parafieldS->getField()->getArray()->getPointer();
-      valsS[0]=4.; valsS[1]=5.;
+      for(int i=0; i < fieldCompoNum; i++)
+        {
+          valsS[i] = 4. * (10^i);
+          valsS[fieldCompoNum+i] = 5. * (10^i);
+        }
 
       //
       const double tr5[] = {1.5, 0.0};
@@ -595,12 +612,6 @@ void ParaMEDMEMTest::testOverlapDEC3()
   ParaFIELD* parafieldS=0, *parafieldT=0;
 
   prepareData2(rank, grp, ConservativeVolumic, meshS, meshT, parameshS, parameshT, parafieldS, parafieldT);
-//  if (rank == 1)
-//    {
-//      int i=1, j=0;
-//      while (i!=0)
-//        j=2;
-//    }
 
   dec.attachSourceLocalField(parafieldS);
   dec.attachTargetLocalField(parafieldT);
@@ -637,8 +648,89 @@ void ParaMEDMEMTest::testOverlapDEC3()
 }
 
 /*!
- * Test default values and multi-component fields
+ * Tests:
+ *  - default value
+ *  - multi-component fields
  */
 void ParaMEDMEMTest::testOverlapDEC4()
 {
+  int size, rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
+  int nproc = 2;
+  if (size != nproc) return ;
+  std::set<int> procs;
+  for (int i=0; i<nproc; i++)
+    procs.insert(i);
+
+  CommInterface interface;
+  OverlapDEC dec(procs);
+  ProcessorGroup * grp = dec.getGroup();
+  MEDCouplingUMesh* meshS=0, *meshT=0;
+  ParaMESH* parameshS=0, *parameshT=0;
+  ParaFIELD* parafieldS=0, *parafieldT=0;
+
+  // As before, except than one of the source cell is removed, and that the field now has 2 components
+  prepareData2(rank, grp, ConservativeVolumic, meshS, meshT, parameshS, parameshT, parafieldS, parafieldT,
+               true, 2);
+//  if (rank == 1)
+//    {
+//      int i=1, j=0;
+//      while (i!=0)
+//        j=2;
+//    }
+
+  dec.attachSourceLocalField(parafieldS);
+  dec.attachTargetLocalField(parafieldT);
+  double defVal = -300.0;
+  dec.setDefaultValue(defVal);
+  dec.synchronize();
+  dec.sendRecvData(true);
+  //
+  MEDCouplingFieldDouble * resField = parafieldT->getField();
+  if(rank==0)
+    {
+      CPPUNIT_ASSERT_EQUAL(8, resField->getNumberOfTuples());
+      for(int i=0;i<4;i++)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0,resField->getArray()->getIJ(i*2,0),1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0,resField->getArray()->getIJ(i*2+1,0),1e-12);
+        }
+      for(int i=4;i<8;i++)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0,resField->getArray()->getIJ(i*2,0),1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(40.0,resField->getArray()->getIJ(i*2+1,0),1e-12);
+        }
+    }
+  if(rank==1)
+    {
+      CPPUNIT_ASSERT_EQUAL(12, resField->getNumberOfTuples());
+      for(int i=0;i<4;i++)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0,resField->getArray()->getIJ(i*2,0),1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0,resField->getArray()->getIJ(i*2+1,0),1e-12);
+        }
+      // Default value should be here:
+      for(int i=4;i<8;i++)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(defVal,resField->getArray()->getIJ(i*2,0),1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(defVal,resField->getArray()->getIJ(i*2+1,0),1e-12);
+        }
+      for(int i=8;i<12;i++)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0,resField->getArray()->getIJ(i*2,0),1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(50.0,resField->getArray()->getIJ(i*2+1,0),1e-12);
+        }
+    }
+  delete parafieldS;
+  delete parafieldT;
+  delete parameshS;
+  delete parameshT;
+  meshS->decrRef();
+  meshT->decrRef();
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
 }
+

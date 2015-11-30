@@ -57,7 +57,7 @@ namespace ParaMEDMEM
 
     void prepare(const std::vector< int > & procsToSendField);
     
-    void computeDeno();
+    void computeSurfacesAndDeno();
 
     void multiply(double default_val);
 

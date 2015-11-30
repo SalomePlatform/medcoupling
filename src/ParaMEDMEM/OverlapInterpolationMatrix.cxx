@@ -241,7 +241,6 @@ namespace ParaMEDMEM
     _mapping.addContributionST(sparse_matrix_part,srcIds,srcProcId,trgIds,trgProcId);
   }
 
-
   /*!
    * 'procsToSendField' gives the list of procs field data has to be sent to.
    * See OverlapElementLocator::computeBoundingBoxesAndTodoList()
@@ -254,12 +253,29 @@ namespace ParaMEDMEM
       _mapping.prepare(procsToSendField,0);
   }
 
-  void OverlapInterpolationMatrix::computeDeno()
+  void OverlapInterpolationMatrix::computeSurfacesAndDeno()
   {
     if(_target_field->getField()->getNature()==ConservativeVolumic)
       _mapping.computeDenoConservativeVolumic(_target_field->getField()->getNumberOfTuplesExpected());
     else
-      throw INTERP_KERNEL::Exception("Policy Not implemented yet : only ConservativeVolumic defined !");
+      throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only ConservativeVolumic!");
+//      {
+//      if(_target_field->getField()->getNature()==RevIntegral)
+//        {
+//          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f;
+//          int orient = getOrientation(); // From InterpolationOptions inheritance
+//          if(orient == 2)  // absolute areas
+//             f = _target_support->getMeasureField(true);
+//          else
+//            if(orient == 0)  // relative areas
+//              f = _target_support->getMeasureField(false);
+//            else
+//              throw INTERP_KERNEL::Exception("OverlapDEC: orientation policy not impl. yet!");
+//          _mapping.computeDenoRevIntegral(*f->getArray());
+//        }
+//      else
+//        throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only ConservativeVolumic and RevIntegral defined!");
+//      }
   }
 
   void OverlapInterpolationMatrix::multiply(double default_val)
@@ -272,11 +288,6 @@ namespace ParaMEDMEM
     _mapping.transposeMultiply(_target_field->getField(),_source_field->getField());
   }
   
-//  bool OverlapInterpolationMatrix::isSurfaceComputationNeeded(const std::string& method) const
-//  {
-//    return method=="P0";
-//  }
-
   void OverlapInterpolationMatrix::TransposeMatrix(const std::vector<SparseDoubleVec >& matIn,
                                                    int nbColsMatIn, std::vector<SparseDoubleVec >& matOut)
   {

@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <map>
+//#define DEC_DEBUG
 
 namespace ParaMEDMEM
 {
@@ -52,7 +53,9 @@ namespace ParaMEDMEM
     void addContributionST(const std::vector< SparseDoubleVec >& matrixST, const DataArrayInt *srcIds, int srcProcId, const DataArrayInt *trgIds, int trgProcId);
     void prepare(const std::vector< int >& procsToSendField, int nbOfTrgElems);
     void computeDenoConservativeVolumic(int nbOfTuplesTrg);
-    void computeDenoGlobConstraint();
+//    void computeDenoIntegralGlobConstraint();
+//    void computeDenoIntegral();
+    void computeDenoRevIntegral(const DataArrayDouble & targetAreas);
     //
     void multiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput, double default_val) const;
     void transposeMultiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput);
@@ -125,7 +128,7 @@ namespace ParaMEDMEM
     //! Proc IDs to which data will be sent (originating this current proc) for matrix-vector computation
     std::vector< int > _proc_ids_to_send_vector_st;
     //! Proc IDs from which data will be received (on this current proc) for matrix-vector computation
-    std::vector< int > _proc_ids_to_recv_vector_st;
+    //std::vector< int > _proc_ids_to_recv_vector_st;  // directly equal to _the_matrix_st_source_proc_id
 
     // Denominators (computed from the numerator matrix). As for _the_matrix_st it is paired with _the_matrix_st_source_proc_id
     std::vector< std::vector< SparseDoubleVec > > _the_deno_st;
