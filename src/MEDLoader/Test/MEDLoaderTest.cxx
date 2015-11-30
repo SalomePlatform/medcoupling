@@ -1150,16 +1150,16 @@ std::string MEDLoaderTest::getResourceFile( const std::string& filename ) const
 {
   std::string resourceFile = "";
 
-  if ( getenv("top_srcdir") ) {
-    // we are in 'make test' step
-    resourceFile = getenv("top_srcdir");
-    resourceFile += "/resources/";
+  if ( getenv("MEDTOOL_ROOT_DIR") ) {
+    // use MEDTOOL_ROOT_DIR env.var
+    resourceFile = getenv("MEDTOOL_ROOT_DIR");
+    resourceFile += "/share/resources/med/";
   }
-  else if ( getenv("MED_ROOT_DIR") ) {
-    // use MED_ROOT_DIR env.var
-    resourceFile = getenv("MED_ROOT_DIR");
-    resourceFile += "/share/salome/resources/med/";
+  else {
+    resourceFile = get_current_dir_name();
+    resourceFile += "/../../../resources/";
   }
+
   resourceFile += filename;
   return resourceFile;
 }

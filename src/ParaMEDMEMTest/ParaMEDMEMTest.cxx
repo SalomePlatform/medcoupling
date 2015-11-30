@@ -30,32 +30,20 @@
 #include <unistd.h>
 #endif
 
-//================================================================================
-/*!
- * \brief Get path to the resources file.
- *
- * When running 'make test' source file is taken from MED_SRC/resources folder.
- * Otherwise, file is searched in ${MED_ROOT_DIR}/share/salome/resources/med folder.
- * 
- * \param filename name of the resource file (should not include a path)
- * \return full path to the resource file
- */
-//================================================================================
-
 std::string ParaMEDMEMTest::getResourceFile( const std::string& filename )
 {
   std::string resourceFile = "";
 
-  if ( getenv("top_srcdir") ) {
-    // we are in 'make test' step
-    resourceFile = getenv("top_srcdir");
-    resourceFile += "/resources/";
+  if ( getenv("MEDTOOL_ROOT_DIR") ) {
+    // use MEDTOOL_ROOT_DIR env.var
+    resourceFile = getenv("MEDTOOL_ROOT_DIR");
+    resourceFile += "/share/resources/med/";
   }
-  else if ( getenv("MED_ROOT_DIR") ) {
-    // use MED_ROOT_DIR env.var
-    resourceFile = getenv("MED_ROOT_DIR");
-    resourceFile += "/share/salome/resources/med/";
+  else {
+    resourceFile = get_current_dir_name();
+    resourceFile += "/../../resources/";
   }
+
   resourceFile += filename;
   return resourceFile;
 }
@@ -92,7 +80,7 @@ std::string ParaMEDMEMTest::getTmpDirectory()
 
 //================================================================================
 /*!
- * \brief Creates a copy of source file (if source file is specified) 
+ * \brief Creates a copy of source file (if source file is specified)
  * in the temporary directory and returns a path to the tmp file
  *
  * \param tmpfile name of the temporary file (without path)

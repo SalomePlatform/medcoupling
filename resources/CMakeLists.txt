@@ -124,9 +124,9 @@ SET(MED_RESOURCES_FILES
   #Old_maillage_chemvalIV_cas1_40elts.med
   #pointe_nomorereadable21.med
   pointe.med
-  #poly3D.med
+  poly3D.med
   #polyedres.med
-  #polygones.med
+  polygones.med
   #recoll_bord.med
   #test19.med
   # test_2D.med
@@ -180,18 +180,18 @@ SET(MED_RESOURCES_FILES
   MovedHexaBox2.med
   BoxTetra2.med
   square1.med
-  # square1_split
-  # square1_split1.med
-  # square1_split2.med
-  # square1_split3.med
+  square1_split
+  square1_split1.med
+  square1_split2.med
+  square1_split3.med
   square2.med
-  # square2_split
-  # square2_split1.med
-  # square2_split2.med
+  square2_split
+  square2_split1.med
+  square2_split2.med
   # testStructCart3D.med
-  # Mesh3D_10_2d1.med
-  # Mesh3D_10_2d2.med
-  # Mesh3D_11.med
+  Mesh3D_10_2d1.med
+  Mesh3D_10_2d2.med
+  Mesh3D_11.med
   Pol1.fig
   Pol2.fig
   Pol3.fig

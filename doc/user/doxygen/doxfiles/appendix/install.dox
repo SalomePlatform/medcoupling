@@ -5,38 +5,39 @@
 The install procedure of the %MED SALOME module can handle a variety of configurations
 to suit the needs of its user. Instructions for configuring and
 installing the module can be found here.
+Partitioning and parallel functionalities are optional.
 
-The libraries in SALOME MED can be configured in several manners so that it can run inside or outside the Salome platform.
-Also, partitioning and parallel functionalities are optional.
-
-The sources of the library are located in the \a MED_SRC directory.
+Assume that the library sources are located in \a MEDCOUPLING_SRC directory. Build and install directories are MEDCOUPLING_BUILD and MEDCOUPLING_INSTALL, respectively.
 The first step consists in preparing the CMake build precedure :
 \verbatim
-mkdir MED_BUILD
-cd ${MED_BUILD}
-cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=`pwd`/../MED_INSTALL ../<MED_SRC>
+mkdir <MEDCOUPLING_BUILD>
+cd <MEDCOUPLING_BUILD>
+cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=<MEDCOUPLING_INSTALL> <MEDCOUPLING_SRC>
 \endverbatim
 
 , where <Mode> is build mode (Release or Debug).
 
-This will create SALOME MED libraries with link to the SALOME Kernel.
-Sometimes, if it is desirable to have a standalone version of the library to be used independently from SALOME, use :
+This will configure the library without splitting functionalities. The \ref parallel "parallel functionalities" will be compiled if an MPI version has been found.
+
+The following options can be useful to configure MEDCoupling :
+- \a -DMEDTOOL_MED_PARTITIONER_METIS=ON enables metis graph library in MEDPartitioner,
+- \a -DMEDTOOL_MED_PARTITIONER_PARMETIS=ON enables parmetis graph library in MEDPartitioner,
+- \a -DMEDTOOL_MED_PARTITIONER_SCOTCH=ON enables scotch graph library in MEDPartitioner,
+- \a -DMEDTOOL_MED_MICROMED=ON build MED with MED file dependancy,
+- \a -DMEDTOOL_MED_ENABLE_PYTHON=ON builds PYTHON bindings,
+- \a -DMEDTOOL_MED_ENABLE_PARTITIONER builds MEDPartitioner,
+- \a -DMEDTOOL_MED_ENABLE_RENUMBER builds Renumber,
+- \a -DMEDTOOL_USE_MPI=ON uses MPI containers.
+
+According to set options and compilation environment, user may need to define some <prerequisite>_ROOT_DIR variables. For example if in SALOME environment:
 \verbatim
-mkdir MED_BUILD
-cd ${MED_BUILD}
-cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=`pwd`/../MED_INSTALL _DSALOME_MED_STANDALONE=ON ../<MED_SRC>
+export MEDFILE_ROOT_DIR=${MED3HOME}
+export METIS_ROOT_DIR=$METISDIR
+export SCOTCH_ROOT_DIR=$SCOTCHDIR
+export BOOST_ROOT_DIR=$BOOST_ROOT
+export GRAPHVIZ_ROOT_DIR=$GRAPHVIZHOME
+export CPPUNIT_ROOT_DIR=$CPPUNIT_ROOT
 \endverbatim
 
-This will configure the library without splitting functionalities. The 
-\ref parallel "parallel functionalities" will be compiled if an MPI version has been found.
-
-The following options can be useful to configure SALOME MED :
-- \a -DSALOME_MED_PARTITIONER_METIS=ON enables metis graph library in MEDPartitioner,
-- \a -DSALOME_MED_PARTITIONER_PARMETIS=ON enables parmetis graph library in MEDPartitioner,
-- \a -DSALOME_MED_PARTITIONER_SCOTCH=ON enables scotch graph library in MEDPartitioner,
-- \a -DSALOME_MED_MICROMED=ON build MED with MED file dependancy,
-- \a -DSALOME_MED_ENABLE_PYTHON=ON builds PYTHON bindings,
-- \a -DSALOME_MED_ENABLE_PARTITIONER builds MEDPartitioner,
-- \a -DSALOME_MED_ENABLE_RENUMBER builds Renumber,
-- \a -DSALOME_USE_MPI=ON uses MPI containers.
+If using MPI, the PARMETIS_ROOT_DIR variable should be set.
 */
