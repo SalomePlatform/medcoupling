@@ -36,7 +36,6 @@ namespace ParaMEDMEM
 {
   class ParaFIELD;
   class ProcessorGroup;
-  class ParaSUPPORT;
   class OverlapInterpolationMatrix;
   
   class OverlapElementLocator : public INTERP_KERNEL::InterpolationOptions

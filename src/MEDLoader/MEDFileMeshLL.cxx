@@ -826,7 +826,7 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
   else
     {
       if(!m->checkConsecutiveCellTypesAndOrder(typmai2,typmai2+MED_N_CELL_FIXED_GEO))
-        throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::assignMesh : the mode of mesh setting expects to follow the MED file numbering convention ! it is not the case !");
+        throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::assignMesh(): the mesh does not follow the MED file numbering convention! Invoke sortCellsInMEDFileFrmt() first!");
       m->incrRef();
       _m_by_types.assignUMesh(m);
     }

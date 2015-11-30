@@ -710,7 +710,7 @@ namespace INTERP_KERNEL
   class AngleLess
   {
   public:
-    bool operator()(std::pair<double,double>theta1, std::pair<double,double> theta2) 
+    bool operator()(std::pair<double,double>theta1, std::pair<double,double> theta2) const
     {
       double norm1 = sqrt(theta1.first*theta1.first +theta1.second*theta1.second);
       double norm2 = sqrt(theta2.first*theta2.first +theta2.second*theta2.second);

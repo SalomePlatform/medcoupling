@@ -41,17 +41,20 @@ namespace ParaMEDMEM
     \anchor NonCoincidentDEC-det
     \class NonCoincidentDEC
 
-    \c NonCoincidentDEC enables nonconservative remapping of fields 
+    \c NonCoincidentDEC enables non-conservative remapping of fields
     between two parallel codes. 
     The computation is possible for 3D meshes and 2D meshes.
-    It is not available for 3D surfaces. The computation enables fast parallel localization, and is based on a point in element search, followed 
-    by a field evaluation at the point location. Thus, it is typically
-    faster than the \ref InterpKernelDEC-det "InterpKernelDEC" which gives a
-    \ref InterpKerRemapGlobal "conservative remapping".
-    It is particularly true for the initialisation phase (synchronize)
-    which is very computationnaly intensive in \ref InterpKernelDEC-det.
+    It is not available for 3D surfaces.
 
-    In the present version, only fields lying on elements are considered. 
+    The computation enables fast parallel localization, and is based on a point in element search, followed
+    by a field evaluation at the point location. Thus, it is typically
+    faster than the \ref InterpKernelDEC-det "InterpKernelDEC" which uses a
+    \ref InterpKerRemapGlobal "conservative remapping" (i.e. the same algorithms of volume
+    intersection as in the \ref remapper "sequential remapper")
+    It is particularly true for the initialisation phase (synchronize() method)
+    which has a significant computation cost in \ref InterpKernelDEC-det.
+
+    In the present version, only fields lying on elements ("P0") are considered.
     The value is estimated by locating the barycenter of the target
     side cell in a source cell and sending the value of this source cell 
     as the value of the target cell.

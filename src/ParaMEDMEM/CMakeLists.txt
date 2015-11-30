@@ -58,6 +58,7 @@ SET(paramedmem_SOURCES
   ParaFIELD.cxx
   ParaGRID.cxx
   BlockTopology.cxx
+  ExplicitMapping.cxx
   )
 
 ADD_LIBRARY(paramedmem SHARED ${paramedmem_SOURCES})

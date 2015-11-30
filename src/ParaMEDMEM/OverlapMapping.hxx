@@ -32,6 +32,13 @@ namespace ParaMEDMEM
   class DataArrayInt;
   class MEDCouplingFieldDouble;
 
+  /*
+   * Internal class, not part of the public API.
+   *
+   * Used by the impl of OverlapInterpolationMatrix, plays an equivalent role than what the NxM_Mapping
+   * does for the InterpolationMatrix.
+   *
+   */
   class OverlapMapping
   {
   public:

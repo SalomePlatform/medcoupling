@@ -31,11 +31,13 @@ namespace ParaMEDMEM
 {
   class ParaFIELD;
   class ProcessorGroup;
-  class ParaSUPPORT;
   class InterpolationMatrix;
   class MEDCouplingPointSet;
   class DataArrayInt;
 
+  /*! Internal class, not part of the public API. Used in InterpolationMatrix.
+   *
+   */
   class ElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
   public:

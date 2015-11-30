@@ -568,7 +568,7 @@ namespace ParaMEDMEM
             int recvsize = recvcount*_MPI_access->extent( recvtype ) ;
             checkTime( recvcount , recvtype , target , false ) ;
             //===========================================================================
-            //TODO : it is assumed actually that we have only 1 timestep before nad after
+            //TODO : it is assumed actually that we have only 1 timestep before and after
             //===========================================================================
             if ( _time_interpolator && (*_time_messages)[target][0].time != -1 )
               {

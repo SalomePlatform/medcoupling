@@ -20,12 +20,17 @@
 #ifndef __TOPOLOGY_HXX__
 #define __TOPOLOGY_HXX__
 
-#include <utility>
-
 namespace ParaMEDMEM
 {
   class ProcessorGroup;
 
+  /*!
+   * Topology of a group of processors within a processor group. Abstract class, see derivations.
+   *
+   * \sa BlockTopology
+   * \sa ExplicitTopology
+   * \sa MPIProcessorGroup
+   */
   class Topology
   {
   public:

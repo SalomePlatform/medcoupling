@@ -47,7 +47,11 @@ char *INTERP_KERNEL::AsmX86::copyToExecMemZone(const std::vector<char>& ml, unsi
   char *ret=0;
   int lgth=ml.size();
 #ifdef _POSIX_MAPPED_FILES
+# ifdef __APPLE__
+  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANON | MAP_PRIVATE,-1,0);
+# else
   ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
+# endif
 #else
 #ifdef WIN32
   HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);

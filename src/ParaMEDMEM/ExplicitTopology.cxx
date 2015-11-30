@@ -33,6 +33,11 @@ using namespace std;
 namespace ParaMEDMEM
 {
 
+ExplicitTopology::ExplicitTopology():
+   _proc_group(NULL), _nb_elems(0), _nb_components(0),
+   _loc2glob(NULL), _glob2loc()
+  {}
+
 ExplicitTopology::ExplicitTopology(const ParaMESH& paramesh ):
 _proc_group(paramesh.getBlockTopology()->getProcGroup()),
 _nb_components(1)

@@ -35,88 +35,15 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-
-  //!converts a pair <subdomainid,local> to a global number 
-  std::pair<int,int> BlockTopology::globalToLocal(const int global) const
-  {
-    int subdomain_id=0;
-    int position=global;
-    int size=_nb_elems;
-    int size_procs=_proc_group->size();
-    int increment=size;
-    vector<int>axis_position(_dimension);
-    vector<int>axis_offset(_dimension);
-    for (int idim=0; idim<_dimension; idim++)
-      {
-        int axis_size=_local_array_indices[idim].size()-1;
-        int axis_nb_elem=_local_array_indices[idim][axis_size];
-        increment=increment/axis_nb_elem;
-        int proc_increment = size_procs/(axis_size);
-        int axis_pos=position/increment;
-        position=position%increment;  
-        int iaxis=1;
-        while (_local_array_indices[idim][iaxis]<=axis_pos)
-          {
-            subdomain_id+=proc_increment;
-            iaxis++;
-          }
-        axis_position[idim]=axis_pos-_local_array_indices[idim][iaxis-1];
-        axis_offset[idim]=iaxis;
-      }
-    int local=0;
-    int local_increment=1;
-    for (int idim=_dimension-1; idim>=0; idim--)
-      {
-        local+=axis_position[idim]*local_increment;
-        local_increment*=_local_array_indices[idim][axis_offset[idim]]-_local_array_indices[idim][axis_offset[idim]-1];
-      }
-    return make_pair(subdomain_id,local);
-  }
-
-  //!converts local number to a global number
-  int BlockTopology::localToGlobal(const pair<int,int> local) const
-  {
-  
-    int subdomain_id=local.first;
-    int global=0;
-    int loc=local.second;
-    int increment=_nb_elems;
-    int proc_increment=_proc_group->size();
-    int local_increment=getNbLocalElements();
-    for (int idim=0; idim < _dimension; idim++)
-      {
-        int axis_size=_local_array_indices[idim].size()-1;
-        int axis_nb_elem=_local_array_indices[idim][axis_size];
-        increment=axis_nb_elem==0?0:increment/axis_nb_elem;
-        proc_increment = proc_increment/(axis_size);
-        int proc_axis=subdomain_id/proc_increment;
-        subdomain_id=subdomain_id%proc_increment;
-        int local_axis_nb_elem=_local_array_indices[idim][proc_axis+1]-_local_array_indices[idim][proc_axis];
-        local_increment = (local_axis_nb_elem==0)?0:(local_increment/local_axis_nb_elem);
-        int iaxis=((local_increment==0)?0:(loc/local_increment))+_local_array_indices[idim][proc_axis];
-        global+=increment*iaxis;
-        loc = (local_increment==0)?0:(loc%local_increment);
-      }
-    return global;
-  }
-
-  //Retrieves the local number of elements 
-  int BlockTopology::getNbLocalElements()const 
-  {
-    int position=_proc_group->myRank();
-    int nb_elem = 1;
-    int increment=1;
-    for (int i=_dimension-1; i>=0; i--)
-      {  
-        increment *=_nb_procs_per_dim[i];
-        int idim=position%increment;
-        position=position/increment;
-        int imin=_local_array_indices[i][idim];
-        int imax=_local_array_indices[i][idim+1];
-        nb_elem*=(imax-imin);
-      }
-    return nb_elem;
-  }
+  /*!
+   * Default ctor.
+   */
+  BlockTopology::BlockTopology() :
+    _dimension(0), _nb_procs_per_dim(0),
+    _local_array_indices(0), _cycle_type(0),
+    _proc_group(NULL),_nb_elems(0),
+    _owns_processor_group(false)
+  {}
 
   /*!
    * Constructor of a block topology from a grid. 
@@ -244,6 +171,88 @@ namespace ParaMEDMEM
   {
     if (_owns_processor_group)
       delete _proc_group;
+  }
+
+  //!converts a pair <subdomainid,local> to a global number
+  std::pair<int,int> BlockTopology::globalToLocal(const int global) const
+  {
+    int subdomain_id=0;
+    int position=global;
+    int size=_nb_elems;
+    int size_procs=_proc_group->size();
+    int increment=size;
+    vector<int>axis_position(_dimension);
+    vector<int>axis_offset(_dimension);
+    for (int idim=0; idim<_dimension; idim++)
+      {
+        int axis_size=_local_array_indices[idim].size()-1;
+        int axis_nb_elem=_local_array_indices[idim][axis_size];
+        increment=increment/axis_nb_elem;
+        int proc_increment = size_procs/(axis_size);
+        int axis_pos=position/increment;
+        position=position%increment;
+        int iaxis=1;
+        while (_local_array_indices[idim][iaxis]<=axis_pos)
+          {
+            subdomain_id+=proc_increment;
+            iaxis++;
+          }
+        axis_position[idim]=axis_pos-_local_array_indices[idim][iaxis-1];
+        axis_offset[idim]=iaxis;
+      }
+    int local=0;
+    int local_increment=1;
+    for (int idim=_dimension-1; idim>=0; idim--)
+      {
+        local+=axis_position[idim]*local_increment;
+        local_increment*=_local_array_indices[idim][axis_offset[idim]]-_local_array_indices[idim][axis_offset[idim]-1];
+      }
+    return make_pair(subdomain_id,local);
+  }
+
+  //!converts local number to a global number
+  int BlockTopology::localToGlobal(const pair<int,int> local) const
+  {
+
+    int subdomain_id=local.first;
+    int global=0;
+    int loc=local.second;
+    int increment=_nb_elems;
+    int proc_increment=_proc_group->size();
+    int local_increment=getNbLocalElements();
+    for (int idim=0; idim < _dimension; idim++)
+      {
+        int axis_size=_local_array_indices[idim].size()-1;
+        int axis_nb_elem=_local_array_indices[idim][axis_size];
+        increment=axis_nb_elem==0?0:increment/axis_nb_elem;
+        proc_increment = proc_increment/(axis_size);
+        int proc_axis=subdomain_id/proc_increment;
+        subdomain_id=subdomain_id%proc_increment;
+        int local_axis_nb_elem=_local_array_indices[idim][proc_axis+1]-_local_array_indices[idim][proc_axis];
+        local_increment = (local_axis_nb_elem==0)?0:(local_increment/local_axis_nb_elem);
+        int iaxis=((local_increment==0)?0:(loc/local_increment))+_local_array_indices[idim][proc_axis];
+        global+=increment*iaxis;
+        loc = (local_increment==0)?0:(loc%local_increment);
+      }
+    return global;
+  }
+
+  //Retrieves the local number of elements
+  int BlockTopology::getNbLocalElements()const
+  {
+    int position=_proc_group->myRank();
+    int nb_elem = 1;
+    int increment=1;
+    for (int i=_dimension-1; i>=0; i--)
+      {
+        increment *=_nb_procs_per_dim[i];
+        int idim=position%increment;
+        position=position/increment;
+        int imin=_local_array_indices[i][idim];
+        int imax=_local_array_indices[i][idim+1];
+        nb_elem*=(imax-imin);
+      }
+    return nb_elem;
   }
 
   /*! Retrieves the min and max indices of the domain stored locally

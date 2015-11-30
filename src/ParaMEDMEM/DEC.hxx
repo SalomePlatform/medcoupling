@@ -27,6 +27,15 @@
 namespace ParaMEDMEM
 {
   class CommInterface;
+
+  /*!
+   * DEC stands for Data Exchange Channel. See the page \ref para-dec for more on this.
+   *
+   * This class is purely abstract. See the derivations:
+   * - \ref DisjointDEC-det "DisjointDEC"
+   * - \ref NonCoincidentDEC "NonCoincidentDEC"
+   * - \ref OverlapDEC "OverlapDEC"
+   */
   class DEC : public DECOptions
   {
   public:

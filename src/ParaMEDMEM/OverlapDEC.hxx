@@ -49,7 +49,7 @@ namespace ParaMEDMEM
     bool _own_group;
     OverlapInterpolationMatrix* _interpolation_matrix;
     ProcessorGroup *_group;
-  private:
+
     ParaFIELD *_source_field;
     bool _own_source_field;
     ParaFIELD *_target_field;

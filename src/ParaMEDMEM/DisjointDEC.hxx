@@ -41,8 +41,9 @@ namespace ParaMEDMEM
   {
   public:
     DisjointDEC():_local_field(0),_union_group(0),_source_group(0),_target_group(0),
-      _owns_field(false),_owns_groups(false),
-      _comm_interface(0), _union_comm(MPI_COMM_NULL)
+    _comm_interface(0),
+    _owns_field(false),_owns_groups(false),
+    _union_comm(MPI_COMM_NULL)
     { }
     DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
     DisjointDEC(const DisjointDEC&);

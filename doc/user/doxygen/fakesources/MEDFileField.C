@@ -27,12 +27,12 @@ namespace ParaMEDMEM // inline methods of MEDFileField1TSWithoutSDA
    * Returns the number of iteration where \a this field has been calculated.
    *  \return int - the iteration number.
    */
-  int MEDFileField1TSWithoutSDA::getIteration() const {}
+//  int MEDFileField1TSWithoutSDA::getIteration() const {}
   /*!
    * Returns the order number of iteration where \a this field has been calculated.
    *  \return int - the order number.
    */
-  int MEDFileField1TSWithoutSDA::getOrder() const {}
+//  int MEDFileField1TSWithoutSDA::getOrder() const {}
   /*!
    * Returns time, number of iteration and order number of iteration when
    * \a this field has been calculated.
@@ -40,7 +40,7 @@ namespace ParaMEDMEM // inline methods of MEDFileField1TSWithoutSDA
    *  \param [out] order - the order number.
    *  \return double - the time value.
    */
-  double MEDFileField1TSWithoutSDA::getTime(int& iteration, int& order) const {}
+//  double MEDFileField1TSWithoutSDA::getTime(int& iteration, int& order) const {}
   /*!
    * Sets time, number of iteration and order number of iteration when
    * \a this field has been calculated.
@@ -48,12 +48,12 @@ namespace ParaMEDMEM // inline methods of MEDFileField1TSWithoutSDA
    *  \param [in] iteration - the iteration number.
    *  \param [in] order - the order number.
    */
-  void MEDFileField1TSWithoutSDA::setTime(int iteration, int order, double val) {}
+//  void MEDFileField1TSWithoutSDA::setTime(int iteration, int order, double val) {}
   /*!
    * Returns units in which the time is measured.
    *  \return const char * - the time unit name.
    */
-  const std::string& MEDFileField1TSWithoutSDA::getDtUnit() const {}
+//  const std::string& MEDFileField1TSWithoutSDA::getDtUnit() const {}
 }
 
 namespace ParaMEDMEM // inline methods of MEDFileFieldGlobsReal

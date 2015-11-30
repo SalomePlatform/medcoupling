@@ -71,14 +71,14 @@ namespace ParaMEDMEM
     return _local_para_field.getField()->getNature();
   }
 
-  // ==========================================================================
-  // Procedure for exchanging mesh between a distant proc and a local processor
-  // param idistantrank  proc id on distant group
-  // param distant_mesh on return , points to a local reconstruction of
-  //  the distant mesh
-  // param distant_ids on return, contains a vector defining a correspondence
-  // between the distant ids and the ids of the local reconstruction 
-  // ==========================================================================
+
+  /*! Procedure for exchanging a mesh between a distant proc and a local processor
+   \param idistantrank  proc id on distant group
+   \param distant_mesh on return , points to a local reconstruction of
+          the distant mesh
+   \param distant_ids on return, contains a vector defining a correspondence
+          between the distant ids and the ids of the local reconstruction
+  */
   void ElementLocator::exchangeMesh(int idistantrank,
                                     MEDCouplingPointSet*& distant_mesh,
                                     int*& distant_ids)
@@ -127,10 +127,10 @@ namespace ParaMEDMEM
   }
 
 
-  // ======================
-  // Compute bounding boxes
-  // ======================
 
+  /*!
+   Compute bounding boxes
+  */
   void ElementLocator::_computeBoundingBoxes()
   {
     CommInterface comm_interface =_union_group->getCommInterface();
@@ -194,9 +194,10 @@ namespace ParaMEDMEM
   }
 
 
-  // =============================================
-  // Intersect Bounding Box (with a given "irank")
-  // =============================================
+
+  /*!
+   * Intersect local bounding box with a given distant bounding box on "irank"
+   */
   bool ElementLocator::_intersectsBoundingBox(int irank)
   {
 #ifdef USE_DIRECTED_BB
@@ -219,9 +220,10 @@ namespace ParaMEDMEM
 #endif
   } 
 
-  // ======================
-  // Exchanging meshes data
-  // ======================
+
+  /*!
+   *  Exchange mesh data
+   */
   void ElementLocator::_exchangeMesh( MEDCouplingPointSet* local_mesh,
                                       MEDCouplingPointSet*& distant_mesh,
                                       int iproc_distant,

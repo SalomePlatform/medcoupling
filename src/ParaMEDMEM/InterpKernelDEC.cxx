@@ -37,33 +37,45 @@ namespace ParaMEDMEM
     \anchor InterpKernelDEC-det
     \class InterpKernelDEC
 
-    \section dec-over Overview
+    \section InterpKernelDEC-over Overview
 
-    The InterpKernelDEC enables the \ref InterpKerRemapGlobal "remapping" of fields between two parallel codes.
-    This remapping is based on the computation of intersection volumes between elements from code A
-    and elements from code B. The computation is possible for 3D meshes, 2D meshes, and 3D-surface
-    meshes. Dimensions must be similar for code A and code B (for instance, though it could be
+    The InterpKernelDEC enables the \ref InterpKerRemapGlobal "remapping" (or interpolation) of fields between
+    two parallel codes.
+
+    The projection
+    methodology is based on the algorithms of %INTERP_KERNEL, that is to say, they work in a similar fashion than
+    what the \ref remapper "sequential remapper" does. The following \ref discretization "projection methods"
+    are supported: P0->P0 (the most common case), P1->P0, P0->P1.
+
+    The computation is possible for 3D meshes, 2D meshes, and 3D-surface
+    meshes. Dimensions must be identical for code A and code B (for instance, though it could be
     desirable, it is not yet possible to couple 3D surfaces with 2D surfaces).
 
-    In the present version, only fields lying on elements are considered.
+    The name "InterpKernelDEC" comes from the fact that this class uses exactly the same algorithms
+    as the sequential remapper. Both this class and the sequential
+    \ref ParaMEDMEM::MEDCouplingRemapper "MEDCouplingRemapper" are built on top of the %INTERP_KERNEL
+    algorithms (notably the computation of the intersection volumes).
 
-    \image html NonCoincident_small.png "Example showing the transfer from a field based on a
-    quadrangular mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle,
-    the values on quadrangles are weighted by their intersection area and summed."
+    Among the important properties inherited from the parent abstract class \ref DisjointDEC-det "DisjointDEC",
+    the two \ref MPIProcessorGroup-det "processor groups" (source and target) must have a void intersection.
 
-    \image latex NonCoincident_small.eps "Example showing the transfer from a field based on a quadrangular
-     mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle, the values
-     on quadrangles are weighted by their intersection area and summed."
+    \image html NonCoincident_small.png "Transfer of a field supported by a quadrangular mesh to a triangular mesh".
+
+    \image latex NonCoincident_small.eps "Transfer of a field supported by a quadrangular mesh to a triangular mesh"
+
+    In the figure above we see the transfer of a field based on a quadrangular mesh to a new field supported by
+    a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle, the values on the
+    quadrangles are weighted by their intersection area and summed.
 
     A typical use of InterpKernelDEC encompasses two distinct phases :
     - A setup phase during which the intersection volumes are computed and the communication structures are
     setup. This corresponds to calling the InterpKernelDEC::synchronize() method.
-    - A use phase during which the remappings are actually performed. This corresponds to the calls to
+    - A running phase during which the projections are actually performed. This corresponds to the calls to
     sendData() and recvData() which actually trigger the data exchange. The data exchange are synchronous
     in the current version of the library so that recvData() and sendData() calls must be synchronized
     on code A and code B processor groups.
 
-    The following code excerpt illutrates a typical use of the InterpKernelDEC class.
+    The following code excerpt illustrates a typical use of the InterpKernelDEC class.
 
     \code
     ...
@@ -99,28 +111,29 @@ namespace ParaMEDMEM
     \end{tabular}
     \f]
 
-
-
-    \section interpkerneldec_options Options
-    On top of \ref dec_options, options supported by %InterpKernelDEC objects are
-    related to the underlying Intersector class. 
+    \section InterpKernelDEC-options Options
+    On top of the usual \ref ParaMEDMEM::DECOptions "DEC options", the options supported by %InterpKernelDEC objects are
+    related to the underlying \ref InterpKerIntersectors "intersector class".
     All the options available in the intersector objects are
-    available for the %InterpKernelDEC object. The various options available for  * intersectors can
+    available for the %InterpKernelDEC object. The various options available for  intersectors can
     be reviewed in \ref InterpKerIntersectors.
  
     For instance :
     \verbatim
     InterpKernelDEC dec(source_group, target_group);
     dec.attachLocalField(field);
-    dec.setOptions("DoRotate",false);
-    dec.setOptions("Precision",1e-12);
+    dec.setDoRotate(false);
+    dec.setPrecision(1e-12);
     dec.synchronize();
     \endverbatim
 
     \warning{  Options must be set before calling the synchronize method. }
   */
   
-  InterpKernelDEC::InterpKernelDEC():_interpolation_matrix(0)
+  InterpKernelDEC::InterpKernelDEC():
+    DisjointDEC(),
+    _nb_distant_points(0), _distant_coords(0),
+    _distant_locations(0), _interpolation_matrix(0)
   {  
   }
 
@@ -134,14 +147,18 @@ namespace ParaMEDMEM
 
   */
   InterpKernelDEC::InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
-    DisjointDEC(source_group, target_group),_interpolation_matrix(0)
+    DisjointDEC(source_group, target_group),
+    _nb_distant_points(0), _distant_coords(0),
+    _distant_locations(0), _interpolation_matrix(0)
   {
 
   }
 
   InterpKernelDEC::InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
-                                   const MPI_Comm& world_comm):DisjointDEC(src_ids,trg_ids,world_comm),
-                                                               _interpolation_matrix(0)
+                                   const MPI_Comm& world_comm):
+    DisjointDEC(src_ids,trg_ids,world_comm),
+    _nb_distant_points(0), _distant_coords(0),
+    _distant_locations(0), _interpolation_matrix(0)
   {
   }
 
@@ -154,9 +171,10 @@ namespace ParaMEDMEM
   /*! 
     \brief Synchronization process for exchanging topologies.
 
-    This method prepares all the structures necessary for sending data from a processor group to the other. It uses the mesh underlying the fields that have been set with attachLocalField method.
+    This method prepares all the structures necessary for sending data from a processor group to the other. It uses the mesh
+    underlying the fields that have been set with attachLocalField method.
     It works in four steps :
-    -# Bounding boxes are computed for each subdomain,
+    -# Bounding boxes are computed for each sub-domain,
     -# The lazy side mesh parts that are likely to intersect the working side local processor are sent to the working side,
     -# The working side calls the interpolation kernel to compute the intersection between local and imported mesh.
     -# The lazy side is updated so that it knows the structure of the data that will be sent by

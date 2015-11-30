@@ -39,38 +39,30 @@ namespace ParaMEDMEM
    * \anchor DisjointDEC-det
    * \class DisjointDEC
    *
-   * Interface class for creation of a link between two
-   * processor groups for exhanging mesh or field data.
-   * The \c DEC is defined by attaching a field on the receiving or on the
+   * \section DisjointDEC-over Overview
+   *
+   * Abstract interface class representing a link between two
+   * processor groups for exchanging mesh or field data. The two processor groups must
+   * have a void intersection (\ref ParaMEDMEM::OverlapDEC "OverlapDEC" is to be considered otherwise).
+   * The %DEC is initialized by attaching a field on the receiving or on the
    * sending side.
-   * On top of attaching a \c ParaMEDMEM::ParaFIELD, it is possible to
-   * attach a ICoCo::Field. This class is an abstract class that enables
-   * coupling of codes that respect the ICoCo interface \ref icoco. It has two implementations:
-   * one for codes that express their fields as \ref fields "MEDCoupling fields" (ICoCo::MEDField).
    *
-   * \section dec_options DEC Options
-   * Options supported by \c DEC objects are
+   * The data is sent or received through calls to the (abstract) methods recvData() and sendData().
    *
-   * <TABLE BORDER=1 >
-   * <TR><TD>Option</TD><TD>Description</TD><TD>Default value</TD></TR>
-   * <TR><TD>ForcedRenormalization</TD><TD>After receiving data, the target field is renormalized so that L2-norms of the source and target fields match.</TD><TD> false </TD></TR>
-   *</TABLE>
-
-
-   The following code excerpt shows how to set options for an object that inherits from \c DEC :
-
-   \code
-   InterpKernelDEC dec(source_group,target_group);
-   dec.setOptions("ForcedRenormalization",true);
-   dec.attachLocalField(field);
-   dec.synchronize();
-   if (source_group.containsMyRank())
-     dec.sendData();
-   else
-     dec.recvData();
-   \endcode
+   * One can attach either a \c ParaMEDMEM::ParaFIELD, or a
+   * \c ICoCo::Field, or directly a \c ParaMEDMEM::MEDCouplingFieldDouble instance.
+   * See the various signatures of the method DisjointDEC::attachLocalField()
+   *
+   * The derivations of this class should be considered for practical instanciation:
+   * - \ref InterpKernelDEC-det "InterpKernelDEC"
+   * - \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
+   * - \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
+   *
+   * \section DisjointDEC-options DisjointDEC options
+   * The options supported by %DisjointDEC objects are the same that the ones supported for all
+   * DECs in general and are all inherited from the class \ref ParaMEDMEM::DECOptions "DECOptions"
+   *
   */
-
 
   DisjointDEC::DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
       _local_field(0),
@@ -138,7 +130,7 @@ namespace ParaMEDMEM
     union_ids.insert(source_ids.begin(),source_ids.end());
     union_ids.insert(target_ids.begin(),target_ids.end());
     if(union_ids.size()!=(source_ids.size()+target_ids.size()))
-      throw INTERP_KERNEL::Exception("DisjointDEC constructor : source_ids and target_ids overlap partially or fully. This type of DEC does not support it ! OverlapDEC class could be the solution !");
+      throw INTERP_KERNEL::Exception("DisjointDEC constructor : source_ids and target_ids overlap partially or fully. This type of DEC does not support it! OverlapDEC class could be the solution!");
     int* union_ranks_world=new int[union_ids.size()]; // ranks of sources and targets in world_comm
     std::copy(union_ids.begin(), union_ids.end(), union_ranks_world);
 

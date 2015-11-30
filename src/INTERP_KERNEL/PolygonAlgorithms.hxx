@@ -30,7 +30,7 @@ namespace INTERP_KERNEL
   class VertexLess
   {
   public:
-    bool operator()(const double * P_1, const double * P_2) 
+    bool operator()(const double * P_1, const double * P_2) const
     {
       for(int idim=0; idim<DIM; idim++)
         {        

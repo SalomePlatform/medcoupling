@@ -40,23 +40,22 @@ namespace ParaMEDMEM
 
     This class encapsulates parallel fields.
 
-    It basically encapsulates
-    a MEDCouplingField with extra information related to parallel 
+    It gathers a \ref fields "MEDCouplingField" with some extra information related to the parallel
     topology.
 
-    It is most conveniently created by giving a pointer to a MEDCouplingField
-    object and a \c ProcessorGroup.
+    It is most conveniently created by giving a pointer to a MEDCouplingFieldDouble
+    object and a ProcessorGroup.
     By default, a ParaFIELD object will be constructed with all field components
-    located on the same processors. In some specific cases, it might be necessary to scatter components over several processors. In this case, the constructor
-    using a ComponentTopology is required.
+    located on the same processors. In some specific cases, it might be necessary to scatter components over
+    several processors. In this case, the constructor using a ComponentTopology is required.
 
     */
 
   /*!
 
-    \brief  Constructing a \c ParaFIELD from a \c ParaSUPPORT and a \c ComponentTopology.
+    \brief  Constructing a \c ParaFIELD from a \c ParaMESH and a \c ComponentTopology.
 
-    This constructor creates an empty field based on the ParaSUPPORT description 
+    This constructor creates an empty field based on the ParaMESH description
     and the partitioning of components described in \a component_topology.
     It takes ownership over the \c _field object that it creates.
 
@@ -108,7 +107,7 @@ namespace ParaMEDMEM
   /*! \brief Constructor creating the ParaFIELD
     from a given FIELD and a processor group. 
 
-    This constructor supposes that support underlying \a subdomain_field has no ParaSUPPORT 
+    This constructor supposes that support underlying \a subdomain_field has no ParaMESH
     attached and it therefore recreates one. It therefore takes ownership over _support. The component topology associated with the field is a basic one (all components on the same processor). 
   */
   ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, ParaMESH *sup, const ProcessorGroup& proc_group):

@@ -29,6 +29,11 @@
 
 namespace ParaMEDMEM
 {
+  /*
+   * Internal class, not part of the public API.
+   *
+   * Another gateway to the MPI library?
+   */
   class MPIAccessDEC
   {
   public:  

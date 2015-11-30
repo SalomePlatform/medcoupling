@@ -726,6 +726,7 @@ std::string MEDCouplingMesh::getVTKFileNameOf(const std::string& fileName) const
   return ret;
 }
 
+/// @cond INTERNAL
 void MEDCouplingMesh::writeVTKAdvanced(const std::string& fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const
 {
   std::ofstream ofs(fileName.c_str());
@@ -758,3 +759,4 @@ void MEDCouplingMesh::SplitExtension(const std::string& fileName, std::string& b
   baseName=fileName.substr(0,pos);
   extension=fileName.substr(pos);
 }
+/// @endcond

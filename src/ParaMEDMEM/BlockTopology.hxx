@@ -32,10 +32,20 @@ namespace ParaMEDMEM
 
   typedef enum{Block,Cycle} CYCLE_TYPE; 
 
+  /*!
+   * \anchor BlockTopology-det
+   *
+   * A BlockTopology typically represents the split of a *structured* mesh among the processors of
+   * a common ProcessorGroup. Each processor gets a contiguous part of the cells in the mesh (a block).
+   *
+   * A BlockTopology can also be used to split a structured domain among the various components of a field.
+   *
+   * \sa ExplicitTopology
+   */
   class BlockTopology : public Topology
   {
   public:
-    BlockTopology() { }
+    BlockTopology();
     BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid); 
     BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo);
     BlockTopology(const ProcessorGroup& group, int nb_elem);

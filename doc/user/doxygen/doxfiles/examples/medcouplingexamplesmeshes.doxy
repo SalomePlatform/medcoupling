@@ -73,7 +73,8 @@ Or :
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_3
 
-When this mesh is no more needed simply call decrRef to decrement its reference counter.
+When this mesh is no more needed simply call decrRef to decrement its reference counter (nothing
+to be done in Python).
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_4
 

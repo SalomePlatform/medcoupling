@@ -75,11 +75,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testGauthier4);
   CPPUNIT_TEST(testFabienAPI1);
   CPPUNIT_TEST(testFabienAPI2);
-  CPPUNIT_TEST(testMEDLoaderRead1);
-  CPPUNIT_TEST(testMEDLoaderPolygonRead);
-  CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
   CPPUNIT_TEST_SUITE_END();
-  
 
 public:
  
@@ -130,12 +126,6 @@ public:
   void testGauthier4();
   void testFabienAPI1();
   void testFabienAPI2();
-  //
-  void testMEDLoaderRead1();
-  void testMEDLoaderPolygonRead();
-  void testMEDLoaderPolyhedronRead();
-  void testMEDLoaderWrite1();
-  void testMEDLoaderPolygonWrite();
 
   std::string getResourceFile( const std::string& );
   std::string getTmpDirectory();

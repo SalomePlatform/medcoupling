@@ -28,32 +28,32 @@ namespace ParaMEDMEM
    * Sets the name of \a this mesh.
    *  \param [in] name - the new mesh name.
    */
-  void MEDFileMesh::setName(const char *name) {}
+  void MEDFileMesh::setName(const std::string& name) {}
   /*!
    * Returns the name of \a this mesh.
    *  \return const char* name - the mesh name.
    */
-  const char *MEDFileMesh::getName() const {}
+  const std::string& MEDFileMesh::getName() const {}
   /*!
    * Sets the universal name of \a this mesh. The universal name uniquely identifies the mesh.
    *  \param [in] name - the new universal mesh name.
    */
-  void MEDFileMesh::setUnivName(const char *name) {}
+  void MEDFileMesh::setUnivName(const std::string& name) {}
   /*!
    * Returns the universal name of \a this mesh. The universal name uniquely identifies the mesh.
-   *  \return const char * - the universal mesh name.
+   *  \return const std::string&  - the universal mesh name.
    */
-  const char *MEDFileMesh::getUnivName() const {}
+  const std::string& MEDFileMesh::getUnivName() const {}
   /*!
    * Sets the description of \a this mesh.
    *  \param [in] name - the new mesh description.
    */
-  void MEDFileMesh::setDescription(const char *name) {}
+  void MEDFileMesh::setDescription(const std::string& name) {}
   /*!
    * Returns the description of \a this mesh.
    *  \return const char* - the mesh description.
    */
-  const char *MEDFileMesh::getDescription() const {}
+  const std::string& MEDFileMesh::getDescription() const {}
   /*!
    * Sets the order number of iteration of \a this mesh state.
    *  \param [in] order - the order number.
@@ -104,12 +104,12 @@ namespace ParaMEDMEM
    * Sets units in which the time is measured.
    *  \param [in] unit - the time unit name.
    */
-  void MEDFileMesh::setTimeUnit(const char *unit) {}
+  void MEDFileMesh::setTimeUnit(const std::string& unit) {}
   /*!
    * Returns units in which the time is measured.
-   *  \return const char * - the time unit name.
+   *  \return const std::string&  - the time unit name.
    */
-  const char *MEDFileMesh::getTimeUnit() const {}
+  const std::string& MEDFileMesh::getTimeUnit() const {}
   /*!
    * Returns names and ids of all families in \a this mesh.
    *  \return const std::map<std::string,int>& - a map of a family name to a family id.
@@ -221,48 +221,48 @@ namespace ParaMEDMEM
   /*! \name Basic API   */
   ///@{
   MEDFileMesh::FindOrCreateAndGiveFamilyWithId(std::map<std::string,int>& families, int id, bool& created);
-MEDFileMesh::New(const char *fileName);
-MEDFileMesh::New(const char *fileName, const char *mName, int dt=-1, int it=-1);
-MEDFileMesh::addFamily(const char *familyName, int id);
-MEDFileMesh::addFamilyOnGrp(const char *grpName, const char *famName);
+//MEDFileMesh::New(const std::string& fileName);
+//MEDFileMesh::New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1);
+MEDFileMesh::addFamily(const std::string& familyName, int id);
+MEDFileMesh::addFamilyOnGrp(const std::string& grpName, const std::string& famName);
 MEDFileMesh::advancedRepr() const = 0;
 MEDFileMesh::areFamsEqual(const MEDFileMesh *other, std::string& what) const;
 MEDFileMesh::areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
 MEDFileMesh::assignFamilyNameWithGroupName();
 MEDFileMesh::changeFamilyId(int oldId, int newId);
-MEDFileMesh::changeFamilyName(const char *oldName, const char *newName);
-MEDFileMesh::changeGroupName(const char *oldName, const char *newName);
+MEDFileMesh::changeFamilyName(const std::string& oldName, const std::string& newName);
+MEDFileMesh::changeGroupName(const std::string& oldName, const std::string& newName);
 MEDFileMesh::copyFamGrpMapsFrom(const MEDFileMesh& other);
-MEDFileMesh::createGroupOnAll(int meshDimRelToMaxExt, const char *groupName);
-MEDFileMesh::existsFamily(const char *familyName) const;
+MEDFileMesh::createGroupOnAll(int meshDimRelToMaxExt, const std::string& groupName);
+MEDFileMesh::existsFamily(const std::string& familyName) const;
 MEDFileMesh::existsFamily(int famId) const;
-MEDFileMesh::existsGroup(const char *groupName) const;
+MEDFileMesh::existsGroup(const std::string& groupName) const;
 MEDFileMesh::findOrCreateAndGiveFamilyWithId(int id, bool& created);
 MEDFileMesh::getDescription() const;
 MEDFileMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
 MEDFileMesh::getFamiliesIds(const std::vector<std::string>& famNames) const;
-MEDFileMesh::getFamiliesIdsOnGroup(const char *name) const;
+MEDFileMesh::getFamiliesIdsOnGroup(const std::string& name) const;
 MEDFileMesh::getFamiliesNames() const;
-MEDFileMesh::getFamiliesOnGroup(const char *name) const;
+MEDFileMesh::getFamiliesOnGroup(const std::string& name) const;
 MEDFileMesh::getFamiliesOnGroups(const std::vector<std::string>& grps) const;
-MEDFileMesh::getFamilyArr(int meshDimRelToMaxExt, const char *fam, bool renum=false) const;
+MEDFileMesh::getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
 MEDFileMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) const;
-MEDFileMesh::getFamilyId(const char *name) const;
+MEDFileMesh::getFamilyId(const std::string& name) const;
 MEDFileMesh::getFamilyInfo() const;
 MEDFileMesh::getFamilyNameGivenId(int id) const;
 MEDFileMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
-MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum=false) const;
+MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const;
 MEDFileMesh::getGroupInfo() const;
 MEDFileMesh::getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const;
 MEDFileMesh::getGroupsNames() const;
-MEDFileMesh::getGroupsOnFamily(const char *name) const;
+MEDFileMesh::getGroupsOnFamily(const std::string& name) const;
 MEDFileMesh::getIteration() const;
 MEDFileMesh::getMaxFamilyId() const;
 MEDFileMesh::getMeshDimension() const;
 MEDFileMesh::getName() const;
 MEDFileMesh::getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const;
-MEDFileMesh::getNodeFamilyArr(const char *fam, bool renum=false) const;
-MEDFileMesh::getNodeGroupArr(const char *grp, bool renum=false) const;
+MEDFileMesh::getNodeFamilyArr(const std::string& fam, bool renum=false) const;
+MEDFileMesh::getNodeGroupArr(const std::string& grp, bool renum=false) const;
 MEDFileMesh::getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const;
 MEDFileMesh::getNonEmptyLevels() const = 0;
 MEDFileMesh::getNonEmptyLevelsExt() const = 0;
@@ -276,27 +276,27 @@ MEDFileMesh::getTimeValue() const;
 MEDFileMesh::getUnivName() const;
 MEDFileMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
 MEDFileMesh::keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs);
-MEDFileMesh::removeFamily(const char *name);
-MEDFileMesh::removeGroup(const char *name);
-MEDFileMesh::setDescription(const char *name);
-MEDFileMesh::setFamiliesIdsOnGroup(const char *name, const std::vector<int>& famIds);
-MEDFileMesh::setFamiliesOnGroup(const char *name, const std::vector<std::string>& fams);
+MEDFileMesh::removeFamily(const std::string& name);
+MEDFileMesh::removeGroup(const std::string& name);
+MEDFileMesh::setDescription(const std::string& name);
+MEDFileMesh::setFamiliesIdsOnGroup(const std::string& name, const std::vector<int>& famIds);
+MEDFileMesh::setFamiliesOnGroup(const std::string& name, const std::vector<std::string>& fams);
 MEDFileMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
-MEDFileMesh::setFamilyId(const char *familyName, int id);
+MEDFileMesh::setFamilyId(const std::string& familyName, int id);
 MEDFileMesh::setFamilyInfo(const std::map<std::string,int>& info);
 MEDFileMesh::setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
 MEDFileMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=false);
-MEDFileMesh::setGroupsOnFamily(const char *famName, const std::vector<std::string>& grps);
+MEDFileMesh::setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps);
 MEDFileMesh::setIteration(int it);
-MEDFileMesh::setName(const char *name);
+MEDFileMesh::setName(const std::string& name);
 MEDFileMesh::setOrder(int order);
 MEDFileMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
 MEDFileMesh::setTime(int dt, int it, double time);
-MEDFileMesh::setTimeUnit(const char *unit);
+MEDFileMesh::setTimeUnit(const std::string& unit);
 MEDFileMesh::setTimeValue(double time);
-MEDFileMesh::setUnivName(const char *name);
+MEDFileMesh::setUnivName(const std::string& name);
 MEDFileMesh::simpleRepr() const;
-MEDFileMesh::write(const char *fileName, int mode) const;
+MEDFileMesh::write(const std::string& fileName, int mode) const;
 MEDFileMesh::write(med_idt fid) const;
 ///@}
 
@@ -307,14 +307,14 @@ MEDFileMesh::clearNonDiscrAttributes() const;
 
 /*! \name Others... */
 ///@{
-MEDFileMesh::ChangeAllGroupsContainingFamily(std::map<std::string, std::vector<std::string> >& groups, const char *familyNameToChange, const std::vector<std::string>& newFamiliesNames);
+MEDFileMesh::ChangeAllGroupsContainingFamily(std::map<std::string, std::vector<std::string> >& groups, const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames);
 MEDFileMesh::CreateNameNotIn(const std::string& nameTry, const std::vector<std::string>& namesToAvoid);
 MEDFileMesh::MEDFileMesh();
 MEDFileMesh::PutInThirdComponentOfCodeOffset(std::vector<int>& code, int strt);
 MEDFileMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
-MEDFileMesh::addFamilyOnAllGroupsHaving(const char *famName, const char *otherFamName);
+MEDFileMesh::addFamilyOnAllGroupsHaving(const std::string& famName, const std::string& otherFamName);
 MEDFileMesh::appendFamilyEntries(const DataArrayInt *famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
-MEDFileMesh::changeAllGroupsContainingFamily(const char *familyNameToChange, const std::vector<std::string>& newFamiliesNames);
+MEDFileMesh::changeAllGroupsContainingFamily(const std::string& familyNameToChange, const std::vector<std::string>& newFamiliesNames);
 MEDFileMesh::changeFamilyIdArr(int oldId, int newId);
 MEDFileMesh::changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
 MEDFileMesh::dealWithTinyInfo(const MEDCouplingMesh *m);
@@ -322,7 +322,7 @@ MEDFileMesh::deepCpy() const;
 MEDFileMesh::ensureDifferentFamIdsPerLevel();
 MEDFileMesh::getAllFamiliesIdsReferenced() const;
 MEDFileMesh::getFamilyRepr(std::ostream& oss) const;
-MEDFileMesh::getHeapMemorySize() const;
+//MEDFileMesh::getHeapMemorySize() const;
 MEDFileMesh::getMaxFamilyIdInArrays() const;
 MEDFileMesh::getMinFamilyId() const;
 MEDFileMesh::getMinFamilyIdInArrays() const;
@@ -332,7 +332,7 @@ MEDFileMesh::getTheMaxFamilyId() const;
 MEDFileMesh::getTheMinFamilyId() const;
 MEDFileMesh::normalizeFamIdsMEDFile();
 MEDFileMesh::normalizeFamIdsTrio();
-MEDFileMesh::setFamilyIdUnique(const char *familyName, int id);
+MEDFileMesh::setFamilyIdUnique(const std::string& familyName, int id);
 MEDFileMesh::setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr);
 MEDFileMesh::shallowCpy() const;
 MEDFileMesh::synchronizeTinyInfoOnLeaves() const = 0;

@@ -28,6 +28,7 @@
 
 using namespace ParaMEDMEM;
 
+/// @cond INTERNAL
 DataArrayDoubleCollection *DataArrayDoubleCollection::New(const std::vector< std::pair<std::string,int> >& fieldNames)
 {
   return new DataArrayDoubleCollection(fieldNames);
@@ -726,6 +727,8 @@ void MEDCouplingGridCollection::updateTime() const
         updateTimeWith(*b);
     }
 }
+
+/// @endcond
 
 MEDCouplingCartesianAMRMesh *MEDCouplingDataForGodFather::getMyGodFather()
 {

@@ -84,9 +84,9 @@ namespace ParaMEDMEM
   MEDCouplingMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,DataArrayInt *&cellCor) const;
   MEDCouplingMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
   MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
-  MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const;
-  MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const;
-  MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const;
+  MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const;
+  MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const;
+  MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const;
   MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
   MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
   MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const;
@@ -131,7 +131,7 @@ namespace ParaMEDMEM
   MEDCouplingMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
   MEDCouplingMesh::getDescription() const;
   MEDCouplingMesh::getDistributionOfTypes() const;
-  MEDCouplingMesh::getHeapMemorySize() const;
+//  MEDCouplingMesh::getHeapMemorySize() const;
   MEDCouplingMesh::getMeasureField(bool isAbs) const = 0;
   MEDCouplingMesh::getMeasureFieldOnNode(bool isAbs) const = 0;
   MEDCouplingMesh::getMeshDimension() const = 0;
@@ -166,7 +166,7 @@ namespace ParaMEDMEM
   MEDCouplingMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const;
   MEDCouplingMesh::translate(const double *vector) = 0;
   MEDCouplingMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,const std::vector<std::string>& littleStrings) = 0;
-  MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const;
+  //MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const;
   MEDCouplingMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const;
   MEDCouplingMesh::_description;
   MEDCouplingMesh::_iteration;
