@@ -29,6 +29,7 @@
 namespace ParaMEDMEM
 {
   class OverlapInterpolationMatrix;
+  class OverlapElementLocator;
   class ProcessorGroup;
   class ParaFIELD;
 
@@ -45,10 +46,15 @@ namespace ParaMEDMEM
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
     ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
+
+    void setDefaultValue(double val) {_default_field_value = val;}
   private:
     bool _own_group;
     OverlapInterpolationMatrix* _interpolation_matrix;
+    OverlapElementLocator* _locator;
     ProcessorGroup *_group;
+
+    double _default_field_value;
 
     ParaFIELD *_source_field;
     bool _own_source_field;

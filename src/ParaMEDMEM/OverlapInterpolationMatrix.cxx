@@ -48,14 +48,15 @@ namespace ParaMEDMEM
                                                          ParaFIELD *target_field,
                                                          const ProcessorGroup& group,
                                                          const DECOptions& dec_options,
-                                                         const INTERP_KERNEL::InterpolationOptions& i_opt):
+                                                         const INTERP_KERNEL::InterpolationOptions& i_opt,
+                                                         const OverlapElementLocator & locator):
     INTERP_KERNEL::InterpolationOptions(i_opt),
     DECOptions(dec_options),
     _source_field(source_field),
     _target_field(target_field),
     _source_support(source_field->getSupport()->getCellMesh()),
     _target_support(target_field->getSupport()->getCellMesh()),
-    _mapping(group),
+    _mapping(group, locator),
     _group(group)
   {
   }
@@ -261,9 +262,9 @@ namespace ParaMEDMEM
       throw INTERP_KERNEL::Exception("Policy Not implemented yet : only ConservativeVolumic defined !");
   }
 
-  void OverlapInterpolationMatrix::multiply()
+  void OverlapInterpolationMatrix::multiply(double default_val)
   {
-    _mapping.multiply(_source_field->getField(),_target_field->getField());
+    _mapping.multiply(_source_field->getField(),_target_field->getField(), default_val);
   }
 
   void OverlapInterpolationMatrix::transposeMultiply()

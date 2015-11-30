@@ -119,7 +119,6 @@ namespace ParaMEDMEM
           if(intersectsBoundingBox(i,j))
             {
             _proc_pairs[i].push_back(j);
-//            std::cout << "("  << _group.myRank() << ") PROC pair: " << i << "," << j << std::endl;
             }
         }
     // OK now let's assigning as balanced as possible, job to each proc of group
@@ -141,11 +140,13 @@ namespace ParaMEDMEM
     int myProcId=_group.myRank();
     _to_do_list=pairsToBeDonePerProc[myProcId];
 
-//    std::stringstream scout;
-//    scout << "(" << myProcId << ") my TODO list is: ";
-//    for (std::vector< ProcCouple >::const_iterator itdbg=_to_do_list.begin(); itdbg!=_to_do_list.end(); itdbg++)
-//      scout << "(" << (*itdbg).first << "," << (*itdbg).second << ")";
-//    std::cout << scout.str() << "\n";
+#ifdef DEC_DEBUG
+    std::stringstream scout;
+    scout << "(" << myProcId << ") my TODO list is: ";
+    for (std::vector< ProcCouple >::const_iterator itdbg=_to_do_list.begin(); itdbg!=_to_do_list.end(); itdbg++)
+      scout << "(" << (*itdbg).first << "," << (*itdbg).second << ")";
+    std::cout << scout.str() << "\n";
+#endif
 
     // Feeding now '_procs_to_send*'. A same id can appears twice. The second parameter in pair means what
     // to send true=source, false=target
@@ -265,6 +266,11 @@ namespace ParaMEDMEM
     return (*it).second;
   }
 
+  bool OverlapElementLocator::isInMyTodoList(int i, int j) const
+  {
+    ProcCouple cpl = std::make_pair(i, j);
+    return std::find(_to_do_list.begin(), _to_do_list.end(), cpl)!=_to_do_list.end();
+  }
 
   bool OverlapElementLocator::intersectsBoundingBox(int isource, int itarget) const
   {

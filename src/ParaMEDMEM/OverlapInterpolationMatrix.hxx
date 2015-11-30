@@ -45,7 +45,8 @@ namespace ParaMEDMEM
                                ParaFIELD *target_field,
                                const ProcessorGroup& group,
                                const DECOptions& dec_opt,
-                               const InterpolationOptions& i_opt);
+                               const InterpolationOptions& i_opt,
+                               const OverlapElementLocator & loc);
 
     void keepTracksOfSourceIds(int procId, DataArrayInt *ids);
 
@@ -58,7 +59,7 @@ namespace ParaMEDMEM
     
     void computeDeno();
 
-    void multiply();
+    void multiply(double default_val);
 
     void transposeMultiply();
     
@@ -67,7 +68,6 @@ namespace ParaMEDMEM
 
     static void TransposeMatrix(const std::vector<SparseDoubleVec>& matIn, int nbColsMatIn,
                                 std::vector<SparseDoubleVec>& matOut);
-//    bool isSurfaceComputationNeeded(const std::string& method) const;
   private:
     ParaFIELD           *_source_field;
     ParaFIELD           *_target_field;

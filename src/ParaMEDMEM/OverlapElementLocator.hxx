@@ -48,13 +48,14 @@ namespace ParaMEDMEM
     const MPI_Comm *getCommunicator() const;
     void exchangeMeshes(OverlapInterpolationMatrix& matrix);
     std::vector< std::pair<int,int> > getToDoList() const { return _to_do_list; }
-    std::vector< int > getProcsToSendFieldData() const { return _procs_to_send_field; }
+    std::vector< int > getProcsToSendFieldData() const { return _procs_to_send_field; }  // same set as the set of procs we sent mesh data to
     std::string getSourceMethod() const;
     std::string getTargetMethod() const;
     const MEDCouplingPointSet *getSourceMesh(int procId) const;
     const DataArrayInt *getSourceIds(int procId) const;
     const MEDCouplingPointSet *getTargetMesh(int procId) const;
     const DataArrayInt *getTargetIds(int procId) const;
+    bool isInMyTodoList(int i, int j) const;
   private:
     void computeBoundingBoxesAndTodoList();
     bool intersectsBoundingBox(int i, int j) const;
@@ -83,9 +84,9 @@ namespace ParaMEDMEM
     std::vector< ProcCouple > _to_do_list;
     //! list of procs the local proc will have to send mesh data to:
     std::vector< Proc_SrcOrTgt > _procs_to_send_mesh;
-    /*! list of procs the local proc will have to send field data to for the final matrix-vector computation:
-     * This can be different from _procs_to_send_mesh because interpolation matrix bits are computed on a potentially
-     * different proc than the target one.   */
+//    /*! list of procs the local proc will have to send field data to for the final matrix-vector computation:
+//     * This can be different from _procs_to_send_mesh (restricted to Source) because interpolation matrix bits are computed on a potentially
+//     * different proc than the target one.   */
     std::vector< int > _procs_to_send_field;
     //! Set of distant meshes
     std::map< Proc_SrcOrTgt,  AutoMCPointSet > _remote_meshes;

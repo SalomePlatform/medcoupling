@@ -22,6 +22,7 @@
 #define __OVERLAPMAPPING_HXX__
 
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "OverlapElementLocator.hxx"
 
 #include <vector>
 #include <map>
@@ -45,7 +46,7 @@ namespace ParaMEDMEM
   {
   public:
 
-    OverlapMapping(const ProcessorGroup& group);
+    OverlapMapping(const ProcessorGroup& group, const OverlapElementLocator& locator);
     void keepTracksOfSourceIds(int procId, DataArrayInt *ids);
     void keepTracksOfTargetIds(int procId, DataArrayInt *ids);
     void addContributionST(const std::vector< SparseDoubleVec >& matrixST, const DataArrayInt *srcIds, int srcProcId, const DataArrayInt *trgIds, int trgProcId);
@@ -53,10 +54,10 @@ namespace ParaMEDMEM
     void computeDenoConservativeVolumic(int nbOfTuplesTrg);
     void computeDenoGlobConstraint();
     //
-    void multiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput) const;
+    void multiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput, double default_val) const;
     void transposeMultiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput);
   private:
-    void fillProcToSendRcvForMultiply(const std::vector< int >& procsToSendField);
+//    void fillProcToSendRcvForMultiply(const std::vector< int >& procsToSendField);
     void serializeMatrixStep0ST(const int *nbOfElemsSrc, int *&bigArr, int *count, int *offsets,
                                 int *countForRecv, int *offsetsForRecv) const;
     int serializeMatrixStep1ST(const int *nbOfElemsSrc, const int *recvStep0, const int *countStep0, const int *offsStep0,
@@ -65,15 +66,20 @@ namespace ParaMEDMEM
     void unserializationST(int nbOfTrgElems, const int *nbOfElemsSrcPerProc, const int *bigArrRecv, const int *bigArrRecvCounts, const int *bigArrRecvOffs,
                            const int *bigArrRecv2, const double *bigArrDRecv2, const int *bigArrRecv2Count, const int *bigArrRecv2Offs);
     void finishToFillFinalMatrixST();
-    void updateZipSourceIdsForFuture();
+    void updateZipSourceIdsForMultiply();
 
-    // Debug
-//    void printMatrixesST() const;
-//    void printTheMatrix() const;
+#ifdef DEC_DEBUG
+    void printMatrixesST() const;
+    void printTheMatrix() const;
+    void printDenoMatrix() const;
+#endif
   private:
     const ProcessorGroup &_group;
+    const OverlapElementLocator& _locator;
+
     /**! Vector of DAInt of cell identifiers. The 2 following class members work in pair. For a proc ID i,
-     * first member gives an old2new map for the local part of the source mesh that has been sent.
+     * first member gives an old2new map for the local part of the source mesh that has been sent to proc#i, just based on the
+     * bounding box computation (this is potentially a larger set than what is finally in the interp matrix).
      * Second member gives proc ID.  */
     std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _sent_src_ids_st2;
     //! see above _sent_src_ids_st2
@@ -85,7 +91,7 @@ namespace ParaMEDMEM
     std::vector< int > _sent_trg_proc_st2;
 
 
-    /**! Vector of matrixes (partial interpolation ratios), result of the local interpolator run.
+    /**! Vector of matrixes (partial interpolation ratios), result of the LOCAL interpolator run.
      * Indexing shared with _source_proc_id_st, and _target_proc_id_st.   */
     std::vector< std::vector< SparseDoubleVec > > _matrixes_st;
     //! See _matrixes_st - vec of source proc IDs
@@ -93,21 +99,24 @@ namespace ParaMEDMEM
     //! See _matrixes_st - vec of target proc IDs
     std::vector< int > _target_proc_id_st;
 
-    //! Vector of remote remote proc IDs for source mesh. Indexing shared with _nb_of_src_ids_proc_st2
-    std::vector< int > _src_ids_proc_st2;
-    //! Number of cells in the mesh/mapping received from the remote proc i for source mesh. See _src_ids_proc_st2 above
-    std::vector< int > _nb_of_src_ids_proc_st2;
+    /**! Vector of remote proc IDs from which this proc received cell IDs of the source mesh.
+     * Indexing shared with _nb_of_rcv_src_ids_proc_st2 */
+    std::vector< int > _rcv_src_ids_proc_st2;
+    /**! Number of received source mesh IDs at mesh data exchange. See _src_ids_proc_st2 above.
+     Counting the number of IDs suffices, as we just need this to prepare the receive when doing the final vector matrix multiplication */
+    std::vector< int > _nb_of_rcv_src_ids_proc_st2;
 
-    /**! Specifies for each remote proc ID (given in _src_ids_zip_proc_st2 below) the corresponding local
-     * source cell IDs to use/send. Same indexing as _src_ids_zip_proc_st2. Sorted.
-     * On a given proc, those two members contain exactly the same set of cell identifiers as what is given
-     * in the locally held interpolation matrices.   */
+    /**! Specifies for each (target) remote proc ID (given in _src_ids_zip_proc_st2 below) the corresponding
+     * source cell IDs to use. Same indexing as _src_ids_zip_proc_st2. Sorted.
+     * On a given proc, and after updateZipSourceIdsForMultiply(), this member contains exactly the same set of source cell IDs as what is given
+     * in the locally held interpolation matrices.
+     * IMPORTANT: as a consequence cell IDs in _src_ids_zip_st2 are *remote* identifiers.   */
     std::vector< std::vector<int> > _src_ids_zip_st2;
     //! Vector of remote proc ID to which the local source mapping above corresponds. See _src_ids_zip_st2 above.
     std::vector< int > _src_ids_zip_proc_st2;
 
     /**! THE matrix for matrix-vector product. The first dimension is indexed in the set of target procs
-    * that interacts with local source mesh. The second dim is the pseudo id of source proc.
+    * that interacts with local source mesh. The second dim is the target cell ID.
     * Same indexing as _the_matrix_st_source_proc_id  */
     std::vector< std::vector< SparseDoubleVec > > _the_matrix_st;
     //! See _the_matrix_st above. List of source proc IDs contributing to _the_matrix_st
@@ -118,12 +127,8 @@ namespace ParaMEDMEM
     //! Proc IDs from which data will be received (on this current proc) for matrix-vector computation
     std::vector< int > _proc_ids_to_recv_vector_st;
 
-    // Denominators (computed from the numerator matrix)
+    // Denominators (computed from the numerator matrix). As for _the_matrix_st it is paired with _the_matrix_st_source_proc_id
     std::vector< std::vector< SparseDoubleVec > > _the_deno_st;
-
-//    std::vector< std::vector<int> > _the_matrix_st_source_ids;
-//    //! this attribute is of size _group.size(); for each procId in _group _source_ids_to_send_st[procId] contains tupleId to send abroad
-//    std::vector< std::vector<int> > _source_ids_to_send_st;
   };
 }
 

@@ -208,9 +208,10 @@ namespace ParaMEDMEM
     The method in charge to perform this is : ParaMEDMEM::OverlapMapping::prepare.
 */
   OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
-      _own_group(true),_interpolation_matrix(0),
+      _own_group(true),_interpolation_matrix(0), _locator(0),
       _source_field(0),_own_source_field(false),
       _target_field(0),_own_target_field(false),
+      _default_field_value(0.0),
       _comm(MPI_COMM_NULL)
   {
     ParaMEDMEM::CommInterface comm;
@@ -243,6 +244,7 @@ namespace ParaMEDMEM
     if(_own_target_field)
       delete _target_field;
     delete _interpolation_matrix;
+    delete _locator;
     if (_comm != MPI_COMM_NULL)
       {
         ParaMEDMEM::CommInterface comm;
@@ -260,7 +262,7 @@ namespace ParaMEDMEM
 
   void OverlapDEC::sendData()
   {
-    _interpolation_matrix->multiply();
+    _interpolation_matrix->multiply(_default_field_value);
   }
 
   void OverlapDEC::recvData()
@@ -281,22 +283,22 @@ namespace ParaMEDMEM
     if (_target_field->getField()->getNumberOfComponents() != _source_field->getField()->getNumberOfComponents())
       throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): source and target field have different number of components!");
     delete _interpolation_matrix;
-    _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this);
-    OverlapElementLocator locator(_source_field,_target_field,*_group, getBoundingBoxAdjustmentAbs());
-    locator.copyOptions(*this);
-    locator.exchangeMeshes(*_interpolation_matrix);
-    std::vector< std::pair<int,int> > jobs=locator.getToDoList();
-    std::string srcMeth=locator.getSourceMethod();
-    std::string trgMeth=locator.getTargetMethod();
+    _locator = new OverlapElementLocator(_source_field,_target_field,*_group, getBoundingBoxAdjustmentAbs());
+    _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this, *_locator);
+    _locator->copyOptions(*this);
+    _locator->exchangeMeshes(*_interpolation_matrix);
+    std::vector< std::pair<int,int> > jobs=_locator->getToDoList();
+    std::string srcMeth=_locator->getSourceMethod();
+    std::string trgMeth=_locator->getTargetMethod();
     for(std::vector< std::pair<int,int> >::const_iterator it=jobs.begin();it!=jobs.end();it++)
       {
-        const MEDCouplingPointSet *src=locator.getSourceMesh((*it).first);
-        const DataArrayInt *srcIds=locator.getSourceIds((*it).first);
-        const MEDCouplingPointSet *trg=locator.getTargetMesh((*it).second);
-        const DataArrayInt *trgIds=locator.getTargetIds((*it).second);
+        const MEDCouplingPointSet *src=_locator->getSourceMesh((*it).first);
+        const DataArrayInt *srcIds=_locator->getSourceIds((*it).first);
+        const MEDCouplingPointSet *trg=_locator->getTargetMesh((*it).second);
+        const DataArrayInt *trgIds=_locator->getTargetIds((*it).second);
         _interpolation_matrix->addContribution(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
       }
-    _interpolation_matrix->prepare(locator.getProcsToSendFieldData());
+    _interpolation_matrix->prepare(_locator->getProcsToSendFieldData());
     _interpolation_matrix->computeDeno();
   }
 
