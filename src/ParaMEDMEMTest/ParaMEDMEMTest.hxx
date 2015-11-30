@@ -64,11 +64,11 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testAsynchronousSlowerSourceInterpKernelDEC_2D);           // 5 procs
   CPPUNIT_TEST(testAsynchronousSlowSourceInterpKernelDEC_2D);             // 5 procs
   CPPUNIT_TEST(testAsynchronousFastSourceInterpKernelDEC_2D);             // 5 procs
-//#ifdef MED_ENABLE_FVM
-//  //can be added again after FVM correction for 2D
-//  //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
-//  CPPUNIT_TEST(testNonCoincidentDEC_3D);
-//#endif
+#ifdef MED_ENABLE_FVM
+  //can be added again after FVM correction for 2D
+  //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
+  CPPUNIT_TEST(testNonCoincidentDEC_3D);
+#endif
   CPPUNIT_TEST(testStructuredCoincidentDEC);     // 5 procs
   CPPUNIT_TEST(testICoco1);           // 2 procs
   CPPUNIT_TEST(testGauthier1);        // 4 procs

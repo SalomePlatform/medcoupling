@@ -20,6 +20,7 @@
 
 #include "OverlapDEC.hxx"
 #include "CommInterface.hxx"
+#include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "OverlapElementLocator.hxx"
@@ -320,6 +321,30 @@ namespace ParaMEDMEM
       delete _target_field;
     _target_field=field;
     _own_target_field=ownPt;
+  }
+
+  void OverlapDEC::attachSourceLocalField(MEDCouplingFieldDouble *field)
+  {
+    if(!isInGroup())
+      return ;
+
+    ParaMESH *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
+                                      *_group,field->getMesh()->getName());
+    ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
+    tmpField->setOwnSupport(true);
+    attachSourceLocalField(tmpField,true);
+  }
+
+  void OverlapDEC::attachTargetLocalField(MEDCouplingFieldDouble *field)
+  {
+    if(!isInGroup())
+      return ;
+
+    ParaMESH *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
+                                      *_group,field->getMesh()->getName());
+    ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
+    tmpField->setOwnSupport(true);
+    attachTargetLocalField(tmpField,true);
   }
 
   bool OverlapDEC::isInGroup() const

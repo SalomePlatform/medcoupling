@@ -44,6 +44,8 @@ namespace ParaMEDMEM
     void synchronize();
     void attachSourceLocalField(ParaFIELD *field, bool ownPt=false);
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
+    void attachSourceLocalField(MEDCouplingFieldDouble *field);
+    void attachTargetLocalField(MEDCouplingFieldDouble *field);
     ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
 
