@@ -911,6 +911,11 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshSplitL1::getGeoTypes(
   return _m_by_types.getGeoTypes();
 }
 
+int MEDFileUMeshSplitL1::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const
+{
+  return _m_by_types.getNumberOfCellsWithType(ct);
+}
+
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp;
@@ -1266,6 +1271,22 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMeshAggregateCompute::get
     }
   else
     return _m->getAllGeoTypesSorted();
+}
+
+int MEDFileUMeshAggregateCompute::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const
+{
+  if(_mp_time>=_m_time)
+    {
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+        {
+          const MEDCoupling1GTUMesh *elt(*it);
+          if(elt && elt->getCellModelEnum()==ct)
+            return elt->getNumberOfCells();
+        }
+      return 0;
+    }
+  else
+    return _m->getNumberOfCellsWithType(ct);
 }
 
 std::vector<MEDCoupling1GTUMesh *> MEDFileUMeshAggregateCompute::retrievePartsWithoutComputation() const

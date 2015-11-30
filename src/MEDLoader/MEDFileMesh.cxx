@@ -59,7 +59,9 @@ std::size_t MEDFileMesh::getHeapMemorySizeWithoutChildren() const
 
 std::vector<const BigMemoryObject *> MEDFileMesh::getDirectChildrenWithNull() const
 {
-  return std::vector<const BigMemoryObject *>();
+  std::vector<const BigMemoryObject *> ret(1);
+  ret[0]=(const MEDFileEquivalences *)_equiv;
+  return ret;
 }
 
 /*!
@@ -86,28 +88,23 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
   int dt,it;
   std::string dummy2;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dt,it,dummy2);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ret;
   switch(meshType)
   {
     case UNSTRUCTURED:
       {
-        MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
-        ret->loadUMeshFromFile(fid,ms.front(),dt,it,mrs);
-        ret->loadJointsFromFile(fid);
-        return (MEDFileUMesh *)ret.retn();
+        ret=MEDFileUMesh::New();
+        break;
       }
     case CARTESIAN:
       {
-        MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
-        ret->loadCMeshFromFile(fid,ms.front(),dt,it,mrs);
-        ret->loadJointsFromFile(fid);
-        return (MEDFileCMesh *)ret.retn();
+        ret=MEDFileCMesh::New();
+        break;
       }
     case CURVE_LINEAR:
       {
-        MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=MEDFileCurveLinearMesh::New();
-        ret->loadCLMeshFromFile(fid,ms.front(),dt,it,mrs);
-        ret->loadJointsFromFile(fid);
-        return (MEDFileCurveLinearMesh *)ret.retn();
+        ret=MEDFileCurveLinearMesh::New();
+        break;
       }
     default:
       {
@@ -115,6 +112,8 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
+  ret->loadLLWithAdditionalItems(fid,ms.front(),dt,it,mrs);
+  return ret.retn();
 }
 
 /*!
@@ -142,28 +141,23 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mN
   int dummy0,dummy1;
   std::string dummy2;
   MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ret;
   switch(meshType)
   {
     case UNSTRUCTURED:
       {
-        MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
-        ret->loadUMeshFromFile(fid,mName,dt,it,mrs);
-        ret->loadJointsFromFile(fid,joints);
-        return (MEDFileUMesh *)ret.retn();
+        ret=MEDFileUMesh::New();
+        break;
       }
     case CARTESIAN:
       {
-        MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
-        ret->loadCMeshFromFile(fid,mName,dt,it,mrs);
-        ret->loadJointsFromFile(fid,joints);
-        return (MEDFileCMesh *)ret.retn();
+        ret=MEDFileCMesh::New();
+        break;
       }
     case CURVE_LINEAR:
       {
-        MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=MEDFileCurveLinearMesh::New();
-        ret->loadCLMeshFromFile(fid,mName,dt,it,mrs);
-        ret->loadJointsFromFile(fid,joints);
-        return (MEDFileCurveLinearMesh *)ret.retn();
+        ret=MEDFileCurveLinearMesh::New();
+        break;
       }
     default:
       {
@@ -171,6 +165,8 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mN
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
+  ret->loadLLWithAdditionalItems(fid,mName,dt,it,mrs);
+  return ret.retn();
 }
 
 /*!
@@ -187,6 +183,10 @@ void MEDFileMesh::write(med_idt fid) const
   if(_name.empty())
     throw INTERP_KERNEL::Exception("MEDFileMesh : name is empty. MED file ask for a NON EMPTY name !");
   writeLL(fid);
+  writeJoints(fid);
+  const MEDFileEquivalences *eqs(_equiv);
+  if(eqs)
+    eqs->write(fid);
 }
 
 /*!
@@ -251,6 +251,8 @@ bool MEDFileMesh::isEqual(const MEDFileMesh *other, double eps, std::string& wha
   if(!areGrpsEqual(other,what))
     return false;
   if(!areFamsEqual(other,what))
+    return false;
+  if(!areEquivalencesEqual(other,what))
     return false;
   return true;
 }
@@ -1987,6 +1989,13 @@ std::vector<int> MEDFileMesh::getDistributionOfTypes(int meshDimRelToMax) const
   return mLev->getDistributionOfTypes();
 }
 
+void MEDFileMesh::loadLLWithAdditionalItems(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+{
+  loadLL(fid,mName,dt,it,mrs);
+  loadJointsFromFile(fid);
+  loadEquivalences(fid);
+}
+
 void MEDFileMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp)
 {
   famArr->applyLin(offset>0?1:-1,offset,0);
@@ -2232,6 +2241,7 @@ MEDFileMesh *MEDFileUMesh::createNewEmpty() const
 MEDFileMesh *MEDFileUMesh::deepCpy() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=new MEDFileUMesh(*this);
+  ret->deepCpyEquivalences(*this);
   if((const DataArrayDouble*)_coords)
     ret->_coords=_coords->deepCpy();
   if((const DataArrayInt*)_fam_coords)
@@ -2410,9 +2420,8 @@ MEDFileUMesh::MEDFileUMesh()
 MEDFileUMesh::MEDFileUMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 try
 {
-    loadUMeshFromFile(fid,mName,dt,it,mrs);
-    loadJointsFromFile(fid);
-  }
+    loadLLWithAdditionalItems(fid,mName,dt,it,mrs);
+}
 catch(INTERP_KERNEL::Exception& e)
 {
     throw e;
@@ -2422,7 +2431,7 @@ catch(INTERP_KERNEL::Exception& e)
  * This method loads only a part of specified cells (given by range of cell ID per geometric type)
  * See MEDFileUMesh::LoadPartOf for detailed description.
  *
- * \sa loadUMeshFromFile
+ * \sa loadLL
  */
 void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
@@ -2470,12 +2479,49 @@ void MEDFileMesh::loadJointsFromFile(med_idt fid, MEDFileJoints* toUseInstedOfRe
     _joints = MEDFileJoints::New( fid, _name );
 }
 
+void MEDFileMesh::loadEquivalences(med_idt fid)
+{
+  int nbOfEq(MEDFileEquivalences::PresenceOfEquivalences(fid,_name));
+  if(nbOfEq>0)
+    _equiv=MEDFileEquivalences::Load(fid,nbOfEq,this);
+}
+
+void MEDFileMesh::deepCpyEquivalences(const MEDFileMesh& other)
+{
+  const MEDFileEquivalences *equiv(other._equiv);
+  if(equiv)
+    _equiv=equiv->deepCpy(this);
+}
+
+bool MEDFileMesh::areEquivalencesEqual(const MEDFileMesh *other, std::string& what) const
+{
+  const MEDFileEquivalences *thisEq(_equiv),*otherEq(other->_equiv);
+  if(!thisEq && !otherEq)
+    return true;
+  if(thisEq && otherEq)
+    return thisEq->isEqual(otherEq,what);
+  else
+    {
+      what+="Equivalence differs : defined in this and not in other (or reversely) !";
+      return false;
+    }
+}
+
+void MEDFileMesh::getEquivalencesRepr(std::ostream& oss) const
+{
+  const MEDFileEquivalences *equiv(_equiv);
+  if(!equiv)
+    return ;
+  oss << "(******************************)\n(* EQUIVALENCES OF THE MESH : *)\n(******************************)\n";
+  _equiv->getRepr(oss);
+}
+
 /*!
  * \brief Return number of joints, which is equal to number of adjacent mesh domains
  */
-int MEDFileMesh::getNumberOfJoints()
+int MEDFileMesh::getNumberOfJoints() const
 {
-  return ( (MEDFileJoints*) _joints ) ? _joints->getNumberOfJoints() : 0;
+  return ( (const MEDFileJoints *) _joints ) ? _joints->getNumberOfJoints() : 0;
 }
 
 /*!
@@ -2501,7 +2547,7 @@ void MEDFileMesh::setJoints( MEDFileJoints* joints )
  *
  * \sa loadPartUMeshFromFile
  */
-void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUMeshL2 loaderl2;
   ParaMEDMEM::MEDCouplingMeshType meshType;
@@ -2582,8 +2628,6 @@ void MEDFileUMesh::writeLL(med_idt fid) const
     if((const MEDFileUMeshSplitL1 *)(*it)!=0)
       (*it)->write(fid,meshName,mdim);
   MEDFileUMeshL2::WriteFamiliesAndGrps(fid,meshName,_families,_groups,_too_long_str);
-
-  writeJoints(fid);
 }
 
 /*!
@@ -2943,6 +2987,7 @@ std::string MEDFileUMesh::simpleRepr() const
     }
   oss << std::endl << std::endl;
   getFamilyRepr(oss);
+  getEquivalencesRepr(oss);
   return oss.str();
 }
 
@@ -3414,6 +3459,13 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileUMesh::getGeoTypesAtLevel(
 {
   const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(meshDimRelToMax));
   return sp->getGeoTypes();
+}
+
+int MEDFileUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(ct);
+  const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe( ((int)cm.getDimension())-getMeshDimension() ));
+  return sp->getNumberOfCellsWithType(ct);
 }
 
 /*!
@@ -5659,6 +5711,14 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileStructuredMesh::getGeoType
   }
 }
 
+int MEDFileStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const
+{
+  if(ct!=MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(getMeshDimension()))
+    return 0;
+  else
+    return getNumberOfCellsAtLevel(0);
+}
+
 void MEDFileStructuredMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const
 {
   if(st.getNumberOfItems()!=1)
@@ -5962,6 +6022,7 @@ MEDFileMesh *MEDFileCMesh::createNewEmpty() const
 MEDFileMesh *MEDFileCMesh::deepCpy() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=new MEDFileCMesh(*this);
+  ret->deepCpyEquivalences(*this);
   if((const MEDCouplingCMesh*)_cmesh)
     ret->_cmesh=static_cast<MEDCouplingCMesh*>(_cmesh->deepCpy());
   ret->deepCpyAttributes();
@@ -6022,15 +6083,14 @@ MEDFileCMesh::MEDFileCMesh()
 MEDFileCMesh::MEDFileCMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 try
 {
-    loadCMeshFromFile(fid,mName,dt,it,mrs);
-    loadJointsFromFile(fid);
+    loadLLWithAdditionalItems(fid,mName,dt,it,mrs);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
     throw e;
 }
 
-void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
@@ -6110,8 +6170,6 @@ void MEDFileCMesh::writeLL(med_idt fid) const
   //
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileStructuredMesh::writeStructuredLL(fid,meshName);
-
-  writeJoints(fid);
 }
 
 void MEDFileCMesh::synchronizeTinyInfoOnLeaves() const
@@ -6180,6 +6238,7 @@ MEDFileMesh *MEDFileCurveLinearMesh::createNewEmpty() const
 MEDFileMesh *MEDFileCurveLinearMesh::deepCpy() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=new MEDFileCurveLinearMesh(*this);
+  ret->deepCpyEquivalences(*this);
   if((const MEDCouplingCurveLinearMesh*)_clmesh)
     ret->_clmesh=static_cast<MEDCouplingCurveLinearMesh*>(_clmesh->deepCpy());
   ret->deepCpyAttributes();
@@ -6278,8 +6337,7 @@ MEDFileCurveLinearMesh::MEDFileCurveLinearMesh()
 MEDFileCurveLinearMesh::MEDFileCurveLinearMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 try
 {
-    loadCLMeshFromFile(fid,mName,dt,it,mrs);
-    loadJointsFromFile(fid);
+    loadLLWithAdditionalItems(fid,mName,dt,it,mrs);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -6320,11 +6378,9 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
   //
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
   MEDFileStructuredMesh::writeStructuredLL(fid,meshName);
-
-  writeJoints(fid);
 }
 
-void MEDFileCurveLinearMesh::loadCLMeshFromFile(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+void MEDFileCurveLinearMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;

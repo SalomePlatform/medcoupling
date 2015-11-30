@@ -43,8 +43,7 @@ MEDFileData *MEDFileData::deepCpy() const
   MEDCouplingAutoRefCountObjectPtr<MEDFileParameters> params;
   if((const MEDFileParameters *)_params)
     params=_params->deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<MEDFileJoints> joints;
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> ret=MEDFileData::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> ret(MEDFileData::New());
   ret->_fields=fields; ret->_meshes=meshes; ret->_params=params;
   return ret.retn();
 }

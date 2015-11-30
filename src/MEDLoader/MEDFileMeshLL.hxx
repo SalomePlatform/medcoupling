@@ -158,6 +158,7 @@ namespace ParaMEDMEM
     int getNumberOfCells() const;
     std::vector<MEDCoupling1GTUMesh *> getParts() const;
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
+    int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     std::vector<MEDCoupling1GTUMesh *> retrievePartsWithoutComputation() const;
     MEDCoupling1GTUMesh *retrievePartWithoutComputation(INTERP_KERNEL::NormalizedCellType gt) const;
     void getStartStopOfGeoTypeWithoutComputation(INTERP_KERNEL::NormalizedCellType gt, int& start, int& stop) const;
@@ -221,6 +222,7 @@ namespace ParaMEDMEM
     int getNumberOfCells() const;
     bool isMeshStoredSplitByType() const { return _m_by_types.isStoredSplitByType(); }
     std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypes() const;
+    int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     std::vector<MEDCoupling1GTUMesh *> getDirectUndergroundSingleGeoTypeMeshes() const { return _m_by_types.retrievePartsWithoutComputation(); }
     MEDCoupling1GTUMesh *getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const { return _m_by_types.retrievePartWithoutComputation(gt); }
     DataArrayInt *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
