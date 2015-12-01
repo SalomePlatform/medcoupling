@@ -42,7 +42,7 @@ namespace ParaMEDMEM
   const int OverlapElementLocator::START_TAG_MESH_XCH = 1140;
 
   OverlapElementLocator::OverlapElementLocator(const ParaFIELD *sourceField, const ParaFIELD *targetField,
-                                               const ProcessorGroup& group, double epsAbs)
+                                               const ProcessorGroup& group, double epsAbs, int workSharingAlgo)
     : _local_source_field(sourceField),
       _local_target_field(targetField),
       _local_source_mesh(0),
@@ -56,7 +56,17 @@ namespace ParaMEDMEM
     if(_local_target_field)
       _local_target_mesh=_local_target_field->getSupport()->getCellMesh();
     _comm=getCommunicator();
-    computeBoundingBoxesAndTodoList();
+
+    computeBoundingBoxesAndInteractionList();
+    if (workSharingAlgo == 0)
+      computeTodoList_original();
+    else
+      if(workSharingAlgo == 1)
+        computeTodoList_new();
+      else
+        throw INTERP_KERNEL::Exception("OverlapElementLocator::OverlapElementLocator(): invalid algorithm selected!");
+
+    fillProcToSend();
   }
 
   OverlapElementLocator::~OverlapElementLocator()
@@ -70,7 +80,7 @@ namespace ParaMEDMEM
     return group->getComm();
   }
 
-  void OverlapElementLocator::computeBoundingBoxesAndTodoList()
+  void OverlapElementLocator::computeBoundingBoxesAndInteractionList()
   {
     CommInterface comm_interface=_group.getCommInterface();
     const MPIProcessorGroup* group=static_cast<const MPIProcessorGroup*> (&_group);
@@ -115,30 +125,30 @@ namespace ParaMEDMEM
     _proc_pairs.resize(_group.size());
     for(int i=0;i<_group.size();i++)
       for(int j=0;j<_group.size();j++)
-        {
           if(intersectsBoundingBox(i,j))
-            {
             _proc_pairs[i].push_back(j);
-            }
-        }
+  }
+
+  void OverlapElementLocator::computeTodoList_original()
+  {
     // OK now let's assigning as balanced as possible, job to each proc of group
-    std::vector< std::vector< ProcCouple > > pairsToBeDonePerProc(_group.size());
+    _all_todo_lists.resize(_group.size());
     int i=0;
     for(std::vector< std::vector< int > >::const_iterator it1=_proc_pairs.begin();it1!=_proc_pairs.end();it1++,i++)
       for(std::vector< int >::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
         {
-          if(pairsToBeDonePerProc[i].size()<=pairsToBeDonePerProc[*it2].size())//it includes the fact that i==*it2
-            pairsToBeDonePerProc[i].push_back(ProcCouple(i,*it2));
+          if(_all_todo_lists[i].size()<=_all_todo_lists[*it2].size())//it includes the fact that i==*it2
+            _all_todo_lists[i].push_back(ProcCouple(i,*it2));
           else
-            pairsToBeDonePerProc[*it2].push_back(ProcCouple(i,*it2));
+            _all_todo_lists[*it2].push_back(ProcCouple(i,*it2));
         }
     //Keeping todo list of current proc. _to_do_list contains a set of pair where at least _group.myRank() appears once.
     //This proc will be in charge to perform interpolation of any of element of '_to_do_list'
     //If _group.myRank()==myPair.first, current proc should fetch target mesh of myPair.second (if different from _group.myRank()).
     //If _group.myRank()==myPair.second, current proc should fetch source mesh of myPair.second.
-    
+
     int myProcId=_group.myRank();
-    _to_do_list=pairsToBeDonePerProc[myProcId];
+    _to_do_list=_all_todo_lists[myProcId];
 
 #ifdef DEC_DEBUG
     std::stringstream scout;
@@ -147,14 +157,134 @@ namespace ParaMEDMEM
       scout << "(" << (*itdbg).first << "," << (*itdbg).second << ")";
     std::cout << scout.str() << "\n";
 #endif
+  }
 
+  /* More efficient (?) work sharing algorithm: a job (i,j) is initially assigned twice: to proc#i and to proc#j.
+   * Then try to reduce as much as possible the variance of the num of jobs per proc:
+   *  - take the most loaded proc i,
+   *    + select the job (i,j) for which proc#j is the less loaded
+   *    + remove this job from proc#i
+   *  - repeat until no more duplicates are found
+   */
+  void OverlapElementLocator::computeTodoList_new()
+  {
+    using namespace std;
+    int infinity = std::numeric_limits<int>::max();
+    // Initialisation
+    int grp_size = _group.size();
+    vector < map<ProcCouple, int> > full_set(grp_size );
+    int srcProcID = 0;
+    for(vector< vector< int > >::const_iterator it = _proc_pairs.begin(); it != _proc_pairs.end(); it++, srcProcID++)
+      for (vector< int >::const_iterator it2=(*it).begin(); it2 != (*it).end(); it2++)
+      {
+        // Here a pair of the form (i,i) is added only once!
+        int tgtProcID = *it2;
+        ProcCouple cpl = make_pair(srcProcID, tgtProcID);
+        full_set[srcProcID][cpl] = -1;
+        full_set[tgtProcID][cpl] = -1;
+      }
+    int procID = 0;
+    vector < map<ProcCouple, int> > ::iterator itVector;
+    map<ProcCouple, int>::iterator itMap;
+    for(itVector = full_set.begin(); itVector != full_set.end(); itVector++, procID++)
+      for (itMap=(*itVector).begin(); itMap != (*itVector).end(); itMap++)
+        {
+          const ProcCouple & cpl = (*itMap).first;
+          if (cpl.first == cpl.second)
+            // special case - this couple can not be removed in the future
+            (*itMap).second = infinity;
+          else
+            {
+            if(cpl.first == procID)
+              (*itMap).second = full_set[cpl.second].size();
+            else // cpl.second == srcProcID
+              (*itMap).second = full_set[cpl.first].size();
+            }
+        }
+    INTERP_KERNEL::AutoPtr<bool> proc_valid = new bool[grp_size];
+    fill((bool *)proc_valid, proc_valid+grp_size, true);
+
+    // Now the algo:
+    while (find((bool *)proc_valid, proc_valid+grp_size, true) != proc_valid+grp_size)
+      {
+        // Most loaded proc:
+        int max_sz = -1, max_id = -1;
+        for(itVector = full_set.begin(), procID=0; itVector != full_set.end(); itVector++, procID++)
+          {
+            int sz = (*itVector).size();
+            if (proc_valid[procID] && sz > max_sz)
+              {
+                max_sz = (*itVector).size();
+                max_id = procID;
+              }
+          }
+
+        // Nothing more to do:
+        if (max_sz == -1)
+          break;
+        // For this proc, job with less loaded second proc:
+        int min_sz = infinity;
+        map<ProcCouple, int> & max_map = full_set[max_id];
+        ProcCouple hit_cpl = make_pair(-1,-1);
+        for(itMap=max_map.begin(); itMap != max_map.end(); itMap++)
+          if ((*itMap).second < min_sz)
+            hit_cpl = (*itMap).first;
+        if (hit_cpl.first == -1)
+          {
+            // Plouf. Current proc 'max_id' can not be reduced. Invalid it:
+            proc_valid[max_id] = false;
+            continue;
+          }
+        // Remove item from proc 'max_id'
+        full_set[max_id].erase(hit_cpl);
+        // And mark it as not removable on the other side:
+        if (hit_cpl.first == max_id)
+          full_set[hit_cpl.second][hit_cpl] = infinity;
+        else  // hit_cpl.second == max_id
+          full_set[hit_cpl.first][hit_cpl] = infinity;
+
+        // Now update all counts of valid maps:
+        procID = 0;
+        for(itVector = full_set.begin(); itVector != full_set.end(); itVector++, procID++)
+          if(proc_valid[procID] && procID != max_id)
+            for(itMap = (*itVector).begin(); itMap != (*itVector).end(); itMap++)
+              {
+                const ProcCouple & cpl = (*itMap).first;
+                // Unremovable item:
+                if ((*itMap).second == infinity)
+                  continue;
+                if (cpl.first == max_id || cpl.second == max_id)
+                  (*itMap).second--;
+              }
+      }
+    // Final formatting - extract remaining keys in each map:
+    int myProcId=_group.myRank();
+    _all_todo_lists.resize(grp_size);
+    procID = 0;
+    for(itVector = full_set.begin(); itVector != full_set.end(); itVector++, procID++)
+      for(itMap = (*itVector).begin(); itMap != (*itVector).end(); itMap++)
+          _all_todo_lists[procID].push_back((*itMap).first);
+    _to_do_list=_all_todo_lists[myProcId];
+
+#ifdef DEC_DEBUG
+    std::stringstream scout;
+    scout << "(" << myProcId << ") my TODO list is: ";
+    for (std::vector< ProcCouple >::const_iterator itdbg=_to_do_list.begin(); itdbg!=_to_do_list.end(); itdbg++)
+      scout << "(" << (*itdbg).first << "," << (*itdbg).second << ")";
+    std::cout << scout.str() << "\n";
+#endif
+  }
+
+  void OverlapElementLocator::fillProcToSend()
+  {
     // Feeding now '_procs_to_send*'. A same id can appears twice. The second parameter in pair means what
     // to send true=source, false=target
+    int myProcId=_group.myRank();
     _procs_to_send_mesh.clear();
     _procs_to_send_field.clear();
     for(int i=_group.size()-1;i>=0;i--)
       {
-        const std::vector< ProcCouple >& anRemoteProcToDoList=pairsToBeDonePerProc[i];
+        const std::vector< ProcCouple >& anRemoteProcToDoList=_all_todo_lists[i];
         for(std::vector< ProcCouple >::const_iterator it=anRemoteProcToDoList.begin();it!=anRemoteProcToDoList.end();it++)
           {
             if((*it).first==myProcId)
@@ -169,6 +299,7 @@ namespace ParaMEDMEM
           }
       }
   }
+
 
   /*!
    * The aim of this method is to perform the communication to get data corresponding to '_to_do_list' attribute.

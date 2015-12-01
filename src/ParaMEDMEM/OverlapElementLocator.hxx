@@ -32,6 +32,8 @@
 #include <map>
 #include <set>
 
+//#define DEC_DEBUG
+
 namespace ParaMEDMEM
 {
   class ParaFIELD;
@@ -43,7 +45,8 @@ namespace ParaMEDMEM
   class OverlapElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
   public:
-    OverlapElementLocator(const ParaFIELD *sourceField, const ParaFIELD *targetField, const ProcessorGroup& group,double epsAbs);
+    OverlapElementLocator(const ParaFIELD *sourceField, const ParaFIELD *targetField, const ProcessorGroup& group,
+                          double epsAbs, int workSharingAlgo);
     virtual ~OverlapElementLocator();
     const MPI_Comm *getCommunicator() const;
     void exchangeMeshes(OverlapInterpolationMatrix& matrix);
@@ -57,7 +60,10 @@ namespace ParaMEDMEM
     const DataArrayInt *getTargetIds(int procId) const;
     bool isInMyTodoList(int i, int j) const;
   private:
-    void computeBoundingBoxesAndTodoList();
+    void computeBoundingBoxesAndInteractionList();
+    void computeTodoList_original();
+    void computeTodoList_new();
+    void fillProcToSend();
     bool intersectsBoundingBox(int i, int j) const;
     void sendLocalMeshTo(int procId, bool sourceOrTarget, OverlapInterpolationMatrix& matrix) const;
     void receiveRemoteMeshFrom(int procId, bool sourceOrTarget);
@@ -78,9 +84,11 @@ namespace ParaMEDMEM
     MEDCouplingPointSet *_local_target_mesh;
 
     /*! of size _group.size(). Contains for each source proc i, the ids of proc j the targets interact with.
-        This vector is common for all procs in _group. */
+        This vector is common for all procs in _group. This is the full list of jobs to do the interp. */
     std::vector< std::vector< int > > _proc_pairs;
-    //! list of interpolation couples to be done by this proc only. This is a simple extraction of the member _pairsToBeDonePerProc
+    //! todo lists per proc
+    std::vector< std::vector< ProcCouple > > _all_todo_lists;
+    //! list of interpolation couples to be done by this proc only. This is a simple extraction of the member above _all_todo_lists
     std::vector< ProcCouple > _to_do_list;
     //! list of procs the local proc will have to send mesh data to:
     std::vector< Proc_SrcOrTgt > _procs_to_send_mesh;

@@ -209,6 +209,7 @@ namespace ParaMEDMEM
     The method in charge to perform this is : ParaMEDMEM::OverlapMapping::prepare.
 */
   OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
+      _load_balancing_algo(1),
       _own_group(true),_interpolation_matrix(0), _locator(0),
       _source_field(0),_own_source_field(false),
       _target_field(0),_own_target_field(false),
@@ -284,7 +285,7 @@ namespace ParaMEDMEM
     if (_target_field->getField()->getNumberOfComponents() != _source_field->getField()->getNumberOfComponents())
       throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): source and target field have different number of components!");
     delete _interpolation_matrix;
-    _locator = new OverlapElementLocator(_source_field,_target_field,*_group, getBoundingBoxAdjustmentAbs());
+    _locator = new OverlapElementLocator(_source_field,_target_field,*_group, getBoundingBoxAdjustmentAbs(), _load_balancing_algo);
     _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this, *_locator);
     _locator->copyOptions(*this);
     _locator->exchangeMeshes(*_interpolation_matrix);
@@ -297,7 +298,7 @@ namespace ParaMEDMEM
         const DataArrayInt *srcIds=_locator->getSourceIds((*it).first);
         const MEDCouplingPointSet *trg=_locator->getTargetMesh((*it).second);
         const DataArrayInt *trgIds=_locator->getTargetIds((*it).second);
-        _interpolation_matrix->addContribution(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
+        _interpolation_matrix->computeLocalIntersection(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
       }
     _interpolation_matrix->prepare(_locator->getProcsToSendFieldData());
     _interpolation_matrix->computeSurfacesAndDeno();

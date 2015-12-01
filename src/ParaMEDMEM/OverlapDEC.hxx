@@ -50,7 +50,10 @@ namespace ParaMEDMEM
     bool isInGroup() const;
 
     void setDefaultValue(double val) {_default_field_value = val;}
+    void setWorkSharingAlgo(int method)  { _load_balancing_algo = method; }
   private:
+    int _load_balancing_algo;  // 0 means initial algo from Antho, 1 means Adrien's algo. Make your choice :-))
+
     bool _own_group;
     OverlapInterpolationMatrix* _interpolation_matrix;
     OverlapElementLocator* _locator;

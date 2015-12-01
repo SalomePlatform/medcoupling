@@ -77,12 +77,14 @@ namespace ParaMEDMEM
 
   // TODO? Merge with MEDCouplingRemapper::prepareInterpKernelOnlyUU() ?
   /**!
+   * Local run (on this proc) of the sequential interpolation algorithm.
+   *
    * @param srcIds is null if the source mesh is on the local proc
    * @param trgIds is null if the source mesh is on the local proc
    *
    * One of the 2 is necessarily null (the two can be null together)
    */
-  void OverlapInterpolationMatrix::addContribution(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
+  void OverlapInterpolationMatrix::computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
                                                    const MEDCouplingPointSet *trg, const DataArrayInt *trgIds, const std::string& trgMeth, int trgProcId)
   {
     std::string interpMethod(srcMeth);

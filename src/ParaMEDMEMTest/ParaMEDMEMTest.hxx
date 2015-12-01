@@ -48,7 +48,9 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testInterpKernelDECPartialProcs);    // 3 procs
   CPPUNIT_TEST(testInterpKernelDEC3DSurfEmptyBBox); // 3 procs
   CPPUNIT_TEST(testOverlapDEC1);                    // 3 procs
+  CPPUNIT_TEST(testOverlapDEC1_bis);                // 3 procs
   CPPUNIT_TEST(testOverlapDEC2);                    // 3 procs
+  CPPUNIT_TEST(testOverlapDEC2_bis);                // 3 procs
   CPPUNIT_TEST(testOverlapDEC3);                    // 2 procs
   CPPUNIT_TEST(testOverlapDEC4);                    // 2 procs
 
@@ -109,8 +111,9 @@ public:
   void testInterpKernelDECPartialProcs();
   void testInterpKernelDEC3DSurfEmptyBBox();
   void testOverlapDEC1();
+  void testOverlapDEC1_bis();
   void testOverlapDEC2();
-//  void testOverlapDEC2_bis();
+  void testOverlapDEC2_bis();
   void testOverlapDEC3();
 //  void testOverlapDEC3_bis();
   void testOverlapDEC4();

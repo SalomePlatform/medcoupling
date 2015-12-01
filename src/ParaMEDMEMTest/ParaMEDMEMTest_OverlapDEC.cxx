@@ -311,128 +311,6 @@ void prepareData1(int rank, NatureOfField nature,
     }
 }
 
-/*! Test case from the official doc of the OverlapDEC.
- *  WARNING: bounding boxes are tweaked here to make the case more interesting (i.e. to avoid an all to all exchange
- *  between all procs).
- */
-void ParaMEDMEMTest::testOverlapDEC1()
-{
-  int size, rank;
-  MPI_Comm_size(MPI_COMM_WORLD,&size);
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  //  char hostname[256];
-  //  printf("(%d) PID %d on localhost ready for attach\n", rank, getpid());
-  //  fflush(stdout);
-
-//    if (rank == 1)
-//      {
-//        int i=1, j=0;
-//        while (i!=0)
-//          j=2;
-//      }
-
-  if (size != 3) return ;
-  int nproc = 3;
-  std::set<int> procs;
-  for (int i=0; i<nproc; i++)
-    procs.insert(i);
-
-  CommInterface interface;
-  OverlapDEC dec(procs);
-  MEDCouplingFieldDouble * mcfieldS=0, *mcfieldT=0;
-
-  prepareData1(rank, ConservativeVolumic, mcfieldS, mcfieldT);
-
-  /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   *  HACK ON BOUNDING BOX TO MAKE THIS CASE SIMPLE AND USABLE IN DEBUG
-   * Bounding boxes are slightly smaller than should be, thus localizing the work to be done
-   * and avoiding every proc talking to everyone else.
-   * Obviously this is NOT a good idea to do this in production code :-)
-   * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   */
-  dec.setBoundingBoxAdjustmentAbs(-1.0e-12);
-
-  dec.attachSourceLocalField(mcfieldS);
-  dec.attachTargetLocalField(mcfieldT);
-  dec.synchronize();
-  dec.sendRecvData(true);
-  //
-  MPI_Barrier(MPI_COMM_WORLD);
-  if(rank==0)
-    {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.75,mcfieldT->getArray()->getIJ(0,0),1e-12);
-    }
-  if(rank==1)
-    {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.5,mcfieldT->getArray()->getIJ(0,0),1e-12);
-    }
-  if(rank==2)
-    {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(10.5,mcfieldT->getArray()->getIJ(0,0),1e-12);
-    }
-
-  mcfieldS->decrRef();
-  mcfieldT->decrRef();
-
-  MPI_Barrier(MPI_COMM_WORLD);
-}
-
-/*!
- * Same as testOverlapDEC1() but with regular bounding boxes. If you're looking for a nice debug case,
- * testOverlapDEC1() is identical in terms of geometry and field values, and more appropriate.
- */
-void ParaMEDMEMTest::testOverlapDEC2()
-{
-  int size, rank;
-  MPI_Comm_size(MPI_COMM_WORLD,&size);
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-
-  if (size != 3) return ;
-  int nproc = 3;
-  std::set<int> procs;
-  for (int i=0; i<nproc; i++)
-    procs.insert(i);
-
-//      if (rank == 0)
-//        {
-//          int i=1, j=0;
-//          while (i!=0)
-//            j=2;
-//        }
-
-
-  CommInterface interface;
-  OverlapDEC dec(procs);
-  MEDCouplingFieldDouble * mcfieldS=0, *mcfieldT=0;
-  prepareData1(rank, ConservativeVolumic, mcfieldS, mcfieldT);
-
-  /* Normal bounding boxes here: */
-  dec.setBoundingBoxAdjustmentAbs(+1.0e-12);
-
-  dec.attachSourceLocalField(mcfieldS);
-  dec.attachTargetLocalField(mcfieldT);
-  dec.synchronize();
-  dec.sendRecvData(true);
-  //
-  if(rank==0)
-    {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.75,mcfieldT->getArray()->getIJ(0,0),1e-12);
-    }
-  if(rank==1)
-    {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.5,mcfieldT->getArray()->getIJ(0,0),1e-12);
-    }
-  if(rank==2)
-    {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(10.5,mcfieldT->getArray()->getIJ(0,0),1e-12);
-    }
-
-  mcfieldS->decrRef();
-  mcfieldT->decrRef();
-
-  MPI_Barrier(MPI_COMM_WORLD);
-}
-
 void prepareData2_buildOneSquare(MEDCouplingUMesh* & meshS_0, MEDCouplingUMesh* & meshT_0)
 {
   const double coords[10] = {0.0,0.0,  0.0,1.0,  1.0,1.0,  1.0,0.0, 0.5,0.5};
@@ -573,6 +451,103 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
   meshS_0->decrRef();
   meshT_0->decrRef();
 }
+
+/*! Test case from the official doc of the OverlapDEC.
+ *  WARNING: bounding boxes might be tweaked here to make the case more interesting (i.e. to avoid an all to all exchange
+ *  between all procs).
+ */
+void testOverlapDEC_generic(int workSharingAlgo, double bbAdj)
+{
+  int size, rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //  char hostname[256];
+  //  printf("(%d) PID %d on localhost ready for attach\n", rank, getpid());
+  //  fflush(stdout);
+
+//    if (rank == 0)
+//      {
+//        int i=1, j=0;
+//        while (i!=0)
+//          j=2;
+//      }
+
+  if (size != 3) return ;
+  int nproc = 3;
+  std::set<int> procs;
+  for (int i=0; i<nproc; i++)
+    procs.insert(i);
+
+  CommInterface interface;
+  OverlapDEC dec(procs);
+  MEDCouplingFieldDouble * mcfieldS=0, *mcfieldT=0;
+
+  prepareData1(rank, ConservativeVolumic, mcfieldS, mcfieldT);
+
+  // See comment in the caller:
+  dec.setBoundingBoxAdjustmentAbs(bbAdj);
+  dec.setWorkSharingAlgo(workSharingAlgo);  // just to ease debugging
+
+  dec.attachSourceLocalField(mcfieldS);
+  dec.attachTargetLocalField(mcfieldT);
+  dec.synchronize();
+  dec.sendRecvData(true);
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(rank==0)
+    {
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.75,mcfieldT->getArray()->getIJ(0,0),1e-12);
+    }
+  if(rank==1)
+    {
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.5,mcfieldT->getArray()->getIJ(0,0),1e-12);
+    }
+  if(rank==2)
+    {
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(10.5,mcfieldT->getArray()->getIJ(0,0),1e-12);
+    }
+
+  mcfieldS->decrRef();
+  mcfieldT->decrRef();
+
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
+void ParaMEDMEMTest::testOverlapDEC1()
+{
+  /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   *  HACK ON BOUNDING BOX TO MAKE THIS CASE SIMPLE AND USABLE IN DEBUG
+   * Bounding boxes are slightly smaller than should be, thus localizing the work to be done
+   * and avoiding every proc talking to everyone else.
+   * Obviously this is NOT a good idea to do this in production code :-)
+   * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   */
+  testOverlapDEC_generic(0,-1.0e-12);
+}
+
+void ParaMEDMEMTest::testOverlapDEC1_bis()
+{
+  /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   * Same BB hack as above
+   * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   */
+  testOverlapDEC_generic(1,-1.0e-12);
+}
+
+/*!
+ * Same as testOverlapDEC1() but with regular bounding boxes. If you're looking for a nice debug case,
+ * testOverlapDEC1() is identical in terms of geometry and field values, and more appropriate.
+ */
+void ParaMEDMEMTest::testOverlapDEC2()
+{
+  testOverlapDEC_generic(0,1.0e-12);
+}
+
+void ParaMEDMEMTest::testOverlapDEC2_bis()
+{
+  testOverlapDEC_generic(1,1.0e-12);
+}
+
 
 /*! Test focused on the mapping of cell IDs.
  * (i.e. when only part of the source/target mesh is transmitted)
@@ -716,6 +691,5 @@ void ParaMEDMEMTest::testOverlapDEC4()
   meshT->decrRef();
 
   MPI_Barrier(MPI_COMM_WORLD);
-
 }
 

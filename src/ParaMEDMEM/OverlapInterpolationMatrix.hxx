@@ -52,7 +52,7 @@ namespace ParaMEDMEM
 
     void keepTracksOfTargetIds(int procId, DataArrayInt *ids);
 
-    void addContribution(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
+    void computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
                          const MEDCouplingPointSet *trg, const DataArrayInt *trgIds, const std::string& trgMeth, int trgProcId);
 
     void prepare(const std::vector< int > & procsToSendField);
