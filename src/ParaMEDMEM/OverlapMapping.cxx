@@ -31,67 +31,72 @@
 
 using namespace ParaMEDMEM;
 
-OverlapMapping::OverlapMapping(const ProcessorGroup& group):_group(group)
+OverlapMapping::OverlapMapping(const ProcessorGroup& group, const OverlapElementLocator & loc):
+    _group(group),_locator(loc)
 {
 }
 
 /*!
- * This method keeps tracks of source ids to know in step 6 of main algorithm, which tuple ids to send away.
- * This method incarnates item#1 of step2 algorithm.
+ * Keeps the link between a given a proc holding source mesh data, and the corresponding cell IDs.
  */
 void OverlapMapping::keepTracksOfSourceIds(int procId, DataArrayInt *ids)
 {
   ids->incrRef();
-  _src_ids_st2.push_back(ids);
-  _src_proc_st2.push_back(procId);
+  _sent_src_ids[procId] = ids;
 }
 
 /*!
- * This method keeps tracks of target ids to know in step 6 of main algorithm.
- * This method incarnates item#0 of step2 algorithm.
- */
+ * Same as keepTracksOfSourceIds() but for target mesh data.
+*/
 void OverlapMapping::keepTracksOfTargetIds(int procId, DataArrayInt *ids)
 {
   ids->incrRef();
-  _trg_ids_st2.push_back(ids);
-  _trg_proc_st2.push_back(procId);
+  _sent_trg_ids[procId] = ids;
 }
 
 /*!
- * This method stores from a matrix in format Target(rows)/Source(cols) for a source procId 'srcProcId' and for a target procId 'trgProcId'.
- * All ids (source and target) are in format of local ids. 
+ * This method stores in the local members the contribution coming from a matrix in format
+ * Target(rows)/Source(cols) for a source procId 'srcProcId' and for a target procId 'trgProcId'.
+ * All IDs received here (source and target) are in the format of local IDs.
+ *
+ * @param srcIds is null if the source mesh is on the local proc
+ * @param trgIds is null if the source mesh is on the local proc
+ *
+ * One of the 2 is necessarily null (the two can be null together)
  */
-void OverlapMapping::addContributionST(const std::vector< std::map<int,double> >& matrixST, const DataArrayInt *srcIds, int srcProcId, const DataArrayInt *trgIds, int trgProcId)
+void OverlapMapping::addContributionST(const std::vector< SparseDoubleVec >& matrixST, const DataArrayInt *srcIds, int srcProcId, const DataArrayInt *trgIds, int trgProcId)
 {
   _matrixes_st.push_back(matrixST);
   _source_proc_id_st.push_back(srcProcId);
   _target_proc_id_st.push_back(trgProcId);
-  if(srcIds)
-    {//item#1 of step2 algorithm in proc m. Only to know in advanced nb of recv ids [ (0,1) computed on proc1 and Matrix-Vector on proc1 ]
-      _nb_of_src_ids_proc_st2.push_back(srcIds->getNumberOfTuples());
-      _src_ids_proc_st2.push_back(srcProcId);
-    }
-  else
-    {//item#0 of step2 algorithm in proc k
+  if(srcIds)  // source mesh part is remote <=> srcProcId != myRank
+      _nb_of_rcv_src_ids[srcProcId] = srcIds->getNumberOfTuples();
+  else        // source mesh part is local
+    {
       std::set<int> s;
-      for(std::vector< std::map<int,double> >::const_iterator it1=matrixST.begin();it1!=matrixST.end();it1++)
-        for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+      // For all source IDs (=col indices) in the sparse matrix:
+      for(std::vector< SparseDoubleVec >::const_iterator it1=matrixST.begin();it1!=matrixST.end();it1++)
+        for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
           s.insert((*it2).first);
-      _src_ids_zip_st2.resize(_src_ids_zip_st2.size()+1);
-      _src_ids_zip_st2.back().insert(_src_ids_zip_st2.back().end(),s.begin(),s.end());
-      _src_ids_zip_proc_st2.push_back(trgProcId);
+      vector<int> v(s.begin(), s.end());  // turn set into vector
+      _src_ids_zip_comp[trgProcId] = v;
     }
 }
 
 /*!
- * 'procsInInteraction' gives the global view of interaction between procs.
- * In 'procsInInteraction' for a proc with id i, is in interaction with procs listed in procsInInteraction[i].
+ * This method is in charge to send matrices in AlltoAll mode.
  *
- * This method is in charge to send matrixes in AlltoAll mode.
- * After the call of this method 'this' contains the matrixST for all source elements of the current proc
+ * 'procsToSendField' gives the list of procs field data has to be sent to.
+ * See OverlapElementLocator::computeBoundingBoxesAndTodoList()
+ *
+ * After the call of this method, 'this' contains the matrixST for all source cells of the current proc
  */
-void OverlapMapping::prepare(const std::vector< std::vector<int> >& procsInInteraction, int nbOfTrgElems)
+void OverlapMapping::prepare(const std::vector< int >& procsToSendField, int nbOfTrgElems)
 {
+#ifdef DEC_DEBUG
+  printMatrixesST();
+#endif
+
   CommInterface commInterface=_group.getCommInterface();
   const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
   const MPI_Comm *comm=group->getComm();
@@ -101,12 +106,6 @@ void OverlapMapping::prepare(const std::vector< std::vector<int> >& procsInInter
   INTERP_KERNEL::AutoPtr<int> nbsend3=new int[grpSize];
   std::fill<int *>(nbsend,nbsend+grpSize,0);
   int myProcId=_group.myRank();
-  _proc_ids_to_recv_vector_st.clear();
-  int curProc=0;
-  for(std::vector< std::vector<int> >::const_iterator it1=procsInInteraction.begin();it1!=procsInInteraction.end();it1++,curProc++)
-    if(std::find((*it1).begin(),(*it1).end(),myProcId)!=(*it1).end())
-      _proc_ids_to_recv_vector_st.push_back(curProc);
-  _proc_ids_to_send_vector_st=procsInInteraction[myProcId];
   for(std::size_t i=0;i<_matrixes_st.size();i++)
     if(_source_proc_id_st[i]==myProcId)
       nbsend[_target_proc_id_st[i]]=_matrixes_st[i].size();
@@ -147,100 +146,154 @@ void OverlapMapping::prepare(const std::vector< std::vector<int> >& procsInInter
   //finishing
   unserializationST(nbOfTrgElems,nbrecv,bigArrRecv,nbrecv1,nbrecv2,
                     bigArrRecv2,bigArrDRecv2,nbrecv3,nbrecv4);
-  //updating _src_ids_zip_st2 and _src_ids_zip_st2 with received matrix.
-  updateZipSourceIdsForFuture();
-  //finish to fill _the_matrix_st with already in place matrix in _matrixes_st
+
+  //finish to fill _the_matrix_st with already in place matrix in _matrixes_st (local computation)
   finishToFillFinalMatrixST();
-  //printTheMatrix();
+
+  //updating _src_ids_zip_st2 and _src_ids_zip_st2 with received matrix.
+  fillSourceIdsZipReceivedForMultiply();
+  // Prepare proc list for future field data exchange (mutliply()):
+  _proc_ids_to_send_vector_st = procsToSendField;
+  // Make some space on local proc:
+  _matrixes_st.clear();
+
+#ifdef DEC_DEBUG
+  printTheMatrix();
+#endif
 }
 
-/*!
- * Compute denominators.
- */
-void OverlapMapping::computeDenoGlobConstraint()
+///*!
+// * Compute denominators for IntegralGlobConstraint interp.
+// * TO BE REVISED: needs another communication since some bits are held non locally
+// */
+//void OverlapMapping::computeDenoGlobConstraint()
+//{
+//  _the_deno_st.clear();
+//  std::size_t sz1=_the_matrix_st.size();
+//  _the_deno_st.resize(sz1);
+//  for(std::size_t i=0;i<sz1;i++)
+//    {
+//      std::size_t sz2=_the_matrix_st[i].size();
+//      _the_deno_st[i].resize(sz2);
+//      for(std::size_t j=0;j<sz2;j++)
+//        {
+//          double sum=0;
+//          SparseDoubleVec& mToFill=_the_deno_st[i][j];
+//          const SparseDoubleVec& m=_the_matrix_st[i][j];
+//          for(SparseDoubleVec::const_iterator it=m.begin();it!=m.end();it++)
+//            sum+=(*it).second;
+//          for(SparseDoubleVec::const_iterator it=m.begin();it!=m.end();it++)
+//            mToFill[(*it).first]=sum;
+//        }
+//    }
+//    printDenoMatrix();
+//}
+
+///*! Compute integral denominators
+// * TO BE REVISED: needs another communication since some source areas are held non locally
+// */
+//void OverlapMapping::computeDenoIntegral()
+//{
+//  _the_deno_st.clear();
+//  std::size_t sz1=_the_matrix_st.size();
+//  _the_deno_st.resize(sz1);
+//  for(std::size_t i=0;i<sz1;i++)
+//    {
+//      std::size_t sz2=_the_matrix_st[i].size();
+//      _the_deno_st[i].resize(sz2);
+//      for(std::size_t j=0;j<sz2;j++)
+//        {
+//          SparseDoubleVec& mToFill=_the_deno_st[i][j];
+//          for(SparseDoubleVec::const_iterator it=mToFill.begin();it!=mToFill.end();it++)
+//            mToFill[(*it).first] = sourceAreas;
+//        }
+//    }
+//    printDenoMatrix();
+//}
+
+/*! Compute rev integral denominators
+  */
+void OverlapMapping::computeDenoRevIntegral(const DataArrayDouble & targetAreas)
 {
   _the_deno_st.clear();
   std::size_t sz1=_the_matrix_st.size();
   _the_deno_st.resize(sz1);
+  const double * targetAreasP = targetAreas.getConstPointer();
   for(std::size_t i=0;i<sz1;i++)
     {
       std::size_t sz2=_the_matrix_st[i].size();
       _the_deno_st[i].resize(sz2);
       for(std::size_t j=0;j<sz2;j++)
         {
-          double sum=0;
-          std::map<int,double>& mToFill=_the_deno_st[i][j];
-          const std::map<int,double>& m=_the_matrix_st[i][j];
-          for(std::map<int,double>::const_iterator it=m.begin();it!=m.end();it++)
-            sum+=(*it).second;
-          for(std::map<int,double>::const_iterator it=m.begin();it!=m.end();it++)
-            mToFill[(*it).first]=sum;
+          SparseDoubleVec& mToFill=_the_deno_st[i][j];
+          SparseDoubleVec& mToIterate=_the_matrix_st[i][j];
+          for(SparseDoubleVec::const_iterator it=mToIterate.begin();it!=mToIterate.end();it++)
+            mToFill[(*it).first] = targetAreasP[j];
         }
     }
+//    printDenoMatrix();
 }
 
+
 /*!
- * Compute denominators.
+ * Compute denominators for ConvervativeVolumic interp.
  */
 void OverlapMapping::computeDenoConservativeVolumic(int nbOfTuplesTrg)
 {
-  CommInterface commInterface=_group.getCommInterface();
   int myProcId=_group.myRank();
   //
   _the_deno_st.clear();
   std::size_t sz1=_the_matrix_st.size();
   _the_deno_st.resize(sz1);
   std::vector<double> deno(nbOfTuplesTrg);
+  // Fills in the vector indexed by target cell ID:
   for(std::size_t i=0;i<sz1;i++)
     {
-      const std::vector< std::map<int,double> >& mat=_the_matrix_st[i];
+      const std::vector< SparseDoubleVec >& mat=_the_matrix_st[i];
       int curSrcId=_the_matrix_st_source_proc_id[i];
-      std::vector<int>::iterator isItem1=std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),curSrcId);
+      map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem1 = _sent_trg_ids.find(curSrcId);
       int rowId=0;
-      if(isItem1==_trg_proc_st2.end() || curSrcId==myProcId)//item1 of step2 main algo. Simple, because rowId of mat are directly target ids.
+      if(isItem1==_sent_trg_ids.end() || curSrcId==myProcId) // Local computation: simple, because rowId of mat are directly target cell ids.
         {
-          for(std::vector< std::map<int,double> >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
-            for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
+            for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
               deno[rowId]+=(*it2).second;
         }
-      else
-        {//item0 of step2 main algo. More complicated.
-          std::vector<int>::iterator fnd=isItem1;//std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),curSrcId);
-          int locId=std::distance(_trg_proc_st2.begin(),fnd);
-          const DataArrayInt *trgIds=_trg_ids_st2[locId];
+      else  // matrix was received, remote computation
+        {
+          const DataArrayInt *trgIds = (*isItem1).second;
           const int *trgIds2=trgIds->getConstPointer();
-          for(std::vector< std::map<int,double> >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
-            for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
+            for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
               deno[trgIds2[rowId]]+=(*it2).second;
         }
     }
-  //
+  // Broadcast the vector into a structure similar to the initial sparse matrix of numerators:
   for(std::size_t i=0;i<sz1;i++)
     {
       int rowId=0;
-      const std::vector< std::map<int,double> >& mat=_the_matrix_st[i];
+      const std::vector< SparseDoubleVec >& mat=_the_matrix_st[i];
       int curSrcId=_the_matrix_st_source_proc_id[i];
-      std::vector<int>::iterator isItem1=std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),curSrcId);
-      std::vector< std::map<int,double> >& denoM=_the_deno_st[i];
+      map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem1 = _sent_trg_ids.find(curSrcId);
+      std::vector< SparseDoubleVec >& denoM=_the_deno_st[i];
       denoM.resize(mat.size());
-      if(isItem1==_trg_proc_st2.end() || curSrcId==myProcId)//item1 of step2 main algo. Simple, because rowId of mat are directly target ids.
+      if(isItem1==_sent_trg_ids.end() || curSrcId==myProcId)//item1 of step2 main algo. Simple, because rowId of mat are directly target ids.
         {
           int rowId=0;
-          for(std::vector< std::map<int,double> >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
-            for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
+            for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
               denoM[rowId][(*it2).first]=deno[rowId];
         }
       else
         {
-          std::vector<int>::iterator fnd=isItem1;
-          int locId=std::distance(_trg_proc_st2.begin(),fnd);
-          const DataArrayInt *trgIds=_trg_ids_st2[locId];
+          const DataArrayInt *trgIds = (*isItem1).second;
           const int *trgIds2=trgIds->getConstPointer();
-          for(std::vector< std::map<int,double> >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
-            for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++,rowId++)
+            for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
               denoM[rowId][(*it2).first]=deno[trgIds2[rowId]];
         }
     }
+//  printDenoMatrix();
 }
 
 /*!
@@ -275,8 +328,8 @@ void OverlapMapping::serializeMatrixStep0ST(const int *nbOfElemsSrc, int *&bigAr
           int start=offsets[_target_proc_id_st[i]];
           int *work=bigArr+start;
           *work=0;
-          const std::vector< std::map<int,double> >& mat=_matrixes_st[i];
-          for(std::vector< std::map<int,double> >::const_iterator it=mat.begin();it!=mat.end();it++,work++)
+          const std::vector< SparseDoubleVec >& mat=_matrixes_st[i];
+          for(std::vector< SparseDoubleVec >::const_iterator it=mat.begin();it!=mat.end();it++,work++)
             work[1]=work[0]+(*it).size();
         }
     }
@@ -295,6 +348,7 @@ void OverlapMapping::serializeMatrixStep0ST(const int *nbOfElemsSrc, int *&bigAr
 
 /*!
  * This method performs step#1 and step#2/3. It returns the size of expected array to get allToAllV.
+ * It is where the locally computed matrices are serialized to be sent to adequate final proc.
  */
 int OverlapMapping::serializeMatrixStep1ST(const int *nbOfElemsSrc, const int *recvStep0, const int *countStep0, const int *offsStep0,
                                            int *&bigArrI, double *&bigArrD, int *count, int *offsets,
@@ -322,9 +376,9 @@ int OverlapMapping::serializeMatrixStep1ST(const int *nbOfElemsSrc, const int *r
     {
       if(_source_proc_id_st[i]==myProcId)
         {
-          const std::vector< std::map<int,double> >& mat=_matrixes_st[i];
+          const std::vector< SparseDoubleVec >& mat=_matrixes_st[i];
           int lgthToSend=0;
-          for(std::vector< std::map<int,double> >::const_iterator it=mat.begin();it!=mat.end();it++)
+          for(std::vector< SparseDoubleVec >::const_iterator it=mat.begin();it!=mat.end();it++)
             lgthToSend+=(*it).size();
           count[_target_proc_id_st[i]]=lgthToSend;
           fullLgth+=lgthToSend;
@@ -341,11 +395,11 @@ int OverlapMapping::serializeMatrixStep1ST(const int *nbOfElemsSrc, const int *r
     {
       if(_source_proc_id_st[i]==myProcId)
         {
-          const std::vector< std::map<int,double> >& mat=_matrixes_st[i];
-          for(std::vector< std::map<int,double> >::const_iterator it1=mat.begin();it1!=mat.end();it1++)
+          const std::vector< SparseDoubleVec >& mat=_matrixes_st[i];
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++)
             {
               int j=0;
-              for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++,j++)
+              for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++,j++)
                 {
                   bigArrI[fullLgth+j]=(*it2).first;
                   bigArrD[fullLgth+j]=(*it2).second;
@@ -396,9 +450,10 @@ void OverlapMapping::unserializationST(int nbOfTrgElems,
 }
 
 /*!
- * This method should be called when all remote matrix with sourceProcId==thisProcId have been retrieved and are in 'this->_the_matrix_st' and 'this->_the_matrix_st_target_proc_id'
- * and 'this->_the_matrix_st_target_ids'.
- * This method finish the job of filling 'this->_the_matrix_st' and 'this->_the_matrix_st_target_proc_id' by putting candidates in 'this->_matrixes_st' into them.
+ * This method should be called when all remote matrix with sourceProcId==thisProcId have been retrieved and are
+ * in 'this->_the_matrix_st' and 'this->_the_matrix_st_target_proc_id' and 'this->_the_matrix_st_target_ids'.
+ * This method finish the job of filling 'this->_the_matrix_st' and 'this->_the_matrix_st_target_proc_id'
+ * by putting candidates in 'this->_matrixes_st' into them (i.e. local computation result).
  */
 void OverlapMapping::finishToFillFinalMatrixST()
 {
@@ -417,199 +472,288 @@ void OverlapMapping::finishToFillFinalMatrixST()
   for(int i=0;i<sz;i++)
     if(_source_proc_id_st[i]!=myProcId)
       {
-        const std::vector<std::map<int,double> >& mat=_matrixes_st[i];
+        const std::vector<SparseDoubleVec >& mat=_matrixes_st[i];
         _the_matrix_st[j]=mat;
         _the_matrix_st_source_proc_id.push_back(_source_proc_id_st[i]);
         j++;
       }
-  _matrixes_st.clear();
 }
 
-/*!
- * This method performs the operation of target ids broadcasting.
- */
-void OverlapMapping::prepareIdsToSendST()
-{
-  CommInterface commInterface=_group.getCommInterface();
-  const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
-  const MPI_Comm *comm=group->getComm();
-  int grpSize=_group.size();
-  _source_ids_to_send_st.clear();
-  _source_ids_to_send_st.resize(grpSize);
-  INTERP_KERNEL::AutoPtr<int> nbsend=new int[grpSize];
-  std::fill<int *>(nbsend,nbsend+grpSize,0);
-  for(std::size_t i=0;i<_the_matrix_st_source_proc_id.size();i++)
-    nbsend[_the_matrix_st_source_proc_id[i]]=_the_matrix_st_source_ids[i].size();
-  INTERP_KERNEL::AutoPtr<int> nbrecv=new int[grpSize];
-  commInterface.allToAll(nbsend,1,MPI_INT,nbrecv,1,MPI_INT,*comm);
-  //
-  INTERP_KERNEL::AutoPtr<int> nbsend2=new int[grpSize];
-  std::copy((int *)nbsend,((int *)nbsend)+grpSize,(int *)nbsend2);
-  INTERP_KERNEL::AutoPtr<int> nbsend3=new int[grpSize];
-  nbsend3[0]=0;
-  for(int i=1;i<grpSize;i++)
-    nbsend3[i]=nbsend3[i-1]+nbsend2[i-1];
-  int sendSz=nbsend3[grpSize-1]+nbsend2[grpSize-1];
-  INTERP_KERNEL::AutoPtr<int> bigDataSend=new int[sendSz];
-  for(std::size_t i=0;i<_the_matrix_st_source_proc_id.size();i++)
-    {
-      int offset=nbsend3[_the_matrix_st_source_proc_id[i]];
-      std::copy(_the_matrix_st_source_ids[i].begin(),_the_matrix_st_source_ids[i].end(),((int *)nbsend3)+offset);
-    }
-  INTERP_KERNEL::AutoPtr<int> nbrecv2=new int[grpSize];
-  INTERP_KERNEL::AutoPtr<int> nbrecv3=new int[grpSize];
-  std::copy((int *)nbrecv,((int *)nbrecv)+grpSize,(int *)nbrecv2);
-  nbrecv3[0]=0;
-  for(int i=1;i<grpSize;i++)
-    nbrecv3[i]=nbrecv3[i-1]+nbrecv2[i-1];
-  int recvSz=nbrecv3[grpSize-1]+nbrecv2[grpSize-1];
-  INTERP_KERNEL::AutoPtr<int> bigDataRecv=new int[recvSz];
-  //
-  commInterface.allToAllV(bigDataSend,nbsend2,nbsend3,MPI_INT,
-                          bigDataRecv,nbrecv2,nbrecv3,MPI_INT,
-                          *comm);
-  for(int i=0;i<grpSize;i++)
-    {
-      if(nbrecv2[i]>0)
-        {
-          _source_ids_to_send_st[i].insert(_source_ids_to_send_st[i].end(),((int *)bigDataRecv)+nbrecv3[i],((int *)bigDataRecv)+nbrecv3[i]+nbrecv2[i]);
-        }
-    }
-}
 
 /*!
  * This method performs a transpose multiply of 'fieldInput' and put the result into 'fieldOutput'.
  * 'fieldInput' is expected to be the sourcefield and 'fieldOutput' the targetfield.
  */
-void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput) const
+void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCouplingFieldDouble *fieldOutput, double default_val) const
 {
+  using namespace std;
+
   int nbOfCompo=fieldInput->getNumberOfComponents();//to improve same number of components to test
   CommInterface commInterface=_group.getCommInterface();
   const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
   const MPI_Comm *comm=group->getComm();
   int grpSize=_group.size();
-  int myProcId=_group.myRank();
+  int myProcID=_group.myRank();
   //
   INTERP_KERNEL::AutoPtr<int> nbsend=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbsend2=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbrecv=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbrecv2=new int[grpSize];
-  std::fill<int *>(nbsend,nbsend+grpSize,0);
-  std::fill<int *>(nbrecv,nbrecv+grpSize,0);
+  fill<int *>(nbsend,nbsend+grpSize,0);
+  fill<int *>(nbrecv,nbrecv+grpSize,0);
   nbsend2[0]=0;
   nbrecv2[0]=0;
-  std::vector<double> valsToSend;
-  for(int i=0;i<grpSize;i++)
+  vector<double> valsToSend;
+
+  /*
+   * FIELD VALUE XCHGE:
+   * We call the 'BB source IDs' (bounding box source IDs) the set of source cell IDs transmitted just based on the bounding box information.
+   * This is potentially bigger than what is finally in the interp matrix and this is stored in _sent_src_ids.
+   * We call 'interp source IDs' the set of source cell IDs with non null entries in the interp matrix. This is a sub-set of the above.
+   */
+  for(int procID=0;procID<grpSize;procID++)
     {
-      if(std::find(_proc_ids_to_send_vector_st.begin(),_proc_ids_to_send_vector_st.end(),i)!=_proc_ids_to_send_vector_st.end())
-        {
-          std::vector<int>::const_iterator isItem1=std::find(_src_proc_st2.begin(),_src_proc_st2.end(),i);
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> vals;
-          if(isItem1!=_src_proc_st2.end())//item1 of step2 main algo
-            {
-              int id=std::distance(_src_proc_st2.begin(),isItem1);
-              vals=fieldInput->getArray()->selectByTupleId(_src_ids_st2[id]->getConstPointer(),_src_ids_st2[id]->getConstPointer()+_src_ids_st2[id]->getNumberOfTuples());
-            }
-          else
-            {//item0 of step2 main algo
-              int id=std::distance(_src_ids_zip_proc_st2.begin(),std::find(_src_ids_zip_proc_st2.begin(),_src_ids_zip_proc_st2.end(),i));
-              vals=fieldInput->getArray()->selectByTupleId(&(_src_ids_zip_st2[id])[0],&(_src_ids_zip_st2[id])[0]+_src_ids_zip_st2[id].size());
-            }
-          nbsend[i]=vals->getNbOfElems();
-          valsToSend.insert(valsToSend.end(),vals->getConstPointer(),vals->getConstPointer()+nbsend[i]);
-        }
-      if(std::find(_proc_ids_to_recv_vector_st.begin(),_proc_ids_to_recv_vector_st.end(),i)!=_proc_ids_to_recv_vector_st.end())
-        {
-          std::vector<int>::const_iterator isItem0=std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),i);
-          if(isItem0==_trg_proc_st2.end())//item1 of step2 main algo [ (0,1) computed on proc1 and Matrix-Vector on proc1 ]
-            {
-              std::vector<int>::const_iterator it1=std::find(_src_ids_proc_st2.begin(),_src_ids_proc_st2.end(),i);
-              if(it1!=_src_ids_proc_st2.end())
-                {
-                  int id=std::distance(_src_ids_proc_st2.begin(),it1);
-                  nbrecv[i]=_nb_of_src_ids_proc_st2[id]*nbOfCompo;
-                }
-              else if(i==myProcId)
-                {
-                  nbrecv[i]=fieldInput->getNumberOfTuplesExpected()*nbOfCompo;
-                }
-              else
-                throw INTERP_KERNEL::Exception("Plouff ! send email to anthony.geay@cea.fr ! ");
-            }
-          else
-            {//item0 of step2 main algo [ (2,1) computed on proc2 but Matrix-Vector on proc1 ] [(1,0) computed on proc1 but Matrix-Vector on proc0]
-              int id=std::distance(_src_ids_zip_proc_st2.begin(),std::find(_src_ids_zip_proc_st2.begin(),_src_ids_zip_proc_st2.end(),i));
-              nbrecv[i]=_src_ids_zip_st2[id].size()*nbOfCompo;
-            }
-        }
+      /* SENDING part: compute field values to be SENT (and how many of them)
+       *   - for all proc 'procID' in group
+       *      * if procID == myProcID, send nothing
+       *      * elif 'procID' in _proc_ids_to_send_vector_st (computed from the BB intersection)
+       *        % if myProcID computed the job (myProcID, procID)
+       *           => send only 'interp source IDs' field values (i.e. IDs stored in _src_ids_zip_comp)
+       *        % else (=we just sent mesh data to procID, but have never seen the matrix, i.e. matrix was computed remotely by procID)
+       *           => send 'BB source IDs' set of field values (i.e. IDs stored in _sent_src_ids)
+       */
+      if (procID == myProcID)
+        nbsend[procID] = 0;
+      else
+        if(find(_proc_ids_to_send_vector_st.begin(),_proc_ids_to_send_vector_st.end(),procID)!=_proc_ids_to_send_vector_st.end())
+          {
+            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> vals;
+            if(_locator.isInMyTodoList(myProcID, procID))
+              {
+                map<int, vector<int> >::const_iterator isItem11 = _src_ids_zip_comp.find(procID);
+                if (isItem11 == _src_ids_zip_comp.end())
+                  throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: SEND: unexpected end iterator in _src_ids_zip_comp!");
+                const vector<int> & v = (*isItem11).second;
+                int sz = v.size();
+                vals=fieldInput->getArray()->selectByTupleId(&(v[0]),&(v[0])+sz);
+              }
+            else
+              {
+                map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem11 = _sent_src_ids.find( procID );
+                if (isItem11 == _sent_src_ids.end())
+                  throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: SEND: unexpected end iterator in _sent_src_ids!");
+                vals=fieldInput->getArray()->selectByTupleId(*(*isItem11).second);
+              }
+            nbsend[procID] = vals->getNbOfElems();
+            valsToSend.insert(valsToSend.end(),vals->getConstPointer(),vals->getConstPointer()+nbsend[procID]);
+          }
+
+      /* RECEIVE: compute number of field values to be RECEIVED
+       *   - for all proc 'procID' in group
+       *      * if procID == myProcID, rcv nothing
+       *      * elif 'procID' in _proc_ids_to_recv_vector_st (computed from BB intersec)
+       *        % if myProcID computed the job (procID, myProcID)
+       *          => receive full set ('BB source IDs') of field data from proc #procID which has never seen the matrix
+       *             i.e. prepare to receive the numb in _nb_of_rcv_src_ids
+       *        % else (=we did NOT compute the job, hence procID has, and knows the matrix)
+       *          => receive 'interp source IDs' set of field values
+       */
+      const std::vector< int > & _proc_ids_to_recv_vector_st = _the_matrix_st_source_proc_id;
+      if (procID == myProcID)
+        nbrecv[procID] = 0;
+      else
+        if(find(_proc_ids_to_recv_vector_st.begin(),_proc_ids_to_recv_vector_st.end(),procID)!=_proc_ids_to_recv_vector_st.end())
+          {
+            if(_locator.isInMyTodoList(procID, myProcID))
+              {
+                map <int,int>::const_iterator isItem11 = _nb_of_rcv_src_ids.find(procID);
+                if (isItem11 == _nb_of_rcv_src_ids.end())
+                  throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: RCV: unexpected end iterator in _nb_of_rcv_src_ids!");
+                nbrecv[procID] = (*isItem11).second;
+              }
+            else
+              {
+                map<int, vector<int> >::const_iterator isItem11 = _src_ids_zip_recv.find(procID);
+                if (isItem11 == _src_ids_zip_recv.end())
+                  throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: RCV: unexpected end iterator in _src_ids_zip_recv!");
+                nbrecv[procID] = (*isItem11).second.size()*nbOfCompo;
+              }
+          }
     }
+  // Compute offsets in the sending/receiving array.
   for(int i=1;i<grpSize;i++)
     {
       nbsend2[i]=nbsend2[i-1]+nbsend[i-1];
       nbrecv2[i]=nbrecv2[i-1]+nbrecv[i-1];
     }
   INTERP_KERNEL::AutoPtr<double> bigArr=new double[nbrecv2[grpSize-1]+nbrecv[grpSize-1]];
+
+#ifdef DEC_DEBUG
+  stringstream scout;
+  scout << "("  << myProcID << ") nbsend :" << nbsend[0] << "," << nbsend[1] << "," << nbsend[2] << "\n";
+  scout << "("  << myProcID << ") nbrecv :" << nbrecv[0] << "," << nbrecv[1] << "," << nbrecv[2] << "\n";
+  scout << "("  << myProcID << ") valsToSend: ";
+  for (int iii=0; iii<valsToSend.size(); iii++)
+    scout << ", " << valsToSend[iii];
+  cout << scout.str() << "\n";
+#endif
+
+  /*
+   * *********************** ALL-TO-ALL
+   */
   commInterface.allToAllV(&valsToSend[0],nbsend,nbsend2,MPI_DOUBLE,
                           bigArr,nbrecv,nbrecv2,MPI_DOUBLE,*comm);
+#ifdef DEC_DEBUG
+  MPI_Barrier(MPI_COMM_WORLD);
+  scout << "("  << myProcID << ") bigArray: ";
+    for (int iii=0; iii<nbrecv2[grpSize-1]+nbrecv[grpSize-1]; iii++)
+      scout << ", " << bigArr[iii];
+  cout << scout.str() << "\n";
+#endif
+
+  /*
+   * TARGET FIELD COMPUTATION (matrix-vec computation)
+   */
   fieldOutput->getArray()->fillWithZero();
   INTERP_KERNEL::AutoPtr<double> tmp=new double[nbOfCompo];
-  for(int i=0;i<grpSize;i++)
+
+  // By default field value set to default value - so mark which cells are hit
+  INTERP_KERNEL::AutoPtr<bool> hit_cells = new bool[fieldOutput->getNumberOfTuples()];
+
+  for(vector<int>::const_iterator itProc=_the_matrix_st_source_proc_id.begin(); itProc != _the_matrix_st_source_proc_id.end();itProc++)
+  // For each source processor corresponding to a locally held matrix:
     {
-      if(nbrecv[i]>0)
+      int srcProcID = *itProc;
+      int id = distance(_the_matrix_st_source_proc_id.begin(),itProc);
+      const vector< SparseDoubleVec >& mat =_the_matrix_st[id];
+      const vector< SparseDoubleVec >& deno = _the_deno_st[id];
+
+      /*   FINAL MULTIPLICATION
+       *      * if srcProcID == myProcID, local multiplication without any mapping
+       *         => for all target cell ID 'tgtCellID'
+       *           => for all src cell ID 'srcCellID' in the sparse vector
+       *             => tgtFieldLocal[tgtCellID] += srcFieldLocal[srcCellID] * matrix[tgtCellID][srcCellID] / deno[tgtCellID][srcCellID]
+       */
+      if (srcProcID == myProcID)
         {
-          double *pt=fieldOutput->getArray()->getPointer();
-          std::vector<int>::const_iterator it=std::find(_the_matrix_st_source_proc_id.begin(),_the_matrix_st_source_proc_id.end(),i);
-          if(it==_the_matrix_st_source_proc_id.end())
-            throw INTERP_KERNEL::Exception("Big problem !");
-          int id=std::distance(_the_matrix_st_source_proc_id.begin(),it);
-          const std::vector< std::map<int,double> >& mat=_the_matrix_st[id];
-          const std::vector< std::map<int,double> >& deno=_the_deno_st[id];
-          std::vector<int>::const_iterator isItem0=std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),i);
-          if(isItem0==_trg_proc_st2.end())//item1 of step2 main algo [ (0,1) computed on proc1 and Matrix-Vector on proc1 ]
+          int nbOfTrgTuples=mat.size();
+          double * targetBase = fieldOutput->getArray()->getPointer();
+          for(int j=0; j<nbOfTrgTuples; j++)
             {
-              int nbOfTrgTuples=mat.size();
-              for(int j=0;j<nbOfTrgTuples;j++,pt+=nbOfCompo)
+              const SparseDoubleVec& mat1=mat[j];
+              const SparseDoubleVec& deno1=deno[j];
+              SparseDoubleVec::const_iterator it5=deno1.begin();
+              const double * localSrcField = fieldInput->getArray()->getConstPointer();
+              double * targetPt = targetBase+j*nbOfCompo;
+              for(SparseDoubleVec::const_iterator it3=mat1.begin();it3!=mat1.end();it3++,it5++)
                 {
-                  const std::map<int,double>& mat1=mat[j];
-                  const std::map<int,double>& deno1=deno[j];
-                  std::map<int,double>::const_iterator it4=deno1.begin();
-                  for(std::map<int,double>::const_iterator it3=mat1.begin();it3!=mat1.end();it3++,it4++)
-                    {
-                      std::transform(bigArr+nbrecv2[i]+((*it3).first)*nbOfCompo,bigArr+nbrecv2[i]+((*it3).first+1)*(nbOfCompo),(double *)tmp,std::bind2nd(std::multiplies<double>(),(*it3).second/(*it4).second));
-                      std::transform((double *)tmp,(double *)tmp+nbOfCompo,pt,pt,std::plus<double>());
-                    }
+                  // Apply the multiplication for all components:
+                  double ratio = (*it3).second/(*it5).second;
+                  transform(localSrcField+((*it3).first)*nbOfCompo,
+                            localSrcField+((*it3).first+1)*nbOfCompo,
+                            (double *)tmp,
+                            bind2nd(multiplies<double>(),ratio) );
+                  // Accumulate with current value:
+                  transform((double *)tmp,(double *)tmp+nbOfCompo,targetPt,targetPt,plus<double>());
+                  hit_cells[j] = true;
                 }
             }
-          else
-            {//item0 of step2 main algo [ (2,1) computed on proc2 but Matrix-Vector on proc1 ]
-              double *pt=fieldOutput->getArray()->getPointer();
-              std::map<int,int> zipCor;
-              int id=std::distance(_src_ids_zip_proc_st2.begin(),std::find(_src_ids_zip_proc_st2.begin(),_src_ids_zip_proc_st2.end(),i));
-              const std::vector<int> zipIds=_src_ids_zip_st2[id];
-              int newId=0;
-              for(std::vector<int>::const_iterator it=zipIds.begin();it!=zipIds.end();it++,newId++)
-                zipCor[*it]=newId;
-              int id2=std::distance(_trg_proc_st2.begin(),std::find(_trg_proc_st2.begin(),_trg_proc_st2.end(),i));
-              const DataArrayInt *tgrIds=_trg_ids_st2[id2];
-              const int *tgrIds2=tgrIds->getConstPointer();
-              int nbOfTrgTuples=mat.size();
-              for(int j=0;j<nbOfTrgTuples;j++)
+        }
+
+      if(nbrecv[srcProcID]<=0)  // also covers the preceding 'if'
+        continue;
+
+      /*      * if something was received
+       *         %  if received matrix (=we didn't compute the job), this means that :
+       *            1. we sent part of our targetIDs to srcProcID before, so that srcProcId can do the computation.
+       *            2. srcProcID has sent us only the 'interp source IDs' field values
+       *            => invert _src_ids_zip_recv -> 'revert_zip'
+       *            => for all target cell ID 'tgtCellID'
+       *              => mappedTgtID = _sent_trg_ids[srcProcID][tgtCellID]
+       *              => for all src cell ID 'srcCellID' in the sparse vector
+       *                 => idx = revert_zip[srcCellID]
+       *                 => tgtFieldLocal[mappedTgtID] += rcvValue[srcProcID][idx] * matrix[tgtCellID][srcCellID] / deno[tgtCellID][srcCellID]
+       */
+      if(!_locator.isInMyTodoList(srcProcID, myProcID))
+        {
+          // invert _src_ids_zip_recv
+          map<int,int> revert_zip;
+          map<int, vector<int> >::const_iterator it11= _src_ids_zip_recv.find(srcProcID);
+          if (it11 == _src_ids_zip_recv.end())
+            throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: MULTIPLY: unexpected end iterator in _src_ids_zip_recv!");
+          const vector<int> & vec = (*it11).second;
+          int newId=0;
+          for(vector<int>::const_iterator it=vec.begin();it!=vec.end();it++,newId++)
+            revert_zip[*it]=newId;
+          map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem24 = _sent_trg_ids.find(srcProcID);
+          if (isItem24 == _sent_trg_ids.end())
+            throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: MULTIPLY: unexpected end iterator in _sent_trg_ids!");
+          const DataArrayInt *tgrIdsDA = (*isItem24).second;
+          const int *tgrIds = tgrIdsDA->getConstPointer();
+
+          int nbOfTrgTuples=mat.size();
+          double * targetBase = fieldOutput->getArray()->getPointer();
+          for(int j=0;j<nbOfTrgTuples;j++)
+            {
+              const SparseDoubleVec& mat1=mat[j];
+              const SparseDoubleVec& deno1=deno[j];
+              SparseDoubleVec::const_iterator it5=deno1.begin();
+              double * targetPt = targetBase+tgrIds[j]*nbOfCompo;
+              for(SparseDoubleVec::const_iterator it3=mat1.begin();it3!=mat1.end();it3++,it5++)
                 {
-                  const std::map<int,double>& mat1=mat[j];
-                  const std::map<int,double>& deno1=deno[j];
-                  std::map<int,double>::const_iterator it5=deno1.begin();
-                  for(std::map<int,double>::const_iterator it3=mat1.begin();it3!=mat1.end();it3++,it5++)
-                    {
-                      std::map<int,int>::const_iterator it4=zipCor.find((*it3).first);
-                      if(it4==zipCor.end())
-                        throw INTERP_KERNEL::Exception("Hmmmmm send e mail to anthony.geay@cea.fr !");
-                      std::transform(bigArr+nbrecv2[i]+((*it4).second)*nbOfCompo,bigArr+nbrecv2[i]+((*it4).second+1)*(nbOfCompo),(double *)tmp,std::bind2nd(std::multiplies<double>(),(*it3).second/(*it5).second));
-                      std::transform((double *)tmp,(double *)tmp+nbOfCompo,pt+tgrIds2[j]*nbOfCompo,pt+tgrIds2[j]*nbOfCompo,std::plus<double>());
-                    }
+                  map<int,int>::const_iterator it4=revert_zip.find((*it3).first);
+                  if(it4==revert_zip.end())
+                    throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: MULTIPLY: unexpected end iterator in revert_zip!");
+                  double ratio = (*it3).second/(*it5).second;
+                  transform(bigArr+nbrecv2[srcProcID]+((*it4).second)*nbOfCompo,
+                            bigArr+nbrecv2[srcProcID]+((*it4).second+1)*nbOfCompo,
+                            (double *)tmp,
+                            bind2nd(multiplies<double>(),ratio) );
+                  transform((double *)tmp,(double *)tmp+nbOfCompo,targetPt,targetPt,plus<double>());
+                  hit_cells[tgrIds[j]] = true;
+                }
+            }
+        }
+      else
+        /*         % else (=we computed the job and we received the 'BB source IDs' set of source field values)
+         *            => for all target cell ID 'tgtCellID'
+         *              => for all src cell ID 'srcCellID' in the sparse vector
+         *                => tgtFieldLocal[tgtCellID] += rcvValue[srcProcID][srcCellID] * matrix[tgtCellID][srcCellID] / deno[tgtCellID][srcCellID]
+         */
+        {
+          // Same loop as in the case srcProcID == myProcID, except that instead of working on local field data, we work on bigArr
+          int nbOfTrgTuples=mat.size();
+          double * targetBase = fieldOutput->getArray()->getPointer();
+          for(int j=0;j<nbOfTrgTuples;j++)
+            {
+              const SparseDoubleVec& mat1=mat[j];
+              const SparseDoubleVec& deno1=deno[j];
+              SparseDoubleVec::const_iterator it5=deno1.begin();
+              double * targetPt = targetBase+j*nbOfCompo;
+              for(SparseDoubleVec::const_iterator it3=mat1.begin();it3!=mat1.end();it3++,it5++)
+                {
+                  // Apply the multiplication for all components:
+                  double ratio = (*it3).second/(*it5).second;
+                  transform(bigArr+nbrecv2[srcProcID]+((*it3).first)*nbOfCompo,
+                            bigArr+nbrecv2[srcProcID]+((*it3).first+1)*nbOfCompo,
+                            (double *)tmp,
+                            bind2nd(multiplies<double>(),ratio));
+                  // Accumulate with current value:
+                  transform((double *)tmp,(double *)tmp+nbOfCompo,targetPt,targetPt,plus<double>());
+                  hit_cells[j] = true;
                 }
             }
         }
     }
+
+  // Fill in default values for cells which haven't been hit:
+  int i = 0;
+  for(bool * hit_cells_ptr=hit_cells; i< fieldOutput->getNumberOfTuples(); hit_cells_ptr++,i++)
+    if (!(*hit_cells_ptr))
+      {
+        double * targetPt=fieldOutput->getArray()->getPointer();
+        fill(targetPt+i*nbOfCompo, targetPt+(i+1)*nbOfCompo, default_val);
+      }
 }
 
 /*!
@@ -621,53 +765,121 @@ void OverlapMapping::transposeMultiply(const MEDCouplingFieldDouble *fieldInput,
 }
 
 /*!
- * This method should be called immediately after _the_matrix_st has been filled with remote computed matrix put in this proc for Matrix-Vector.
- * This method computes for these matrix the minimal set of source ids corresponding to the source proc id. 
+ * This method should be called immediately after _the_matrix_st has been filled with remote computed matrix
+ * put in this proc for Matrix-Vector.
+ * It fills _src_ids_zip_recv (see member doc)
  */
-void OverlapMapping::updateZipSourceIdsForFuture()
+void OverlapMapping::fillSourceIdsZipReceivedForMultiply()
 {
+  /* When it is called, only the bits received from other processors (i.e. the remotely executed jobs) are in the
+    big matrix _the_matrix_st. */
+
   CommInterface commInterface=_group.getCommInterface();
   int myProcId=_group.myRank();
   int nbOfMatrixRecveived=_the_matrix_st_source_proc_id.size();
   for(int i=0;i<nbOfMatrixRecveived;i++)
     {
       int curSrcProcId=_the_matrix_st_source_proc_id[i];
-      if(curSrcProcId!=myProcId)
+      if(curSrcProcId!=myProcId)  // if =, data has been populated by addContributionST()
         {
-          const std::vector< std::map<int,double> >& mat=_the_matrix_st[i];
-          _src_ids_zip_proc_st2.push_back(curSrcProcId);
-          _src_ids_zip_st2.resize(_src_ids_zip_st2.size()+1);
+          const std::vector< SparseDoubleVec >& mat=_the_matrix_st[i];
           std::set<int> s;
-          for(std::vector< std::map<int,double> >::const_iterator it1=mat.begin();it1!=mat.end();it1++)
-            for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+          for(std::vector< SparseDoubleVec >::const_iterator it1=mat.begin();it1!=mat.end();it1++)
+            for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
               s.insert((*it2).first);
-          _src_ids_zip_st2.back().insert(_src_ids_zip_st2.back().end(),s.begin(),s.end());
+          vector<int> vec(s.begin(),s.end());
+          _src_ids_zip_recv[curSrcProcId] = vec;
         }
     }
 }
 
-// #include <iostream>
+#ifdef DEC_DEBUG
+ void OverlapMapping::printTheMatrix() const
+ {
+   CommInterface commInterface=_group.getCommInterface();
+   const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
+   const MPI_Comm *comm=group->getComm();
+   int grpSize=_group.size();
+   int myProcId=_group.myRank();
+   std::stringstream oscerr;
+   int nbOfMat=_the_matrix_st.size();
+   oscerr << "(" <<  myProcId <<  ") I hold " << nbOfMat << " matrix(ces) : "<< std::endl;
+   for(int i=0;i<nbOfMat;i++)
+     {
+       oscerr << "   - Matrix #" << i << " coming from source proc #" << _the_matrix_st_source_proc_id[i] << ":\n ";
+       const std::vector< SparseDoubleVec >& locMat=_the_matrix_st[i];
+       int j = 0;
+       for(std::vector< SparseDoubleVec >::const_iterator it1=locMat.begin();it1!=locMat.end();it1++, j++)
+         {
+           oscerr << " Target Cell #" << j;
+           for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+             oscerr << " (" << (*it2).first << "," << (*it2).second << "), ";
+           oscerr << std::endl;
+         }
+     }
+   oscerr << "*********" << std::endl;
 
-// void OverlapMapping::printTheMatrix() const
-// {
-//   CommInterface commInterface=_group.getCommInterface();
-//   const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
-//   const MPI_Comm *comm=group->getComm();
-//   int grpSize=_group.size();
-//   int myProcId=_group.myRank();
-//   std::cerr << "I am proc #" << myProcId << std::endl;
-//   int nbOfMat=_the_matrix_st.size();
-//   std::cerr << "I do manage " << nbOfMat << "matrix : "<< std::endl;
-//   for(int i=0;i<nbOfMat;i++)
-//     {
-//       std::cerr << "   - Matrix #" << i << " on source proc #" << _the_matrix_st_source_proc_id[i];
-//       const std::vector< std::map<int,double> >& locMat=_the_matrix_st[i];
-//       for(std::vector< std::map<int,double> >::const_iterator it1=locMat.begin();it1!=locMat.end();it1++)
-//         {
-//           for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
-//             std::cerr << "(" << (*it2).first << "," << (*it2).second << "), ";
-//           std::cerr << std::endl;
-//         }
-//     }
-//   std::cerr << "*********" << std::endl;
-// }
+   // Hope this will be flushed in one go:
+   std::cerr << oscerr.str() << std::endl;
+//   if(myProcId != 0)
+//     MPI_Barrier(MPI_COMM_WORLD);
+ }
+
+ void OverlapMapping::printMatrixesST() const
+  {
+    CommInterface commInterface=_group.getCommInterface();
+    const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
+    const MPI_Comm *comm=group->getComm();
+    int grpSize=_group.size();
+    int myProcId=_group.myRank();
+    std::stringstream oscerr;
+    int nbOfMat=_matrixes_st.size();
+    oscerr << "(" <<  myProcId <<  ") I hold " << nbOfMat << " LOCAL matrix(ces) : "<< std::endl;
+    for(int i=0;i<nbOfMat;i++)
+      {
+        oscerr << "   - Matrix #" << i << ": (source proc #" << _source_proc_id_st[i] << " / tgt proc#" << _target_proc_id_st[i] << "): \n";
+        const std::vector< SparseDoubleVec >& locMat=_matrixes_st[i];
+        int j = 0;
+        for(std::vector< SparseDoubleVec >::const_iterator it1=locMat.begin();it1!=locMat.end();it1++, j++)
+          {
+            oscerr << " Target Cell #" << j;
+            for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+              oscerr << " (" << (*it2).first << "," << (*it2).second << "), ";
+            oscerr << std::endl;
+          }
+      }
+    oscerr << "*********" << std::endl;
+
+    // Hope this will be flushed in one go:
+    std::cerr << oscerr.str() << std::endl;
+  }
+
+ void OverlapMapping::printDenoMatrix() const
+   {
+     CommInterface commInterface=_group.getCommInterface();
+     const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
+     const MPI_Comm *comm=group->getComm();
+     int grpSize=_group.size();
+     int myProcId=_group.myRank();
+     std::stringstream oscerr;
+     int nbOfMat=_the_deno_st.size();
+     oscerr << "(" <<  myProcId <<  ") I hold " << nbOfMat << " DENOMINATOR matrix(ces) : "<< std::endl;
+     for(int i=0;i<nbOfMat;i++)
+       {
+         oscerr << "   - Matrix #" << i << " coming from source proc #" << _the_matrix_st_source_proc_id[i] << ": \n";
+         const std::vector< SparseDoubleVec >& locMat=_the_deno_st[i];
+         int j = 0;
+         for(std::vector< SparseDoubleVec >::const_iterator it1=locMat.begin();it1!=locMat.end();it1++, j++)
+           {
+             oscerr << " Target Cell #" << j;
+             for(SparseDoubleVec::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+               oscerr << " (" << (*it2).first << "," << (*it2).second << "), ";
+             oscerr << std::endl;
+           }
+       }
+     oscerr << "*********" << std::endl;
+
+     // Hope this will be flushed in one go:
+     std::cerr << oscerr.str() << std::endl;
+   }
+#endif

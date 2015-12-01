@@ -503,7 +503,7 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy)
 
 /*!
  * Returns a new MEDCouplingMesh constituted by some cells of the underlying mesh of \a
- * this filed, and returns ids of entities (nodes, cells, Gauss points) lying on the 
+ * this field, and returns ids of entities (nodes, cells, Gauss points) lying on the
  * specified cells. The cells to include to the result mesh are specified by an array of
  * cell ids. The new mesh shares the coordinates array with the underlying mesh. 
  *  \param [in] start - an array of cell ids to include to the result mesh.

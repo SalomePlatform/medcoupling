@@ -20,6 +20,7 @@
 
 #include "OverlapDEC.hxx"
 #include "CommInterface.hxx"
+#include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "OverlapElementLocator.hxx"
@@ -53,8 +54,7 @@ namespace ParaMEDMEM
     \anchor ParaMEDMEMOverlapDECImgTest1
     \image html OverlapDEC1.png "Example split of the source and target mesh among the 3 procs"
 
-    \subsection ParaMEDMEMOverlapDECAlgoStep1 Step 1 : Bounding box exchange and global interaction
-    between procs computation.
+    \subsection ParaMEDMEMOverlapDECAlgoStep1 Step 1 : Bounding box exchange and global interaction between procs computation.
 
     In order to reduce as much as possible the amount of communications between distant processors,
     every processor computes a bounding box for A and B. Then a AllToAll communication is performed
@@ -209,9 +209,11 @@ namespace ParaMEDMEM
     The method in charge to perform this is : ParaMEDMEM::OverlapMapping::prepare.
 */
   OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
-      _own_group(true),_interpolation_matrix(0),
+      _load_balancing_algo(1),
+      _own_group(true),_interpolation_matrix(0), _locator(0),
       _source_field(0),_own_source_field(false),
       _target_field(0),_own_target_field(false),
+      _default_field_value(0.0),
       _comm(MPI_COMM_NULL)
   {
     ParaMEDMEM::CommInterface comm;
@@ -244,6 +246,7 @@ namespace ParaMEDMEM
     if(_own_target_field)
       delete _target_field;
     delete _interpolation_matrix;
+    delete _locator;
     if (_comm != MPI_COMM_NULL)
       {
         ParaMEDMEM::CommInterface comm;
@@ -261,7 +264,7 @@ namespace ParaMEDMEM
 
   void OverlapDEC::sendData()
   {
-    _interpolation_matrix->multiply();
+    _interpolation_matrix->multiply(_default_field_value);
   }
 
   void OverlapDEC::recvData()
@@ -274,24 +277,31 @@ namespace ParaMEDMEM
   {
     if(!isInGroup())
       return ;
+    // Check number of components of field on both side (for now allowing void field/mesh on one proc is not allowed)
+    if (!_source_field || !_source_field->getField())
+      throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): currently, having a void source field on a proc is not allowed!");
+    if (!_target_field || !_target_field->getField())
+      throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): currently, having a void target field on a proc is not allowed!");
+    if (_target_field->getField()->getNumberOfComponents() != _source_field->getField()->getNumberOfComponents())
+      throw INTERP_KERNEL::Exception("OverlapDEC::synchronize(): source and target field have different number of components!");
     delete _interpolation_matrix;
-    _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this);
-    OverlapElementLocator locator(_source_field,_target_field,*_group);
-    locator.copyOptions(*this);
-    locator.exchangeMeshes(*_interpolation_matrix);
-    std::vector< std::pair<int,int> > jobs=locator.getToDoList();
-    std::string srcMeth=locator.getSourceMethod();
-    std::string trgMeth=locator.getTargetMethod();
+    _locator = new OverlapElementLocator(_source_field,_target_field,*_group, getBoundingBoxAdjustmentAbs(), _load_balancing_algo);
+    _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this, *_locator);
+    _locator->copyOptions(*this);
+    _locator->exchangeMeshes(*_interpolation_matrix);
+    std::vector< std::pair<int,int> > jobs=_locator->getToDoList();
+    std::string srcMeth=_locator->getSourceMethod();
+    std::string trgMeth=_locator->getTargetMethod();
     for(std::vector< std::pair<int,int> >::const_iterator it=jobs.begin();it!=jobs.end();it++)
       {
-        const MEDCouplingPointSet *src=locator.getSourceMesh((*it).first);
-        const DataArrayInt *srcIds=locator.getSourceIds((*it).first);
-        const MEDCouplingPointSet *trg=locator.getTargetMesh((*it).second);
-        const DataArrayInt *trgIds=locator.getTargetIds((*it).second);
-        _interpolation_matrix->addContribution(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
+        const MEDCouplingPointSet *src=_locator->getSourceMesh((*it).first);
+        const DataArrayInt *srcIds=_locator->getSourceIds((*it).first);
+        const MEDCouplingPointSet *trg=_locator->getTargetMesh((*it).second);
+        const DataArrayInt *trgIds=_locator->getTargetIds((*it).second);
+        _interpolation_matrix->computeLocalIntersection(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).second);
       }
-    _interpolation_matrix->prepare(locator.getProcsInInteraction());
-    _interpolation_matrix->computeDeno();
+    _interpolation_matrix->prepare(_locator->getProcsToSendFieldData());
+    _interpolation_matrix->computeSurfacesAndDeno();
   }
 
   void OverlapDEC::attachSourceLocalField(ParaFIELD *field, bool ownPt)
@@ -314,10 +324,39 @@ namespace ParaMEDMEM
     _own_target_field=ownPt;
   }
 
+  void OverlapDEC::attachSourceLocalField(MEDCouplingFieldDouble *field)
+  {
+    if(!isInGroup())
+      return ;
+
+    ParaMESH *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
+                                      *_group,field->getMesh()->getName());
+    ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
+    tmpField->setOwnSupport(true);
+    attachSourceLocalField(tmpField,true);
+  }
+
+  void OverlapDEC::attachTargetLocalField(MEDCouplingFieldDouble *field)
+  {
+    if(!isInGroup())
+      return ;
+
+    ParaMESH *paramesh = new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),
+                                      *_group,field->getMesh()->getName());
+    ParaFIELD *tmpField=new ParaFIELD(field, paramesh, *_group);
+    tmpField->setOwnSupport(true);
+    attachTargetLocalField(tmpField,true);
+  }
+
   bool OverlapDEC::isInGroup() const
   {
     if(!_group)
       return false;
     return _group->containsMyRank();
+  }
+
+  void OverlapDEC::debugPrintWorkSharing(std::ostream & ostr) const
+  {
+    _locator->debugPrintWorkSharing(ostr);
   }
 }

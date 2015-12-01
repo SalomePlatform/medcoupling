@@ -25,10 +25,12 @@
 #include "InterpolationOptions.hxx"
 
 #include <mpi.h>
+#include <string>
 
 namespace ParaMEDMEM
 {
   class OverlapInterpolationMatrix;
+  class OverlapElementLocator;
   class ProcessorGroup;
   class ParaFIELD;
 
@@ -43,12 +45,25 @@ namespace ParaMEDMEM
     void synchronize();
     void attachSourceLocalField(ParaFIELD *field, bool ownPt=false);
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
-    ProcessorGroup *getGrp() { return _group; }
+    void attachSourceLocalField(MEDCouplingFieldDouble *field);
+    void attachTargetLocalField(MEDCouplingFieldDouble *field);
+    ProcessorGroup *getGroup() { return _group; }
     bool isInGroup() const;
+
+    void setDefaultValue(double val) {_default_field_value = val;}
+    //! 0 means initial algo from Antho, 1 or 2 means Adrien's algo (2 should be better). Make your choice :-))
+    void setWorkSharingAlgo(int method)  { _load_balancing_algo = method; }
+
+    void debugPrintWorkSharing(std::ostream & ostr) const;
   private:
+    int _load_balancing_algo;
+
     bool _own_group;
     OverlapInterpolationMatrix* _interpolation_matrix;
+    OverlapElementLocator* _locator;
     ProcessorGroup *_group;
+
+    double _default_field_value;
 
     ParaFIELD *_source_field;
     bool _own_source_field;

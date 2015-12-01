@@ -31,50 +31,57 @@
 class ParaMEDMEMTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( ParaMEDMEMTest );
-  CPPUNIT_TEST(testMPIProcessorGroup_constructor);
-  CPPUNIT_TEST(testMPIProcessorGroup_boolean);
-  CPPUNIT_TEST(testMPIProcessorGroup_rank);
-  CPPUNIT_TEST(testBlockTopology_constructor);
-  CPPUNIT_TEST(testBlockTopology_serialize);
-  CPPUNIT_TEST(testInterpKernelDEC_1D);
-  CPPUNIT_TEST(testInterpKernelDEC_2DCurve);
-  CPPUNIT_TEST(testInterpKernelDEC_2D);
-  CPPUNIT_TEST(testInterpKernelDEC2_2D);
-  CPPUNIT_TEST(testInterpKernelDEC_2DP0P1);
-  CPPUNIT_TEST(testInterpKernelDEC_3D);
-  CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P0);
-  CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P1P1P0);
-  CPPUNIT_TEST(testInterpKernelDEC2DM1D_P0P0);
-  CPPUNIT_TEST(testInterpKernelDECPartialProcs);
-  CPPUNIT_TEST(testInterpKernelDEC3DSurfEmptyBBox);
-  CPPUNIT_TEST(testOverlapDEC1);
+  CPPUNIT_TEST(testMPIProcessorGroup_constructor);  // 1 and 2 procs
+  CPPUNIT_TEST(testMPIProcessorGroup_boolean);      // 1 and 2 procs
+  CPPUNIT_TEST(testMPIProcessorGroup_rank);         // >=2 procs
+  CPPUNIT_TEST(testBlockTopology_constructor);      // >=2 procs
+  CPPUNIT_TEST(testBlockTopology_serialize);        // 1 proc
+  CPPUNIT_TEST(testInterpKernelDEC_1D);             // 5 procs
+  CPPUNIT_TEST(testInterpKernelDEC_2DCurve);        // 5 procs
+  CPPUNIT_TEST(testInterpKernelDEC_2D);             // 5 procs
+  CPPUNIT_TEST(testInterpKernelDEC2_2D);            // 5 procs
+  CPPUNIT_TEST(testInterpKernelDEC_2DP0P1);         // Not impl.
+  CPPUNIT_TEST(testInterpKernelDEC_3D);             // 3 procs
+  CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P0);     // 5 procs
+  CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P1P1P0); // 5 procs
+  CPPUNIT_TEST(testInterpKernelDEC2DM1D_P0P0);      // 3 procs
+  CPPUNIT_TEST(testInterpKernelDECPartialProcs);    // 3 procs
+  CPPUNIT_TEST(testInterpKernelDEC3DSurfEmptyBBox); // 3 procs
+  CPPUNIT_TEST(testOverlapDEC1);                    // 3 procs
+  CPPUNIT_TEST(testOverlapDEC1_bis);                // 3 procs
+  CPPUNIT_TEST(testOverlapDEC1_ter);                // 3 procs
+  CPPUNIT_TEST(testOverlapDEC2);                    // 3 procs
+  CPPUNIT_TEST(testOverlapDEC2_bis);                // 3 procs
+  CPPUNIT_TEST(testOverlapDEC2_ter);                // 3 procs
+  CPPUNIT_TEST(testOverlapDEC3);                    // 2 procs
+  CPPUNIT_TEST(testOverlapDEC4);                    // 2 procs
 
-  CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualInterpKernelDEC_2D);
-  CPPUNIT_TEST(testSynchronousFasterSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testSynchronousSlowerSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testSynchronousSlowSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testSynchronousFastSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testAsynchronousEqualInterpKernelDEC_2D);
-  CPPUNIT_TEST(testAsynchronousFasterSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testAsynchronousSlowerSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testAsynchronousSlowSourceInterpKernelDEC_2D);
-  CPPUNIT_TEST(testAsynchronousFastSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);// 5 procs
+  CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);      // 5 procs
+  CPPUNIT_TEST(testSynchronousEqualInterpKernelDEC_2D);                   // 5 procs
+  CPPUNIT_TEST(testSynchronousFasterSourceInterpKernelDEC_2D);            // 5 procs
+  CPPUNIT_TEST(testSynchronousSlowerSourceInterpKernelDEC_2D);            // 5 procs
+  CPPUNIT_TEST(testSynchronousSlowSourceInterpKernelDEC_2D);              // 5 procs
+  CPPUNIT_TEST(testSynchronousFastSourceInterpKernelDEC_2D);              // 5 procs
+  CPPUNIT_TEST(testAsynchronousEqualInterpKernelDEC_2D);                  // 5 procs
+  CPPUNIT_TEST(testAsynchronousFasterSourceInterpKernelDEC_2D);           // 5 procs
+  CPPUNIT_TEST(testAsynchronousSlowerSourceInterpKernelDEC_2D);           // 5 procs
+  CPPUNIT_TEST(testAsynchronousSlowSourceInterpKernelDEC_2D);             // 5 procs
+  CPPUNIT_TEST(testAsynchronousFastSourceInterpKernelDEC_2D);             // 5 procs
 #ifdef MED_ENABLE_FVM
   //can be added again after FVM correction for 2D
   //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
   CPPUNIT_TEST(testNonCoincidentDEC_3D);
 #endif
-  CPPUNIT_TEST(testStructuredCoincidentDEC);
-  CPPUNIT_TEST(testStructuredCoincidentDEC);
-  CPPUNIT_TEST(testICoco1);
-  CPPUNIT_TEST(testGauthier1);
-  CPPUNIT_TEST(testGauthier2);
-  CPPUNIT_TEST(testGauthier3);
-  CPPUNIT_TEST(testGauthier4);
-  CPPUNIT_TEST(testFabienAPI1);
-  CPPUNIT_TEST(testFabienAPI2);
+  CPPUNIT_TEST(testStructuredCoincidentDEC);     // 5 procs
+  CPPUNIT_TEST(testICoco1);           // 2 procs
+  CPPUNIT_TEST(testGauthier1);        // 4 procs
+  CPPUNIT_TEST(testGauthier2);        // >= 2 procs
+  CPPUNIT_TEST(testGauthier3);        // 4 procs
+  CPPUNIT_TEST(testGauthier4);        // 3 procs
+  CPPUNIT_TEST(testFabienAPI1);       // 3 procs
+  CPPUNIT_TEST(testFabienAPI2);       // 3 procs
+
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -100,6 +107,14 @@ public:
   void testInterpKernelDECPartialProcs();
   void testInterpKernelDEC3DSurfEmptyBBox();
   void testOverlapDEC1();
+  void testOverlapDEC1_bis();
+  void testOverlapDEC1_ter();
+  void testOverlapDEC2();
+  void testOverlapDEC2_bis();
+  void testOverlapDEC2_ter();
+  void testOverlapDEC3();
+//  void testOverlapDEC3_bis();
+  void testOverlapDEC4();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();
@@ -145,6 +160,7 @@ private:
   void testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC2_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth);
+
 };
 
 // to automatically remove temporary files from disk

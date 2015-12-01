@@ -249,6 +249,7 @@ void ParaMEDMEMTest::testGauthier1()
 
 void ParaMEDMEMTest::testGauthier2()
 {
+  std::cout << "testGauthier2\n";
   double valuesExpected1[2]={0.,0.};
   double valuesExpected2[2]={0.95,0.970625};
   

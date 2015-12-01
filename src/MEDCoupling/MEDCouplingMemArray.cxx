@@ -1628,6 +1628,11 @@ DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const in
   return ret.retn();
 }
 
+DataArrayDouble *DataArrayDouble::selectByTupleId(const DataArrayInt & di) const
+{
+  return selectByTupleId(di.getConstPointer(), di.getConstPointer()+di.getNumberOfTuples());
+}
+
 /*!
  * Returns a shorten and permuted copy of \a this array. The new DataArrayDouble is
  * of size \a new2OldEnd - \a new2OldBg and it's values are permuted as required by
