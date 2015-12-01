@@ -17,18 +17,17 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SALOME_CONFIGURE_FILE(conf.py.in conf.py)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in ${CMAKE_CURRENT_BINARY_DIR}/conf.py)
 
 SET(_cmd_options -c ${CMAKE_CURRENT_BINARY_DIR} -b html -d doctrees -D latex_paper_size=a4 ${CMAKE_CURRENT_SOURCE_DIR} html)
-SALOME_GENERATE_ENVIRONMENT_SCRIPT(_cmd env_script "${SPHINX_EXECUTABLE}" "${_cmd_options}")      
 
 ADD_CUSTOM_TARGET(tutorial_doc COMMAND ${_cmd})
 ADD_DEPENDENCIES(usr_docs tutorial_doc)
 
 #INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target tutorial_doc)")
-INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION ${SALOME_INSTALL_DOC}/gui/MED/tutorial)
-INSTALL(DIRECTORY images/ DESTINATION ${SALOME_INSTALL_DOC}/gui/MED/tutorial/images)
-INSTALL(DIRECTORY data/ DESTINATION ${SALOME_INSTALL_DOC}/gui/MED/tutorial/data)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION ${MEDTOOL_INSTALL_DOC}/gui/MED/tutorial)
+INSTALL(DIRECTORY images/ DESTINATION ${MEDTOOL_INSTALL_DOC}/gui/MED/tutorial/images)
+INSTALL(DIRECTORY data/ DESTINATION ${MEDTOOL_INSTALL_DOC}/gui/MED/tutorial/data)
 
 SET(make_clean_files html doctrees)
 SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${make_clean_files}")

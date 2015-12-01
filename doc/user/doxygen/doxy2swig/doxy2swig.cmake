@@ -56,22 +56,22 @@ SET(_classes_MEDLoader
 ## \param[in] target_swig dummy target encompassing the final build of all SWIG files
 ## \param[in] cls_list list of classes for which to generate SWIG files
 ## \param[in] swig_main_file main SWIG file including the other generated SWIG files
-## \param[out] swig_files list of generated SWIG files 
+## \param[out] swig_files list of generated SWIG files
 ##
-MACRO(SALOME_MED_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_main_file swig_files)
+MACRO(MEDTOOL_MED_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_main_file swig_files)
     # List of generated SWIG files (.i) for doc purposes only:
     SET(${swig_files})
     FOREACH(_cls IN LISTS ${cls_list})
       SET(_xml_file "${CMAKE_CURRENT_BINARY_DIR}/../doxygen/doc_ref_user/xml/class${_cls}.xml")
       SET(_swig_file_base "${_SWIG_DOC_SUFFIX}${_cls}.i")
       SET(_swig_file "${PROJECT_BINARY_DIR}/doc/${_swig_file_base}" )
-  
+
       # SWIG doc files will always be generated *after* Doxygen is run:
       ### WARNING: ADD_CUSTOM_COMMAND(TARGET xxx POST_BUILD ...) command
       ### must be in exactly the same subdir as the initial target construction command.
       ### That's why this file is included with an INCLUDE() rather than using ADD_SUBDIRECTORY
-      # Note: we touch the main .i file to be sure to retrigger swig when the doc in a included 
-      # class changes. 
+      # Note: we touch the main .i file to be sure to retrigger swig when the doc in a included
+      # class changes.
       ADD_CUSTOM_COMMAND(OUTPUT ${_swig_file}
         COMMAND ${PYTHON_EXECUTABLE} ${_DOXY2SWIG} "-n" ${_xml_file} ${_swig_file}
         COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${swig_main_file}
@@ -82,13 +82,13 @@ MACRO(SALOME_MED_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_ma
       ADD_CUSTOM_TARGET(${_swig_file_base} DEPENDS ${_swig_file})
       # The doxy2swig script is executed once the doxygen documentation has been generated ...
       ADD_DEPENDENCIES(${_swig_file_base} ${target_doc})
-      # ... and the meta target 'swig_ready' (here ${target_swig}) is ready when all .i files 
+      # ... and the meta target 'swig_ready' (here ${target_swig}) is ready when all .i files
       # have been generated:
       ADD_DEPENDENCIES(${target_swig} ${_swig_file_base})
-       
+
       LIST(APPEND ${swig_files} ${_swig_file_base})
     ENDFOREACH()
-ENDMACRO(SALOME_MED_SWIG_DOCSTRING_GENERATE)
+ENDMACRO(MEDTOOL_MED_SWIG_DOCSTRING_GENERATE)
 
 
 ##
@@ -98,16 +98,16 @@ ENDMACRO(SALOME_MED_SWIG_DOCSTRING_GENERATE)
 ## \param[in] target_doc main target for the stantard doxygen generation
 ## \param[in] target_swig dummy target encompassing the final build of all SWIG files
 ## \param[in] root_name either 'MEDCoupling' or 'MEDLoader'
-## 
-MACRO(SALOME_MED_SWIG_DOCSTRING_CONFIGURE target_doc target_swig root_name)
+##
+MACRO(MEDTOOL_MED_SWIG_DOCSTRING_CONFIGURE target_doc target_swig root_name)
     SET(_all_swig_docs)
     SET(_swig_include_set)
     SET(_in_file doxy2swig/${root_name}_doc.i.in)
     SET(_out_file ${PROJECT_BINARY_DIR}/doc/${root_name}_doc.i)
-    SALOME_MED_SWIG_DOCSTRING_GENERATE(${target_doc} ${target_swig} _classes_${root_name} ${_out_file} _all_swig_docs)  
+    MEDTOOL_MED_SWIG_DOCSTRING_GENERATE(${target_doc} ${target_swig} _classes_${root_name} ${_out_file} _all_swig_docs)
     FOREACH(f IN LISTS _all_swig_docs)
         SET(_swig_include_set "${_swig_include_set}\n%include \"${f}\"")
     ENDFOREACH()
     CONFIGURE_FILE(${_in_file} ${_out_file} @ONLY)
-ENDMACRO(SALOME_MED_SWIG_DOCSTRING_CONFIGURE)
+ENDMACRO(MEDTOOL_MED_SWIG_DOCSTRING_CONFIGURE)
 

@@ -47,17 +47,17 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
         comptopo  = 0
         icocofield= 0
         #
-        data_dir = os.environ['MED_ROOT_DIR']
+        data_dir = os.environ['MEDTOOL_ROOT_DIR']
         tmp_dir  = os.environ['TMP']
         if tmp_dir == '':
             tmp_dir = "/tmp"
             pass
-        
-        filename_xml1    = data_dir + "/share/salome/resources/med/square1_split"
-        filename_2       = data_dir + "/share/salome/resources/med/square1.med"
+
+        filename_xml1    = data_dir + "/share/resources/med/square1_split"
+        filename_2       = data_dir + "/share/resources/med/square1.med"
         filename_seq_wr  = tmp_dir + "/"
         filename_seq_med = tmp_dir + "/myWrField_seq_pointe221.med"
-        
+
         dec = StructuredCoincidentDEC(source_group, target_group)
         MPI_Barrier(MPI_COMM_WORLD)
         if source_group.containsMyRank():
@@ -78,8 +78,8 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
                 pass
             parafield.getField().setValues(value)
             icocofield = ICoCoMEDField(mesh,parafield.getField())
-            dec.setMethod("P0")  
-            dec.attachLocalField(parafield)      
+            dec.setMethod("P0")
+            dec.attachLocalField(parafield)
             dec.synchronize()
             dec.sendData()
             pass
@@ -124,5 +124,5 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
         print "End of test StructuredCoincidentDEC"
         pass
 
-    
+
 unittest.main()

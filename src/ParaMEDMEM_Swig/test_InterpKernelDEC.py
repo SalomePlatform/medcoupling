@@ -35,27 +35,27 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         nproc_source = 3
         procs_source = range( nproc_source )
         procs_target = range( size - nproc_source + 1, size)
-        
+
         interface = CommInterface()
         target_group = MPIProcessorGroup(interface, procs_target)
         source_group = MPIProcessorGroup(interface, procs_source)
         dec = InterpKernelDEC(source_group, target_group)
-        
+
         mesh       =0
         support    =0
         paramesh   =0
         parafield  =0
         icocofield =0
-        data_dir = os.environ['MED_ROOT_DIR']
+        data_dir = os.environ['MEDTOOL_ROOT_DIR']
         tmp_dir  = os.environ['TMP']
-        
+
         if not tmp_dir or len(tmp_dir)==0:
             tmp_dir = "/tmp"
             pass
-        
-        filename_xml1 = os.path.join(data_dir, "share/salome/resources/med/square1_split")
-        filename_xml2 = os.path.join(data_dir, "share/salome/resources/med/square2_split")
-        
+
+        filename_xml1 = os.path.join(data_dir, "share/resources/med/square1_split")
+        filename_xml2 = os.path.join(data_dir, "share/resources/med/square2_split")
+
         MPI_Barrier(MPI_COMM_WORLD)
         if source_group.containsMyRank():
             filename = filename_xml1 + str(rank+1) + ".med"
@@ -87,7 +87,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             dec.setMethod("P0")
             dec.attachLocalField(icocofield)
             pass
-        
+
         if source_group.containsMyRank():
             field_before_int = parafield.getVolumeIntegral(0,True)
             dec.synchronize()

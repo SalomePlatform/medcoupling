@@ -2,7 +2,7 @@
 /*!
 \page install Configuring and Installing MED from sources
 
-The install procedure of the %MED SALOME module can handle a variety of configurations
+The install procedure of %MEDCoupling can handle a variety of configurations
 to suit the needs of its user. Instructions for configuring and
 installing the module can be found here.
 Partitioning and parallel functionalities are optional.

@@ -22,7 +22,7 @@
 # General configuration options
 #---------------------------------------------------------------------------
 #
-PROJECT_NAME           = "SALOME MED Users' Guide"
+PROJECT_NAME           = "MEDCoupling Users' Guide"
 PROJECT_NUMBER         =
 OUTPUT_DIRECTORY       = doc_ref_user
 OUTPUT_LANGUAGE        = English
@@ -85,7 +85,7 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/reference/cpp \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/reference/distrib \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/reference/misc \
-                         @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/examples/examples.dox \                         
+                         @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/examples/examples.dox \
                          @CMAKE_CURRENT_BINARY_DIR@/medcouplingexamplesPY.dox \
                          @CMAKE_CURRENT_BINARY_DIR@/medcouplingexamplesCPP.dox \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/appendix \
@@ -96,7 +96,7 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
                          @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Geometric2D \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling \
                          @PROJECT_SOURCE_DIR@/src/MEDLoader \
-                         @PROJECT_SOURCE_DIR@/src/MEDCouplingCorba 
+                         @PROJECT_SOURCE_DIR@/src/MEDCouplingCorba
 
 FILE_PATTERNS          = InterpKernelDEC.* \
                          OverlapDEC.* \
@@ -195,7 +195,7 @@ GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_HEADER            = @CMAKE_CURRENT_BINARY_DIR@/static/header.html
 HTML_FOOTER            = @CMAKE_CURRENT_SOURCE_DIR@/static/footer.html
-HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/static/salome_extra.css
+HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/static/medcoupling_extra.css
 GENERATE_HTMLHELP      = NO
 GENERATE_CHI           = YES
 BINARY_TOC             = NO

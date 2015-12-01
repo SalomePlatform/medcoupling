@@ -50,17 +50,17 @@ icocofield = 0
 
 dec = NonCoincidentDEC(source_group, target_group)
 
-data_dir = os.environ['MED_ROOT_DIR']
+data_dir = os.environ['MEDTOOL_ROOT_DIR']
 tmp_dir  = os.environ['TMP']
 if tmp_dir == '':
     tmp_dir = "/tmp"
     pass
 
-filename_xml1 = data_dir + "/share/salome/resources/med/square1_split"
-filename_xml2 = data_dir + "/share/salome/resources/med/square2_split"
+filename_xml1 = data_dir + "/share/resources/med/square1_split"
+filename_xml2 = data_dir + "/share/resources/med/square2_split"
 
 MPI_Barrier(MPI_COMM_WORLD)
-    
+
 if source_group.containsMyRank():
 
     filename = filename_xml1 + str(rank+1) + ".med"
@@ -119,7 +119,7 @@ if source_group.containsMyRank():
 
     dec.sendData()
     pass
-    
+
 if target_group.containsMyRank():
 
     MPI_Bcast(field_before_int, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD)
