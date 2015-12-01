@@ -30,6 +30,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+SET(GRAPHVIZ_ROOT_DIR $ENV{GRAPHVIZ_ROOT_DIR} CACHE PATH "Path to the Graphviz.")
+IF(GRAPHVIZ_ROOT_DIR)
+  LIST(APPEND CMAKE_PREFIX_PATH "${GRAPHVIZ_ROOT_DIR}")
+ENDIF(GRAPHVIZ_ROOT_DIR)
+
 FIND_PROGRAM(GRAPHVIZ_EXECUTABLE dot)
 
 FIND_PATH(GRAPHVIZ_INCLUDE_DIR NAMES graphviz/cgraph.h)
