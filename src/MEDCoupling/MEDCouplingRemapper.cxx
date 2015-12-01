@@ -107,29 +107,41 @@ int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const ME
 int MEDCouplingRemapper::prepareInterpKernelOnly()
 {
   int meshInterpType=((int)_src_ft->getMesh()->getType()*16)+(int)_target_ft->getMesh()->getType();
+  // *** Remember:
+//  typedef enum
+//    {
+//      UNSTRUCTURED = 5,
+//      CARTESIAN = 7,
+//      EXTRUDED = 8,
+//      CURVE_LINEAR = 9,
+//      SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED = 10,
+//      SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED = 11,
+//      IMAGE_GRID = 12
+//    } MEDCouplingMeshType;
+
   switch(meshInterpType)
   {
-    case 90:
-    case 91:
-    case 165:
-    case 181:
-    case 170:
-    case 171:
-    case 186:
-    case 187:
-    case 85://Unstructured-Unstructured
+    case 90:   // UNSTRUCTURED - SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED
+    case 91:   // UNSTRUCTURED - SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED
+    case 165:  // SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED - UNSTRUCTURED
+    case 181:  // SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED - UNSTRUCTURED
+    case 170:  // SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED - SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED
+    case 171:  // SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED - SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED
+    case 186:  // SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED - SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED
+    case 187:  // SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED - SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED
+    case 85:   // UNSTRUCTURED - UNSTRUCTURED
       return prepareInterpKernelOnlyUU();
-    case 167:
-    case 183:
-    case 87://Unstructured-Cartesian
+    case 167:  // SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED - CARTESIAN
+    case 183:  // SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED - CARTESIAN
+    case 87:   // UNSTRUCTURED - CARTESIAN
       return prepareInterpKernelOnlyUC();
-    case 122:
-    case 123:
-    case 117://Cartesian-Unstructured
+    case 122:  // CARTESIAN - SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED
+    case 123:  // CARTESIAN - SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED
+    case 117:  // CARTESIAN - UNSTRUCTURED
       return prepareInterpKernelOnlyCU();
-    case 119://Cartesian-Cartesian
+    case 119:  // CARTESIAN - CARTESIAN
       return prepareInterpKernelOnlyCC();
-    case 136://Extruded-Extruded
+    case 136:  // EXTRUDED - EXTRUDED
       return prepareInterpKernelOnlyEE();
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnly : Not managed type of meshes ! Dealt meshes type are : Unstructured<->Unstructured, Unstructured<->Cartesian, Cartesian<->Cartesian, Extruded<->Extruded !");
@@ -462,7 +474,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
             {
-              std::ostringstream oss; oss << "An unexpected situation happend ! For the following 1D Cells are part of edges shared by 2D cells :\n";
+              std::ostringstream oss; oss << "An unexpected situation happened ! For the following 1D Cells are part of edges shared by 2D cells :\n";
               for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
                 {
                   oss << "1D Cell #" << (*it).first << " is part of common edge of following 2D cells ids : ";
@@ -866,7 +878,7 @@ int MEDCouplingRemapper::CheckInterpolationMethodManageableByNotOnlyInterpKernel
 
 /*!
  * This method determines regarding \c _interp_matrix_pol attribute ( set by MEDCouplingRemapper::setInterpolationMatrixPolicy and by default equal
- * to IK_ONLY_PREFERED = 0 ) , which method will be applied. If \c true is returned the INTERP_KERNEL only method should be applied to \c false the \b not
+ * to IK_ONLY_PREFERED, which method will be applied. If \c true is returned the INTERP_KERNEL only method should be applied to \c false the \b not
  * only INTERP_KERNEL method should be applied.
  */
 bool MEDCouplingRemapper::isInterpKernelOnlyOrNotOnly() const
