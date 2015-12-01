@@ -335,9 +335,9 @@ namespace INTERP_TEST
    * Calculates the intersection matrix for two meshes.
    * If the source and target meshes are the same, a CppUnit assertion raised if testVolumes() returns false.
    *
-   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
+   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
    * @param  mesh1       the name of the source mesh
-   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
+   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
    * @param  mesh2       the name of the target mesh
    * @param  m           intersection matrix in which to store the result of the intersection
    */
@@ -397,9 +397,9 @@ namespace INTERP_TEST
    * it will be confirmed that the intersection matrix is diagonal, otherwise the intersection matrices will be
    * calculated once which each mesh as source mesh, and it will be verified that the they are each others' transpose.
    *
-   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
+   * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
    * @param  mesh1       the name of the source mesh
-   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
+   * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
    * @param  mesh2       the name of the target mesh
    * @param  correctVol  the total volume of the intersection of the two meshes
    * @param  prec        maximum relative error to be tolerated in volume comparisions

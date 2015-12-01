@@ -189,7 +189,7 @@ class RenumberingTest(unittest.TestCase):
         pass
 
     def setUp(self):
-        med_root_dir=os.getenv("MEDTOOL_ROOT_DIR")
+        med_root_dir=os.getenv("MEDCOUPLING_ROOT_DIR")
         self.dir_renumber=os.path.join(med_root_dir, "bin/renumber")
         self.dir_mesh=os.path.join(med_root_dir, "share","resources","med")
         pass

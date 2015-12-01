@@ -50,7 +50,7 @@ icocofield = 0
 
 dec = NonCoincidentDEC(source_group, target_group)
 
-data_dir = os.environ['MEDTOOL_ROOT_DIR']
+data_dir = os.environ['MEDCOUPLING_ROOT_DIR']
 tmp_dir  = os.environ['TMP']
 if tmp_dir == '':
     tmp_dir = "/tmp"

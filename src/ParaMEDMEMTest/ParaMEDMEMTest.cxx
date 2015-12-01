@@ -34,9 +34,9 @@ std::string ParaMEDMEMTest::getResourceFile( const std::string& filename )
 {
   std::string resourceFile = "";
 
-  if ( getenv("MEDTOOL_ROOT_DIR") ) {
-    // use MEDTOOL_ROOT_DIR env.var
-    resourceFile = getenv("MEDTOOL_ROOT_DIR");
+  if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
+    // use MEDCOUPLING_ROOT_DIR env.var
+    resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
     resourceFile += "/share/resources/med/";
   }
   else {

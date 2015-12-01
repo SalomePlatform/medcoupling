@@ -35,7 +35,7 @@
  *
  * USAGE : PerfTest mesh1 mesh2
  *         where mesh1 and mesh2 are the names of two meshes located in
- *         the files mesh1.med, mesh2.med in {$MEDTOOL_ROOT_DIR}/share/resources/med/
+ *         the files mesh1.med, mesh2.med in {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
  *
  */
 
@@ -56,9 +56,9 @@ namespace INTERP_TEST
      * the number of matrix elements and the number of non-zero matrix elements, etc.
      * These values help to determine how well the filtering algorithm is working.
      *
-     * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
+     * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
      * @param  mesh1       the name of the source mesh
-     * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDTOOL_ROOT_DIR}/share/resources/med/
+     * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
      * @param  mesh2       the name of the target mesh
      * @param  m           intersection matrix in which to store the result of the intersection
      */

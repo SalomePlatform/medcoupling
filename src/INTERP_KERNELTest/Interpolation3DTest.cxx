@@ -264,8 +264,8 @@ void Interpolation3DTest::tearDown()
 void Interpolation3DTest::calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) const
 {
   string dataDir = "";
-  if ( getenv("MEDTOOL_ROOT_DIR") ) {
-    dataDir = getenv("MEDTOOL_ROOT_DIR");
+  if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
+    dataDir = getenv("MEDCOUPLING_ROOT_DIR");
     dataDir += "/share/resources/med/";
   }
   else {

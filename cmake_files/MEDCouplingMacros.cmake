@@ -31,22 +31,22 @@ MACRO(_TOHEXA num result)
 ENDMACRO(_TOHEXA)
 
 ####################################################################
-# MEDTOOL_XVERSION()
+# MEDCOUPLING_XVERSION()
 #
-# Computes hexadecimal version of MEDTOOL package
+# Computes hexadecimal version of MEDCOUPLING package
 #
-# USAGE: MEDTOOL_XVERSION(package)
+# USAGE: MEDCOUPLING_XVERSION(package)
 #
 # ARGUMENTS:
 #
-# package: IN: MEDTOOL package name
+# package: IN: MEDCOUPLING package name
 #
-# The macro reads MEDTOOL package version from PACKAGE_VERSION variable
+# The macro reads MEDCOUPLING package version from PACKAGE_VERSION variable
 # (note package name are uppercase);
 # hexadecimal version value in form 0xAABBCC (where AA, BB and CC are
 # major, minor and maintenance components of package version in
 # hexadecimal form) is put to the PACKAGE_XVERSION variable
-MACRO(MEDTOOL_XVERSION pkg)
+MACRO(MEDCOUPLING_XVERSION pkg)
   STRING(TOUPPER ${pkg} _pkg_UC)
   IF(${_pkg_UC}_VERSION)
     SET(_major)
@@ -57,4 +57,4 @@ MACRO(MEDTOOL_XVERSION pkg)
     _TOHEXA(${${_pkg_UC}_PATCH_VERSION} _patch)
     SET(${_pkg_UC}_XVERSION "0x${_major}${_minor}${_patch}")
   ENDIF()
-ENDMACRO(MEDTOOL_XVERSION)
+ENDMACRO(MEDCOUPLING_XVERSION)

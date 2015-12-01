@@ -46,7 +46,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         paramesh   =0
         parafield  =0
         icocofield =0
-        data_dir = os.environ['MEDTOOL_ROOT_DIR']
+        data_dir = os.environ['MEDCOUPLING_ROOT_DIR']
         tmp_dir  = os.environ['TMP']
 
         if not tmp_dir or len(tmp_dir)==0:

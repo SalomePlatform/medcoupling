@@ -1,4 +1,3 @@
-
 /*!
 \page install Configuring and Installing MED from sources
 
@@ -20,14 +19,14 @@ cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=<MEDCOUPLING_INSTALL> <ME
 This will configure the library without splitting functionalities. The \ref parallel "parallel functionalities" will be compiled if an MPI version has been found.
 
 The following options can be useful to configure MEDCoupling :
-- \a -DMEDTOOL_MED_PARTITIONER_METIS=ON enables metis graph library in MEDPartitioner,
-- \a -DMEDTOOL_MED_PARTITIONER_PARMETIS=ON enables parmetis graph library in MEDPartitioner,
-- \a -DMEDTOOL_MED_PARTITIONER_SCOTCH=ON enables scotch graph library in MEDPartitioner,
-- \a -DMEDTOOL_MED_MICROMED=ON build MED with MED file dependancy,
-- \a -DMEDTOOL_MED_ENABLE_PYTHON=ON builds PYTHON bindings,
-- \a -DMEDTOOL_MED_ENABLE_PARTITIONER builds MEDPartitioner,
-- \a -DMEDTOOL_MED_ENABLE_RENUMBER builds Renumber,
-- \a -DMEDTOOL_USE_MPI=ON uses MPI containers.
+- \a -DMEDCOUPLING_MED_PARTITIONER_METIS=ON enables metis graph library in MEDPartitioner,
+- \a -DMEDCOUPLING_MED_PARTITIONER_PARMETIS=ON enables parmetis graph library in MEDPartitioner,
+- \a -DMEDCOUPLING_MED_PARTITIONER_SCOTCH=ON enables scotch graph library in MEDPartitioner,
+- \a -DMEDCOUPLING_MED_MICROMED=ON build MED with MED file dependancy,
+- \a -DMEDCOUPLING_MED_ENABLE_PYTHON=ON builds PYTHON bindings,
+- \a -DMEDCOUPLING_MED_ENABLE_PARTITIONER builds MEDPartitioner,
+- \a -DMEDCOUPLING_MED_ENABLE_RENUMBER builds Renumber,
+- \a -DMEDCOUPLING_USE_MPI=ON uses MPI containers.
 
 According to set options and compilation environment, user may need to define some <prerequisite>_ROOT_DIR variables. For example if in SALOME environment:
 \verbatim

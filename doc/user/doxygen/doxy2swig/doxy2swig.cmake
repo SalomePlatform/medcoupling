@@ -58,7 +58,7 @@ SET(_classes_MEDLoader
 ## \param[in] swig_main_file main SWIG file including the other generated SWIG files
 ## \param[out] swig_files list of generated SWIG files
 ##
-MACRO(MEDTOOL_MED_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_main_file swig_files)
+MACRO(MEDCOUPLING_MED_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_main_file swig_files)
     # List of generated SWIG files (.i) for doc purposes only:
     SET(${swig_files})
     FOREACH(_cls IN LISTS ${cls_list})
@@ -88,7 +88,7 @@ MACRO(MEDTOOL_MED_SWIG_DOCSTRING_GENERATE target_doc target_swig cls_list swig_m
 
       LIST(APPEND ${swig_files} ${_swig_file_base})
     ENDFOREACH()
-ENDMACRO(MEDTOOL_MED_SWIG_DOCSTRING_GENERATE)
+ENDMACRO(MEDCOUPLING_MED_SWIG_DOCSTRING_GENERATE)
 
 
 ##
@@ -99,15 +99,14 @@ ENDMACRO(MEDTOOL_MED_SWIG_DOCSTRING_GENERATE)
 ## \param[in] target_swig dummy target encompassing the final build of all SWIG files
 ## \param[in] root_name either 'MEDCoupling' or 'MEDLoader'
 ##
-MACRO(MEDTOOL_MED_SWIG_DOCSTRING_CONFIGURE target_doc target_swig root_name)
+MACRO(MEDCOUPLING_MED_SWIG_DOCSTRING_CONFIGURE target_doc target_swig root_name)
     SET(_all_swig_docs)
     SET(_swig_include_set)
     SET(_in_file doxy2swig/${root_name}_doc.i.in)
     SET(_out_file ${PROJECT_BINARY_DIR}/doc/${root_name}_doc.i)
-    MEDTOOL_MED_SWIG_DOCSTRING_GENERATE(${target_doc} ${target_swig} _classes_${root_name} ${_out_file} _all_swig_docs)
+    MEDCOUPLING_MED_SWIG_DOCSTRING_GENERATE(${target_doc} ${target_swig} _classes_${root_name} ${_out_file} _all_swig_docs)
     FOREACH(f IN LISTS _all_swig_docs)
         SET(_swig_include_set "${_swig_include_set}\n%include \"${f}\"")
     ENDFOREACH()
     CONFIGURE_FILE(${_in_file} ${_out_file} @ONLY)
-ENDMACRO(MEDTOOL_MED_SWIG_DOCSTRING_CONFIGURE)
-
+ENDMACRO(MEDCOUPLING_MED_SWIG_DOCSTRING_CONFIGURE)

@@ -53,9 +53,9 @@ using namespace MEDPARTITIONER;
 std::string MEDPARTITIONERTest::getPartitionerParaExe() const
 {
   std::string execName;
-  if ( getenv("MEDTOOL_ROOT_DIR") )
+  if ( getenv("MEDCOUPLING_ROOT_DIR") )
     {
-      execName=getenv("MEDTOOL_ROOT_DIR");  //.../INSTALL/MED
+      execName=getenv("MEDCOUPLING_ROOT_DIR");  //.../INSTALL/MED
       execName+="/bin/medpartitioner_para";
     }
   else
@@ -63,7 +63,7 @@ std::string MEDPARTITIONERTest::getPartitionerParaExe() const
       execName = get_current_dir_name();
       execName += "/../../MEDPartitioner/medpartitioner_para";
       if (! std::ifstream(execName.c_str()))
-        CPPUNIT_FAIL("Can't find medpartitioner_para, please set MEDTOOL_ROOT_DIR");
+        CPPUNIT_FAIL("Can't find medpartitioner_para, please set MEDCOUPLING_ROOT_DIR");
     }
   return execName;
 }

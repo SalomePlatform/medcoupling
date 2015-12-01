@@ -85,9 +85,9 @@ void MEDPARTITIONERTest::setbigSize()
 std::string MEDPARTITIONERTest::getPartitionerExe() const
 {
   std::string execName;
-  if ( getenv("MEDTOOL_ROOT_DIR") )
+  if ( getenv("MEDCOUPLING_ROOT_DIR") )
     {
-      execName=getenv("MEDTOOL_ROOT_DIR");  //.../INSTALL/MED
+      execName=getenv("MEDCOUPLING_ROOT_DIR");  //.../INSTALL/MED
       execName+="/bin/medpartitioner";
     }
   else
@@ -95,7 +95,7 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
       execName = get_current_dir_name();
       execName += "/../../MEDPartitioner/medpartitioner";
       if (! std::ifstream(execName.c_str()))
-        CPPUNIT_FAIL("Can't find medpartitioner, please set MEDTOOL_ROOT_DIR");
+        CPPUNIT_FAIL("Can't find medpartitioner, please set MEDCOUPLING_ROOT_DIR");
     }
   return execName;
 }

@@ -53,7 +53,7 @@ SET (SWIG_MODULE_MEDCoupling_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES}
 
 # SWIG must run after the doc if we want to have the docstrings extracted from Doxygen
 # into the Python module:
-IF(MEDTOOL_BUILD_DOC)
+IF(MEDCOUPLING_BUILD_DOC)
     LIST(APPEND SWIG_MODULE_MEDCoupling_EXTRA_FLAGS -DWITH_DOCSTRINGS)
     LIST(APPEND SWIG_MODULE_MEDCoupling_EXTRA_DEPS
         ${PROJECT_BINARY_DIR}/doc/MEDCoupling_doc.i
@@ -79,13 +79,13 @@ IF(WIN32)
   SET_TARGET_PROPERTIES(_MEDCouplingRemapper PROPERTIES DEBUG_OUTPUT_NAME _MEDCouplingRemapper_d)
   SET_TARGET_PROPERTIES(_MEDCoupling PROPERTIES DEBUG_OUTPUT_NAME _MEDCoupling_d)
 ENDIF(WIN32)
-INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRemapper_REAL_NAME} DESTINATION ${MEDTOOL_INSTALL_PYTHON})
+INSTALL(TARGETS ${SWIG_MODULE_MEDCoupling_REAL_NAME} ${SWIG_MODULE_MEDCouplingRemapper_REAL_NAME} DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py DESTINATION ${MEDTOOL_INSTALL_PYTHON})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingRefCountObject.i MEDCouplingMemArray.i MEDCouplingFieldDiscretization.i MEDCouplingTimeDiscretization.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingDataArrayTypemaps.i DESTINATION ${MEDTOOL_INSTALL_HEADERS})
-INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py MEDCouplingPickleTest.py DESTINATION ${MEDTOOL_INSTALL_SCRIPT_PYTHON})
-INSTALL(FILES MEDCouplingExamplesTest.py DESTINATION ${MEDTOOL_INSTALL_SCRIPT_PYTHON})
+INSTALL(FILES MEDCoupling.i MEDCouplingCommon.i MEDCouplingRefCountObject.i MEDCouplingMemArray.i MEDCouplingFieldDiscretization.i MEDCouplingTimeDiscretization.i MEDCouplingFinalize.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingDataArrayTypemaps.i DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py MEDCouplingPickleTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
+INSTALL(FILES MEDCouplingExamplesTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
 
 ADD_TEST(MEDCouplingBasicsTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest.py)
 ADD_TEST(MEDCouplingExamplesTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingExamplesTest.py)
@@ -98,7 +98,7 @@ ENDIF(NUMPY_FOUND)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDTOOL_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDCoupling_Swig)
+SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS}/test/MEDCoupling/MEDCoupling_Swig)
 INSTALL(FILES MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCouplingDataForTest.py MEDCouplingNumPyTest.py MEDCouplingPickleTest.py MEDCouplingExamplesTest.py DESTINATION ${TEST_INSTALL_DIRECTORY})
 
 INSTALL(FILES CTestTestfileInstall.cmake
