@@ -354,4 +354,9 @@ namespace ParaMEDMEM
       return false;
     return _group->containsMyRank();
   }
+
+  void OverlapDEC::debugPrintWorkSharing(std::ostream & ostr) const
+  {
+    _locator->debugPrintWorkSharing(ostr);
+  }
 }

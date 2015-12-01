@@ -25,6 +25,7 @@
 #include "InterpolationOptions.hxx"
 
 #include <mpi.h>
+#include <string>
 
 namespace ParaMEDMEM
 {
@@ -50,9 +51,12 @@ namespace ParaMEDMEM
     bool isInGroup() const;
 
     void setDefaultValue(double val) {_default_field_value = val;}
+    //! 0 means initial algo from Antho, 1 or 2 means Adrien's algo (2 should be better). Make your choice :-))
     void setWorkSharingAlgo(int method)  { _load_balancing_algo = method; }
+
+    void debugPrintWorkSharing(std::ostream & ostr) const;
   private:
-    int _load_balancing_algo;  // 0 means initial algo from Antho, 1 means Adrien's algo. Make your choice :-))
+    int _load_balancing_algo;
 
     bool _own_group;
     OverlapInterpolationMatrix* _interpolation_matrix;

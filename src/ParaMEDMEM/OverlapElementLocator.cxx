@@ -58,13 +58,17 @@ namespace ParaMEDMEM
     _comm=getCommunicator();
 
     computeBoundingBoxesAndInteractionList();
-    if (workSharingAlgo == 0)
-      computeTodoList_original();
-    else
-      if(workSharingAlgo == 1)
-        computeTodoList_new();
-      else
+    switch(workSharingAlgo)
+    {
+      case 0:
+        computeTodoList_original();   break;
+      case 1:
+        computeTodoList_new(false);   break;
+      case 2:
+        computeTodoList_new(true);    break;
+      default:
         throw INTERP_KERNEL::Exception("OverlapElementLocator::OverlapElementLocator(): invalid algorithm selected!");
+    }
 
     fillProcToSend();
   }
@@ -125,8 +129,8 @@ namespace ParaMEDMEM
     _proc_pairs.resize(_group.size());
     for(int i=0;i<_group.size();i++)
       for(int j=0;j<_group.size();j++)
-          if(intersectsBoundingBox(i,j))
-            _proc_pairs[i].push_back(j);
+        if(intersectsBoundingBox(i,j))
+          _proc_pairs[i].push_back(j);
   }
 
   void OverlapElementLocator::computeTodoList_original()
@@ -160,13 +164,14 @@ namespace ParaMEDMEM
   }
 
   /* More efficient (?) work sharing algorithm: a job (i,j) is initially assigned twice: to proc#i and to proc#j.
-   * Then try to reduce as much as possible the variance of the num of jobs per proc:
+   * Then try to reduce as much as possible the variance of the num of jobs per proc by selecting the right duplicate
+   * to remove:
    *  - take the most loaded proc i,
    *    + select the job (i,j) for which proc#j is the less loaded
-   *    + remove this job from proc#i
+   *    + remove this job from proc#i, and mark it as 'unremovable' from proc#j
    *  - repeat until no more duplicates are found
    */
-  void OverlapElementLocator::computeTodoList_new()
+  void OverlapElementLocator::computeTodoList_new(bool revertIter)
   {
     using namespace std;
     int infinity = std::numeric_limits<int>::max();
@@ -214,7 +219,7 @@ namespace ParaMEDMEM
             int sz = (*itVector).size();
             if (proc_valid[procID] && sz > max_sz)
               {
-                max_sz = (*itVector).size();
+                max_sz = sz;
                 max_id = procID;
               }
           }
@@ -226,9 +231,21 @@ namespace ParaMEDMEM
         int min_sz = infinity;
         map<ProcCouple, int> & max_map = full_set[max_id];
         ProcCouple hit_cpl = make_pair(-1,-1);
-        for(itMap=max_map.begin(); itMap != max_map.end(); itMap++)
-          if ((*itMap).second < min_sz)
-            hit_cpl = (*itMap).first;
+        if(revertIter)
+          {
+          // Use a reverse iterator here increases our chances to hit a couple of the form (i, myProcId)
+          // meaning that the final matrix computed won't have to be sent: save some comm.
+          map<ProcCouple, int> ::const_reverse_iterator ritMap;
+          for(ritMap=max_map.rbegin(); ritMap != max_map.rend(); ritMap++)
+            if ((*ritMap).second < min_sz)
+              hit_cpl = (*ritMap).first;
+          }
+        else
+          {
+            for(itMap=max_map.begin(); itMap != max_map.end(); itMap++)
+              if ((*itMap).second < min_sz)
+                hit_cpl = (*itMap).first;
+          }
         if (hit_cpl.first == -1)
           {
             // Plouf. Current proc 'max_id' can not be reduced. Invalid it:
@@ -273,6 +290,15 @@ namespace ParaMEDMEM
       scout << "(" << (*itdbg).first << "," << (*itdbg).second << ")";
     std::cout << scout.str() << "\n";
 #endif
+  }
+
+  void OverlapElementLocator::debugPrintWorkSharing(std::ostream & ostr) const
+  {
+    std::vector< std::vector< ProcCouple > >::const_iterator it = _all_todo_lists.begin();
+    ostr << "TODO list lengths: ";
+    for(; it != _all_todo_lists.end(); ++it)
+      ostr << (*it).size() << " ";
+    ostr << "\n";
   }
 
   void OverlapElementLocator::fillProcToSend()

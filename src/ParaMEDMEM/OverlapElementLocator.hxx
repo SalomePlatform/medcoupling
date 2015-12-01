@@ -59,10 +59,11 @@ namespace ParaMEDMEM
     const MEDCouplingPointSet *getTargetMesh(int procId) const;
     const DataArrayInt *getTargetIds(int procId) const;
     bool isInMyTodoList(int i, int j) const;
+    void debugPrintWorkSharing(std::ostream & ostr) const;
   private:
     void computeBoundingBoxesAndInteractionList();
     void computeTodoList_original();
-    void computeTodoList_new();
+    void computeTodoList_new(bool revertIter);
     void fillProcToSend();
     bool intersectsBoundingBox(int i, int j) const;
     void sendLocalMeshTo(int procId, bool sourceOrTarget, OverlapInterpolationMatrix& matrix) const;

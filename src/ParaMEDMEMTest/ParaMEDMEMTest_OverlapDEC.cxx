@@ -335,7 +335,6 @@ void prepareData2_buildOneSquare(MEDCouplingUMesh* & meshS_0, MEDCouplingUMesh* 
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+3);
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+6);
   meshT_0->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,connT+9);
-
 }
 
 /**
@@ -491,6 +490,7 @@ void testOverlapDEC_generic(int workSharingAlgo, double bbAdj)
   dec.attachSourceLocalField(mcfieldS);
   dec.attachTargetLocalField(mcfieldT);
   dec.synchronize();
+//  dec.debugPrintWorkSharing(std::cout);
   dec.sendRecvData(true);
   //
   MPI_Barrier(MPI_COMM_WORLD);
@@ -527,12 +527,16 @@ void ParaMEDMEMTest::testOverlapDEC1()
 
 void ParaMEDMEMTest::testOverlapDEC1_bis()
 {
-  /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   * Same BB hack as above
-   * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   */
+   // Same BB hack as above
   testOverlapDEC_generic(1,-1.0e-12);
 }
+
+void ParaMEDMEMTest::testOverlapDEC1_ter()
+{
+   // Same BB hack as above
+  testOverlapDEC_generic(2, -1.0e-12);
+}
+
 
 /*!
  * Same as testOverlapDEC1() but with regular bounding boxes. If you're looking for a nice debug case,
@@ -546,6 +550,11 @@ void ParaMEDMEMTest::testOverlapDEC2()
 void ParaMEDMEMTest::testOverlapDEC2_bis()
 {
   testOverlapDEC_generic(1,1.0e-12);
+}
+
+void ParaMEDMEMTest::testOverlapDEC2_ter()
+{
+  testOverlapDEC_generic(2,1.0e-12);
 }
 
 
