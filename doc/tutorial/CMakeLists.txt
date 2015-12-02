@@ -19,9 +19,68 @@
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in ${CMAKE_CURRENT_BINARY_DIR}/conf.py)
 
-SET(_cmd_options -c ${CMAKE_CURRENT_BINARY_DIR} -b html -d doctrees -D latex_paper_size=a4 ${CMAKE_CURRENT_SOURCE_DIR} html)
+MACRO(MEDCOUPLING_EXTEND_ENVIRONMENT_VARIABLE output envvar values)
+  SET(_env)
+  FOREACH(_val ${values})
+    IF(${envvar} STREQUAL "PATH" OR ${envvar} STREQUAL "LD_LIBRARY_PATH")
+      IF(NOT IS_DIRECTORY ${_val})
+        GET_FILENAME_COMPONENT(_val "${_val}" PATH)
+      ENDIF()
+    ENDIF()
+    IF(WIN32)
+      IF(${envvar} STREQUAL "LD_LIBRARY_PATH")
+        SET(envvar PATH)
+      ENDIF()
+      STRING(REPLACE "/" "\\" _env "${_env} @SET ${envvar}=${_val};%${envvar}%\n")
+    ELSE(WIN32)
+      SET(_env "${_env} export ${envvar}=${_val}:\${${envvar}}\n")
+    ENDIF(WIN32)
+  ENDFOREACH(_val)
+  SET(${output} "${${output}} ${_env}")
+ENDMACRO(MEDCOUPLING_EXTEND_ENVIRONMENT_VARIABLE envvar values)
 
-ADD_CUSTOM_TARGET(tutorial_doc COMMAND ${_cmd})
+
+SET(SETUPTOOLS_PATH $ENV{SETUPTOOLS_ROOT_DIR}/bin)
+SET(SETUPTOOLS_PYTHONPATH $ENV{SETUPTOOLS_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+
+SET(DOCUTILS_PATH $ENV{DOCUTILS_ROOT_DIR}/bin)
+SET(DOCUTILS_PYTHONPATH $ENV{DOCUTILS_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+
+SET(PKGCONFIG_PYTHONPATH $ENV{PKGCONFIG_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+
+
+SET(build_env)
+
+#SET(_variables ${SPHINX_EXECUTABLE} ${SPHINX_APIDOC_EXECUTABLE} ${PYTHON_EXECUTABLE} ${GRAPHVIZ_EXECUTABLE} ${SETUPTOOLS_PATH} ${DOCUTILS_PATH})
+#MEDCOUPLING_EXTEND_ENVIRONMENT_VARIABLE(build_env "PATH" "${_variables}")
+
+#SET(_variables ${SPHINX_PYTHONPATH} ${PYTHON_PYTHONPATH} ${SETUPTOOLS_PYTHONPATH} ${DOCUTILS_PYTHONPATH} ${PKGCONFIG_PYTHONPATH})
+SET(_variables ${SPHINX_PYTHONPATH} ${SETUPTOOLS_PYTHONPATH} ${PKGCONFIG_PYTHONPATH} ${DOCUTILS_PYTHONPATH})
+MEDCOUPLING_EXTEND_ENVIRONMENT_VARIABLE(build_env "PYTHONPATH" "${_variables}")
+
+#SET(_variables ${PYTHON_LIBRARIES} ${GRAPHVIZ_LIBRARIES})
+SET(_variables ${PYTHON_LIBRARIES})
+MEDCOUPLING_EXTEND_ENVIRONMENT_VARIABLE(build_env "LD_LIBRARY_PATH" "${_variables}")
+
+IF(WIN32)
+  SET(_ext "bat")
+  SET(_call_cmd "call")
+ELSE()
+  SET(_ext "sh")
+  SET(_call_cmd ".")
+ENDIF()
+
+
+SET(_cmd_options -c ${CMAKE_CURRENT_BINARY_DIR} -b html -d doctrees -D latex_paper_size=a4 ${CMAKE_CURRENT_SOURCE_DIR} html)
+SET(_cmd ${SPHINX_EXECUTABLE} ${_cmd_options})
+
+SET(_script ${CMAKE_CURRENT_BINARY_DIR}/env_script.${_ext})
+
+FILE(WRITE ${_script} "${build_env}")
+SET(make_doc ${_call_cmd} ${_script} && ${_cmd})
+
+
+ADD_CUSTOM_TARGET(tutorial_doc COMMAND ${make_doc})
 ADD_DEPENDENCIES(usr_docs tutorial_doc)
 
 #INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target tutorial_doc)")
