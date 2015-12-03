@@ -81,7 +81,7 @@ void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr)
   int pos=(int)_value;
   int lgth=(int)valuesInExpr.size();
   if(pos>=lgth || pos<0)
-    throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected ! Send expression to Salome support with expression !");
+    throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected !");
   _value=valuesInExpr[pos];
 }
 
@@ -528,7 +528,7 @@ void ExprParser::parseUnaryFunc()
 {
   if(_expr[_expr.length()-1]!=')')
     return ;
-  //at this level of code _expr 
+  //at this level of code _expr
   std::size_t pos1=_expr.find_first_of('(');
   std::size_t pos4=FindCorrespondingOpenBracket(_expr,_expr.length()-1);
   if(pos4!=pos1)
@@ -569,7 +569,7 @@ void ExprParser::parseUnaryFunc()
 /*!
  *  This method has the responsability to see if this->_expr is interpretable without any recursion.
  * \return true if no recursion needed, false if this->_expr is too complex to be interpreted at this level.
- * \throw exception if this->_expr is simple enough to try to interprate this and this expression contains an error.  
+ * \throw exception if this->_expr is simple enough to try to interprate this and this expression contains an error.
  */
 bool ExprParser::tryToInterpALeaf()
 {

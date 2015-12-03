@@ -30,7 +30,7 @@ class CaseWriter(CaseIO):
     """ Converting MED file format in memory to a the Case file format (Ensight).
     A new file with the same base name and the .case extension is created with its depencies (.geo ...).
     """
-    
+
     header="""FORMAT
 type: ensight gold
 GEOMETRY
@@ -45,7 +45,7 @@ filename increment:     1
 time values:
 %(TimeValues)s
 """
-    
+
     @classmethod
     def New(cls):
         """ Static constructor. """
@@ -70,7 +70,7 @@ time values:
         assert(isinstance(status,bool))
         self.__export_groups=status
         pass
-        
+
 
     def write(self,fileName):
         """ Write into the specified fileName series the result """
@@ -95,7 +95,7 @@ time values:
             self._real_written_file_name.append(realWrittenCaseFileNameForCurMesh)
             pass
         return self._real_written_file_name
-    
+
     def __writeMeshesPart(self,mdm,meshfn):
         try:
             os.remove(meshfn)
@@ -107,7 +107,7 @@ time values:
         assert(isinstance(mdm,MEDFileUMesh))
         ms2=[[mdm.getMeshAtLevel(lev) for lev in mdm.getNonEmptyLevels()[:1]]]
         if self.__export_groups:
-            for grpnm in mdm.getGroupsNames():    
+            for grpnm in mdm.getGroupsNames():
                 ms3=[]
                 for lev in mdm.getGrpNonEmptyLevels(grpnm)[:1]:
                     m=mdm.getGroup(lev,grpnm) ; m.zipCoords()
@@ -124,7 +124,7 @@ time values:
         a=np.memmap(f,dtype='byte',mode='w+',offset=0,shape=(sz,)) ; a.flush() # truncate to set the size of the file
         mm=mmap.mmap(f.fileno(),offset=0,length=0)
         mm.write(self.__str80("C Binary"))
-        mm.write(self.__str80("Exported from MEDCoupling/MEDLoader SALOME version %s"%(MEDCouplingVersionStr())))
+        mm.write(self.__str80("Exported from MEDCoupling/MEDLoader version %s"%(MEDCouplingVersionStr())))
         mm.write(self.__str80("Conversion using CaseWriter class"))
         mm.write(self.__str80("node id off"))
         mm.write(self.__str80("element id off"))
@@ -194,7 +194,7 @@ time values:
                 pass
             pass
         pass
-    
+
     def __writeFieldsPart(self,mdfs):
         if not mdfs:
             return ""
@@ -314,13 +314,13 @@ time values:
             headerPart+=htp
             pass
         return headerPart
-    
+
     @classmethod
     def __str80(cls,st):
         if len(st)>79:
             raise Exception("String \"%s\" is too long (>79) !"%(st))
         return st.ljust(79)+"\n"
-    
+
     def __computeSizeOfGeoFile(self,listOfMeshes,nn):
         sz=0
         for m in listOfMeshes:
