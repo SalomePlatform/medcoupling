@@ -340,6 +340,7 @@ bool MEDFileEquivalences::isEqual(const MEDFileEquivalences *other, std::string&
           return false;
         }
     }
+  return true;
 }
 
 void MEDFileEquivalences::getRepr(std::ostream& oss) const
