@@ -75,7 +75,6 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/faq.dox \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/start \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/tutorial.dox \
-                         @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/gui.dox \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/reference \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/reference/arrays \
                          @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/reference/meshes \
@@ -95,8 +94,7 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/doxfiles/index.dox \
                          @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Bases \
                          @PROJECT_SOURCE_DIR@/src/INTERP_KERNEL/Geometric2D \
                          @PROJECT_SOURCE_DIR@/src/MEDCoupling \
-                         @PROJECT_SOURCE_DIR@/src/MEDLoader \
-                         @PROJECT_SOURCE_DIR@/src/MEDCouplingCorba
+                         @PROJECT_SOURCE_DIR@/src/MEDLoader
 
 FILE_PATTERNS          = InterpKernelDEC.* \
                          OverlapDEC.* \
@@ -283,4 +281,4 @@ DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to the search engine
 #---------------------------------------------------------------------------
-SEARCHENGINE           = NO
+SEARCHENGINE           = YES

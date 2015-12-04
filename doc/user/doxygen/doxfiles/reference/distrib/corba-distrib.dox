@@ -1,9 +1,10 @@
 /*!
 \page corba-distrib Distribution in MEDCoupling using CORBA
 
-The following classes allow to publish \ref medcoupling "MEDCoupling objects" on the CORBA bus. They are 
-directly related to the equivalent class in MEDCoupling, without the string \c Servant at the end of the
-name:  
+The following classes allow to publish \ref medcoupling "MEDCoupling objects" on the CORBA bus.
+They are provided in the SALOME MED module that contains elements for the integration of MEDCoupling in SALOME.
+They are directly related to the equivalent class in MEDCoupling, without the string \c Servant at the end of the
+name:
 
 - \ref ParaMEDMEM::DataArrayDoubleServant "DataArrayDoubleServant"
 - \ref ParaMEDMEM::DataArrayIntServant "DataArrayIntServant"

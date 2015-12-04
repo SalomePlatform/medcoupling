@@ -2,13 +2,12 @@
 
 \mainpage Welcome to MEDCoupling!
 
-The MED module gathers several powerful functionalities around the input and output data of
+The MEDCoupling tool gathers several powerful functionalities around the input and output data of
 simulation codes (meshes and fields mainly).
 
 \image html projectionHQ_600.png "Example of a field interpolation between two 3D surfacic meshes"
 
-The most common usage is to write dedicated code (C++ or Python) linking to the library,
-however a \ref gui "graphical user interface" is also available.
+The most common usage is to write dedicated code (C++ or Python) linking to the library. However a graphical user interface is also available; for this please refer to the MED module documentation.
 
 - If you don't know where to start, reading the \ref start "getting started" section and then
 taking a look at the <a class="el" href="tutorial/index.html">tutorial</a> is probably a good way to go.
@@ -31,7 +30,6 @@ This documentation is organized as follows:
     - \ref functionalities
     - \ref python-api
 - <a class="el" href="tutorial/index.html">Tutorial - MEDCoupling/MEDLoader in Python</a>
-- \ref gui
 - \ref reference
     - \ref medcoupling
     - \ref medloader
