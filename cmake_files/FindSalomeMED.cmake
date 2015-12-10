@@ -16,21 +16,27 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author: Adrien Bruneton
+#
 
-# ------
+# MED detection for Salome - this is typically called by dependent modules
+# (PARAVIS, etc ...)
+#
+# The detection is simpler than for other prerequisites.
+# See explanation in FindSalomeKERNEL.cmake.
+#
 
-MESSAGE(STATUS "Check for parmetis ...")
+IF(NOT SalomeMED_FIND_QUIETLY)
+  MESSAGE(STATUS "Looking for Salome MED ...")
+ENDIF()
 
-SET(PARMETIS_ROOT_DIR $ENV{PARMETIS_ROOT_DIR} CACHE PATH "Path to the PARMETIS.")
-IF(PARMETIS_ROOT_DIR)
-  LIST(APPEND CMAKE_LIBRARY_PATH "${PARMETIS_ROOT_DIR}")
-  LIST(APPEND CMAKE_INCLUDE_PATH "${PARMETIS_ROOT_DIR}/Lib")
-ENDIF(PARMETIS_ROOT_DIR)
+SET(CMAKE_PREFIX_PATH "${MED_ROOT_DIR}")
+SALOME_FIND_PACKAGE(SalomeMED SalomeMED CONFIG)
 
-FIND_LIBRARY(PARMETIS_LIBRARIES parmetis)
-FIND_LIBRARY(PARMETIS_SEQ_LIBRARIES metis)
-SET(PARMETIS_LIBRARIES ${PARMETIS_LIBRARIES} ${PARMETIS_SEQ_LIBRARIES})
-FIND_PATH(PARMETIS_INCLUDE_DIRS parmetis.h)
+IF(NOT SalomeMED_FIND_QUIETLY)
+  MESSAGE(STATUS "Found Salome MED: ${MED_ROOT_DIR}")
+ENDIF()
 
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(ParMetis REQUIRED_VARS PARMETIS_INCLUDE_DIRS PARMETIS_LIBRARIES)
+FOREACH(_res ${SalomeMED_EXTRA_ENV})
+  SALOME_ACCUMULATE_ENVIRONMENT(${_res} "${SalomeMED_EXTRA_ENV_${_res}}")
+ENDFOREACH()

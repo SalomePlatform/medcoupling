@@ -5,8 +5,8 @@
 #   CPPUNIT_DEFINITIONS  - specific CppUnit definitions to be added
 #
 #  The header cppunit/extensions/HelperMacros.h is looked for.
-#  The following libraries are searched
-#        cppunit_dll, or cppunitd_dll (Windows)
+#  The following libraries are searched  
+#        cppunit_dll, or cppunitd_dll (Windows) 
 #        cppunit (Linux)
 #
 
@@ -93,3 +93,5 @@ ENDIF(WIN32)
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(CppUnit REQUIRED_VARS CPPUNIT_INCLUDE_DIRS CPPUNIT_LIBRARIES)
+
+

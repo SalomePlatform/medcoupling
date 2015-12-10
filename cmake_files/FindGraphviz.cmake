@@ -1,11 +1,11 @@
 # - Graphviz detection
 #
 # Output variables: GRAPHVIZ_EXECUTABLE   - where is executable 'dot' takes place.
-#                   GRAPHVIZ_INCLUDE_DIRS - where to find headers.
-#                   GRAPHVIZ_LIBRARIES    - where to get libraries.
-#                   GRAPHVIZ_VERSION      - Graphviz version
-#                   GRAPHVIZ_DEFINITIONS  - Graphviz definitions
-#                   GRAPHVIZ_FOUND        - True if Graphviz was found.
+#		    GRAPHVIZ_INCLUDE_DIRS - where to find headers.
+# 		    GRAPHVIZ_LIBRARIES    - where to get libraries.
+#		    GRAPHVIZ_VERSION      - Graphviz version
+#		    GRAPHVIZ_DEFINITIONS  - Graphviz definitions
+# 		    GRAPHVIZ_FOUND        - True if Graphviz was found.
 #
 ###########################################################################
 # Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
@@ -30,11 +30,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(GRAPHVIZ_ROOT_DIR $ENV{GRAPHVIZ_ROOT_DIR} CACHE PATH "Path to the Graphviz.")
-IF(GRAPHVIZ_ROOT_DIR)
-  LIST(APPEND CMAKE_PREFIX_PATH "${GRAPHVIZ_ROOT_DIR}")
-ENDIF(GRAPHVIZ_ROOT_DIR)
-
 FIND_PROGRAM(GRAPHVIZ_EXECUTABLE dot)
 
 FIND_PATH(GRAPHVIZ_INCLUDE_DIR NAMES graphviz/cgraph.h)
@@ -45,9 +40,9 @@ FIND_LIBRARY(GRAPHVIZ_graph_LIBRARY    NAMES cgraph PATH_SUFFIXES bin)
 FIND_LIBRARY(GRAPHVIZ_gvc_LIBRARY      NAMES gvc PATH_SUFFIXES bin)
 FIND_LIBRARY(GRAPHVIZ_pathplan_LIBRARY NAMES pathplan PATH_SUFFIXES bin)
 
-SET(GRAPHVIZ_LIBRARIES
+SET(GRAPHVIZ_LIBRARIES 
   ${GRAPHVIZ_cdt_LIBRARY}
-  ${GRAPHVIZ_graph_LIBRARY}
+  ${GRAPHVIZ_graph_LIBRARY} 
   ${GRAPHVIZ_gvc_LIBRARY}
   ${GRAPHVIZ_pathplan_LIBRARY}
   )
@@ -70,7 +65,7 @@ ENDIF()
 
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(Graphviz REQUIRED_VARS
-                                           GRAPHVIZ_EXECUTABLE
-                                           GRAPHVIZ_LIBRARIES
-                                           GRAPHVIZ_INCLUDE_DIRS)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Graphviz REQUIRED_VARS 
+					   GRAPHVIZ_EXECUTABLE 
+					   GRAPHVIZ_LIBRARIES 
+					   GRAPHVIZ_INCLUDE_DIRS)

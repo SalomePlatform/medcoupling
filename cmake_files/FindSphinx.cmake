@@ -2,8 +2,8 @@
 #
 # Output variables:
 #   SPHINX_EXECUTABLE - path to the Sphinx executable
-#   SPHINX_PYTHONPATH - path to the Sphinx Python modules
-#
+#   SPHINX_PYTHONPATH - path to the Sphinx Python modules                 
+# 
 ###########################################################################
 # Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -41,3 +41,4 @@ ENDIF()
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Sphinx REQUIRED_VARS SPHINX_EXECUTABLE SPHINX_APIDOC_EXECUTABLE)
+

@@ -27,6 +27,7 @@
 
 #include <cmath>
 #include <numeric>
+#include <unistd.h>  // get_current_dir_name()
 
 using namespace ParaMEDMEM;
 

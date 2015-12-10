@@ -809,7 +809,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mExp0=csr_matrix((data,(row,col)),shape=(4,11))
         # compute diff and check
         diff=abs(m-mExp0)
-        self.assertAlmostEqual(diff.max(),0.,14)
+        self.assertAlmostEqual(diff.sum(),0.,14)
         ## full specific case 1D where target=source
         rem=MEDCouplingRemapper()
         rem.setIntersectionType(PointLocator)
@@ -820,7 +820,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # expected matrix
         mExp1=identity(11)
         diff=abs(m-mExp1)
-        self.assertAlmostEqual(diff.max(),0.,14)
+        self.assertAlmostEqual(diff.sum(),0.,14)
         ## case where some points in target are not in source
         arrT=DataArrayDouble([-0.2,0.1,1.7,5.5,10.3])
         mT=MEDCouplingCMesh() ; mT.setCoords(arrT)
@@ -834,7 +834,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         data=array([0.9,0.1,0.3,0.7,0.5,0.5])
         mExp2=csr_matrix((data,(row,col)),shape=(5,11))
         diff=abs(m-mExp2)
-        self.assertAlmostEqual(diff.max(),0.,14)
+        self.assertAlmostEqual(diff.sum(),0.,14)
         ## basic case 2D Curve
         arrS=DataArrayInt.Range(0,11,1).convertToDblArr()
         arrT=DataArrayDouble([0.1,1.7,5.5,9.6])
@@ -851,7 +851,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rowSum=m.sum(axis=1)
         m=diags(array(1/rowSum.transpose()),[0])*m
         diff=abs(m-mExp0)
-        self.assertAlmostEqual(diff.max(),0.,14)
+        self.assertAlmostEqual(diff.sum(),0.,14)
         pass
     
     def build2DSourceMesh_1(self):

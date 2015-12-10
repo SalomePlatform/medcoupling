@@ -17,8 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile_med_user.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_med_user)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/static/header.html.in ${CMAKE_CURRENT_BINARY_DIR}/static/header.html)
+SALOME_CONFIGURE_FILE(Doxyfile_med_user.in Doxyfile_med_user)
+SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
+
 
 IF(MEDCOUPLING_MED_ENABLE_PYTHON)
   INCLUDE(doxy2swig/doxy2swig.cmake)

@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2015  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2013-2015  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,21 +16,16 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author: Adrien Bruneton
+#
 
-# ------
+# SWIG detection for SALOME
+#
+#  !! Please read the generic detection procedure in SalomeMacros.cmake !!
+#
+SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2)
+MARK_AS_ADVANCED(SWIG_EXECUTABLE SWIG_VERSION)
 
-MESSAGE(STATUS "Check for parmetis ...")
-
-SET(PARMETIS_ROOT_DIR $ENV{PARMETIS_ROOT_DIR} CACHE PATH "Path to the PARMETIS.")
-IF(PARMETIS_ROOT_DIR)
-  LIST(APPEND CMAKE_LIBRARY_PATH "${PARMETIS_ROOT_DIR}")
-  LIST(APPEND CMAKE_INCLUDE_PATH "${PARMETIS_ROOT_DIR}/Lib")
-ENDIF(PARMETIS_ROOT_DIR)
-
-FIND_LIBRARY(PARMETIS_LIBRARIES parmetis)
-FIND_LIBRARY(PARMETIS_SEQ_LIBRARIES metis)
-SET(PARMETIS_LIBRARIES ${PARMETIS_LIBRARIES} ${PARMETIS_SEQ_LIBRARIES})
-FIND_PATH(PARMETIS_INCLUDE_DIRS parmetis.h)
-
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(ParMetis REQUIRED_VARS PARMETIS_INCLUDE_DIRS PARMETIS_LIBRARIES)
+IF(SWIG_FOUND) 
+  SALOME_ACCUMULATE_ENVIRONMENT(PATH ${SWIG_EXECUTABLE})
+ENDIF()

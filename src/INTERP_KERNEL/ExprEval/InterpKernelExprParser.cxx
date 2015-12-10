@@ -81,7 +81,7 @@ void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr)
   int pos=(int)_value;
   int lgth=(int)valuesInExpr.size();
   if(pos>=lgth || pos<0)
-    throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected !");
+    throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected! Send a mail to Salome support with expression.");
   _value=valuesInExpr[pos];
 }
 

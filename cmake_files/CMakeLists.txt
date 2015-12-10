@@ -18,15 +18,15 @@
 #
 
 SET(admlocal_cmake_DATA
-  FindCppUnit.cmake
-  FindMEDFile.cmake
-  FindParMetis.cmake
-  FindSphinx.cmake
-  MEDCouplingMacros.cmake
-  FindGraphviz.cmake
-  FindMetis.cmake
-  FindScotch.cmake
-  FindXDR.cmake
+    FindMetis.cmake
+    FindParMetis.cmake
+    FindSalomeMED.cmake
+    FindSalomeMetis.cmake
+    FindSalomeParMetis.cmake
+    FindSalomeScotch.cmake
+    FindSalomeXDR.cmake
+    FindScotch.cmake
+    FindXDR.cmake
 )
 
 INSTALL(FILES ${admlocal_cmake_DATA} DESTINATION ${MEDCOUPLING_INSTALL_CMAKE_LOCAL})
