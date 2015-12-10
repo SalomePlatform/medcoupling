@@ -21,7 +21,7 @@ SALOME_CONFIGURE_FILE(Doxyfile_med_user.in Doxyfile_med_user)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
 
-IF(MEDCOUPLING_MED_ENABLE_PYTHON)
+IF(MEDCOUPLING_ENABLE_PYTHON)
   INCLUDE(doxy2swig/doxy2swig.cmake)
 
   FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}/tmp/medcouplingexamples.in" input)
@@ -68,8 +68,8 @@ IF(MEDCOUPLING_MED_ENABLE_PYTHON)
   ADD_CUSTOM_TARGET(swig_ready)
   ADD_DEPENDENCIES(swig_ready usr_docs)
 
-  MEDCOUPLING_MED_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDCoupling)
-  MEDCOUPLING_MED_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDLoader)
+  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDCoupling)
+  MEDCOUPLING_SWIG_DOCSTRING_CONFIGURE(usr_docs swig_ready MEDLoader)
 
   SET(doxyfile_med_user ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile_med_user)
   FILE(STRINGS ${doxyfile_med_user} enabled_sections REGEX "ENABLED_SECTIONS")
