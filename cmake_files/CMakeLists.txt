@@ -20,7 +20,7 @@
 SET(admlocal_cmake_DATA
     FindMetis.cmake
     FindParMetis.cmake
-    FindSalomeMED.cmake
+    FindSalomeMEDCoupling.cmake
     FindSalomeMetis.cmake
     FindSalomeParMetis.cmake
     FindSalomeScotch.cmake
