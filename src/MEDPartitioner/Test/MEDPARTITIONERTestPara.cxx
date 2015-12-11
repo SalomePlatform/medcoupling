@@ -43,6 +43,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include <unistd.h>  // get_current_dir_name()
+
 #include <mpi.h>
 
 using namespace std;
