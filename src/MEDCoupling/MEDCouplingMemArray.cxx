@@ -10356,8 +10356,6 @@ void DataArrayInt::computeOffsets2()
     throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets2 : only single component allowed !");
   int nbOfTuples=getNumberOfTuples();
   int *ret=(int *)malloc((nbOfTuples+1)*sizeof(int));
-  if(nbOfTuples==0)
-    return ;
   const int *work=getConstPointer();
   ret[0]=0;
   for(int i=0;i<nbOfTuples;i++)

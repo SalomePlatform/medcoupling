@@ -16770,6 +16770,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(not "mismatch" in m.__repr__())# bug was here !
         pass
 
+    def testSwig2BugComputeOffsets1(self):
+        """Non regression test. computeOffsets2 on empty array must return 0."""
+        d=DataArrayInt([3])
+        d.computeOffsets2()
+        self.assertTrue(d.isEqual(DataArrayInt([0,3])))
+        d=DataArrayInt([])
+        d.computeOffsets()
+        self.assertTrue(d.isEqual(DataArrayInt([])))
+        d=DataArrayInt([])
+        d.computeOffsets2()
+        self.assertTrue(d.isEqual(DataArrayInt([0]))) # <- bug was here
+        pass
+
     pass
 
 if __name__ == '__main__':
