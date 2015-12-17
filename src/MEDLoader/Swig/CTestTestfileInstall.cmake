@@ -17,14 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_TEST(MEDLoaderTest python MEDLoaderTest.py)
-SET_TESTS_PROPERTIES(MEDLoaderTest PROPERTIES LABELS "${COMPONENT_NAME}")
-
-ADD_TEST(MEDLoaderTest2 python MEDLoaderTest2.py)
-SET_TESTS_PROPERTIES(MEDLoaderTest2 PROPERTIES LABELS "${COMPONENT_NAME}")
-
-ADD_TEST(MEDLoaderTest3 python MEDLoaderTest3.py)
-SET_TESTS_PROPERTIES(MEDLoaderTest3 PROPERTIES LABELS "${COMPONENT_NAME}")
+ADD_TEST(MEDLoaderTest1_2_3 python -m unittest discover -p MEDLoaderTest[123].py)
+SET_TESTS_PROPERTIES(MEDLoaderTest1_2_3 PROPERTIES LABELS "${COMPONENT_NAME}")
 
 ADD_TEST(MEDLoaderTest4 python MEDLoaderTest4.py)
 SET_TESTS_PROPERTIES(MEDLoaderTest4 PROPERTIES LABELS "${COMPONENT_NAME}")

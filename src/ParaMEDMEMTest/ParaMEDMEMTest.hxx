@@ -53,8 +53,8 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testOverlapDEC2);                    // 3 procs
   CPPUNIT_TEST(testOverlapDEC2_bis);                // 3 procs
   CPPUNIT_TEST(testOverlapDEC2_ter);                // 3 procs
-  CPPUNIT_TEST(testOverlapDEC3);                    // 2 procs
-  CPPUNIT_TEST(testOverlapDEC4);                    // 2 procs
+//  CPPUNIT_TEST(testOverlapDEC3);                    // 2 procs
+//  CPPUNIT_TEST(testOverlapDEC4);                    // 2 procs
 
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);// 5 procs
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);      // 5 procs
