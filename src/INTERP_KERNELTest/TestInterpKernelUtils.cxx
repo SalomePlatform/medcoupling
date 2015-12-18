@@ -27,31 +27,31 @@
 
 namespace INTERP_TEST
 {
-  std::string getResourceFile( const std::string& filename )
+  std::string getResourceFile( const std::string& filename, int levelUp)
   {
     std::string resourceFile = "";
-    bool good = false;
-
     if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
       // use MEDCOUPLING_ROOT_DIR env.var
       resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
-      resourceFile += "/share/resources/med/";
+      resourceFile += IK_PATH_SEP + "share" + IK_PATH_SEP + "resources" + IK_PATH_SEP + "med" + IK_PATH_SEP;
       resourceFile += filename;
       std::ifstream my_file(resourceFile);
       if (my_file.good())
-        good = true;
+        return resourceFile;
     }
-    if (!good)
+    // else
+    resourceFile = get_current_dir_name();
+    resourceFile += IK_PATH_SEP;
+    for(int i=0; i<levelUp; i++)
+      resourceFile += ".." + IK_PATH_SEP;
+    resourceFile += "resources" + IK_PATH_SEP;
+    resourceFile += filename;
+    std::ifstream my_file(resourceFile);
+    if (!my_file.good())
       {
-        resourceFile = get_current_dir_name();
-        resourceFile += "/../../resources/";
-        std::ifstream my_file(resourceFile);
-        if (!my_file.good())
-          {
-            std::stringstream ss;
-            ss << "INTERP_TEST::getResourceFile(): could not open resource test file: " << filename << "\n";
-            throw INTERP_KERNEL::Exception(ss.str().c_str());
-          }
+        std::stringstream ss;
+        ss << "INTERP_TEST::getResourceFile(): could not open resource test file: " << filename << "\n";
+        throw INTERP_KERNEL::Exception(ss.str().c_str());
       }
 
     return resourceFile;

@@ -48,8 +48,11 @@ SET(InterpKernelTest_SOURCES
   TransformedTriangleTest.cxx
   UnitTetra3D2DIntersectionTest.cxx
   UnitTetraIntersectionBaryTest.cxx
-  TestInterpKernelUtils.cxx
   ThreeDSurfProjectionTest.cxx
+)
+
+SET(InterpKernelTestUtils_SOURCES
+    TestInterpKernelUtils.cxx
 )
 
 SET(TestINTERP_KERNEL_SOURCES
@@ -75,13 +78,14 @@ IF(NOT MEDCOUPLING_MICROMED)
   INSTALL(TARGETS PerfTest DESTINATION ${MEDCOUPLING_INSTALL_BINS})
 ENDIF(NOT MEDCOUPLING_MICROMED)
 
+ADD_LIBRARY(InterpKernelTestUtils SHARED ${InterpKernelTestUtils_SOURCES})
 ADD_LIBRARY(InterpKernelTest SHARED ${InterpKernelTest_SOURCES})
 
 SET(InterpKernelTest_LIBS medcoupling interpkernel ${CPPUNIT_LIBRARIES})
 IF(NOT MEDCOUPLING_MICROMED)
   SET(InterpKernelTest_LIBS medloader ${InterpKernelTest_LIBS})
 ENDIF(NOT MEDCOUPLING_MICROMED)
-TARGET_LINK_LIBRARIES(InterpKernelTest ${InterpKernelTest_LIBS})
+TARGET_LINK_LIBRARIES(InterpKernelTest ${InterpKernelTest_LIBS} InterpKernelTestUtils)
 
 ADD_EXECUTABLE(TestINTERP_KERNEL ${TestINTERP_KERNEL_SOURCES})
 TARGET_LINK_LIBRARIES(TestINTERP_KERNEL InterpKernelTest ${CPPUNIT_LIBRARIES} ${PLATFORM_LIBS})
@@ -91,7 +95,8 @@ SET_TESTS_PROPERTIES(TestINTERP_KERNEL PROPERTIES ENVIRONMENT "${tests_env}")
 
 INSTALL(TARGETS TestINTERP_KERNEL DESTINATION ${MEDCOUPLING_INSTALL_BINS})
 INSTALL(TARGETS InterpKernelTest DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
-INSTALL(FILES CppUnitTest.hxx InterpKernelTestExport.hxx DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+INSTALL(TARGETS InterpKernelTestUtils DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
+INSTALL(FILES CppUnitTest.hxx InterpKernelTestExport.hxx TestInterpKernelUtils.hxx DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
 # Application tests
 

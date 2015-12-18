@@ -24,11 +24,15 @@
 
 #include <string>
 
+#ifdef WIN32
+# define IK_PATH_SEP std::string("\\")
+#else
+# define IK_PATH_SEP std::string("/")
+#endif
+
 namespace INTERP_TEST
 {
-
-  INTERPKERNELTEST_EXPORT std::string getResourceFile( const std::string& );
-
-} // namespace INTERP_TEST
+  INTERPKERNELTEST_EXPORT std::string getResourceFile( const std::string& filename, int levelUp=2);
+}
 
 #endif // _TESTINTERPKERNELUTILS_HXX_

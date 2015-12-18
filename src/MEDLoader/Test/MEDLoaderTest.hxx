@@ -100,7 +100,6 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildVecFieldOnGauss_1();
     MEDCouplingFieldDouble *buildVecFieldOnGaussNE_1();
 
-    std::string getResourceFile( const std::string& filename ) const;
   };
 }
 

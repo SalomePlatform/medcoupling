@@ -26,12 +26,16 @@ from MEDLoaderDataForTest import MEDLoaderDataForTest
 class SauvLoaderTest(unittest.TestCase):
 
     def __getResourcesDirectory(self):
-        med_root_dir=os.getenv("MEDCOUPLING_ROOT_DIR")
+        med_root_dir = os.getenv("MEDCOUPLING_ROOT_DIR")
         if med_root_dir:
-            return os.path.join( os.getenv("MEDCOUPLING_ROOT_DIR"), "share","resources","med")
-        else:
-            current_dir = os.path.dirname(os.path.realpath(__file__))
-            return os.path.join(current_dir, "..", "..", "..", "resources")
+            pth = os.path.join( os.getenv("MEDCOUPLING_ROOT_DIR"), "share","resources","med")
+            if os.path.exists(pth):
+              return pth
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        pth = os.path.join(current_dir, "..", "..", "..", "resources")
+        if not os.path.exists(pth):
+          raise Exception("SauvLoaderTest: Unable to get resource directory")
+        return pth
         pass
 
     def testSauv2Med(self):

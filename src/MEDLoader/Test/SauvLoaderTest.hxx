@@ -42,7 +42,6 @@ namespace ParaMEDMEM
 
   public:
     void tearDown();
-    static std::string getResourceFile( const std::string& filename );
   };
 }
 

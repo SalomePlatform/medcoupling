@@ -33,6 +33,7 @@
 #include "ICoCoMEDField.hxx"
 #include "ParaMEDLoader.hxx"
 #include "MEDLoader.hxx"
+#include "TestInterpKernelUtils.hxx"
 
  
 #include <string>
@@ -496,8 +497,8 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
   ParaMEDMEM::ParaFIELD* parafield;
   ICoCo::MEDField* icocofield ;
   
-  string filename_xml1              = getResourceFile("square1_split");
-  string filename_xml2              = getResourceFile("square2_split");
+  string filename_xml1              = "square1_split";
+  string filename_xml2              = "square2_split";
   //string filename_seq_wr            = makeTmpFile("");
   //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
@@ -511,10 +512,11 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       
       ostringstream strstream;
       strstream <<master<<rank+1<<".med";
+      string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_2_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
     
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
@@ -550,9 +552,10 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       string master= filename_xml2;
       ostringstream strstream;
       strstream << master<<(rank-nproc_source+1)<<".med";
+      string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
-      mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
@@ -700,8 +703,8 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::MEDCouplingFieldDouble* mcfield;
   
-  string filename_xml1              = getResourceFile("square1_split");
-  string filename_xml2              = getResourceFile("square2_split");
+  string filename_xml1              = "square1_split";
+  string filename_xml2              = "square2_split";
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
@@ -713,10 +716,11 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
       
       ostringstream strstream;
       strstream <<master<<rank+1<<".med";
+      string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_2_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
         {
@@ -756,9 +760,10 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
       string master= filename_xml2;
       ostringstream strstream;
       strstream << master<<(rank-nproc_source+1)<<".med";
+      string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
-      mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
         {
@@ -865,8 +870,8 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
     tmp_dir = string(tmp_dir_c);
   else
     tmp_dir = "/tmp";
-  string filename_xml1              = getResourceFile("Mesh3D_10_2d");
-  string filename_xml2              = getResourceFile("Mesh3D_11");
+  string filename_xml1              = "Mesh3D_10_2d";
+  string filename_xml2              = "Mesh3D_11";
   //string filename_seq_wr            = makeTmpFile("");
   //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
@@ -880,10 +885,11 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       
       ostringstream strstream;
       strstream <<master<<rank+1<<".med";
+      std::string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_3_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
     
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
@@ -919,9 +925,10 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       string master= filename_xml2;
       ostringstream strstream;
       strstream << master << ".med";
+      std::string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_6";
-      mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
@@ -2121,8 +2128,8 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
     tmp_dir = string(tmp_dir_c);
   else
     tmp_dir = "/tmp";
-  string filename_xml1              = getResourceFile("square1_split");
-  string filename_xml2              = getResourceFile("square2_split"); 
+  string filename_xml1              = "square1_split";
+  string filename_xml2              = "square2_split";
   //string filename_seq_wr            = makeTmpFile("");
   //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
@@ -2137,10 +2144,11 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       
       ostringstream strstream;
       strstream <<master<<rank+1<<".med";
+      string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_2_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
 
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
     
@@ -2178,10 +2186,11 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       string master= filename_xml2;
       ostringstream strstream;
       strstream << master<<(rank-nproc_source+1)<<".med";
+      string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
       
-      mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
 
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);

@@ -227,7 +227,7 @@ IF(NOT MEDCOUPLING_MICROMED)
     ENDIF()
   ENDIF()
   IF(MEDCOUPLING_BUILD_TESTS)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets InterpKernelTest)
+    LIST(APPEND _${PROJECT_NAME}_exposed_targets InterpKernelTest InterpKernelTestUtils)
   ENDIF()
 ENDIF()
 
