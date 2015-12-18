@@ -43,7 +43,12 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#ifdef WIN32
+#include<direct.h>
+#define getcwd _getcwd
+#else
 #include <unistd.h>
+#endif
 
 #ifdef HAVE_MPI
 #include <mpi.h>
@@ -92,7 +97,7 @@ std::string MEDPARTITIONERTest::getPartitionerExe() const
     }
   else
     {
-      execName = get_current_dir_name();
+      execName = getcwd(NULL, 0);
       execName += "/../../MEDPartitioner/medpartitioner";
       if (! std::ifstream(execName.c_str()))
         CPPUNIT_FAIL("Can't find medpartitioner, please set MEDCOUPLING_ROOT_DIR");

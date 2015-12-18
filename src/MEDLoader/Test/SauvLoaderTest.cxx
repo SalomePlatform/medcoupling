@@ -26,7 +26,9 @@
 #include "MEDCouplingMemArray.hxx"
 
 #ifdef WIN32
-# include <windows.h>
+#include <windows.h>
+#include <direct.h>
+#define getcwd _getcwd
 #else
 # include <unistd.h>
 #endif
@@ -338,7 +340,7 @@ std::string SauvLoaderTest::getResourceFile( const std::string& filename )
     resourceFile += "/share/resources/med/";
   }
   else {
-    resourceFile = get_current_dir_name();
+    resourceFile = getcwd(NULL, 0);
     resourceFile += "/../../../resources/";
   }
 

@@ -27,8 +27,12 @@
 
 #include <cmath>
 #include <numeric>
-#include <unistd.h>  // get_current_dir_name()
-
+#ifdef WIN32
+#include<direct.h>
+#define getcwd _getcwd
+#else
+#include <unistd.h>
+#endif
 using namespace ParaMEDMEM;
 
 void MEDLoaderTest::testMesh1DRW()
@@ -1157,7 +1161,7 @@ std::string MEDLoaderTest::getResourceFile( const std::string& filename ) const
     resourceFile += "/share/resources/med/";
   }
   else {
-    resourceFile = get_current_dir_name();
+    resourceFile = getcwd(NULL, 0);
     resourceFile += "/../../../resources/";
   }
 

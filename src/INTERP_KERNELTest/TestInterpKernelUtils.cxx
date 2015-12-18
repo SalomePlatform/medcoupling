@@ -21,7 +21,12 @@
 #include "InterpKernelException.hxx"
 
 #include <cstdlib>
+#ifdef WIN32
+#include<direct.h>
+#define getcwd _getcwd
+#else
 #include <unistd.h>
+#endif
 #include <sstream>
 #include <fstream>
 
@@ -43,7 +48,7 @@ namespace INTERP_TEST
     }
     if (!good)
       {
-        resourceFile = get_current_dir_name();
+        resourceFile = getcwd(NULL, 0);
         resourceFile += "/../../resources/";
         std::ifstream my_file(resourceFile);
         if (!my_file.good())
