@@ -67,6 +67,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT double getTimeValue() const { return _time; }
     MEDLOADER_EXPORT void setTimeUnit(const std::string& unit) { _dt_unit=unit; }
     MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
+    MEDLOADER_EXPORT void setAxType(MEDCouplingAxisType at) { _axis_type=at; }
+    MEDLOADER_EXPORT MEDCouplingAxisType getAxType() const { return _axis_type; }
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDLOADER_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDLOADER_EXPORT virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const = 0;
@@ -86,6 +88,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const = 0;
+    MEDLOADER_EXPORT virtual MEDFileMesh *cartesianize() const = 0;
     //
     MEDLOADER_EXPORT bool areFamsEqual(const MEDFileMesh *other, std::string& what) const;
     MEDLOADER_EXPORT bool areGrpsEqual(const MEDFileMesh *other, std::string& what) const;
@@ -217,6 +220,7 @@ namespace ParaMEDMEM
     mutable std::string _univ_name;
     bool _univ_wr_status;
     std::string _desc_name;
+    MEDCouplingAxisType _axis_type;
     MEDCouplingAutoRefCountObjectPtr<MEDFileJoints> _joints;
     MEDCouplingAutoRefCountObjectPtr<MEDFileEquivalences> _equiv;
   protected:
@@ -266,6 +270,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAtLevel(int meshDimRelToMax) const;
     MEDLOADER_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType ct) const;
     MEDLOADER_EXPORT void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const;
+    MEDLOADER_EXPORT MEDFileMesh *cartesianize() const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevels() const;
     MEDLOADER_EXPORT std::vector<int> getNonEmptyLevelsExt() const;
     MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;
@@ -443,6 +448,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT const MEDCouplingCMesh *getMesh() const;
     MEDLOADER_EXPORT void setMesh(MEDCouplingCMesh *m);
+    MEDLOADER_EXPORT MEDFileMesh *cartesianize() const;
   private:
     ~MEDFileCMesh() { }
     const MEDCouplingStructuredMesh *getStructuredMesh() const;
@@ -474,6 +480,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
     MEDLOADER_EXPORT const MEDCouplingCurveLinearMesh *getMesh() const;
     MEDLOADER_EXPORT void setMesh(MEDCouplingCurveLinearMesh *m);
+    MEDLOADER_EXPORT MEDFileMesh *cartesianize() const;
   private:
     ~MEDFileCurveLinearMesh() { }
     MEDFileCurveLinearMesh();
@@ -498,12 +505,13 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::string getName() const;
     MEDLOADER_EXPORT void setName(const std::string& newMeshName);
     MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
+    MEDLOADER_EXPORT void cartesianizeMe();
     MEDLOADER_EXPORT MEDFileMesh *getOneTimeStep() const;
     MEDLOADER_EXPORT void write(med_idt fid) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void setOneTimeStep(MEDFileMesh *mesh1TimeStep);
     MEDLOADER_EXPORT MEDFileJoints *getJoints() const;
-    MEDLOADER_EXPORT void                 setJoints( MEDFileJoints* joints );
+    MEDLOADER_EXPORT void setJoints(MEDFileJoints* joints);
   private:
     ~MEDFileMeshMultiTS() { }
     void loadFromFile(const std::string& fileName, const std::string& mName);
@@ -534,6 +542,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDFileMesh *getMeshWithName(const std::string& mname) const;
     MEDLOADER_EXPORT std::vector<std::string> getMeshesNames() const;
     MEDLOADER_EXPORT bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
+    MEDLOADER_EXPORT void cartesianizeMe();
     //
     MEDLOADER_EXPORT void resize(int newSize);
     MEDLOADER_EXPORT void pushMesh(MEDFileMesh *mesh);

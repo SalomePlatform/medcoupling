@@ -2163,7 +2163,7 @@ MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const std::string& name, const INTERP
 {
 }
 
-MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy):MEDCoupling1GTUMesh(other,recDeepCpy),_conn(other._conn)
+MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bool recDeepCpy):MEDCoupling1GTUMesh(other,recDeepCpy),_conn_indx(other._conn_indx),_conn(other._conn)
 {
   if(recDeepCpy)
     {

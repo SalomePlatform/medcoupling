@@ -4214,6 +4214,43 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([0]))) # <- bug was here
         pass
 
+    def testSwig2Cartesianize1(self):
+        """Test of engine of cartesianize mechanism in medcoupling"""
+        # cyl 2D
+        arr=DataArrayDouble([(3,0.2),(2,1.6)]) ; arr.setInfoOnComponents(["A","BB"])
+        arr2=arr.cartesianize(AX_CYL)
+        arr2_exp=DataArrayDouble([(2.940199733523725,0.5960079923851836),(-0.05839904460257763,1.9991472060830102)]) ; arr2_exp.setInfoOnComponents(["A","BB"])
+        self.assertTrue(arr2_exp.isEqual(arr2,1e-14))
+        # spher 2D
+        arr3=arr.cartesianize(AX_SPHER)
+        self.assertTrue(arr2_exp.isEqual(arr3,1e-14))
+        # cyl 3D
+        arr=DataArrayDouble([(3,0.2,7.1),(2,1.6,12.3)]) ; arr.setInfoOnComponents(["A","BB","CCC"])
+        arr4=arr.cartesianize(AX_CYL)
+        arr4_exp=DataArrayDouble([(2.940199733523725,0.5960079923851836,7.1),(-0.05839904460257763,1.9991472060830102,12.3)]) ; arr4_exp.setInfoOnComponents(["A","BB","CCC"])
+        self.assertTrue(arr4_exp.isEqual(arr4,1e-14))
+        # spher 3D
+        arr=DataArrayDouble([(3,0.2,0.5),(2,1.3,5.8)]) ; arr.setInfoOnComponents(["A","BB","CCC"])
+        arr5=arr.cartesianize(AX_SPHER)
+        arr5_exp=DataArrayDouble([(0.5230462208645272,0.2857414527616764,2.940199733523725),(1.706499157790973,-0.8953424658735863,0.5349976572491747)]) ; arr5_exp.setInfoOnComponents(["A","BB","CCC"])
+        self.assertTrue(arr5_exp.isEqual(arr5,1e-14))
+        #
+        m=MEDCouplingCMesh() ; m.setName("aa") ; m.setDescription("bbb") ; m.setTime(4.125,5,6) ; m.setTimeUnit("ms")
+        arrX=DataArrayDouble([0,1,2]) ; arrX.setInfoOnComponent(0,"ccc")
+        arrY=DataArrayDouble([3,4,5,6]) ; arrY.setInfoOnComponent(0,"dddd")
+        m.setCoords(arrX,arrY)
+        m2=m.buildCurveLinear()
+        #
+        self.assertTrue(isinstance(m2,MEDCouplingCurveLinearMesh))
+        self.assertEqual(m2.getName(),"aa")
+        self.assertEqual(m2.getDescription(),"bbb")
+        self.assertEqual(m2.getTime(),[4.125,5,6])
+        self.assertEqual(m2.getTimeUnit(),"ms")
+        m2c_exp=DataArrayDouble([(0.,3.),(1.,3.),(2.,3.),(0.,4.),(1.,4.),(2.,4.),(0.,5.),(1.,5.),(2.,5.),(0.,6.),(1.,6.),(2.,6.)]) ; m2c_exp.setInfoOnComponents(["ccc","dddd"])
+        self.assertTrue(m2.getCoords().isEqual(m2c_exp,1e-14))
+        self.assertEqual(m2.getNodeGridStructure(),(3,4))
+        pass
+
     pass
 
 if __name__ == '__main__':

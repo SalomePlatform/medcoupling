@@ -26,6 +26,8 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingCurveLinearMesh;
+  
   class MEDCouplingCMesh : public MEDCouplingStructuredMesh
   {
   public:
@@ -33,6 +35,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingCMesh *New(const std::string& meshName);
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *clone(bool recDeepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *buildCurveLinear() const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;

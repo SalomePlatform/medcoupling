@@ -53,13 +53,17 @@ namespace ParaMEDMEM
     int getOrder() const { return _order; }
     double getTime() const { return _time; }
     MEDCouplingAutoRefCountObjectPtr<PartDefinition> getPartDefOfCoo() const { return _part_coords; }
-    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim);
-    static int GetMeshIdFromName(med_idt fid, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1);
+    std::vector<std::string> getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, ParaMEDMEM::MEDCouplingAxisType& axType, int& nstep, int& Mdim);
+    static int GetMeshIdFromName(med_idt fid, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, ParaMEDMEM::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1);
     static double CheckMeshTimeStep(med_idt fid, const std::string& mname, int nstep, int dt, int it);
     static void ReadFamiliesAndGrps(med_idt fid, const std::string& mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
     static void WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
     static bool RenameFamiliesFromFileToMem(std::vector< std::string >& famNames);
     static bool RenameFamiliesFromMemToFile(std::vector< std::string >& famNames);
+    static ParaMEDMEM::MEDCouplingAxisType TraduceAxisType(med_axis_type at);
+    static ParaMEDMEM::MEDCouplingAxisType TraduceAxisTypeStruct(med_grid_type gt);
+    static med_axis_type TraduceAxisTypeRev(ParaMEDMEM::MEDCouplingAxisType at);
+    static med_grid_type TraduceAxisTypeRevStruct(ParaMEDMEM::MEDCouplingAxisType at);
   private:
     typedef bool (*RenameFamiliesPatternFunc)(std::vector< std::string >&);
     static void RenameFamiliesPatternInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams, RenameFamiliesPatternFunc func);
@@ -121,10 +125,12 @@ namespace ParaMEDMEM
     MEDFileCMeshL2();
     void loadAll(med_idt fid, int mId, const std::string& mName, int dt, int it);
     MEDCouplingCMesh *getMesh() { return _cmesh; }
+    ParaMEDMEM::MEDCouplingAxisType getAxType() const { return _ax_type; }
   private:
     static med_data_type GetDataTypeCorrespondingToSpaceId(int id);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
+    ParaMEDMEM::MEDCouplingAxisType _ax_type;
   };
 
   class MEDFileCLMeshL2 : public MEDFileStrMeshL2
@@ -178,6 +184,7 @@ namespace ParaMEDMEM
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileUMeshAggregateCompute deepCpy(DataArrayDouble *coords) const;
+    void shallowCpyMeshes();
     bool isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
@@ -213,6 +220,7 @@ namespace ParaMEDMEM
     void setName(const std::string& name);
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDFileUMeshSplitL1 *shallowCpyUsingCoords(DataArrayDouble *coords) const;
     MEDFileUMeshSplitL1 *deepCpy(DataArrayDouble *coords) const;
     void setCoords(DataArrayDouble *coords);
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;

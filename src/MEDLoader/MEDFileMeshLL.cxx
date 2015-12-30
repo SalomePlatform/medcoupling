@@ -56,7 +56,7 @@ std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildrenWithNull() 
   return std::vector<const BigMemoryObject *>();
 }
 
-int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, ParaMEDMEM::MEDCouplingMeshType& meshType, int& dt, int& it, std::string& dtunit1)
+int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, ParaMEDMEM::MEDCouplingMeshType& meshType, ParaMEDMEM::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1)
 {
   med_mesh_type type_maillage;
   char maillage_description[MED_COMMENT_SIZE+1];
@@ -76,6 +76,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
       INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
       MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));
+      
       dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
       std::string cur=MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa));
       ms.push_back(cur);
@@ -92,6 +93,7 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
       std::copy(ms.begin(),ms.end(),std::ostream_iterator<std::string>(oss,", "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+  axType=TraduceAxisType(axistype);
   switch(type_maillage)
   {
     case MED_UNSTRUCTURED_MESH:
@@ -109,13 +111,16 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, Para
           case MED_CURVILINEAR_GRID:
             meshType=CURVE_LINEAR;
             break;
+          case MED_POLAR_GRID:// this is not a bug. A MED file POLAR_GRID is deal by CARTESIAN MEDLoader
+            meshType=CARTESIAN;
+            break;
           default:
-            throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+            throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
         }
         break;
       }
     default:
-      throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized mesh type !");
   }
   med_int numdt,numit;
   med_float dtt;
@@ -147,7 +152,10 @@ double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const std::string& mName, i
   return dtt;
 }
 
-std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, int& nstep, int& Mdim)
+/*!
+ * non static and non const method because _description, _dt_unit... are set in this method.
+ */
+std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, ParaMEDMEM::MEDCouplingAxisType& axType, int& nstep, int& Mdim)
 {
   med_mesh_type type_maillage;
   med_int spaceDim;
@@ -162,6 +170,7 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
       &stype,&nstep,&axistype,axisname,axisunit)!=0)
     throw INTERP_KERNEL::Exception("A problem has been detected when trying to get info on mesh !");
   MEDmeshUniversalNameRd(fid,nameTmp,_univ_name.getPointer());// do not protect  MEDFILESAFECALLERRD0 call : Thanks to fra.med.
+  axType=TraduceAxisType(axistype);
   switch(type_maillage)
   {
     case MED_UNSTRUCTURED_MESH:
@@ -179,13 +188,16 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
           case MED_CURVILINEAR_GRID:
             meshType=CURVE_LINEAR;
             break;
+        case MED_POLAR_GRID:// this is not a bug. A MED file POLAR_GRID is deal by CARTESIAN MEDLoader
+            meshType=CARTESIAN;
+            break;
           default:
-            throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getAxisInfoOnMesh : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+            throw INTERP_KERNEL::Exception("MEDFileMeshL2::getAxisInfoOnMesh : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
         }
         break;
       }
     default:
-      throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::getMeshIdFromName : unrecognized mesh type !");
   }
   //
   std::vector<std::string> infosOnComp(naxis);
@@ -364,9 +376,66 @@ bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famN
       std::map<std::string,std::string>::iterator it1(zeMap.find(*it));
       if(it1!=zeMap.end())
         *it=(*it1).second;
-    }
-    
+    }    
   return true;
+}
+
+ParaMEDMEM::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisType(med_axis_type at)
+{
+  switch(at)
+    {
+    case MED_CARTESIAN:
+      return AX_CART;
+    case MED_CYLINDRICAL:
+      return AX_CYL;
+    case MED_SPHERICAL:
+      return AX_SPHER;
+    case MED_UNDEF_AXIS_TYPE:
+      return AX_CART;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::TraduceAxisType : unrecognized axis type !");
+    }
+}
+
+ParaMEDMEM::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisTypeStruct(med_grid_type gt)
+{
+  switch(gt)
+    {
+    case MED_CARTESIAN_GRID:
+      return AX_CART;
+    case MED_POLAR_GRID:
+      return AX_CYL;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::TraduceAxisTypeStruct : only Cartesian and Cylindrical supported by MED file !");
+    }
+}
+
+med_axis_type MEDFileMeshL2::TraduceAxisTypeRev(ParaMEDMEM::MEDCouplingAxisType at)
+{
+  switch(at)
+    {
+    case AX_CART:
+      return MED_CARTESIAN;
+    case AX_CYL:
+      return MED_CYLINDRICAL;
+    case AX_SPHER:
+      return MED_SPHERICAL;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::TraduceAxisTypeRev : unrecognized axis type !");
+    }
+}
+
+med_grid_type MEDFileMeshL2::TraduceAxisTypeRevStruct(ParaMEDMEM::MEDCouplingAxisType at)
+{
+  switch(at)
+    {
+    case AX_CART:
+      return MED_CARTESIAN_GRID;
+    case AX_CYL:
+      return MED_POLAR_GRID;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileMeshL2::TraduceAxisTypeRevStruct : only Cartesian and Cylindrical supported by MED file !");
+    }
 }
 
 MEDFileUMeshL2::MEDFileUMeshL2()
@@ -379,7 +448,8 @@ std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, int mId, co
   _name.set(mName.c_str());
   int nstep;
   ParaMEDMEM::MEDCouplingMeshType meshType;
-  std::vector<std::string> ret(getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim));
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  std::vector<std::string> ret(getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,dummy3,nstep,Mdim));
   if(nstep==0)
     {
       Mdim=-4;
@@ -620,7 +690,7 @@ bool MEDFileUMeshL2::isNamesDefinedOnLev(int levId) const
   return true;
 }
 
-MEDFileCMeshL2::MEDFileCMeshL2()
+MEDFileCMeshL2::MEDFileCMeshL2():_ax_type(AX_CART)
 {
 }
 
@@ -630,7 +700,8 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
   int nstep;
   int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,nstep,Mdim);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,dummy3,nstep,Mdim);
   if(meshType!=CARTESIAN)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
@@ -639,8 +710,9 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
   //
   med_grid_type gridtype;
   MEDFILESAFECALLERRD0(MEDmeshGridTypeRd,(fid,mName.c_str(),&gridtype));
-  if(gridtype!=MED_CARTESIAN_GRID)
-    throw INTERP_KERNEL::Exception("Invalid structured mesh ! Expected cartesian mesh type !");
+  if(gridtype!=MED_CARTESIAN_GRID && gridtype!=MED_POLAR_GRID)
+    throw INTERP_KERNEL::Exception("Invalid rectilinear mesh ! Only cartesian and polar are supported !");
+  _ax_type=TraduceAxisTypeStruct(gridtype);
   _cmesh=MEDCouplingCMesh::New();
   for(int i=0;i<Mdim;i++)
     {
@@ -680,7 +752,8 @@ void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, in
   int nstep;
   int Mdim;
   ParaMEDMEM::MEDCouplingMeshType meshType;
-  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,nstep,Mdim);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,dummy3,nstep,Mdim);
   if(meshType!=CURVE_LINEAR)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
   _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
@@ -850,9 +923,17 @@ std::vector<const BigMemoryObject *> MEDFileUMeshSplitL1::getDirectChildrenWithN
   return ret;
 }
 
+MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::shallowCpyUsingCoords(DataArrayDouble *coords) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret(new MEDFileUMeshSplitL1(*this));
+  ret->_m_by_types.shallowCpyMeshes();
+  ret->_m_by_types.setCoords(coords);
+  return ret.retn();
+}
+
 MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCpy(DataArrayDouble *coords) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret=new MEDFileUMeshSplitL1(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret(new MEDFileUMeshSplitL1(*this));
   ret->_m_by_types=_m_by_types.deepCpy(coords);
   if((const DataArrayInt *)_fam)
     ret->_fam=_fam->deepCpy();
@@ -1695,6 +1776,22 @@ MEDFileUMeshAggregateCompute MEDFileUMeshAggregateCompute::deepCpy(DataArrayDoub
         ret._part_def[i]=elt->deepCpy();
     }
   return ret;
+}
+
+void MEDFileUMeshAggregateCompute::shallowCpyMeshes()
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::iterator it=_m_parts.begin();it!=_m_parts.end();it++)
+    {
+      const MEDCoupling1GTUMesh *elt(*it);
+      if(elt)
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> elt2(elt->clone(false));
+          *it=DynamicCastSafe<MEDCouplingMesh,MEDCoupling1GTUMesh>(elt2);
+        }
+    }
+  const MEDCouplingUMesh *m(_m);
+  if(m)
+    _m=m->clone(false);
 }
 
 bool MEDFileUMeshAggregateCompute::isEqual(const MEDFileUMeshAggregateCompute& other, double eps, std::string& what) const

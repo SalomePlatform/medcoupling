@@ -39,7 +39,7 @@ using namespace ParaMEDMEM;
 
 const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
 
-MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.),_univ_wr_status(true)
+MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.),_univ_wr_status(true),_axis_type(AX_CART)
 {
 }
 
@@ -87,7 +87,8 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dt,it,dummy2);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ret;
   switch(meshType)
   {
@@ -140,7 +141,8 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mN
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dummy0,dummy1;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ret;
   switch(meshType)
   {
@@ -2176,7 +2178,8 @@ MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, MEDFileMeshReadSele
   int dt,it;
   ParaMEDMEM::MEDCouplingMeshType meshType;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dt,it,dummy2);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileUMesh(fid,ms.front(),dt,it,mrs);
 }
 
@@ -2247,7 +2250,7 @@ std::vector<const BigMemoryObject *> MEDFileUMesh::getDirectChildrenWithNull() c
 
 MEDFileMesh *MEDFileUMesh::shallowCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=new MEDFileUMesh(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(new MEDFileUMesh(*this));
   return ret.retn();
 }
 
@@ -2258,7 +2261,7 @@ MEDFileMesh *MEDFileUMesh::createNewEmpty() const
 
 MEDFileMesh *MEDFileUMesh::deepCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=new MEDFileUMesh(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(new MEDFileUMesh(*this));
   ret->deepCpyEquivalences(*this);
   if((const DataArrayDouble*)_coords)
     ret->_coords=_coords->deepCpy();
@@ -2457,7 +2460,8 @@ void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, 
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dummy2;
-  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2));
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
   if(meshType!=UNSTRUCTURED)
     {
       std::ostringstream oss; oss << "loadPartUMeshFromFile : Trying to load as unstructured an existing mesh with name '" << mName << "' !";
@@ -2571,7 +2575,9 @@ void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dummy2;
-  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2));
+  ParaMEDMEM::MEDCouplingAxisType axType;
+  int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dummy2));
+  setAxType(axType);
   if(meshType!=UNSTRUCTURED)
     {
       std::ostringstream oss; oss << "Trying to load as unstructured an existing mesh with name '" << mName << "' !";
@@ -2637,7 +2643,7 @@ void MEDFileUMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
+  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MEDFileMeshL2::TraduceAxisTypeRev(getAxType()),comp,unit));
   if(_univ_wr_status)
     MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   std::string meshName(MEDLoaderBase::buildStringFromFortran(maa,MED_NAME_SIZE));
@@ -3140,6 +3146,28 @@ void MEDFileUMesh::whichAreNodesFetched(const MEDFileField1TSStructItem& st, con
     }
 }
 
+MEDFileMesh *MEDFileUMesh::cartesianize() const
+{
+  if(getAxType()==AX_CART)
+    {
+      incrRef();
+      return const_cast<MEDFileUMesh *>(this);
+    }
+  else
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(new MEDFileUMesh(*this));
+      const DataArrayDouble *coords(_coords);
+      if(!coords)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::cartesianize : coordinates are null !");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsCart(_coords->cartesianize(getAxType()));
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::iterator it=ret->_ms.begin();it!=ret->_ms.end();it++)
+        if((const MEDFileUMeshSplitL1 *)(*it))
+          *it=(*it)->shallowCpyUsingCoords(coordsCart);
+      ret->_coords=coordsCart;
+      return ret.retn();
+    }
+}
+
 /*!
  * Returns the optional numbers of mesh entities of a given dimension transformed using
  * DataArrayInt::invertArrayN2O2O2N().
@@ -3581,6 +3609,8 @@ void MEDFileUMesh::setCoords(DataArrayDouble *coords)
 {
   if(!coords)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setCoords : null pointer in input !");
+  if(coords==(DataArrayDouble *)_coords)
+    return ;
   coords->checkAllocated();
   int nbOfTuples=coords->getNumberOfTuples();
   _coords=coords;
@@ -4208,21 +4238,22 @@ void MEDFileUMesh::serialize(std::vector<double>& tinyDouble, std::vector<int>& 
   forceComputationOfParts();
   tinyDouble.clear(); tinyInt.clear(); tinyStr.clear(); bigArraysI.clear(); bigArrayD=0;
   std::vector<int> layer0;
-  layer0.push_back(_order); //0 i
-  layer0.push_back(_iteration);//1 i
-  layer0.push_back(getSpaceDimension());//2 i
+  layer0.push_back(getAxType());//0 i
+  layer0.push_back(_order); //1 i
+  layer0.push_back(_iteration);//2 i
+  layer0.push_back(getSpaceDimension());//3 i
   tinyDouble.push_back(_time);//0 d
   tinyStr.push_back(_name);//0 s
   tinyStr.push_back(_desc_name);//1 s
   for(int i=0;i<getSpaceDimension();i++)
     tinyStr.push_back(_coords->getInfoOnComponent(i));
-  layer0.push_back((int)_families.size());//3 i <- key info aa layer#0
+  layer0.push_back((int)_families.size());//4 i <- key info aa layer#0
   for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
     {
       tinyStr.push_back((*it).first);
       layer0.push_back((*it).second);
     }
-  layer0.push_back((int)_groups.size());//3+aa i <- key info bb layer#0
+  layer0.push_back((int)_groups.size());//4+aa i <- key info bb layer#0
   for(std::map<std::string, std::vector<std::string> >::const_iterator it0=_groups.begin();it0!=_groups.end();it0++)
     {
       layer0.push_back((int)(*it0).second.size());
@@ -4230,7 +4261,7 @@ void MEDFileUMesh::serialize(std::vector<double>& tinyDouble, std::vector<int>& 
       for(std::vector<std::string>::const_iterator it1=((*it0).second).begin();it1!=((*it0).second).end();it1++)
         tinyStr.push_back(*it1);
     }
-  // sizeof(layer0)==3+aa+1+bb layer#0
+  // sizeof(layer0)==4+aa+1+bb layer#0
   bigArrayD=_coords;// 0 bd
   bigArraysI.push_back(_fam_coords);// 0 bi
   bigArraysI.push_back(_num_coords);// 1 bi
@@ -4275,6 +4306,7 @@ void MEDFileUMesh::unserialize(std::vector<double>& tinyDouble, std::vector<int>
   std::reverse(tinyStr.begin(),tinyStr.end());
   std::reverse(bigArraysI.begin(),bigArraysI.end());
   //
+  setAxType((MEDCouplingAxisType)layer0.back()); layer0.pop_back();
   _order=layer0.back(); layer0.pop_back();
   _iteration=layer0.back(); layer0.pop_back();
   int spaceDim(layer0.back()); layer0.pop_back();
@@ -5947,7 +5979,8 @@ MEDFileCMesh *MEDFileCMesh::New(const std::string& fileName, MEDFileMeshReadSele
   int dt,it;
   ParaMEDMEM::MEDCouplingMeshType meshType;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dt,it,dummy2);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileCMesh(fid,ms.front(),dt,it,mrs);
 }
 
@@ -6028,7 +6061,7 @@ std::string MEDFileCMesh::advancedRepr() const
 
 MEDFileMesh *MEDFileCMesh::shallowCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=new MEDFileCMesh(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret(new MEDFileCMesh(*this));
   return ret.retn();
 }
 
@@ -6039,7 +6072,7 @@ MEDFileMesh *MEDFileCMesh::createNewEmpty() const
 
 MEDFileMesh *MEDFileCMesh::deepCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=new MEDFileCMesh(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret(new MEDFileCMesh(*this));
   ret->deepCpyEquivalences(*this);
   if((const MEDCouplingCMesh*)_cmesh)
     ret->_cmesh=static_cast<MEDCouplingCMesh*>(_cmesh->deepCpy());
@@ -6113,7 +6146,8 @@ void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dtunit;
-  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dtunit);
+  ParaMEDMEM::MEDCouplingAxisType axType;
+  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
   if(meshType!=CARTESIAN)
     {
       std::ostringstream oss; oss << "Trying to load as cartesian an existing mesh with name '" << mName << "' that is NOT cartesian !";
@@ -6121,6 +6155,7 @@ void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it,
     }
   MEDFileCMeshL2 loaderl2;
   loaderl2.loadAll(fid,mid,mName,dt,it);
+  setAxType(loaderl2.getAxType());
   MEDCouplingCMesh *mesh=loaderl2.getMesh();
   mesh->incrRef();
   _cmesh=mesh;
@@ -6157,6 +6192,28 @@ void MEDFileCMesh::setMesh(MEDCouplingCMesh *m)
   _cmesh=m;
 }
 
+MEDFileMesh *MEDFileCMesh::cartesianize() const
+{
+  if(getAxType()==AX_CART)
+    {
+      incrRef();
+      return const_cast<MEDFileCMesh *>(this);
+    }
+  else
+    {
+      const MEDCouplingCMesh *cmesh(getMesh());
+      if(!cmesh)
+        throw INTERP_KERNEL::Exception("MEDFileCMesh::cartesianize : impossible to turn into cartesian because the mesh is null !");
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> clmesh(cmesh->buildCurveLinear());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(clmesh->getCoords()->cartesianize(getAxType()));
+      clmesh->setCoords(coords);
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret(MEDFileCurveLinearMesh::New());
+      ret->MEDFileStructuredMesh::operator=(*this);
+      ret->setMesh(clmesh);
+      return ret.retn();
+    }
+}
+
 void MEDFileCMesh::writeLL(med_idt fid) const
 {
   INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -6176,10 +6233,11 @@ void MEDFileCMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
+  // MED_CARTESIAN and not MEDFileMeshL2::TraduceAxisTypeRev(getAxType()) ! Yes it is not a bug. The discrimination is done in MEDmeshGridTypeWr.
   MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
   if(_univ_wr_status)
     MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
-  MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CARTESIAN_GRID));
+  MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MEDFileMeshL2::TraduceAxisTypeRevStruct(getAxType())));
   for(int i=0;i<spaceDim;i++)
     {
       const DataArrayDouble *da=_cmesh->getCoordsAt(i);
@@ -6218,8 +6276,9 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const std::string& fileName,
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
   ParaMEDMEM::MEDCouplingMeshType meshType;
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dt,it,dummy2);
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileCurveLinearMesh(fid,ms.front(),dt,it,mrs);
 }
 
@@ -6244,7 +6303,7 @@ std::vector<const BigMemoryObject *> MEDFileCurveLinearMesh::getDirectChildrenWi
 
 MEDFileMesh *MEDFileCurveLinearMesh::shallowCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=new MEDFileCurveLinearMesh(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret(new MEDFileCurveLinearMesh(*this));
   return ret.retn();
 }
 
@@ -6255,7 +6314,7 @@ MEDFileMesh *MEDFileCurveLinearMesh::createNewEmpty() const
 
 MEDFileMesh *MEDFileCurveLinearMesh::deepCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret=new MEDFileCurveLinearMesh(*this);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret(new MEDFileCurveLinearMesh(*this));
   ret->deepCpyEquivalences(*this);
   if((const MEDCouplingCurveLinearMesh*)_clmesh)
     ret->_clmesh=static_cast<MEDCouplingCurveLinearMesh*>(_clmesh->deepCpy());
@@ -6342,6 +6401,30 @@ void MEDFileCurveLinearMesh::setMesh(MEDCouplingCurveLinearMesh *m)
   _clmesh=m;
 }
 
+MEDFileMesh *MEDFileCurveLinearMesh::cartesianize() const
+{
+  if(getAxType()==AX_CART)
+    {
+      incrRef();
+      return const_cast<MEDFileCurveLinearMesh *>(this);
+    }
+  else
+    {
+      const MEDCouplingCurveLinearMesh *mesh(getMesh());
+      if(!mesh)
+        throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::cartesianize : impossible to turn into cartesian because the mesh is null !");
+      const DataArrayDouble *coords(mesh->getCoords());
+      if(!coords)
+        throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh::cartesianize : coordinate pointer in mesh is null !");
+      MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret(new MEDFileCurveLinearMesh(*this));
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> mesh2(mesh->clone(false));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsCart(coords->cartesianize(getAxType()));
+      mesh2->setCoords(coordsCart);
+      ret->setMesh(mesh2);
+      return ret.retn();
+    }
+}
+
 const MEDCouplingStructuredMesh *MEDFileCurveLinearMesh::getStructuredMesh() const
 {
   synchronizeTinyInfoOnLeaves();
@@ -6385,7 +6468,7 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
       MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit));
+  MEDFILESAFECALLERWR0(MEDmeshCr,(fid,maa,spaceDim,meshDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MEDFileMeshL2::TraduceAxisTypeRev(getAxType()),comp,unit));
   if(_univ_wr_status)
     MEDFILESAFECALLERWR0(MEDmeshUniversalNameWr,(fid,maa));
   MEDFILESAFECALLERWR0(MEDmeshGridTypeWr,(fid,maa,MED_CURVILINEAR_GRID));
@@ -6403,7 +6486,9 @@ void MEDFileCurveLinearMesh::loadLL(med_idt fid, const std::string& mName, int d
   ParaMEDMEM::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dtunit;
-  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dtunit);
+  ParaMEDMEM::MEDCouplingAxisType axType;
+  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
+  setAxType(axType);
   if(meshType!=CURVE_LINEAR)
     {
       std::ostringstream oss; oss << "Trying to load as curve linear an existing mesh with name '" << mName << "' that is NOT curve linear !";
@@ -6482,6 +6567,19 @@ bool MEDFileMeshMultiTS::changeNames(const std::vector< std::pair<std::string,st
         ret=cur->changeNames(modifTab) || ret;
     }
   return ret;
+}
+
+void MEDFileMeshMultiTS::cartesianizeMe()
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    {
+      MEDFileMesh *cur(*it);
+      if(cur)
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ccur(cur->cartesianize());// Attention ! Do not wrap these two lines because memory leak !
+          *it=ccur;
+        }
+    }
 }
 
 MEDFileMesh *MEDFileMeshMultiTS::getOneTimeStep() const
@@ -6578,7 +6676,8 @@ try
     int dt,it;
     ParaMEDMEM::MEDCouplingMeshType meshType;
     std::string dummy2;
-    MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dt,it,dummy2);
+    ParaMEDMEM::MEDCouplingAxisType dummy3;
+    MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
     loadFromFile(fileName,ms.front());
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -6680,16 +6779,6 @@ std::vector<std::string> MEDFileMeshes::getMeshesNames() const
     }
   return ret;
 }
-/*const MEDFileJoints* MEDFileMeshes::getJoints() const
-{
-  const MEDFileJoints *ret=_joints;
-  if(!ret)
-  {
-    std::ostringstream oss; oss << "MEDFileMeshes::getJoints : joints is not defined !";
-    throw INTERP_KERNEL::Exception(oss.str().c_str());
-  }
-  return ret;
-}*/
 
 bool MEDFileMeshes::changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
 {
@@ -6701,6 +6790,16 @@ bool MEDFileMeshes::changeNames(const std::vector< std::pair<std::string,std::st
         ret=cur->changeNames(modifTab) || ret;
     }
   return ret;
+}
+
+void MEDFileMeshes::cartesianizeMe()
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::iterator it=_meshes.begin();it!=_meshes.end();it++)
+    {
+      MEDFileMeshMultiTS *cur(*it);
+      if(cur)
+        cur->cartesianizeMe();
+    }
 }
 
 void MEDFileMeshes::resize(int newSize)

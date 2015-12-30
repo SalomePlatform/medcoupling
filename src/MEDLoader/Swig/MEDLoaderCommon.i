@@ -101,6 +101,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::getAllFamiliesIdsReferenced;
 %newobject ParaMEDMEM::MEDFileMesh::computeAllFamilyIdsInUse;
 %newobject ParaMEDMEM::MEDFileMesh::getEquivalences;
+%newobject ParaMEDMEM::MEDFileMesh::cartesianize;
 %newobject ParaMEDMEM::MEDFileData::getJoints;
 %newobject ParaMEDMEM::MEDFileStructuredMesh::getImplicitFaceMesh;
 %newobject ParaMEDMEM::MEDFileUMesh::New;
@@ -883,6 +884,8 @@ namespace ParaMEDMEM
     double getTimeValue() const;
     void setTimeUnit(const std::string& unit);
     std::string getTimeUnit() const;
+    void setAxType(MEDCouplingAxisType at);
+    MEDCouplingAxisType getAxType() const;
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     virtual bool hasImplicitPart() const throw(INTERP_KERNEL::Exception);
@@ -893,6 +896,7 @@ namespace ParaMEDMEM
     virtual std::vector<int> getNumArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getNameArrNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
+    virtual MEDFileMesh *cartesianize() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevelsExt() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -1510,6 +1514,7 @@ namespace ParaMEDMEM
     std::string getName() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
+    void cartesianizeMe() throw(INTERP_KERNEL::Exception);
     %extend
        { 
          MEDFileMeshMultiTS()
@@ -1573,6 +1578,7 @@ namespace ParaMEDMEM
     void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
     void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
     void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
+    void cartesianizeMe() throw(INTERP_KERNEL::Exception);
     %extend
        {
          MEDFileMeshes()

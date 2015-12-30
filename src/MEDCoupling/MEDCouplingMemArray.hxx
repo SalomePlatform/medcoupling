@@ -33,6 +33,14 @@
 
 namespace ParaMEDMEM
 {
+  typedef enum
+    {
+      AX_CART = 3,
+      AX_CYL = 4,
+      AX_SPHER = 5
+    } MEDCouplingAxisType;
+  // -- WARNING this enum must be synchronized with MEDCouplingCommon.i file ! --
+
   template<class T>
   class MEDCouplingPointer
   {
@@ -323,6 +331,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *fromPolarToCart() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromCylToCart() const;
     MEDCOUPLING_EXPORT DataArrayDouble *fromSpherToCart() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *cartesianize(MEDCouplingAxisType atOfThis) const;
     MEDCOUPLING_EXPORT DataArrayDouble *doublyContractedProduct() const;
     MEDCOUPLING_EXPORT DataArrayDouble *determinant() const;
     MEDCOUPLING_EXPORT DataArrayDouble *eigenValues() const;

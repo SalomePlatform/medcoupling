@@ -65,6 +65,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
     MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCpy() const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *clone(bool recDeepCpy) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMeshType getType() const = 0;
     MEDCOUPLING_EXPORT bool isStructured() const;
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingMesh *other);

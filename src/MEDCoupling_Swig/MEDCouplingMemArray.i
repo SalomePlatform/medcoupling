@@ -181,6 +181,7 @@
 %newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
+%newobject ParaMEDMEM::DataArrayDouble::cartesianize;
 %newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
 %newobject ParaMEDMEM::DataArrayDouble::findClosestTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::computeNbOfInteractionsWith;
@@ -203,6 +204,13 @@
 
 namespace ParaMEDMEM
 {
+  typedef enum
+    {
+      AX_CART = 3,
+      AX_CYL = 4,
+      AX_SPHER = 5
+    } MEDCouplingAxisType;
+
   class DataArray : public RefCountObject, public TimeLabel
   {
   public:
@@ -580,6 +588,7 @@ namespace ParaMEDMEM
     DataArrayDouble *fromPolarToCart() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromCylToCart() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromSpherToCart() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *cartesianize(MEDCouplingAxisType atOfThis) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *determinant() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *eigenValues() const throw(INTERP_KERNEL::Exception);

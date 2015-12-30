@@ -4077,6 +4077,13 @@ class MEDLoaderTest(unittest.TestCase):
         st=cPickle.dumps(mm,cPickle.HIGHEST_PROTOCOL)
         mm2=cPickle.loads(st)
         self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+        self.assertEqual(mm.getAxType(),AX_CART)
+        #
+        mm.setAxType(AX_CYL)
+        st=cPickle.dumps(mm,cPickle.HIGHEST_PROTOCOL)
+        mm2=cPickle.loads(st)
+        self.assertTrue(mm.isEqual(mm2,1e-12)[0])
+        self.assertEqual(mm2.getAxType(),AX_CYL)
         pass
 
     def testMEDFileFieldsLoadSpecificEntities1(self):
@@ -4738,6 +4745,104 @@ class MEDLoaderTest(unittest.TestCase):
       self.assertEqual(mm2.getFamiliesNames(),("FAMILLE_ZERO",'RIDF!/__\\!0000','RIDF!/__\\!0001'))
       self.assertEqual(mm2.getFamiliesNamesWithFilePointOfView(),("FAMILLE_ZERO","RIDF","RIDF"))
       self.assertEqual(mm2.getFamiliesIdsOnGroup("RID"),(-4,3))# <- very important too !
+      pass
+
+    def testCartesianizer1(self):
+      """ This test is advanced to be sure that no unnecessary copies had been made during cartesianization process. """
+      # UMesh non cart
+      arr=DataArrayDouble(4) ; arr.iota() ; m=MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildUnstructured()
+      mm=MEDFileUMesh() ; mm[0]=m ; mm.forceComputationOfParts() ; mm.setAxType(AX_CYL) #<- important
+      d0=DataArrayInt(16) ; d0[:]=0
+      d1=DataArrayInt(9)  ; d1[:]=0
+      mm.setFamilyFieldArr(0,d1) ; mm.setFamilyFieldArr(1,d0)
+      mm.setName("a") ; mm.setDescription("b") ; mm.setTime(3,4,5.) ; mm.addFamily("c",-4) ; mm.setFamiliesOnGroup("d",["c"]) ; mm.setTimeUnit("ms")
+      ref0=mm.getCoords().getHiddenCppPointer()
+      ref1=mm[0].getNodalConnectivity().getHiddenCppPointer()
+      self.assertEqual(ref0,mm[0].getCoords().getHiddenCppPointer())
+      ref2=mm[0].getNodalConnectivityIndex().getHiddenCppPointer()
+      ref3=mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().getHiddenCppPointer()
+      self.assertEqual(ref0,mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getCoords().getHiddenCppPointer())
+      mm2=mm.cartesianize() # the trigger
+      self.assertTrue(isinstance(mm2,MEDFileUMesh))
+      self.assertTrue(mm.getHiddenCppPointer()!=mm2.getHiddenCppPointer())
+      self.assertTrue(ref0==mm.getCoords().getHiddenCppPointer()) # <- here important
+      self.assertTrue(ref0!=mm2.getCoords().getHiddenCppPointer()) # <- here important
+      self.assertEqual(mm2.getCoords().getHiddenCppPointer(),mm2[0].getCoords().getHiddenCppPointer())
+      self.assertEqual(mm2.getCoords().getHiddenCppPointer(),mm2.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getCoords().getHiddenCppPointer())
+      self.assertEqual(mm2[0].getNodalConnectivity().getHiddenCppPointer(),ref1) # <- here very important
+      self.assertEqual(mm2[0].getNodalConnectivityIndex().getHiddenCppPointer(),ref2) # <- here very important
+      self.assertEqual(mm2.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().getHiddenCppPointer(),ref3) # <- here very important
+      self.assertEqual(mm2.getName(),mm.getName())
+      self.assertEqual(mm2.getDescription(),mm.getDescription())
+      self.assertEqual(mm2.getTime(),mm.getTime())
+      self.assertEqual(mm2.getTime(),mm.getTime())
+      self.assertEqual(mm2.getTimeUnit(),mm.getTimeUnit())
+      self.assertEqual(mm2.getGroupsNames(),mm.getGroupsNames())
+      self.assertEqual(mm2.getFamiliesNames(),mm.getFamiliesNames())
+      self.assertEqual([mm2.getFamilyId(elt) for elt in mm2.getFamiliesNames()],[mm.getFamilyId(elt2) for elt2 in mm.getFamiliesNames()])
+      self.assertEqual(mm.getFamilyFieldAtLevel(0).getHiddenCppPointer(),d1.getHiddenCppPointer())
+      self.assertEqual(mm2.getFamilyFieldAtLevel(0).getHiddenCppPointer(),d1.getHiddenCppPointer()) # <- here very important
+      self.assertEqual(mm.getFamilyFieldAtLevel(1).getHiddenCppPointer(),d0.getHiddenCppPointer())
+      self.assertEqual(mm2.getFamilyFieldAtLevel(1).getHiddenCppPointer(),d0.getHiddenCppPointer()) # <- here very important
+      # UMesh cart
+      mm.setAxType(AX_CART)
+      mm2=mm.cartesianize() # the trigger
+      self.assertTrue(isinstance(mm2,MEDFileUMesh))
+      self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
+      # CurveLinearMesh non cart
+      arr=DataArrayDouble(4) ; arr.iota() ; m=MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildCurveLinear()
+      mm=MEDFileCurveLinearMesh() ; mm.setMesh(m) ; mm.setAxType(AX_CYL) #<- important
+      mm.setFamilyFieldArr(0,d1) ; mm.setFamilyFieldArr(1,d0)
+      mm.setName("a") ; mm.setDescription("b") ; mm.setTime(3,4,5.) ; mm.addFamily("c",-4) ; mm.setFamiliesOnGroup("d",["c"]) ; mm.setTimeUnit("ms")
+      ref0=mm.getMesh().getCoords().getHiddenCppPointer()
+      mm2=mm.cartesianize() # the trigger
+      self.assertTrue(isinstance(mm2,MEDFileCurveLinearMesh))
+      self.assertTrue(mm.getHiddenCppPointer()!=mm2.getHiddenCppPointer())
+      self.assertTrue(ref0==mm.getMesh().getCoords().getHiddenCppPointer()) # <- here important
+      self.assertTrue(ref0!=mm2.getMesh().getCoords().getHiddenCppPointer()) # <- here important
+      self.assertEqual(mm2.getMesh().getNodeGridStructure(),mm.getMesh().getNodeGridStructure())
+      self.assertEqual(mm2.getName(),mm.getName())
+      self.assertEqual(mm2.getDescription(),mm.getDescription())
+      self.assertEqual(mm2.getTime(),mm.getTime())
+      self.assertEqual(mm2.getTime(),mm.getTime())
+      self.assertEqual(mm2.getTimeUnit(),mm.getTimeUnit())
+      self.assertEqual(mm2.getGroupsNames(),mm.getGroupsNames())
+      self.assertEqual(mm2.getFamiliesNames(),mm.getFamiliesNames())
+      self.assertEqual([mm2.getFamilyId(elt) for elt in mm2.getFamiliesNames()],[mm.getFamilyId(elt2) for elt2 in mm.getFamiliesNames()])
+      self.assertEqual(mm.getFamilyFieldAtLevel(0).getHiddenCppPointer(),d1.getHiddenCppPointer())
+      self.assertEqual(mm2.getFamilyFieldAtLevel(0).getHiddenCppPointer(),d1.getHiddenCppPointer()) # <- here very important
+      self.assertEqual(mm.getFamilyFieldAtLevel(1).getHiddenCppPointer(),d0.getHiddenCppPointer())
+      self.assertEqual(mm2.getFamilyFieldAtLevel(1).getHiddenCppPointer(),d0.getHiddenCppPointer()) # <- here very important
+      # CurveLinearMesh cart
+      mm.setAxType(AX_CART)
+      mm2=mm.cartesianize() # the trigger
+      self.assertTrue(isinstance(mm2,MEDFileCurveLinearMesh))
+      self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
+      # CMesh non cart
+      arr=DataArrayDouble(4) ; arr.iota() ; m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+      mm=MEDFileCMesh() ; mm.setMesh(m) ; mm.setAxType(AX_CYL) #<- important
+      mm.setFamilyFieldArr(0,d1) ; mm.setFamilyFieldArr(1,d0)
+      mm.setName("a") ; mm.setDescription("b") ; mm.setTime(3,4,5.) ; mm.addFamily("c",-4) ; mm.setFamiliesOnGroup("d",["c"]) ; mm.setTimeUnit("ms")
+      mm2=mm.cartesianize() # the trigger
+      self.assertTrue(isinstance(mm2,MEDFileCurveLinearMesh))
+      self.assertEqual(mm2.getMesh().getNodeGridStructure(),mm.getMesh().getNodeGridStructure())
+      self.assertEqual(mm2.getName(),mm.getName())
+      self.assertEqual(mm2.getDescription(),mm.getDescription())
+      self.assertEqual(mm2.getTime(),mm.getTime())
+      self.assertEqual(mm2.getTime(),mm.getTime())
+      self.assertEqual(mm2.getTimeUnit(),mm.getTimeUnit())
+      self.assertEqual(mm2.getGroupsNames(),mm.getGroupsNames())
+      self.assertEqual(mm2.getFamiliesNames(),mm.getFamiliesNames())
+      self.assertEqual([mm2.getFamilyId(elt) for elt in mm2.getFamiliesNames()],[mm.getFamilyId(elt2) for elt2 in mm.getFamiliesNames()])
+      self.assertEqual(mm.getFamilyFieldAtLevel(0).getHiddenCppPointer(),d1.getHiddenCppPointer())
+      self.assertEqual(mm2.getFamilyFieldAtLevel(0).getHiddenCppPointer(),d1.getHiddenCppPointer()) # <- here very important
+      self.assertEqual(mm.getFamilyFieldAtLevel(1).getHiddenCppPointer(),d0.getHiddenCppPointer())
+      self.assertEqual(mm2.getFamilyFieldAtLevel(1).getHiddenCppPointer(),d0.getHiddenCppPointer()) # <- here very important
+      # CMesh cart
+      mm.setAxType(AX_CART)
+      mm2=mm.cartesianize() # the trigger
+      self.assertTrue(isinstance(mm2,MEDFileCMesh))
+      self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
       pass
 
     pass

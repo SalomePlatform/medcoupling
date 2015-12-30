@@ -230,6 +230,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
+%newobject ParaMEDMEM::MEDCouplingMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkDeepEquivalOnSameNodesWith;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
 %newobject ParaMEDMEM::MEDCouplingMesh::computeNbOfNodesPerCell;
@@ -270,7 +271,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
-%newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::cellsByType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
@@ -347,14 +347,13 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh;
 %newobject ParaMEDMEM::MEDCouplingStructuredMesh::ComputeCornersGhost;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
-%newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
+%newobject ParaMEDMEM::MEDCouplingCMesh::buildCurveLinear;
 %newobject ParaMEDMEM::MEDCouplingIMesh::New;
 %newobject ParaMEDMEM::MEDCouplingIMesh::asSingleCell;
 %newobject ParaMEDMEM::MEDCouplingIMesh::buildWithGhost;
 %newobject ParaMEDMEM::MEDCouplingIMesh::convertToCartesian;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::New;
-%newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCurveLinearMesh::getCoords;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::New;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
@@ -554,7 +553,8 @@ namespace ParaMEDMEM
     std::string getTimeUnit() const;
     virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception);
     bool isStructured() const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingMesh *deepCpy() const;
+    virtual MEDCouplingMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *clone(bool recDeepCpy) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
@@ -1758,7 +1758,6 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingUMesh *New() throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *New(const char *meshName, int meshDim) throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *clone(bool recDeepCpy) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
@@ -3320,6 +3319,8 @@ namespace ParaMEDMEM
     }
   };
 
+  class MEDCouplingCurveLinearMesh;
+
   //== MEDCouplingCMesh
   
   class MEDCouplingCMesh : public ParaMEDMEM::MEDCouplingStructuredMesh
@@ -3327,11 +3328,11 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingCMesh *New() throw(INTERP_KERNEL::Exception);
     static MEDCouplingCMesh *New(const std::string& meshName) throw(INTERP_KERNEL::Exception);
-    MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coordsX,
                    const DataArrayDouble *coordsY=0,
                    const DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
     void setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
+    MEDCouplingCurveLinearMesh *buildCurveLinear() const throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingCMesh() throw(INTERP_KERNEL::Exception)
       {
@@ -3375,7 +3376,6 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingCurveLinearMesh *New() throw(INTERP_KERNEL::Exception);
     static MEDCouplingCurveLinearMesh *New(const std::string& meshName) throw(INTERP_KERNEL::Exception);
-    MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingCurveLinearMesh() throw(INTERP_KERNEL::Exception)

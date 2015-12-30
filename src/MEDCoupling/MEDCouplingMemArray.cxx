@@ -3567,14 +3567,14 @@ DataArrayDouble *DataArrayDouble::accumulatePerChunck(const int *bgOfIndex, cons
 DataArrayDouble *DataArrayDouble::fromPolarToCart() const
 {
   checkAllocated();
-  int nbOfComp=getNumberOfComponents();
+  int nbOfComp(getNumberOfComponents());
   if(nbOfComp!=2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::fromPolarToCart : must be an array with exactly 2 components !");
-  int nbOfTuple=getNumberOfTuples();
-  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple(getNumberOfTuples());
+  DataArrayDouble *ret(DataArrayDouble::New());
   ret->alloc(nbOfTuple,2);
-  double *w=ret->getPointer();
-  const double *wIn=getConstPointer();
+  double *w(ret->getPointer());
+  const double *wIn(getConstPointer());
   for(int i=0;i<nbOfTuple;i++,w+=2,wIn+=2)
     {
       w[0]=wIn[0]*cos(wIn[1]);
@@ -3597,14 +3597,14 @@ DataArrayDouble *DataArrayDouble::fromPolarToCart() const
 DataArrayDouble *DataArrayDouble::fromCylToCart() const
 {
   checkAllocated();
-  int nbOfComp=getNumberOfComponents();
+  int nbOfComp(getNumberOfComponents());
   if(nbOfComp!=3)
     throw INTERP_KERNEL::Exception("DataArrayDouble::fromCylToCart : must be an array with exactly 3 components !");
-  int nbOfTuple=getNumberOfTuples();
-  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple(getNumberOfTuples());
+  DataArrayDouble *ret(DataArrayDouble::New());
   ret->alloc(getNumberOfTuples(),3);
-  double *w=ret->getPointer();
-  const double *wIn=getConstPointer();
+  double *w(ret->getPointer());
+  const double *wIn(getConstPointer());
   for(int i=0;i<nbOfTuple;i++,w+=3,wIn+=3)
     {
       w[0]=wIn[0]*cos(wIn[1]);
@@ -3629,14 +3629,14 @@ DataArrayDouble *DataArrayDouble::fromCylToCart() const
 DataArrayDouble *DataArrayDouble::fromSpherToCart() const
 {
   checkAllocated();
-  int nbOfComp=getNumberOfComponents();
+  int nbOfComp(getNumberOfComponents());
   if(nbOfComp!=3)
     throw INTERP_KERNEL::Exception("DataArrayDouble::fromSpherToCart : must be an array with exactly 3 components !");
-  int nbOfTuple=getNumberOfTuples();
-  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple(getNumberOfTuples());
+  DataArrayDouble *ret(DataArrayDouble::New());
   ret->alloc(getNumberOfTuples(),3);
-  double *w=ret->getPointer();
-  const double *wIn=getConstPointer();
+  double *w(ret->getPointer());
+  const double *wIn(getConstPointer());
   for(int i=0;i<nbOfTuple;i++,w+=3,wIn+=3)
     {
       w[0]=wIn[0]*cos(wIn[2])*sin(wIn[1]);
@@ -3644,6 +3644,56 @@ DataArrayDouble *DataArrayDouble::fromSpherToCart() const
       w[2]=wIn[0]*cos(wIn[1]);
     }
   return ret;
+}
+
+/*!
+ * This method returns a new array containing the same number of tuples than \a this. To do this, this method needs \a at parameter to specify the convention of \a this.
+ * All the tuples of the returned array will be in cartesian sense. So if \a at equals to AX_CART the returned array is basically a deep copy of \a this.
+ * If \a at equals to AX_CYL the returned array will be the result of operation cylindric to cartesian of \a this...
+ *
+ * \param [in] atOfThis - The axis type of \a this.
+ * \return DataArrayDouble * - the new instance of DataArrayDouble (that must be dealed by caller) containing the result of the cartesianizification of \a this.
+ */
+DataArrayDouble *DataArrayDouble::cartesianize(MEDCouplingAxisType atOfThis) const
+{
+  checkAllocated();
+  int nbOfComp(getNumberOfComponents());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret;
+  switch(atOfThis)
+    {
+    case AX_CART:
+      ret=deepCpy();
+    case AX_CYL:
+      if(nbOfComp==3)
+        {
+          ret=fromCylToCart();
+          break;
+        }
+      if(nbOfComp==2)
+        {
+          ret=fromPolarToCart();
+          break;
+        }
+      else
+        throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !");
+    case AX_SPHER:
+      if(nbOfComp==3)
+        {
+          ret=fromSpherToCart();
+          break;
+        }
+      if(nbOfComp==2)
+        {
+          ret=fromPolarToCart();
+          break;
+        }
+      else
+        throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !");
+    default:
+      throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : not recognized axis type ! Only AX_CART, AX_CYL and AX_SPHER supported !");
+    }
+  ret->copyStringInfoFrom(*this);
+  return ret.retn();
 }
 
 /*!
@@ -3658,7 +3708,7 @@ DataArrayDouble *DataArrayDouble::fromSpherToCart() const
 DataArrayDouble *DataArrayDouble::doublyContractedProduct() const
 {
   checkAllocated();
-  int nbOfComp=getNumberOfComponents();
+  int nbOfComp(getNumberOfComponents());
   if(nbOfComp!=6)
     throw INTERP_KERNEL::Exception("DataArrayDouble::doublyContractedProduct : must be an array with exactly 6 components !");
   DataArrayDouble *ret=DataArrayDouble::New();
