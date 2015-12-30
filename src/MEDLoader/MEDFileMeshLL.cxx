@@ -30,12 +30,17 @@
 #include "CellModel.hxx"
 
 #include <set>
+#include <iomanip>
 
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
 
 using namespace ParaMEDMEM;
+
+const char MEDFileMeshL2::ZE_SEP_FOR_FAMILY_KILLERS[]="!/__\\!";//important start by - because ord('!')==33 the smallest (!=' ') to preserve orders at most.
+
+int MEDFileMeshL2::ZE_SEP2_FOR_FAMILY_KILLERS=4;
 
 MEDFileMeshL2::MEDFileMeshL2():_name(MED_NAME_SIZE),_description(MED_COMMENT_SIZE),_univ_name(MED_LNAME_SIZE),_dt_unit(MED_LNAME_SIZE)
 {
@@ -199,6 +204,7 @@ void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const std::string& meshName
   char nomfam[MED_NAME_SIZE+1];
   med_int numfam;
   int nfam=MEDnFamily(fid,meshName.c_str());
+  std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > > crudeFams(nfam);
   for(int i=0;i<nfam;i++)
     {
       int ngro=MEDnFamilyGroup(fid,meshName.c_str(),i+1);
@@ -208,19 +214,26 @@ void MEDFileMeshL2::ReadFamiliesAndGrps(med_idt fid, const std::string& meshName
       INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_COMMENT_SIZE*natt+1];
       INTERP_KERNEL::AutoPtr<char> gro=new char[MED_LNAME_SIZE*ngro+1];
       MEDfamily23Info(fid,meshName.c_str(),i+1,nomfam,attide,attval,attdes,&numfam,gro);
-      std::string famName=MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE);
-      fams[famName]=numfam;
+      std::string famName(MEDLoaderBase::buildStringFromFortran(nomfam,MED_NAME_SIZE));
+      std::vector<std::string> grps(ngro);
       for(int j=0;j<ngro;j++)
-        {
-          std::string groupname=MEDLoaderBase::buildStringFromFortran(gro+j*MED_LNAME_SIZE,MED_LNAME_SIZE);
-          grps[groupname].push_back(famName);
-        }
+        grps[j]=MEDLoaderBase::buildStringFromFortran(gro+j*MED_LNAME_SIZE,MED_LNAME_SIZE);
+      crudeFams[i]=std::pair<std::string,std::pair<int,std::vector<std::string> > >(famName,std::pair<int,std::vector<std::string> >(numfam,grps));
+    }
+  RenameFamiliesFromFileToMemInternal(crudeFams);
+  for(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >::const_iterator it0=crudeFams.begin();it0!=crudeFams.end();it0++)
+    {
+      fams[(*it0).first]=(*it0).second.first;
+      for(std::vector<std::string>::const_iterator it1=(*it0).second.second.begin();it1!=(*it0).second.second.end();it1++)
+        grps[*it1].push_back((*it0).first);
     }
 }
 
 void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol)
 {
-  for(std::map<std::string,int>::const_iterator it=fams.begin();it!=fams.end();it++)
+  std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > > crudeFams(fams.size());
+  std::size_t ii(0);
+  for(std::map<std::string,int>::const_iterator it=fams.begin();it!=fams.end();it++,ii++)
     {
       std::vector<std::string> grpsOfFam;
       for(std::map<std::string, std::vector<std::string> >::const_iterator it1=grps.begin();it1!=grps.end();it1++)
@@ -228,16 +241,132 @@ void MEDFileMeshL2::WriteFamiliesAndGrps(med_idt fid, const std::string& mname, 
           if(std::find((*it1).second.begin(),(*it1).second.end(),(*it).first)!=(*it1).second.end())
             grpsOfFam.push_back((*it1).first);
         }
-      int ngro=grpsOfFam.size();
+      crudeFams[ii]=std::pair<std::string,std::pair<int,std::vector<std::string> > >((*it).first,std::pair<int,std::vector<std::string> >((*it).second,grpsOfFam));
+    }
+  RenameFamiliesFromMemToFileInternal(crudeFams);
+  for(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >::const_iterator it=crudeFams.begin();it!=crudeFams.end();it++)
+    {
+      int ngro((*it).second.second.size());
       INTERP_KERNEL::AutoPtr<char> groName=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE*ngro);
       int i=0;
-      for(std::vector<std::string>::const_iterator it2=grpsOfFam.begin();it2!=grpsOfFam.end();it2++,i++)
+      for(std::vector<std::string>::const_iterator it2=(*it).second.second.begin();it2!=(*it).second.second.end();it2++,i++)
         MEDLoaderBase::safeStrCpy2((*it2).c_str(),MED_LNAME_SIZE-1,groName+i*MED_LNAME_SIZE,tooLongStrPol);
       INTERP_KERNEL::AutoPtr<char> famName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
       MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_NAME_SIZE,famName,tooLongStrPol);
-      int ret=MEDfamilyCr(fid,mname.c_str(),famName,(*it).second,ngro,groName);
+      int ret=MEDfamilyCr(fid,mname.c_str(),famName,(*it).second.first,ngro,groName);
       ret++;
     }
+}
+
+void MEDFileMeshL2::RenameFamiliesPatternInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams, RenameFamiliesPatternFunc func)
+{
+  std::size_t ii(0);
+  std::vector<std::string> fams(crudeFams.size());
+  for(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >::const_iterator it=crudeFams.begin();it!=crudeFams.end();it++,ii++)
+    fams[ii]=(*it).first;
+  if(!func(fams))
+    return ;
+  ii=0;
+  for(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >::iterator it=crudeFams.begin();it!=crudeFams.end();it++,ii++)
+    (*it).first=fams[ii];
+}
+
+/*!
+ * This method is dedicated to the killers that use a same family name to store different family ids. MED file API authorizes it.
+ * So this method renames families (if needed generaly not !) in order to have a discriminant name for families.
+ */
+void MEDFileMeshL2::RenameFamiliesFromFileToMemInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams)
+{
+  RenameFamiliesPatternInternal(crudeFams,RenameFamiliesFromFileToMem);
+}
+
+bool MEDFileMeshL2::RenameFamiliesFromFileToMem(std::vector< std::string >& famNames)
+{
+  std::map<std::string,int> m;
+  std::set<std::string> s;
+  for(std::vector< std::string >::const_iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      if(s.find(*it)!=s.end())
+        m[*it]=0;
+      s.insert(*it);
+    }
+  if(m.empty())
+    return false;// the general case !
+  for(std::vector< std::string >::iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      std::map<std::string,int>::iterator it2(m.find(*it));
+      if(it2!=m.end())
+        {
+          std::ostringstream oss; oss << *it << ZE_SEP_FOR_FAMILY_KILLERS << std::setfill('0') << std::setw(ZE_SEP2_FOR_FAMILY_KILLERS) << (*it2).second++;
+          *it=oss.str();
+        }
+    }
+  return true;
+}
+
+/*!
+ * This method is dedicated to the killers that use a same family name to store different family ids. MED file API authorizes it.
+ * So this method renames families (if needed generaly not !) in order to have a discriminant name for families.
+ */
+void MEDFileMeshL2::RenameFamiliesFromMemToFileInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams)
+{
+  RenameFamiliesPatternInternal(crudeFams,RenameFamiliesFromMemToFile);
+}
+
+bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famNames)
+{
+  bool isSmthingStrange(false);
+  for(std::vector< std::string >::const_iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      std::size_t found((*it).find(ZE_SEP_FOR_FAMILY_KILLERS));
+      if(found!=std::string::npos)
+        isSmthingStrange=true;
+    }
+  if(!isSmthingStrange)
+    return false;
+  // pattern matching
+  std::map< std::string, std::vector<std::string> > m;
+  for(std::vector< std::string >::const_iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      std::size_t found((*it).find(ZE_SEP_FOR_FAMILY_KILLERS));
+      if(found!=std::string::npos && found>=1)
+        {
+          std::string s1((*it).substr(found+sizeof(ZE_SEP_FOR_FAMILY_KILLERS)-1));
+          if(s1.size()!=ZE_SEP2_FOR_FAMILY_KILLERS)
+            continue;
+          int k(-1);
+          std::istringstream iss(s1);
+          iss >> k;
+          bool isOK((iss.rdstate() & ( std::istream::failbit | std::istream::eofbit)) == std::istream::eofbit);
+          if(isOK && k>=0)
+            {
+              std::string s0((*it).substr(0,found));
+              m[s0].push_back(*it);
+            }
+        }
+    }
+  if(m.empty())
+    return false;
+  // filtering
+  std::map<std::string,std::string> zeMap;
+  for(std::map< std::string, std::vector<std::string> >::const_iterator it=m.begin();it!=m.end();it++)
+    {
+      if((*it).second.size()==1)
+        continue;
+      for(std::vector<std::string>::const_iterator it1=(*it).second.begin();it1!=(*it).second.end();it1++)
+        zeMap[*it1]=(*it).first;
+    }
+  if(zeMap.empty())
+    return false;
+  // traduce
+  for(std::vector< std::string >::iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      std::map<std::string,std::string>::iterator it1(zeMap.find(*it));
+      if(it1!=zeMap.end())
+        *it=(*it1).second;
+    }
+    
+  return true;
 }
 
 MEDFileUMeshL2::MEDFileUMeshL2()

@@ -58,6 +58,16 @@ namespace ParaMEDMEM
     static double CheckMeshTimeStep(med_idt fid, const std::string& mname, int nstep, int dt, int it);
     static void ReadFamiliesAndGrps(med_idt fid, const std::string& mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps, MEDFileMeshReadSelector *mrs);
     static void WriteFamiliesAndGrps(med_idt fid, const std::string& mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
+    static bool RenameFamiliesFromFileToMem(std::vector< std::string >& famNames);
+    static bool RenameFamiliesFromMemToFile(std::vector< std::string >& famNames);
+  private:
+    typedef bool (*RenameFamiliesPatternFunc)(std::vector< std::string >&);
+    static void RenameFamiliesPatternInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams, RenameFamiliesPatternFunc func);
+    static void RenameFamiliesFromFileToMemInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams);
+    static void RenameFamiliesFromMemToFileInternal(std::vector< std::pair<std::string,std::pair<int,std::vector<std::string> > > >& crudeFams);
+  public:
+    static const char ZE_SEP_FOR_FAMILY_KILLERS[];
+    static int ZE_SEP2_FOR_FAMILY_KILLERS;
   protected:
     MEDFileString _name;
     MEDFileString _description;

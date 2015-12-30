@@ -922,6 +922,8 @@ namespace ParaMEDMEM
     void setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsNames() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getFamiliesNames() const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getFamiliesNamesWithFilePointOfView() const throw(INTERP_KERNEL::Exception);
+    static std::string GetMagicFamilyStr();
     void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
     std::vector<std::string> removeEmptyGroups() throw(INTERP_KERNEL::Exception);
     void removeGroup(const std::string& name) throw(INTERP_KERNEL::Exception);

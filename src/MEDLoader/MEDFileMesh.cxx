@@ -514,6 +514,24 @@ std::vector<std::string> MEDFileMesh::getFamiliesNames() const
 }
 
 /*!
+ * Returns names of all families of \a this mesh but like they would be in file.
+ * This method is here only for MED file families gurus. If you are a kind user forget this method :-)
+ * This method is only useful for aggressive users that want to have in their file a same family lying both on cells and on nodes. This is not a good idea for lisibility !
+ * For your information internaly in memory such families are renamed to have a nicer API.
+ */
+std::vector<std::string> MEDFileMesh::getFamiliesNamesWithFilePointOfView() const
+{
+  std::vector<std::string> ret(getFamiliesNames());
+  MEDFileMeshL2::RenameFamiliesFromMemToFile(ret);
+  return ret;
+}
+
+std::string MEDFileMesh::GetMagicFamilyStr()
+{
+  return std::string(MEDFileMeshL2::ZE_SEP_FOR_FAMILY_KILLERS);
+}
+
+/*!
  * Changes a name of every family, included in one group only, to be same as the group name.
  *  \throw If there are families with equal names in \a this mesh.
  */

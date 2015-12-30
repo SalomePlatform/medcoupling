@@ -4709,6 +4709,37 @@ class MEDLoaderTest(unittest.TestCase):
       self.assertTrue(mm.isEqual(mm3,1e-12)[0])
       pass
 
+    def testMEDFileForFamiliesPlayer1(self):
+      """Non regression bug EDF11911. For serial killers using same family name to store both cells and nodes ! Only sky is the limit."""
+      fileName="Pyfile98.med"
+      meshName="mesh"
+      magicSt="%s%%04i"%(MEDFileMesh.GetMagicFamilyStr())
+      arr=DataArrayDouble(4) ; arr.iota()
+      m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
+      m=m.buildUnstructured()
+      mm=MEDFileUMesh()
+      mm[0]=m
+      mm.setName(meshName)
+      mm.setFamilyId("FAMILLE_ZERO",0)
+      mm.getFamilyFieldAtLevel(0)[-3:]=-4
+      mm.setFamilyId("RIDF%s"%(magicSt%0),-4)
+      mm.setGroupsOnFamily("RIDF%s"%(magicSt%0),["RID"])
+      d=DataArrayInt(16) ; d[:]=0 ; d[[1,2,4,5]]=3
+      mm.setFamilyFieldArr(1,d)
+      mm.setFamilyId("RIDF%s"%(magicSt%1),3)
+      mm.setGroupsOnFamily("RIDF%s"%(magicSt%1),["RID"])
+      self.assertEqual(mm.getFamiliesNames(),("FAMILLE_ZERO",'RIDF!/__\\!0000','RIDF!/__\\!0001'))
+      self.assertEqual(mm.getFamiliesNamesWithFilePointOfView(),("FAMILLE_ZERO","RIDF","RIDF")) # <- the aim of test is here !
+      self.assertEqual(mm.getFamiliesIdsOnGroup("RID"),(-4,3))
+      mm.write(fileName,2)
+      # now read such funny file !
+      mm2=MEDFileMesh.New(fileName) # <- normaly mdump of Pyfile98.med must contain only RID and FAMILLE_ZERO families.
+      self.assertTrue(mm.isEqual(mm2,1e-16))
+      self.assertEqual(mm2.getFamiliesNames(),("FAMILLE_ZERO",'RIDF!/__\\!0000','RIDF!/__\\!0001'))
+      self.assertEqual(mm2.getFamiliesNamesWithFilePointOfView(),("FAMILLE_ZERO","RIDF","RIDF"))
+      self.assertEqual(mm2.getFamiliesIdsOnGroup("RID"),(-4,3))# <- very important too !
+      pass
+
     pass
 
 if __name__ == "__main__":

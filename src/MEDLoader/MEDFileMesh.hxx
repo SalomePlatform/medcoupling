@@ -116,6 +116,8 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps);
     MEDLOADER_EXPORT std::vector<std::string> getGroupsNames() const;
     MEDLOADER_EXPORT std::vector<std::string> getFamiliesNames() const;
+    MEDLOADER_EXPORT std::vector<std::string> getFamiliesNamesWithFilePointOfView() const;
+    MEDLOADER_EXPORT static std::string GetMagicFamilyStr();
     MEDLOADER_EXPORT void assignFamilyNameWithGroupName();
     MEDLOADER_EXPORT std::vector<std::string> removeEmptyGroups();
     MEDLOADER_EXPORT void removeGroup(const std::string& name);
