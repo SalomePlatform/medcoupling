@@ -4763,6 +4763,7 @@ class MEDLoaderTest(unittest.TestCase):
       ref3=mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().getHiddenCppPointer()
       self.assertEqual(ref0,mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getCoords().getHiddenCppPointer())
       mm2=mm.cartesianize() # the trigger
+      self.assertEqual(mm2.getAxType(),AX_CART)
       self.assertTrue(isinstance(mm2,MEDFileUMesh))
       self.assertTrue(mm.getHiddenCppPointer()!=mm2.getHiddenCppPointer())
       self.assertTrue(ref0==mm.getCoords().getHiddenCppPointer()) # <- here important
@@ -4787,6 +4788,7 @@ class MEDLoaderTest(unittest.TestCase):
       # UMesh cart
       mm.setAxType(AX_CART)
       mm2=mm.cartesianize() # the trigger
+      self.assertEqual(mm2.getAxType(),AX_CART)
       self.assertTrue(isinstance(mm2,MEDFileUMesh))
       self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
       # CurveLinearMesh non cart
@@ -4796,6 +4798,7 @@ class MEDLoaderTest(unittest.TestCase):
       mm.setName("a") ; mm.setDescription("b") ; mm.setTime(3,4,5.) ; mm.addFamily("c",-4) ; mm.setFamiliesOnGroup("d",["c"]) ; mm.setTimeUnit("ms")
       ref0=mm.getMesh().getCoords().getHiddenCppPointer()
       mm2=mm.cartesianize() # the trigger
+      self.assertEqual(mm2.getAxType(),AX_CART)
       self.assertTrue(isinstance(mm2,MEDFileCurveLinearMesh))
       self.assertTrue(mm.getHiddenCppPointer()!=mm2.getHiddenCppPointer())
       self.assertTrue(ref0==mm.getMesh().getCoords().getHiddenCppPointer()) # <- here important
@@ -4816,6 +4819,7 @@ class MEDLoaderTest(unittest.TestCase):
       # CurveLinearMesh cart
       mm.setAxType(AX_CART)
       mm2=mm.cartesianize() # the trigger
+      self.assertEqual(mm2.getAxType(),AX_CART)
       self.assertTrue(isinstance(mm2,MEDFileCurveLinearMesh))
       self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
       # CMesh non cart
@@ -4824,6 +4828,7 @@ class MEDLoaderTest(unittest.TestCase):
       mm.setFamilyFieldArr(0,d1) ; mm.setFamilyFieldArr(1,d0)
       mm.setName("a") ; mm.setDescription("b") ; mm.setTime(3,4,5.) ; mm.addFamily("c",-4) ; mm.setFamiliesOnGroup("d",["c"]) ; mm.setTimeUnit("ms")
       mm2=mm.cartesianize() # the trigger
+      self.assertEqual(mm2.getAxType(),AX_CART)
       self.assertTrue(isinstance(mm2,MEDFileCurveLinearMesh))
       self.assertEqual(mm2.getMesh().getNodeGridStructure(),mm.getMesh().getNodeGridStructure())
       self.assertEqual(mm2.getName(),mm.getName())
@@ -4841,6 +4846,7 @@ class MEDLoaderTest(unittest.TestCase):
       # CMesh cart
       mm.setAxType(AX_CART)
       mm2=mm.cartesianize() # the trigger
+      self.assertEqual(mm2.getAxType(),AX_CART)
       self.assertTrue(isinstance(mm2,MEDFileCMesh))
       self.assertTrue(mm.getHiddenCppPointer()==mm2.getHiddenCppPointer()) # optimization
       pass

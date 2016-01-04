@@ -3164,6 +3164,7 @@ MEDFileMesh *MEDFileUMesh::cartesianize() const
         if((const MEDFileUMeshSplitL1 *)(*it))
           *it=(*it)->shallowCpyUsingCoords(coordsCart);
       ret->_coords=coordsCart;
+      ret->setAxType(AX_CART);
       return ret.retn();
     }
 }
@@ -6210,6 +6211,7 @@ MEDFileMesh *MEDFileCMesh::cartesianize() const
       MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> ret(MEDFileCurveLinearMesh::New());
       ret->MEDFileStructuredMesh::operator=(*this);
       ret->setMesh(clmesh);
+      ret->setAxType(AX_CART);
       return ret.retn();
     }
 }
@@ -6421,6 +6423,7 @@ MEDFileMesh *MEDFileCurveLinearMesh::cartesianize() const
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsCart(coords->cartesianize(getAxType()));
       mesh2->setCoords(coordsCart);
       ret->setMesh(mesh2);
+      ret->setAxType(AX_CART);
       return ret.retn();
     }
 }
