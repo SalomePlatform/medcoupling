@@ -33,7 +33,8 @@ MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& f
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   int dummy0,dummy1;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2);
   switch(meshType)
   {
     case UNSTRUCTURED:
@@ -52,7 +53,8 @@ MEDFileMesh *ParaMEDFileMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm& 
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   int dummy0,dummy1;
   std::string dummy2;
-  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2);
   switch(meshType)
   {
     case UNSTRUCTURED:
