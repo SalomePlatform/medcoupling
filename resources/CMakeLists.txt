@@ -17,7 +17,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(MED_RESOURCES_FILES
+SET(MED_test_fig_files
+  Pol1.fig
+  Pol2.fig
+  Pol3.fig
+  Pol4.fig
+)
+
+SET(MED_other_FILES
   #boitenew.cnc
   #boitenew.inp
   #boitenew.xyz
@@ -192,10 +199,6 @@ SET(MED_RESOURCES_FILES
   Mesh3D_10_2d1.med
   Mesh3D_10_2d2.med
   Mesh3D_11.med
-  Pol1.fig
-  Pol2.fig
-  Pol3.fig
-  Pol4.fig
   # blow5_ascii.case
   # blow5_ascii.geo
   # blow5_ascii_cd_displacement
@@ -209,31 +212,18 @@ SET(MED_RESOURCES_FILES
   agitateur.med
   )
 
-# IF(MED_ENABLE_GUI)
-#   FILE(GLOB MED_RESOURCES_PNG "${CMAKE_CURRENT_SOURCE_DIR}/*.png")
-#   SET(MED_RESOURCES_FILES
-#     ${MED_RESOURCES_FILES}
-#     ModuleMed.png
-#     Data.png
-#     Infos.png
-#     Structure.png
-#     explore_med_file.png
-#     field_selection.png
-#     med_mesh.png
-#     med_field.png
-#     mesh_selection.png
-#     )
-# ENDIF(MED_ENABLE_GUI)
+SET(MED_RESOURCES_FILES ${MED_test_fig_files})
+
+IF(NOT MEDCOUPLING_MICROMED)
+  IF(MEDCOUPLING_WITH_FILE_EXAMPLES)
+    FOREACH(resfile ${MED_other_FILES})
+      LIST(APPEND MED_RESOURCES_FILES ${resfile})
+    ENDFOREACH()
+  ENDIF()
+ENDIF()
 
 FOREACH(resfile ${MED_RESOURCES_FILES})
   CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/${resfile}" "${CMAKE_CURRENT_BINARY_DIR}/${resfile}" COPYONLY)
 ENDFOREACH(resfile)
 
 INSTALL(FILES ${MED_RESOURCES_FILES} DESTINATION ${MEDCOUPLING_INSTALL_RES_DATA})
-
-#MESSAGE(STATUS "Creation of ${CMAKE_CURRENT_BINARY_DIR}/MEDCatalog.xml")
-#CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/MEDCatalog.xml.in ${CMAKE_CURRENT_BINARY_DIR}/MEDCatalog.xml @ONLY)
-#MESSAGE(STATUS "Creation of ${CMAKE_CURRENT_BINARY_DIR}/SalomeApp.xml")
-#CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SalomeApp.xml.in ${CMAKE_CURRENT_BINARY_DIR}/SalomeApp.xml @ONLY)
-
-#INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCatalog.xml ${CMAKE_CURRENT_BINARY_DIR}/SalomeApp.xml DESTINATION ${SALOME_MED_INSTALL_RES_DATA})
