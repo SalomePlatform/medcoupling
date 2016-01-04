@@ -24,15 +24,11 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "TestInterpKernelUtils.hxx"  // getResourceFile()
 
 #include <cmath>
 #include <numeric>
-#ifdef WIN32
-#include<direct.h>
-#define getcwd _getcwd
-#else
-#include <unistd.h>
-#endif
+
 using namespace ParaMEDMEM;
 
 void MEDLoaderTest::testMesh1DRW()
@@ -782,7 +778,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   using namespace std;
   using namespace INTERP_KERNEL;
 
-  string fileName=getResourceFile("pointe.med");
+  string fileName= INTERP_TEST::getResourceFile("pointe.med", 3);
   vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
@@ -1006,7 +1002,7 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   using namespace std;
   using namespace INTERP_KERNEL;
 
-  string fileName=getResourceFile("polygones.med");
+  string fileName=INTERP_TEST::getResourceFile("polygones.med", 3);
   vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="Bord");
@@ -1072,7 +1068,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   using namespace std;
   using namespace INTERP_KERNEL;
 
-  string fileName=getResourceFile("poly3D.med");
+  string fileName=INTERP_TEST::getResourceFile("poly3D.med", 3);
   vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="poly3D");
@@ -1150,25 +1146,6 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getAllGeoTypes().size());
   mesh->decrRef();
 }
-
-std::string MEDLoaderTest::getResourceFile( const std::string& filename ) const
-{
-  std::string resourceFile = "";
-
-  if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
-    // use MEDCOUPLING_ROOT_DIR env.var
-    resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
-    resourceFile += "/share/resources/med/";
-  }
-  else {
-    resourceFile = getcwd(NULL, 0);
-    resourceFile += "/../../../resources/";
-  }
-
-  resourceFile += filename;
-  return resourceFile;
-}
-
 
 MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
 {

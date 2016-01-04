@@ -24,11 +24,10 @@
 #include "MEDFileData.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "TestInterpKernelUtils.hxx"  // getResourceFile()
 
 #ifdef WIN32
 #include <windows.h>
-#include <direct.h>
-#define getcwd _getcwd
 #else
 # include <unistd.h>
 #endif
@@ -41,7 +40,7 @@ using namespace ParaMEDMEM;
 void SauvLoaderTest::testSauv2Med()
 {
   // read a file containing all types of readable piles
-  std::string file = getResourceFile("allPillesTest.sauv");
+  std::string file = INTERP_TEST::getResourceFile("allPillesTest.sauv", 3);
   MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(file.c_str());
   MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
   // write MED
@@ -126,7 +125,7 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
 void SauvLoaderTest::testSauv2MedOnA3SubsField()
 {
   // read SAUV
-  std::string sauvFile = getResourceFile("portico_3subs.sauv");
+  std::string sauvFile = INTERP_TEST::getResourceFile("portico_3subs.sauv", 3);
   MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile.c_str());
   MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
   // check mesh
@@ -170,7 +169,7 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
 void SauvLoaderTest::testMed2Sauv()
 {
   // read pointe.med
-  std::string file = getResourceFile("pointe.med");
+  std::string file = INTERP_TEST::getResourceFile("pointe.med", 3);
   MEDCouplingAutoRefCountObjectPtr<MEDFileData> pointeMed=MEDFileData::New(file.c_str());
 
   // add 3 faces to pointeMed
@@ -328,29 +327,4 @@ void SauvLoaderTest::tearDown()
 #endif
       remove(fileToRemove[i]);
   }
-}
-
-std::string SauvLoaderTest::getResourceFile( const std::string& filename )
-{
-  std::string resourceFile = "";
-
-  if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
-    // use MEDCOUPLING_ROOT_DIR env.var
-    resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
-    resourceFile += "/share/resources/med/";
-  }
-  else {
-    resourceFile = getcwd(NULL, 0);
-    resourceFile += "/../../../resources/";
-  }
-
-  resourceFile += filename;
-#ifdef WIN32
-  std::string fixedpath = resourceFile;
-  for ( int i=0; i < fixedpath.length(); ++i )
-    if (fixedpath[i] == '/')
-      fixedpath[i] = '\\';
-  return fixedpath;
-#endif
-  return resourceFile;
 }

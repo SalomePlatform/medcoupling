@@ -18,6 +18,7 @@
 //
 
 #include "ParaMEDMEMTest.hxx"
+#include "TestInterpKernelUtils.hxx"
 #include <cppunit/TestAssert.h>
 
 #include <sstream>
@@ -30,23 +31,6 @@
 #include <unistd.h>
 #endif
 
-std::string ParaMEDMEMTest::getResourceFile( const std::string& filename )
-{
-  std::string resourceFile = "";
-
-  if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
-    // use MEDCOUPLING_ROOT_DIR env.var
-    resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
-    resourceFile += "/share/resources/med/";
-  }
-  else {
-    resourceFile = get_current_dir_name();
-    resourceFile += "/../../resources/";
-  }
-
-  resourceFile += filename;
-  return resourceFile;
-}
 
 
 //================================================================================

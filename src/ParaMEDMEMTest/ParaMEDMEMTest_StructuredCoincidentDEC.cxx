@@ -31,6 +31,7 @@
 #include "ComponentTopology.hxx"
 #include "ICoCoMEDField.hxx"
 #include "MEDLoader.hxx"
+#include "TestInterpKernelUtils.hxx"
 
 #include <string>
 
@@ -75,8 +76,8 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
 
-  string filename_xml1 = getResourceFile("square1_split");
-  string filename_2    = getResourceFile("square1.med");
+  string filename_xml1 = INTERP_TEST::getResourceFile("square1_split");
+  string filename_2    = INTERP_TEST::getResourceFile("square1.med");
   //string filename_seq_wr  = makeTmpFile("");
   //string filename_seq_med = makeTmpFile("myWrField_seq_pointe221.med");
 

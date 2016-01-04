@@ -142,7 +142,6 @@ public:
   void testFabienAPI1();
   void testFabienAPI2();
 
-  std::string getResourceFile( const std::string& );
   std::string getTmpDirectory();
   std::string makeTmpFile( const std::string&, const std::string& = "" );
 
