@@ -3207,6 +3207,7 @@ const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
  */
 DataArrayDouble *MEDFileUMesh::getCoords() const
 {
+  checkCartesian();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(_coords);
   if((DataArrayDouble *)tmp)
     {
@@ -3231,6 +3232,7 @@ DataArrayDouble *MEDFileUMesh::getCoords() const
  */
 MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const std::string& grp, bool renum) const
 {
+  checkCartesian();
   synchronizeTinyInfoOnLeaves();
   std::vector<std::string> tmp(1);
   tmp[0]=grp;
@@ -3253,6 +3255,7 @@ MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const std::stri
  */
 MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const
 {
+  checkCartesian();
   synchronizeTinyInfoOnLeaves();
   std::vector<std::string> fams2=getFamiliesOnGroups(grps);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> zeRet=getFamilies(meshDimRelToMaxExt,fams2,renum);
@@ -3277,6 +3280,7 @@ MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vec
  */
 MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum) const
 {
+  checkCartesian();
   synchronizeTinyInfoOnLeaves();
   std::vector<std::string> tmp(1);
   tmp[0]=fam;
@@ -3299,6 +3303,7 @@ MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMaxExt, const std::str
  */
 MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const
 {
+  checkCartesian();
   synchronizeTinyInfoOnLeaves();
   if(meshDimRelToMaxExt==1)
     {
@@ -3374,6 +3379,7 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
  */
 MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renum) const
 {
+  checkCartesian();
   synchronizeTinyInfoOnLeaves();
   if(meshDimRelToMaxExt==1)
     {
@@ -3473,6 +3479,7 @@ void MEDFileUMesh::forceComputationOfParts() const
  */
 std::vector<MEDCoupling1GTUMesh *> MEDFileUMesh::getDirectUndergroundSingleGeoTypeMeshes(int meshDimRelToMax) const
 {
+  checkCartesian();
   const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(meshDimRelToMax));
   return sp->getDirectUndergroundSingleGeoTypeMeshes();
 }
@@ -3484,7 +3491,8 @@ std::vector<MEDCoupling1GTUMesh *> MEDFileUMesh::getDirectUndergroundSingleGeoTy
  */
 MEDCoupling1GTUMesh *MEDFileUMesh::getDirectUndergroundSingleGeoTypeMesh(INTERP_KERNEL::NormalizedCellType gt) const
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(gt);
+  checkCartesian();
+  const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(gt));
   int lev=(int)cm.getDimension()-getMeshDimension();
   const MEDFileUMeshSplitL1 *sp(getMeshAtLevSafe(lev));
   return sp->getDirectUndergroundSingleGeoTypeMesh(gt);
@@ -3955,6 +3963,7 @@ DataArrayInt *MEDFileUMesh::zipCoords()
  */
 MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const
 {
+  checkCartesian();
   if(getMeshDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::buildExtrudedMesh : this is expected to be with mesh dimension equal to 2 !");
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
@@ -4099,6 +4108,7 @@ MEDFileUMesh *MEDFileUMesh::buildExtrudedMesh(const MEDCouplingUMesh *m1D, int p
  */
 MEDFileUMesh *MEDFileUMesh::linearToQuadratic(int conversionType, double eps) const
 {
+  checkCartesian();
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
   int initialNbNodes(getNumberOfNodes());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Tmp(getMeshAtLevel(0));
@@ -4175,6 +4185,7 @@ MEDFileUMesh *MEDFileUMesh::linearToQuadratic(int conversionType, double eps) co
  */
 MEDFileUMesh *MEDFileUMesh::quadraticToLinear(double eps) const
 {
+  checkCartesian();
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret(MEDFileUMesh::New());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Tmp(getMeshAtLevel(0));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0(dynamic_cast<MEDCouplingUMesh *>(m0Tmp->deepCpy()));
@@ -5596,6 +5607,7 @@ void MEDFileStructuredMesh::deepCpyAttributes()
  */
 MEDCouplingMesh *MEDFileStructuredMesh::getMeshAtLevel(int meshDimRelToMax, bool renum) const
 {
+  checkCartesian();
   if(renum)
     throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support renumbering ! To do it perform request of renum array directly !");
   const MEDCouplingStructuredMesh *m(getStructuredMesh());
@@ -5726,6 +5738,7 @@ void MEDFileStructuredMesh::releaseImplicitPartIfAny() const
  */
 MEDCoupling1SGTUMesh *MEDFileStructuredMesh::getImplicitFaceMesh() const
 {
+  checkCartesian();
   return _faces_if_necessary;
 }
 

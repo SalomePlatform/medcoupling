@@ -4751,7 +4751,7 @@ class MEDLoaderTest(unittest.TestCase):
       """ This test is advanced to be sure that no unnecessary copies had been made during cartesianization process. """
       # UMesh non cart
       arr=DataArrayDouble(4) ; arr.iota() ; m=MEDCouplingCMesh() ; m.setCoords(arr,arr) ; m=m.buildUnstructured()
-      mm=MEDFileUMesh() ; mm[0]=m ; mm.forceComputationOfParts() ; mm.setAxType(AX_CYL) #<- important
+      mm=MEDFileUMesh() ; mm[0]=m ; mm.forceComputationOfParts()
       d0=DataArrayInt(16) ; d0[:]=0
       d1=DataArrayInt(9)  ; d1[:]=0
       mm.setFamilyFieldArr(0,d1) ; mm.setFamilyFieldArr(1,d0)
@@ -4762,8 +4762,10 @@ class MEDLoaderTest(unittest.TestCase):
       ref2=mm[0].getNodalConnectivityIndex().getHiddenCppPointer()
       ref3=mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getNodalConnectivity().getHiddenCppPointer()
       self.assertEqual(ref0,mm.getDirectUndergroundSingleGeoTypeMesh(NORM_QUAD4).getCoords().getHiddenCppPointer())
+      mm.setAxType(AX_CYL) #<- important
       mm2=mm.cartesianize() # the trigger
       self.assertEqual(mm2.getAxType(),AX_CART)
+      mm.setAxType(AX_CART) # this is here only to avoid complaints
       self.assertTrue(isinstance(mm2,MEDFileUMesh))
       self.assertTrue(mm.getHiddenCppPointer()!=mm2.getHiddenCppPointer())
       self.assertTrue(ref0==mm.getCoords().getHiddenCppPointer()) # <- here important
