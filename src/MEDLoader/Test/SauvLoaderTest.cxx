@@ -250,14 +250,14 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe5") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"maa1") != groups.end() );
   CPPUNIT_ASSERT_EQUAL(16,m->getSizeAtLevel(0));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um0 = m->getGenMeshAtLevel(0);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um0 = m->getMeshAtLevel(0);
   CPPUNIT_ASSERT_EQUAL(12, um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TETRA4 ));
   CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PYRA5 ));
   CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um1 = m->getGenMeshAtLevel(-1);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um1 = m->getMeshAtLevel(-1);
   CPPUNIT_ASSERT_EQUAL(2, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> pointeUM0 =
-    static_cast<MEDCouplingUMesh*>( pointeMedMesh->getGenMeshAtLevel(0));
+    static_cast<MEDCouplingUMesh*>( pointeMedMesh->getMeshAtLevel(0));
   DataArrayDouble *coo = m->getCoords();
   DataArrayDouble *pointeCoo = pointeMedMesh->getCoords();
   CPPUNIT_ASSERT(coo->isEqualWithoutConsideringStr(*pointeCoo,1e-12));

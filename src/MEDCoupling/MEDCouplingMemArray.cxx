@@ -434,6 +434,21 @@ std::string DataArray::BuildInfoFromVarAndUnit(const std::string& var, const std
   return oss.str();
 }
 
+std::string DataArray::GetAxTypeRepr(MEDCouplingAxisType at)
+{
+  switch(at)
+    {
+    case AX_CART:
+      return std::string("AX_CART");
+    case AX_CYL:
+      return std::string("AX_CYL");
+    case AX_SPHER:
+      return std::string("AX_SPHER");
+    default:
+      throw INTERP_KERNEL::Exception("DataArray::GetAxTypeRepr : unrecognized axis type enum !");
+    }
+}
+
 /*!
  * Returns a new DataArray by concatenating all given arrays, so that (1) the number
  * of tuples in the result array is a sum of the number of tuples of given arrays and (2)

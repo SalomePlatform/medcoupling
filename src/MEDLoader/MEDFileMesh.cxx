@@ -2005,7 +2005,7 @@ std::vector<INTERP_KERNEL::NormalizedCellType> MEDFileMesh::getAllGeoTypes() con
 
 std::vector<int> MEDFileMesh::getDistributionOfTypes(int meshDimRelToMax) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mLev(getGenMeshAtLevel(meshDimRelToMax));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mLev(getMeshAtLevel(meshDimRelToMax));
   return mLev->getDistributionOfTypes();
 }
 
@@ -2536,6 +2536,18 @@ void MEDFileMesh::getEquivalencesRepr(std::ostream& oss) const
     return ;
   oss << "(******************************)\n(* EQUIVALENCES OF THE MESH : *)\n(******************************)\n";
   _equiv->getRepr(oss);
+}
+
+void MEDFileMesh::checkCartesian() const
+{
+  if(getAxType()!=AX_CART)
+    {
+      std::ostringstream oss; oss << "MEDFileMesh::checkCartesian : request for method that is dedicated to a cartesian convention ! But you are not in cartesian convention (" << DataArray::GetAxTypeRepr(getAxType()) << ").";
+      oss << std::endl << "To perform operation you have two possiblities :" << std::endl;
+      oss << " - call setAxType(AX_CART)" << std::endl;
+      oss << " - call cartesianize()";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
 /*!
@@ -3359,7 +3371,6 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
  *          delete using decrRef() as it is no more needed. 
  *  \throw If there are no mesh entities of \a meshDimRelToMaxExt dimension in \a this mesh.
- * \sa getGenMeshAtLevel()
  */
 MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renum) const
 {
@@ -3378,25 +3389,6 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renu
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getWholeMesh(renum);
-}
-
-/*!
- * Returns a MEDCouplingUMesh of a given relative dimension.
- * \warning If \a meshDimRelToMaxExt == 1 (which means nodes), the returned mesh **is not
- * valid**. This is a feature, because MEDLoader does not create cells that do not exist! 
- * To build a valid MEDCouplingUMesh from the returned one in this case,
- * call MEDCouplingUMesh::Build0DMeshFromCoords().
- *  \param [in] meshDimRelToMax - the relative dimension of interest.
- *  \param [in] renum - if \c true, the returned mesh is permuted according to the
- *          optional numbers of mesh entities.
- *  \return MEDCouplingMesh * - a pointer to MEDCouplingUMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
- *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a this mesh.
- * \sa getMeshAtLevel()
- */
-MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum) const
-{
-  return getMeshAtLevel(meshDimRelToMax,renum);
 }
 
 std::vector<int> MEDFileUMesh::getDistributionOfTypes(int meshDimRelToMax) const
@@ -5602,7 +5594,7 @@ void MEDFileStructuredMesh::deepCpyAttributes()
  *  \return MEDCouplingMesh * - a pointer to MEDCouplingMesh that the caller is to
  *          delete using decrRef() as it is no more needed. 
  */
-MEDCouplingMesh *MEDFileStructuredMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum) const
+MEDCouplingMesh *MEDFileStructuredMesh::getMeshAtLevel(int meshDimRelToMax, bool renum) const
 {
   if(renum)
     throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support renumbering ! To do it perform request of renum array directly !");
@@ -5618,9 +5610,9 @@ MEDCouplingMesh *MEDFileStructuredMesh::getGenMeshAtLevel(int meshDimRelToMax, b
     case -1:
       {
         if(!m)
-          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getGenMeshAtLevel : level -1 requested must be non empty to be able to compute unstructured sub mesh !");
+          throw INTERP_KERNEL::Exception("MEDFileStructuredMesh::getMeshAtLevel : level -1 requested must be non empty to be able to compute unstructured sub mesh !");
         buildMinusOneImplicitPartIfNeeded();
-        MEDCouplingMesh *ret(_faces_if_necessary);
+        MEDCoupling1SGTUMesh *ret(_faces_if_necessary);
         if(ret)
           ret->incrRef();
         return ret;

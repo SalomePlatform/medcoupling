@@ -359,7 +359,7 @@ ParaMEDMEM::MEDCouplingFieldDouble* MeshCollectionDriver::getField(std::string k
   if (field && typeData==6)
     {
       field->setName(fieldName);
-      field->setMesh(mfm->getGenMeshAtLevel(0));
+      field->setMesh(mfm->getMeshAtLevel(0));
       ParaMEDMEM::DataArrayDouble *da=data;
       //get information for components etc..
       std::vector<std::string> r1;

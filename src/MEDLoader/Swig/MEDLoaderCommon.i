@@ -88,7 +88,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMesh::createNewEmpty;
 %newobject ParaMEDMEM::MEDFileMesh::deepCpy;
 %newobject ParaMEDMEM::MEDFileMesh::shallowCpy;
-%newobject ParaMEDMEM::MEDFileMesh::getGenMeshAtLevel;
+%newobject ParaMEDMEM::MEDFileMesh::getMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileMesh::__getitem__;
 %newobject ParaMEDMEM::MEDFileMesh::getGroupArr;
 %newobject ParaMEDMEM::MEDFileMesh::getGroupsArr;
@@ -112,7 +112,6 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::getGroups;
 %newobject ParaMEDMEM::MEDFileUMesh::getFamily;
 %newobject ParaMEDMEM::MEDFileUMesh::getFamilies;
-%newobject ParaMEDMEM::MEDFileUMesh::getMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevel0Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevelM1Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevelM2Mesh;
@@ -964,7 +963,7 @@ namespace ParaMEDMEM
     virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     virtual std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
     //
-    virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
     virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
     virtual void setNameFieldAtLevel(int meshDimRelToMaxExt, DataArrayAsciiChar *nameArr) throw(INTERP_KERNEL::Exception);
@@ -992,7 +991,7 @@ namespace ParaMEDMEM
 
          MEDCouplingMesh *__getitem__(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
          {
-           return self->getGenMeshAtLevel(meshDimRelToMaxExt,false);
+           return self->getMeshAtLevel(meshDimRelToMaxExt,false);
          }
 
          PyObject *getTime() throw(INTERP_KERNEL::Exception)
@@ -1186,7 +1185,6 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMaxExt, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM2Mesh(bool renum=false) const throw(INTERP_KERNEL::Exception);

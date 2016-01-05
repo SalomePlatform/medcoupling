@@ -253,6 +253,7 @@ namespace ParaMEDMEM
     static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit) throw(INTERP_KERNEL::Exception);
+    static std::string GetAxTypeRepr(MEDCouplingAxisType at) throw(INTERP_KERNEL::Exception);
     void updateTime() const;
     %extend
     {

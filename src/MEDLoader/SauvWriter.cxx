@@ -374,7 +374,7 @@ void SauvWriter::fillFamilySubMeshes()
   for ( size_t iDim = 0; iDim < dims.size(); ++iDim )
     {
       int dimRelExt = dims[ iDim ];
-      MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getGenMeshAtLevel(dimRelExt);
+      MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(dimRelExt);
       const DataArrayInt * famIds = _fileMesh->getFamilyFieldAtLevel(dimRelExt);
       if ( !famIds ) continue;
 
@@ -564,7 +564,7 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
                                  const DataArrayInt*               profile )
 {
   MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh >
-    mesh = _fileMesh->getGenMeshAtLevel(sm->_dimRelExt);
+    mesh = _fileMesh->getMeshAtLevel(sm->_dimRelExt);
   const MEDCouplingUMesh* uMesh = dynamic_cast< const MEDCouplingUMesh* > ((const MEDCouplingMesh*) mesh );
 
   if ( sm->_dimRelExt == 1 ) type = INTERP_KERNEL::NORM_POINT1;
@@ -661,7 +661,7 @@ void SauvWriter::write(const std::string& fileName)
 
 void SauvWriter::writeFileHead()
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getGenMeshAtLevel(0);
+  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(0);
 
   *_sauvFile
     << " ENREGISTREMENT DE TYPE   4" << endl
@@ -743,7 +743,7 @@ void SauvWriter::writeSubMeshes()
         {
           // write each sub-type as a SAUV sub-mesh
           MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh >
-            mesh = _fileMesh->getGenMeshAtLevel( sm._dimRelExt );
+            mesh = _fileMesh->getMeshAtLevel( sm._dimRelExt );
           MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh>
             umesh = mesh->buildUnstructured();
 
@@ -841,7 +841,7 @@ void SauvWriter::writeCompoundSubMesh(int iSub)
 
 void SauvWriter::writeNodes()
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getGenMeshAtLevel( 1 );
+  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel( 1 );
   MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > umesh = mesh->buildUnstructured();
 
   // write the index connecting nodes with their coodrinates

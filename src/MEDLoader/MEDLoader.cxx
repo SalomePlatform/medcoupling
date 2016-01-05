@@ -1231,15 +1231,15 @@ std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOn
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mm->getGenMeshAtLevel(meshDimRelToMax,false);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
   MEDFileMesh *mPtr(mm);
   MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ff->getFieldOnMeshAtLevel(ON_CELLS,m);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_CELLS,m));
   if(muPtr)
     {
-      const DataArrayInt *num=muPtr->getNumberFieldAtLevel(meshDimRelToMax);
+      const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
       if(num)
         ret->renumberCells(num->begin());
     }
@@ -1248,17 +1248,17 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string& 
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mm->getGenMeshAtLevel(meshDimRelToMax,false);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
   MEDFileMesh *mPtr(mm);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ff->getFieldOnMeshAtLevel(ON_NODES,m);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_NODES,m));
   MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
   if(ff->getPflsReallyUsed().empty())
     {
       if(muPtr)
         {
-          const DataArrayInt *num=muPtr->getNumberFieldAtLevel(meshDimRelToMax);
+          const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
           if(num)
             ret->renumberCells(num->begin());
         }
@@ -1266,19 +1266,19 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& 
   else
     {
       DataArrayInt *pfl=0,*arr2=0;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=ff->getFieldWithProfile(ON_NODES,meshDimRelToMax,mm,pfl);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(ff->getFieldWithProfile(ON_NODES,meshDimRelToMax,mm,pfl));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflSafe(pfl);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> mp=m->getCellIdsFullyIncludedInNodeIds(pfl->begin(),pfl->end());
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mzip=static_cast<MEDCouplingUMesh *>(m->buildPartAndReduceNodes(mp->begin(),mp->end(),arr2));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> mp(m->getCellIdsFullyIncludedInNodeIds(pfl->begin(),pfl->end()));
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mzip(static_cast<MEDCouplingUMesh *>(m->buildPartAndReduceNodes(mp->begin(),mp->end(),arr2)));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2Safe(arr2);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr3=arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr3(arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes()));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflSorted(pflSafe->deepCpy()); pflSorted->sort(true);
       if(!arr3->isEqualWithoutConsideringStr(*pflSorted))
         throw INTERP_KERNEL::Exception("MEDLoader::ReadFieldNode : not implemented yet !");
       if(!arr3->isEqualWithoutConsideringStr(*pflSafe))
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n2=pflSafe->checkAndPreparePermutation();
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o2=o2n2->invertArrayO2N2N2O(o2n2->getNumberOfTuples());
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n2(pflSafe->checkAndPreparePermutation());
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o2(o2n2->invertArrayO2N2N2O(o2n2->getNumberOfTuples()));
           mzip->renumberNodes(n2o2->begin(),n2o2->getNumberOfTuples());
           arr->setName("");
           ret->setArray(arr);
@@ -1290,15 +1290,15 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& 
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mm->getGenMeshAtLevel(meshDimRelToMax,false);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
   MEDFileMesh *mPtr(mm);
   MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ff->getFieldOnMeshAtLevel(ON_GAUSS_PT,m);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_GAUSS_PT,m));
   if(muPtr)
     {
-      const DataArrayInt *num=muPtr->getNumberFieldAtLevel(meshDimRelToMax);
+      const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
       if(num)
         ret->renumberCells(num->begin());
     }
@@ -1307,15 +1307,15 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string&
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff=MEDFileField1TS::New(fileName,fieldName,iteration,order);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mm->getGenMeshAtLevel(meshDimRelToMax,false);
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mm->getMeshAtLevel(meshDimRelToMax,false));
   MEDFileMesh *mPtr(mm);
   MEDFileUMesh *muPtr=dynamic_cast<MEDFileUMesh *>(mPtr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ff->getFieldOnMeshAtLevel(ON_GAUSS_NE,m);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(ff->getFieldOnMeshAtLevel(ON_GAUSS_NE,m));
   if(muPtr)
     {
-      const DataArrayInt *num=muPtr->getNumberFieldAtLevel(meshDimRelToMax);
+      const DataArrayInt *num(muPtr->getNumberFieldAtLevel(meshDimRelToMax));
       if(num)
         ret->renumberCells(num->begin());
     }

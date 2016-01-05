@@ -4595,7 +4595,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(const MEDCouplingFieldDou
   std::vector<DataArrayInt *> idsInPflPerType;
   std::vector<DataArrayInt *> idsPerType;
   std::vector<int> code,code2;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mesh->getMeshAtLevel(meshDimRelToMax));
   if(type!=ON_NODES)
     {
       m->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
@@ -4796,7 +4796,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldAtLevel(TypeOf
  */
 MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh, MEDCouplingAutoRefCountObjectPtr<DataArray>& arrOut, const MEDFileFieldNameScope& nasc) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax,false);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mesh->getMeshAtLevel(meshDimRelToMax,false));
   const DataArrayInt *d=mesh->getNumberFieldAtLevel(meshDimRelToMax);
   const DataArrayInt *e=mesh->getNumberFieldAtLevel(1);
   if(meshDimRelToMax==1)
@@ -4938,7 +4938,7 @@ MEDCouplingFieldDouble *MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
  */
 DataArray *MEDFileAnyTypeField1TSWithoutSDA::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFileFieldGlobsReal *glob, const MEDFileFieldNameScope& nasc) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m(mesh->getMeshAtLevel(meshDimRelToMax));
   int meshId=getMeshIdFromMeshName(mesh->getName().c_str());
   MEDCouplingAutoRefCountObjectPtr<DataArray> ret=_field_per_mesh[meshId]->getFieldOnMeshAtLevelWithPfl(type,m,pfl,glob,nasc);
   ret->setName(nasc.getName().c_str());

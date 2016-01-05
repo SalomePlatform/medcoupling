@@ -85,7 +85,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT virtual void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT virtual void write(med_idt fid) const;
     MEDLOADER_EXPORT virtual int getSizeAtLevel(int meshDimRelToMaxExt) const = 0;
-    MEDLOADER_EXPORT virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const = 0;
+    MEDLOADER_EXPORT virtual MEDCouplingMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const = 0;
     MEDLOADER_EXPORT virtual std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT virtual void whichAreNodesFetched(const MEDFileField1TSStructItem& st, const MEDFileFieldGlobsReal *globs, std::vector<bool>& nodesFetched) const = 0;
     MEDLOADER_EXPORT virtual MEDFileMesh *cartesianize() const = 0;
@@ -210,6 +210,7 @@ namespace ParaMEDMEM
     void deepCpyEquivalences(const MEDFileMesh& other);
     bool areEquivalencesEqual(const MEDFileMesh *other, std::string& what) const;
     void getEquivalencesRepr(std::ostream& oss) const;
+    void checkCartesian() const;
   protected:
     int _order;
     int _iteration;
@@ -291,8 +292,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
     MEDLOADER_EXPORT DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const;
-    MEDLOADER_EXPORT MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMaxExt, bool renum=false) const;
-    MEDLOADER_EXPORT MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
+    MEDLOADER_EXPORT MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
     MEDLOADER_EXPORT std::vector<int> getDistributionOfTypes(int meshDimRelToMax) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevel0Mesh(bool renum=false) const;
     MEDLOADER_EXPORT MEDCouplingUMesh *getLevelM1Mesh(bool renum=false) const;
@@ -386,7 +386,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT std::vector<int> getFamArrNonEmptyLevelsExt() const;
     MEDLOADER_EXPORT std::vector<int> getNumArrNonEmptyLevelsExt() const;
     MEDLOADER_EXPORT std::vector<int> getNameArrNonEmptyLevelsExt() const;
-    MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
+    MEDLOADER_EXPORT MEDCouplingMesh *getMeshAtLevel(int meshDimRelToMax, bool renum=false) const;
     MEDLOADER_EXPORT int getSizeAtLevel(int meshDimRelToMaxExt) const;
     MEDLOADER_EXPORT int getNumberOfNodes() const;
     MEDLOADER_EXPORT int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const;
