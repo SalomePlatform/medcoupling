@@ -16,10 +16,10 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __INTERPOLATION3D2D_TXX__
-#define __INTERPOLATION3D2D_TXX__
+#ifndef __INTERPOLATION2D3D_TXX__
+#define __INTERPOLATION2D3D_TXX__
 
-#include "Interpolation3D2D.hxx"
+#include "Interpolation2D3D.hxx"
 #include "Interpolation.txx"
 #include "MeshElement.txx"
 #include "TransformedTriangle.hxx"
@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
    *
    */
   template<class MyMeshType, class MyMatrixType>
-  int Interpolation3D2D::interpolateMeshes(const MyMeshType& srcMesh,
+  int Interpolation2D3D::interpolateMeshes(const MyMeshType& srcMesh,
                                            const MyMeshType& targetMesh,
                                            MyMatrixType& matrix,
                                            const std::string& method)

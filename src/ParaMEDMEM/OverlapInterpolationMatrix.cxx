@@ -29,7 +29,7 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
-#include "Interpolation3D2D.txx"
+#include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
@@ -147,7 +147,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(trgC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
         
-        INTERP_KERNEL::Interpolation3D2D interpolator (*this);
+        INTERP_KERNEL::Interpolation2D3D interpolator (*this);
         colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,sparse_matrix_part,interpMethod);
       }
     else if ( src->getMeshDimension() == 3 && trg->getMeshDimension() == 2
@@ -156,7 +156,7 @@ namespace ParaMEDMEM
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(trgC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
         
-        INTERP_KERNEL::Interpolation3D2D interpolator (*this);
+        INTERP_KERNEL::Interpolation2D3D interpolator (*this);
         vector<SparseDoubleVec > matrixTranspose;
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,sparse_matrix_part,interpMethod);//not a bug target in source.
         TransposeMatrix(matrixTranspose,colSize,sparse_matrix_part);

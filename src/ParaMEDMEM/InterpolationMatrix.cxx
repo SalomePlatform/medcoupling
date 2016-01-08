@@ -29,7 +29,7 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
-#include "Interpolation3D2D.txx"
+#include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
@@ -157,7 +157,7 @@ namespace ParaMEDMEM
       {
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(distant_supportC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
-        INTERP_KERNEL::Interpolation3D2D interpolator (*this);
+        INTERP_KERNEL::Interpolation2D3D interpolator (*this);
         interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod);
         target_wrapper.releaseTempArrays();
         source_wrapper.releaseTempArrays();

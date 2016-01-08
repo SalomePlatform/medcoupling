@@ -34,7 +34,7 @@
 #include "Interpolation3D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation2D1D.txx"
-#include "Interpolation3D2D.txx"
+#include "Interpolation2D3D.txx"
 #include "InterpolationCU.txx"
 #include "InterpolationCC.txx"
 
@@ -520,9 +520,9 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
     {
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation3D2D interpolation(*this);
+      INTERP_KERNEL::Interpolation2D3D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
-      INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+      INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
       if(!duplicateFaces.empty())
         {
           std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
@@ -538,13 +538,13 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
     {
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation3D2D interpolation(*this);
+      INTERP_KERNEL::Interpolation2D3D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
       std::string revMethod(BuildMethodFrom(trgMeth,srcMeth));
       nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,revMethod);
       ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
-      INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+      INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
       if(!duplicateFaces.empty())
         {
           std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";

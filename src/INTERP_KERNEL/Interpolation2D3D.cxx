@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "Interpolation3D2D.hxx"
+#include "Interpolation2D3D.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -25,10 +25,10 @@ namespace INTERP_KERNEL
    * Default constructor
    * 
    */
-  Interpolation3D2D::Interpolation3D2D()
+  Interpolation2D3D::Interpolation2D3D()
   {
   }
-  Interpolation3D2D::Interpolation3D2D(const InterpolationOptions& io):Interpolation<Interpolation3D2D>(io)
+  Interpolation2D3D::Interpolation2D3D(const InterpolationOptions& io):Interpolation<Interpolation2D3D>(io)
   {
   }
 }

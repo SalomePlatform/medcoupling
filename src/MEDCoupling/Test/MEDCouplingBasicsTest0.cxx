@@ -28,7 +28,7 @@
 #include "MEDCouplingBasicsTestData1.hxx"
 
 #include "Interpolation2D.txx"
-#include "Interpolation3D2D.txx"
+#include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingNormalizedCartesianMesh.txx"
@@ -1657,7 +1657,7 @@ void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceM
   LOG(1, "length =  " << surf <<"  correctLength = " << correctLength );
   CPPUNIT_ASSERT_DOUBLES_EQUAL(correctLength, length, prec * std::max(correctLength, length));
 
-  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+  INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
   int duplicateFacesNbr = duplicateFaces.size();
   LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
   CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
@@ -1681,7 +1681,7 @@ void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceM
 {
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
-  INTERP_KERNEL::Interpolation3D2D myInterpolator;
+  INTERP_KERNEL::Interpolation2D3D myInterpolator;
   myInterpolator.setPrecision(1e-12);
   const double prec = 1.0e-5;
   IntersectionMatrix matrix;
@@ -1698,7 +1698,7 @@ void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceM
     LOG(1, "surf =  " << surf <<"  correctSurf = " << correctSurf );
     CPPUNIT_ASSERT_DOUBLES_EQUAL(correctSurf, surf, prec * std::max(correctSurf, surf));
 
-    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+    INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
     int duplicateFacesNbr = duplicateFaces.size();
     LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
     CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);

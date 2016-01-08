@@ -27,7 +27,7 @@
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
 #include "Interpolation2D1D.txx"
-#include "Interpolation3D2D.txx"
+#include "Interpolation2D3D.txx"
 #include "InterpolationCC.txx"
 #include "InterpolationCU.txx"
 #include "Interpolation2DCurve.hxx"
@@ -2302,10 +2302,10 @@ void MEDCouplingBasicsTestInterp::test2D1DBasicInterpP0P0()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(6., matrix[1][6],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3., matrix[1][7],1e-12);
 
-  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+  INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
   CPPUNIT_ASSERT_EQUAL(1,(int)duplicateFaces.size());
 
-  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType correctDuplicateFaces;
+  INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType correctDuplicateFaces;
   std::set<int> face6;
   face6.insert(0);
   face6.insert(1);
@@ -2427,7 +2427,7 @@ void MEDCouplingBasicsTestInterp::test3D2DBasicInterpP0P0()
 
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
-  INTERP_KERNEL::Interpolation3D2D myInterpolator;
+  INTERP_KERNEL::Interpolation2D3D myInterpolator;
   myInterpolator.setPrecision(1e-12);
   std::vector<std::map<int,double> > matrix;
   INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
@@ -2463,10 +2463,10 @@ void MEDCouplingBasicsTestInterp::test3D2DBasicInterpP0P0()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(80.        ,matrix[2][5],1e-12);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(112.       ,matrix[2][6],1e-12);
 
-    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+    INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
     CPPUNIT_ASSERT_EQUAL(3,(int)duplicateFaces.size());
 
-    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType correctDuplicateFaces;
+    INTERP_KERNEL::Interpolation2D3D::DuplicateFacesType correctDuplicateFaces;
     std::set<int> face2;
     face2.insert(0);
     face2.insert(1);
