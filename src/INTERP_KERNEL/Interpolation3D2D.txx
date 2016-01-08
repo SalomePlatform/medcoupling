@@ -54,8 +54,8 @@ namespace INTERP_KERNEL
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
    * 
 
-   * @param srcMesh     3-dimensional source mesh
-   * @param targetMesh  3-dimesional target mesh, containing only tetraedra
+   * @param srcMesh     3DSurf source mesh (meshDim=2,spaceDim=3)
+   * @param targetMesh  3D target mesh, containing only tetraedra
    * @param matrix      matrix in which the result is stored
    *
    */
@@ -99,8 +99,8 @@ namespace INTERP_KERNEL
                                                                                    intersectFaces,
                                                                                    getSplittingPolicy());
             break;
-          case PointLocator:
-            intersector=new PointLocator3DIntersectorP0P0<MyMeshType,MyMatrixType>(targetMesh,srcMesh,getPrecision());
+          case PointLocator:// switch target and source
+            intersector=new PointLocator3DIntersectorP0P0<MyMeshType,MyMatrixType>(srcMesh,targetMesh,getPrecision());
             break;
           default:
             throw INTERP_KERNEL::Exception("Invalid 3D to 2D intersection type for P0P0 interp specified : must be Triangulation or PointLocator.");

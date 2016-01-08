@@ -854,6 +854,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(diff.sum(),0.,14)
         pass
     
+    def test3D2Dand2D3DPointLocator1(self):
+        """ Non regression test solving SIGSEGV when using 3D<->3Dsurf pointlocator."""
+        arrX=DataArrayDouble([0,1,2])
+        arrY=DataArrayDouble([0,1])
+        arrZ=DataArrayDouble([0,1])
+        ms=MEDCouplingCMesh() ; ms.setCoords(arrX,arrY,arrZ)
+        ms=ms.buildUnstructured() ; ms.setName("source")
+        #
+        mt=MEDCouplingUMesh("target",2) ; mt.allocateCells()
+        mt.insertNextCell(NORM_TRI3,[0,4,6])
+        mt.insertNextCell(NORM_TRI3,[1,5,7])
+        mt.setCoords(ms.getCoords()[:])
+        mt.zipCoords()
+        #
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(ms,mt,"P0P0")
+        self.assertEqual(rem.getCrudeMatrix(),[{0: 1.0}, {1: 1.0}])
+        rem2=MEDCouplingRemapper()
+        rem2.setIntersectionType(PointLocator)
+        rem2.prepare(mt,ms,"P0P0") # reverse mt<->ms
+        self.assertEqual(rem2.getCrudeMatrix(),[{0: 1.0}, {1: 1.0}])
+        pass
+    
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
