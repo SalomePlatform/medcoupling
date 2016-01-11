@@ -877,6 +877,23 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         rem2.prepare(mt,ms,"P0P0") # reverse mt<->ms
         self.assertEqual(rem2.getCrudeMatrix(),[{0: 1.0}, {1: 1.0}])
         pass
+
+    def test2D1Dand1D2DPointLocator1(self):
+        arrX=DataArrayDouble([0,1,2])
+        arrY=DataArrayDouble([0,1])
+        ms=MEDCouplingCMesh() ; ms.setCoords(arrX,arrY) ; ms=ms.buildUnstructured()
+        mt=MEDCouplingUMesh("target",1) ; mt.setCoords(ms.getCoords()[:])
+        mt.allocateCells()
+        mt.insertNextCell(NORM_SEG2,[0,4]) ; mt.insertNextCell(NORM_SEG2,[1,5])
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(ms,mt,"P0P0")
+        self.assertEqual(rem.getCrudeMatrix(),[{0:1.},{1:1.}])
+        rem=MEDCouplingRemapper()
+        rem.setIntersectionType(PointLocator)
+        rem.prepare(mt,ms,"P0P0")
+        self.assertEqual(rem.getCrudeMatrix(),[{0:1.},{1:1.}])
+        pass
     
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
