@@ -9074,7 +9074,7 @@ int DataArrayInt::locateValue(int value) const
 /*!
  * This method expects to be called when number of components of this is equal to one.
  * This method returns the tuple id, if it exists, of the first tuple so that the value is contained in \b vals.
- * If not any tuple contains one of the values contained in 'vals' false is returned.
+ * If not any tuple contains one of the values contained in 'vals' -1 is returned.
  * \sa DataArrayInt::presenceOfValue
  */
 int DataArrayInt::locateValue(const std::vector<int>& vals) const

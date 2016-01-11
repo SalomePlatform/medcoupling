@@ -4669,8 +4669,13 @@ DataArrayInt *MEDCouplingUMesh::convexEnvelop2D()
  * This method is \b NOT const because it can modify \a this.
  * \a this is expected to be an unstructured mesh with meshDim==2 and spaceDim==3. If not an exception will be thrown.
  * \param mesh1D is an unstructured mesh with MeshDim==1 and spaceDim==3. If not an exception will be thrown.
- * \param policy specifies the type of extrusion chosen. \b 0 for translation (most simple),
- * \b 1 for translation and rotation around point of 'mesh1D'.
+ * \param policy specifies the type of extrusion chosen:
+ *   - \b 0 for translation only (most simple): the cells of the 1D mesh represent the vectors along which the 2D mesh
+ *   will be repeated to build each level
+ *   - \b 1 for translation and rotation: the translation is done as above. For each level, an arc of circle is fitted on
+ *   the 3 preceding points of the 1D mesh. The center of the arc is the center of rotation for each level, the rotation is done
+ *   along an axis normal to the plane containing the arc, and finally the angle of rotation is defined by the first two points on the
+ *   arc.
  * \return an unstructured mesh with meshDim==3 and spaceDim==3. The returned mesh has the same coords than \a this.  
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy)
