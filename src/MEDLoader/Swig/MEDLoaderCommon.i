@@ -925,6 +925,15 @@ namespace ParaMEDMEM
     void setGroupsOnFamily(const std::string& famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsNames() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getFamiliesNames() const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpNonEmptyLevelsExt(const std::string& grp) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpNonEmptyLevels(const std::string& grp) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamNonEmptyLevels(const std::string& fam) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamNonEmptyLevelsExt(const std::string& fam) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getFamiliesNamesWithFilePointOfView() const throw(INTERP_KERNEL::Exception);
     static std::string GetMagicFamilyStr();
     void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
@@ -1171,15 +1180,6 @@ namespace ParaMEDMEM
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     int getRelativeLevOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const throw(INTERP_KERNEL::Exception);
     //
-    std::vector<int> getGrpNonEmptyLevels(const std::string& grp) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpNonEmptyLevelsExt(const std::string& grp) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamNonEmptyLevels(const std::string& fam) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamNonEmptyLevelsExt(const std::string& fam) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
-    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const std::string& grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamily(int meshDimRelToMaxExt, const std::string& fam, bool renum=false) const throw(INTERP_KERNEL::Exception);

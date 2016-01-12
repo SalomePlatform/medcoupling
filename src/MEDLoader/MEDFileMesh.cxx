@@ -528,6 +528,94 @@ std::vector<std::string> MEDFileMesh::getFamiliesNamesWithFilePointOfView() cons
   return ret;
 }
 
+/*!
+ * Returns names of groups that partly or fully appear on the level \a meshDimRelToMaxExt.
+ *  \param [in] meshDimRelToMaxExt - a relative dimension of interest.
+ *  \return std::vector<std::string> - a sequence of group names at \a meshDimRelToMaxExt
+ *          level. 
+ */
+std::vector<std::string> MEDFileMesh::getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const
+{
+  std::vector<std::string> ret;
+  std::vector<std::string> allGrps(getGroupsNames());
+  for(std::vector<std::string>::const_iterator it=allGrps.begin();it!=allGrps.end();it++)
+    {
+      std::vector<int> levs(getGrpNonEmptyLevelsExt((*it)));
+      if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)!=levs.end())
+        ret.push_back(*it);
+    }
+  return ret;
+}
+
+/*!
+ * Returns all relative mesh levels (including nodes) where a given group is defined.
+ *  \param [in] grp - the name of the group of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
+std::vector<int> MEDFileMesh::getGrpNonEmptyLevelsExt(const std::string& grp) const
+{
+  std::vector<std::string> fams(getFamiliesOnGroup(grp));
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * Returns all relative mesh levels (**excluding nodes**) where given groups are defined.
+ * To include nodes, call getGrpsNonEmptyLevelsExt() method.
+ *  \param [in] grps - a sequence of names of the groups of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
+std::vector<int> MEDFileMesh::getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const
+{
+  std::vector<std::string> fams(getFamiliesOnGroups(grps));
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * Returns all relative mesh levels (including nodes) where given groups are defined.
+ *  \param [in] grps - a sequence of names of the groups of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
+std::vector<int> MEDFileMesh::getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const
+{
+  std::vector<std::string> fams(getFamiliesOnGroups(grps));
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * Returns all relative mesh levels (**excluding nodes**) where a given group is defined.
+ * To include nodes, call getGrpNonEmptyLevelsExt() method.
+ *  \param [in] grp - the name of the group of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
+std::vector<int> MEDFileMesh::getGrpNonEmptyLevels(const std::string& grp) const
+{
+  std::vector<std::string> fams(getFamiliesOnGroup(grp));
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * Returns all relative mesh levels (**excluding nodes**) where a given family is defined.
+ * To include nodes, call getFamNonEmptyLevelsExt() method.
+ *  \param [in] fam - the name of the family of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
+std::vector<int> MEDFileMesh::getFamNonEmptyLevels(const std::string& fam) const
+{
+  std::vector<std::string> fams(1,std::string(fam));
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * Returns all relative mesh levels (including nodes) where a given family is defined.
+ *  \param [in] fam - the name of the family of interest.
+ *  \return std::vector<int> - a sequence of the relative dimensions.
+ */
+std::vector<int> MEDFileMesh::getFamNonEmptyLevelsExt(const std::string& fam) const
+{
+  std::vector<std::string> fams(1,std::string(fam));
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
 std::string MEDFileMesh::GetMagicFamilyStr()
 {
   return std::string(MEDFileMeshL2::ZE_SEP_FOR_FAMILY_KILLERS);
@@ -2750,75 +2838,6 @@ std::vector<int> MEDFileUMesh::getNameArrNonEmptyLevelsExt() const
 }
 
 /*!
- * Returns all relative mesh levels (**excluding nodes**) where a given group is defined.
- * To include nodes, call getGrpNonEmptyLevelsExt() method.
- *  \param [in] grp - the name of the group of interest.
- *  \return std::vector<int> - a sequence of the relative dimensions.
- */
-std::vector<int> MEDFileUMesh::getGrpNonEmptyLevels(const std::string& grp) const
-{
-  std::vector<std::string> fams=getFamiliesOnGroup(grp);
-  return getFamsNonEmptyLevels(fams);
-}
-
-/*!
- * Returns all relative mesh levels (including nodes) where a given group is defined.
- *  \param [in] grp - the name of the group of interest.
- *  \return std::vector<int> - a sequence of the relative dimensions.
- */
-std::vector<int> MEDFileUMesh::getGrpNonEmptyLevelsExt(const std::string& grp) const
-{
-  std::vector<std::string> fams=getFamiliesOnGroup(grp);
-  return getFamsNonEmptyLevelsExt(fams);
-}
-
-/*!
- * Returns all relative mesh levels (**excluding nodes**) where a given family is defined.
- * To include nodes, call getFamNonEmptyLevelsExt() method.
- *  \param [in] fam - the name of the family of interest.
- *  \return std::vector<int> - a sequence of the relative dimensions.
- */
-std::vector<int> MEDFileUMesh::getFamNonEmptyLevels(const std::string& fam) const
-{
-  std::vector<std::string> fams(1,std::string(fam));
-  return getFamsNonEmptyLevels(fams);
-}
-
-/*!
- * Returns all relative mesh levels (including nodes) where a given family is defined.
- *  \param [in] fam - the name of the family of interest.
- *  \return std::vector<int> - a sequence of the relative dimensions.
- */
-std::vector<int> MEDFileUMesh::getFamNonEmptyLevelsExt(const std::string& fam) const
-{
-  std::vector<std::string> fams(1,std::string(fam));
-  return getFamsNonEmptyLevelsExt(fams);
-}
-
-/*!
- * Returns all relative mesh levels (**excluding nodes**) where given groups are defined.
- * To include nodes, call getGrpsNonEmptyLevelsExt() method.
- *  \param [in] grps - a sequence of names of the groups of interest.
- *  \return std::vector<int> - a sequence of the relative dimensions.
- */
-std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const
-{
-  std::vector<std::string> fams=getFamiliesOnGroups(grps);
-  return getFamsNonEmptyLevels(fams);
-}
-
-/*!
- * Returns all relative mesh levels (including nodes) where given groups are defined.
- *  \param [in] grps - a sequence of names of the groups of interest.
- *  \return std::vector<int> - a sequence of the relative dimensions.
- */
-std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const
-{
-  std::vector<std::string> fams=getFamiliesOnGroups(grps);
-  return getFamsNonEmptyLevelsExt(fams);
-}
-
-/*!
  * Returns all relative mesh levels (**excluding nodes**) where given families are defined.
  * To include nodes, call getFamsNonEmptyLevelsExt() method.
  *  \param [in] fams - the name of the family of interest.
@@ -2827,8 +2846,8 @@ std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevelsExt(const std::vector<std::s
 std::vector<int> MEDFileUMesh::getFamsNonEmptyLevels(const std::vector<std::string>& fams) const
 {
   std::vector<int> ret;
-  std::vector<int> levs=getNonEmptyLevels();
-  std::vector<int> famIds=getFamiliesIds(fams);
+  std::vector<int> levs(getNonEmptyLevels());
+  std::vector<int> famIds(getFamiliesIds(fams));
   for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
     if(_ms[-(*it)]->presenceOfOneFams(famIds))
       ret.push_back(*it);
@@ -2842,11 +2861,11 @@ std::vector<int> MEDFileUMesh::getFamsNonEmptyLevels(const std::vector<std::stri
  */
 std::vector<int> MEDFileUMesh::getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const
 {
-  std::vector<int> ret0=getFamsNonEmptyLevels(fams);
-  const DataArrayInt *famCoords=_fam_coords;
+  std::vector<int> ret0(getFamsNonEmptyLevels(fams));
+  const DataArrayInt *famCoords(_fam_coords);
   if(!famCoords)
     return ret0;
-  std::vector<int> famIds=getFamiliesIds(fams);
+  std::vector<int> famIds(getFamiliesIds(fams));
   if(famCoords->presenceOfValue(famIds))
     {
       std::vector<int> ret(ret0.size()+1);
@@ -2856,25 +2875,6 @@ std::vector<int> MEDFileUMesh::getFamsNonEmptyLevelsExt(const std::vector<std::s
     }
   else
     return ret0;
-}
-
-/*!
- * Returns names of groups that partly or fully appear on the level \a meshDimRelToMaxExt.
- *  \param [in] meshDimRelToMaxExt - a relative dimension of interest.
- *  \return std::vector<std::string> - a sequence of group names at \a meshDimRelToMaxExt
- *          level. 
- */
-std::vector<std::string> MEDFileUMesh::getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const
-{
-  std::vector<std::string> ret;
-  std::vector<std::string> allGrps=getGroupsNames();
-  for(std::vector<std::string>::const_iterator it=allGrps.begin();it!=allGrps.end();it++)
-    {
-      std::vector<int> levs=getGrpNonEmptyLevelsExt((*it));
-      if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)!=levs.end())
-        ret.push_back(*it);
-    }
-  return ret;
 }
 
 int MEDFileUMesh::getMaxAbsFamilyIdInArrays() const
@@ -5632,6 +5632,26 @@ MEDCouplingMesh *MEDFileStructuredMesh::getMeshAtLevel(int meshDimRelToMax, bool
     default:
       throw INTERP_KERNEL::Exception("MEDFileCurveLinearMesh does not support multi level for mesh 0 expected as input !");
   }
+}
+
+std::vector<int> MEDFileStructuredMesh::getFamsNonEmptyLevels(const std::vector<std::string>& fams) const
+{
+  std::vector<int> ret;
+  const DataArrayInt *famCells(_fam_cells),*famFaces(_fam_faces);
+  if(famCells && famCells->presenceOfValue(ret))
+    ret.push_back(0);
+  if(famFaces && famFaces->presenceOfValue(ret))
+    ret.push_back(-1);
+  return ret;  
+}
+
+std::vector<int> MEDFileStructuredMesh::getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const
+{
+  std::vector<int> ret(getFamsNonEmptyLevels(fams));
+  const DataArrayInt *famNodes(_fam_nodes);
+  if(famNodes && famNodes->presenceOfValue(ret))
+    ret.push_back(1);
+  return ret;  
 }
 
 /*!
