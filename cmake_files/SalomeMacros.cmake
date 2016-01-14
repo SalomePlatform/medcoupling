@@ -503,7 +503,9 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   
   # Override the variable - don't append to it, as it would give precedence
   # to what was stored there before!  
-  SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
+  IF(DEFINED ENV{${pkg_UC}_ROOT_DIR})
+    SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
+  ENDIF()
     
   # Try find_package in config mode. This has the priority, but is 
   # performed QUIET and not REQUIRED:
