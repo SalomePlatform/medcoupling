@@ -4,6 +4,7 @@ TODO for V8
 Covariance fixes [DONE]
 ================
     + MEDCouplingUMesh
+        deepCpy !
         deepCpyConnectivityOnly
         mergeMyselfWithOnSameCoords
         buildPartOfMySelf
@@ -53,6 +54,7 @@ Interpolation
 All classes
 -----------
     deepCpy / deepCopy
+    performCpy / performCopyOrIncrRef
 
 Auto-pointeur
 -------------
@@ -75,6 +77,7 @@ MEDCouplingPointSet
     renumberNodes2 / renumberNodesCenter
     buildPartOfMySelf2 / buildPartOfMySelfSlice
     buildPartOfMySelfKeepCoords2 / buildPartOfMySelfKeepCoordsSlice
+    deepCpyConnectivityOnly / deepCopyConnectivityOnly
     
 MEDCoupling1DGTUMesh
 --------------------
@@ -93,6 +96,7 @@ MEDCouplingUMesh
     ExtractFromIndexedArrays2 / ExtractFromIndexedArraysSlice
     SetPartOfIndexedArrays2 / SetPartOfIndexedArraysSlice
     SetPartOfIndexedArraysSameIdx2 / SetPartOfIndexedArraysSameIdxSlice
+    deepCpyConnectivityOnly / deepCopyConnectivityOnly
 
 DataArray
 ---------

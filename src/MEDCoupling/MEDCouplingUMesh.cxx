@@ -71,21 +71,22 @@ MEDCouplingUMesh *MEDCouplingUMesh::New(const std::string& meshName, int meshDim
 }
 
 /*!
- * Returns a new MEDCouplingMesh which is a full copy of \a this one. No data is shared
+ * Returns a new MEDCouplingUMesh which is a full copy of \a this one. No data is shared
  * between \a this and the new mesh.
- *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingMesh. The caller is to
  *          delete this mesh using decrRef() as it is no more needed. 
  */
-MEDCouplingMesh *MEDCouplingUMesh::deepCpy() const
+MEDCouplingUMesh *MEDCouplingUMesh::deepCpy() const
 {
   return clone(true);
 }
 
+
 /*!
- * Returns a new MEDCouplingMesh which is a copy of \a this one.
+ * Returns a new MEDCouplingUMesh which is a copy of \a this one.
  *  \param [in] recDeepCpy - if \a true, the copy is deep, else all data arrays of \a
  * this mesh are shared by the new mesh.
- *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingMesh. The caller is to
  *          delete this mesh using decrRef() as it is no more needed. 
  */
 MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
