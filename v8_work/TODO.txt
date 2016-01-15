@@ -1,17 +1,19 @@
 TODO for V8
 %%%%%%%%%%%
 
-Covariance fixes
+Covariance fixes [DONE]
 ================
     + MEDCouplingUMesh
         deepCpyConnectivityOnly
+        mergeMyselfWithOnSameCoords
         buildPartOfMySelf
+        buildPartOfMySelfNode
         buildPartOfMySelf2
         buildFacePartOfMySelfNode
         buildBoundaryMesh
         buildPartOfMySelfKeepCoords
         buildPartOfMySelfKeepCoords2
-        mergeMyselfWithOnSameCoords
+        
     + MEDCouplingExtrudedMesh
         deepCpy
     + MEDCouplingIMesh

@@ -54,7 +54,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static void SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
     MEDCOUPLING_EXPORT static void SpreadCoarseToFineGhostZone(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
     //
-    MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingIMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *buildWithGhost(int ghostLev) const;
     MEDCOUPLING_EXPORT void updateTime() const;

@@ -46,7 +46,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
-    MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingExtrudedMesh *deepCpy() const;
     MEDCouplingExtrudedMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;

@@ -100,7 +100,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
  * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCouplingUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCouplingUMesh::deepCpyConnectivityOnly() const
+MEDCouplingUMesh *MEDCouplingUMesh::deepCpyConnectivityOnly() const
 {
   checkConnectivityFullyDefined();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=clone(false);
@@ -2005,7 +2005,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn2(const MEDCouplingUMesh *other, DataAr
   return true;
 }
 
-MEDCouplingPointSet *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
+MEDCouplingUMesh *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::mergeMyselfWithOnSameCoords : input other is null !");
@@ -2032,10 +2032,10 @@ MEDCouplingPointSet *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCoup
  * \warning This method modifies can generate an unstructured mesh whose cells are not sorted by geometric type order.
  * In view of the MED file writing, a renumbering of cells of returned unstructured mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const
 {
   if(getMeshDimension()!=-1)
-    return MEDCouplingPointSet::buildPartOfMySelf2(start,end,step,keepCoords);
+    return static_cast<MEDCouplingUMesh *>(MEDCouplingPointSet::buildPartOfMySelf2(start,end,step,keepCoords));
   else
     {
       int newNbOfCells=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::buildPartOfMySelf2 for -1 dimension mesh ");
@@ -2060,7 +2060,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, in
  *  \param [in] keepCoords - if \c true, the result mesh shares the node coordinates
  *         array of \a this mesh, else "free" nodes are removed from the result mesh
  *         by calling zipCoords().
- *  \return MEDCouplingPointSet * - a new instance of MEDCouplingUMesh. The caller is
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is
  *         to delete this mesh using decrRef() as it is no more needed. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -2071,10 +2071,10 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, in
  *  \ref  py_mcumesh_buildPartOfMySelf "Here is a Python example".
  *  \endif
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
   if(getMeshDimension()!=-1)
-    return MEDCouplingPointSet::buildPartOfMySelf(begin,end,keepCoords);
+    return static_cast<MEDCouplingUMesh *>(MEDCouplingPointSet::buildPartOfMySelf(begin,end,keepCoords));
   else
     {
       if(end-begin!=1)
@@ -2250,7 +2250,7 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
  *  \param [in] fullyIn - if \c true, then cells whose all nodes are in the
  *         array \a begin are added, else cells whose any node is in the
  *         array \a begin are added.
- *  \return MEDCouplingPointSet * - new instance of MEDCouplingUMesh. The caller is
+ *  \return MEDCouplingUMesh * - new instance of MEDCouplingUMesh. The caller is
  *         to delete this mesh using decrRef() as it is no more needed. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -2261,13 +2261,13 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
  *  \ref  py_mcumesh_buildFacePartOfMySelfNode "Here is a Python example".
  *  \endif
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc,descIndx,revDesc,revDescIndx;
   desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
   desc=0; descIndx=0; revDesc=0; revDescIndx=0;
-  return subMesh->buildPartOfMySelfNode(begin,end,fullyIn);
+  return static_cast<MEDCouplingUMesh*>(subMesh->buildPartOfMySelfNode(begin,end,fullyIn));
 }
 
 /*!
@@ -2276,7 +2276,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begi
  *  \param [in] keepCoords - if \c true, the result mesh shares the node coordinates
  *         array of \a this mesh, else "free" nodes are removed from the result mesh
  *         by calling zipCoords().
- *  \return MEDCouplingPointSet * - a new instance of MEDCouplingUMesh. The caller is
+ *  \return MEDCouplingUMesh * - a new instance of MEDCouplingUMesh. The caller is
  *         to delete this mesh using decrRef() as it is no more needed. 
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
@@ -2286,7 +2286,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begi
  *  \ref  py_mcumesh_buildBoundaryMesh "Here is a Python example".
  *  \endif
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
 {
   DataArrayInt *desc=DataArrayInt::New();
   DataArrayInt *descIndx=DataArrayInt::New();
@@ -2304,7 +2304,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
     if(revDescIndxC[i+1]-revDescIndxC[i]==1)
       boundaryCells.push_back(i);
   revDescIndx->decrRef();
-  MEDCouplingPointSet *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[0]+boundaryCells.size(),keepCoords);
+  MEDCouplingUMesh *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[0]+boundaryCells.size(),keepCoords);
   return ret;
 }
 
@@ -3355,7 +3355,7 @@ void MEDCouplingUMesh::unserialization(const std::vector<double>& tinyInfoD, con
  * This is the low algorithm of MEDCouplingUMesh::buildPartOfMySelf2.
  * CellIds are given using range specified by a start an end and step.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
 {
   checkFullyDefined();
   int ncell=getNumberOfCells();
@@ -3400,7 +3400,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords2(int start, i
  * Keeps from \a this only cells which constituing point id are in the ids specified by [ \a begin,\a end ).
  * The return newly allocated mesh will share the same coordinates as \a this.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
   checkConnectivityFullyDefined();
   int ncell=getNumberOfCells();

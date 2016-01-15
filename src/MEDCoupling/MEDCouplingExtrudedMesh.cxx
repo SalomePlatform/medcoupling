@@ -157,7 +157,7 @@ int MEDCouplingExtrudedMesh::getMeshDimension() const
   return 3;
 }
 
-MEDCouplingMesh *MEDCouplingExtrudedMesh::deepCpy() const
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::deepCpy() const
 {
   return clone(true);
 }

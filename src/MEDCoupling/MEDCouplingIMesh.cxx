@@ -65,7 +65,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::New(const std::string& meshName, int spaceDi
   return ret.retn();
 }
 
-MEDCouplingMesh *MEDCouplingIMesh::deepCpy() const
+MEDCouplingIMesh *MEDCouplingIMesh::deepCpy() const
 {
   return clone(true);
 }
