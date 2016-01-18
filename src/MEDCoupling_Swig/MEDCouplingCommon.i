@@ -562,7 +562,6 @@ namespace ParaMEDMEM
     virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception);

@@ -20,7 +20,7 @@ Covariance fixes [DONE]
     + MEDCouplingIMesh
         deepCpy  
 
-Various simplifications
+Various simplifications [DONE]
 =======================
     + remove isIdentity2
     + remove replaceOneValByInThis (changeValue fait le meme boulot) - Attention repercuter if(oldValue==newValue) return 0
@@ -68,7 +68,6 @@ MEDCouplingMesh
     getBarycenterAndOwner / computeCellCenterOfMass
     checkCoherency / checkConsistencyLight
     checkCoherency1 / checkConsistency
-    checkCoherency2 / checkConsistencyDeep
     
 MEDCouplingPointSet
 -------------------

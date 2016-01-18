@@ -2023,7 +2023,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         expected2=[0,5,14,19,42,49,86,95,108,159]
         self.assertEqual(expected1,da.getValues());
         self.assertEqual(expected2,dai.getValues());
-        m.checkCoherency2()
+        m.checkCoherency1()
         pass
 
     def testNonRegressionCopyTinyStrings(self):

@@ -2642,7 +2642,7 @@ class MEDLoaderTest4(unittest.TestCase):
         m.allocateCells()
         m.insertNextCell(NORM_QUAD4,[0,3,4,1])
         m.insertNextCell(NORM_QUAD4,[1,4,5,2])
-        m.checkCoherency2()
+        m.checkCoherency1()
         #
         t=(1.1,0,-1)
         f=MEDCouplingFieldDouble(ON_GAUSS_NE) ; f.setTime(*t) ; f.setMesh(m)
@@ -2756,7 +2756,7 @@ class MEDLoaderTest4(unittest.TestCase):
         m.allocateCells()
         m.insertNextCell(NORM_QUAD4,[0,3,4,1])
         m.insertNextCell(NORM_QUAD4,[1,4,5,2])
-        m.checkCoherency2()
+        m.checkCoherency1()
         #
         t=(1.1,0,-1)
         f=MEDCouplingFieldDouble(ON_GAUSS_PT) ; f.setTime(*t) ; f.setMesh(m)

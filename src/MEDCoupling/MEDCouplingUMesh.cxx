@@ -282,27 +282,6 @@ void MEDCouplingUMesh::checkCoherency1(double eps) const
     }
 }
 
-
-/*!
- * Checks if \a this mesh is well defined. If no exception is thrown by this method,
- * then \a this mesh is most probably is writable, exchangeable and available for all
- * algorithms. <br> This method performs the same checks as checkCoherency1() does. 
- *  \param [in] eps - a not used parameter.
- *  \throw If the mesh dimension is not set.
- *  \throw If the coordinates array is not set (if mesh dimension != -1 ).
- *  \throw If \a this mesh contains elements of dimension different from the mesh dimension.
- *  \throw If the connectivity data array has more than one component.
- *  \throw If the connectivity data array has a named component.
- *  \throw If the connectivity index data array has more than one component.
- *  \throw If the connectivity index data array has a named component.
- *  \throw If number of nodes defining an element does not correspond to the type of element.
- *  \throw If the nodal connectivity includes an invalid node id.
- */
-void MEDCouplingUMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 /*!
  * Sets dimension of \a this mesh. The mesh dimension in general depends on types of
  * elements contained in the mesh. For more info on the mesh dimension see
@@ -6275,7 +6254,7 @@ DataArrayInt *MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells()
 /*!
  * This method is a faster method to correct orientation of all 3D cells in \a this.
  * This method works only if \a this is a 3D mesh, that is to say a mesh with mesh dimension 3 and a space dimension 3.
- * This method makes the hypothesis that \a this a coherent that is to say MEDCouplingUMesh::checkCoherency2 should throw no exception.
+ * This method makes the hypothesis that \a this a coherent that is to say MEDCouplingUMesh::checkCoherency1 should throw no exception.
  * 
  * \return a newly allocated int array with one components containing cell ids renumbered to fit the convention of MED (MED file and MEDCoupling)
  * \sa MEDCouplingUMesh::orientCorrectlyPolyhedrons, 
@@ -7423,7 +7402,7 @@ DataArrayInt *MEDCouplingUMesh::convertNodalConnectivityToStaticGeoTypeMesh() co
  */
 void MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndex) const
 {
-  static const char msg0[]="MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : nodal connectivity in this are invalid ! Call checkCoherency2 !";
+  static const char msg0[]="MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : nodal connectivity in this are invalid ! Call checkCoherency1 !";
   checkConnectivityFullyDefined();
   if(_types.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh : current mesh does not contain exactly one geometric type !");
@@ -8415,7 +8394,7 @@ bool MEDCouplingUMesh::IsTetra4WellOriented(const int *begin, const int *end, co
 {
   std::size_t sz=std::distance(begin,end);
   if(sz!=4)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsTetra4WellOriented : Tetra4 cell with not 4 nodes ! Call checkCoherency2 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsTetra4WellOriented : Tetra4 cell with not 4 nodes ! Call checkCoherency1 !");
   double vec0[3],vec1[3];
   const double *pt0=coords+3*begin[0],*pt1=coords+3*begin[1],*pt2=coords+3*begin[2],*pt3=coords+3*begin[3];
   vec0[0]=pt1[0]-pt0[0]; vec0[1]=pt1[1]-pt0[1]; vec0[2]=pt1[2]-pt0[2]; vec1[0]=pt2[0]-pt0[0]; vec1[1]=pt2[1]-pt0[1]; vec1[2]=pt2[2]-pt0[2]; 
@@ -8426,7 +8405,7 @@ bool MEDCouplingUMesh::IsPyra5WellOriented(const int *begin, const int *end, con
 {
   std::size_t sz=std::distance(begin,end);
   if(sz!=5)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsPyra5WellOriented : Pyra5 cell with not 5 nodes ! Call checkCoherency2 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::IsPyra5WellOriented : Pyra5 cell with not 5 nodes ! Call checkCoherency1 !");
   double vec0[3];
   INTERP_KERNEL::areaVectorOfPolygon<int,INTERP_KERNEL::ALL_C_MODE>(begin,4,coords,vec0);
   const double *pt0=coords+3*begin[0],*pt1=coords+3*begin[4];

@@ -690,11 +690,6 @@ void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const
       }
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 int MEDCoupling1SGTUMesh::getNumberOfCells() const
 {
   int nbOfTuples=getNodalConnectivityLength();
@@ -2420,11 +2415,6 @@ void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const
     }
 }
 
-void MEDCoupling1DGTUMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 int MEDCoupling1DGTUMesh::getNumberOfCells() const
 {
   checkCoherencyOfConnectivity();//do not remove
@@ -2862,7 +2852,7 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords2(int star
 
 void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
-  checkCoherency2();
+  checkCoherency1();
   int sz((int)nodeIdsInUse.size());
   for(const int *conn=_conn->begin();conn!=_conn->end();conn++)
     {
@@ -3071,7 +3061,7 @@ void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeFetchedNodeIds() const
 {
-  checkCoherency2();
+  checkCoherency1();
   int nbNodes(getNumberOfNodes());
   std::vector<bool> fetchedNodes(nbNodes,false);
   computeNodeIdsAlg(fetchedNodes);

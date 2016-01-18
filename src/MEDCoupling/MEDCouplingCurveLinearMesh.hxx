@@ -47,7 +47,6 @@ namespace ParaMEDMEM
                                                             DataArrayInt *&cellCor) const;
     MEDCOUPLING_EXPORT void checkCoherency() const;
     MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;

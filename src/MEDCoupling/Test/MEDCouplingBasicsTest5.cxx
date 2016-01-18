@@ -2002,11 +2002,11 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   c->useArray(coords,false,CPP_DEALLOC,24,3);
   m->setCoords(c);
   c->decrRef();
-  m->checkCoherency2();
+  m->checkCoherency1();
   //
   MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m->deepCpy());
   DataArrayInt *d1=m1->simplexize(INTERP_KERNEL::PLANAR_FACE_5);
-  m1->checkCoherency2();
+  m1->checkCoherency1();
   MEDCouplingFieldDouble *f1=m1->getMeasureField(ON_CELLS);
   const double vol1Expected[12]={1./6, 1./6, 1./6,1./6, 1./6, 1./3,1./6, 1./6, 1./6, 1./6, 1./3, 1./6};
   CPPUNIT_ASSERT_EQUAL(1,f1->getArray()->getNumberOfComponents());
@@ -2031,7 +2031,7 @@ void MEDCouplingBasicsTest5::testSimplexize3()
   //
   MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m->deepCpy());
   DataArrayInt *d2=m2->simplexize(INTERP_KERNEL::PLANAR_FACE_6);
-  m2->checkCoherency2();
+  m2->checkCoherency1();
   MEDCouplingFieldDouble *f2=m2->getMeasureField(ON_CELLS);
   const double vol2Expected[14]={1./6, 1./6, 1./6,1./6, 1./6, 1./6,1./6,1./6, 1./6, 1./6, 1./6, 1./6,1./6,1./6};
   CPPUNIT_ASSERT_EQUAL(1,f2->getArray()->getNumberOfComponents());

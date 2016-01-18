@@ -396,11 +396,6 @@ void MEDCouplingExtrudedMesh::checkCoherency1(double eps) const
   checkCoherency();
 }
 
-void MEDCouplingExtrudedMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 void MEDCouplingExtrudedMesh::getBoundingBox(double *bbox) const
 {
   double bbox2D[6];

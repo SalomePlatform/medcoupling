@@ -283,11 +283,6 @@ void MEDCouplingCMesh::checkCoherency1(double eps) const
     _z_array->checkMonotonic(true, eps);
 }
 
-void MEDCouplingCMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 void MEDCouplingCMesh::getNodeGridStructure(int *res) const
 {
   std::vector<int> ret(getNodeGridStructure());

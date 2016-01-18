@@ -85,7 +85,6 @@ namespace ParaMEDMEM
     //
     MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
     MEDCOUPLING_EXPORT virtual void checkCoherency1(double eps=1e-12) const = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherency2(double eps=1e-12) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfCells() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDCOUPLING_EXPORT virtual int getSpaceDimension() const = 0;

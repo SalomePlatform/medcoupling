@@ -2105,7 +2105,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         m.setCoords(coords)
         m.allocateCells(0)
         m.insertNextCell(NORM_QUAD4,[0,1,2,3])
-        m.checkCoherency2()
+        m.checkCoherency1()
         self.assertEqual([4,0,1,2,3],m.getNodalConnectivity().getValues())
         a,b=m.distanceToPoint([5.,2.,0.1])
         self.assertAlmostEqual(0.1,a,14) ; self.assertEqual(0,b)
@@ -2113,7 +2113,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertAlmostEqual(sqrt(2*2+4*4),a,14) ; self.assertEqual(0,b)
         m.allocateCells(0)
         m.insertNextCell(NORM_POLYGON,[0,1,2,3])
-        m.checkCoherency2()
+        m.checkCoherency1()
         self.assertEqual([5,0,1,2,3],m.getNodalConnectivity().getValues())
         a,b=m.distanceToPoint([11.,3.,4.])
         self.assertAlmostEqual(sqrt(3*3+4*4),a,14) ; self.assertEqual(0,b)
@@ -2224,11 +2224,11 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         c4=c1+[6.,0.,0.]
         c=DataArrayDouble.Aggregate([c1,c2,c3,c4])
         m.setCoords(c)
-        m.checkCoherency2()
+        m.checkCoherency1()
         #
         m1=m.deepCpy()
         d1=m1.simplexize(PLANAR_FACE_5)
-        m1.checkCoherency2()
+        m1.checkCoherency1()
         vol1=m1.getMeasureField(ON_CELLS).getArray()
         self.assertTrue(vol1.isEqual(DataArrayDouble([1./6, 1./6, 1./6,1./6, 1./6, 1./3,1./6, 1./6, 1./6, 1./6, 1./3, 1./6]),1e-12))
         self.assertEqual(m1.getNodalConnectivity().getValues(),[14,0,1,2,3,14,4,9,5,6,14,4,8,9,11,14,4,7,11,6,14,9,11,10,6,14,4,9,6,11,14,12,17,13,14,14,12,16,17,19,14,12,15,19,14,14,17,19,18,14,14,12,17,14,19,14,20,21,22,23])
@@ -2237,7 +2237,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #
         m2=m.deepCpy()
         d2=m2.simplexize(PLANAR_FACE_6)
-        m2.checkCoherency2()
+        m2.checkCoherency1()
         vol2=m2.getMeasureField(ON_CELLS).getArray()
         self.assertTrue(vol2.isEqual(DataArrayDouble([1./6, 1./6, 1./6,1./6, 1./6, 1./6,1./6,1./6, 1./6, 1./6, 1./6, 1./6,1./6,1./6]),1e-12))
         self.assertEqual(m2.getNodalConnectivity().getValues(),[14,0,1,2,3,14,4,9,5,10,14,4,5,6,10,14,4,8,9,10,14,4,11,8,10,14,4,6,7,10,14,4,7,11,10,14,12,17,13,18,14,12,13,14,18,14,12,16,17,18,14,12,19,16,18,14,12,14,15,18,14,12,15,19,18,14,20,21,22,23])
@@ -2256,7 +2256,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         cl=MEDCouplingCurveLinearMesh()
         cl.setCoords(coo)
         cl.setNodeGridStructure([4,3])
-        cl.checkCoherency2()
+        cl.checkCoherency1()
         li1=[1.,2.,4.,0.5,1.,2.]
         self.assertTrue(cl.getMeasureField(False).getArray().isEqual(DataArrayDouble(li1),1e-14))
         self.assertTrue(u.getMeasureField(False).getArray().isEqual(DataArrayDouble(li1),1e-14))
@@ -2270,7 +2270,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         cl=MEDCouplingCurveLinearMesh()
         cl.setCoords(coo)
         cl.setNodeGridStructure([4,3,3])
-        cl.checkCoherency2()
+        cl.checkCoherency1()
         li2=[1.,2.,4.,0.5, 1.,2.,0.5,1.,2.,0.25,0.5,1.]
         li2_1=[0.5,0.5,0.5,2.,0.5,0.5,5.,0.5,0.5,0.5,1.25,0.5,2.,1.25,0.5,5.,1.25,0.5,0.5,0.5,1.25,2.,0.5,1.25,5.,0.5,1.25,0.5,1.25,1.25,2.,1.25,1.25,5.,1.25,1.25]
         self.assertTrue(cl.getMeasureField(False).getArray().isEqual(DataArrayDouble(li2),1e-14))
@@ -2282,7 +2282,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         coo=coo*coo
         cl.setCoords(coo)
         cl.setNodeGridStructure([5])
-        cl.checkCoherency2()
+        cl.checkCoherency1()
         li3=[1.,3.,5.,7.]
         li3_1=[0.5,2.5,6.5,12.5]
         self.assertTrue(cl.getMeasureField(False).getArray().isEqual(DataArrayDouble(li3),1e-14))
@@ -2292,7 +2292,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #1D spaceDim 2
         coo=DataArrayDouble.Meld(coo,coo)
         cl.setCoords(coo)
-        cl.checkCoherency2()
+        cl.checkCoherency1()
         li4=[sqrt(2.)*elt for elt in [1.,3.,5.,7.]]
         li4_1=[0.5,0.5,2.5,2.5,6.5,6.5,12.5,12.5]
         self.assertEqual(2,cl.getSpaceDimension())

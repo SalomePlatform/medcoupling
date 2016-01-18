@@ -2400,7 +2400,7 @@ void MEDCouplingBasicsTest1::testCMesh1()
   CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-7));
   
   CPPUNIT_ASSERT_THROW(mesh3->checkCoherency1(1e-12),INTERP_KERNEL::Exception);
-  mesh1->checkCoherency2(1e-12);
+  mesh1->checkCoherency1(1e-12);
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,mesh1->getTypeOfCell(1));
   
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,*((mesh1->getAllGeoTypes()).begin()));

@@ -949,11 +949,6 @@ void MEDCouplingIMesh::checkCoherency1(double eps) const
   checkCoherency();
 }
 
-void MEDCouplingIMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 void MEDCouplingIMesh::getNodeGridStructure(int *res) const
 {
   checkSpaceDimension();

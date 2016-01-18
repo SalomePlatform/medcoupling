@@ -67,7 +67,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT void checkCoherency() const;
     MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
-    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);

@@ -1645,7 +1645,7 @@ void MEDCouplingBasicsTest4::testConvertExtrudedPolyhedra1()
   const int expected2[10]={0,5,14,19,42,49,86,95,108,159};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+159,da->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected2,expected2+10,dai->getConstPointer()));
-  m->checkCoherency2();
+  m->checkCoherency1();
   //
   m->decrRef();
 }

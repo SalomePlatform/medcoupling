@@ -205,11 +205,6 @@ void MEDCouplingCurveLinearMesh::checkCoherency1(double eps) const
   checkCoherency();
 }
 
-void MEDCouplingCurveLinearMesh::checkCoherency2(double eps) const
-{
-  checkCoherency1(eps);
-}
-
 int MEDCouplingCurveLinearMesh::getNumberOfCells() const
 {
   checkCoherency();

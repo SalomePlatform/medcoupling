@@ -1846,7 +1846,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertTrue(not mesh1.isEqual(mesh2, 1e-7));
         
         self.assertRaises(InterpKernelException, mesh3.checkCoherency1, 1e-12);
-        mesh1.checkCoherency2(1e-12);
+        mesh1.checkCoherency1(1e-12);
         self.assertEqual(NORM_HEXA8, mesh1.getTypeOfCell(1));
         
         self.assertEqual(NORM_HEXA8, mesh1.getAllGeoTypes()[0]);

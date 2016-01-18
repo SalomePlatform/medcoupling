@@ -114,7 +114,6 @@ namespace ParaMEDMEM
   MEDCouplingMesh::buildUnstructured() const;
   MEDCouplingMesh::checkCoherency() const;
   MEDCouplingMesh::checkCoherency1(double eps=1e-12) const;
-  MEDCouplingMesh::checkCoherency2(double eps=1e-12) const;
   MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
   MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
   MEDCouplingMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const;
