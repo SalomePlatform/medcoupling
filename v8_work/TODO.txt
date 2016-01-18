@@ -23,12 +23,11 @@ Covariance fixes [DONE]
 Various simplifications
 =======================
     + remove isIdentity2
-    + remove checkCoherency2
-    + remove replaceOneValByInThis (changeValue fait le meme boulot)
+    + remove replaceOneValByInThis (changeValue fait le meme boulot) - Attention repercuter if(oldValue==newValue) return 0
     + tessellate2D et tessellate2DCurve: à merger en un seul tessellate2D
-    + rename file MEDCouplingNatureOfFieldEnum into MEDCouplingNatureOfFieldEnum.hxx    
+     
 
-Inheritance fix
+Inheritance fix (OK but at the end of process)
 ===============
     + move up in all classes deepCpy(), shallowCpy(), clone() 
 
@@ -66,10 +65,10 @@ MEDCouplingExtrudedMesh
     
 MEDCouplingMesh
 ---------------
-    getBarycenterAndOwner / computeBarycenter
-    computeIsoBarycenterOfNodesPerCell / computeCenterOfMass
+    getBarycenterAndOwner / computeCellCenterOfMass
     checkCoherency / checkConsistencyLight
     checkCoherency1 / checkConsistency
+    checkCoherency2 / checkConsistencyDeep
     
 MEDCouplingPointSet
 -------------------
