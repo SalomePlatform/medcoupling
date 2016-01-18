@@ -1139,8 +1139,7 @@ void MEDCouplingBasicsTest5::testConvexEnvelop2D1()
   ref2->decrRef();
   vals->abs();
   DataArrayInt *theTest=vals->getIdsInRange(-1.,1e-7);
-  CPPUNIT_ASSERT(theTest->isIdentity());
-  CPPUNIT_ASSERT_EQUAL(331,theTest->getNumberOfTuples());
+  CPPUNIT_ASSERT(theTest->isIdentity2(331));
   theTest->decrRef();
   valsF->decrRef();
   //

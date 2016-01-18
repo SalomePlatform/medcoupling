@@ -25,6 +25,7 @@ Various simplifications
     + remove isIdentity2
     + remove replaceOneValByInThis (changeValue fait le meme boulot) - Attention repercuter if(oldValue==newValue) return 0
     + tessellate2D et tessellate2DCurve: à merger en un seul tessellate2D
+    + remove checkCoherency2
      
 Inheritance fix (OK but at the end of process)
 ===============

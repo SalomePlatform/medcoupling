@@ -891,8 +891,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.write(fname,0)
         f1=ff1.getFieldOnMeshAtLevel(ON_GAUSS_NE,m1,0)
         f2,p1=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1) ; f2.setName("")
-        self.assertTrue(p1.isIdentity())
-        self.assertEqual(5,p1.getNumberOfTuples())
+        self.assertTrue(p1.isIdentity2(5))
         self.assertTrue(f1.getArray().isEqual(f2,1e-12))
         pass
     # Test for getFieldAtTopLevel method

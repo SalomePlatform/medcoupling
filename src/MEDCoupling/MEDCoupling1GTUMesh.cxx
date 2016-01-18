@@ -183,12 +183,11 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::splitProfilePerType : input profile is NULL !");
   if(profile->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::splitProfilePerType : input profile should have exactly one component !");
-  int nbTuples=profile->getNumberOfTuples();
-  int nbOfCells=getNumberOfCells();
+  int nbTuples(profile->getNumberOfTuples()),nbOfCells(getNumberOfCells());
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getCellModelEnum(); code[1]=nbTuples;
   idsInPflPerType.resize(1);
-  if(profile->isIdentity() && nbTuples==nbOfCells)
+  if(profile->isIdentity2(nbOfCells))
     {
       code[2]=-1;
       idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();

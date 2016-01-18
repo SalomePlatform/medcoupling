@@ -813,9 +813,8 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         da.alloc(8,1);
         da.iota(0);
         da2=da.checkAndPreparePermutation();
-        self.assertEqual(8,da2.getNumberOfTuples());
         self.assertEqual(1,da2.getNumberOfComponents());
-        self.assertTrue(da2.isIdentity());
+        self.assertTrue(da2.isIdentity2(8));
         #
         da=DataArrayInt.New();
         da.alloc(8,1);
@@ -860,8 +859,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
     def testUMeshFindCellIdsOnBoundary1(self):
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
         da5=m.findCellIdsOnBoundary();
-        self.assertEqual(5,da5.getNumberOfTuples());
-        self.assertTrue(da5.isIdentity());
+        self.assertTrue(da5.isIdentity2(5));
         pass
 
     def testMeshSetTime1(self):

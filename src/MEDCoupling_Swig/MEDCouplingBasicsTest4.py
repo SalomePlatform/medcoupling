@@ -947,8 +947,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         vals-=DataArrayDouble.New(ref)
         vals.abs()
         theTest=vals.getIdsInRange(-1.,1e-7)
-        self.assertTrue(theTest.isIdentity())
-        self.assertEqual(331,len(theTest))
+        self.assertTrue(theTest.isIdentity2(331))
         pass
 
     def testSwigDAIOp8(self):
@@ -2150,13 +2149,13 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #
         n,ni=m.computeNeighborsOfCells()
         a,b=MEDCouplingUMesh.ComputeSpreadZoneGraduallyFromSeed(0,n,ni)
-        self.assertEqual(13,b) ; self.assertEqual(125,len(a)) ; self.assertTrue(a.isIdentity())
+        self.assertEqual(13,b) ; self.assertTrue(a.isIdentity2(125))
         a,b=MEDCouplingUMesh.ComputeSpreadZoneGraduallyFromSeed([1],n,ni)
-        self.assertEqual(12,b) ; self.assertEqual(125,len(a)) ; self.assertTrue(a.isIdentity())
+        self.assertEqual(12,b) ; self.assertTrue(a.isIdentity2(125))
         a,b=MEDCouplingUMesh.ComputeSpreadZoneGraduallyFromSeed((2,),n,ni)
-        self.assertEqual(11,b) ; self.assertEqual(125,len(a)) ; self.assertTrue(a.isIdentity())
+        self.assertEqual(11,b) ; self.assertTrue(a.isIdentity2(125))
         a,b=MEDCouplingUMesh.ComputeSpreadZoneGraduallyFromSeed(DataArrayInt([3]),n,ni)
-        self.assertEqual(12,b) ; self.assertEqual(125,len(a)) ; self.assertTrue(a.isIdentity())
+        self.assertEqual(12,b) ; self.assertTrue(a.isIdentity2(125))
         pass
 
     def testSwigUMeshInsertNextCell1(self):
@@ -2552,8 +2551,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
     def testSwig2ConvertLinearCellsToQuadratic2(self):
         m2D=MEDCouplingDataForTest.build2DTargetMesh_1()
         ret=m2D.convertLinearCellsToQuadratic(1)
-        self.assertTrue(ret.isIdentity())
-        self.assertEqual(5,len(ret))
+        self.assertTrue(ret.isIdentity2(5))
         m2D.checkCoherency1()
         coordsExp=DataArrayDouble([-0.3,-0.3,0.2,-0.3,0.7,-0.3,-0.3,0.2,0.2,0.2,0.7,0.2,-0.3,0.7,0.2,0.7,0.7,0.7,-0.3,-0.05,-0.05,0.2,0.2,-0.05,-0.05,-0.3,0.45,-0.05,0.45,-0.3,0.45,0.2,0.7,-0.05,-0.05,0.7,0.2,0.45,-0.3,0.45,0.45,0.7,0.7,0.45,-0.05,-0.05,0.3666666666666667,-0.1333333333333333,0.5333333333333332,0.03333333333333334,-0.05,0.45,0.45,0.45],27,2)
         self.assertTrue(m2D.getCoords().isEqual(coordsExp,1e-14))
@@ -2568,8 +2566,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         cooTmp=m2D.getCoords()[:]
         m3D=m2D.buildExtrudedMesh(m1D,0)
         ret=m3D.convertLinearCellsToQuadratic(1)
-        self.assertTrue(ret.isIdentity())
-        self.assertEqual(4,len(ret))
+        self.assertTrue(ret.isIdentity2(4))
         m3D.checkCoherency1()
         coordsExp2=DataArrayDouble([-0.3,-0.3,0.0,0.2,-0.3,0.0,-0.3,0.2,0.0,0.2,0.2,0.0,-0.3,0.7,0.0,0.2,0.7,0.0,-0.3,-0.3,1.0,0.2,-0.3,1.0,-0.3,0.2,1.0,0.2,0.2,1.0,-0.3,0.7,1.0,0.2,0.7,1.0,-0.3,-0.3,2.0,0.2,-0.3,2.0,-0.3,0.2,2.0,0.2,0.2,2.0,-0.3,0.7,2.0,0.2,0.7,2.0,-0.3,-0.05,0.0,-0.05,0.2,0.0,0.2,-0.05,0.0,-0.05,-0.3,0.0,-0.3,-0.05,1.0,-0.05,0.2,1.0,0.2,-0.05,1.0,-0.05,-0.3,1.0,-0.3,-0.3,0.5,-0.3,0.2,0.5,0.2,0.2,0.5,0.2,-0.3,0.5,-0.05,0.7,0.0,0.2,0.45,0.0,-0.3,0.45,0.0,-0.05,0.7,1.0,0.2,0.45,1.0,-0.3,0.45,1.0,-0.3,0.7,0.5,0.2,0.7,0.5,-0.3,-0.05,2.0,-0.05,0.2,2.0,0.2,-0.05,2.0,-0.05,-0.3,2.0,-0.3,-0.3,1.5,-0.3,0.2,1.5,0.2,0.2,1.5,0.2,-0.3,1.5,-0.05,0.7,2.0,0.2,0.45,2.0,-0.3,0.45,2.0,-0.3,0.7,1.5,0.2,0.7,1.5,-0.05,-0.05,0.0,-0.3,-0.05,0.5,-0.05,0.2,0.5,0.2,-0.05,0.5,-0.05,-0.3,0.5,-0.05,-0.05,1.0,-0.05,0.45,0.0,-0.05,0.7,0.5,0.2,0.45,0.5,-0.3,0.45,0.5,-0.05,0.45,1.0,-0.3,-0.05,1.5,-0.05,0.2,1.5,0.2,-0.05,1.5,-0.05,-0.3,1.5,-0.05,-0.05,2.0,-0.05,0.7,1.5,0.2,0.45,1.5,-0.3,0.45,1.5,-0.05,0.45,2.0,-0.05,-0.05,0.5,-0.05,0.45,0.5,-0.05,-0.05,1.5,-0.05,0.45,1.5],75,3)
         self.assertTrue(m3D.getCoords().isEqual(coordsExp2,1e-14))

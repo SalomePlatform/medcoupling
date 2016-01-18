@@ -7012,7 +7012,7 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
       code[3*i]=(int)types[castId];
       code[3*i+1]=tmp3->getNumberOfTuples();
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp4=rankInsideCast->selectByTupleId(tmp3->getConstPointer(),tmp3->getConstPointer()+tmp3->getNumberOfTuples());
-      if(tmp4->getNumberOfTuples()!=typeRangeVals[castId+1]-typeRangeVals[castId] || !tmp4->isIdentity())
+      if(!tmp4->isIdentity2(typeRangeVals[castId+1]-typeRangeVals[castId]))
         {
           tmp4->copyStringInfoFrom(*profile);
           idsPerType2.push_back(tmp4);
@@ -9942,7 +9942,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates(ret2->getIdsEqual(old2DCellId));
       ret3->setIJ(*it,0,FindRightCandidateAmong(ret2D,candidates->begin(),candidates->end(),ret1,*it%2==0?-((*it)/2+1):(*it)/2+1,eps));// div by 2 because 2 components natively in ret3
     }
-  ret3->replaceOneValByInThis(std::numeric_limits<int>::max(),-1);
+  ret3->changeValue(std::numeric_limits<int>::max(),-1);
   ret3->rearrange(2);
   //
   splitMesh1D=ret1.retn();

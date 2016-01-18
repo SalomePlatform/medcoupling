@@ -2608,7 +2608,6 @@ namespace ParaMEDMEM
     void fillWithZero() throw(INTERP_KERNEL::Exception);
     void fillWithValue(int val) throw(INTERP_KERNEL::Exception);
     void iota(int init=0) throw(INTERP_KERNEL::Exception);
-    void replaceOneValByInThis(int valToBeReplaced, int replacedBy) throw(INTERP_KERNEL::Exception);
     std::string repr() const throw(INTERP_KERNEL::Exception);
     std::string reprZip() const throw(INTERP_KERNEL::Exception);
     std::string reprNotTooLong() const throw(INTERP_KERNEL::Exception);
@@ -2621,7 +2620,6 @@ namespace ParaMEDMEM
     DataArrayInt *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
-    bool isIdentity() const throw(INTERP_KERNEL::Exception);
     bool isIdentity2(int sizeExpected) const throw(INTERP_KERNEL::Exception);
     bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);

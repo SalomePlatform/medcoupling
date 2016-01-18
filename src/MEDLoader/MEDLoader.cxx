@@ -1518,7 +1518,7 @@ void MEDLoader::WriteField(const std::string& fileName, const ParaMEDMEM::MEDCou
                 }
               MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
               AssignStaticWritePropertiesTo(*f1ts);
-              if(part->isIdentity() && part->getNumberOfTuples()==mread->getNumberOfCells())
+              if(part->isIdentity2(mread->getNumberOfCells()))
                 f1ts->setFieldNoProfileSBT(f2);
               else
                 {
@@ -1540,7 +1540,7 @@ void MEDLoader::WriteField(const std::string& fileName, const ParaMEDMEM::MEDCou
                 }
               MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
               AssignStaticWritePropertiesTo(*f1ts);
-              if(part->isIdentity() && part->getNumberOfTuples()==mread->getNumberOfNodes())
+              if(part->isIdentity2(mread->getNumberOfNodes()))
                 f1ts->setFieldNoProfileSBT(f2);
               else
                 {

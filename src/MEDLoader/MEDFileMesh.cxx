@@ -3840,7 +3840,7 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
           end=PutInThirdComponentOfCodeOffset(code2,start);
           newCode.insert(newCode.end(),code2.begin(),code2.end());
           //
-          if(o2nCellsPart2->isIdentity())
+          if(o2nCellsPart2->isIdentity2(o2nCellsPart2->getNumberOfTuples()))
             continue;
           if(famField)
             {

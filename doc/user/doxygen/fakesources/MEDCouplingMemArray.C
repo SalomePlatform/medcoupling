@@ -478,7 +478,7 @@ DataArrayInt::selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges
 DataArrayInt::checkAndPreparePermutation() const;
 DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArrayInt *&arrI) const;
 DataArrayInt::buildPermArrPerLevel() const;
-DataArrayInt::isIdentity() const;
+DataArrayInt::isIdentity2(int sizeExpected) const;
 DataArrayInt::isUniform(int val) const;
 DataArrayInt::substr(int tupleIdBg, int tupleIdEnd=-1) const;
 DataArrayInt::rearrange(int newNbOfCompo);

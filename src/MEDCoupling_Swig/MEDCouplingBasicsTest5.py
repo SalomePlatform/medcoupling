@@ -3798,7 +3798,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
 
     def testSwig2DAIReplaceOneValByInThis1(self):
         d=DataArrayInt([4,-5,-1,0,-5,99,-7,5])
-        d.replaceOneValByInThis(-5,900)
+        d.changeValue(-5,900)
         self.assertTrue(d.isEqual(DataArrayInt([4,900,-1,0,900,99,-7,5])))
         pass
 

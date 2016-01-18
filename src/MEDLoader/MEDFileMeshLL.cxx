@@ -1025,7 +1025,7 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld)
       _m=m;
       _m_by_types.assignUMesh(dynamic_cast<MEDCouplingUMesh *>(m->deepCpy()));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types.getUmesh()->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_N_CELL_FIXED_GEO);
-      if(!da->isIdentity())
+      if(!da->isIdentity2(m->getNumberOfCells()))
         {
           _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
           _m.updateTime();
