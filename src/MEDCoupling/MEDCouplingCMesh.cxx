@@ -89,7 +89,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::New(const std::string& meshName)
   return ret;
 }
 
-MEDCouplingMesh *MEDCouplingCMesh::deepCpy() const
+MEDCouplingCMesh *MEDCouplingCMesh::deepCpy() const
 {
   return clone(true);
 }

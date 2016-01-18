@@ -28,7 +28,7 @@ Various simplifications
     + tessellate2D et tessellate2DCurve: à merger en un seul tessellate2D
     + rename file MEDCouplingNatureOfFieldEnum into MEDCouplingNatureOfFieldEnum.hxx    
 
-Inheritance fix
+Inheritance fix (for 8.1)
 ===============
     + move up in all classes deepCpy(), shallowCpy(), clone() 
 
@@ -68,8 +68,8 @@ MEDCouplingMesh
 ---------------
     getBarycenterAndOwner / computeBarycenter
     computeIsoBarycenterOfNodesPerCell / computeCenterOfMass
-    checkCoherency / checkConsistencyLight
-    checkCoherency1 / checkConsistency
+    checkCoherency / checkCoherencyLight
+    checkCoherency1 / checkCoherency
     
 MEDCouplingPointSet
 -------------------

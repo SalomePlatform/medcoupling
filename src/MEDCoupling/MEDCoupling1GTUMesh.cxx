@@ -550,10 +550,10 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
  * This method behaves mostly like MEDCoupling1SGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
  * 
- * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \return MEDCoupling1SGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1SGTUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const
 {
   checkCoherency();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(clone(false));
@@ -592,7 +592,7 @@ std::vector<const BigMemoryObject *> MEDCoupling1SGTUMesh::getDirectChildrenWith
   return ret;
 }
 
-MEDCouplingMesh *MEDCoupling1SGTUMesh::deepCpy() const
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCpy() const
 {
   return clone(true);
 }
@@ -2185,10 +2185,10 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
  * This method behaves mostly like MEDCoupling1DGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
  * 
- * \return MEDCouplingUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
+ * \return MEDCoupling1DGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1DGTUMesh::deepCpy
  */
-MEDCouplingPointSet *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const
 {
   checkCoherency();
   MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(clone(false));
@@ -2221,7 +2221,7 @@ std::vector<const BigMemoryObject *> MEDCoupling1DGTUMesh::getDirectChildrenWith
   return ret;
 }
 
-MEDCouplingMesh *MEDCoupling1DGTUMesh::deepCpy() const
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCpy() const
 {
   return clone(true);
 }

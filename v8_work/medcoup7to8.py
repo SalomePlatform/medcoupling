@@ -34,7 +34,6 @@ REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"),
                 ("ConservativeVolumic", "IntensiveMaximum"),
                 ("IntegralGlobConstraint", "ExtensiveConservation"),
                 ("Integral", "ExtensiveMaximum"),
-                ("MEDCouplingNatureOfFieldEnum", "MEDCouplingNatureOfFieldEnum.hxx"),
                 ("MEDCouplingAutoRefCountObjectPtr", "MCAuto"),
                 ("deepCpy", "deepCopy") 
                 ]   

@@ -64,7 +64,7 @@ MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::New(const std::string& m
   return ret;
 }
 
-MEDCouplingMesh *MEDCouplingCurveLinearMesh::deepCpy() const
+MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::deepCpy() const
 {
   return clone(true);
 }

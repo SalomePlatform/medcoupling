@@ -218,7 +218,7 @@ namespace ParaMEDMEM
     
   }
 
-  ProcessorGroup *MPIProcessorGroup::deepCpy() const
+  MPIProcessorGroup *MPIProcessorGroup::deepCpy() const
   {
     return new MPIProcessorGroup(*this);
   }
