@@ -2505,7 +2505,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         m1.setCoords(myCoords)
         
         m2 = m1.deepCpy()
-        m2.tessellate2DCurve(0.1)
+        m2.tessellate2D(0.1)
         # If the following raises, the test will fail automatically:
         m2.checkCoherency1(0.0) # eps param not used
 

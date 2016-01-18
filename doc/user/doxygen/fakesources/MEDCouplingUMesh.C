@@ -178,7 +178,6 @@ MEDCouplingUMesh::isFullyQuadratic() const;
 MEDCouplingUMesh::isPresenceOfQuadratic() const;
 MEDCouplingUMesh::simplexize(int policy);
 MEDCouplingUMesh::tessellate2D(double eps);
-MEDCouplingUMesh::tessellate2DCurve(double eps);
   ///@
 
 /*! \name Others... */

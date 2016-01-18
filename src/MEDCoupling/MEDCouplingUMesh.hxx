@@ -181,7 +181,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void convertQuadraticCellsToLinear();
     MEDCOUPLING_EXPORT DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0);
     MEDCOUPLING_EXPORT void tessellate2D(double eps);
-    MEDCOUPLING_EXPORT void tessellate2DCurve(double eps);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *tetrahedrize(int policy, DataArrayInt *& n2oCells, int& nbOfAdditionalPoints) const;
     MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy);
     MEDCOUPLING_EXPORT bool areOnlySimplexCells() const;
@@ -287,6 +286,8 @@ namespace ParaMEDMEM
     DataArrayInt *simplexizePol1();
     DataArrayInt *simplexizePlanarFace5();
     DataArrayInt *simplexizePlanarFace6();
+    void tessellate2DInternal(double eps);
+    void tessellate2DCurveInternal(double eps);
     void subDivide2DMesh(const int *nodeSubdived, const int *nodeIndxSubdived, const int *desc, const int *descIndex);
     void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const;
     void split3DCurveWithPlane(const double *origin, const double *vec, double eps, std::vector<int>& cut3DCurve);
