@@ -26,7 +26,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class DataArrayDouble;

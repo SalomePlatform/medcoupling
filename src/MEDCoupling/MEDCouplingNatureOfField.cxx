@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <sstream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   const char *MEDCouplingNatureOfField::REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]=
   { "NoNature",

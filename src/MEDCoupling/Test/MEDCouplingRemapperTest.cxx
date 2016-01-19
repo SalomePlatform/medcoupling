@@ -31,7 +31,7 @@
 #include <cmath>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MEDCouplingRemapperTest::test2DInterpP0P0_1()
 {

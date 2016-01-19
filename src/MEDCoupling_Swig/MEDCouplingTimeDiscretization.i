@@ -18,7 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingTimeDiscretization : public TimeLabel, public BigMemoryObject
   {

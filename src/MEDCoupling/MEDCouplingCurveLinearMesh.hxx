@@ -25,7 +25,7 @@
 #include "MEDCouplingStructuredMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingCurveLinearMesh : public MEDCouplingStructuredMesh
   {

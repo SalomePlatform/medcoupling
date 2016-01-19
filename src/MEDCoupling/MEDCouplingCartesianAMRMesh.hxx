@@ -29,7 +29,7 @@
 #include "BoxSplittingOptions.hxx"
 #include "InterpKernelException.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingIMesh;
   class MEDCouplingUMesh;

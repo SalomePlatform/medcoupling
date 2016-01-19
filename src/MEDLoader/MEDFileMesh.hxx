@@ -32,7 +32,7 @@
 #include <map>
 #include <list>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileFieldGlobsReal;
   class MEDFileField1TSStructItem;

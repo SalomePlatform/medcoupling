@@ -30,17 +30,17 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingRemapper.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
 %}
 
-%newobject ParaMEDMEM::MEDCouplingRemapper::transferField;
-%newobject ParaMEDMEM::MEDCouplingRemapper::reverseTransferField;
+%newobject MEDCoupling::MEDCouplingRemapper::transferField;
+%newobject MEDCoupling::MEDCouplingRemapper::reverseTransferField;
 
 %include "MEDCouplingCommon.i"
 %include "InterpolationOptions.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
     {

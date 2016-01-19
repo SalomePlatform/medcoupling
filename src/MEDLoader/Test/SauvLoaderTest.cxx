@@ -35,7 +35,7 @@
 #include <vector>
 #include <string>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void SauvLoaderTest::testSauv2Med()
 {

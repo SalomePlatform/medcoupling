@@ -30,7 +30,7 @@
 #include <functional>
 #include <iterator>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MEDCouplingBasicsTest3::testGetMeasureFieldCMesh1()
 {

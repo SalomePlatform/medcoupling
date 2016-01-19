@@ -20,7 +20,7 @@
 
 #include "MEDCouplingPartDefinition.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 PartDefinition *PartDefinition::New(int start, int stop, int step)
 {

@@ -29,7 +29,7 @@
 #include <list>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class MEDCouplingMesh;
@@ -58,48 +58,48 @@ public:
   static std::vector<std::string> GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName);
   static std::vector<std::string> GetAllFieldNames(const std::string& fileName);
   static std::vector<std::string> GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName);
-  static std::vector<ParaMEDMEM::TypeOfField> GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName);
-  static std::vector<std::string> GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName);
+  static std::vector<MEDCoupling::TypeOfField> GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName);
+  static std::vector<std::string> GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName);
   static std::vector<std::string> GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName);
   static std::vector<std::string> GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName);
-  static std::vector< std::pair<int,int> > GetFieldIterations(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName);
+  static std::vector< std::pair<int,int> > GetFieldIterations(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName);
   static std::vector< std::pair<int,int> > GetCellFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName);
   static std::vector< std::pair<int,int> > GetNodeFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName);
   static std::vector< std::pair< std::pair<int,int>, double> > GetAllFieldIterations(const std::string& fileName, const std::string& fieldName);
   static double GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order);
-  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& fams);
-  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps);
-  static ParaMEDMEM::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0);
-  static ParaMEDMEM::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax=0);
-  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0);
-  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0);
+  static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& fams);
+  static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps);
+  static MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0);
+  static MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax=0);
+  static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0);
+  static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0);
   static int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName);
-  static ParaMEDMEM::MEDCouplingFieldDouble *ReadField(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+  static MEDCoupling::MEDCouplingFieldDouble *ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  static std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsOnSameMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
       const std::vector<std::pair<int,int> >& its);
-  static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+  static std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
       const std::vector<std::pair<int,int> >& its);
-  static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+  static std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
       const std::vector<std::pair<int,int> >& its);
-  static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+  static std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
       const std::vector<std::pair<int,int> >& its);
-  static std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+  static std::vector<MEDCoupling::MEDCouplingFieldDouble *> ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
       const std::vector<std::pair<int,int> >& its);
-  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
-  static void WriteMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingMesh *mesh, bool writeFromScratch);
-  static void WriteUMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
-  static void WriteUMeshDep(const std::string& fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
-  static void WriteUMeshesPartition(const std::string& fileName, const std::string& meshName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
-  static void WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
-  static void WriteUMeshes(const std::string& fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
-  static void WriteField(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
-  static void WriteFieldDep(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
-  static void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
+  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order);
+  static void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch);
+  static void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch);
+  static void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch);
+  static void WriteUMeshesPartition(const std::string& fileName, const std::string& meshName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
+  static void WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
+  static void WriteUMeshes(const std::string& fileName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
+  static void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
+  static void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
+  static void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f);
 public:
-  static void AssignStaticWritePropertiesTo(ParaMEDMEM::MEDFileWritable& obj);
+  static void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj);
 private:
   MEDLoader();
 public:

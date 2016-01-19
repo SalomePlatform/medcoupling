@@ -30,7 +30,7 @@ extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type                 typmai3[34];
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 std::size_t MEDFileJointCorrespondence::getHeapMemorySizeWithoutChildren() const
 {

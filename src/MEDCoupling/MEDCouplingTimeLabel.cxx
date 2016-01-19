@@ -24,7 +24,7 @@
 
 #include <limits>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 std::size_t TimeLabel::GLOBAL_TIME=0;
 

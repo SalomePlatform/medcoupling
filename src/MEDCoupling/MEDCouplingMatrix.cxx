@@ -22,7 +22,7 @@
 
 #include "InterpKernelMatrixTools.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 DenseMatrix *DenseMatrix::New(int nbRows, int nbCols)
 {

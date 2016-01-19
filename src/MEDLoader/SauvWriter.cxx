@@ -34,7 +34,7 @@
 #include <cstdlib>
 #include <iomanip>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace SauvUtilities;
 using namespace std;
 

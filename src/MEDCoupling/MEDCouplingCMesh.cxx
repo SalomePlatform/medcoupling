@@ -30,7 +30,7 @@
 #include <sstream>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
@@ -215,8 +215,8 @@ void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
 }
 
 /*!
- * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCMesh, \a this and \a other are the same !
+ * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingCMesh instance too).
+ * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingCMesh, \a this and \a other are the same !
  */
 void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayInt *&cellCor) const

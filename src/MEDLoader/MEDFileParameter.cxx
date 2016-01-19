@@ -27,7 +27,7 @@
 
 #include <set>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileParameter1TS::MEDFileParameter1TS(int iteration, int order, double time):_iteration(iteration),_order(order),_time(time)
 {

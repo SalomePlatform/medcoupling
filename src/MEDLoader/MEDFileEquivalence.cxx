@@ -30,7 +30,7 @@ extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmai3[34];
 extern med_geometry_type typmainoeud[1];
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileEquivalencePair *MEDFileEquivalencePair::Load(MEDFileEquivalences *father, med_idt fid, const std::string& name, const std::string &desc)
 {

@@ -23,7 +23,7 @@
 
 #include <cmath>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingFieldOverTime *MEDCouplingFieldOverTime::New(const std::vector<MEDCouplingFieldDouble *>& fs)
 {

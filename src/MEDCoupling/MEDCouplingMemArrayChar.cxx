@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /*!
  * Checks if raw data is allocated. Read more on the raw data
@@ -1963,8 +1963,8 @@ DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr
  * For more info see \ref MEDCouplingArraySteps1.
  *  \param [in] array - the C array to be used as raw data of \a this.
  *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == ParaMEDMEM::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == ParaMEDMEM::C_DEALLOC,
+ *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+ *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
  *                     \c free(\c array ) will be called.
  *  \param [in] nbOfTuple - new number of tuples in \a this.
  *  \param [in] nbOfCompo - new number of components in \a this.
@@ -2242,8 +2242,8 @@ char DataArrayByteTuple::byteValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayByte::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayByte::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayByte::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayByte::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
@@ -2580,8 +2580,8 @@ char DataArrayAsciiCharTuple::asciiCharValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayAsciiChar::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayAsciiChar::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayAsciiChar::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayAsciiChar::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */

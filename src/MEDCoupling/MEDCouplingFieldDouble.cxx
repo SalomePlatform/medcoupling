@@ -33,23 +33,23 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 
 /*!
  * Creates a new MEDCouplingFieldDouble, of given spatial type and time discretization.
  * For more info, see \ref MEDCouplingFirstSteps3.
  * \param [in] type - the type of spatial discretization of the created field, one of
- *        (\ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- *         \ref ParaMEDMEM::ON_NODES "ON_NODES",
- *         \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- *         \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE",
- *         \ref ParaMEDMEM::ON_NODES_KR "ON_NODES_KR").
+ *        (\ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ *         \ref MEDCoupling::ON_NODES "ON_NODES",
+ *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ *         \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+ *         \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref ParaMEDMEM::NO_TIME "NO_TIME", 
- *         \ref ParaMEDMEM::ONE_TIME "ONE_TIME", 
- *         \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", 
- *         \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. 
  */
@@ -69,10 +69,10 @@ MEDCouplingFieldDouble* MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTime
  * \param [in] ft - the \ref MEDCouplingFieldTemplatesPage "field template" defining
  *        the spatial discretization and the supporting mesh.
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref ParaMEDMEM::NO_TIME "NO_TIME", 
- *         \ref ParaMEDMEM::ONE_TIME "ONE_TIME", 
- *         \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", 
- *         \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. 
  */
@@ -191,10 +191,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
  * shares the data array(s) with \a this field, or holds a deep copy of it, depending on
  * \a deepCopy parameter. But the underlying \b mesh is always **shallow copied**.
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref ParaMEDMEM::NO_TIME "NO_TIME", 
- *         \ref ParaMEDMEM::ONE_TIME "ONE_TIME", 
- *         \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", 
- *         \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \param [in] deepCopy - if \c true, the copy of the underlying data arrays is
  *         deep, else all data arrays of \a this field are shared by the new field.
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
@@ -230,7 +230,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
  * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
  * 
  * \warning This method is a \b non \b conservative method of remapping from node spatial discretization to cell spatial discretization.
- * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P1P0" method.
+ * If a conservative method of interpolation is required MEDCoupling::MEDCouplingRemapper class should be used instead with "P1P0" method.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
 {
@@ -286,7 +286,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
  * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
  *
  * \warning This method is a \b non \b conservative method of remapping from cell spatial discretization to node spatial discretization.
- * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P0P1" method.
+ * If a conservative method of interpolation is required MEDCoupling::MEDCouplingRemapper class should be used instead with "P0P1" method.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
 {
@@ -738,11 +738,11 @@ DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) co
  * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
  * This method returns a restriction of \a this so that only tuples with ids specified in \a part will be contained in the returned field.
  * Parameter \a part specifies **cell ids whatever the spatial discretization of this** (
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- * \ref ParaMEDMEM::ON_NODES "ON_NODES",
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE",
- * \ref ParaMEDMEM::ON_NODES_KR "ON_NODES_KR").
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ * \ref MEDCoupling::ON_NODES "ON_NODES",
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+ * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  *
  * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a part contains following cell ids [3,7,6].
  * Then the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.<br>
@@ -776,11 +776,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * \n This method makes the assumption that \a this field is correctly defined when this method is called (\a this->checkCoherency() returns without any exception thrown), **no check of this will be done**.
  * \n This method returns a restriction of \a this so that only tuple ids specified in [ \a partBg , \a partEnd ) will be contained in the returned field.
  * \n Parameter [\a partBg, \a partEnd ) specifies **cell ids whatever the spatial discretization** of \a this (
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- * \ref ParaMEDMEM::ON_NODES "ON_NODES",
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE",
- * \ref ParaMEDMEM::ON_NODES_KR "ON_NODES_KR").
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ * \ref MEDCoupling::ON_NODES "ON_NODES",
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+ * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  *
  * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a partBg contains the following cell ids [3,7,6].
  * Then the returned field will lie on mesh having 3 cells and will contain 3 tuples.
@@ -802,7 +802,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."<br>
  * \ref py_mcfielddouble_subpart1 "Here a Python example."
  * \endif
- * \sa ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
+ * \sa MEDCoupling::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const
 {
@@ -878,7 +878,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPartRange(int begin, int
 
 /*!
  * Returns a type of \ref MEDCouplingTemporalDisc "time discretization" of \a this field.
- *  \return ParaMEDMEM::TypeOfTimeDiscretization - an enum item describing the time
+ *  \return MEDCoupling::TypeOfTimeDiscretization - an enum item describing the time
  *          discretization type.
  */
 TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
@@ -1562,7 +1562,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& f
  * The function is applied to coordinates of value location points. For example, if
  * \a this field is on cells, the function is applied to cell barycenters.<br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a variable name corresponding to a component is retrieved from
@@ -1611,7 +1611,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& 
  * The function is applied to coordinates of value location points. For example, if
  * \a this field is on cells, the function is applied to cell barycenters.<br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a component index of a variable is defined by a
@@ -1675,7 +1675,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
 /*!
  * Fill \a this field with a given value.<br>
  * This method is a specialization of other overloaded methods. When \a nbOfComp == 1
- * this method is equivalent to ParaMEDMEM::MEDCouplingFieldDouble::operator=().
+ * this method is equivalent to MEDCoupling::MEDCouplingFieldDouble::operator=().
  *  \param [in] nbOfComp - the number of components for \a this field to have.
  *  \param [in] val - the value to assign to every atomic value of \a this field.
  *  \throw If the spatial discretization of \a this field is NULL.
@@ -1740,7 +1740,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
  * For more info on supported expressions that can be used in the function, see \ref
  * MEDCouplingArrayApplyFuncExpr. <br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
  * by the way how variable
  * names, used in the function, are associated with components of field values;
  * here, a variable name corresponding to a component is retrieved from
@@ -1777,7 +1777,7 @@ void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string& func)
  * Modifies values of \a this field by applying a function to each tuple of all
  * data arrays.
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
  * by the way how variable
  * names, used in the function, are associated with components of field values;
  * here, a component index of a variable is defined by a
@@ -1885,7 +1885,7 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
  * - the number of entities in the underlying mesh
  * - \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field (e.g. number
  * of Gauss points if \a this->getTypeOfField() == 
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT").
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT").
  *
  * The returned value does \b not \b depend on the number of tuples in the data array
  * (which has to be equal to the returned value), \b contrary to
@@ -1953,7 +1953,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDouble::getDirectChildrenWi
 
 /*!
  * Sets \ref NatureOfField.
- *  \param [in] nat - an item of enum ParaMEDMEM::NatureOfField.
+ *  \param [in] nat - an item of enum MEDCoupling::NatureOfField.
  */
 void MEDCouplingFieldDouble::setNature(NatureOfField nat)
 {
@@ -1979,8 +1979,8 @@ void MEDCouplingFieldDouble::synchronizeTimeWithMesh()
 
 /*!
  * Returns a value of \a this field of type either
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT" or
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE".
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" or
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  *  \param [in] cellId - an id of cell of interest.
  *  \param [in] nodeIdInCell - a node index within the cell.
  *  \param [in] compoId - an index of component.
@@ -1989,8 +1989,8 @@ void MEDCouplingFieldDouble::synchronizeTimeWithMesh()
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If \a this field if of type other than 
- *         \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT" or
- *         \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE".
+ *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" or
+ *         \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  */
 double MEDCouplingFieldDouble::getIJK(int cellId, int nodeIdInCell, int compoId) const
 {

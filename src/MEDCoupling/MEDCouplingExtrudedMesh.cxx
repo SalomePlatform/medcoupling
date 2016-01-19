@@ -36,7 +36,7 @@
 #include <list>
 #include <set>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /*!
  * Build an extruded mesh instance from 3D and 2D unstructured mesh lying on the \b same \b coords.

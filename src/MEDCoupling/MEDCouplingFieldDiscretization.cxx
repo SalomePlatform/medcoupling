@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const double MEDCouplingFieldDiscretization::DFLT_PRECISION=1.e-12;
 
@@ -1095,7 +1095,7 @@ MEDCouplingFieldDiscretizationPerCell::~MEDCouplingFieldDiscretizationPerCell()
 }
 
 /*!
- * This constructor deep copies ParaMEDMEM::DataArrayInt instance from other (if any).
+ * This constructor deep copies MEDCoupling::DataArrayInt instance from other (if any).
  */
 MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other, const int *startCellIds, const int *endCellIds):_discr_per_cell(0)
 {

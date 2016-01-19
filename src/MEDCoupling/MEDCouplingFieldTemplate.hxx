@@ -23,7 +23,7 @@
 
 #include "MEDCouplingField.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingFieldDouble;
   /*!

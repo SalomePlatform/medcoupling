@@ -33,7 +33,7 @@
 #include <limits>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingPointSet::MEDCouplingPointSet():_coords(0)
 {

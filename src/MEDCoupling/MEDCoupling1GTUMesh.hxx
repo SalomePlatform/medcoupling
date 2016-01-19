@@ -28,7 +28,7 @@
 
 #include "CellModel.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCoupling1GTUUMeshCellIterator;
 

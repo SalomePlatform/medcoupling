@@ -35,7 +35,7 @@
 
 extern med_geometry_type typmai3[34];
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
 
@@ -83,11 +83,11 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   MEDFileUtilities::CheckFileForRead(fileName);
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ret;
   switch(meshType)
@@ -137,11 +137,11 @@ MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelect
 MEDFileMesh *MEDFileMesh::New(const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs, MEDFileJoints* joints)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dummy0,dummy1;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> ret;
   switch(meshType)
@@ -2264,9 +2264,9 @@ MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, MEDFileMeshReadSele
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileUMesh(fid,ms.front(),dt,it,mrs);
 }
@@ -2545,10 +2545,10 @@ catch(INTERP_KERNEL::Exception& e)
 void MEDFileUMesh::loadPartUMeshFromFile(med_idt fid, const std::string& mName, const std::vector<INTERP_KERNEL::NormalizedCellType>& types, const std::vector<int>& slicPerTyp, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUMeshL2 loaderl2;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2));
   if(meshType!=UNSTRUCTURED)
     {
@@ -2672,10 +2672,10 @@ void MEDFileMesh::setJoints( MEDFileJoints* joints )
 void MEDFileUMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUMeshL2 loaderl2;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType axType;
+  MEDCoupling::MEDCouplingAxisType axType;
   int mid(MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dummy2));
   setAxType(axType);
   if(meshType!=UNSTRUCTURED)
@@ -6003,9 +6003,9 @@ MEDFileCMesh *MEDFileCMesh::New(const std::string& fileName, MEDFileMeshReadSele
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileCMesh(fid,ms.front(),dt,it,mrs);
 }
@@ -6169,10 +6169,10 @@ catch(INTERP_KERNEL::Exception& e)
 
 void MEDFileCMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dtunit;
-  ParaMEDMEM::MEDCouplingAxisType axType;
+  MEDCoupling::MEDCouplingAxisType axType;
   int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
   if(meshType!=CARTESIAN)
     {
@@ -6301,8 +6301,8 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const std::string& fileName,
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   int dt,it;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   std::string dummy2;
   MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
   return new MEDFileCurveLinearMesh(fid,ms.front(),dt,it,mrs);
@@ -6510,10 +6510,10 @@ void MEDFileCurveLinearMesh::writeLL(med_idt fid) const
 
 void MEDFileCurveLinearMesh::loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   int dummy0,dummy1;
   std::string dtunit;
-  ParaMEDMEM::MEDCouplingAxisType axType;
+  MEDCoupling::MEDCouplingAxisType axType;
   int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,axType,dummy0,dummy1,dtunit);
   setAxType(axType);
   if(meshType!=CURVE_LINEAR)
@@ -6701,9 +6701,9 @@ try
     MEDFileUtilities::CheckFileForRead(fileName);
     MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
     int dt,it;
-    ParaMEDMEM::MEDCouplingMeshType meshType;
+    MEDCoupling::MEDCouplingMeshType meshType;
     std::string dummy2;
-    ParaMEDMEM::MEDCouplingAxisType dummy3;
+    MEDCoupling::MEDCouplingAxisType dummy3;
     MEDFileMeshL2::GetMeshIdFromName(fid,ms.front(),meshType,dummy3,dt,it,dummy2);
     loadFromFile(fileName,ms.front());
 }

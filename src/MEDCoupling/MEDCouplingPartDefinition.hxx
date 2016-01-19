@@ -25,7 +25,7 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class PartDefinition : public RefCountObject, public TimeLabel
   {

@@ -26,7 +26,7 @@
 
 #include "InterpKernelException.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingNatureOfField
   {

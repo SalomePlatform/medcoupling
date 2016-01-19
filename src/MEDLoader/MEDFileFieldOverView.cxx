@@ -25,7 +25,7 @@
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "CellModel.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const unsigned char MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE[MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE_LGTH]=
 {1,3,21,5,9,7,22,34,23,28,255,255,255,255,10,14,13,255,12,255,24,255,16,27,255,26,255,29,255,255,25,42,36,4};

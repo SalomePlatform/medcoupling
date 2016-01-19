@@ -51,7 +51,7 @@
 #endif
 
 using namespace SauvUtilities;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 namespace
 {
@@ -2373,11 +2373,11 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
 
 //================================================================================
 /*!
- * \brief Makes ParaMEDMEM::MEDFileData from self
+ * \brief Makes MEDCoupling::MEDFileData from self
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
+MEDCoupling::MEDFileData* IntermediateMED::convertInMEDFileDS()
 {
   MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh();
   MEDCouplingAutoRefCountObjectPtr< MEDFileFields > fields = makeMEDFileFields(mesh);
@@ -2393,11 +2393,11 @@ ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
 
 //================================================================================
 /*!
- * \brief Creates ParaMEDMEM::MEDFileUMesh from its data
+ * \brief Creates MEDCoupling::MEDFileUMesh from its data
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
+MEDCoupling::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
 {
   // check if all needed piles are present
   checkDataAvailability();
@@ -3092,7 +3092,7 @@ void IntermediateMED::numberElements()
  */
 //================================================================================
 
-ParaMEDMEM::DataArrayDouble * IntermediateMED::getCoords()
+MEDCoupling::DataArrayDouble * IntermediateMED::getCoords()
 {
   DataArrayDouble* coordArray = DataArrayDouble::New();
   coordArray->alloc( _nbNodes, _spaceDim );
@@ -3118,8 +3118,8 @@ ParaMEDMEM::DataArrayDouble * IntermediateMED::getCoords()
  */
 //================================================================================
 
-void IntermediateMED::setConnectivity( ParaMEDMEM::MEDFileUMesh*    mesh,
-                                       ParaMEDMEM::DataArrayDouble* coords )
+void IntermediateMED::setConnectivity( MEDCoupling::MEDFileUMesh*    mesh,
+                                       MEDCoupling::DataArrayDouble* coords )
 {
   int meshDim = 0;
 
@@ -3184,7 +3184,7 @@ void IntermediateMED::setConnectivity( ParaMEDMEM::MEDFileUMesh*    mesh,
  */
 //================================================================================
 
-void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
+void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
 {
   bool isMeshNameSet = false;
   const int meshDim = mesh->getMeshDimension();
@@ -3323,7 +3323,7 @@ bool IntermediateMED::isOnAll( const Group* grp, int & dimRel ) const
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileFields * IntermediateMED::makeMEDFileFields(ParaMEDMEM::MEDFileUMesh* mesh)
+MEDCoupling::MEDFileFields * IntermediateMED::makeMEDFileFields(MEDCoupling::MEDFileUMesh* mesh)
 {
   if ( _nodeFields.empty() && _cellFields.empty() ) return 0;
 
@@ -3349,8 +3349,8 @@ ParaMEDMEM::MEDFileFields * IntermediateMED::makeMEDFileFields(ParaMEDMEM::MEDFi
 //================================================================================
 
 void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
-                                 ParaMEDMEM::MEDFileFields*  medFields,
-                                 ParaMEDMEM::MEDFileUMesh*   mesh,
+                                 MEDCoupling::MEDFileFields*  medFields,
+                                 MEDCoupling::MEDFileUMesh*   mesh,
                                  const TID                   castemID,
                                  std::set< std::string >&    usedFieldNames)
 {
@@ -3409,9 +3409,9 @@ void IntermediateMED::setFields( SauvUtilities::DoubleField* fld,
 //================================================================================
 
 void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
-                             ParaMEDMEM::DataArrayDouble* values,
-                             ParaMEDMEM::MEDFileFields*   medFields,
-                             ParaMEDMEM::MEDFileUMesh*    mesh,
+                             MEDCoupling::DataArrayDouble* values,
+                             MEDCoupling::MEDFileFields*   medFields,
+                             MEDCoupling::MEDFileUMesh*    mesh,
                              const int                    iSub)
 {
   // treat a field support
@@ -3437,7 +3437,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
         < MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
       timeStamp->setMesh( dimMesh );
     }
-  else if ( timeStamp->getTypeOfField() == ParaMEDMEM::ON_NODES )
+  else if ( timeStamp->getTypeOfField() == MEDCoupling::ON_NODES )
     {
       DataArrayDouble * coo = mesh->getCoords();
       MEDCouplingAutoRefCountObjectPtr
@@ -3462,7 +3462,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   timeStamp->setArray( values );
   values->decrRef();
   // set gauss points
-  if ( timeStamp->getTypeOfField() == ParaMEDMEM::ON_GAUSS_PT )
+  if ( timeStamp->getTypeOfField() == MEDCoupling::ON_GAUSS_PT )
     {
       TGaussDef gaussDef( fld->_sub[iSub]._support->_cellType,
                           fld->_sub[iSub].nbGauss() );
@@ -3659,7 +3659,7 @@ bool DoubleField::hasSameComponentsBySupport() const
  */
 //================================================================================
 
-ParaMEDMEM::TypeOfField DoubleField::getMedType( const int iSub ) const
+MEDCoupling::TypeOfField DoubleField::getMedType( const int iSub ) const
 {
   using namespace INTERP_KERNEL;
 
@@ -3681,7 +3681,7 @@ ParaMEDMEM::TypeOfField DoubleField::getMedType( const int iSub ) const
  */
 //================================================================================
 
-ParaMEDMEM::TypeOfTimeDiscretization DoubleField::getMedTimeDisc() const
+MEDCoupling::TypeOfTimeDiscretization DoubleField::getMedTimeDisc() const
 {
   return ONE_TIME;
   // NO_TIME = 4,

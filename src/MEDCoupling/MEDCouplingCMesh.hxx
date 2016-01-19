@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingStructuredMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingCurveLinearMesh;
   

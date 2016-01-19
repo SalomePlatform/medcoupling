@@ -49,7 +49,7 @@
 #include <limits>
 #include <list>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 double MEDCouplingUMesh::EPS_FOR_POLYH_ORIENTATION=1.e-14;
 
@@ -2006,7 +2006,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeMyselfWithOnSameCoords(const MEDCouplin
  * \param start
  * \param end
  * \param step
- * \param keepCoords that specifies if you want or not to keep coords as this or zip it (see ParaMEDMEM::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
+ * \param keepCoords that specifies if you want or not to keep coords as this or zip it (see MEDCoupling::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
  * \return a newly allocated
  * 
  * \warning This method modifies can generate an unstructured mesh whose cells are not sorted by geometric type order.
@@ -2640,7 +2640,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 /*!
  * This method renumbers nodes \b in \b connectivity \b only \b without \b any \b reference \b to \b coords.
  * This method performs no check on the fact that new coordinate ids are valid. \b Use \b it \b with \b care !
- * This method is an specialization of \ref ParaMEDMEM::MEDCouplingUMesh::renumberNodesInConn "renumberNodesInConn method".
+ * This method is an specialization of \ref MEDCoupling::MEDCouplingUMesh::renumberNodesInConn "renumberNodesInConn method".
  * 
  * \param [in] delta specifies the shift size applied to nodeId in nodal connectivity in \b this.
  */
@@ -3961,7 +3961,7 @@ DataArrayInt *MEDCouplingUMesh::getCellIdsCrossingPlane(const double *origin, co
  * If not an exception will thrown. If this is an empty mesh with no cell an exception will be thrown too.
  * No consideration of coordinate is done by this method.
  * A 1D mesh is said contiguous if : a cell i with nodal connectivity (k,p) the cell i+1 the nodal connectivity should be (p,m)
- * If not false is returned. In case that false is returned a call to ParaMEDMEM::MEDCouplingUMesh::mergeNodes could be usefull.
+ * If not false is returned. In case that false is returned a call to MEDCoupling::MEDCouplingUMesh::mergeNodes could be usefull.
  */
 bool MEDCouplingUMesh::isContiguous1D() const
 {
@@ -4269,7 +4269,7 @@ void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, st
 
 /// @cond INTERNAL
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   template<const int SPACEDIMM>
   class DummyClsMCUG
@@ -5568,7 +5568,7 @@ bool MEDCouplingUMesh::areOnlySimplexCells() const
 }
 
 /*!
- * This method implements policy 0 of virtual method ParaMEDMEM::MEDCouplingUMesh::simplexize.
+ * This method implements policy 0 of virtual method MEDCoupling::MEDCouplingUMesh::simplexize.
  */
 DataArrayInt *MEDCouplingUMesh::simplexizePol0()
 {
@@ -5621,7 +5621,7 @@ DataArrayInt *MEDCouplingUMesh::simplexizePol0()
 }
 
 /*!
- * This method implements policy 1 of virtual method ParaMEDMEM::MEDCouplingUMesh::simplexize.
+ * This method implements policy 1 of virtual method MEDCoupling::MEDCouplingUMesh::simplexize.
  */
 DataArrayInt *MEDCouplingUMesh::simplexizePol1()
 {
@@ -5674,7 +5674,7 @@ DataArrayInt *MEDCouplingUMesh::simplexizePol1()
 }
 
 /*!
- * This method implements policy INTERP_KERNEL::PLANAR_FACE_5 of virtual method ParaMEDMEM::MEDCouplingUMesh::simplexize.
+ * This method implements policy INTERP_KERNEL::PLANAR_FACE_5 of virtual method MEDCoupling::MEDCouplingUMesh::simplexize.
  */
 DataArrayInt *MEDCouplingUMesh::simplexizePlanarFace5()
 {
@@ -5726,7 +5726,7 @@ DataArrayInt *MEDCouplingUMesh::simplexizePlanarFace5()
 }
 
 /*!
- * This method implements policy INTERP_KERNEL::PLANAR_FACE_6 of virtual method ParaMEDMEM::MEDCouplingUMesh::simplexize.
+ * This method implements policy INTERP_KERNEL::PLANAR_FACE_6 of virtual method MEDCoupling::MEDCouplingUMesh::simplexize.
  */
 DataArrayInt *MEDCouplingUMesh::simplexizePlanarFace6()
 {
@@ -6807,7 +6807,7 @@ DataArrayDouble *MEDCouplingUMesh::getBoundingBoxForBBTree1DQuadratic(double arc
 
 /// @cond INTERNAL
 
-namespace ParaMEDMEMImpl
+namespace MEDCouplingImpl
 {
   class ConnReader
   {
@@ -6861,7 +6861,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const
         }
       types.insert(typ);
       ret[3*i]=typ;
-      const int *work2=std::find_if(work+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,typ));
+      const int *work2=std::find_if(work+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,typ));
       ret[3*i+1]=(int)std::distance(work,work2);
       work=work2;
     }
@@ -6924,9 +6924,9 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
   int kk=0;
   for(std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator it=types.begin();it!=types.end();it++,kk++)
     {
-      i=std::find_if(i,connI+nbOfCells,ParaMEDMEMImpl::ConnReader2(conn,(int)(*it)));
+      i=std::find_if(i,connI+nbOfCells,MEDCouplingImpl::ConnReader2(conn,(int)(*it)));
       int offset=(int)std::distance(connI,i);
-      const int *j=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)(*it)));
+      const int *j=std::find_if(i+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,(int)(*it)));
       int nbOfCellsOfCurType=(int)std::distance(i,j);
       if(code[3*kk+2]==-1)
         for(int k=0;k<nbOfCellsOfCurType;k++)
@@ -7006,7 +7006,7 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::splitProfilePerType : current mesh is not sorted by type !");
         }
       types.push_back(curType);
-      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+      i=std::find_if(i+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,(int)curType));
       typeRangeVals.push_back((int)std::distance(connI,i));
     }
   //
@@ -7061,7 +7061,7 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
  * This method is here too emulate the MEDMEM behaviour on BDC (buildDescendingConnectivity). Hoping this method becomes deprecated very soon.
  * This method make the assumption that \a this and 'nM1LevMesh' mesh lyies on same coords (same pointer) as MED and MEDMEM does.
  * The following equality should be verified 'nM1LevMesh->getMeshDimension()==this->getMeshDimension()-1'
- * This method returns 5+2 elements. 'desc', 'descIndx', 'revDesc', 'revDescIndx' and 'meshnM1' behaves exactly as ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity except the content as described after. The returned array specifies the n-1 mesh reordered by type as MEDMEM does. 'nM1LevMeshIds' contains the ids in returned 'meshnM1'. Finally 'meshnM1Old2New' contains numbering old2new that is to say the cell #k in coarse 'nM1LevMesh' will have the number ret[k] in returned mesh 'nM1LevMesh' MEDMEM reordered.
+ * This method returns 5+2 elements. 'desc', 'descIndx', 'revDesc', 'revDescIndx' and 'meshnM1' behaves exactly as MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity except the content as described after. The returned array specifies the n-1 mesh reordered by type as MEDMEM does. 'nM1LevMeshIds' contains the ids in returned 'meshnM1'. Finally 'meshnM1Old2New' contains numbering old2new that is to say the cell #k in coarse 'nM1LevMesh' will have the number ret[k] in returned mesh 'nM1LevMesh' MEDMEM reordered.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh, DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *&revDesc, DataArrayInt *&revDescIndx, DataArrayInt *& nM1LevMeshIds, DataArrayInt *&meshnM1Old2New) const
 {
@@ -7133,7 +7133,7 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
       if(types.find(curType)!=types.end())
         return false;
       types.insert(curType);
-      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+      i=std::find_if(i+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,(int)curType));
     }
   return true;
 }
@@ -7175,13 +7175,13 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::No
           if(pos<=lastPos)
             return false;
           lastPos=pos;
-          i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+          i=std::find_if(i+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,(int)curType));
         }
       else
         {
           if(sg.find(curType)==sg.end())
             {
-              i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+              i=std::find_if(i+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,(int)curType));
               sg.insert(curType);
             }
           else
@@ -7310,7 +7310,7 @@ std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
     {
       INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
       int beginCellId=(int)std::distance(connI,i);
-      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+      i=std::find_if(i+1,connI+nbOfCells,MEDCouplingImpl::ConnReader(conn,(int)curType));
       int endCellId=(int)std::distance(connI,i);
       int sz=endCellId-beginCellId;
       int *cells=new int[sz];
@@ -8107,7 +8107,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
  * array is created by concatenating the connectivity arrays of all given meshes. All
  * the given meshes must be of the same space dimension but dimension of cells **can
  * differ**. This method is particulary useful in MEDLoader context to build a \ref
- * ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
+ * MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
  * MEDCouplingUMesh'es of different dimension share the same nodal connectivity array.
  *  \param [in,out] meshes - a vector of meshes to update.
  *  \throw If any of \a meshes is NULL.
@@ -8161,7 +8161,7 @@ void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCou
  * Merges nodes coincident with a given precision within all given meshes that share
  * the nodal connectivity array. The given meshes **can be of different** mesh
  * dimension. This method is particulary useful in MEDLoader context to build a \ref
- * ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
+ * MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
  * MEDCouplingUMesh'es of different dimension share the same nodal connectivity array. 
  *  \param [in,out] meshes - a vector of meshes to update.
  *  \param [in] eps - the precision used to detect coincident nodes (infinite norm).
@@ -8790,14 +8790,14 @@ MEDCouplingSkyLineArray *MEDCouplingUMesh::generateGraph() const
   checkConnectivityFullyDefined();
 
   int meshDim = this->getMeshDimension();
-  ParaMEDMEM::DataArrayInt* indexr=ParaMEDMEM::DataArrayInt::New();
-  ParaMEDMEM::DataArrayInt* revConn=ParaMEDMEM::DataArrayInt::New();
+  MEDCoupling::DataArrayInt* indexr=MEDCoupling::DataArrayInt::New();
+  MEDCoupling::DataArrayInt* revConn=MEDCoupling::DataArrayInt::New();
   this->getReverseNodalConnectivity(revConn,indexr);
   const int* indexr_ptr=indexr->getConstPointer();
   const int* revConn_ptr=revConn->getConstPointer();
 
-  const ParaMEDMEM::DataArrayInt* index;
-  const ParaMEDMEM::DataArrayInt* conn;
+  const MEDCoupling::DataArrayInt* index;
+  const MEDCoupling::DataArrayInt* conn;
   conn=this->getNodalConnectivity(); // it includes a type as the 1st element!!!
   index=this->getNodalConnectivityIndex();
   int nbCells=this->getNumberOfCells();
@@ -11884,7 +11884,7 @@ MEDCouplingUMeshCellEntry *MEDCouplingUMeshCellByTypeIterator::nextt()
   if(_cell_id<_nb_cell)
     {
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)c[ci[_cell_id]];
-      int nbOfElems=(int)std::distance(ci+_cell_id,std::find_if(ci+_cell_id,ci+_nb_cell,ParaMEDMEMImpl::ConnReader(c,type)));
+      int nbOfElems=(int)std::distance(ci+_cell_id,std::find_if(ci+_cell_id,ci+_nb_cell,MEDCouplingImpl::ConnReader(c,type)));
       int startId=_cell_id;
       _cell_id+=nbOfElems;
       return new MEDCouplingUMeshCellEntry(_mesh,type,_cell,startId,_cell_id);

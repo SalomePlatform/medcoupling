@@ -29,7 +29,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileEquivalenceCell;
   class MEDFileEquivalenceNode;

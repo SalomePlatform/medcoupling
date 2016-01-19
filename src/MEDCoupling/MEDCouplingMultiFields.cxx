@@ -27,7 +27,7 @@
 #include <sstream>
 #include <algorithm>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingMultiFields *MEDCouplingMultiFields::New(const std::vector<MEDCouplingFieldDouble *>& fs)
 {

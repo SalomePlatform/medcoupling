@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const double MEDCouplingTimeDiscretization::TIME_TOLERANCE_DFT=1.e-12;
 

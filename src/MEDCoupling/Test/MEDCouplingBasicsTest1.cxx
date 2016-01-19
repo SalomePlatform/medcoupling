@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MEDCouplingBasicsTest1::testArray()
 {

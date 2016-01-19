@@ -38,7 +38,7 @@
 #include "InterpolationCU.txx"
 #include "InterpolationCC.txx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingRemapper::MEDCouplingRemapper():_src_ft(0),_target_ft(0),_interp_matrix_pol(IK_ONLY_PREFERED),_nature_of_deno(NoNature),_time_deno_update(0)
 {
@@ -165,10 +165,10 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
 }
 
 /*!
- * This method performs the operation source to target using matrix computed in ParaMEDMEM::MEDCouplingRemapper::prepare method.
- * If meshes of \b srcField and \b targetField do not match exactly those given into \ref ParaMEDMEM::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
+ * This method performs the operation source to target using matrix computed in MEDCoupling::MEDCouplingRemapper::prepare method.
+ * If meshes of \b srcField and \b targetField do not match exactly those given into \ref MEDCoupling::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
  * 
- * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
+ * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
  * \param [in/out] targetField the destination field with the allocated array in which all tuples will be overwritten.
  * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
  *             For example in "P0P0" case (cell-cell) if a cell in target mesh is not overlapped by any source cell the \a dftValue value will be attached on that cell in the returned \a targetField. In some cases a target
@@ -185,12 +185,12 @@ void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCo
 }
 
 /*!
- * This method is equivalent to ParaMEDMEM::MEDCouplingRemapper::transfer except that here \b targetField is a in/out parameter.
+ * This method is equivalent to MEDCoupling::MEDCouplingRemapper::transfer except that here \b targetField is a in/out parameter.
  * If an entity (cell for example) in targetField is not fetched by any entity (cell for example) of \b srcField, the value in targetField is
  * let unchanged.
  * This method requires that \b targetField was fully defined and allocated. If the array is not allocated an exception will be thrown.
  * 
- * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
+ * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
  * \param [in,out] targetField the destination field with the allocated array in which only tuples whose entities are fetched by interpolation will be overwritten only.
  */
 void MEDCouplingRemapper::partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField)
@@ -240,10 +240,10 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
 }
 
 /*!
- * This method performs the operation source to target using matrix computed in ParaMEDMEM::MEDCouplingRemapper::prepare method.
- * If mesh of \b srcField does not match exactly those given into \ref ParaMEDMEM::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
+ * This method performs the operation source to target using matrix computed in MEDCoupling::MEDCouplingRemapper::prepare method.
+ * If mesh of \b srcField does not match exactly those given into \ref MEDCoupling::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
  * 
- * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
+ * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
  * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
  *             For example in "P0P0" case (cell-cell) if a cell in target mesh is not overlapped by any source cell the \a dftValue value will be attached on that cell in the returned \a targetField. In some cases a target
  *             cell not intercepted by any source cell is a bug so in this case it is advised to set a huge value (1e300 for example) to \a dftValue to quickly point to the problem. But for users doing parallelism a target cell can
@@ -351,7 +351,7 @@ int MEDCouplingRemapper::getInterpolationMatrixPolicy() const
  *
  * - NOT_IK_ONLY_FORCED (3) : Only \b NOT INTERP_KERNEL only method will be launched.
  * 
- * \input newInterpMatPol the new interpolation matrix method policy. This parameter is of type \c int and not of type \c ParaMEDMEM::InterpolationMatrixPolicy
+ * \input newInterpMatPol the new interpolation matrix method policy. This parameter is of type \c int and not of type \c MEDCoupling::InterpolationMatrixPolicy
  *                        for automatic generation of CORBA component.
  * 
  * \sa MEDCouplingRemapper::getInterpolationMatrixPolicy

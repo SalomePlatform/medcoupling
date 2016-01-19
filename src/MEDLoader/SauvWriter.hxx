@@ -33,7 +33,7 @@
 #include <string>
 #include <map>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileData;
   class MEDFileMesh;
@@ -43,7 +43,7 @@ namespace ParaMEDMEM
   /*!
    * \brief Class to write a MEDFileData into a SAUVE format file
    */
-  class SauvWriter : public ParaMEDMEM::RefCountObject
+  class SauvWriter : public MEDCoupling::RefCountObject
   {
   public:
     MEDLOADER_EXPORT static SauvWriter *New();

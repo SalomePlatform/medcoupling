@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileString
   {

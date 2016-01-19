@@ -35,7 +35,7 @@
 #include <list>
 #include <algorithm>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayDouble;
   class DataArrayInt;
@@ -102,7 +102,7 @@ namespace SauvUtilities
                                             reference is converted into a copy of the medGroup
                                             (issue 0021311)
                                          */
-    ParaMEDMEM::DataArrayInt* _medGroup;   // result of conversion
+    MEDCoupling::DataArrayInt* _medGroup;   // result of conversion
     std::vector< unsigned >   _relocTable; // for _cells[i] gives its index in _medGroup
 
     bool empty() const { return _cells.empty() && _groups.empty(); }
@@ -144,7 +144,7 @@ namespace SauvUtilities
                                         is the same and supports of subcomponents do not overlap
                                      */
     std::vector< std::vector< double > > _comp_values;
-    ParaMEDMEM::MEDFileFieldMultiTS*     _curMedField;
+    MEDCoupling::MEDFileFieldMultiTS*     _curMedField;
 
     DoubleField( int nb_sub, int total_nb_comp )
       : _sub(nb_sub), _group(NULL), _curMedField(NULL) { _comp_values.reserve( total_nb_comp ); }
@@ -155,8 +155,8 @@ namespace SauvUtilities
 
     bool isMultiTimeStamps() const;
     bool isMedCompatible(bool& sameNbGauss) const;
-    ParaMEDMEM::TypeOfField getMedType( const int iSub=0 ) const;
-    ParaMEDMEM::TypeOfTimeDiscretization getMedTimeDisc() const;
+    MEDCoupling::TypeOfField getMedType( const int iSub=0 ) const;
+    MEDCoupling::TypeOfTimeDiscretization getMedTimeDisc() const;
     int getNbTuples( const int iSub=0 ) const;
     int getNbValuesPerElement( const int iSub=0 ) const;
     int getNbGauss( const int iSub=0 ) const;
@@ -255,24 +255,24 @@ namespace SauvUtilities
     int getNbCellsOfType( TCellType type ) const { return _cellsByType[type].size(); }
     const Cell* insert(TCellType type, const Cell& ma) { return &( *_cellsByType[type].insert( ma ).first ); }
     Group* addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix=0);
-    ParaMEDMEM::MEDFileData* convertInMEDFileDS();
+    MEDCoupling::MEDFileData* convertInMEDFileDS();
 
   private:
 
-    ParaMEDMEM::MEDFileUMesh* makeMEDFileMesh();
-    ParaMEDMEM::DataArrayDouble * getCoords();
-    void setConnectivity( ParaMEDMEM::MEDFileUMesh* mesh, ParaMEDMEM::DataArrayDouble* coords );
-    void setGroups( ParaMEDMEM::MEDFileUMesh* mesh );
-    ParaMEDMEM::MEDFileFields * makeMEDFileFields(ParaMEDMEM::MEDFileUMesh* mesh);
+    MEDCoupling::MEDFileUMesh* makeMEDFileMesh();
+    MEDCoupling::DataArrayDouble * getCoords();
+    void setConnectivity( MEDCoupling::MEDFileUMesh* mesh, MEDCoupling::DataArrayDouble* coords );
+    void setGroups( MEDCoupling::MEDFileUMesh* mesh );
+    MEDCoupling::MEDFileFields * makeMEDFileFields(MEDCoupling::MEDFileUMesh* mesh);
     void setFields( SauvUtilities::DoubleField*    fld,
-                    ParaMEDMEM::MEDFileFields*     medFields,
-                    ParaMEDMEM::MEDFileUMesh*      mesh,
+                    MEDCoupling::MEDFileFields*     medFields,
+                    MEDCoupling::MEDFileUMesh*      mesh,
                     const TID                      castemID,
                     std::set< std::string >&       usedNames);
     void setTS( SauvUtilities::DoubleField*  fld,
-                ParaMEDMEM::DataArrayDouble* values,
-                ParaMEDMEM::MEDFileFields*   medFields,
-                ParaMEDMEM::MEDFileUMesh*    mesh,
+                MEDCoupling::DataArrayDouble* values,
+                MEDCoupling::MEDFileFields*   medFields,
+                MEDCoupling::MEDFileUMesh*    mesh,
                 const int                    iSub=0);
     void checkDataAvailability() const;
     void setGroupLongNames();

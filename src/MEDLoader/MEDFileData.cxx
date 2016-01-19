@@ -20,7 +20,7 @@
 
 #include "MEDFileData.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileData *MEDFileData::New(const std::string& fileName)
 {

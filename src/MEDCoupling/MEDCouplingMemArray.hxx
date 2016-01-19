@@ -31,7 +31,7 @@
 #include <vector>
 #include <iterator>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
     {
@@ -201,7 +201,7 @@ namespace ParaMEDMEM
 
 #include "MEDCouplingMemArray.txx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class DataArrayDoubleIterator;

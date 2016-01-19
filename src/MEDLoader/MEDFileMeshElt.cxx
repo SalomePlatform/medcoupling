@@ -32,7 +32,7 @@
 
 extern med_geometry_type typmai3[34];
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2, MEDFileMeshReadSelector *mrs)
 {

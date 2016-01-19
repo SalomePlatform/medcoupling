@@ -40,7 +40,7 @@
 
 #include "med.h"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileFieldGlobs;
   class MEDCouplingMesh;

@@ -28,7 +28,7 @@
 #include <sstream>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingIMesh::MEDCouplingIMesh():_space_dim(-1)
 {
@@ -923,8 +923,8 @@ void MEDCouplingIMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
 }
 
 /*!
- * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingIMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingIMesh, \a this and \a other are the same !
+ * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingIMesh instance too).
+ * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingIMesh, \a this and \a other are the same !
  */
 void MEDCouplingIMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayInt *&cellCor) const

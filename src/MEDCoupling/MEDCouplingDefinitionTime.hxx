@@ -29,7 +29,7 @@
 #include <vector>
 #include <sstream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingFieldDouble;
 

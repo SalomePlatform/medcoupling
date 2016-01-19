@@ -31,7 +31,7 @@
 #include <functional>
 #include <iterator>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MEDCouplingBasicsTest2::testGaussPointField1()
 {

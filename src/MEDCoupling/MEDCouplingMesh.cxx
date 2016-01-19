@@ -31,7 +31,7 @@
 #include <fstream>
 #include <iterator>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingMesh::MEDCouplingMesh():_time(0.),_iteration(-1),_order(-1)
 {
@@ -340,7 +340,7 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
  * Creates a new MEDCouplingFieldDouble of a given type, one time, with given number of
  * components, lying on \a this mesh, with contents got by applying a specified
  * function to coordinates of field location points (defined by the given field type).
- * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
+ * For example, if \a t == MEDCoupling::ON_CELLS, the function is applied to cell
  * barycenters.<br>
  * For more info on supported expressions that can be used in the function, see \ref
  * MEDCouplingArrayApplyFuncExpr. The function can include arbitrary named variables
@@ -389,7 +389,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * Creates a new MEDCouplingFieldDouble of a given type, one time, with given number of
  * components, lying on \a this mesh, with contents got by applying a specified
  * function to coordinates of field location points (defined by the given field type).
- * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
+ * For example, if \a t == MEDCoupling::ON_CELLS, the function is applied to cell
  * barycenters. This method differs from
  * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const "fillFromAnalytic()"
  * by the way how variable
@@ -441,7 +441,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nb
  * Creates a new MEDCouplingFieldDouble of a given type, one time, with given number of
  * components, lying on \a this mesh, with contents got by applying a specified
  * function to coordinates of field location points (defined by the given field type).
- * For example, if \a t == ParaMEDMEM::ON_CELLS, the function is applied to cell
+ * For example, if \a t == MEDCoupling::ON_CELLS, the function is applied to cell
  * barycenters. This method differs from \ref  \ref mcmesh_fillFromAnalytic
  * "fillFromAnalytic()" by the way how variable
  * names, used in the function, are associated with components of coordinates of field

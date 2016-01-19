@@ -32,14 +32,14 @@
 #include <map>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldTemplate;
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
   {

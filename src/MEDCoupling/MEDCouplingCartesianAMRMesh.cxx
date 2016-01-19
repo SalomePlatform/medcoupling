@@ -29,7 +29,7 @@
 #include <sstream>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /// @cond INTERNAL
 

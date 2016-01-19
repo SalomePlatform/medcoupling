@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 ////////////////////
-%typemap(out) ParaMEDMEM::DataArray*
+%typemap(out) MEDCoupling::DataArray*
 {
   $result=convertDataArray($1,$owner);
 }
@@ -31,7 +31,7 @@
 //$$$$$$$$$$$$$$$$$$
 
 ////////////////////
-%typemap(out) ParaMEDMEM::DataArrayChar*
+%typemap(out) MEDCoupling::DataArrayChar*
 {
   $result=convertDataArrayChar($1,$owner);
 }
@@ -42,158 +42,158 @@
 }
 //$$$$$$$$$$$$$$$$$$
 
-%newobject ParaMEDMEM::DataArray::deepCpy;
-%newobject ParaMEDMEM::DataArray::selectByTupleRanges;
-%newobject ParaMEDMEM::DataArray::selectByTupleId;
-%newobject ParaMEDMEM::DataArray::selectByTupleIdSafe;
-%newobject ParaMEDMEM::DataArray::selectByTupleId2;
-%newobject ParaMEDMEM::DataArray::Aggregate;
-%newobject ParaMEDMEM::DataArrayInt::New;
-%newobject ParaMEDMEM::DataArrayInt::__iter__;
-%newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
-%newobject ParaMEDMEM::DataArrayInt::performCpy;
-%newobject ParaMEDMEM::DataArrayInt::substr;
-%newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
-%newobject ParaMEDMEM::DataArrayInt::accumulatePerChunck;
-%newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
-%newobject ParaMEDMEM::DataArrayInt::transformWithIndArrR;
-%newobject ParaMEDMEM::DataArrayInt::renumber;
-%newobject ParaMEDMEM::DataArrayInt::renumberR;
-%newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
-%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2O;
-%newobject ParaMEDMEM::DataArrayInt::invertArrayN2O2O2N;
-%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2OBis;
-%newobject ParaMEDMEM::DataArrayInt::getIdsEqual;
-%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
-%newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
-%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
-%newobject ParaMEDMEM::DataArrayInt::getIdsEqualTuple;
-%newobject ParaMEDMEM::DataArrayInt::sumPerTuple;
-%newobject ParaMEDMEM::DataArrayInt::negate;
-%newobject ParaMEDMEM::DataArrayInt::computeAbs;
-%newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
-%newobject ParaMEDMEM::DataArrayInt::getIdsNotInRange;
-%newobject ParaMEDMEM::DataArrayInt::getIdsStrictlyNegative;
-%newobject ParaMEDMEM::DataArrayInt::Aggregate;
-%newobject ParaMEDMEM::DataArrayInt::AggregateIndexes;
-%newobject ParaMEDMEM::DataArrayInt::Meld;
-%newobject ParaMEDMEM::DataArrayInt::Add;
-%newobject ParaMEDMEM::DataArrayInt::Substract;
-%newobject ParaMEDMEM::DataArrayInt::Multiply;
-%newobject ParaMEDMEM::DataArrayInt::Divide;
-%newobject ParaMEDMEM::DataArrayInt::Pow;
-%newobject ParaMEDMEM::DataArrayInt::BuildUnion;
-%newobject ParaMEDMEM::DataArrayInt::BuildIntersection;
-%newobject ParaMEDMEM::DataArrayInt::Range;
-%newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
-%newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
-%newobject ParaMEDMEM::DataArrayInt::buildComplement;
-%newobject ParaMEDMEM::DataArrayInt::buildUnion;
-%newobject ParaMEDMEM::DataArrayInt::buildSubstraction;
-%newobject ParaMEDMEM::DataArrayInt::buildSubstractionOptimized;
-%newobject ParaMEDMEM::DataArrayInt::buildIntersection;
-%newobject ParaMEDMEM::DataArrayInt::buildUnique;
-%newobject ParaMEDMEM::DataArrayInt::buildUniqueNotSorted;
-%newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
-%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
-%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
-%newobject ParaMEDMEM::DataArrayInt::findRangeIdForEachTuple;
-%newobject ParaMEDMEM::DataArrayInt::findIdInRangeForEachTuple;
-%newobject ParaMEDMEM::DataArrayInt::duplicateEachTupleNTimes;
-%newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
-%newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
-%newobject ParaMEDMEM::DataArrayInt::getDifferentValues;
-%newobject ParaMEDMEM::DataArrayInt::FindPermutationFromFirstToSecond;
-%newobject ParaMEDMEM::DataArrayInt::CheckAndPreparePermutation;
-%newobject ParaMEDMEM::DataArrayInt::__neg__;
-%newobject ParaMEDMEM::DataArrayInt::__add__;
-%newobject ParaMEDMEM::DataArrayInt::__radd__;
-%newobject ParaMEDMEM::DataArrayInt::__sub__;
-%newobject ParaMEDMEM::DataArrayInt::__rsub__;
-%newobject ParaMEDMEM::DataArrayInt::__mul__;
-%newobject ParaMEDMEM::DataArrayInt::__rmul__;
-%newobject ParaMEDMEM::DataArrayInt::__div__;
-%newobject ParaMEDMEM::DataArrayInt::__rdiv__;
-%newobject ParaMEDMEM::DataArrayInt::__mod__;
-%newobject ParaMEDMEM::DataArrayInt::__rmod__;
-%newobject ParaMEDMEM::DataArrayInt::__pow__;
-%newobject ParaMEDMEM::DataArrayInt::__rpow__;
-%newobject ParaMEDMEM::DataArrayIntTuple::buildDAInt;
-%newobject ParaMEDMEM::DataArrayChar::convertToIntArr;
-%newobject ParaMEDMEM::DataArrayChar::renumber;
-%newobject ParaMEDMEM::DataArrayChar::renumberR;
-%newobject ParaMEDMEM::DataArrayChar::renumberAndReduce;
-%newobject ParaMEDMEM::DataArrayChar::changeNbOfComponents;
-%newobject ParaMEDMEM::DataArrayChar::getIdsEqual;
-%newobject ParaMEDMEM::DataArrayChar::getIdsNotEqual;
-%newobject ParaMEDMEM::DataArrayChar::Aggregate;
-%newobject ParaMEDMEM::DataArrayChar::Meld;
-%newobject ParaMEDMEM::DataArrayByte::New;
-%newobject ParaMEDMEM::DataArrayByte::__iter__;
-%newobject ParaMEDMEM::DataArrayByte::performCpy;
-%newobject ParaMEDMEM::DataArrayByteTuple::buildDAByte;
-%newobject ParaMEDMEM::DataArrayChar::substr;
-%newobject ParaMEDMEM::DataArrayAsciiChar::New;
-%newobject ParaMEDMEM::DataArrayAsciiChar::__iter__;
-%newobject ParaMEDMEM::DataArrayAsciiChar::performCpy;
-%newobject ParaMEDMEM::DataArrayAsciiCharTuple::buildDAAsciiChar;
-%newobject ParaMEDMEM::DataArrayDouble::New;
-%newobject ParaMEDMEM::DataArrayDouble::__iter__;
-%newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
-%newobject ParaMEDMEM::DataArrayDouble::performCpy;
-%newobject ParaMEDMEM::DataArrayDouble::Aggregate;
-%newobject ParaMEDMEM::DataArrayDouble::Meld;
-%newobject ParaMEDMEM::DataArrayDouble::Dot;
-%newobject ParaMEDMEM::DataArrayDouble::CrossProduct;
-%newobject ParaMEDMEM::DataArrayDouble::Add;
-%newobject ParaMEDMEM::DataArrayDouble::Substract;
-%newobject ParaMEDMEM::DataArrayDouble::Multiply;
-%newobject ParaMEDMEM::DataArrayDouble::Divide;
-%newobject ParaMEDMEM::DataArrayDouble::Pow;
-%newobject ParaMEDMEM::DataArrayDouble::substr;
-%newobject ParaMEDMEM::DataArrayDouble::changeNbOfComponents;
-%newobject ParaMEDMEM::DataArrayDouble::accumulatePerChunck;
-%newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
-%newobject ParaMEDMEM::DataArrayDouble::getIdsNotInRange;
-%newobject ParaMEDMEM::DataArrayDouble::negate;
-%newobject ParaMEDMEM::DataArrayDouble::computeAbs;
-%newobject ParaMEDMEM::DataArrayDouble::applyFunc;
-%newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
-%newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
-%newobject ParaMEDMEM::DataArrayDouble::doublyContractedProduct;
-%newobject ParaMEDMEM::DataArrayDouble::determinant;
-%newobject ParaMEDMEM::DataArrayDouble::eigenValues;
-%newobject ParaMEDMEM::DataArrayDouble::eigenVectors;
-%newobject ParaMEDMEM::DataArrayDouble::inverse;
-%newobject ParaMEDMEM::DataArrayDouble::trace;
-%newobject ParaMEDMEM::DataArrayDouble::deviator;
-%newobject ParaMEDMEM::DataArrayDouble::magnitude;
-%newobject ParaMEDMEM::DataArrayDouble::maxPerTuple;
-%newobject ParaMEDMEM::DataArrayDouble::sumPerTuple;
-%newobject ParaMEDMEM::DataArrayDouble::computeBBoxPerTuple;
-%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
-%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrixWith;
-%newobject ParaMEDMEM::DataArrayDouble::renumber;
-%newobject ParaMEDMEM::DataArrayDouble::renumberR;
-%newobject ParaMEDMEM::DataArrayDouble::renumberAndReduce;
-%newobject ParaMEDMEM::DataArrayDouble::fromNoInterlace;
-%newobject ParaMEDMEM::DataArrayDouble::toNoInterlace;
-%newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
-%newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
-%newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
-%newobject ParaMEDMEM::DataArrayDouble::cartesianize;
-%newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
-%newobject ParaMEDMEM::DataArrayDouble::findClosestTupleId;
-%newobject ParaMEDMEM::DataArrayDouble::computeNbOfInteractionsWith;
-%newobject ParaMEDMEM::DataArrayDouble::duplicateEachTupleNTimes;
-%newobject ParaMEDMEM::DataArrayDouble::__neg__;
-%newobject ParaMEDMEM::DataArrayDouble::__radd__;
-%newobject ParaMEDMEM::DataArrayDouble::__rsub__;
-%newobject ParaMEDMEM::DataArrayDouble::__rmul__;
-%newobject ParaMEDMEM::DataArrayDouble::__rdiv__;
-%newobject ParaMEDMEM::DataArrayDouble::__pow__;
-%newobject ParaMEDMEM::DataArrayDouble::__rpow__;
-%newobject ParaMEDMEM::DataArrayDoubleTuple::buildDADouble;
+%newobject MEDCoupling::DataArray::deepCpy;
+%newobject MEDCoupling::DataArray::selectByTupleRanges;
+%newobject MEDCoupling::DataArray::selectByTupleId;
+%newobject MEDCoupling::DataArray::selectByTupleIdSafe;
+%newobject MEDCoupling::DataArray::selectByTupleId2;
+%newobject MEDCoupling::DataArray::Aggregate;
+%newobject MEDCoupling::DataArrayInt::New;
+%newobject MEDCoupling::DataArrayInt::__iter__;
+%newobject MEDCoupling::DataArrayInt::convertToDblArr;
+%newobject MEDCoupling::DataArrayInt::performCpy;
+%newobject MEDCoupling::DataArrayInt::substr;
+%newobject MEDCoupling::DataArrayInt::changeNbOfComponents;
+%newobject MEDCoupling::DataArrayInt::accumulatePerChunck;
+%newobject MEDCoupling::DataArrayInt::checkAndPreparePermutation;
+%newobject MEDCoupling::DataArrayInt::transformWithIndArrR;
+%newobject MEDCoupling::DataArrayInt::renumber;
+%newobject MEDCoupling::DataArrayInt::renumberR;
+%newobject MEDCoupling::DataArrayInt::renumberAndReduce;
+%newobject MEDCoupling::DataArrayInt::invertArrayO2N2N2O;
+%newobject MEDCoupling::DataArrayInt::invertArrayN2O2O2N;
+%newobject MEDCoupling::DataArrayInt::invertArrayO2N2N2OBis;
+%newobject MEDCoupling::DataArrayInt::getIdsEqual;
+%newobject MEDCoupling::DataArrayInt::getIdsNotEqual;
+%newobject MEDCoupling::DataArrayInt::getIdsEqualList;
+%newobject MEDCoupling::DataArrayInt::getIdsNotEqualList;
+%newobject MEDCoupling::DataArrayInt::getIdsEqualTuple;
+%newobject MEDCoupling::DataArrayInt::sumPerTuple;
+%newobject MEDCoupling::DataArrayInt::negate;
+%newobject MEDCoupling::DataArrayInt::computeAbs;
+%newobject MEDCoupling::DataArrayInt::getIdsInRange;
+%newobject MEDCoupling::DataArrayInt::getIdsNotInRange;
+%newobject MEDCoupling::DataArrayInt::getIdsStrictlyNegative;
+%newobject MEDCoupling::DataArrayInt::Aggregate;
+%newobject MEDCoupling::DataArrayInt::AggregateIndexes;
+%newobject MEDCoupling::DataArrayInt::Meld;
+%newobject MEDCoupling::DataArrayInt::Add;
+%newobject MEDCoupling::DataArrayInt::Substract;
+%newobject MEDCoupling::DataArrayInt::Multiply;
+%newobject MEDCoupling::DataArrayInt::Divide;
+%newobject MEDCoupling::DataArrayInt::Pow;
+%newobject MEDCoupling::DataArrayInt::BuildUnion;
+%newobject MEDCoupling::DataArrayInt::BuildIntersection;
+%newobject MEDCoupling::DataArrayInt::Range;
+%newobject MEDCoupling::DataArrayInt::fromNoInterlace;
+%newobject MEDCoupling::DataArrayInt::toNoInterlace;
+%newobject MEDCoupling::DataArrayInt::buildComplement;
+%newobject MEDCoupling::DataArrayInt::buildUnion;
+%newobject MEDCoupling::DataArrayInt::buildSubstraction;
+%newobject MEDCoupling::DataArrayInt::buildSubstractionOptimized;
+%newobject MEDCoupling::DataArrayInt::buildIntersection;
+%newobject MEDCoupling::DataArrayInt::buildUnique;
+%newobject MEDCoupling::DataArrayInt::buildUniqueNotSorted;
+%newobject MEDCoupling::DataArrayInt::deltaShiftIndex;
+%newobject MEDCoupling::DataArrayInt::buildExplicitArrByRanges;
+%newobject MEDCoupling::DataArrayInt::buildExplicitArrOfSliceOnScaledArr;
+%newobject MEDCoupling::DataArrayInt::findRangeIdForEachTuple;
+%newobject MEDCoupling::DataArrayInt::findIdInRangeForEachTuple;
+%newobject MEDCoupling::DataArrayInt::duplicateEachTupleNTimes;
+%newobject MEDCoupling::DataArrayInt::buildPermutationArr;
+%newobject MEDCoupling::DataArrayInt::buildPermArrPerLevel;
+%newobject MEDCoupling::DataArrayInt::getDifferentValues;
+%newobject MEDCoupling::DataArrayInt::FindPermutationFromFirstToSecond;
+%newobject MEDCoupling::DataArrayInt::CheckAndPreparePermutation;
+%newobject MEDCoupling::DataArrayInt::__neg__;
+%newobject MEDCoupling::DataArrayInt::__add__;
+%newobject MEDCoupling::DataArrayInt::__radd__;
+%newobject MEDCoupling::DataArrayInt::__sub__;
+%newobject MEDCoupling::DataArrayInt::__rsub__;
+%newobject MEDCoupling::DataArrayInt::__mul__;
+%newobject MEDCoupling::DataArrayInt::__rmul__;
+%newobject MEDCoupling::DataArrayInt::__div__;
+%newobject MEDCoupling::DataArrayInt::__rdiv__;
+%newobject MEDCoupling::DataArrayInt::__mod__;
+%newobject MEDCoupling::DataArrayInt::__rmod__;
+%newobject MEDCoupling::DataArrayInt::__pow__;
+%newobject MEDCoupling::DataArrayInt::__rpow__;
+%newobject MEDCoupling::DataArrayIntTuple::buildDAInt;
+%newobject MEDCoupling::DataArrayChar::convertToIntArr;
+%newobject MEDCoupling::DataArrayChar::renumber;
+%newobject MEDCoupling::DataArrayChar::renumberR;
+%newobject MEDCoupling::DataArrayChar::renumberAndReduce;
+%newobject MEDCoupling::DataArrayChar::changeNbOfComponents;
+%newobject MEDCoupling::DataArrayChar::getIdsEqual;
+%newobject MEDCoupling::DataArrayChar::getIdsNotEqual;
+%newobject MEDCoupling::DataArrayChar::Aggregate;
+%newobject MEDCoupling::DataArrayChar::Meld;
+%newobject MEDCoupling::DataArrayByte::New;
+%newobject MEDCoupling::DataArrayByte::__iter__;
+%newobject MEDCoupling::DataArrayByte::performCpy;
+%newobject MEDCoupling::DataArrayByteTuple::buildDAByte;
+%newobject MEDCoupling::DataArrayChar::substr;
+%newobject MEDCoupling::DataArrayAsciiChar::New;
+%newobject MEDCoupling::DataArrayAsciiChar::__iter__;
+%newobject MEDCoupling::DataArrayAsciiChar::performCpy;
+%newobject MEDCoupling::DataArrayAsciiCharTuple::buildDAAsciiChar;
+%newobject MEDCoupling::DataArrayDouble::New;
+%newobject MEDCoupling::DataArrayDouble::__iter__;
+%newobject MEDCoupling::DataArrayDouble::convertToIntArr;
+%newobject MEDCoupling::DataArrayDouble::performCpy;
+%newobject MEDCoupling::DataArrayDouble::Aggregate;
+%newobject MEDCoupling::DataArrayDouble::Meld;
+%newobject MEDCoupling::DataArrayDouble::Dot;
+%newobject MEDCoupling::DataArrayDouble::CrossProduct;
+%newobject MEDCoupling::DataArrayDouble::Add;
+%newobject MEDCoupling::DataArrayDouble::Substract;
+%newobject MEDCoupling::DataArrayDouble::Multiply;
+%newobject MEDCoupling::DataArrayDouble::Divide;
+%newobject MEDCoupling::DataArrayDouble::Pow;
+%newobject MEDCoupling::DataArrayDouble::substr;
+%newobject MEDCoupling::DataArrayDouble::changeNbOfComponents;
+%newobject MEDCoupling::DataArrayDouble::accumulatePerChunck;
+%newobject MEDCoupling::DataArrayDouble::getIdsInRange;
+%newobject MEDCoupling::DataArrayDouble::getIdsNotInRange;
+%newobject MEDCoupling::DataArrayDouble::negate;
+%newobject MEDCoupling::DataArrayDouble::computeAbs;
+%newobject MEDCoupling::DataArrayDouble::applyFunc;
+%newobject MEDCoupling::DataArrayDouble::applyFunc2;
+%newobject MEDCoupling::DataArrayDouble::applyFunc3;
+%newobject MEDCoupling::DataArrayDouble::doublyContractedProduct;
+%newobject MEDCoupling::DataArrayDouble::determinant;
+%newobject MEDCoupling::DataArrayDouble::eigenValues;
+%newobject MEDCoupling::DataArrayDouble::eigenVectors;
+%newobject MEDCoupling::DataArrayDouble::inverse;
+%newobject MEDCoupling::DataArrayDouble::trace;
+%newobject MEDCoupling::DataArrayDouble::deviator;
+%newobject MEDCoupling::DataArrayDouble::magnitude;
+%newobject MEDCoupling::DataArrayDouble::maxPerTuple;
+%newobject MEDCoupling::DataArrayDouble::sumPerTuple;
+%newobject MEDCoupling::DataArrayDouble::computeBBoxPerTuple;
+%newobject MEDCoupling::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
+%newobject MEDCoupling::DataArrayDouble::buildEuclidianDistanceDenseMatrixWith;
+%newobject MEDCoupling::DataArrayDouble::renumber;
+%newobject MEDCoupling::DataArrayDouble::renumberR;
+%newobject MEDCoupling::DataArrayDouble::renumberAndReduce;
+%newobject MEDCoupling::DataArrayDouble::fromNoInterlace;
+%newobject MEDCoupling::DataArrayDouble::toNoInterlace;
+%newobject MEDCoupling::DataArrayDouble::fromPolarToCart;
+%newobject MEDCoupling::DataArrayDouble::fromCylToCart;
+%newobject MEDCoupling::DataArrayDouble::fromSpherToCart;
+%newobject MEDCoupling::DataArrayDouble::cartesianize;
+%newobject MEDCoupling::DataArrayDouble::getDifferentValues;
+%newobject MEDCoupling::DataArrayDouble::findClosestTupleId;
+%newobject MEDCoupling::DataArrayDouble::computeNbOfInteractionsWith;
+%newobject MEDCoupling::DataArrayDouble::duplicateEachTupleNTimes;
+%newobject MEDCoupling::DataArrayDouble::__neg__;
+%newobject MEDCoupling::DataArrayDouble::__radd__;
+%newobject MEDCoupling::DataArrayDouble::__rsub__;
+%newobject MEDCoupling::DataArrayDouble::__rmul__;
+%newobject MEDCoupling::DataArrayDouble::__rdiv__;
+%newobject MEDCoupling::DataArrayDouble::__pow__;
+%newobject MEDCoupling::DataArrayDouble::__rpow__;
+%newobject MEDCoupling::DataArrayDoubleTuple::buildDADouble;
 
 %feature("unref") DataArray "$this->decrRef();"
 %feature("unref") DataArrayDouble "$this->decrRef();"
@@ -202,7 +202,7 @@
 %feature("unref") DataArrayAsciiChar "$this->decrRef();"
 %feature("unref") DataArrayByte "$this->decrRef();"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
     {
@@ -283,7 +283,7 @@ namespace ParaMEDMEM
       virtual void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -312,7 +312,7 @@ namespace ParaMEDMEM
       virtual void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -370,7 +370,7 @@ namespace ParaMEDMEM
       virtual DataArray *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -390,7 +390,7 @@ namespace ParaMEDMEM
       virtual DataArray *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -462,7 +462,7 @@ namespace ParaMEDMEM
       static DataArray *Aggregate(PyObject *arrs) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArray *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArray *>(arrs,SWIGTYPE_p_ParaMEDMEM__DataArray,"DataArray",tmp);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArray *>(arrs,SWIGTYPE_p_MEDCoupling__DataArray,"DataArray",tmp);
         return DataArray::Aggregate(tmp);
       }
 
@@ -646,7 +646,7 @@ namespace ParaMEDMEM
 
       static DataArrayDouble *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msgBase="ParaMEDMEM::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n-DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New([1.,3.,4.,5.,7,8.],3,2)\n-DataArrayDouble.New([(1.,3.),(4.,5.),(7,8.)])\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2)";
+        const char *msgBase="MEDCoupling::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n-DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New([1.,3.,4.,5.,7,8.],3,2)\n-DataArrayDouble.New([(1.,3.),(4.,5.),(7,8.)])\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2)";
         std::string msg(msgBase);
 #ifdef WITH_NUMPY
         msg+="\n-DataArrayDouble.New(numpy array with dtype=float64)";
@@ -741,7 +741,7 @@ namespace ParaMEDMEM
    
       DataArrayDouble(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
         {
-          return ParaMEDMEM_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
+          return MEDCoupling_DataArrayDouble_New__SWIG_1(elt0,nbOfTuples,elt2);
         }
 
       void pushBackValsSilent(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -790,7 +790,7 @@ namespace ParaMEDMEM
    
       void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msg="ParaMEDMEM::DataArrayDouble::setValues : Available API are : \n-DataArrayDouble.setValues([1.,3.,4.])\n-DataArrayDouble.setValues([1.,3.,4.],3)\n-DataArrayDouble.setValues([1.,3.,4.,5.],2,2)\n-DataArrayDouble.setValues([(1.,1.7),(3.,3.7),(4.,4.7)])\n !";
+        const char *msg="MEDCoupling::DataArrayDouble::setValues : Available API are : \n-DataArrayDouble.setValues([1.,3.,4.])\n-DataArrayDouble.setValues([1.,3.,4.],3)\n-DataArrayDouble.setValues([1.,3.,4.,5.],2,2)\n-DataArrayDouble.setValues([(1.,1.7),(3.,3.7),(4.,4.7)])\n !";
         if(PyList_Check(li) || PyTuple_Check(li))
           {
             if(nbOfTuples)
@@ -870,7 +870,7 @@ namespace ParaMEDMEM
       DataArrayDouble *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -899,7 +899,7 @@ namespace ParaMEDMEM
       DataArrayDouble *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -928,7 +928,7 @@ namespace ParaMEDMEM
       DataArrayDouble *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -981,7 +981,7 @@ namespace ParaMEDMEM
         double r1=self->getMaxValue2(tmp);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -1001,7 +1001,7 @@ namespace ParaMEDMEM
         double r1=self->getMinValue2(tmp);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -1035,8 +1035,8 @@ namespace ParaMEDMEM
         DataArrayInt *comm, *commIndex;
         self->findCommonTuples(prec,limitNodeId,comm,commIndex);
         PyObject *res = PyList_New(2);
-        PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return res;
       }
 
@@ -1075,14 +1075,14 @@ namespace ParaMEDMEM
       static DataArrayDouble *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayDouble *> tmp;
-        convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",tmp);
+        convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_MEDCoupling__DataArrayDouble,"DataArrayDouble",tmp);
         return DataArrayDouble::Aggregate(tmp);
       }
 
       static DataArrayDouble *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayDouble *> tmp;
-        convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",tmp);
+        convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_MEDCoupling__DataArrayDouble,"DataArrayDouble",tmp);
         return DataArrayDouble::Meld(tmp);
       }
 
@@ -1100,8 +1100,8 @@ namespace ParaMEDMEM
         DataArrayInt *c=0,*cI=0;
         self->computeTupleIdsNearTuples(inpu,eps,c,cI);
         PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(c),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cI),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(c),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cI),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -1113,7 +1113,7 @@ namespace ParaMEDMEM
         PyObject *ret0Py=ret0?Py_True:Py_False;
         Py_XINCREF(ret0Py);
         PyTuple_SetItem(ret,0,ret0Py);
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -1136,52 +1136,52 @@ namespace ParaMEDMEM
           case 1:
             if(nbOfComponents==1)
               return PyFloat_FromDouble(self->getIJSafe(it1,0));
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 2:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 3:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 4:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 5:
             return PyFloat_FromDouble(self->getIJSafe(it1,ic1));
           case 6:
             {
               ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
               std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 7:
             {
               ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
               std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 8:
             {
               ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
               std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 9:
             {
               ret=self->selectByTupleIdSafe(&it1,&it1+1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 10:
             {
               ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 11:
             {
               ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 12:
             {
               ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 13:
             {
@@ -1190,7 +1190,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 14:
             {
@@ -1199,7 +1199,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 15:
             {
@@ -1208,7 +1208,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 16:
             {
@@ -1217,7 +1217,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
             throw INTERP_KERNEL::Exception(msg);
@@ -1585,15 +1585,15 @@ namespace ParaMEDMEM
         //
 #ifndef WITHOUT_AUTOFIELD
         void *argp;
-        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
+        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,0|0)))
           {
-            MEDCouplingFieldDouble *other=reinterpret_cast< ParaMEDMEM::MEDCouplingFieldDouble * >(argp);
+            MEDCouplingFieldDouble *other=reinterpret_cast< MEDCoupling::MEDCouplingFieldDouble * >(argp);
             if(other)
               {
-                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ParaMEDMEM_MEDCouplingFieldDouble___radd__Impl(other,tmp);
+                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
+                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___radd__Impl(other,tmp);
                 Py_XDECREF(tmp);
-                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
+                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
             else
               throw INTERP_KERNEL::Exception(msg);
@@ -1607,21 +1607,21 @@ namespace ParaMEDMEM
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
               ret->applyLin(1.,val);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 2:
             {
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,a)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,a)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 3:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
             throw INTERP_KERNEL::Exception(msg);
@@ -1713,15 +1713,15 @@ namespace ParaMEDMEM
         //
 #ifndef WITHOUT_AUTOFIELD
         void *argp;
-        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
+        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,0|0)))
           {
-            MEDCouplingFieldDouble *other=reinterpret_cast< ParaMEDMEM::MEDCouplingFieldDouble * >(argp);
+            MEDCouplingFieldDouble *other=reinterpret_cast< MEDCoupling::MEDCouplingFieldDouble * >(argp);
             if(other)
               {
-                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ParaMEDMEM_MEDCouplingFieldDouble___rsub__Impl(other,tmp);
+                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
+                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rsub__Impl(other,tmp);
                 Py_XDECREF(tmp);
-                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
+                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
             else
               throw INTERP_KERNEL::Exception(msg);
@@ -1735,21 +1735,21 @@ namespace ParaMEDMEM
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
               ret->applyLin(1.,-val);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 2:
             {
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,a)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,a)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 3:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
             throw INTERP_KERNEL::Exception(msg);
@@ -1841,15 +1841,15 @@ namespace ParaMEDMEM
         //
 #ifndef WITHOUT_AUTOFIELD
         void *argp;
-        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
+        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,0|0)))
           {
-            MEDCouplingFieldDouble *other=reinterpret_cast< ParaMEDMEM::MEDCouplingFieldDouble * >(argp);
+            MEDCouplingFieldDouble *other=reinterpret_cast< MEDCoupling::MEDCouplingFieldDouble * >(argp);
             if(other)
               {
-                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ParaMEDMEM_MEDCouplingFieldDouble___rmul__Impl(other,tmp);
+                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
+                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rmul__Impl(other,tmp);
                 Py_XDECREF(tmp);
-                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
+                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
             else
               throw INTERP_KERNEL::Exception(msg);
@@ -1863,21 +1863,21 @@ namespace ParaMEDMEM
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
               ret->applyLin(val,0.);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 2:
             {
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,a)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,a)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 3:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
             throw INTERP_KERNEL::Exception(msg);
@@ -1969,15 +1969,15 @@ namespace ParaMEDMEM
         //
 #ifndef WITHOUT_AUTOFIELD
         void *argp;
-        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0)))
+        if(SWIG_IsOK(SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble,0|0)))
           {
-            MEDCouplingFieldDouble *other=reinterpret_cast< ParaMEDMEM::MEDCouplingFieldDouble * >(argp);
+            MEDCouplingFieldDouble *other=reinterpret_cast< MEDCoupling::MEDCouplingFieldDouble * >(argp);
             if(other)
               {
-                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=ParaMEDMEM_MEDCouplingFieldDouble___rdiv__Impl(other,tmp);
+                PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
+                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rdiv__Impl(other,tmp);
                 Py_XDECREF(tmp);
-                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
+                return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
             else
               throw INTERP_KERNEL::Exception(msg);
@@ -1993,21 +1993,21 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
               ret->applyLin(1/val,0.);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 2:
             {
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,a)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,a)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 3:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
             throw INTERP_KERNEL::Exception(msg);
@@ -2206,8 +2206,8 @@ namespace ParaMEDMEM
         //
         self->computeTupleIdsNearTuples(other,eps,c,cI);
         PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(c),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cI),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(c),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cI),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -2216,8 +2216,8 @@ namespace ParaMEDMEM
         DataArrayInt *ret1=0;
         DataArrayDouble *ret0=self->maxPerTupleWithCompoId(ret1);
         PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -2262,7 +2262,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("PyWrap of DataArrayDouble.__getnewargs__ : self is not allocated !");
         PyObject *ret(PyTuple_New(1));
         PyObject *ret0(PyDict_New());
-        PyObject *numpyArryObj(ParaMEDMEM_DataArrayDouble_toNumPyArray(self));
+        PyObject *numpyArryObj(MEDCoupling_DataArrayDouble_toNumPyArray(self));
         {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
           PyObject *tmp1(PyInt_FromLong(0));
           PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
@@ -2289,7 +2289,7 @@ namespace ParaMEDMEM
       {
         DataArrayDoubleTuple *ret=self->nextt();
         if(ret)
-          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,SWIG_POINTER_OWN|0);
+          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,SWIG_POINTER_OWN|0);
         else
           {
             PyErr_SetString(PyExc_StopIteration,"No more data.");
@@ -2324,7 +2324,7 @@ namespace ParaMEDMEM
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayDouble____iadd___(ret,0,obj);
+        MEDCoupling_DataArrayDouble____iadd___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -2332,7 +2332,7 @@ namespace ParaMEDMEM
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayDouble____isub___(ret,0,obj);
+        MEDCoupling_DataArrayDouble____isub___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -2340,7 +2340,7 @@ namespace ParaMEDMEM
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayDouble____imul___(ret,0,obj);
+        MEDCoupling_DataArrayDouble____imul___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -2348,7 +2348,7 @@ namespace ParaMEDMEM
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayDouble____idiv___(ret,0,obj);
+        MEDCoupling_DataArrayDouble____idiv___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -2365,7 +2365,7 @@ namespace ParaMEDMEM
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         const double *pt=self->getConstPointer();
         int nbc=self->getNumberOfCompo();
         convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
@@ -2430,13 +2430,13 @@ namespace ParaMEDMEM
         int sw1,sw2;
         double singleValV;
         std::vector<double> multiValV;
-        ParaMEDMEM::DataArrayDoubleTuple *daIntTyyppV=0;
+        MEDCoupling::DataArrayDoubleTuple *daIntTyyppV=0;
         int nbc=self->getNumberOfCompo();
         convertObjToPossibleCpp44(value,sw1,singleValV,multiValV,daIntTyyppV);
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         double *pt=self->getPointer();
         convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
         switch(sw2)
@@ -2717,7 +2717,7 @@ namespace ParaMEDMEM
 
       static DataArrayInt *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msgBase="ParaMEDMEM::DataArrayInt::New : Available API are : \n-DataArrayInt.New()\n-DataArrayInt.New([1,3,4])\n-DataArrayInt.New([1,3,4],3)\n-DataArrayInt.New([1,3,4,5],2,2)\n-DataArrayInt.New([1,3,4,5,7,8],3,2)\n-DataArrayInt.New([(1,3),(4,5),(7,8)])\n-DataArrayInt.New(5)\n-DataArrayInt.New(5,2)";
+        const char *msgBase="MEDCoupling::DataArrayInt::New : Available API are : \n-DataArrayInt.New()\n-DataArrayInt.New([1,3,4])\n-DataArrayInt.New([1,3,4],3)\n-DataArrayInt.New([1,3,4,5],2,2)\n-DataArrayInt.New([1,3,4,5,7,8],3,2)\n-DataArrayInt.New([(1,3),(4,5),(7,8)])\n-DataArrayInt.New(5)\n-DataArrayInt.New(5,2)";
         std::string msg(msgBase);
 #ifdef WITH_NUMPY
         msg+="\n-DataArrayInt.New(numpy array with dtype=int32)";
@@ -2812,7 +2812,7 @@ namespace ParaMEDMEM
 
       DataArrayInt(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
         {
-          return ParaMEDMEM_DataArrayInt_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
+          return MEDCoupling_DataArrayInt_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
 
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2904,9 +2904,9 @@ namespace ParaMEDMEM
         std::vector<int> stdvecTyyppArr,stdvecTyyppArrI;
         const int *arrPtr=convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr);
         const int *arrIPtr=convertObjToPossibleCpp1_Safe(arrI,sw,szArrI,iTypppArrI,stdvecTyyppArrI);
-        DataArrayInt *ret0=ParaMEDMEM::DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(nbOfOldTuples,arrPtr,arrIPtr,arrIPtr+szArrI,newNbOfTuples);
+        DataArrayInt *ret0=MEDCoupling::DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(nbOfOldTuples,arrPtr,arrIPtr,arrIPtr+szArrI,newNbOfTuples);
         PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN | 0));
         PyTuple_SetItem(ret,1,PyInt_FromLong(newNbOfTuples));
         return ret;
       }
@@ -2917,14 +2917,14 @@ namespace ParaMEDMEM
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
         const int *arrPtr(convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr));
-        int *pt(ParaMEDMEM::DataArrayInt::CheckAndPreparePermutation(arrPtr,arrPtr+szArr));
-        ret->useArray(pt,true,ParaMEDMEM::C_DEALLOC,szArr,1);
+        int *pt(MEDCoupling::DataArrayInt::CheckAndPreparePermutation(arrPtr,arrPtr+szArr));
+        ret->useArray(pt,true,MEDCoupling::C_DEALLOC,szArr,1);
         return ret.retn();
       }
 
       void setValues(PyObject *li, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msg="ParaMEDMEM::DataArrayInt::setValues : Available API are : \n-DataArrayInt.setValues([1,3,4])\n-DataArrayInt.setValues([1,3,4],3)\n-DataArrayInt.setValues([1,3,4,5],2,2)\n-DataArrayInt.New(5)\n !";
+        const char *msg="MEDCoupling::DataArrayInt::setValues : Available API are : \n-DataArrayInt.setValues([1,3,4])\n-DataArrayInt.setValues([1,3,4],3)\n-DataArrayInt.setValues([1,3,4,5],2,2)\n-DataArrayInt.New(5)\n !";
         if(PyList_Check(li) || PyTuple_Check(li))
           {
             if(nbOfTuples)
@@ -3005,10 +3005,10 @@ namespace ParaMEDMEM
       {
         std::vector<const DataArrayInt *> groups;
         std::vector< std::vector<int> > fidsOfGroups;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(gps,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",groups);
-        ParaMEDMEM::DataArrayInt *ret0=ParaMEDMEM::DataArrayInt::MakePartition(groups,newNb,fidsOfGroups);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(gps,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",groups);
+        MEDCoupling::DataArrayInt *ret0=MEDCoupling::DataArrayInt::MakePartition(groups,newNb,fidsOfGroups);
         PyObject *ret = PyList_New(2);
-        PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         int sz=fidsOfGroups.size();
         PyObject *ret1 = PyList_New(sz);
         for(int i=0;i<sz;i++)
@@ -3020,7 +3020,7 @@ namespace ParaMEDMEM
       void transformWithIndArr(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -3040,7 +3040,7 @@ namespace ParaMEDMEM
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
@@ -3061,7 +3061,7 @@ namespace ParaMEDMEM
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
         switch(sw)
           {
@@ -3080,7 +3080,7 @@ namespace ParaMEDMEM
       {
         DataArrayInt *ret0=0,*ret1=0,*ret2=0;
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -3097,16 +3097,16 @@ namespace ParaMEDMEM
             self->splitByValueRange(da2->getConstPointer(),da2->getConstPointer()+size,ret0,ret1,ret2);
           }
         PyObject *ret = PyList_New(3);
-        PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyList_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyList_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
       DataArrayInt *transformWithIndArrR(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -3123,7 +3123,7 @@ namespace ParaMEDMEM
       DataArrayInt *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -3152,7 +3152,7 @@ namespace ParaMEDMEM
       DataArrayInt *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -3181,7 +3181,7 @@ namespace ParaMEDMEM
       DataArrayInt *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -3228,43 +3228,43 @@ namespace ParaMEDMEM
         DataArrayInt *arrI=0;
         self->changeSurjectiveFormat(targetNb,arr,arrI);
         PyObject *res = PyList_New(2);
-        PyList_SetItem(res,0,SWIG_NewPointerObj((void*)arr,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
-        PyList_SetItem(res,1,SWIG_NewPointerObj((void*)arrI,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
+        PyList_SetItem(res,0,SWIG_NewPointerObj((void*)arr,SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN | 0));
+        PyList_SetItem(res,1,SWIG_NewPointerObj((void*)arrI,SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN | 0));
         return res;
       }
 
       static DataArrayInt *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayInt *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::Meld(tmp);
       }
 
       static DataArrayInt *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayInt *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::Aggregate(tmp);
       }
 
       static DataArrayInt *AggregateIndexes(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayInt *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::AggregateIndexes(tmp);
       }
 
       static DataArrayInt *BuildUnion(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayInt *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::BuildUnion(tmp);
       }
 
       static DataArrayInt *BuildIntersection(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayInt *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayInt *>(li,SWIGTYPE_p_MEDCoupling__DataArrayInt,"DataArrayInt",tmp);
         return DataArrayInt::BuildIntersection(tmp);
       }
 
@@ -3358,53 +3358,53 @@ namespace ParaMEDMEM
             {
               if(nbOfComponents==1)
                 return PyInt_FromLong(self->getIJSafe(it1,0));
-              return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 2:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
           case 3:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
           case 4:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
           case 5:
             return PyInt_FromLong(self->getIJSafe(it1,ic1));
           case 6:
             {
               ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
               std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 7:
             {
               ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
               std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 8:
             {
               ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
               std::vector<int> v2(1,ic1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 9:
             {
               ret=self->selectByTupleIdSafe(&it1,&it1+1);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 10:
             {
               ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 11:
             {
               ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 12:
             {
               ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 13:
             {
@@ -3413,7 +3413,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 14:
             {
@@ -3422,7 +3422,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 15:
             {
@@ -3431,7 +3431,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 16:
             {
@@ -3440,7 +3440,7 @@ namespace ParaMEDMEM
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
                 v2[i]=pc1.first+i*pc1.second.second;
-              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+              return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           default:
             throw INTERP_KERNEL::Exception(msg);
@@ -4541,7 +4541,7 @@ namespace ParaMEDMEM
         PyObject *pyRet1=PyList_New((int)sz);
         for(std::size_t i=0;i<sz;i++)
           {
-            PyList_SetItem(pyRet0,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret0[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+            PyList_SetItem(pyRet0,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret0[i]),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
             PyList_SetItem(pyRet1,i,PyInt_FromLong(ret1[i]));
           }
         PyTuple_SetItem(pyRet,0,pyRet0);
@@ -4554,8 +4554,8 @@ namespace ParaMEDMEM
         DataArrayInt *ret0=0,*ret1=0;
         self->searchRangesInListOfIds(listOfIds,ret0,ret1);
         PyObject *pyRet=PyTuple_New(2);
-        PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return pyRet;
       }
 
@@ -4619,7 +4619,7 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("PyWrap of DataArrayInt.__getnewargs__ : self is not allocated !");
         PyObject *ret(PyTuple_New(1));
         PyObject *ret0(PyDict_New());
-        PyObject *numpyArryObj(ParaMEDMEM_DataArrayInt_toNumPyArray(self));
+        PyObject *numpyArryObj(MEDCoupling_DataArrayInt_toNumPyArray(self));
         {// create a dict to discriminite in __new__ if __init__ should be called. Not beautiful but not idea ...
           PyObject *tmp1(PyInt_FromLong(0));
           PyDict_SetItem(ret0,tmp1,numpyArryObj); Py_DECREF(tmp1); Py_DECREF(numpyArryObj);
@@ -4646,7 +4646,7 @@ namespace ParaMEDMEM
       {
         DataArrayIntTuple *ret=self->nextt();
         if(ret)
-          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,SWIG_POINTER_OWN | 0);
+          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,SWIG_POINTER_OWN | 0);
         else
           {
             PyErr_SetString(PyExc_StopIteration,"No more data.");
@@ -4681,7 +4681,7 @@ namespace ParaMEDMEM
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayInt____iadd___(ret,0,obj);
+        MEDCoupling_DataArrayInt____iadd___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -4689,7 +4689,7 @@ namespace ParaMEDMEM
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayInt____isub___(ret,0,obj);
+        MEDCoupling_DataArrayInt____isub___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -4697,7 +4697,7 @@ namespace ParaMEDMEM
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayInt____imul___(ret,0,obj);
+        MEDCoupling_DataArrayInt____imul___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -4705,7 +4705,7 @@ namespace ParaMEDMEM
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayInt____idiv___(ret,0,obj);
+        MEDCoupling_DataArrayInt____idiv___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -4713,7 +4713,7 @@ namespace ParaMEDMEM
       PyObject *___imod___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
-        ParaMEDMEM_DataArrayInt____imod___(ret,0,obj);
+        MEDCoupling_DataArrayInt____imod___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
@@ -4730,7 +4730,7 @@ namespace ParaMEDMEM
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         const int *pt=self->getConstPointer();
         int nbc=self->getNumberOfCompo();
         convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
@@ -4796,13 +4796,13 @@ namespace ParaMEDMEM
         int singleValV;
         std::vector<int> multiValV;
         std::pair<int, std::pair<int,int> > slicV;
-        ParaMEDMEM::DataArrayIntTuple *daIntTyyppV=0;
+        MEDCoupling::DataArrayIntTuple *daIntTyyppV=0;
         int nbc=self->getNumberOfCompo();
         convertObjToPossibleCpp22(value,nbc,sw1,singleValV,multiValV,slicV,daIntTyyppV);
         int singleVal;
         std::vector<int> multiVal;
         std::pair<int, std::pair<int,int> > slic;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         int *pt=self->getPointer();
         convertObjToPossibleCpp2WithNegIntInterp(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
         switch(sw2)
@@ -5017,7 +5017,7 @@ namespace ParaMEDMEM
       DataArrayChar *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -5046,7 +5046,7 @@ namespace ParaMEDMEM
       DataArrayChar *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -5075,7 +5075,7 @@ namespace ParaMEDMEM
       DataArrayChar *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_MEDCoupling__DataArrayInt, 0 |  0 );
         if (!SWIG_IsOK(res1))
           {
             int size;
@@ -5103,15 +5103,15 @@ namespace ParaMEDMEM
       
       static DataArrayChar *Aggregate(PyObject *dachs) throw(INTERP_KERNEL::Exception)
       {
-        std::vector<const ParaMEDMEM::DataArrayChar *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayChar *>(dachs,SWIGTYPE_p_ParaMEDMEM__DataArrayChar,"DataArrayChar",tmp);
+        std::vector<const MEDCoupling::DataArrayChar *> tmp;
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayChar *>(dachs,SWIGTYPE_p_MEDCoupling__DataArrayChar,"DataArrayChar",tmp);
         return DataArrayChar::Aggregate(tmp);
       }
       
       static DataArrayChar *Meld(PyObject *dachs) throw(INTERP_KERNEL::Exception)
       {
-        std::vector<const ParaMEDMEM::DataArrayChar *> tmp;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayChar *>(dachs,SWIGTYPE_p_ParaMEDMEM__DataArrayChar,"DataArrayChar",tmp);
+        std::vector<const MEDCoupling::DataArrayChar *> tmp;
+        convertFromPyObjVectorOfObj<const MEDCoupling::DataArrayChar *>(dachs,SWIGTYPE_p_MEDCoupling__DataArrayChar,"DataArrayChar",tmp);
         return DataArrayChar::Meld(tmp);
       }
     }
@@ -5135,7 +5135,7 @@ namespace ParaMEDMEM
 
       static DataArrayByte *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msg="ParaMEDMEM::DataArrayByte::New : Available API are : \n-DataArrayByte.New()\n--DataArrayByte.New([1,3,4])\n-DataArrayByte.New([1,3,4],3)\n-DataArrayByte.New([1,3,4,5],2,2)\n-DataArrayByte.New(5)\n-DataArrayByte.New(5,2) !";
+        const char *msg="MEDCoupling::DataArrayByte::New : Available API are : \n-DataArrayByte.New()\n--DataArrayByte.New([1,3,4])\n-DataArrayByte.New([1,3,4],3)\n-DataArrayByte.New([1,3,4,5],2,2)\n-DataArrayByte.New(5)\n-DataArrayByte.New(5,2) !";
         if(PyList_Check(elt0) || PyTuple_Check(elt0))
           {
             if(nbOfTuples)
@@ -5218,7 +5218,7 @@ namespace ParaMEDMEM
 
       DataArrayByte(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
         {
-          return ParaMEDMEM_DataArrayByte_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
+          return MEDCoupling_DataArrayByte_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
    
       std::string __repr__() const throw(INTERP_KERNEL::Exception)
@@ -5357,7 +5357,7 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("DataArrayByte::index : 'this' contains one component and trying to find an element which is not an integer !");
             }
           default:
-            return ParaMEDMEM_DataArrayByte_locateTuple(self,obj);
+            return MEDCoupling_DataArrayByte_locateTuple(self,obj);
           }
       }
 
@@ -5379,7 +5379,7 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("DataArrayByte::__contains__ : 'this' contains one component and trying to find an element which is not an integer !");
             }
           default:
-            return ParaMEDMEM_DataArrayByte_presenceOfTuple(self,obj);
+            return MEDCoupling_DataArrayByte_presenceOfTuple(self,obj);
           }
       }
 
@@ -5653,7 +5653,7 @@ namespace ParaMEDMEM
 
       static DataArrayAsciiChar *New(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
       {
-        const char *msg="ParaMEDMEM::DataArrayAsciiChar::New : Available API are : \n-DataArrayAsciiChar.New()\n-DataArrayAsciiChar.New([1,3,4])\n-DataArrayAsciiChar.New([\"abc\",\"de\",\"fghi\"])\n-DataArrayAsciiChar.New([\"abc\",\"de\",\"fghi\"],\"t\")\n-DataArrayAsciiChar.New([1,3,4],3)\n-DataArrayAsciiChar.New([1,3,4,5],2,2)\n-DataArrayAsciiChar.New(5)\n-DataArrayAsciiChar.New(5,2) !";
+        const char *msg="MEDCoupling::DataArrayAsciiChar::New : Available API are : \n-DataArrayAsciiChar.New()\n-DataArrayAsciiChar.New([1,3,4])\n-DataArrayAsciiChar.New([\"abc\",\"de\",\"fghi\"])\n-DataArrayAsciiChar.New([\"abc\",\"de\",\"fghi\"],\"t\")\n-DataArrayAsciiChar.New([1,3,4],3)\n-DataArrayAsciiChar.New([1,3,4,5],2,2)\n-DataArrayAsciiChar.New(5)\n-DataArrayAsciiChar.New(5,2) !";
         if(PyList_Check(elt0) || PyTuple_Check(elt0))
           {
             if(nbOfTuples)
@@ -5755,7 +5755,7 @@ namespace ParaMEDMEM
 
       DataArrayAsciiChar(PyObject *elt0, PyObject *nbOfTuples=0, PyObject *nbOfComp=0) throw(INTERP_KERNEL::Exception)
         {
-          return ParaMEDMEM_DataArrayAsciiChar_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
+          return MEDCoupling_DataArrayAsciiChar_New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
 
       std::string __repr__() const throw(INTERP_KERNEL::Exception)
@@ -5912,7 +5912,7 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("DataArrayAsciiChar::index : 'this' contains one component and trying to find an element which is not an integer !");
             }
           default:
-            return ParaMEDMEM_DataArrayAsciiChar_locateTuple(self,obj);
+            return MEDCoupling_DataArrayAsciiChar_locateTuple(self,obj);
           }
       }
 
@@ -5938,7 +5938,7 @@ namespace ParaMEDMEM
                 throw INTERP_KERNEL::Exception("DataArrayAsciiChar::__contains__ : 'this' contains one component and trying to find an element which is not an integer !");
             }
           default:
-            return ParaMEDMEM_DataArrayAsciiChar_presenceOfTuple(self,obj);
+            return MEDCoupling_DataArrayAsciiChar_presenceOfTuple(self,obj);
           }
       }
 
@@ -5947,12 +5947,12 @@ namespace ParaMEDMEM
         int sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
         std::pair<int, std::pair<int,int> > sTyyppArr;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         convertObjToPossibleCpp2WithNegIntInterp(obj,self->getNumberOfTuples(),sw,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
         switch(sw)
           {
           case 1:
-            return ParaMEDMEM_DataArrayAsciiChar_getTuple(self,iTypppArr);
+            return MEDCoupling_DataArrayAsciiChar_getTuple(self,iTypppArr);
           case 2:
             return convertDataArrayChar(self->selectByTupleIdSafe(&stdvecTyyppArr[0],&stdvecTyyppArr[0]+stdvecTyyppArr.size()), SWIG_POINTER_OWN | 0 );
           case 3:
@@ -5970,7 +5970,7 @@ namespace ParaMEDMEM
         int sw1,iTypppArr;
         std::vector<int> stdvecTyyppArr;
         std::pair<int, std::pair<int,int> > sTyyppArr;
-        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        MEDCoupling::DataArrayInt *daIntTyypp=0;
         int nbOfCompo=self->getNumberOfComponents();
         int nbOfTuples=self->getNumberOfTuples();
         convertObjToPossibleCpp2WithNegIntInterp(obj,nbOfTuples,sw1,iTypppArr,stdvecTyyppArr,sTyyppArr,daIntTyypp);
@@ -6137,7 +6137,7 @@ namespace ParaMEDMEM
       {
         DataArrayAsciiCharTuple *ret=self->nextt();
         if(ret)
-          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiCharTuple,SWIG_POINTER_OWN | 0);
+          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_MEDCoupling__DataArrayAsciiCharTuple,SWIG_POINTER_OWN | 0);
         else
           {
             PyErr_SetString(PyExc_StopIteration,"No more data.");

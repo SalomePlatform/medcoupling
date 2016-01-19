@@ -21,6 +21,6 @@
 #include "CppUnitTest.hxx"
 #include "MEDLoaderTest.hxx"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDLoaderTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDLoaderTest );
 
 #include "BasicMainTest.hxx"

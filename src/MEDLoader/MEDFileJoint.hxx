@@ -25,7 +25,7 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 /*!
  * \brief Joint Correspondence enumerates pairs of corresponding entities of a

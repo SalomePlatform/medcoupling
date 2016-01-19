@@ -32,7 +32,7 @@
 #include <set>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArray;
   class DataArrayInt;

@@ -26,7 +26,7 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileParameter1TS : public RefCountObject
   {

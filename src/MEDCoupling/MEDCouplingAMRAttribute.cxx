@@ -26,7 +26,7 @@
 #include <sstream>
 #include <fstream>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /// @cond INTERNAL
 DataArrayDoubleCollection *DataArrayDoubleCollection::New(const std::vector< std::pair<std::string,int> >& fieldNames)

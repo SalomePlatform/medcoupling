@@ -27,7 +27,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingMesh;
 

@@ -36,7 +36,7 @@ extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const char MEDFileMeshL2::ZE_SEP_FOR_FAMILY_KILLERS[]="!/__\\!";//important start by - because ord('!')==33 the smallest (!=' ') to preserve orders at most.
 
@@ -56,7 +56,7 @@ std::vector<const BigMemoryObject *> MEDFileMeshL2::getDirectChildrenWithNull() 
   return std::vector<const BigMemoryObject *>();
 }
 
-int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, ParaMEDMEM::MEDCouplingMeshType& meshType, ParaMEDMEM::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1)
+int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const std::string& mname, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& dt, int& it, std::string& dtunit1)
 {
   med_mesh_type type_maillage;
   char maillage_description[MED_COMMENT_SIZE+1];
@@ -154,7 +154,7 @@ double MEDFileMeshL2::CheckMeshTimeStep(med_idt fid, const std::string& mName, i
 /*!
  * non static and non const method because _description, _dt_unit... are set in this method.
  */
-std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, ParaMEDMEM::MEDCouplingMeshType& meshType, ParaMEDMEM::MEDCouplingAxisType& axType, int& nstep, int& Mdim)
+std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, const std::string& mName, MEDCoupling::MEDCouplingMeshType& meshType, MEDCoupling::MEDCouplingAxisType& axType, int& nstep, int& Mdim)
 {
   med_mesh_type type_maillage;
   med_int spaceDim;
@@ -379,7 +379,7 @@ bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famN
   return true;
 }
 
-ParaMEDMEM::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisType(med_axis_type at)
+MEDCoupling::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisType(med_axis_type at)
 {
   switch(at)
     {
@@ -396,7 +396,7 @@ ParaMEDMEM::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisType(med_axis_type at)
     }
 }
 
-ParaMEDMEM::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisTypeStruct(med_grid_type gt)
+MEDCoupling::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisTypeStruct(med_grid_type gt)
 {
   switch(gt)
     {
@@ -409,7 +409,7 @@ ParaMEDMEM::MEDCouplingAxisType MEDFileMeshL2::TraduceAxisTypeStruct(med_grid_ty
     }
 }
 
-med_axis_type MEDFileMeshL2::TraduceAxisTypeRev(ParaMEDMEM::MEDCouplingAxisType at)
+med_axis_type MEDFileMeshL2::TraduceAxisTypeRev(MEDCoupling::MEDCouplingAxisType at)
 {
   switch(at)
     {
@@ -424,7 +424,7 @@ med_axis_type MEDFileMeshL2::TraduceAxisTypeRev(ParaMEDMEM::MEDCouplingAxisType 
     }
 }
 
-med_grid_type MEDFileMeshL2::TraduceAxisTypeRevStruct(ParaMEDMEM::MEDCouplingAxisType at)
+med_grid_type MEDFileMeshL2::TraduceAxisTypeRevStruct(MEDCoupling::MEDCouplingAxisType at)
 {
   switch(at)
     {
@@ -448,8 +448,8 @@ std::vector<std::string> MEDFileUMeshL2::loadCommonPart(med_idt fid, int mId, co
   Mdim=-3;
   _name.set(mName.c_str());
   int nstep;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   std::vector<std::string> ret(getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,dummy3,nstep,Mdim));
   if(nstep==0)
     {
@@ -700,8 +700,8 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, int
   _name.set(mName.c_str());
   int nstep;
   int Mdim;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName.c_str(),meshType,dummy3,nstep,Mdim);
   if(meshType!=CARTESIAN)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
@@ -752,8 +752,8 @@ void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const std::string& mName, in
   _name.set(mName.c_str());
   int nstep;
   int Mdim;
-  ParaMEDMEM::MEDCouplingMeshType meshType;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,dummy3,nstep,Mdim);
   if(meshType!=CURVE_LINEAR)
     throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
@@ -1758,14 +1758,14 @@ MEDFileUMeshAggregateCompute MEDFileUMeshAggregateCompute::deepCpy(DataArrayDoub
       const MEDCoupling1GTUMesh *elt(_m_parts[i]);
       if(elt)
         {
-          ret._m_parts[i]=static_cast<ParaMEDMEM::MEDCoupling1GTUMesh*>(elt->deepCpy());
+          ret._m_parts[i]=static_cast<MEDCoupling::MEDCoupling1GTUMesh*>(elt->deepCpy());
           ret._m_parts[i]->setCoords(coords);
         }
     }
   ret._mp_time=_mp_time; ret._m_time=_m_time;
   if((const MEDCouplingUMesh *)_m)
     {
-      ret._m=static_cast<ParaMEDMEM::MEDCouplingUMesh*>(_m->deepCpy());
+      ret._m=static_cast<MEDCoupling::MEDCouplingUMesh*>(_m->deepCpy());
       ret._m->setCoords(coords);
     }
   std::size_t sz(_part_def.size());

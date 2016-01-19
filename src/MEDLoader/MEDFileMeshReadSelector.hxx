@@ -26,7 +26,7 @@
 #include <sstream>
 #include <string>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDLOADER_EXPORT MEDFileMeshReadSelector
   {

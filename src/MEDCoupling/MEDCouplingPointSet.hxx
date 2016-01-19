@@ -33,14 +33,14 @@ namespace INTERP_KERNEL
   class DirectedBoundingBox;
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class DataArrayDouble;
   
   /*!
    * This class is abstract and not instanciable.
-   * ParaMEDMEM::MEDCouplingUMesh class inherits from this class.
+   * MEDCoupling::MEDCouplingUMesh class inherits from this class.
    * This class aggregates an array '_coords' containing nodes coordinates.
    * So all operations on coordinates are managed by this class.
    * This is the case for example for following methods :

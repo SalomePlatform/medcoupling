@@ -29,7 +29,7 @@
 #include <cmath>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MEDLoaderTest::testMesh1DRW()
 {
@@ -375,7 +375,7 @@ void MEDLoaderTest::testFieldProfilRW1()
   MEDLoader::WriteField(fileName,f1,false);//<- false important for the test
   //
   MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
-  std::vector<ParaMEDMEM::TypeOfField> types=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
+  std::vector<MEDCoupling::TypeOfField> types=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)types.size());
   CPPUNIT_ASSERT(types[0]==ON_CELLS);
   f2->checkCoherency();
@@ -485,7 +485,7 @@ void MEDLoaderTest::testFieldGaussNERW1()
   const char fileName[]="file14.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGaussNE_1();
   MEDLoader::WriteField(fileName,f1,true);
-  std::vector<ParaMEDMEM::TypeOfField> tof(MEDLoader::GetTypesOfField(fileName,"2DMesh_2","MyFieldOnGaussNE"));
+  std::vector<MEDCoupling::TypeOfField> tof(MEDLoader::GetTypesOfField(fileName,"2DMesh_2","MyFieldOnGaussNE"));
   CPPUNIT_ASSERT_EQUAL(1,(int)tof.size());
   CPPUNIT_ASSERT(ON_GAUSS_NE==tof[0]);
   MEDCouplingFieldDouble *f2=MEDLoader::ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5);
@@ -709,7 +709,7 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   f2->checkCoherency();
   //
   MEDLoader::WriteField(fileName,f1,true);
-  std::vector<ParaMEDMEM::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
+  std::vector<MEDCoupling::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[0]);
   std::vector<std::string> fs=MEDLoader::GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName().c_str());

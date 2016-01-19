@@ -21,7 +21,7 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELDENUM__
 #define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELDENUM__
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
   {

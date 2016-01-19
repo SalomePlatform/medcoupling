@@ -29,7 +29,7 @@
 
 #include <set>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMeshCellByTypeEntry;
   class MEDCouplingUMeshCellIterator;

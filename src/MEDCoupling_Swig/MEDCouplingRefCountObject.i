@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
   };
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class TimeLabel
   {
@@ -49,7 +49,7 @@ namespace ParaMEDMEM
   };
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
     {
@@ -78,7 +78,7 @@ namespace ParaMEDMEM
         std::vector<const BigMemoryObject *> c(self->getDirectChildren());
         PyObject *ret(PyList_New(c.size()));
         for(std::size_t i=0;i<c.size();i++)
-          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_MEDCoupling__BigMemoryObject, 0 | 0 ));
         return ret;
       }
 
@@ -87,14 +87,14 @@ namespace ParaMEDMEM
         std::vector<const BigMemoryObject *> c(self->getAllTheProgeny());
         PyObject *ret(PyList_New(c.size()));
         for(std::size_t i=0;i<c.size();i++)
-          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_ParaMEDMEM__BigMemoryObject, 0 | 0 ));
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(c[i]),SWIGTYPE_p_MEDCoupling__BigMemoryObject, 0 | 0 ));
         return ret;
       }
 
       static std::size_t GetHeapMemorySizeOfObjs(PyObject *objs) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const BigMemoryObject *> cppObjs;
-        convertFromPyObjVectorOfObj<const ParaMEDMEM::BigMemoryObject *>(objs,SWIGTYPE_p_ParaMEDMEM__BigMemoryObject,"BigMemoryObject",cppObjs);
+        convertFromPyObjVectorOfObj<const MEDCoupling::BigMemoryObject *>(objs,SWIGTYPE_p_MEDCoupling__BigMemoryObject,"BigMemoryObject",cppObjs);
         return BigMemoryObject::GetHeapMemorySizeOfObjs(cppObjs);
       }
     }

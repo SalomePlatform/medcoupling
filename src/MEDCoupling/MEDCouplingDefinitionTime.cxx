@@ -23,7 +23,7 @@
 
 #include <cmath>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const double MEDCouplingDefinitionTime::EPS_DFT=1e-15;
 

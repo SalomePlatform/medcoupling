@@ -25,7 +25,7 @@
 
 #include <sstream>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble& f)
 {

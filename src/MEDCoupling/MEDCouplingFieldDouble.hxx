@@ -26,7 +26,7 @@
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingMemArray.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingFieldTemplate;
 

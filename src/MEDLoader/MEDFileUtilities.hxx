@@ -44,7 +44,7 @@ namespace MEDFileUtilities
   };
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDLOADER_EXPORT MEDFileWritable
   {

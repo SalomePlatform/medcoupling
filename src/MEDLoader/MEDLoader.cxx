@@ -145,7 +145,7 @@ int MEDLoader::_COMP_FOR_CELL=0;
 
 int MEDLoader::_TOO_LONG_STR=0;
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /// @cond INTERNAL
 
@@ -153,7 +153,7 @@ namespace MEDLoaderNS
 {
   int readUMeshDimFromFile(const std::string& fileName, const std::string& meshName, std::vector<int>& possibilities);
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entity_type& whichEntity);
-  void writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
+  void writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch);
   med_int getIdFromMeshName(med_idt fid, const std::string& meshName, std::string& trueMeshName);
   std::vector<std::string> getMeshNamesFid(med_idt fid);
 }
@@ -294,7 +294,7 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
 
 /// @endcond
 
-void MEDLoader::AssignStaticWritePropertiesTo(ParaMEDMEM::MEDFileWritable& obj)
+void MEDLoader::AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj)
 {
   obj.setTooLongStrPolicy(_TOO_LONG_STR);
 }
@@ -605,9 +605,9 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNames(const std::string& fileNa
   return ret;
 }
 
-std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+std::vector<MEDCoupling::TypeOfField> MEDLoader::GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  std::vector<ParaMEDMEM::TypeOfField> ret;
+  std::vector<MEDCoupling::TypeOfField> ret;
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> fs(MEDFileAnyTypeFieldMultiTS::New(fileName,fieldName,false));
   if(fs->getMeshName()!=meshName)
     {
@@ -621,18 +621,18 @@ std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const std::strin
   for(int i=0;i<nbTS;i++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> f1ts(fs->getTimeStepAtPos(i));
-      std::vector<ParaMEDMEM::TypeOfField> tof(f1ts->getTypesOfFieldAvailable());
-      for(std::vector<ParaMEDMEM::TypeOfField>::const_iterator it=tof.begin();it!=tof.end();it++)
+      std::vector<MEDCoupling::TypeOfField> tof(f1ts->getTypesOfFieldAvailable());
+      for(std::vector<MEDCoupling::TypeOfField>::const_iterator it=tof.begin();it!=tof.end();it++)
         if(std::find(ret.begin(),ret.end(),*it)==ret.end())
           ret.push_back(*it);
      }
   // sort ret to put before ON_NODES then ON_CELLS then the remaining.
-  std::vector<ParaMEDMEM::TypeOfField> ret2;
+  std::vector<MEDCoupling::TypeOfField> ret2;
   if(std::find(ret.begin(),ret.end(),ON_NODES)!=ret.end())
     ret2.push_back(ON_NODES);
   if(std::find(ret.begin(),ret.end(),ON_CELLS)!=ret.end())
     ret2.push_back(ON_CELLS);
-  for(std::vector<ParaMEDMEM::TypeOfField>::const_iterator it=ret.begin();it!=ret.end();it++)
+  for(std::vector<MEDCoupling::TypeOfField>::const_iterator it=ret.begin();it!=ret.end();it++)
     if(*it!=ON_NODES && *it!=ON_CELLS)
       ret2.push_back(*it);
   return ret2;
@@ -692,7 +692,7 @@ std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const std::string& fi
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName)
 {
   CheckFileForRead(fileName);
   switch(type)
@@ -888,7 +888,7 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const std::string& fileName, c
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
   CheckFileForRead(fileName);
   switch(type)
@@ -1039,7 +1039,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const std::s
   return ret;
 }
 
-ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1063,7 +1063,7 @@ ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& file
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName));
@@ -1087,7 +1087,7 @@ ParaMEDMEM::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& file
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1101,7 +1101,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fi
   return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName));
@@ -1122,7 +1122,7 @@ int MEDLoader::ReadUMeshDimFromFile(const std::string& fileName, const std::stri
   return MEDLoaderNS::readUMeshDimFromFile(fileName,meshName,poss);
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
+MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1136,7 +1136,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const std::string
   return mmuPtr->getFamilies(meshDimRelToMax,fams,true);
 }
 
-ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
+MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
 {
   CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
@@ -1150,7 +1150,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const std::string& 
   return mmuPtr->getGroups(meshDimRelToMax,grps,true);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   CheckFileForRead(fileName);
   switch(type)
@@ -1168,13 +1168,13 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField
   }
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                   const std::vector<std::pair<int,int> >& its)
 {
   if(its.empty())
-    return std::vector<ParaMEDMEM::MEDCouplingFieldDouble *>();
+    return std::vector<MEDCoupling::MEDCouplingFieldDouble *>();
   CheckFileForRead(fileName);
-  std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ret(its.size());
+  std::vector<MEDCoupling::MEDCouplingFieldDouble *> ret(its.size());
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > retSafe(its.size());
   if(its.empty())
     return ret;
@@ -1205,31 +1205,31 @@ std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMes
   return ret;
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                       const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_CELLS,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                       const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_NODES,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                        const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_GAUSS_PT,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                          const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1246,7 +1246,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string& 
   return ret.retn();
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1288,7 +1288,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& 
   return ret.retn();
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1305,7 +1305,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string&
   return ret.retn();
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1322,7 +1322,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const std::strin
   return ret.retn();
 }
 
-void MEDLoader::WriteMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingMesh *mesh, bool writeFromScratch)
+void MEDLoader::WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteMesh : input mesh is null !");
@@ -1363,7 +1363,7 @@ void MEDLoader::WriteMesh(const std::string& fileName, const ParaMEDMEM::MEDCoup
   throw INTERP_KERNEL::Exception("MEDLoader::WriteMesh : only MEDCouplingUMesh, MEDCoupling1GTUMesh, MEDCouplingCMesh, MEDCouplingCurveLinear are dealed in this API for the moment !");
 }
 
-void MEDLoader::WriteUMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
+void MEDLoader::WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteUMesh : input mesh is null !");
@@ -1375,12 +1375,12 @@ void MEDLoader::WriteUMesh(const std::string& fileName, const ParaMEDMEM::MEDCou
   m->write(fileName,mod);
 }
 
-void MEDLoader::WriteUMeshDep(const std::string& fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
+void MEDLoader::WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   MEDLoader::WriteUMesh(fileName,mesh,writeFromScratch);
 }
 
-void MEDLoader::WriteUMeshesPartition(const std::string& fileName, const std::string& meshNameC, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+void MEDLoader::WriteUMeshesPartition(const std::string& fileName, const std::string& meshNameC, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   std::string meshName(meshNameC);
   if(meshName.empty())
@@ -1399,12 +1399,12 @@ void MEDLoader::WriteUMeshesPartition(const std::string& fileName, const std::st
   m->write(fileName,mod);
 }
 
-void MEDLoader::WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshNameC, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+void MEDLoader::WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshNameC, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   WriteUMeshesPartition(fileName,meshNameC,meshes,writeFromScratch);
 }
 
-void MEDLoader::WriteUMeshes(const std::string& fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+void MEDLoader::WriteUMeshes(const std::string& fileName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   int mod=writeFromScratch?2:0;
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m(MEDFileUMesh::New());
@@ -1413,7 +1413,7 @@ void MEDLoader::WriteUMeshes(const std::string& fileName, const std::vector<cons
   m->write(fileName,mod);
 }
 
-void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New());
   MEDLoader::AssignStaticWritePropertiesTo(*ff);
@@ -1466,7 +1466,7 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   ff->write(fileName,0);
 }
 
-void MEDLoader::WriteField(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   if(!f)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteField : input field is NULL !");
@@ -1553,12 +1553,12 @@ void MEDLoader::WriteField(const std::string& fileName, const ParaMEDMEM::MEDCou
     }
 }
 
-void MEDLoader::WriteFieldDep(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDLoader::WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   WriteField(fileName,f,writeFromScratch);
 }
 
-void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f)
+void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f)
 {
   if(!f)
     throw INTERP_KERNEL::Exception("MEDLoader::WriteFieldUsingAlreadyWrittenMesh : input field is null !");

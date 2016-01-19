@@ -27,7 +27,7 @@
 #include "DiameterCalculator.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const int MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS[6]={0,1,2,4,3,5};
 

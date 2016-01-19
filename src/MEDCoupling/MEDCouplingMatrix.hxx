@@ -29,7 +29,7 @@
 
 #include "InterpKernelException.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * The aim of this class is \b NOT to reimplement all linear algebra but only to store a dense matrix.

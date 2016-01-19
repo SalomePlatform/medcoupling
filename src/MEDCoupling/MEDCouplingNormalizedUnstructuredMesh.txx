@@ -30,7 +30,7 @@
 #include <limits>
 
 template<int SPACEDIM,int MESHDIM>
-MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingPointSet *mesh):_mesh(mesh)
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(const MEDCoupling::MEDCouplingPointSet *mesh):_mesh(mesh)
 {
   if(_mesh)
     _mesh->incrRef();
@@ -45,7 +45,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getBoundingBox(dou
       boundingBox[i]=std::numeric_limits<double>::max();
       boundingBox[SPACEDIM+i]=-std::numeric_limits<double>::max();
     }
-  const ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
+  const MEDCoupling::DataArrayDouble *array=_mesh->getCoords();
   const double *ptr=array->getConstPointer();
   int nbOfPts=array->getNbOfElems()/SPACEDIM;
   for(int j=0;j<SPACEDIM;j++)
@@ -94,7 +94,7 @@ const int *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectiv
 template<int SPACEDIM,int MESHDIM>
 const double *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getCoordinatesPtr() const
 {
-  const ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
+  const MEDCoupling::DataArrayDouble *array=_mesh->getCoords();
   return array->getConstPointer();
 }
 
@@ -124,7 +124,7 @@ MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedU
 template<int SPACEDIM,int MESHDIM>
 void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
 {
-  const ParaMEDMEM::MEDCouplingUMesh *m1(dynamic_cast<const ParaMEDMEM::MEDCouplingUMesh *>(_mesh));
+  const MEDCoupling::MEDCouplingUMesh *m1(dynamic_cast<const MEDCoupling::MEDCouplingUMesh *>(_mesh));
   if(m1)
     {
       int nbOfCell=m1->getNumberOfCells();
@@ -147,7 +147,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
         }
       return ;
     }
-  const ParaMEDMEM::MEDCoupling1DGTUMesh *m2(dynamic_cast<const ParaMEDMEM::MEDCoupling1DGTUMesh *>(_mesh));
+  const MEDCoupling::MEDCoupling1DGTUMesh *m2(dynamic_cast<const MEDCoupling::MEDCoupling1DGTUMesh *>(_mesh));
   if(m2)
     {
       int nbOfCell(m2->getNumberOfCells());
@@ -158,7 +158,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
       std::copy(m2->getNodalConnectivity()->begin(),m2->getNodalConnectivity()->end(),_conn_for_interp);
       return ;
     }
-  const ParaMEDMEM::MEDCoupling1SGTUMesh *m3(dynamic_cast<const ParaMEDMEM::MEDCoupling1SGTUMesh *>(_mesh));
+  const MEDCoupling::MEDCoupling1SGTUMesh *m3(dynamic_cast<const MEDCoupling::MEDCoupling1SGTUMesh *>(_mesh));
   if(m3)
     {
       int nbOfCell(m3->getNumberOfCells()),nbNodesPerCell(m3->getNumberOfNodesPerCell());

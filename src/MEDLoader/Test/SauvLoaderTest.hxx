@@ -24,7 +24,7 @@
 
 #include "MEDLoaderTest.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class SauvLoaderTest : public CppUnit::TestFixture
   {

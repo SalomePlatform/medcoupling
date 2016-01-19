@@ -26,7 +26,7 @@
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * User class.

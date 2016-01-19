@@ -32,7 +32,7 @@
 #include <functional>
 #include <iterator>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MEDCouplingBasicsTest4::testDescriptionInMeshTimeUnit1()
 {

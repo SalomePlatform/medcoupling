@@ -31,7 +31,7 @@
 #include <sstream>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingCurveLinearMesh::MEDCouplingCurveLinearMesh():_coords(0),_structure(0)
 {
@@ -166,8 +166,8 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *oth
 }
 
 /*!
- * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCurveLinearMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCurveLinearMesh, \a this and \a other are the same !
+ * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingCurveLinearMesh instance too).
+ * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingCurveLinearMesh, \a this and \a other are the same !
  */
 void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                                  DataArrayInt *&cellCor) const
@@ -478,7 +478,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::buildOrthogonalField() const
 
 /// @cond INTERNAL
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   template<const int SPACEDIMM>
   class DummyClsMCL

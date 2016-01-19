@@ -25,7 +25,7 @@
 #include "MEDCouplingNatureOfFieldEnum"
 #include "MEDCouplingCartesianAMRMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /// @cond INTERNAL
   class DataArrayDoubleCollection : public RefCountObject, public TimeLabel

@@ -39,7 +39,7 @@
 #include <cmath>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 typedef std::vector<std::map<int,double> > IntersectionMatrix;
 

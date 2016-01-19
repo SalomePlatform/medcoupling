@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCoupling1SGTUMesh;
 

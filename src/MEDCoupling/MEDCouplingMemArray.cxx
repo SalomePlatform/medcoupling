@@ -35,7 +35,7 @@
 
 typedef double (*MYFUNCPTR)(double);
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
@@ -3041,8 +3041,8 @@ void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &ar
  * For more info see \ref MEDCouplingArraySteps1.
  *  \param [in] array - the C array to be used as raw data of \a this.
  *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == ParaMEDMEM::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == ParaMEDMEM::C_DEALLOC,
+ *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+ *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
  *                     \c free(\c array ) will be called.
  *  \param [in] nbOfTuple - new number of tuples in \a this.
  *  \param [in] nbOfCompo - new number of components in \a this.
@@ -4071,7 +4071,7 @@ DataArrayDouble *DataArrayDouble::maxPerTupleWithCompoId(DataArrayInt* &compoIdO
  *
  * \warning use this method with care because it can leads to big amount of consumed memory !
  * 
- * \return A newly allocated (huge) ParaMEDMEM::DataArrayDouble instance that the caller should deal with.
+ * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
  * \throw If \a this is not allocated.
  *
@@ -4112,7 +4112,7 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrix() const
  * \warning use this method with care because it can leads to big amount of consumed memory !
  * 
  * \param [in] other DataArrayDouble instance having same number of components than \a this.
- * \return A newly allocated (huge) ParaMEDMEM::DataArrayDouble instance that the caller should deal with.
+ * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
  * \throw If \a this is not allocated, or if \a other is null or if \a other is not allocated, or if number of components of \a other and \a this differs.
  *
@@ -5942,8 +5942,8 @@ double DataArrayDoubleTuple::doubleValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayDouble::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayDouble::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayDouble::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayDouble::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
@@ -7139,8 +7139,8 @@ DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const
  * For more info see \ref MEDCouplingArraySteps1.
  *  \param [in] array - the C array to be used as raw data of \a this.
  *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == ParaMEDMEM::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == ParaMEDMEM::C_DEALLOC,
+ *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+ *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
  *                     \c free(\c array ) will be called.
  *  \param [in] nbOfTuple - new number of tuples in \a this.
  *  \param [in] nbOfCompo - new number of components in \a this.
@@ -7658,7 +7658,7 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
 /*!
  * Returns a new DataArrayInt containing a renumbering map in "Old to New" mode computed
  * from a zip representation of a surjective format (returned e.g. by
- * \ref ParaMEDMEM::DataArrayDouble::findCommonTuples() "DataArrayDouble::findCommonTuples()"
+ * \ref MEDCoupling::DataArrayDouble::findCommonTuples() "DataArrayDouble::findCommonTuples()"
  * for example). The result array minimizes the permutation. <br>
  * For more info on renumbering see \ref numbering. <br>
  * \b Example: <br>
@@ -10021,7 +10021,7 @@ DataArrayInt *DataArrayInt::BuildIntersection(const std::vector<const DataArrayI
 }
 
 /// @cond INTERNAL
-namespace ParaMEDMEMImpl
+namespace MEDCouplingImpl
 {
   class OpSwitchedOn
   {
@@ -10052,7 +10052,7 @@ DataArrayInt *DataArrayInt::BuildListOfSwitchedOn(const std::vector<bool>& v)
 {
   int sz((int)std::count(v.begin(),v.end(),true));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
-  std::for_each(v.begin(),v.end(),ParaMEDMEMImpl::OpSwitchedOn(ret->getPointer()));
+  std::for_each(v.begin(),v.end(),MEDCouplingImpl::OpSwitchedOn(ret->getPointer()));
   return ret.retn();
 }
 
@@ -10063,7 +10063,7 @@ DataArrayInt *DataArrayInt::BuildListOfSwitchedOff(const std::vector<bool>& v)
 {
   int sz((int)std::count(v.begin(),v.end(),false));
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
-  std::for_each(v.begin(),v.end(),ParaMEDMEMImpl::OpSwitchedOff(ret->getPointer()));
+  std::for_each(v.begin(),v.end(),MEDCouplingImpl::OpSwitchedOff(ret->getPointer()));
   return ret.retn();
 }
 
@@ -10288,9 +10288,9 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
 /*!
  * Returns a new DataArrayInt which contains size of every of groups described by \a this
  * "index" array. Such "index" array is returned for example by 
- * \ref ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity
+ * \ref MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity
  * "MEDCouplingUMesh::buildDescendingConnectivity" and
- * \ref ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex
+ * \ref MEDCoupling::MEDCouplingUMesh::getNodalConnectivityIndex
  * "MEDCouplingUMesh::getNodalConnectivityIndex" etc.
  * This method preforms the reverse operation of DataArrayInt::computeOffsets2.
  *  \return DataArrayInt * - a new instance of DataArrayInt, whose number of tuples
@@ -11869,8 +11869,8 @@ int DataArrayIntTuple::intValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayInt::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayInt::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayInt::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayInt::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */

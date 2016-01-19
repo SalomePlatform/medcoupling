@@ -27,7 +27,7 @@
 
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingStructuredMesh::MEDCouplingStructuredMesh()
 {

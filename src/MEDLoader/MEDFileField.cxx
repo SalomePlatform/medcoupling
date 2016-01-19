@@ -39,7 +39,7 @@ extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 extern med_geometry_type typmainoeud[1];
 extern med_geometry_type typmai3[34];
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const char MEDFileField1TSWithoutSDA::TYPE_STR[]="FLOAT64";
 const char MEDFileIntField1TSWithoutSDA::TYPE_STR[]="INT32";
@@ -2935,7 +2935,7 @@ const MEDFileFieldLoc& MEDFileFieldGlobs::getLocalizationFromId(int locId) const
 }
 
 /// @cond INTERNAL
-namespace ParaMEDMEMImpl
+namespace MEDCouplingImpl
 {
   class LocFinder
   {
@@ -2959,7 +2959,7 @@ namespace ParaMEDMEMImpl
 
 int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=std::find_if(_locs.begin(),_locs.end(),ParaMEDMEMImpl::LocFinder(loc));
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=std::find_if(_locs.begin(),_locs.end(),MEDCouplingImpl::LocFinder(loc));
   if(it==_locs.end())
     {
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getLocalisationId : no such localisation name : \"" << loc << "\" Possible localizations are : ";
@@ -2976,7 +2976,7 @@ int MEDFileFieldGlobs::getLocalizationId(const std::string& loc) const
 const DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName) const
 {
   std::string pflNameCpp(pflName);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pflNameCpp));
   if(it==_pfls.end())
     {
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
@@ -3012,7 +3012,7 @@ MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const std::string& locName)
 DataArrayInt *MEDFileFieldGlobs::getProfile(const std::string& pflName)
 {
   std::string pflNameCpp(pflName);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=std::find_if(_pfls.begin(),_pfls.end(),MEDCouplingImpl::PflFinder(pflNameCpp));
   if(it==_pfls.end())
     {
       std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
@@ -4111,7 +4111,7 @@ void MEDFileAnyTypeField1TSWithoutSDA::changeLocsRefsNamesGen2(const std::vector
  * Thus all sequences returned by this method are of the same length equal to number
  * of different types of supporting entities.<br>
  * A field part can include sub-parts with several different spatial discretizations,
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS" and \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT"
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS" and \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT"
  * for example. Hence, some of the returned sequences contains nested sequences, and an item
  * of a nested sequence corresponds to a type of spatial discretization.<br>
  * This method allows for iteration over MEDFile DataStructure without any overhead.
@@ -4150,11 +4150,11 @@ std::vector< std::vector< std::pair<int,int> > > MEDFileAnyTypeField1TSWithoutSD
  * maximal absolute dimension and values returned via the out parameter \a levs are 
  * dimensions relative to the maximal absolute dimension. <br>
  * This method is designed for MEDFileField1TS instances that have a discretization
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE".
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  * Only these 3 discretizations will be taken into account here. If \a this is
- * \ref ParaMEDMEM::ON_NODES "ON_NODES", -1 is returned and \a levs are empty.<br>
+ * \ref MEDCoupling::ON_NODES "ON_NODES", -1 is returned and \a levs are empty.<br>
  * This method is useful to make the link between the dimension of the underlying mesh
  * and the levels of \a this, because it is possible that the highest dimension of \a this
  * field is not equal to the dimension of the underlying mesh.
@@ -5006,7 +5006,7 @@ MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::New(const std::string& fie
  * Thus all sequences returned by this method are of the same length equal to number
  * of different types of supporting entities.<br>
  * A field part can include sub-parts with several different spatial discretizations,
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS" and \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT"
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS" and \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT"
  * for example. Hence, some of the returned sequences contains nested sequences, and an item
  * of a nested sequence corresponds to a type of spatial discretization.<br>
  * This method allows for iteration over MEDFile DataStructure with a reduced overhead.
@@ -5018,8 +5018,8 @@ MEDFileField1TSWithoutSDA *MEDFileField1TSWithoutSDA::New(const std::string& fie
  *          a field part is returned. 
  *  \param [in,out] typesF - a sequence of sequences of types of spatial discretizations.
  *          A field part can include sub-parts with several different spatial discretizations,
- *          \ref ParaMEDMEM::ON_CELLS "ON_CELLS" and 
- *          \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT" for example.
+ *          \ref MEDCoupling::ON_CELLS "ON_CELLS" and 
+ *          \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" for example.
  *          This sequence is of the same length as \a types. 
  *  \param [in,out] pfls - a sequence returning a profile name per each type of spatial
  *          discretization. A profile name can be empty.

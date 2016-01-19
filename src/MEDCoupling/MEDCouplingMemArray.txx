@@ -30,7 +30,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   template<class T>
   void MEDCouplingPointer<T>::setInternal(T *pointer)

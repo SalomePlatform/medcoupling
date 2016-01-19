@@ -23,7 +23,7 @@
 
 #include "NormalizedUnstructuredMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingCMesh;
 }
@@ -37,7 +37,7 @@ public:
   typedef int MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
-  MEDCouplingNormalizedCartesianMesh(const ParaMEDMEM::MEDCouplingCMesh *mesh);
+  MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh);
   //void getBoundingBox(double *boundingBox) const;
   //INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
   //int getNumberOfNodesOfElement(int eltId) const;
@@ -47,7 +47,7 @@ public:
   const double * getCoordsAlongAxis(int axis) const;
   ~MEDCouplingNormalizedCartesianMesh();
 private:
-  const ParaMEDMEM::MEDCouplingCMesh *_mesh;
+  const MEDCoupling::MEDCouplingCMesh *_mesh;
 };
 
 #endif
