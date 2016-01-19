@@ -39,22 +39,22 @@ def MEDCouplingDataArrayDoubleIdiv(self,*args):
 def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _MEDLoader
     return _MEDLoader.DataArrayDouble____ipow___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoublenew(cls,*args):
+def MEDCouplingFieldDoublenew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____new___(cls,args)
-def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
+def MEDCouplingFieldDoubleIadd(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____iadd___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIsub(self,*args):
+def MEDCouplingFieldDoubleIsub(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____isub___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
+def MEDCouplingFieldDoubleImul(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____imul___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
+def MEDCouplingFieldDoubleIdiv(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____idiv___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
+def MEDCouplingFieldDoubleIpow(self,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingFieldDouble____ipow___(self, self, *args)
 def MEDCouplingDataArrayIntnew(cls,*args):
@@ -111,25 +111,25 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _MEDLoader
     return _MEDLoader.DenseMatrix____isub___(self, self, *args)
-def ParaMEDMEMMEDCouplingUMeshnew(cls,*args):
+def MEDCouplingUMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingUMesh____new___(cls,args)
-def ParaMEDMEMMEDCoupling1DGTUMeshnew(cls,*args):
+def MEDCoupling1DGTUMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCoupling1DGTUMesh____new___(cls,args)
-def ParaMEDMEMMEDCoupling1SGTUMeshnew(cls,*args):
+def MEDCoupling1SGTUMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCoupling1SGTUMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingCurveLinearMeshnew(cls,*args):
+def MEDCouplingCurveLinearMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingCurveLinearMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingCMeshnew(cls,*args):
+def MEDCouplingCMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingCMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingIMeshnew(cls,*args):
+def MEDCouplingIMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingIMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingExtrudedMeshnew(cls,*args):
+def MEDCouplingExtrudedMeshnew(cls,*args):
     import _MEDLoader
     return _MEDLoader.MEDCouplingExtrudedMesh____new___(cls,args)
 %}

@@ -121,22 +121,22 @@ def MEDCouplingDataArrayDoubleIdiv(self,*args):
 def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DataArrayDouble____ipow___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoublenew(cls,*args):
+def MEDCouplingFieldDoublenew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____new___(cls,args)
-def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
+def MEDCouplingFieldDoubleIadd(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____iadd___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIsub(self,*args):
+def MEDCouplingFieldDoubleIsub(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____isub___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
+def MEDCouplingFieldDoubleImul(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____imul___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
+def MEDCouplingFieldDoubleIdiv(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____idiv___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
+def MEDCouplingFieldDoubleIpow(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingFieldDouble____ipow___(self, self, *args)
 def MEDCouplingDataArrayIntnew(cls,*args):
@@ -196,25 +196,25 @@ def ParaMEDMEMDenseMatrixIadd(self,*args):
 def ParaMEDMEMDenseMatrixIsub(self,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.DenseMatrix____isub___(self, self, *args)
-def ParaMEDMEMMEDCouplingUMeshnew(cls,*args):
+def MEDCouplingUMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingUMesh____new___(cls,args)
-def ParaMEDMEMMEDCoupling1DGTUMeshnew(cls,*args):
+def MEDCoupling1DGTUMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCoupling1DGTUMesh____new___(cls,args)
-def ParaMEDMEMMEDCoupling1SGTUMeshnew(cls,*args):
+def MEDCoupling1SGTUMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCoupling1SGTUMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingCurveLinearMeshnew(cls,*args):
+def MEDCouplingCurveLinearMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingCurveLinearMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingCMeshnew(cls,*args):
+def MEDCouplingCMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingCMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingIMeshnew(cls,*args):
+def MEDCouplingIMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingIMesh____new___(cls,args)
-def ParaMEDMEMMEDCouplingExtrudedMeshnew(cls,*args):
+def MEDCouplingExtrudedMeshnew(cls,*args):
     import _MEDCouplingRemapper
     return _MEDCouplingRemapper.MEDCouplingExtrudedMesh____new___(cls,args)
 %}
