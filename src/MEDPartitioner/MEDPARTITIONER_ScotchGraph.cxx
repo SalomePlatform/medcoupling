@@ -39,7 +39,7 @@ SCOTCHGraph::SCOTCHGraph():Graph()
 {
 }
 
-SCOTCHGraph::SCOTCHGraph(ParaMEDMEM::MEDCouplingSkyLineArray* graph, int* edgeweight):Graph(graph,edgeweight)
+SCOTCHGraph::SCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* graph, int* edgeweight):Graph(graph,edgeweight)
 {
 }
 
@@ -112,6 +112,6 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   //creating a skylinearray with no copy of the index and partition array
   //the fifth argument true specifies that only the pointers are passed 
   //to the object
-  _partition = new ParaMEDMEM::MEDCouplingSkyLineArray(index,value);
+  _partition = new MEDCoupling::MEDCouplingSkyLineArray(index,value);
 #endif
 }

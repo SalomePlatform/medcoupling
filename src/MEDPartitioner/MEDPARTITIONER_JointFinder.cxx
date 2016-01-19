@@ -50,8 +50,8 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
   int nbproc=_domain_selector->nbProcs();
   std::vector<BBTreeOfDim* > bbtree(nbdomain,(BBTreeOfDim*) 0);
   std::vector<double* > bbxi(nbdomain,(double*) 0);
-  std::vector<ParaMEDMEM::DataArrayInt*> rev(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
-  std::vector<ParaMEDMEM::DataArrayInt*> revIndx(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
+  std::vector<MEDCoupling::DataArrayInt*> rev(nbdomain,(MEDCoupling::DataArrayInt*) 0);
+  std::vector<MEDCoupling::DataArrayInt*> revIndx(nbdomain,(MEDCoupling::DataArrayInt*) 0);
   int meshDim=-1;
   int spaceDim=-1;
 
@@ -60,11 +60,11 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
     {
       if(!_domain_selector->isMyDomain(mydomain))
         continue;
-      const ParaMEDMEM::MEDCouplingUMesh* myMesh=_mesh_collection.getMesh(mydomain);
+      const MEDCoupling::MEDCouplingUMesh* myMesh=_mesh_collection.getMesh(mydomain);
       meshDim = myMesh->getMeshDimension();
       spaceDim= myMesh->getSpaceDimension();
-      rev[mydomain] = ParaMEDMEM::DataArrayInt::New();
-      revIndx[mydomain] = ParaMEDMEM::DataArrayInt::New();
+      rev[mydomain] = MEDCoupling::DataArrayInt::New();
+      revIndx[mydomain] = MEDCoupling::DataArrayInt::New();
       myMesh->getReverseNodalConnectivity(rev[mydomain],revIndx[mydomain]);
       double* bbx=new double[2*spaceDim*myMesh->getNumberOfNodes()];
       for (int i=0; i<myMesh->getNumberOfNodes()*spaceDim; i++)
@@ -84,7 +84,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
     {
       for (int itarget=0; itarget<nbdomain; itarget++)
         {
-          const ParaMEDMEM::MEDCouplingUMesh* sourceMesh=_mesh_collection.getMesh(isource);
+          const MEDCoupling::MEDCouplingUMesh* sourceMesh=_mesh_collection.getMesh(isource);
           if (_domain_selector->isMyDomain(isource)&&_domain_selector->isMyDomain(itarget))
             continue;
           if (_domain_selector->isMyDomain(isource))

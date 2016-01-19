@@ -45,7 +45,7 @@ ParallelTopology::ParallelTopology():_nb_domain(0),_mesh_dimension(0)
 }
 
 //constructing topology according to mesh collection without global numerotation (use setGlobalNumerotation later)
-ParallelTopology::ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshes)
+ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMesh*>& meshes)
 {
   _nb_domain=meshes.size();
   _nb_cells.resize(_nb_domain);
@@ -140,7 +140,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
 }
 
 //constructing topology according to mesh collection
-ParallelTopology::ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshes, 
+ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMesh*>& meshes, 
                                    const std::vector<MEDPARTITIONER::ConnectZone*>& cz,
                                    std::vector<int*>& cellglobal,
                                    std::vector<int*>& nodeglobal,
@@ -329,7 +329,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
         {
           cellCorresp[ idomain ].resize( nb_domain );
         }
-      const ParaMEDMEM::MEDCouplingSkyLineArray* skylinegraph = graph->getGraph();
+      const MEDCoupling::MEDCouplingSkyLineArray* skylinegraph = graph->getGraph();
       const int*  index = skylinegraph->getIndex();
       const int*  value = skylinegraph->getValue();
       const int nbCells = skylinegraph->getNumberOf();

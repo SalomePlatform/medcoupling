@@ -23,7 +23,7 @@
 
 #include <set>
 
-MEDPARTITIONER::Graph::Graph(ParaMEDMEM::MEDCouplingSkyLineArray *array, int *edgeweight):_graph(array),_partition(0),_edge_weight(edgeweight),_cell_weight(0)
+MEDPARTITIONER::Graph::Graph(MEDCoupling::MEDCouplingSkyLineArray *array, int *edgeweight):_graph(array),_partition(0),_edge_weight(edgeweight),_cell_weight(0)
 {
 }
 
@@ -37,7 +37,7 @@ int MEDPARTITIONER::Graph::nbDomains() const
 {
   std::set<int> domains;
   if ( _partition )
-    if ( ParaMEDMEM::DataArrayInt* array = _partition->getValueArray() )
+    if ( MEDCoupling::DataArrayInt* array = _partition->getValueArray() )
     {
       for ( const int * dom = array->begin(); dom != array->end(); ++dom )
         domains.insert( *dom );

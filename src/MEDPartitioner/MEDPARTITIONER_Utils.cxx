@@ -506,17 +506,17 @@ void MEDPARTITIONER::FieldShortDescriptionToData(const std::string& description,
   IT=StrToInt(ExtractFromDescription(description,"IT="));
 }
 
-ParaMEDMEM::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<int>& v)
+MEDCoupling::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<int>& v)
 {
-  ParaMEDMEM::DataArrayInt* p=ParaMEDMEM::DataArrayInt::New();
+  MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
   p->alloc(v.size(),1);
   std::copy(v.begin(),v.end(),p->getPointer());
   return p;
 }
 
-ParaMEDMEM::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<int>& v,const int nbComponents)
+MEDCoupling::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std::vector<int>& v,const int nbComponents)
 {
-  ParaMEDMEM::DataArrayInt* p=ParaMEDMEM::DataArrayInt::New();
+  MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
   if (v.size()%nbComponents!=0)
     throw INTERP_KERNEL::Exception("Problem size modulo nbComponents != 0");
   p->alloc(v.size()/nbComponents,nbComponents);
@@ -524,9 +524,9 @@ ParaMEDMEM::DataArrayInt *MEDPARTITIONER::CreateDataArrayIntFromVector(const std
   return p;
 }
 
-ParaMEDMEM::DataArrayDouble* MEDPARTITIONER::CreateDataArrayDoubleFromVector(const std::vector<double>& v)
+MEDCoupling::DataArrayDouble* MEDPARTITIONER::CreateDataArrayDoubleFromVector(const std::vector<double>& v)
 {
-  ParaMEDMEM::DataArrayDouble* p=ParaMEDMEM::DataArrayDouble::New();
+  MEDCoupling::DataArrayDouble* p=MEDCoupling::DataArrayDouble::New();
   p->alloc(v.size(),1);
   std::copy(v.begin(),v.end(),p->getPointer());
   return p;
@@ -534,7 +534,7 @@ ParaMEDMEM::DataArrayDouble* MEDPARTITIONER::CreateDataArrayDoubleFromVector(con
 
 /*!
  */
-std::vector<std::string> MEDPARTITIONER::BrowseFieldDouble(const ParaMEDMEM::MEDCouplingFieldDouble* fd)
+std::vector<std::string> MEDPARTITIONER::BrowseFieldDouble(const MEDCoupling::MEDCouplingFieldDouble* fd)
 {
   std::vector<std::string> res;
   if (fd->getArray())
@@ -568,7 +568,7 @@ std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfi
         MEDLoader::GetAllFieldNamesOnMesh(myfile,meshNames[i]);
       for (std::size_t j = 0; j < fieldNames.size(); j++)
         {
-          std::vector< ParaMEDMEM::TypeOfField > typeFields=
+          std::vector< MEDCoupling::TypeOfField > typeFields=
             MEDLoader::GetTypesOfField(myfile, meshNames[i], fieldNames[j]);
           for (std::size_t k = 0; k < typeFields.size(); k++)
             {
@@ -727,7 +727,7 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
                           resi.push_back("fileName="); resi.back()+=fileName;
                           resi.push_back("meshName="); resi.back()+=curMeshName;
                           resi.push_back("fieldName="); resi.back()+=curFieldName;
-                          resi.push_back("typeField="); resi.back()+=IntToStr((int)ParaMEDMEM::ON_NODES);
+                          resi.push_back("typeField="); resi.back()+=IntToStr((int)MEDCoupling::ON_NODES);
                           resi.push_back("typeData="); resi.back()+=IntToStr((int)typcha);  //6 for double?
                           resi.push_back("nbComponent="); resi.back()+=IntToStr((int)ncomp);
                           resi.push_back("DT="); resi.back()+=IntToStr((int)numdt);
@@ -757,9 +757,9 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
                               nbOfVal << " profilName '" << pflname << "' profileSize " << profilesize << " nbPtGauss " << nbi << std::endl;
                           int typeField=-1; //unknown
                           if (enttype==MED_CELL)
-                            typeField=ParaMEDMEM::ON_CELLS;
+                            typeField=MEDCoupling::ON_CELLS;
                           if (enttype==MED_NODE_ELEMENT)
-                            typeField=ParaMEDMEM::ON_GAUSS_NE;
+                            typeField=MEDCoupling::ON_GAUSS_NE;
                           //if (enttype==??) typeField=ON_GAUSS_PT;
                           std::vector<std::string> resi;
                           resi.push_back("idomain="); resi.back()+=IntToStr(idomain);
@@ -813,13 +813,13 @@ std::vector<std::string> MEDPARTITIONER::BrowseAllFieldsOnMesh(const std::string
 /*!
  * create empty MEDCouplingUMesh* dim 3
  */
-ParaMEDMEM::MEDCouplingUMesh* MEDPARTITIONER::CreateEmptyMEDCouplingUMesh()
+MEDCoupling::MEDCouplingUMesh* MEDPARTITIONER::CreateEmptyMEDCouplingUMesh()
 {
-  ParaMEDMEM::MEDCouplingUMesh* umesh=ParaMEDMEM::MEDCouplingUMesh::New();
+  MEDCoupling::MEDCouplingUMesh* umesh=MEDCoupling::MEDCouplingUMesh::New();
   umesh->setMeshDimension(3);
   umesh->allocateCells(0);
   umesh->finishInsertingCells();
-  ParaMEDMEM::DataArrayDouble *myCoords=ParaMEDMEM::DataArrayDouble::New();
+  MEDCoupling::DataArrayDouble *myCoords=MEDCoupling::DataArrayDouble::New();
   myCoords->alloc(0,3);
   umesh->setCoords(myCoords);
   umesh->setName("EMPTY");

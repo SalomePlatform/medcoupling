@@ -25,7 +25,7 @@
 #include <map>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMesh;
 }
@@ -41,7 +41,7 @@ namespace MEDPARTITIONER
   {
   public:
     Topology() { }
-    Topology(std::vector<ParaMEDMEM::MEDCouplingUMesh*>, std::vector<MEDPARTITIONER::ConnectZone*>) { }
+    Topology(std::vector<MEDCoupling::MEDCouplingUMesh*>, std::vector<MEDPARTITIONER::ConnectZone*>) { }
     virtual ~Topology() { }
     
     /*! converts a list of global cell numbers

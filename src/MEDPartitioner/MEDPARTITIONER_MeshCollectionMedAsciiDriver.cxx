@@ -52,7 +52,7 @@ MeshCollectionMedAsciiDriver::MeshCollectionMedAsciiDriver(MeshCollection* colle
  *\param filename ascii file containing the list of MED v2.3 files
  * */
 
-int MeshCollectionMedAsciiDriver::read(ParaMEDMEM::MEDFileData* filedata)
+int MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData* filedata)
 {
   readMEDFileData(filedata);
 

@@ -49,7 +49,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 //#define VOL_PREC 1.0e-6
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
@@ -104,7 +104,7 @@ namespace INTERP_TEST
    * @param tab    pointer to double[no. elements of mesh] array in which to store the volumes
    */
   template <int SPACEDIM, int MESHDIM>
-  void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double *tab) const
+  void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(MEDCoupling::MEDCouplingUMesh& mesh, double *tab) const
   {
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh.getMeasureField(true);
     std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
@@ -150,7 +150,7 @@ namespace INTERP_TEST
    * @return true if the condition is verified, false if not.
    */
   template <int SPACEDIM, int MESHDIM>
-  bool MeshTestToolkit<SPACEDIM,MESHDIM>::testVolumes(const IntersectionMatrix& m,  ParaMEDMEM::MEDCouplingUMesh& sMesh,  ParaMEDMEM::MEDCouplingUMesh& tMesh) const
+  bool MeshTestToolkit<SPACEDIM,MESHDIM>::testVolumes(const IntersectionMatrix& m,  MEDCoupling::MEDCouplingUMesh& sMesh,  MEDCoupling::MEDCouplingUMesh& tMesh) const
   {
     bool ok = true;
 

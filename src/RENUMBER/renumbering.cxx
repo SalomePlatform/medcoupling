@@ -32,7 +32,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace MED_RENUMBER;
 
 int main(int argc, char** argv)

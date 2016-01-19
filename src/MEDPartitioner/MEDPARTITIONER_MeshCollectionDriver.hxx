@@ -25,7 +25,7 @@
 #include <vector>
 #include <string>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayDouble;
   class MEDCouplingFieldDouble;
@@ -46,15 +46,15 @@ namespace MEDPARTITIONER
     virtual ~MeshCollectionDriver() { }
     virtual int read(const char*, ParaDomainSelector* sel=0) = 0;
     int readSeq(const char*,const char*);
-    ParaMEDMEM::MEDFileData *getMEDFileData();
+    MEDCoupling::MEDFileData *getMEDFileData();
     virtual void write(const char*, ParaDomainSelector* sel=0) const = 0;
-    void readMEDFileData(const ParaMEDMEM::MEDFileData* filedata);
+    void readMEDFileData(const MEDCoupling::MEDFileData* filedata);
   protected:
     void readSubdomain(int idomain);
-    void readData(ParaMEDMEM::MEDFileUMesh* mfm, int idomain) const;
+    void readData(MEDCoupling::MEDFileUMesh* mfm, int idomain) const;
     void readFileData(std::string file,std::string meshname,int idomain) const;
-    ParaMEDMEM::MEDFileMesh* getMesh(int idomain) const;
-    ParaMEDMEM::MEDCouplingFieldDouble* getField(std::string key, std::string description, ParaMEDMEM::DataArrayDouble* data, ParaMEDMEM::MEDFileMesh* mfm, int idomain) const;
+    MEDCoupling::MEDFileMesh* getMesh(int idomain) const;
+    MEDCoupling::MEDCouplingFieldDouble* getField(std::string key, std::string description, MEDCoupling::DataArrayDouble* data, MEDCoupling::MEDFileMesh* mfm, int idomain) const;
     void writeMedFile(int idomain, const std::string& distfilename) const;
   protected:
     MeshCollection* _collection;

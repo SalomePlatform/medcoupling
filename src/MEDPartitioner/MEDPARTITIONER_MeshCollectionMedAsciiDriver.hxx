@@ -32,7 +32,7 @@ namespace MEDPARTITIONER
     MeshCollectionMedAsciiDriver(MeshCollection*);
     virtual ~MeshCollectionMedAsciiDriver() { }
     int read(const char*, ParaDomainSelector* sel=0);
-    int read(ParaMEDMEM::MEDFileData*);
+    int read(MEDCoupling::MEDFileData*);
     void write(const char*, ParaDomainSelector* sel=0) const;
   private:
     std::string _master_filename;

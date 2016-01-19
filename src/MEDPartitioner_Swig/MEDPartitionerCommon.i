@@ -28,7 +28,7 @@
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
 using namespace MEDPARTITIONER;
 %}
@@ -39,7 +39,7 @@ using namespace MEDPARTITIONER;
 %newobject MEDPARTITIONER::MEDPartitioner::New;
 %newobject MEDPARTITIONER::MEDPartitioner::Graph;
 %newobject MEDPARTITIONER::MEDPartitioner::getMEDFileData;
-%feature("unref") ParaMEDMEM::MEDFileData "$this->decrRef();"
+%feature("unref") MEDCoupling::MEDFileData "$this->decrRef();"
 
 %nodefaultctor;
 
@@ -51,8 +51,8 @@ namespace MEDPARTITIONER
   {
   public:
     virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) throw(INTERP_KERNEL::Exception);
-    const ParaMEDMEM::MEDCouplingSkyLineArray *getGraph() const;
-    const ParaMEDMEM::MEDCouplingSkyLineArray *getPartition() const;
+    const MEDCoupling::MEDCouplingSkyLineArray *getGraph() const;
+    const MEDCoupling::MEDCouplingSkyLineArray *getPartition() const;
     int nbVertices() const;
   };
 
@@ -60,10 +60,10 @@ namespace MEDPARTITIONER
   {
   public:
     MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    MEDPartitioner(const ParaMEDMEM::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    MEDPartitioner(const ParaMEDMEM::MEDFileData* fileData, Graph* graph, bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
-    static MEDPARTITIONER::Graph* Graph(ParaMEDMEM::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0) throw(INTERP_KERNEL::Exception);
-    ParaMEDMEM::MEDFileData* getMEDFileData() throw(INTERP_KERNEL::Exception);
+    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
+    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool creates_boundary_faces=false, bool create_joints=false, bool mesure_memory=false) throw(INTERP_KERNEL::Exception);
+    static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0) throw(INTERP_KERNEL::Exception);
+    MEDCoupling::MEDFileData* getMEDFileData() throw(INTERP_KERNEL::Exception);
     void write(const std::string& filename) throw(INTERP_KERNEL::Exception);
   };
 }

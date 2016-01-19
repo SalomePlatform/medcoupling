@@ -31,7 +31,7 @@ namespace MEDPARTITIONER
   {
   public:
     ParMETISGraph();
-    ParMETISGraph(ParaMEDMEM::MEDCouplingSkyLineArray*, int *edgeweight=0);
+    ParMETISGraph(MEDCoupling::MEDCouplingSkyLineArray*, int *edgeweight=0);
     virtual ~ParMETISGraph();
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0);
   };

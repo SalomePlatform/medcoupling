@@ -93,11 +93,11 @@ public:
   void setbigSize();
   std::string getPartitionerExe() const;
   std::string getPartitionerParaExe() const;
-  ParaMEDMEM::MEDCouplingUMesh * buildCUBE3DMesh();
-  ParaMEDMEM::MEDCouplingUMesh * buildFACE3DMesh();
-  ParaMEDMEM::MEDCouplingUMesh * buildCARRE3DMesh();
-  ParaMEDMEM::MEDCouplingFieldDouble * buildVecFieldOnCells(std::string myfileName);
-  ParaMEDMEM::MEDCouplingFieldDouble * buildVecFieldOnNodes();
+  MEDCoupling::MEDCouplingUMesh * buildCUBE3DMesh();
+  MEDCoupling::MEDCouplingUMesh * buildFACE3DMesh();
+  MEDCoupling::MEDCouplingUMesh * buildCARRE3DMesh();
+  MEDCoupling::MEDCouplingFieldDouble * buildVecFieldOnCells(std::string myfileName);
+  MEDCoupling::MEDCouplingFieldDouble * buildVecFieldOnNodes();
   void createTestMeshWithoutField();
   void createTestMeshWithVecFieldOnCells();
   void createTestMeshWithVecFieldOnNodes();

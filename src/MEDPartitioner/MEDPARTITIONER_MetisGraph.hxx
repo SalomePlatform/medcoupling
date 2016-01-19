@@ -31,7 +31,7 @@ namespace MEDPARTITIONER
   {
   public:
     METISGraph();
-    METISGraph(ParaMEDMEM::MEDCouplingSkyLineArray*, int *edgeweight=0);
+    METISGraph(MEDCoupling::MEDCouplingSkyLineArray*, int *edgeweight=0);
     virtual ~METISGraph();
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0);
   };

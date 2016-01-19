@@ -22,7 +22,7 @@
 #include "RENUMBERDefines.hxx"
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
 }
@@ -30,7 +30,7 @@ namespace ParaMEDMEM
 class RENUMBER_EXPORT Renumbering
 {
 public:
-  virtual void renumber(const int *graph, const int *index_graph, int nbCell, ParaMEDMEM::DataArrayInt *&iperm, ParaMEDMEM::DataArrayInt *&perm) = 0;
+  virtual void renumber(const int *graph, const int *index_graph, int nbCell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm) = 0;
   virtual ~Renumbering() { }
 }; 
 

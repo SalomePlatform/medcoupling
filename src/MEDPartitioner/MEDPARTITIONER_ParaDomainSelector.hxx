@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMesh;
 }
@@ -64,7 +64,7 @@ namespace MEDPARTITIONER
     int getNbTotalFaces() { return _face_shift_by_domain.back(); };
 
     //Collect nb of entities on procs
-    void gatherNbOf(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& domain_meshes);
+    void gatherNbOf(const std::vector<MEDCoupling::MEDCouplingUMesh*>& domain_meshes);
   
     //distribution of the graph vertices among the processors
     int* getProcVtxdist() const;
@@ -97,8 +97,8 @@ namespace MEDPARTITIONER
     //Evaluate current memory usage and return the maximal one in KB
     int evaluateMemory() const;
 
-    void sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const;
-    void recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source) const;
+    void sendMesh(const MEDCoupling::MEDCouplingUMesh& mesh, int target) const;
+    void recvMesh(MEDCoupling::MEDCouplingUMesh*& mesh, int source) const;
   private:
     int _rank; //my rank
     int _world_size; //nb of processors
