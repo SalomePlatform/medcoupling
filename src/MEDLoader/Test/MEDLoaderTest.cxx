@@ -326,12 +326,15 @@ void MEDLoaderTest::testMultiMeshRW1()
   CPPUNIT_ASSERT(mesh2_2->isEqual(mesh2,1e-12));
   mesh2_2->decrRef();
   //
-  std::vector<std::string> ret=MEDLoader::GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
+  std::vector<std::string> ret(MEDLoader::GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1"));
+  std::set<std::string> s(ret.begin(),ret.end());
+  std::set<std::string> ref_s;
+  ref_s.insert("Family_-2");
+  ref_s.insert("Family_-3");
+  ref_s.insert("Family_-4");
+  ref_s.insert("Family_-5");
   CPPUNIT_ASSERT_EQUAL(4,(int)ret.size());
-  CPPUNIT_ASSERT(ret[0]=="Family_-2");
-  CPPUNIT_ASSERT(ret[1]=="Family_-3");
-  CPPUNIT_ASSERT(ret[2]=="Family_-4");
-  CPPUNIT_ASSERT(ret[3]=="Family_-5");
+  CPPUNIT_ASSERT(s==ref_s);
   //
   std::vector<std::string> ret1=MEDLoader::GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
   CPPUNIT_ASSERT_EQUAL(2,(int)ret1.size());
