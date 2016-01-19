@@ -37,7 +37,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM 
+namespace MEDCoupling 
 { 
   const int OverlapElementLocator::START_TAG_MESH_XCH = 1140;
 

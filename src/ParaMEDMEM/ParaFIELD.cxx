@@ -32,7 +32,7 @@
 
 #include <numeric>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
     \anchor ParaFIELD-det

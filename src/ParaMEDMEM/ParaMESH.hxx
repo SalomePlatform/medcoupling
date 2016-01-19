@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class Topology;
   class BlockTopology;
@@ -81,7 +81,7 @@ namespace ParaMEDMEM
     int _my_domain_id;
 
     //global topology of the cells
-    ParaMEDMEM::BlockTopology* _block_topology;
+    MEDCoupling::BlockTopology* _block_topology;
     Topology*  _explicit_topology;
     // pointers to global numberings
     DataArrayInt* _node_global;

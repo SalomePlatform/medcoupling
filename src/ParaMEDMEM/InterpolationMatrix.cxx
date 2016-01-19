@@ -41,7 +41,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   /**!
@@ -53,7 +53,7 @@ namespace ParaMEDMEM
      \param target_group processor group containing the distant processors
      \param method interpolation method
   */
-  InterpolationMatrix::InterpolationMatrix(const ParaMEDMEM::ParaFIELD *source_field, 
+  InterpolationMatrix::InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field, 
                                            const ProcessorGroup& source_group,
                                            const ProcessorGroup& target_group,
                                            const DECOptions& dec_options,

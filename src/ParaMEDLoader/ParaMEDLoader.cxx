@@ -26,13 +26,13 @@
 
 #include <fstream>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 ParaMEDLoader::ParaMEDLoader()
 {
 }
 
-void ParaMEDLoader::WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
+void ParaMEDLoader::WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh)
 {
   if(!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
     return ;

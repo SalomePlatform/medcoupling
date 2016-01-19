@@ -27,7 +27,7 @@
 
 #include <string>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileMesh;
   class MEDFileUMesh;

@@ -42,7 +42,7 @@
 #define ENABLE_FORCED_FAILURES
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /*
  * Check methods defined in StructuredCoincidentDEC.hxx
@@ -66,15 +66,15 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     return;
   }
 
-  ParaMEDMEM::CommInterface interface;
+  MEDCoupling::CommInterface interface;
 
-  ParaMEDMEM::MPIProcessorGroup self_group (interface,rank,rank);
-  ParaMEDMEM::MPIProcessorGroup target_group(interface,3,size-1);
-  ParaMEDMEM::MPIProcessorGroup source_group (interface,0,2);
+  MEDCoupling::MPIProcessorGroup self_group (interface,rank,rank);
+  MEDCoupling::MPIProcessorGroup target_group(interface,3,size-1);
+  MEDCoupling::MPIProcessorGroup source_group (interface,0,2);
 
-  ParaMEDMEM::MEDCouplingUMesh* mesh;
-  ParaMEDMEM::ParaMESH* paramesh;
-  ParaMEDMEM::ParaFIELD* parafield;
+  MEDCoupling::MEDCouplingUMesh* mesh;
+  MEDCoupling::ParaMESH* paramesh;
+  MEDCoupling::ParaFIELD* parafield;
 
   string filename_xml1 = INTERP_TEST::getResourceFile("square1_split");
   string filename_2    = INTERP_TEST::getResourceFile("square1.med");
@@ -86,7 +86,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
 
   //loading the geometry for the source group
 
-  ParaMEDMEM::StructuredCoincidentDEC dec(source_group, target_group);
+  MEDCoupling::StructuredCoincidentDEC dec(source_group, target_group);
 
   MPI_Barrier(MPI_COMM_WORLD);
   if (source_group.containsMyRank()) {
@@ -102,7 +102,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
 
     paramesh=new ParaMESH (mesh,source_group,"source mesh");
 
-    ParaMEDMEM::ComponentTopology comptopo(6);
+    MEDCoupling::ComponentTopology comptopo(6);
     parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();
@@ -128,7 +128,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     mesh = MEDLoader::ReadUMeshFromFile(filename_2.c_str(),meshname2.c_str(),0);
     
     paramesh=new ParaMESH (mesh,self_group,"target mesh");
-    ParaMEDMEM::ComponentTopology comptopo(6, &target_group);
+    MEDCoupling::ComponentTopology comptopo(6, &target_group);
 
     parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 

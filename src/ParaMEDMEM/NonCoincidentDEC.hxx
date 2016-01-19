@@ -26,7 +26,7 @@ struct _fvm_locator_t;
 
 typedef enum {NN} InterpolationMethod;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {   
   class NonCoincidentDEC : public DEC
   {

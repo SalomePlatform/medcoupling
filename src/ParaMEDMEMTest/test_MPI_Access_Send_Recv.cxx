@@ -38,7 +38,7 @@
 #define ENABLE_FORCED_FAILURES
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MPIAccessTest::test_MPI_Access_Send_Recv() {
 
@@ -57,11 +57,11 @@ void MPIAccessTest::test_MPI_Access_Send_Recv() {
 
   debugStream << "test_MPI_Access_Send_Recv" << myrank << endl ;
 
-  ParaMEDMEM::CommInterface interface ;
+  MEDCoupling::CommInterface interface ;
 
-  ParaMEDMEM::MPIProcessorGroup* group = new ParaMEDMEM::MPIProcessorGroup(interface) ;
+  MEDCoupling::MPIProcessorGroup* group = new MEDCoupling::MPIProcessorGroup(interface) ;
 
-  ParaMEDMEM::MPIAccess mpi_access( group ) ;
+  MEDCoupling::MPIAccess mpi_access( group ) ;
 
   if ( myrank >= 2 ) {
     mpi_access.barrier() ;

@@ -38,7 +38,7 @@ using namespace std;
 
 //#define USE_DIRECTED_BB
 
-namespace ParaMEDMEM 
+namespace MEDCoupling 
 { 
   ElementLocator::ElementLocator(const ParaFIELD& sourceField,
                                  const ProcessorGroup& distant_group,

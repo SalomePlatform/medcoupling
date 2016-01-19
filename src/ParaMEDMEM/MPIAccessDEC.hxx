@@ -27,7 +27,7 @@
 #include <map>
 #include <iostream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*
    * Internal class, not part of the public API.

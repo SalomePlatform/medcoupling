@@ -20,7 +20,7 @@
 #ifndef __TOPOLOGY_HXX__
 #define __TOPOLOGY_HXX__
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ProcessorGroup;
 

@@ -38,7 +38,7 @@
 
 #include <mpi.h>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace ICoCo;
       
 enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
@@ -69,7 +69,7 @@ public:
 };
 #endif
 
-%extend ParaMEDMEM::ParaMESH
+%extend MEDCoupling::ParaMESH
 {
   PyObject *getGlobalNumberingCell2() const
   {

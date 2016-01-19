@@ -21,7 +21,7 @@
 #include "ProcessorGroup.hxx"
 #include "InterpolationUtils.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /* Generic constructor for \a nb_comp components equally parted
    * in \a nb_blocks blocks

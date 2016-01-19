@@ -51,7 +51,7 @@
 #endif 
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
  
 void testInterpKernelDEC_2D(const string& filename1, const string& meshname1,
                             const string& filename2, const string& meshname2,
@@ -132,23 +132,23 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     procs_target.insert(i);
   self_procs.insert(rank);
   
-  ParaMEDMEM::CommInterface interface;
+  MEDCoupling::CommInterface interface;
     
-  ParaMEDMEM::ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
-  ParaMEDMEM::ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
-  ParaMEDMEM::ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  MEDCoupling::ProcessorGroup* self_group = new MEDCoupling::MPIProcessorGroup(interface,self_procs);
+  MEDCoupling::ProcessorGroup* target_group = new MEDCoupling::MPIProcessorGroup(interface,procs_target);
+  MEDCoupling::ProcessorGroup* source_group = new MEDCoupling::MPIProcessorGroup(interface,procs_source);
   
   //loading the geometry for the source group
 
-  ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
+  MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
   if(tri)
     dec.setIntersectionType(INTERP_KERNEL::Triangulation);
   else
     dec.setIntersectionType(INTERP_KERNEL::Convex);
 
-  ParaMEDMEM::MEDCouplingUMesh* mesh;
-  ParaMEDMEM::ParaMESH* paramesh;
-  ParaMEDMEM::ParaFIELD* parafield;
+  MEDCoupling::MEDCouplingUMesh* mesh;
+  MEDCoupling::ParaMESH* paramesh;
+  MEDCoupling::ParaFIELD* parafield;
   ICoCo::MEDField* icocofield ;
   
   // To remove tmp files from disk
@@ -179,7 +179,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     
     paramesh=new ParaMESH (mesh,*source_group,"source mesh");
     
-    ParaMEDMEM::ComponentTopology comptopo;
+    MEDCoupling::ComponentTopology comptopo;
     parafield = new ParaFIELD(ON_CELLS, NO_TIME, paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();
@@ -212,7 +212,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     mesh->incrRef();
 
     paramesh=new ParaMESH (mesh,*target_group,"target mesh");
-    ParaMEDMEM::ComponentTopology comptopo;
+    MEDCoupling::ComponentTopology comptopo;
     parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();

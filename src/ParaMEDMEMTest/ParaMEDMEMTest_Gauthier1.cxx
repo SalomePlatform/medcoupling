@@ -40,7 +40,7 @@
 #include <math.h>
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace ICoCo;
 
 void afficheGauthier1(const ParaFIELD& field, const double *vals, int lgth)
@@ -153,8 +153,8 @@ void ParaMEDMEMTest::testGauthier1()
     for (int rec=0;rec<2;rec++)
       {
         InterpKernelDEC dec_emetteur(emetteur_group, recepteur_group);
-        ParaMEDMEM::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
-        ParaMEDMEM::ParaMESH *paramesh(0);
+        MEDCoupling::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
+        MEDCoupling::ParaMESH *paramesh(0);
         MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh;
         dec_emetteur.setOrientation(2);
         if (send==0)
@@ -165,9 +165,9 @@ void ParaMEDMEMTest::testGauthier1()
           {
             mesh=init_triangleGauthier1(is_master);
           }
-        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
-        ParaMEDMEM::ComponentTopology comptopo;
-        champ_emetteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
+        MEDCoupling::ComponentTopology comptopo;
+        champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
         champ_emetteur->getField()->setNature(ConservativeVolumic);
         champ_emetteur->setOwnSupport(true);
         if (rec==0)
@@ -178,8 +178,8 @@ void ParaMEDMEMTest::testGauthier1()
           {
             mesh=init_quadGauthier1(is_master);
           }
-        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
-        champ_recepteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
+        champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
         champ_recepteur->getField()->setNature(ConservativeVolumic);
         champ_recepteur->setOwnSupport(true);
         if (cas=="emetteur") 
@@ -274,7 +274,7 @@ void ParaMEDMEMTest::testGauthier2()
       MPIProcessorGroup entree_chaude_group(comm,entree_chaude_ids);
       MPIProcessorGroup Genepi_group(comm,Genepi_ids);
 
-      ParaMEDMEM::ParaFIELD *vitesse(0);
+      MEDCoupling::ParaFIELD *vitesse(0);
       InterpKernelDEC dec_vit_in_chaude(entree_chaude_group, Genepi_group);
 
       if ( entree_chaude_group.containsMyRank())
@@ -294,8 +294,8 @@ void ParaMEDMEMTest::testGauthier2()
           arr=DataArrayDouble::New(); arr->alloc(63,3);
           std::copy(valsOfField,valsOfField+189,arr->getPointer());
           f->setArray(arr); f->setNature(ConservativeVolumic);
-          ParaMEDMEM::ParaMESH *paramesh(new ParaMEDMEM::ParaMESH(mesh,entree_chaude_group,"emetteur mesh"));
-          vitesse=new ParaMEDMEM::ParaFIELD(f,paramesh,entree_chaude_group);
+          MEDCoupling::ParaMESH *paramesh(new MEDCoupling::ParaMESH(mesh,entree_chaude_group,"emetteur mesh"));
+          vitesse=new MEDCoupling::ParaFIELD(f,paramesh,entree_chaude_group);
           vitesse->setOwnSupport(true);
           dec_vit_in_chaude.setMethod("P1");
         }
@@ -314,8 +314,8 @@ void ParaMEDMEMTest::testGauthier2()
           f->setMesh(mesh); f->setName("vitesse_in_chaude");
           arr=DataArrayDouble::New(); arr->alloc(f->getNumberOfTuplesExpected()*3); arr->fillWithZero(); arr->rearrange(3);
           f->setArray(arr); f->setNature(ConservativeVolumic);
-          ParaMEDMEM::ParaMESH *paramesh(new ParaMEDMEM::ParaMESH(mesh,Genepi_group,"recepteur mesh"));
-          vitesse=new ParaMEDMEM::ParaFIELD(f,paramesh,Genepi_group);
+          MEDCoupling::ParaMESH *paramesh(new MEDCoupling::ParaMESH(mesh,Genepi_group,"recepteur mesh"));
+          vitesse=new MEDCoupling::ParaFIELD(f,paramesh,Genepi_group);
           vitesse->setOwnSupport(true);
           dec_vit_in_chaude.setMethod(f->getDiscretization()->getRepr());
         }
@@ -416,8 +416,8 @@ void ParaMEDMEMTest::testGauthier3()
         std::vector<InterpKernelDEC> decu(1);
         decu[0]=InterpKernelDEC(emetteur_group,recepteur_group);
         InterpKernelDEC& dec_emetteur=decu[0];
-        ParaMEDMEM::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
-        ParaMEDMEM::ParaMESH *paramesh(0);
+        MEDCoupling::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
+        MEDCoupling::ParaMESH *paramesh(0);
         MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh;
         dec_emetteur.setOrientation(2);
         if (send==0)
@@ -428,9 +428,9 @@ void ParaMEDMEMTest::testGauthier3()
           {
             mesh=init_triangleGauthier1(is_master);
           }
-        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
-        ParaMEDMEM::ComponentTopology comptopo;
-        champ_emetteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
+        MEDCoupling::ComponentTopology comptopo;
+        champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
         champ_emetteur->getField()->setNature(ConservativeVolumic);
         champ_emetteur->setOwnSupport(true);
         if (rec==0)
@@ -441,8 +441,8 @@ void ParaMEDMEMTest::testGauthier3()
           {
             mesh=init_quadGauthier1(is_master);
           }
-        paramesh=new ParaMEDMEM::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
-        champ_recepteur=new ParaMEDMEM::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
+        paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
+        champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
         champ_recepteur->getField()->setNature(ConservativeVolumic);
         champ_recepteur->setOwnSupport(true);
         if (cas=="emetteur") 
@@ -542,15 +542,15 @@ void ParaMEDMEMTest::testGauthier4()
     procs_target.insert(i);
   self_procs.insert(rank);
   //
-  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
-  ParaMEDMEM::ParaMESH *paramesh=0;
-  ParaMEDMEM::ParaFIELD* parafield=0;
+  MEDCoupling::MEDCouplingUMesh *mesh=0;
+  MEDCoupling::ParaMESH *paramesh=0;
+  MEDCoupling::ParaFIELD* parafield=0;
   //
-  ParaMEDMEM::CommInterface interface;
+  MEDCoupling::CommInterface interface;
   //
-  ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
-  ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
-  ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  ProcessorGroup* self_group = new MEDCoupling::MPIProcessorGroup(interface,self_procs);
+  ProcessorGroup* target_group = new MEDCoupling::MPIProcessorGroup(interface,procs_target);
+  ProcessorGroup* source_group = new MEDCoupling::MPIProcessorGroup(interface,procs_source);
   //
   MPI_Barrier(MPI_COMM_WORLD);
   if(source_group->containsMyRank())
@@ -567,7 +567,7 @@ void ParaMEDMEMTest::testGauthier4()
       mesh->setCoords(myCoords);
       myCoords->decrRef();
       paramesh=new ParaMESH(mesh,*source_group,"source mesh");
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh,comptopo);
       double *value=parafield->getField()->getArray()->getPointer();
       std::copy(sourceVals,sourceVals+19,value);
@@ -588,7 +588,7 @@ void ParaMEDMEMTest::testGauthier4()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH (mesh,*target_group,"target mesh");
-          ParaMEDMEM::ComponentTopology comptopo;
+          MEDCoupling::ComponentTopology comptopo;
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
         }
       else if(rank==2)
@@ -605,12 +605,12 @@ void ParaMEDMEMTest::testGauthier4()
           mesh->setCoords(myCoords);
           myCoords->decrRef();
           paramesh=new ParaMESH (mesh,*target_group,"target mesh");
-          ParaMEDMEM::ComponentTopology comptopo;
+          MEDCoupling::ComponentTopology comptopo;
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
         }
     }
   //test 1 - primaire -> secondaire
-  ParaMEDMEM::InterpKernelDEC dec(*source_group,*target_group);
+  MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
   dec.setIntersectionType(INTERP_KERNEL::PointLocator);
   parafield->getField()->setNature(ConservativeVolumic);//very important
   if (source_group->containsMyRank())

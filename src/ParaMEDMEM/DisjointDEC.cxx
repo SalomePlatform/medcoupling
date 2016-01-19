@@ -32,7 +32,7 @@
 #include <iostream>
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   /*!
@@ -43,14 +43,14 @@ namespace ParaMEDMEM
    *
    * Abstract interface class representing a link between two
    * processor groups for exchanging mesh or field data. The two processor groups must
-   * have a void intersection (\ref ParaMEDMEM::OverlapDEC "OverlapDEC" is to be considered otherwise).
+   * have a void intersection (\ref MEDCoupling::OverlapDEC "OverlapDEC" is to be considered otherwise).
    * The %DEC is initialized by attaching a field on the receiving or on the
    * sending side.
    *
    * The data is sent or received through calls to the (abstract) methods recvData() and sendData().
    *
-   * One can attach either a \c ParaMEDMEM::ParaFIELD, or a
-   * \c ICoCo::Field, or directly a \c ParaMEDMEM::MEDCouplingFieldDouble instance.
+   * One can attach either a \c MEDCoupling::ParaFIELD, or a
+   * \c ICoCo::Field, or directly a \c MEDCoupling::MEDCouplingFieldDouble instance.
    * See the various signatures of the method DisjointDEC::attachLocalField()
    *
    * The derivations of this class should be considered for practical instanciation:
@@ -60,7 +60,7 @@ namespace ParaMEDMEM
    *
    * \section DisjointDEC-options DisjointDEC options
    * The options supported by %DisjointDEC objects are the same that the ones supported for all
-   * DECs in general and are all inherited from the class \ref ParaMEDMEM::DECOptions "DECOptions"
+   * DECs in general and are all inherited from the class \ref MEDCoupling::DECOptions "DECOptions"
    *
   */
 
@@ -124,7 +124,7 @@ namespace ParaMEDMEM
      _comm_interface(0),
      _union_comm(MPI_COMM_NULL)
   {
-    ParaMEDMEM::CommInterface comm;
+    MEDCoupling::CommInterface comm;
     // Create the list of procs including source and target
     std::set<int> union_ids; // source and target ids in world_comm
     union_ids.insert(source_ids.begin(),source_ids.end());

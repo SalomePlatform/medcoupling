@@ -306,7 +306,7 @@ Presentation-ParaMEDMEM :
     dans MxN_Mapping.hxx
 
 . Le choix des options se fait avec le Data Exchange Channel :
-  + ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
+  + MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
   + dec.setOption("Asynchronous",true);
   + dec.setOption("TimeInterpolation",LinearTimeInterp);
   + dec.setOption("AllToAllMethod",PointToPoint);
@@ -321,7 +321,7 @@ Presentation-ParaMEDMEM :
     et TimeInterpolation : methodes Asynchronous et
     SetTimeInterpolator de MPI_AccessDEC.
 
-. ParaMEDMEM::InterpKernelDEC comporte maintenant une surcharge des
+. MEDCoupling::InterpKernelDEC comporte maintenant une surcharge des
   methodes recvData() et sendData() :
   + void InterpKernelDEC::recvData( double time ) qui appelle
     SetTime(time) de MPI_AccessDEC et
@@ -331,7 +331,7 @@ Presentation-ParaMEDMEM :
     SetTime(time,deltatime) de MPI_AccessDEC et
     sendData()
 
-. recvData() et sendData() de ParaMEDMEM::InterpKernelDEC
+. recvData() et sendData() de MEDCoupling::InterpKernelDEC
   appellent multiply et transposeMultiply de l'InterpolationMatrix
   qui appellent sendRecv et reverseSendRecv de MxN_Mapping
   qui appellent comm_interface.allToAllV en mode "Native"

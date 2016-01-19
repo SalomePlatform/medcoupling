@@ -30,7 +30,7 @@
 //inclusion for the namespaces
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   ParaMESH::ParaMESH( MEDCouplingPointSet *subdomain_mesh, MEDCouplingPointSet *subdomain_face,
             DataArrayInt *CorrespElt_local2global, DataArrayInt *CorrespFace_local2global,

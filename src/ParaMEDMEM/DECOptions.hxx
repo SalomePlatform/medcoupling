@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   //! Enum describing the allToAll method used in the communication pattern
   typedef enum { Native, PointToPoint } AllToAllMethod;

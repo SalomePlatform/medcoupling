@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ParaMESH;
   class ParaFIELD;
@@ -33,7 +33,7 @@ namespace ParaMEDMEM
 class ParaMEDLoader
 {
 public:
-  static void WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh);
+  static void WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh);
   static void WriteMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName);
 private:
   ParaMEDLoader();

@@ -29,7 +29,7 @@
 #include <vector>
 #include <iostream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef struct
   {

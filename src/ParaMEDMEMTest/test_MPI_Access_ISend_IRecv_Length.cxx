@@ -38,7 +38,7 @@
 #define ENABLE_FORCED_FAILURES
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
 
@@ -61,11 +61,11 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
 
   debugStream << "test_MPI_Access_ISend_IRecv_Length" << myrank << endl ;
 
-  ParaMEDMEM::CommInterface interface ;
+  MEDCoupling::CommInterface interface ;
 
-  ParaMEDMEM::MPIProcessorGroup* group = new ParaMEDMEM::MPIProcessorGroup(interface) ;
+  MEDCoupling::MPIProcessorGroup* group = new MEDCoupling::MPIProcessorGroup(interface) ;
 
-  ParaMEDMEM::MPIAccess mpi_access( group ) ;
+  MEDCoupling::MPIAccess mpi_access( group ) ;
 
 #define maxreq 10
 

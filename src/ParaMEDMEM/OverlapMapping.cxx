@@ -29,7 +29,7 @@
 #include <numeric>
 #include <algorithm>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 OverlapMapping::OverlapMapping(const ProcessorGroup& group, const OverlapElementLocator & loc):
     _group(group),_locator(loc)

@@ -20,7 +20,7 @@
 #include "ProcessorGroup.hxx"
 #include "InterpolationUtils.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   ProcessorGroup::ProcessorGroup (const CommInterface& interface, int start, int end):_comm_interface(interface)
   {

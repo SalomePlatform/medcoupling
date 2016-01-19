@@ -21,7 +21,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {    
 
   LinearTimeInterpolator::LinearTimeInterpolator( double InterpPrecision, int nStepBefore,

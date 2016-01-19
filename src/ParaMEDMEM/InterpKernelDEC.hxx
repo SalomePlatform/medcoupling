@@ -24,7 +24,7 @@
 #include "MxN_Mapping.hxx"
 #include "InterpolationOptions.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class InterpolationMatrix;
 

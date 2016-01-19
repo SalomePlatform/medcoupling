@@ -19,7 +19,7 @@
 
 #include "ExplicitMapping.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   ExplicitMapping::ExplicitMapping():

@@ -24,7 +24,7 @@
 #include "BlockTopology.hxx"
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DEC;
   class BlockTopology;

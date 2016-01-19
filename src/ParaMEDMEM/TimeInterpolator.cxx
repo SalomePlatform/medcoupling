@@ -19,7 +19,7 @@
 
 #include "TimeInterpolator.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   TimeInterpolator::TimeInterpolator( double InterpPrecision, int nStepBefore, int nStepAfter )
   {

@@ -41,7 +41,7 @@ public:
   void testBasicMPI2_1();
 };
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MPI2ParaMEDMEMTest::testBasicMPI2_1()
 {
@@ -49,11 +49,11 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   MPI_Comm gcom;
   std::string service = "SERVICE";
   std::ostringstream meshfilename, meshname;
-  ParaMEDMEM::ParaMESH *paramesh=0;
-  ParaMEDMEM::MEDCouplingUMesh* mesh;
-  ParaMEDMEM::ParaFIELD *parafield=0;
-  ParaMEDMEM::CommInterface* interface;
-  ParaMEDMEM::MPIProcessorGroup* source, *target;
+  MEDCoupling::ParaMESH *paramesh=0;
+  MEDCoupling::MEDCouplingUMesh* mesh;
+  MEDCoupling::ParaFIELD *parafield=0;
+  MEDCoupling::CommInterface* interface;
+  MEDCoupling::MPIProcessorGroup* source, *target;
   
   MPI_Comm_size( MPI_COMM_WORLD, &lsize );
   MPI_Comm_rank( MPI_COMM_WORLD, &lrank );
@@ -75,9 +75,9 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
       return;
     }
 
-  interface = new ParaMEDMEM::CommInterface;
-  source = new ParaMEDMEM::MPIProcessorGroup(*interface,0,gsize-lsize-1,gcom);
-  target = new ParaMEDMEM::MPIProcessorGroup(*interface,gsize-lsize,gsize-1,gcom);
+  interface = new MEDCoupling::CommInterface;
+  source = new MEDCoupling::MPIProcessorGroup(*interface,0,gsize-lsize-1,gcom);
+  target = new MEDCoupling::MPIProcessorGroup(*interface,gsize-lsize,gsize-1,gcom);
 
   const double targetCoordsAll[3][16]={{0.7,1.45,0.7,1.65,0.9,1.65,0.9,1.45,  1.1,1.4,1.1,1.6,1.3,1.6,1.3,1.4},
                                        {0.7,-0.6,0.7,0.7,0.9,0.7,0.9,-0.6,  1.1,-0.7,1.1,0.6,1.3,0.6,1.3,-0.7},
@@ -98,10 +98,10 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   mesh->setCoords(myCoords);
   myCoords->decrRef();
   paramesh=new ParaMESH (mesh,*target,"target mesh");
-  ParaMEDMEM::ComponentTopology comptopo;
+  MEDCoupling::ComponentTopology comptopo;
   parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
-  ParaMEDMEM::InterpKernelDEC dec(*source,*target);
+  MEDCoupling::InterpKernelDEC dec(*source,*target);
   parafield->getField()->setNature(ConservativeVolumic);
 
   dec.setMethod("P0");

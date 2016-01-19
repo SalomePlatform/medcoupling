@@ -27,7 +27,7 @@
 #include <vector>
 #include <set>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ParaFIELD;
   class ProcessorGroup;

@@ -34,7 +34,7 @@ extern "C" {
 #include <fvm_locator.h>
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   /*!
@@ -286,7 +286,7 @@ namespace ParaMEDMEM
     if (_source_group->containsMyRank())
       {
         MEDMEM::MESH* mesh = _local_field->getField()->getSupport()->getMesh();
-        fvm_nodal_t* source_nodal = ParaMEDMEM::medmemMeshToFVMMesh(mesh);
+        fvm_nodal_t* source_nodal = MEDCoupling::medmemMeshToFVMMesh(mesh);
       
         int target_size = _target_group->size()  ;
         int start_rank=  _source_group->size();
@@ -314,7 +314,7 @@ namespace ParaMEDMEM
       {
         MEDMEM::MESH* mesh = _local_field->getField()->getSupport()->getMesh();
       
-        fvm_nodal_t* target_nodal = ParaMEDMEM::medmemMeshToFVMMesh(mesh);
+        fvm_nodal_t* target_nodal = MEDCoupling::medmemMeshToFVMMesh(mesh);
         int source_size = _source_group->size();
         int start_rank=  0 ;
         const MPI_Comm* comm = (dynamic_cast<const MPIProcessorGroup*> (_union_group))->getComm();

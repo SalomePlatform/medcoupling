@@ -42,7 +42,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   OverlapInterpolationMatrix::OverlapInterpolationMatrix(ParaFIELD *source_field,
                                                          ParaFIELD *target_field,

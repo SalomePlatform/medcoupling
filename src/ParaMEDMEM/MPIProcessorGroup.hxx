@@ -25,7 +25,7 @@
 #include <set>
 #include <mpi.h>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class CommInterface;
 

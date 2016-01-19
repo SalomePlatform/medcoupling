@@ -28,7 +28,7 @@
 #include <map>
 //#define DEC_DEBUG
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ProcessorGroup;
   class DataArrayInt;

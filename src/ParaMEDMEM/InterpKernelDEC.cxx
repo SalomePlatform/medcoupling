@@ -30,7 +30,7 @@
 #include "InterpKernelDEC.hxx"
 #include "ElementLocator.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {  
 
   /*!
@@ -53,7 +53,7 @@ namespace ParaMEDMEM
 
     The name "InterpKernelDEC" comes from the fact that this class uses exactly the same algorithms
     as the sequential remapper. Both this class and the sequential
-    \ref ParaMEDMEM::MEDCouplingRemapper "MEDCouplingRemapper" are built on top of the %INTERP_KERNEL
+    \ref MEDCoupling::MEDCouplingRemapper "MEDCouplingRemapper" are built on top of the %INTERP_KERNEL
     algorithms (notably the computation of the intersection volumes).
 
     Among the important properties inherited from the parent abstract class \ref DisjointDEC-det "DisjointDEC",
@@ -112,7 +112,7 @@ namespace ParaMEDMEM
     \f]
 
     \section InterpKernelDEC-options Options
-    On top of the usual \ref ParaMEDMEM::DECOptions "DEC options", the options supported by %InterpKernelDEC objects are
+    On top of the usual \ref MEDCoupling::DECOptions "DEC options", the options supported by %InterpKernelDEC objects are
     related to the underlying \ref InterpKerIntersectors "intersector class".
     All the options available in the intersector objects are
     available for the %InterpKernelDEC object. The various options available for  intersectors can

@@ -30,7 +30,7 @@
 
 #include <cmath>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   DEC::DEC():_comm_interface(0)
   {

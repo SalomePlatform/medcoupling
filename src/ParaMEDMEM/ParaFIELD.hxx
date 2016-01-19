@@ -23,7 +23,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "ComponentTopology.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class ParaMESH;
@@ -39,8 +39,8 @@ namespace ParaMEDMEM
     ParaFIELD(MEDCouplingFieldDouble* field, ParaMESH *sup, const ProcessorGroup& group);
     virtual ~ParaFIELD();
 
-    void synchronizeTarget( ParaMEDMEM::ParaFIELD* source_field);
-    void synchronizeSource( ParaMEDMEM::ParaFIELD* target_field);
+    void synchronizeTarget( MEDCoupling::ParaFIELD* source_field);
+    void synchronizeSource( MEDCoupling::ParaFIELD* target_field);
     MEDCouplingFieldDouble* getField() const { return _field; }
     void setOwnSupport(bool v) const { _own_support=v; }
     DataArrayInt* returnCumulativeGlobalNumbering() const;
@@ -53,7 +53,7 @@ namespace ParaMEDMEM
 
   private:
     MEDCouplingFieldDouble* _field;
-    ParaMEDMEM::ComponentTopology _component_topology;
+    MEDCoupling::ComponentTopology _component_topology;
     Topology* _topology; 
     mutable bool _own_support;
     ParaMESH* _support;

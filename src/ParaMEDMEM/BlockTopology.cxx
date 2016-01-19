@@ -33,7 +33,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Default ctor.
@@ -86,7 +86,7 @@ namespace ParaMEDMEM
       }
     _cycle_type.resize(_dimension);
     for (int i=0; i<_dimension; i++)
-      _cycle_type[i]=ParaMEDMEM::Block;  
+      _cycle_type[i]=MEDCoupling::Block;  
   }
 
   /*!
@@ -163,7 +163,7 @@ namespace ParaMEDMEM
         _nb_elems+=nbelems_per_proc[i-1];
       }
     _cycle_type.resize(1);
-    _cycle_type[0]=ParaMEDMEM::Block;
+    _cycle_type[0]=MEDCoupling::Block;
     delete[] nbelems_per_proc;
   }
 

@@ -24,7 +24,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "DECOptions.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class CommInterface;
 

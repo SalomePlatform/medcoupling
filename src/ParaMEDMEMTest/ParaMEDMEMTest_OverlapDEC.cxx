@@ -42,7 +42,7 @@ using namespace std;
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingRemapper.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 typedef  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> MUMesh;
 typedef  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> MFDouble;
@@ -89,7 +89,7 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //
 //void ParaMEDMEMTest::testOverlapDEC_LMEC_para()
 //{
-//  using namespace ParaMEDMEM;
+//  using namespace MEDCoupling;
 //
 //  int size;
 //  int rank;

@@ -34,7 +34,7 @@
 
 //#define DEC_DEBUG
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ParaFIELD;
   class ProcessorGroup;

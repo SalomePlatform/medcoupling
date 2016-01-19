@@ -30,7 +30,7 @@
 using namespace std;
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    \anchor MPIProcessorGroup-det

@@ -26,7 +26,7 @@
 
 #include <map>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class BlockTopology;
 

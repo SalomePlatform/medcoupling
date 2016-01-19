@@ -38,9 +38,9 @@
 #define ENABLE_FORCED_FAILURES
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
-void chksts( int sts , int myrank , ParaMEDMEM::MPIAccess * mpi_access ) {
+void chksts( int sts , int myrank , MEDCoupling::MPIAccess * mpi_access ) {
   char msgerr[MPI_MAX_ERROR_STRING] ;
   int lenerr ;
   if ( sts != MPI_SUCCESS ) {
@@ -88,11 +88,11 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
 
   debugStream << "test_MPI_Access_Time_0 rank" << myrank << endl ;
 
-  ParaMEDMEM::CommInterface interface ;
+  MEDCoupling::CommInterface interface ;
 
-  ParaMEDMEM::MPIProcessorGroup* group = new ParaMEDMEM::MPIProcessorGroup(interface) ;
+  MEDCoupling::MPIProcessorGroup* group = new MEDCoupling::MPIProcessorGroup(interface) ;
 
-  ParaMEDMEM::MPIAccess * mpi_access = new ParaMEDMEM::MPIAccess( group ) ;
+  MEDCoupling::MPIAccess * mpi_access = new MEDCoupling::MPIAccess( group ) ;
 
   if ( myrank >= 2 ) {
     debugStream << "test_MPI_Access_Time_0 rank" << myrank << " --> mpi_access->barrier" << endl ;
@@ -115,10 +115,10 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
   int sts ;
   int sendbuf[maxreq] ;
   int recvbuf[maxreq] ;
-  ParaMEDMEM::TimeMessage aSendTimeMsg[maxreq] ;
+  MEDCoupling::TimeMessage aSendTimeMsg[maxreq] ;
   int lasttime = -1 ;
-  ParaMEDMEM::TimeMessage RecvTimeMessages[maxreq+1] ;
-  ParaMEDMEM::TimeMessage *aRecvTimeMsg = &RecvTimeMessages[1] ;
+  MEDCoupling::TimeMessage RecvTimeMessages[maxreq+1] ;
+  MEDCoupling::TimeMessage *aRecvTimeMsg = &RecvTimeMessages[1] ;
 //  mpi_access->Trace() ;
   int istep = 0 ;
   for ( t = 0 ; t < maxt ; t = t+dt[myrank] ) {

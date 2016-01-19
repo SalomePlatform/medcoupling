@@ -24,7 +24,7 @@
 
 #include <set>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Abstract class defining a group of processors (computation nodes) in a parallel run of a code.

@@ -24,16 +24,16 @@
 #include "MEDFileMeshLL.hxx"
 #include "MEDLoader.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   int dummy0,dummy1;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2);
   switch(meshType)
   {
@@ -49,11 +49,11 @@ MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& f
 MEDFileMesh *ParaMEDFileMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDCoupling::MEDCouplingMeshType meshType;
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
   int dummy0,dummy1;
   std::string dummy2;
-  ParaMEDMEM::MEDCouplingAxisType dummy3;
+  MEDCoupling::MEDCouplingAxisType dummy3;
   MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy3,dummy0,dummy1,dummy2);
   switch(meshType)
   {
