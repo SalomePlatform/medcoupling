@@ -1233,11 +1233,11 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const std::string& mName, int mdim)
       MCAuto<DataArrayInt> fam,num;
       MCAuto<DataArrayAsciiChar> names;
       if((const DataArrayInt *)_fam)
-        fam=_fam->substr(start,end);
+        fam=_fam->subArray(start,end);
       if((const DataArrayInt *)_num)
-        num=_num->substr(start,end);
+        num=_num->subArray(start,end);
       if((const DataArrayAsciiChar *)_names)
-        names=static_cast<DataArrayAsciiChar *>(_names->substr(start,end));
+        names=static_cast<DataArrayAsciiChar *>(_names->subArray(start,end));
       MEDFileUMeshPerType::Write(fid,mName,mdim,(*it),fam,num,names);
       start=end;
     }

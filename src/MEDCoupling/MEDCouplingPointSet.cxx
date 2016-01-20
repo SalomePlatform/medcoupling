@@ -1481,7 +1481,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some nodes in other are not in this !");
   m->renumberNodes(da->getConstPointer(),newNbOfNodes);
   //
-  MCAuto<DataArrayInt> nodeCor2=da->substr(oldNbOfNodes);
+  MCAuto<DataArrayInt> nodeCor2=da->subArray(oldNbOfNodes);
   da=m->mergeNodes(prec,areNodesMerged,newNbOfNodes);
   //
   da=m->zipConnectivityTraducer(cellCompPol);

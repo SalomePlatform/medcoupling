@@ -928,7 +928,7 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
   for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entriesOnSameDisc.begin();it!=entriesOnSameDisc.end();it++,id++)
     {
       int startOfEltIdOfChunk=(*it)->_start;
-      MCAuto<DataArrayInt> newEltIds=explicitIdsInMesh->substr(startOfEltIdOfChunk,startOfEltIdOfChunk+(*it)->_nval);
+      MCAuto<DataArrayInt> newEltIds=explicitIdsInMesh->subArray(startOfEltIdOfChunk,startOfEltIdOfChunk+(*it)->_nval);
       MCAuto<DataArrayInt> rangeIdsForChunk=newEltIds->findRangeIdForEachTuple(ranges);
       MCAuto<DataArrayInt> idsInRrangeForChunk=newEltIds->findIdInRangeForEachTuple(ranges);
       //
@@ -945,7 +945,7 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
   //
   MCAuto<DataArrayInt> renumTupleIds=newGeoTypesPerChunk4->buildPermArrPerLevel();
   //
-  MCAuto<DataArrayDouble> arrPart=arr->substr(offset,offset+szTuples);
+  MCAuto<DataArrayDouble> arrPart=arr->subArray(offset,offset+szTuples);
   arrPart->renumberInPlace(renumTupleIds->begin());
   arr->setPartOfValues1(arrPart,offset,offset+szTuples,1,0,arrPart->getNumberOfComponents(),1);
   bool ret=false;

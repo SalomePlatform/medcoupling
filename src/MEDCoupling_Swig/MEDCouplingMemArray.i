@@ -52,7 +52,7 @@
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::convertToDblArr;
 %newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
-%newobject MEDCoupling::DataArrayInt::substr;
+%newobject MEDCoupling::DataArrayInt::subArray;
 %newobject MEDCoupling::DataArrayInt::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayInt::accumulatePerChunck;
 %newobject MEDCoupling::DataArrayInt::checkAndPreparePermutation;
@@ -132,7 +132,7 @@
 %newobject MEDCoupling::DataArrayByte::__iter__;
 %newobject MEDCoupling::DataArrayByte::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayByteTuple::buildDAByte;
-%newobject MEDCoupling::DataArrayChar::substr;
+%newobject MEDCoupling::DataArrayChar::subArray;
 %newobject MEDCoupling::DataArrayAsciiChar::New;
 %newobject MEDCoupling::DataArrayAsciiChar::__iter__;
 %newobject MEDCoupling::DataArrayAsciiChar::performCopyOrIncrRef;
@@ -150,7 +150,7 @@
 %newobject MEDCoupling::DataArrayDouble::Multiply;
 %newobject MEDCoupling::DataArrayDouble::Divide;
 %newobject MEDCoupling::DataArrayDouble::Pow;
-%newobject MEDCoupling::DataArrayDouble::substr;
+%newobject MEDCoupling::DataArrayDouble::subArray;
 %newobject MEDCoupling::DataArrayDouble::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayDouble::accumulatePerChunck;
 %newobject MEDCoupling::DataArrayDouble::findIdsInRange;
@@ -555,7 +555,7 @@ namespace MEDCoupling
     DataArrayInt *convertToIntArr() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *toNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);
     DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
@@ -2622,7 +2622,7 @@ namespace MEDCoupling
     DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
     bool isIota(int sizeExpected) const throw(INTERP_KERNEL::Exception);
     bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);
     DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
@@ -2647,7 +2647,7 @@ namespace MEDCoupling
     int findIdFirstEqualTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
     int findIdFirstEqual(int value) const throw(INTERP_KERNEL::Exception);
     int findIdFirstEqual(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
-    int search(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
+    int findIdSequence(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     bool presenceOfTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
     bool presenceOfValue(int value) const throw(INTERP_KERNEL::Exception);
     bool presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
@@ -4968,7 +4968,7 @@ namespace MEDCoupling
     DataArrayChar *renumberR(const int *new2Old) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const throw(INTERP_KERNEL::Exception);
     bool isUniform(char val) const throw(INTERP_KERNEL::Exception);
-    DataArrayChar *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
+    DataArrayChar *subArray(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const throw(INTERP_KERNEL::Exception);
     void meldWith(const DataArrayChar *other) throw(INTERP_KERNEL::Exception);
     void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayChar *tuplesSelec) throw(INTERP_KERNEL::Exception);
@@ -5301,14 +5301,14 @@ namespace MEDCoupling
         return self->findIdFirstEqualTuple(vals);
       }
 
-      int search(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
+      int findIdSequence(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
         const int *pt=convertObjToPossibleCpp1_Safe(strOrListOfInt,sw,sz,ival,ivval);
         std::vector<char> vals(sz);
         std::copy(pt,pt+sz,vals.begin());
-        return self->search(vals);
+        return self->findIdSequence(vals);
       }
 
       PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
@@ -5849,14 +5849,14 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqualTuple : only strings in input supported !");
       }
 
-      int search(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
+      int findIdSequence(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
       {
         if(PyString_Check(strOrListOfInt))
           {
             Py_ssize_t sz=PyString_Size(strOrListOfInt);
             std::vector<char> vals(sz);
             std::copy(PyString_AsString(strOrListOfInt),PyString_AsString(strOrListOfInt)+sz,vals.begin());
-            return self->search(vals);
+            return self->findIdSequence(vals);
           }
         else
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::search : only strings in input supported !");

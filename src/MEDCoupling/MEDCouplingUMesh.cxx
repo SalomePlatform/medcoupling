@@ -1932,7 +1932,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   MCAuto<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType,nbOfCells);
-  arr=o2n->substr(nbOfCells);
+  arr=o2n->subArray(nbOfCells);
   arr->setName(other->getName());
   int tmp;
   if(other->getNumberOfCells()==0)

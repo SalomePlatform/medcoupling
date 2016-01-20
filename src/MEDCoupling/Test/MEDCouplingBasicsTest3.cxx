@@ -941,9 +941,9 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   CPPUNIT_ASSERT(!((ret.str().find("16 15 14 13 12 11 10"))==std::string::npos));
   
   CPPUNIT_ASSERT_THROW(dbl->selectByTupleIdSafeSlice(0,1,-1),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT_THROW(dbl->substr(-1,1),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT_THROW(dbl->substr(8,1),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT_THROW(dbl->substr(0,8),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dbl->subArray(-1,1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dbl->subArray(8,1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dbl->subArray(0,8),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->meldWith(dd),INTERP_KERNEL::Exception);
   
   CPPUNIT_ASSERT_THROW(dbl->setPartOfValuesAdv(dbl2,da),INTERP_KERNEL::Exception); //dbl dbl2 not have the same number of components

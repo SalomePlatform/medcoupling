@@ -45,11 +45,11 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         self.assertEqual(7,arr1.getNumberOfTuples());
         self.assertEqual(2,arr1.getNumberOfComponents());
         self.assertEqual(arr1Ref,list(arr1.getValues()));
-        arr2=arr1.substr(3);
+        arr2=arr1.subArray(3);
         self.assertEqual(4,arr2.getNumberOfTuples());
         self.assertEqual(2,arr2.getNumberOfComponents());
         self.assertEqual(arr1Ref[6:],list(arr2.getValues()));
-        arr3=arr1.substr(2,5);
+        arr3=arr1.subArray(2,5);
         self.assertEqual(3,arr3.getNumberOfTuples());
         self.assertEqual(2,arr3.getNumberOfComponents());
         self.assertEqual(arr1Ref[4:10],list(arr3.getValues()));
@@ -63,14 +63,14 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         for i in xrange(14):
             self.assertTrue(abs(arr4Ref[i]-tmp[i])<1e-14);
             pass
-        arr5=arr4.substr(3);
+        arr5=arr4.subArray(3);
         self.assertEqual(4,arr5.getNumberOfTuples());
         self.assertEqual(2,arr5.getNumberOfComponents());
         tmp=arr5.getValues()
         for i in xrange(8):
             self.assertTrue(abs(arr4Ref[6+i]-tmp[i])<1e-14);
             pass
-        arr6=arr4.substr(2,5);
+        arr6=arr4.subArray(2,5);
         self.assertEqual(3,arr6.getNumberOfTuples());
         self.assertEqual(2,arr6.getNumberOfComponents());
         tmp=arr6.getValues()
@@ -2122,7 +2122,7 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
         tmpIds=f.getCellIdsHavingGaussLocalization(0);
         self.assertEqual(ids2,list(tmpIds.getValues()));
         self.assertRaises(InterpKernelException,f.checkConsistencyLight);#<- it's always not ok because undelying array not with the good size.
-        array2=f.getArray().substr(0,10);
+        array2=f.getArray().subArray(0,10);
         f.setArray(array2);
         f.checkConsistencyLight();#<- here it is OK
         f2=f.clone(True);

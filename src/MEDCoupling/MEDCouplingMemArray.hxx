@@ -266,7 +266,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafeSlice(int bg, int end2, int step) const;
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT void transpose();
     MEDCOUPLING_EXPORT DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const;
@@ -522,7 +522,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *buildPermArrPerLevel() const;
     MEDCOUPLING_EXPORT bool isIota(int sizeExpected) const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
-    MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const;
+    MEDCOUPLING_EXPORT DataArrayInt *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT void transpose();
     MEDCOUPLING_EXPORT DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const;
@@ -562,7 +562,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int findIdFirstEqualTuple(const std::vector<int>& tupl) const;
     MEDCOUPLING_EXPORT int findIdFirstEqual(int value) const;
     MEDCOUPLING_EXPORT int findIdFirstEqual(const std::vector<int>& vals) const;
-    MEDCOUPLING_EXPORT int search(const std::vector<int>& vals) const;
+    MEDCOUPLING_EXPORT int findIdSequence(const std::vector<int>& vals) const;
     MEDCOUPLING_EXPORT bool presenceOfTuple(const std::vector<int>& tupl) const;
     MEDCOUPLING_EXPORT bool presenceOfValue(int value) const;
     MEDCOUPLING_EXPORT bool presenceOfValue(const std::vector<int>& vals) const;
@@ -728,7 +728,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafeSlice(int bg, int end, int step) const;
     MEDCOUPLING_EXPORT bool isUniform(char val) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
-    MEDCOUPLING_EXPORT DataArrayChar *substr(int tupleIdBg, int tupleIdEnd=-1) const;
+    MEDCOUPLING_EXPORT DataArrayChar *subArray(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT DataArrayChar *changeNbOfComponents(int newNbOfComp, char dftValue) const;
     MEDCOUPLING_EXPORT DataArrayChar *keepSelectedComponents(const std::vector<int>& compoIds) const;
     MEDCOUPLING_EXPORT void meldWith(const DataArrayChar *other);
@@ -757,7 +757,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const char *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(char val) const;
     MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(char val) const;
-    MEDCOUPLING_EXPORT int search(const std::vector<char>& vals) const;
+    MEDCOUPLING_EXPORT int findIdSequence(const std::vector<char>& vals) const;
     MEDCOUPLING_EXPORT int findIdFirstEqualTuple(const std::vector<char>& tupl) const;
     MEDCOUPLING_EXPORT int findIdFirstEqual(char value) const;
     MEDCOUPLING_EXPORT int findIdFirstEqual(const std::vector<char>& vals) const;

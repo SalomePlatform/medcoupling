@@ -271,7 +271,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         tmpIds=f.getCellIdsHavingGaussLocalization(0);
         self.assertEqual(ids2,list(tmpIds.getValues()));
         self.assertRaises(InterpKernelException,f.checkConsistencyLight);#<- it's always not ok because undelying array not with the good size.
-        array2=f.getArray().substr(0,10);
+        array2=f.getArray().subArray(0,10);
         f.setArray(array2);
         f.checkConsistencyLight();
         ####

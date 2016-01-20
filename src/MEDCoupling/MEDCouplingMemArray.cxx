@@ -1463,7 +1463,7 @@ DataArrayDouble *DataArrayDouble::toNoInterlace() const
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
@@ -1556,7 +1556,7 @@ DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
@@ -1700,7 +1700,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, cons
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
  *          is to delete using decrRef() as it is no more needed.
- *  \sa DataArrayDouble::substr.
+ *  \sa DataArrayDouble::subArray.
  */
 DataArrayDouble *DataArrayDouble::selectByTupleIdSafeSlice(int bg, int end2, int step) const
 {
@@ -1796,19 +1796,19 @@ DataArray *DataArrayDouble::selectByTupleRanges(const std::vector<std::pair<int,
     \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
  *  \sa DataArrayDouble::selectByTupleIdSafeSlice
  */
-DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const
+DataArrayDouble *DataArrayDouble::subArray(int tupleIdBg, int tupleIdEnd) const
 {
   checkAllocated();
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter must be greater than 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::subArray : The tupleIdBg parameter must be greater than 0 !");
   if(tupleIdBg>nbt)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter is greater than number of tuples !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::subArray : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
       if(tupleIdEnd>nbt)
-        throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+        throw INTERP_KERNEL::Exception("DataArrayDouble::subArray : The tupleIdBg parameter is greater or equal than number of tuples !");
     }
   else
     trueEnd=nbt;
@@ -7205,7 +7205,7 @@ DataArrayInt *DataArrayInt::toNoInterlace() const
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
@@ -7298,7 +7298,7 @@ DataArrayInt *DataArrayInt::renumber(const int *old2New) const
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
@@ -7437,7 +7437,7 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
  *          is to delete using decrRef() as it is no more needed.
- *  \sa DataArrayInt::substr.
+ *  \sa DataArrayInt::subArray.
  */
 DataArrayInt *DataArrayInt::selectByTupleIdSafeSlice(int bg, int end2, int step) const
 {
@@ -7853,19 +7853,19 @@ DataArrayDouble *DataArrayInt::convertToDblArr() const
     \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
  *  \sa DataArrayInt::selectByTupleIdSafeSlice
  */
-DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const
+DataArrayInt *DataArrayInt::subArray(int tupleIdBg, int tupleIdEnd) const
 {
   checkAllocated();
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::subArray : The tupleIdBg parameter must be greater than 0 !");
   if(tupleIdBg>nbt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater than number of tuples !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::subArray : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
       if(tupleIdEnd>nbt)
-        throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+        throw INTERP_KERNEL::Exception("DataArrayInt::subArray : The tupleIdBg parameter is greater or equal than number of tuples !");
     }
   else
     trueEnd=nbt;
@@ -8966,7 +8966,7 @@ DataArrayInt *DataArrayInt::findIdsNotEqualList(const int *valsBg, const int *va
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
  *
  * \return tuple id where \b tupl is. -1 if no such tuple exists in \b this.
- * \sa DataArrayInt::search, DataArrayInt::presenceOfTuple.
+ * \sa DataArrayInt::findIdSequence, DataArrayInt::presenceOfTuple.
  */
 int DataArrayInt::findIdFirstEqualTuple(const std::vector<int>& tupl) const
 {
@@ -9001,12 +9001,12 @@ int DataArrayInt::findIdFirstEqualTuple(const std::vector<int>& tupl) const
  * This method differs from DataArrayInt::findIdFirstEqualTuple in that the position is internal raw data is not considered here contrary to DataArrayInt::findIdFirstEqualTuple.
  * \sa DataArrayInt::findIdFirstEqualTuple
  */
-int DataArrayInt::search(const std::vector<int>& vals) const
+int DataArrayInt::findIdSequence(const std::vector<int>& vals) const
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   if(nbOfCompo!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::search : works only for DataArrayInt instance with one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdSequence : works only for DataArrayInt instance with one component !");
   const int *cptr=getConstPointer();
   std::size_t nbOfVals=getNbOfElems();
   const int *loc=std::search(cptr,cptr+nbOfVals,vals.begin(),vals.end());

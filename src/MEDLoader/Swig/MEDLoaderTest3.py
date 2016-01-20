@@ -2162,10 +2162,10 @@ class MEDLoaderTest(unittest.TestCase):
         namesCellL0=DataArrayAsciiChar(6,16)
         namesCellL0[:]=["CellL0#%.3d      "%(i) for i in xrange(6)]
         mm.setNameFieldAtLevel(0,namesCellL0)
-        namesCellL1=DataArrayAsciiChar.Aggregate([namesCellL0,namesCellL0,namesCellL0.substr(2)])
+        namesCellL1=DataArrayAsciiChar.Aggregate([namesCellL0,namesCellL0,namesCellL0.subArray(2)])
         namesCellL1[:]=["CellLM1#%.3d     "%(i) for i in xrange(16)]
         mm.setNameFieldAtLevel(-1,namesCellL1)
-        namesNodes=namesCellL1.substr(4,16)
+        namesNodes=namesCellL1.subArray(4,16)
         namesNodes[:]=["Node#%.3d        "%(i) for i in xrange(12)]
         mm.setNameFieldAtLevel(1,namesNodes)
         mm.write(fname,2)

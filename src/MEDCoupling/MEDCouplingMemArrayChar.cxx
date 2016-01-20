@@ -379,7 +379,7 @@ DataArrayInt *DataArrayChar::convertToIntArr() const
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
@@ -452,7 +452,7 @@ DataArrayChar *DataArrayChar::renumber(const int *old2New) const
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
@@ -647,7 +647,7 @@ void DataArrayChar::rearrange(int newNbOfCompo)
 /*!
  * Returns a shorten copy of \a this array. The new DataArrayChar contains all
  * tuples starting from the \a tupleIdBg-th tuple and including all tuples located before
- * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::substr().
+ * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::subArray().
  * This method is a specialization of selectByTupleIdSafeSlice().
  *  \param [in] tupleIdBg - index of the first tuple to copy from \a this array.
  *  \param [in] tupleIdEnd - index of the tuple before which the tuples to copy are located.
@@ -659,7 +659,7 @@ void DataArrayChar::rearrange(int newNbOfCompo)
     \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
  *  \sa DataArrayChar::selectByTupleIdSafeSlice
  */
-DataArrayChar *DataArrayChar::substr(int tupleIdBg, int tupleIdEnd) const
+DataArrayChar *DataArrayChar::subArray(int tupleIdBg, int tupleIdEnd) const
 {
   checkAllocated();
   int nbt=getNumberOfTuples();
@@ -1594,12 +1594,12 @@ DataArrayInt *DataArrayChar::findIdsNotEqual(char val) const
  * This method differs from DataArrayChar::findIdFirstEqualTuple in that the position is internal raw data is not considered here contrary to DataArrayChar::findIdFirstEqualTuple.
  * \sa DataArrayChar::findIdFirstEqualTuple
  */
-int DataArrayChar::search(const std::vector<char>& vals) const
+int DataArrayChar::findIdSequence(const std::vector<char>& vals) const
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   if(nbOfCompo!=1)
-    throw INTERP_KERNEL::Exception("DataArrayChar::search : works only for DataArrayChar instance with one component !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::findIdSequence : works only for DataArrayChar instance with one component !");
   const char *cptr=getConstPointer();
   std::size_t nbOfVals=getNbOfElems();
   const char *loc=std::search(cptr,cptr+nbOfVals,vals.begin(),vals.end());
@@ -1618,7 +1618,7 @@ int DataArrayChar::search(const std::vector<char>& vals) const
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
  *
  * \return tuple id where \b tupl is. -1 if no such tuple exists in \b this.
- * \sa DataArrayChar::search.
+ * \sa DataArrayChar::findIdSequence.
  */
 int DataArrayChar::findIdFirstEqualTuple(const std::vector<char>& tupl) const
 {

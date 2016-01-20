@@ -103,7 +103,7 @@ void MEDCouplingBasicsTest2::testGaussPointField1()
   CPPUNIT_ASSERT_EQUAL(2,(int)tmpIds.size());
   CPPUNIT_ASSERT(std::equal(ids2,ids2+2,tmpIds.begin()));
   CPPUNIT_ASSERT_THROW(f->checkConsistencyLight(),INTERP_KERNEL::Exception);//<- it's always not ok because undelying array not with the good size.
-  DataArrayDouble *array2=f->getArray()->substr(0,10);
+  DataArrayDouble *array2=f->getArray()->subArray(0,10);
   f->setArray(array2);
   array2->decrRef();
   f->checkConsistencyLight();//<- here it is OK

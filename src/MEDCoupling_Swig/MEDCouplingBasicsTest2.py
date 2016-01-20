@@ -1727,9 +1727,9 @@ class MEDCouplingBasicsTest2(unittest.TestCase):
         self.assertTrue(not ((dbl.reprZip().find("Number of components : 1"))==-1));
         
         self.assertRaises(InterpKernelException, dbl.selectByTupleIdSafeSlice, 0, 1, -1);
-        self.assertRaises(InterpKernelException, dbl.substr, -1, 1);
-        self.assertRaises(InterpKernelException, dbl.substr, 8, 1);
-        self.assertRaises(InterpKernelException, dbl.substr, 0, 8);
+        self.assertRaises(InterpKernelException, dbl.subArray, -1, 1);
+        self.assertRaises(InterpKernelException, dbl.subArray, 8, 1);
+        self.assertRaises(InterpKernelException, dbl.subArray, 0, 8);
         self.assertRaises(InterpKernelException, dbl.meldWith, dd);
         
         self.assertRaises(InterpKernelException, dbl.setPartOfValuesAdv, dbl2, da); #dbl dbl2 not have the same number of components
