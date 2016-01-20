@@ -72,8 +72,8 @@ int MeshCollectionDriver::readSeq(const char* filename, const char* meshname)
   (_collection->getFaceMesh()).push_back(mfm->getLevelM1Mesh(false));
 
   //reading family ids
-  MEDCoupling::DataArrayInt* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCpy());
-  MEDCoupling::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCpy());
+  MEDCoupling::DataArrayInt* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
+  MEDCoupling::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
   (_collection->getCellFamilyIds()).push_back(cellIds);
   (_collection->getFaceFamilyIds()).push_back(faceIds); 
 
@@ -136,7 +136,7 @@ void MeshCollectionDriver::readData(MEDCoupling::MEDFileUMesh* mfm, int idomain)
     {
       (_collection->getMesh())[idomain]=mfm->getLevel0Mesh(false);
       //reading families groups
-      MEDCoupling::DataArrayInt* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCpy());
+      MEDCoupling::DataArrayInt* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
       (_collection->getCellFamilyIds())[idomain]=cellIds;
     }
   catch(...)
@@ -153,7 +153,7 @@ void MeshCollectionDriver::readData(MEDCoupling::MEDFileUMesh* mfm, int idomain)
         {
           (_collection->getFaceMesh())[idomain]=mfm->getLevelM1Mesh(false);
           //reading families groups
-          MEDCoupling::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCpy());
+          MEDCoupling::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
           (_collection->getFaceFamilyIds())[idomain]=faceIds;
           if (MyGlobals::_Verbose>10)
             std::cout << "proc " << MyGlobals::_Rank << " : WITH Faces\n";
@@ -225,7 +225,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
   cellMesh->setName(finalMeshName);
   mfm->setMeshAtLevel( 0, cellMesh );
 
-  faceMesh->checkCoherency();
+  faceMesh->checkConsistencyLight();
   if (faceMesh->getNumberOfCells()>0)
     {
       faceMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-10);
@@ -258,7 +258,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
 
   // add joints
 
-  using MEDCoupling::MEDCouplingAutoRefCountObjectPtr;
+  using MEDCoupling::MCAuto;
   using MEDCoupling::MEDCouplingSkyLineArray;
   using MEDCoupling::MEDFileJoint;
   using MEDCoupling::MEDFileJointCorrespondence;
@@ -268,7 +268,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
 
   if ( _collection->getCZ().size() > 0 )
     {
-      MEDCouplingAutoRefCountObjectPtr< MEDFileJoints > joints = MEDFileJoints::New();
+      MCAuto< MEDFileJoints > joints = MEDFileJoints::New();
 
       for ( size_t i = 0; i < _collection->getCZ().size(); ++i )
         {
@@ -287,19 +287,19 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
             cz->setDescription( oss.str() );
           }
 
-          MEDCouplingAutoRefCountObjectPtr< MEDFileJoint>
+          MCAuto< MEDFileJoint>
             joint = MEDFileJoint::New( cz->getName(), finalMeshName,
                                        finalMeshName, cz->getDistantDomainNumber() );
           joint->setDescription( cz->getDescription() );
           joints->pushJoint( joint );
 
-          MEDCouplingAutoRefCountObjectPtr< MEDFileJointOneStep> j1st = MEDFileJointOneStep::New();
+          MCAuto< MEDFileJointOneStep> j1st = MEDFileJointOneStep::New();
           joint->pushStep( j1st );
 
           const MEDCouplingSkyLineArray * nodeCorr = cz->getNodeCorresp();
           if ( nodeCorr )
             {
-              MEDCouplingAutoRefCountObjectPtr< MEDFileJointCorrespondence >
+              MCAuto< MEDFileJointCorrespondence >
                 corr = MEDFileJointCorrespondence::New( nodeCorr->getValueArray() );
               j1st->pushCorrespondence( corr );
             }
@@ -314,7 +314,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
                 {
                   t1 = INTERP_KERNEL::NormalizedCellType( types[it].first );
                   t2 = INTERP_KERNEL::NormalizedCellType( types[it].second );
-                  MEDCouplingAutoRefCountObjectPtr< MEDFileJointCorrespondence>
+                  MCAuto< MEDFileJointCorrespondence>
                     corr = MEDFileJointCorrespondence::New( cellCorr->getValueArray(), t1, t2 );
                   j1st->pushCorrespondence( corr );
                 }
@@ -380,7 +380,7 @@ MEDCoupling::MEDCouplingFieldDouble* MeshCollectionDriver::getField(std::string 
         }
       field->setArray(da);
       field->setTime(time,DT,IT);
-      field->checkCoherency();
+      field->checkConsistencyLight();
     }
   return field;
 }
@@ -424,8 +424,8 @@ MEDCoupling::MEDFileData* MeshCollectionDriver::getMEDFileData()
 {
   MEDCoupling::MEDFileData* newdata = MEDCoupling::MEDFileData::New();
 
-  MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDFileMeshes> meshes;
-  MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDFileFields> fields;
+  MEDCoupling::MCAuto<MEDCoupling::MEDFileMeshes> meshes;
+  MEDCoupling::MCAuto<MEDCoupling::MEDFileFields> fields;
   meshes = MEDCoupling::MEDFileMeshes::New();
   fields = MEDCoupling::MEDFileFields::New();
 

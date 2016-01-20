@@ -70,17 +70,17 @@ and those have to be split into smaller linear segments to be able to represent 
 It only take a cut fineness parameter (0.1 will suffice (angle expressed in rd)). Remember not to modify 
 neither "fixm" nor "mobm"! ::
 
-        fixm2=fixm.deepCpy()        # tessellate2D is non const  - a mesh copy is required
+        fixm2=fixm.deepCopy()        # tessellate2D is non const  - a mesh copy is required
         fixm2.tessellate2D(0.1)
         fixm2.writeVTK("fixm2.vtu")
-        mobm2=mobm.deepCpy()
+        mobm2=mobm.deepCopy()
         mobm2.tessellate2D(0.1)
         mobm2.writeVTK("mobm2.vtu")
 
 Define a small method displayVTK() which we will use later on. ::
 
 	def displayVTK(m,fname):
-		tmp=m.deepCpy()
+		tmp=m.deepCopy()
 		tmp.tessellate2D(0.1)
 		tmp.writeVTK(fname)
 		return
@@ -131,7 +131,7 @@ In partFixMob merge common nodes with a threshold of 1e-10. ::
 
 Get and display partFixm part which is not in zone1Mobm. Call this mesh partFixmWithoutZone1Mobm. ::
 
-	ids3=iMob.getIdsEqual(-1)
+	ids3=iMob.findIdsEqual(-1)
 	partFixmWithoutZone1Mobm=partFixMob[ids3]
 	displayVTK(partFixmWithoutZone1Mobm,"partFixmWithoutZone1Mobm.vtu")
 
@@ -170,7 +170,7 @@ Now check#1. Same spirit as in check#0. ::
 	areaZone1Mobm=zone1Mobm.getMeasureField(ON_CELLS).getArray()
 	areaZone1Mobm.abs()
 	val3=areaZone1Mobm.accumulate()[0]
-	ids4=iMob.getIdsNotEqual(-1)
+	ids4=iMob.findIdsNotEqual(-1)
 	areaPartFixMob2=areaPartFixMob[ids4]
 	val4=areaPartFixMob2.accumulate()[0]
 	print "Check #1 %lf == %lf a 1e-8 ? %s"%(val3,val4,str(abs(val3-val4)<1e-8))
@@ -179,7 +179,7 @@ Finally check#2. ::
 
 	isCheck2OK=True
 	for icell in xrange(partFixm.getNumberOfCells()):
-	    ids5=iPart.getIdsEqual(icell)
+	    ids5=iPart.findIdsEqual(icell)
 	    areaOfCells=areaPartFixMob[ids5]
 	    areaOfCells.abs()
 	    if abs(areaOfCells.accumulate()[0]-areaPartFixm[icell])>1e-9:
@@ -196,13 +196,13 @@ Now create a cell field on partFixMob by setting it to 0 on the part covering on
 part. Visualize it in a VTK file. ::
 
 	f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
-	m=partFixMob.deepCpy() ; m.tessellate2D(0.1)
+	m=partFixMob.deepCopy() ; m.tessellate2D(0.1)
 	f.setMesh(m)
 	arr=DataArrayDouble(partFixMob.getNumberOfCells(),1)
-	arr[iMob.getIdsEqual(-1)]=0.
-	arr[iMob.getIdsNotEqual(-1)]=1.
+	arr[iMob.findIdsEqual(-1)]=0.
+	arr[iMob.findIdsNotEqual(-1)]=1.
 	f.setArray(arr)
-	f.checkCoherency()
+	f.checkConsistencyLight()
 	f.setName("Zone")
 	MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
 
@@ -217,18 +217,18 @@ Create a cell field whose value is 0 in the zone being exclusively part of fixm,
 	partFixMob2,iPart2,iMob2=MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
 	partFixMob2.mergeNodes(1e-10)
 	f2=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
-	m2=partFixMob2.deepCpy() ; m2.tessellate2D(0.1)
+	m2=partFixMob2.deepCopy() ; m2.tessellate2D(0.1)
 	f2.setMesh(m2)
 	arr=DataArrayDouble(partFixMob2.getNumberOfCells(),1)
-	arr[iMob2.getIdsEqual(-1)]=0.
+	arr[iMob2.findIdsEqual(-1)]=0.
 	st=0 ; end=st+len(zonesInMobm[0])
-	arr[iMob2.getIdsInRange(st,end)]=1.
+	arr[iMob2.findIdsInRange(st,end)]=1.
 	st+=len(zonesInMobm[0]) ; end=st+len(zonesInMobm[1])
-	arr[iMob2.getIdsInRange(st,end)]=2.
+	arr[iMob2.findIdsInRange(st,end)]=2.
 	st+=len(zonesInMobm[1]) ; end=st+len(zonesInMobm[2])
-	arr[iMob2.getIdsInRange(st,end)]=3.
+	arr[iMob2.findIdsInRange(st,end)]=3.
 	f2.setArray(arr)
-	f2.checkCoherency()
+	f2.checkConsistencyLight()
 	f2.setName("Zone2")
 	MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
 

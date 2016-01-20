@@ -122,7 +122,7 @@ Create the len(translationToPerform) copies of d and apply the corresponding tra
 
 An alternative (and more compact) way to do it : ::
 
-        ds=[d.deepCpy() for i in xrange(len(translationToPerform))]
+        ds=[d.deepCopy() for i in xrange(len(translationToPerform))]
         for (elt,t) in zip(ds,translationToPerform) : elt+=t
 
 Aggregating DataArrayDouble
@@ -190,10 +190,10 @@ This storage method takes the form of a DataArrayInt 'o2n' made of Card(X) tuple
 
 The format 'old-2-new' is systematically used for all renumbering operations (one-to-one correspondence).
 
-The static method DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2() performs the conversion from one storage mode to the other (c, cI to o2n).
+The static method DataArrayInt.ConvertIndexArrayToO2N() performs the conversion from one storage mode to the other (c, cI to o2n).
 We get for free the number of elements in Y, i.e. the variable newNbOfTuples. ::
 
-	o2n,newNbOfTuples=DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfTuples,c,cI)
+	o2n,newNbOfTuples=DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples,c,cI)
 	print "Have I got the right result? %s"%(str(myNewNbOfTuples==newNbOfTuples))
 
 Using o2n and newNbOfTuples invoke DataArrayDouble.renumberAndReduce() on d2. ::
@@ -243,7 +243,7 @@ Finally thanks to o2n we know the connectivity of all 7 hexagons using the coord
 
 Check that m is coherent. ::
 
-	 m.checkCoherency()
+	 m.checkConsistencyLight()
 
 To visually check m, write it in a VTU file ("My7hexagons.vtu") and display it in ParaVis. ::
 

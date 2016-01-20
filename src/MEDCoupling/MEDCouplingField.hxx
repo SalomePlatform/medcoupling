@@ -26,7 +26,7 @@
 #include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "InterpKernelException.hxx"
 
@@ -44,7 +44,7 @@ namespace MEDCoupling
   class MEDCouplingField : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
@@ -101,7 +101,7 @@ namespace MEDCoupling
     std::string _desc;
     NatureOfField _nature;
     const MEDCouplingMesh *_mesh;
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization> _type;
+    MCAuto<MEDCouplingFieldDiscretization> _type;
   };
 }
 

@@ -257,14 +257,14 @@ namespace MEDCoupling
 
   void OverlapInterpolationMatrix::computeSurfacesAndDeno()
   {
-    if(_target_field->getField()->getNature()==ConservativeVolumic)
+    if(_target_field->getField()->getNature()==IntensiveMaximum)
       _mapping.computeDenoConservativeVolumic(_target_field->getField()->getNumberOfTuplesExpected());
     else
-      throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only ConservativeVolumic!");
+      throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only IntensiveMaximum!");
 //      {
-//      if(_target_field->getField()->getNature()==RevIntegral)
+//      if(_target_field->getField()->getNature()==IntensiveConservation)
 //        {
-//          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f;
+//          MCAuto<MEDCouplingFieldDouble> f;
 //          int orient = getOrientation(); // From InterpolationOptions inheritance
 //          if(orient == 2)  // absolute areas
 //             f = _target_support->getMeasureField(true);
@@ -276,7 +276,7 @@ namespace MEDCoupling
 //          _mapping.computeDenoRevIntegral(*f->getArray());
 //        }
 //      else
-//        throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only ConservativeVolumic and RevIntegral defined!");
+//        throw INTERP_KERNEL::Exception("OverlapDEC: Policy not implemented yet: only IntensiveMaximum and IntensiveConservation defined!");
 //      }
   }
 

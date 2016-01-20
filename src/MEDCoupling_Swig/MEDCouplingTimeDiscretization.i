@@ -28,7 +28,7 @@ namespace MEDCoupling
     const char *getTimeUnit() const;
     virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const throw(INTERP_KERNEL::Exception);
     virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
@@ -37,7 +37,7 @@ namespace MEDCoupling
     virtual bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCopy) const throw(INTERP_KERNEL::Exception);
     virtual std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
     virtual TypeOfTimeDiscretization getEnum() const throw(INTERP_KERNEL::Exception);
     virtual void synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
@@ -58,7 +58,7 @@ namespace MEDCoupling
     virtual void divideEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     virtual void powEqual(const MEDCouplingTimeDiscretization *other) throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
     void setTimeTolerance(double val);
     double getTimeTolerance() const;
     virtual void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
@@ -112,15 +112,15 @@ namespace MEDCoupling
     virtual void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
     virtual void applyFunc(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
     virtual void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    virtual void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFuncCompo(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
     virtual void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     virtual void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
     virtual void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
     virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    virtual void fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
-    virtual void fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void fillFromAnalyticCompo(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void fillFromAnalyticNamedCompo(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
     //
     virtual ~MEDCouplingTimeDiscretization();
   };
@@ -129,7 +129,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingNoTimeLabel();
-    MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCpy);
+    MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCopy);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=NO_TIME;
     static const char REPR[];
@@ -148,7 +148,7 @@ namespace MEDCoupling
   {
   protected:
     MEDCouplingConstOnTimeInterval();
-    MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy);
+    MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCopy);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=CONST_ON_TIME_INTERVAL;
     static const char REPR[];

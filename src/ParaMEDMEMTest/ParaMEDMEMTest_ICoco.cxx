@@ -67,8 +67,8 @@ void affiche(const ParaFIELD& field)
 
 MEDCouplingUMesh *init_quad()
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_quad",2));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::New());
+  MCAuto<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_quad",2));
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
   const double dataCoo[24]={0.,0.,0.,1.,0.,0.,0.,0.,1.,1.,0.,1.,0.,1e-05,0.,1.,1e-05,0.,0.,1e-05,1.,1.,1e-05,1.};
   coo->alloc(8,3);
   std::copy(dataCoo,dataCoo+24,coo->getPointer());
@@ -82,8 +82,8 @@ MEDCouplingUMesh *init_quad()
 
 MEDCouplingUMesh *init_triangle()
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_triangle",2));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::New());
+  MCAuto<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_triangle",2));
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
   const double dataCoo[24]={0.,0.,0.,1.,0.,0.,0.,0.,1.,1.,0.,1.,0.,1e-05,0.,1.,1e-05,0.,0.,1e-05,1.,1.,1e-05,1.};
   coo->alloc(8,3);
   std::copy(dataCoo,dataCoo+24,coo->getPointer());
@@ -126,21 +126,21 @@ void ParaMEDMEMTest::testICoco1()
   MEDCoupling::ParaMESH *paramesh(0);
   if (cas=="emetteur") 
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingUMesh> mesh_emetteur(init_triangle());
+      MCAuto<MEDCoupling::MEDCouplingUMesh> mesh_emetteur(init_triangle());
       paramesh=new MEDCoupling::ParaMESH(mesh_emetteur,emetteur_group,"emetteur mesh");
       MEDCoupling::ComponentTopology comptopo;
       champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-      champ_emetteur->getField()->setNature(ConservativeVolumic);
+      champ_emetteur->getField()->setNature(IntensiveMaximum);
       champ_emetteur->setOwnSupport(true);
       champ_emetteur->getField()->getArray()->fillWithValue(1.);
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingUMesh> mesh_recepteur(init_quad());
+      MCAuto<MEDCoupling::MEDCouplingUMesh> mesh_recepteur(init_quad());
       paramesh=new MEDCoupling::ParaMESH(mesh_recepteur,recepteur_group,"recepteur mesh");
       MEDCoupling::ComponentTopology comptopo;
       champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-      champ_recepteur->getField()->setNature(ConservativeVolumic);
+      champ_recepteur->getField()->setNature(IntensiveMaximum);
       champ_recepteur->setOwnSupport(true);
     }
   

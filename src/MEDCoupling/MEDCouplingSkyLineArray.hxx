@@ -22,7 +22,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <vector>
 
@@ -31,8 +31,8 @@ namespace MEDCoupling
   class MEDCOUPLING_EXPORT MEDCouplingSkyLineArray
   {
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _index;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _value;
+    MCAuto<DataArrayInt> _index;
+    MCAuto<DataArrayInt> _value;
   public:
     MEDCouplingSkyLineArray();
     MEDCouplingSkyLineArray( const MEDCouplingSkyLineArray &myArray );

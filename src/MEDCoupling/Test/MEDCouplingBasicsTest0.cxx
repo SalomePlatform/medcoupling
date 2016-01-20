@@ -20,7 +20,7 @@
 
 #include "MEDCouplingBasicsTest.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
@@ -819,7 +819,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_3()
   std::copy(coords,coords+22,myCoords->getPointer());
   ret->setCoords(myCoords);
   myCoords->decrRef();
-  ret->checkCoherency();
+  ret->checkConsistencyLight();
   return ret;
 }
 

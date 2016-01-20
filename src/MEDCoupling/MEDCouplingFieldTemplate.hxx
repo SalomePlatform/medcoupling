@@ -43,7 +43,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(TypeOfField type);
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     //
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;

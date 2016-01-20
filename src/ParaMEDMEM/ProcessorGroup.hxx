@@ -44,7 +44,7 @@ namespace MEDCoupling
       _comm_interface(other.getCommInterface()),_proc_ids(other._proc_ids) { }
     ProcessorGroup (const CommInterface& interface, int start, int end);
     virtual ~ProcessorGroup() { }
-    virtual ProcessorGroup *deepCpy() const = 0;
+    virtual ProcessorGroup *deepCopy() const = 0;
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const = 0;
     virtual void intersect (ProcessorGroup&) = 0;
     bool contains(int rank) const { return _proc_ids.find(rank)!=_proc_ids.end(); }

@@ -107,40 +107,40 @@ Appliquer l'interpolation avec ``MEDCouplingRemapper.transferField()`` : ::
 .. note:: Une exception est envoyée car ``srcField`` n'a pas de *nature* définie. 
 	Nous allons voir dans la suite l'impact de cet attribut sur le résultat final.
 
-Mettre la nature de ``srcField`` à ``ConservativeVolumic``. Cela signifie que le champ doit être interprété commé étant
+Mettre la nature de ``srcField`` à ``IntensiveMaximum``. Cela signifie que le champ doit être interprété commé étant
 intensif (une température par exemple). ::
 
-	srcField.setNature(mc.ConservativeVolumic)
+	srcField.setNature(mc.IntensiveMaximum)
 	trgFieldCV = remap.transferField(srcField,1e300)
 
-Vérifier qu'avec la nature ``ConservativeVolumic``, l'intégrale du champ est conservée. Par contre, 
+Vérifier qu'avec la nature ``IntensiveMaximum``, l'intégrale du champ est conservée. Par contre, 
 la somme sur les cellules (accumulation) n'est **pas** conservée ! ::
 
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldCV.integral(True)[0]
-	print "ConservativeVolumic -- integrals: %lf == %lf" % (integSource, integTarget)
+	print "IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget)
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldCV.getArray().accumulate()[0]
-	print "ConservativeVolumic -- sums: %lf != %lf" % (accSource, accTarget)
+	print "IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget)
 
 
-Maintenant mettre la nature de ``srcField`` à ``IntegralGlobConstraint``. Le champ doit être interprété commé étant
+Maintenant mettre la nature de ``srcField`` à ``ExtensiveConservation``. Le champ doit être interprété commé étant
 extensif (par exemple une puissance ou un volume). ::
 
-	srcField.setNature(mc.IntegralGlobConstraint)
+	srcField.setNature(mc.ExtensiveConservation)
 	trgFieldI = remap.transferField(srcField,1e300)
 
-Vérifier qu'avec la nature ``IntegralGlobConstraint``, l'intégrale du champ n'est **pas** conservée. 
+Vérifier qu'avec la nature ``ExtensiveConservation``, l'intégrale du champ n'est **pas** conservée. 
 Par contre, la somme sur les cellules est conservée. ::
 
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldI.integral(True)[0]
-	print "IntegralGlobConstraint -- integrals: %lf != %lf" % (integSource, integTarget)
+	print "ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget)
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldI.getArray().accumulate()[0]
-	print "IntegralGlobConstraint -- sums: %lf == %lf" % (accSource, accTarget)
+	print "ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget)
 
 Visualiser les champs avec ParaViS, ou en les écrivant dans un fichier.
 

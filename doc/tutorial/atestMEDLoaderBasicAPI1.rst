@@ -29,7 +29,7 @@ Reading, Writing a MED file using MEDLoader basic API
 	# Writing a field and its support mesh in one go
 	f = ml.MEDCouplingFieldDouble.New(ml.ON_CELLS, ml.ONE_TIME)
 	f.setTime(5.6,7,8)                              # Declare the timestep associated to the field 
-	f.setArray(targetMesh.getBarycenterAndOwner())
+	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 	MEDLoader.WriteField("MyFirstField.med",f,True)

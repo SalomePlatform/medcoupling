@@ -62,7 +62,7 @@ Reading, Writing a MED file using MEDLoader advanced API
 	#
 	f = ml.MEDCouplingFieldDouble(ml.ON_CELLS, ml.ONE_TIME)
 	f.setTime(5.6,7,8)
-	f.setArray(targetMesh.getBarycenterAndOwner())
+	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 	# Prepare field for writing

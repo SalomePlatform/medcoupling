@@ -34,8 +34,8 @@ static PyObject *convertMesh(MEDCoupling::MEDCouplingMesh *mesh, int owner) thro
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_MEDCoupling__MEDCoupling1SGTUMesh,owner);
   if(dynamic_cast<MEDCoupling::MEDCoupling1DGTUMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_MEDCoupling__MEDCoupling1DGTUMesh,owner);
-  if(dynamic_cast<MEDCoupling::MEDCouplingExtrudedMesh *>(mesh))
-    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_MEDCoupling__MEDCouplingExtrudedMesh,owner);
+  if(dynamic_cast<MEDCoupling::MEDCouplingMappedExtrudedMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_MEDCoupling__MEDCouplingMappedExtrudedMesh,owner);
   if(dynamic_cast<MEDCoupling::MEDCouplingCMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_MEDCoupling__MEDCouplingCMesh,owner);
   if(dynamic_cast<MEDCoupling::MEDCouplingCurveLinearMesh *>(mesh))
@@ -177,9 +177,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCpy();
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCopy();
         ret->applyLin(1.,val);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -187,8 +187,8 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),a);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),a);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -196,9 +196,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),aaa);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),aaa);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -206,9 +206,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),aaa);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Add(self->getArray(),aaa);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -249,9 +249,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCpy();
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCopy();
         ret->applyLin(-1.,val);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -259,8 +259,8 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(a,self->getArray());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(a,self->getArray());
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -268,9 +268,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(aaa,self->getArray());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(aaa,self->getArray());
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -278,9 +278,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(aaa,self->getArray());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Substract(aaa,self->getArray());
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -316,9 +316,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCpy();
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCopy();
         ret->applyLin(val,0.);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -326,8 +326,8 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),a);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),a);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -335,9 +335,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),aaa);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),aaa);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -345,9 +345,9 @@ static MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),aaa);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Multiply(self->getArray(),aaa);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -388,9 +388,9 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCpy();
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=self->getArray()->deepCopy();
         ret->applyInv(val);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -398,8 +398,8 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(a,self->getArray());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(a,self->getArray());
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -407,9 +407,9 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(aaa,self->getArray());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(aaa,self->getArray());
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }
@@ -417,9 +417,9 @@ MEDCoupling::MEDCouplingFieldDouble *MEDCoupling_MEDCouplingFieldDouble___rdiv__
       {
         if(!self->getArray())
           throw INTERP_KERNEL::Exception(msg2);
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(aaa,self->getArray());
-        MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> aaa=MEDCoupling::DataArrayDouble::New(); aaa->useArray(&bb[0],false,MEDCoupling::CPP_DEALLOC,1,(int)bb.size());
+        MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> ret=MEDCoupling::DataArrayDouble::Divide(aaa,self->getArray());
+        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> ret2=self->clone(false);
         ret2->setArray(ret);
         return ret2.retn();
       }

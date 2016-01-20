@@ -103,12 +103,12 @@ namespace MEDCoupling
     DEC::copyFrom(other);
     if(other._target_group)
       {
-        _target_group=other._target_group->deepCpy();
+        _target_group=other._target_group->deepCopy();
         _owns_groups=true;
       }
     if(other._source_group)
       {
-        _source_group=other._source_group->deepCpy();
+        _source_group=other._source_group->deepCopy();
         _owns_groups=true;
       }
     if (_source_group && _target_group)

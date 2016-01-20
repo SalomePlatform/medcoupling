@@ -24,7 +24,7 @@
 #include "SauvReader.hxx"
 
 #include "SauvMedConvertor.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 
@@ -48,7 +48,7 @@ SauvReader* SauvReader::New(const std::string& fileName)
 {
   if ( fileName.empty() ) THROW_IK_EXCEPTION("Invalid file name");
 
-  MEDCoupling::MEDCouplingAutoRefCountObjectPtr< SauvUtilities::FileReader> parser;
+  MEDCoupling::MCAuto< SauvUtilities::FileReader> parser;
 
   // try to open as XRD
   parser = new XDRReader( fileName.c_str() );

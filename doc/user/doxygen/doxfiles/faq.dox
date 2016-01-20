@@ -84,8 +84,8 @@ Take a look at this example: \ref medcouplingpyexamplesFieldDoubleBuild1
 For starter, take a look at the \ref MEDLoaderBasicAPIPage "basic MEDLoader API".
 
 \subsubsection f-coher "How to control the validity of my mesh"
-Use the methods \ref MEDCoupling::MEDCouplingUMesh::checkCoherency() "MEDCouplingUMesh::checkCoherency()" or
-\ref MEDCoupling::MEDCouplingUMesh::checkCoherency1() "MEDCouplingUMesh::checkCoherency1()" 
+Use the methods \ref MEDCoupling::MEDCouplingUMesh::checkConsistencyLight() "MEDCouplingUMesh::checkConsistencyLight()" or
+\ref MEDCoupling::MEDCouplingUMesh::checkConsistency() "MEDCouplingUMesh::checkConsistency()" 
 
 \subsubsection f-groups "How can I read/write groups on a mesh"
 Take a look at \ref AdvMEDLoaderAPIMeshReading and \ref AdvMEDLoaderAPIMeshWriting.
@@ -117,7 +117,7 @@ Re-compile in debug mode (with \c CMAKE_BUILD_TYPE=Debug), and use either valgri
 to spot the place where the segfault happens.
 The most common source of mistake is some memory mis-allocation and/or deallocation.
 With this respect using the auto pointer class 
-\ref MEDCoupling::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr"
+\ref MEDCoupling::MCAuto "MCAuto"
 can be of great help.  
  
 \n

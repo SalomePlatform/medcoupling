@@ -34,16 +34,16 @@ DenseMatrix *DenseMatrix::New(DataArrayDouble *array, int nbRows, int nbCols)
   return new DenseMatrix(array,nbRows,nbCols);
 }
 
-DenseMatrix *DenseMatrix::deepCpy() const
+DenseMatrix *DenseMatrix::deepCopy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(getData()->deepCpy());
-  MEDCouplingAutoRefCountObjectPtr<DenseMatrix> ret(DenseMatrix::New(arr,getNumberOfRows(),getNumberOfCols()));
+  MCAuto<DataArrayDouble> arr(getData()->deepCopy());
+  MCAuto<DenseMatrix> ret(DenseMatrix::New(arr,getNumberOfRows(),getNumberOfCols()));
   return ret.retn();
 }
 
 DenseMatrix *DenseMatrix::shallowCpy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<DenseMatrix> ret(DenseMatrix::New(const_cast<DataArrayDouble *>(getData()),getNumberOfRows(),getNumberOfCols()));
+  MCAuto<DenseMatrix> ret(DenseMatrix::New(const_cast<DataArrayDouble *>(getData()),getNumberOfRows(),getNumberOfCols()));
   return ret.retn();
 }
 
@@ -177,7 +177,7 @@ DataArrayDouble *DenseMatrix::MatVecMult(const DenseMatrix *mat, const DataArray
     throw INTERP_KERNEL::Exception("DenseMatrix::MatVecMult : input vector must have only one component !");
   if(vec->getNumberOfTuples()!=mat->getNumberOfCols())
     throw INTERP_KERNEL::Exception("DenseMatrix::MatVecMult : Number of columns of this must be equal to number of tuples of vec !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(mat->getNumberOfRows(),1);
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(mat->getNumberOfRows(),1);
   INTERP_KERNEL::matrixProduct(mat->getData()->begin(),mat->getNumberOfRows(),mat->getNumberOfCols(),vec->begin(),vec->getNumberOfTuples(),1,ret->getPointer());
   return ret.retn();
 }
@@ -187,8 +187,8 @@ DenseMatrix *DenseMatrix::Add(const DenseMatrix *a1, const DenseMatrix *a2)
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DenseMatrix::Add : input matrices must be not NULL !");
   CheckSameSize(a1,a2);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> data(DataArrayDouble::Add(a1->getData(),a2->getData()));
-  MEDCouplingAutoRefCountObjectPtr<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a1->getNumberOfCols()));
+  MCAuto<DataArrayDouble> data(DataArrayDouble::Add(a1->getData(),a2->getData()));
+  MCAuto<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a1->getNumberOfCols()));
   return ret.retn();
 }
 
@@ -205,8 +205,8 @@ DenseMatrix *DenseMatrix::Substract(const DenseMatrix *a1, const DenseMatrix *a2
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DenseMatrix::Substract : input matrices must be not NULL !");
   CheckSameSize(a1,a2);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> data(DataArrayDouble::Substract(a1->getData(),a2->getData()));
-  MEDCouplingAutoRefCountObjectPtr<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a1->getNumberOfCols()));
+  MCAuto<DataArrayDouble> data(DataArrayDouble::Substract(a1->getData(),a2->getData()));
+  MCAuto<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a1->getNumberOfCols()));
   return ret.retn();
 }
 
@@ -224,8 +224,8 @@ DenseMatrix *DenseMatrix::Multiply(const DenseMatrix *a1, const DenseMatrix *a2)
     throw INTERP_KERNEL::Exception("DenseMatrix::Multiply : input matrices must be not NULL !");
   CheckCompatibleSizeForMul(a1,a2);
   int nbr(a1->getNumberOfRows()),nbc(a2->getNumberOfCols());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> data(DataArrayDouble::New()); data->alloc(nbr*nbc,1);
-  MEDCouplingAutoRefCountObjectPtr<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a2->getNumberOfCols()));
+  MCAuto<DataArrayDouble> data(DataArrayDouble::New()); data->alloc(nbr*nbc,1);
+  MCAuto<DenseMatrix> ret(DenseMatrix::New(data,a1->getNumberOfRows(),a2->getNumberOfCols()));
   INTERP_KERNEL::matrixProduct(a1->getData()->begin(),a1->getNumberOfRows(),a1->getNumberOfCols(),a2->getData()->begin(),a2->getNumberOfRows(),a2->getNumberOfCols(),data->getPointer());
   return ret.retn();
 }
@@ -236,7 +236,7 @@ DenseMatrix *DenseMatrix::Multiply(const DenseMatrix *a1, const DataArrayDouble 
     throw INTERP_KERNEL::Exception("DenseMatrix::Multiply #2 : input matrices must be not NULL and a2 allocated !");
   if(a2->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DenseMatrix::Multiply #2 : The 2nd member must have exactly one component !");
-  MEDCouplingAutoRefCountObjectPtr<DenseMatrix> a2Bis(DenseMatrix::New(const_cast<DataArrayDouble *>(a2),a2->getNumberOfTuples(),1));
+  MCAuto<DenseMatrix> a2Bis(DenseMatrix::New(const_cast<DataArrayDouble *>(a2),a2->getNumberOfTuples(),1));
   return DenseMatrix::Multiply(a1,a2Bis);
 }
 

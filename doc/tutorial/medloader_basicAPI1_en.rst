@@ -58,7 +58,7 @@ Creation of a vector field "f" on cell supported by "targetMesh". ::
 
 	f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
 	f.setTime(5.6,7,8)
-	f.setArray(targetMesh.getBarycenterAndOwner())
+	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 	MEDLoader.WriteField("MyFirstField.med",f,True)

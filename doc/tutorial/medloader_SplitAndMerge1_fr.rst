@@ -111,7 +111,7 @@ Pour ce faire une copie profonde (*deep copy*) de ``cellField`` vers ``cellField
 un ``substractInPlaceDM`` (DM pour "Different Meshes", contrairement à ``substract`` qui ne marche que 
 s'ils partagent le même maillage): ::
 
-	cellFieldCpy = cellField.deepCpy()
+	cellFieldCpy = cellField.deepCopy()
 	cellFieldCpy.substractInPlaceDM(cellField_read,10,1e-12)
 	cellFieldCpy.getArray().abs()
 	print cellFieldCpy.getArray().isUniform(0.,1e-12)
@@ -131,7 +131,7 @@ Faire une deep copy appelée ``nodeFieldCpy`` de ``nodeField``
 et supprimer encore les doublons : ::
 
 	nodeField_read.mergeNodes(1e-10)
-	nodeFieldCpy = nodeField.deepCpy()
+	nodeFieldCpy = nodeField.deepCopy()
 	nodeFieldCpy.mergeNodes(1e-10)
 
 .. note:: A noter que ``mergeNodes()`` possède deux paramètres de précisions (*epsilons*), le premier, 
@@ -204,7 +204,7 @@ différents types géométriques : ::
 				if typp == ml.ON_CELLS:
 				     arr.renumberInPlace(o2nML[lev])
 				mcf = ml.MEDCouplingFieldDouble(typp,ml.ONE_TIME) ; mcf.setName(fieldName) ; mcf.setTime(tim,dt,it) ; mcf.setArray(arr)
-				mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkCoherency()
+				mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkConsistencyLight()
 				mergeField.appendFieldNoProfileSBT(mcf)
 				pass
 			pass

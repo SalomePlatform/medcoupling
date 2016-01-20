@@ -22,7 +22,7 @@
 #include "MPIProcessorGroup.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -163,7 +163,7 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, int nbO
 }
 
 ///*!
-// * Compute denominators for IntegralGlobConstraint interp.
+// * Compute denominators for ExtensiveConservation interp.
 // * TO BE REVISED: needs another communication since some bits are held non locally
 // */
 //void OverlapMapping::computeDenoGlobConstraint()
@@ -251,7 +251,7 @@ void OverlapMapping::computeDenoConservativeVolumic(int nbOfTuplesTrg)
     {
       const std::vector< SparseDoubleVec >& mat=_the_matrix_st[i];
       int curSrcId=_the_matrix_st_source_proc_id[i];
-      map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem1 = _sent_trg_ids.find(curSrcId);
+      map < int, MCAuto<DataArrayInt> >::const_iterator isItem1 = _sent_trg_ids.find(curSrcId);
       int rowId=0;
       if(isItem1==_sent_trg_ids.end() || curSrcId==myProcId) // Local computation: simple, because rowId of mat are directly target cell ids.
         {
@@ -274,7 +274,7 @@ void OverlapMapping::computeDenoConservativeVolumic(int nbOfTuplesTrg)
       int rowId=0;
       const std::vector< SparseDoubleVec >& mat=_the_matrix_st[i];
       int curSrcId=_the_matrix_st_source_proc_id[i];
-      map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem1 = _sent_trg_ids.find(curSrcId);
+      map < int, MCAuto<DataArrayInt> >::const_iterator isItem1 = _sent_trg_ids.find(curSrcId);
       std::vector< SparseDoubleVec >& denoM=_the_deno_st[i];
       denoM.resize(mat.size());
       if(isItem1==_sent_trg_ids.end() || curSrcId==myProcId)//item1 of step2 main algo. Simple, because rowId of mat are directly target ids.
@@ -527,7 +527,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
       else
         if(find(_proc_ids_to_send_vector_st.begin(),_proc_ids_to_send_vector_st.end(),procID)!=_proc_ids_to_send_vector_st.end())
           {
-            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> vals;
+            MCAuto<DataArrayDouble> vals;
             if(_locator.isInMyTodoList(myProcID, procID))
               {
                 map<int, vector<int> >::const_iterator isItem11 = _src_ids_zip_comp.find(procID);
@@ -539,7 +539,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
               }
             else
               {
-                map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem11 = _sent_src_ids.find( procID );
+                map < int, MCAuto<DataArrayInt> >::const_iterator isItem11 = _sent_src_ids.find( procID );
                 if (isItem11 == _sent_src_ids.end())
                   throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: SEND: unexpected end iterator in _sent_src_ids!");
                 vals=fieldInput->getArray()->selectByTupleId(*(*isItem11).second);
@@ -685,7 +685,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
           int newId=0;
           for(vector<int>::const_iterator it=vec.begin();it!=vec.end();it++,newId++)
             revert_zip[*it]=newId;
-          map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator isItem24 = _sent_trg_ids.find(srcProcID);
+          map < int, MCAuto<DataArrayInt> >::const_iterator isItem24 = _sent_trg_ids.find(srcProcID);
           if (isItem24 == _sent_trg_ids.end())
             throw INTERP_KERNEL::Exception("OverlapMapping::multiply(): internal error: MULTIPLY: unexpected end iterator in _sent_trg_ids!");
           const DataArrayInt *tgrIdsDA = (*isItem24).second;

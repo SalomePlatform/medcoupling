@@ -8,7 +8,7 @@ It is by no mean exhaustive, but gives an overview of the capabilities of the co
 \subsection directOperations_creation Field creation
 - From scratch: \b New
 
-- Copy: \b clone*, \b deepCpy
+- Copy: \b clone*, \b deepCopy
 
 \subsection directOperations_modification Partial modifications
 - Creation: \b New, \b setMesh, \b setArray* \n

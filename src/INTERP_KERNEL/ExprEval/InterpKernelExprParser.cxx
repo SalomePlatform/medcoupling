@@ -85,7 +85,7 @@ void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr)
   _value=valuesInExpr[pos];
 }
 
-LeafExprVal *LeafExprVal::deepCpy() const
+LeafExprVal *LeafExprVal::deepCopy() const
 {
   return new LeafExprVal(*this);
 }
@@ -171,7 +171,7 @@ bool LeafExprVar::isRecognizedKeyVar(const std::string& var, int& pos)
   return true;
 }
 
-LeafExprVar *LeafExprVar::deepCpy() const
+LeafExprVar *LeafExprVar::deepCopy() const
 {
   return new LeafExprVar(*this);
 }
@@ -201,10 +201,10 @@ void ExprParserOfEval::sortMemory()
   for(std::vector<ExprParserOfEval>::iterator it=_sub_parts.begin();it!=_sub_parts.end();it++)
     (*it).sortMemory();
   if(_leaf)
-    _leaf=_leaf->deepCpy();
+    _leaf=_leaf->deepCopy();
   for(std::vector<Function *>::iterator it=_funcs.begin();it!=_funcs.end();it++)
     if(*it)
-      *it=(*it)->deepCpy();
+      *it=(*it)->deepCopy();
 }
 
 ExprParser::ExprParser(const std::string& expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)

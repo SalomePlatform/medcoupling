@@ -20,7 +20,7 @@
 
 #include "MEDCouplingBasicsTestInterp.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "Interpolation2D.txx"

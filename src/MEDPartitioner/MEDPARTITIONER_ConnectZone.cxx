@@ -252,8 +252,8 @@ void MEDPARTITIONER::ConnectZone::setDistantMesh(MEDCoupling::MEDCouplingUMesh *
  */
 void MEDPARTITIONER::ConnectZone::setNodeCorresp(const int * nodeCorresp, int nbnode)
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> indexArr( DataArrayInt::New() );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> valueArr( DataArrayInt::New() );
+  MCAuto<DataArrayInt> indexArr( DataArrayInt::New() );
+  MCAuto<DataArrayInt> valueArr( DataArrayInt::New() );
   indexArr->alloc( nbnode+1 );
   valueArr->alloc( 2*nbnode );
   int * index = indexArr->getPointer();
@@ -280,8 +280,8 @@ void MEDPARTITIONER::ConnectZone::setNodeCorresp(MEDCouplingSkyLineArray* array)
  */
 void MEDPARTITIONER::ConnectZone::setFaceCorresp(const int * faceCorresp, int nbface)
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> indexArr( DataArrayInt::New() );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> valueArr( DataArrayInt::New() );
+  MCAuto<DataArrayInt> indexArr( DataArrayInt::New() );
+  MCAuto<DataArrayInt> valueArr( DataArrayInt::New() );
   indexArr->alloc( nbface+1 );
   valueArr->alloc( 2*nbface );
   int * index = indexArr->getPointer();
@@ -311,8 +311,8 @@ void MEDPARTITIONER::ConnectZone::setFaceCorresp(MEDCouplingSkyLineArray* array)
 void MEDPARTITIONER::ConnectZone::setEntityCorresp(int localEntity, int distantEntity,
                                                    const int *entityCorresp, int nbentity)
 { 
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> indexArr( DataArrayInt::New() );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> valueArr( DataArrayInt::New() );
+  MCAuto<DataArrayInt> indexArr( DataArrayInt::New() );
+  MCAuto<DataArrayInt> valueArr( DataArrayInt::New() );
   indexArr->alloc( nbentity+1 );
   valueArr->alloc( 2*nbentity );
   int * index = indexArr->getPointer();

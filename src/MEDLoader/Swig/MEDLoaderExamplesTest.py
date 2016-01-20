@@ -206,9 +206,9 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         F1Cell.setTime(1000.,2,3)
         F1Cell.setName("F1Cell")
         WriteFieldUsingAlreadyWrittenMesh("file2.med",F1Cell)
-        F1Cell1=F1Cell.deepCpy()
+        F1Cell1=F1Cell.deepCopy()
         F1Cell1.setMesh(myMesh1)
-        F1Cell1.setArray(myMesh1.getBarycenterAndOwner())
+        F1Cell1.setArray(myMesh1.computeCellCenterOfMass())
         WriteFieldUsingAlreadyWrittenMesh("file2.med",F1Cell1)
 #! [PySnippetMeshAdvAPI1_12]
         f1Cell_3D=ReadFieldCell("file2.med","Example2",0,"F1Cell",2,3)

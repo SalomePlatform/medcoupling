@@ -29,7 +29,7 @@
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"

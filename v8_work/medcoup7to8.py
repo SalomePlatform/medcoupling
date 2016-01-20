@@ -86,12 +86,12 @@ REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"),
                 ("setAxType", "setAxisType"),
                 ("getAxType", "getAxisType"),
                 ("isIdentity2", "isIota"),
-                ("SWIGTYPE_p_ParaMEDMEM__MEDCouplingExtrudedMesh", "SWIGTYPE_p_ParaMEDMEM__MEDCouplingMappedExtrudedMesh"),
+                ("SWIGTYPE_p_MEDCoupling__MEDCouplingExtrudedMesh", "SWIGTYPE_p_MEDCoupling__MEDCouplingMappedExtrudedMesh"),
                 ("MEDCouplingExtrudedMesh____new___", "MEDCouplingMappedExtrudedMesh____new___"),
                 ("locateValue", "findIdFirstEqual"),
                 ("locateTuple", "findIdFirstEqualTuple"),   
-                ("ParaMEDMEM_DataArrayByte_locateTuple", "ParaMEDMEM_DataArrayByte_findIdFirstEqualTuple"),
-                ("ParaMEDMEM_DataArrayAsciiChar_locateTuple", "ParaMEDMEM_DataArrayAsciiChar_findIdFirstEqualTuple"),
+                ("MEDCoupling_DataArrayByte_locateTuple", "MEDCoupling_DataArrayByte_findIdFirstEqualTuple"),
+                ("MEDCoupling_DataArrayAsciiChar_locateTuple", "MEDCoupling_DataArrayAsciiChar_findIdFirstEqualTuple"),
                 #("substr", "subArray"),                # conflicts with regular C++ substr, to be handled manually
                 #("search", "findIdSequence"),          # idem
                 ]   

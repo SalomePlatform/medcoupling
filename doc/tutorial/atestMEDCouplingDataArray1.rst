@@ -35,7 +35,7 @@ Playing with regular hexagons using DataArrayDouble
 	a = cI.deltaShiftIndex()
 	b = a - 1
 	myNewNbOfTuples = oldNbOfTuples - sum(b.getValues())
-	o2n, newNbOfTuples = mc.DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfTuples,c,cI)
+	o2n, newNbOfTuples = mc.DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples,c,cI)
 	print "Have I got the right number of tuples?"
 	print "myNewNbOfTuples = %d, newNbOfTuples = %d" % (myNewNbOfTuples, newNbOfTuples)
 	assert(myNewNbOfTuples == newNbOfTuples)
@@ -57,7 +57,7 @@ Playing with regular hexagons using DataArrayDouble
 		m.insertNextCell(mc.NORM_POLYGON, cell_connec.getValues())
 		pass
 	# Check that everything is coherent (will throw if not)
-	m.checkCoherency()
+	m.checkConsistencyLight()
 	# Write the result into a VTU file that can be read with ParaView
 	m.writeVTK("My7hexagons.vtu")
 

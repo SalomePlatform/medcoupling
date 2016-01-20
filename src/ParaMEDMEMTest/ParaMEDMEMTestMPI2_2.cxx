@@ -102,7 +102,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
   MEDCoupling::InterpKernelDEC dec(*source,*target);
-  parafield->getField()->setNature(ConservativeVolumic);
+  parafield->getField()->setNature(IntensiveMaximum);
 
   dec.setMethod("P0");
   dec.attachLocalField(parafield);

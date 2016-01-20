@@ -42,16 +42,16 @@
 }
 //$$$$$$$$$$$$$$$$$$
 
-%newobject MEDCoupling::DataArray::deepCpy;
+%newobject MEDCoupling::DataArray::deepCopy;
 %newobject MEDCoupling::DataArray::selectByTupleRanges;
 %newobject MEDCoupling::DataArray::selectByTupleId;
 %newobject MEDCoupling::DataArray::selectByTupleIdSafe;
-%newobject MEDCoupling::DataArray::selectByTupleId2;
+%newobject MEDCoupling::DataArray::selectByTupleIdSafeSlice;
 %newobject MEDCoupling::DataArray::Aggregate;
 %newobject MEDCoupling::DataArrayInt::New;
 %newobject MEDCoupling::DataArrayInt::__iter__;
 %newobject MEDCoupling::DataArrayInt::convertToDblArr;
-%newobject MEDCoupling::DataArrayInt::performCpy;
+%newobject MEDCoupling::DataArrayInt::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayInt::substr;
 %newobject MEDCoupling::DataArrayInt::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayInt::accumulatePerChunck;
@@ -63,17 +63,17 @@
 %newobject MEDCoupling::DataArrayInt::invertArrayO2N2N2O;
 %newobject MEDCoupling::DataArrayInt::invertArrayN2O2O2N;
 %newobject MEDCoupling::DataArrayInt::invertArrayO2N2N2OBis;
-%newobject MEDCoupling::DataArrayInt::getIdsEqual;
-%newobject MEDCoupling::DataArrayInt::getIdsNotEqual;
-%newobject MEDCoupling::DataArrayInt::getIdsEqualList;
-%newobject MEDCoupling::DataArrayInt::getIdsNotEqualList;
-%newobject MEDCoupling::DataArrayInt::getIdsEqualTuple;
+%newobject MEDCoupling::DataArrayInt::findIdsEqual;
+%newobject MEDCoupling::DataArrayInt::findIdsNotEqual;
+%newobject MEDCoupling::DataArrayInt::findIdsEqualList;
+%newobject MEDCoupling::DataArrayInt::findIdsNotEqualList;
+%newobject MEDCoupling::DataArrayInt::findIdsEqualTuple;
 %newobject MEDCoupling::DataArrayInt::sumPerTuple;
 %newobject MEDCoupling::DataArrayInt::negate;
 %newobject MEDCoupling::DataArrayInt::computeAbs;
-%newobject MEDCoupling::DataArrayInt::getIdsInRange;
-%newobject MEDCoupling::DataArrayInt::getIdsNotInRange;
-%newobject MEDCoupling::DataArrayInt::getIdsStrictlyNegative;
+%newobject MEDCoupling::DataArrayInt::findIdsInRange;
+%newobject MEDCoupling::DataArrayInt::findIdsNotInRange;
+%newobject MEDCoupling::DataArrayInt::findIdsStricltyNegative;
 %newobject MEDCoupling::DataArrayInt::Aggregate;
 %newobject MEDCoupling::DataArrayInt::AggregateIndexes;
 %newobject MEDCoupling::DataArrayInt::Meld;
@@ -124,23 +124,23 @@
 %newobject MEDCoupling::DataArrayChar::renumberR;
 %newobject MEDCoupling::DataArrayChar::renumberAndReduce;
 %newobject MEDCoupling::DataArrayChar::changeNbOfComponents;
-%newobject MEDCoupling::DataArrayChar::getIdsEqual;
-%newobject MEDCoupling::DataArrayChar::getIdsNotEqual;
+%newobject MEDCoupling::DataArrayChar::findIdsEqual;
+%newobject MEDCoupling::DataArrayChar::findIdsNotEqual;
 %newobject MEDCoupling::DataArrayChar::Aggregate;
 %newobject MEDCoupling::DataArrayChar::Meld;
 %newobject MEDCoupling::DataArrayByte::New;
 %newobject MEDCoupling::DataArrayByte::__iter__;
-%newobject MEDCoupling::DataArrayByte::performCpy;
+%newobject MEDCoupling::DataArrayByte::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayByteTuple::buildDAByte;
 %newobject MEDCoupling::DataArrayChar::substr;
 %newobject MEDCoupling::DataArrayAsciiChar::New;
 %newobject MEDCoupling::DataArrayAsciiChar::__iter__;
-%newobject MEDCoupling::DataArrayAsciiChar::performCpy;
+%newobject MEDCoupling::DataArrayAsciiChar::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayAsciiCharTuple::buildDAAsciiChar;
 %newobject MEDCoupling::DataArrayDouble::New;
 %newobject MEDCoupling::DataArrayDouble::__iter__;
 %newobject MEDCoupling::DataArrayDouble::convertToIntArr;
-%newobject MEDCoupling::DataArrayDouble::performCpy;
+%newobject MEDCoupling::DataArrayDouble::performCopyOrIncrRef;
 %newobject MEDCoupling::DataArrayDouble::Aggregate;
 %newobject MEDCoupling::DataArrayDouble::Meld;
 %newobject MEDCoupling::DataArrayDouble::Dot;
@@ -153,13 +153,13 @@
 %newobject MEDCoupling::DataArrayDouble::substr;
 %newobject MEDCoupling::DataArrayDouble::changeNbOfComponents;
 %newobject MEDCoupling::DataArrayDouble::accumulatePerChunck;
-%newobject MEDCoupling::DataArrayDouble::getIdsInRange;
-%newobject MEDCoupling::DataArrayDouble::getIdsNotInRange;
+%newobject MEDCoupling::DataArrayDouble::findIdsInRange;
+%newobject MEDCoupling::DataArrayDouble::findIdsNotInRange;
 %newobject MEDCoupling::DataArrayDouble::negate;
 %newobject MEDCoupling::DataArrayDouble::computeAbs;
 %newobject MEDCoupling::DataArrayDouble::applyFunc;
-%newobject MEDCoupling::DataArrayDouble::applyFunc2;
-%newobject MEDCoupling::DataArrayDouble::applyFunc3;
+%newobject MEDCoupling::DataArrayDouble::applyFuncCompo;
+%newobject MEDCoupling::DataArrayDouble::applyFuncNamedCompo;
 %newobject MEDCoupling::DataArrayDouble::doublyContractedProduct;
 %newobject MEDCoupling::DataArrayDouble::determinant;
 %newobject MEDCoupling::DataArrayDouble::eigenValues;
@@ -239,8 +239,8 @@ namespace MEDCoupling
     virtual int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::size_t getNbOfElemAllocated() const throw(INTERP_KERNEL::Exception);
-    virtual DataArray *deepCpy() const throw(INTERP_KERNEL::Exception);
-    virtual DataArray *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
+    virtual DataArray *deepCopy() const throw(INTERP_KERNEL::Exception);
+    virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     virtual void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     void checkNbOfTuples(int nbOfTuples, const std::string& msg) const throw(INTERP_KERNEL::Exception);
     void checkNbOfComps(int nbOfCompo, const std::string& msg) const throw(INTERP_KERNEL::Exception);
@@ -253,7 +253,7 @@ namespace MEDCoupling
     static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit) throw(INTERP_KERNEL::Exception);
-    static std::string GetAxTypeRepr(MEDCouplingAxisType at) throw(INTERP_KERNEL::Exception);
+    static std::string GetAxisTypeRepr(MEDCouplingAxisType at) throw(INTERP_KERNEL::Exception);
     void updateTime() const;
     %extend
     {
@@ -341,8 +341,8 @@ namespace MEDCoupling
       //tuplesSelec in PyObject * because DataArrayInt is not already existing !
       virtual void setContigPartOfSelectedValues(int tupleIdStart, PyObject *aBase, PyObject *tuplesSelec) throw(INTERP_KERNEL::Exception)
       {
-        static const char msg[]="DataArray::setContigPartOfSelectedValues2 : 4th parameter \"tuplesSelec\" should be of type DataArrayInt";
-          DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValues2 : 3rd parameter \"aBase\" should be of type DataArray");
+        static const char msg[]="DataArray::setContigPartOfSelectedValuesSlice : 4th parameter \"tuplesSelec\" should be of type DataArrayInt";
+          DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValuesSlice : 3rd parameter \"aBase\" should be of type DataArray");
         DataArray *tuplesSelecPtr=CheckAndRetrieveDataArrayInstance(tuplesSelec,msg);
         DataArrayInt *tuplesSelecPtr2=0;
         if(tuplesSelecPtr)
@@ -354,10 +354,10 @@ namespace MEDCoupling
         self->setContigPartOfSelectedValues(tupleIdStart,a,tuplesSelecPtr2);
       }
       
-      virtual void setContigPartOfSelectedValues2(int tupleIdStart, PyObject *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
+      virtual void setContigPartOfSelectedValuesSlice(int tupleIdStart, PyObject *aBase, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
       {
-        DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValues2 : 2nd parameter \"aBase\" should be of type DataArray");
-        self->setContigPartOfSelectedValues2(tupleIdStart,a,bg,end2,step);
+        DataArray *a=CheckAndRetrieveDataArrayInstance(aBase,"DataArray::setContigPartOfSelectedValuesSlice : 2nd parameter \"aBase\" should be of type DataArray");
+        self->setContigPartOfSelectedValuesSlice(tupleIdStart,a,bg,end2,step);
       }
 
       virtual DataArray *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
@@ -532,8 +532,8 @@ namespace MEDCoupling
     static DataArrayDouble *New();
     double doubleValue() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
-    void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
+    void deepCopyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
     void pushBackSilent(double val) throw(INTERP_KERNEL::Exception);
     double popBackSilent() throw(INTERP_KERNEL::Exception);
@@ -615,12 +615,12 @@ namespace MEDCoupling
     DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
     void applyFuncOnThis(const std::string& func, bool isSafe=true) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFuncCompo(int nbOfComp, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const std::string& func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast64(const std::string& func) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsNotInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsNotInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
@@ -668,7 +668,7 @@ namespace MEDCoupling
                             int nbOfCompo=PyInt_AS_LONG(elt2);
                             if(nbOfCompo<0)
                               throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
-                            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                            MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
                             std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,nbOfTuples1,nbOfCompo);
                             ret->alloc(nbOfTuples1,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                             return ret.retn();
@@ -678,7 +678,7 @@ namespace MEDCoupling
                       }
                     else
                       {//DataArrayDouble.New([1.,3.,4.],3)
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                        MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
                         int tmpp1=-1;
                         std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,nbOfTuples1,tmpp1);
                         ret->alloc(nbOfTuples1,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -690,7 +690,7 @@ namespace MEDCoupling
               }
             else
               {// DataArrayDouble.New([1.,3.,4.])
-                MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
                 int tmpp1=-1,tmpp2=-1;
                 std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,tmpp1,tmpp2);
                 ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -711,7 +711,7 @@ namespace MEDCoupling
                         int nbOfCompo=PyInt_AS_LONG(nbOfTuples);
                         if(nbOfCompo<0)
                           throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                        MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
                         ret->alloc(nbOfTuples1,nbOfCompo);
                         return ret.retn();
                       }
@@ -723,7 +723,7 @@ namespace MEDCoupling
               }
             else
               {//DataArrayDouble.New(5)
-                MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
                 ret->alloc(nbOfTuples1,1);
                 return ret.retn();
               }
@@ -1096,7 +1096,7 @@ namespace MEDCoupling
         int nbComp=self->getNumberOfComponents(),nbTuples=-1;
         const char msg[]="Python wrap of DataArrayDouble::computeTupleIdsNearTuples : ";
         const double *pos=convertObjToPossibleCpp5_Safe2(pt,sw,val,a,aa,bb,msg,nbComp,true,nbTuples);
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> inpu=DataArrayDouble::New(); inpu->useArray(pos,false,CPP_DEALLOC,nbTuples,nbComp);
+        MCAuto<DataArrayDouble> inpu=DataArrayDouble::New(); inpu->useArray(pos,false,CPP_DEALLOC,nbTuples,nbComp);
         DataArrayInt *c=0,*cI=0;
         self->computeTupleIdsNearTuples(inpu,eps,c,cI);
         PyObject *ret=PyTuple_New(2);
@@ -1130,7 +1130,7 @@ namespace MEDCoupling
         DataArrayInt *dt1=0,*dc1=0;
         int sw;
         convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret;
+        MCAuto<DataArrayDouble> ret;
         switch(sw)
           {
           case 1:
@@ -1140,7 +1140,7 @@ namespace MEDCoupling
           case 2:
             return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 3:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 4:
             return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
           case 5:
@@ -1153,7 +1153,7 @@ namespace MEDCoupling
             }
           case 7:
             {
-              ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
               std::vector<int> v2(1,ic1);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
@@ -1175,7 +1175,7 @@ namespace MEDCoupling
             }
           case 11:
             {
-              ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 12:
@@ -1203,7 +1203,7 @@ namespace MEDCoupling
             }
           case 15:
             {
-              ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
               int nbOfComp=DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2);
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
@@ -1240,7 +1240,7 @@ namespace MEDCoupling
         std::pair<int, std::pair<int,int> > pt1,pc1;
         DataArrayInt *dt1=0,*dc1=0;
         convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw2,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp;
+        MCAuto<DataArrayDouble> tmp;
         switch(sw2)
           {
           case 1:
@@ -1591,7 +1591,7 @@ namespace MEDCoupling
             if(other)
               {
                 PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___radd__Impl(other,tmp);
+                MCAuto<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___radd__Impl(other,tmp);
                 Py_XDECREF(tmp);
                 return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
@@ -1605,7 +1605,7 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(1.,val);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
@@ -1615,12 +1615,12 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Add(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1641,18 +1641,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(1.,val);
               return ret.retn();
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return DataArrayDouble::Add(self,aaa);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Add(self,aaa);
             }
           default:
@@ -1685,14 +1685,14 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               self->addEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->addEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -1719,7 +1719,7 @@ namespace MEDCoupling
             if(other)
               {
                 PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rsub__Impl(other,tmp);
+                MCAuto<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rsub__Impl(other,tmp);
                 Py_XDECREF(tmp);
                 return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
@@ -1733,7 +1733,7 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(1.,-val);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
@@ -1743,12 +1743,12 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Substract(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1769,18 +1769,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(-1.,val);
               return ret.retn();
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return DataArrayDouble::Substract(aaa,self);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Substract(aaa,self);
             }
           default:
@@ -1813,14 +1813,14 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               self->substractEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->substractEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -1847,7 +1847,7 @@ namespace MEDCoupling
             if(other)
               {
                 PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rmul__Impl(other,tmp);
+                MCAuto<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rmul__Impl(other,tmp);
                 Py_XDECREF(tmp);
                 return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
@@ -1861,7 +1861,7 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(val,0.);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
@@ -1871,12 +1871,12 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Multiply(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -1897,18 +1897,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(val,0.);
               return ret.retn();
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return DataArrayDouble::Multiply(self,aaa);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Multiply(self,aaa);
             }
           default:
@@ -1941,14 +1941,14 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               self->multiplyEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->multiplyEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -1975,7 +1975,7 @@ namespace MEDCoupling
             if(other)
               {
                 PyObject *tmp=SWIG_NewPointerObj(SWIG_as_voidptr(self),SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 | 0 );
-                MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rdiv__Impl(other,tmp);
+                MCAuto<MEDCouplingFieldDouble> ret=MEDCoupling_MEDCouplingFieldDouble___rdiv__Impl(other,tmp);
                 Py_XDECREF(tmp);
                 return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
               }
@@ -1991,7 +1991,7 @@ namespace MEDCoupling
             {
               if(val==0.)
                 throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyLin(1/val,0.);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret.retn()),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
@@ -2001,12 +2001,12 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return SWIG_NewPointerObj(SWIG_as_voidptr(DataArrayDouble::Divide(self,aaa)),SWIGTYPE_p_MEDCoupling__DataArrayDouble, SWIG_POINTER_OWN | 0 );
             }
           default:
@@ -2027,18 +2027,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyInv(val);
               return ret.retn();
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return DataArrayDouble::Divide(aaa,self);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Divide(aaa,self);
             }
           default:
@@ -2073,14 +2073,14 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               self->divideEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->divideEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -2103,7 +2103,7 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyPow(val);
               return ret.retn();
             }
@@ -2113,12 +2113,12 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return DataArrayDouble::Pow(self,aaa);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Pow(self,aaa);
             }
           default:
@@ -2139,18 +2139,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->deepCopy();
               ret->applyRPow(val);
               return ret.retn();
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               return DataArrayDouble::Pow(aaa,self);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               return DataArrayDouble::Pow(aaa,self);
             }
           default:
@@ -2183,14 +2183,14 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
               self->powEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->powEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -2323,7 +2323,7 @@ namespace MEDCoupling
 
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+        MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____iadd___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -2331,7 +2331,7 @@ namespace MEDCoupling
   
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+        MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____isub___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -2339,7 +2339,7 @@ namespace MEDCoupling
   
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+        MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____imul___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -2347,7 +2347,7 @@ namespace MEDCoupling
 
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+        MCAuto<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayDouble____idiv___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -2587,8 +2587,8 @@ namespace MEDCoupling
     int intValue() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
-    void cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
+    void deepCopyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
     void pushBackSilent(int val) throw(INTERP_KERNEL::Exception);
     int popBackSilent() throw(INTERP_KERNEL::Exception);
@@ -2617,10 +2617,10 @@ namespace MEDCoupling
     DataArrayDouble *convertToDblArr() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *fromNoInterlace() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *toNoInterlace() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
-    bool isIdentity2(int sizeExpected) const throw(INTERP_KERNEL::Exception);
+    bool isIota(int sizeExpected) const throw(INTERP_KERNEL::Exception);
     bool isUniform(int val) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     void transpose() throw(INTERP_KERNEL::Exception);
@@ -2641,12 +2641,12 @@ namespace MEDCoupling
     DataArrayIntIterator *iterator() throw(INTERP_KERNEL::Exception);
     const int *begin() const throw(INTERP_KERNEL::Exception);
     const int *end() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
     int changeValue(int oldValue, int newValue) throw(INTERP_KERNEL::Exception);
-    int locateTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
-    int locateValue(int value) const throw(INTERP_KERNEL::Exception);
-    int locateValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
+    int findIdFirstEqualTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
+    int findIdFirstEqual(int value) const throw(INTERP_KERNEL::Exception);
+    int findIdFirstEqual(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     int search(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     bool presenceOfTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
     bool presenceOfValue(int value) const throw(INTERP_KERNEL::Exception);
@@ -2668,9 +2668,9 @@ namespace MEDCoupling
     void applyRModulus(int val) throw(INTERP_KERNEL::Exception);
     void applyPow(int val) throw(INTERP_KERNEL::Exception);
     void applyRPow(int val) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsNotInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsStrictlyNegative() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsNotInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsStricltyNegative() const throw(INTERP_KERNEL::Exception);
     bool checkAllIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
@@ -2687,7 +2687,7 @@ namespace MEDCoupling
     DataArrayInt *buildUniqueNotSorted() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *deltaShiftIndex() const throw(INTERP_KERNEL::Exception);
     void computeOffsets() throw(INTERP_KERNEL::Exception);
-    void computeOffsets2() throw(INTERP_KERNEL::Exception);
+    void computeOffsetsFull() throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildExplicitArrByRanges(const DataArrayInt *offsets) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
@@ -2739,7 +2739,7 @@ namespace MEDCoupling
                             int nbOfCompo=PyInt_AS_LONG(nbOfComp);
                             if(nbOfCompo<0)
                               throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive number of components !");
-                            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                            MCAuto<DataArrayInt> ret=DataArrayInt::New();
                             std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples1,nbOfCompo);
                             ret->alloc(nbOfTuples1,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                             return ret.retn();
@@ -2749,7 +2749,7 @@ namespace MEDCoupling
                       }
                     else
                       {//DataArrayInt.New([1,3,4],3)
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                        MCAuto<DataArrayInt> ret=DataArrayInt::New();
                         int tmpp1=-1;
                         std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples1,tmpp1);
                         ret->alloc(nbOfTuples1,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -2761,7 +2761,7 @@ namespace MEDCoupling
               }
             else
               {// DataArrayInt.New([1,3,4])
-                MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                MCAuto<DataArrayInt> ret=DataArrayInt::New();
                 int tmpp1=-1,tmpp2=-1;
                 std::vector<int> tmp=fillArrayWithPyListInt2(elt0,tmpp1,tmpp2);
                 ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -2782,7 +2782,7 @@ namespace MEDCoupling
                         int nbOfCompo=PyInt_AS_LONG(nbOfTuples);
                         if(nbOfCompo<0)
                           throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive number of components !");
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                        MCAuto<DataArrayInt> ret=DataArrayInt::New();
                         ret->alloc(nbOfTuples1,nbOfCompo);
                         return ret.retn();
                       }
@@ -2794,7 +2794,7 @@ namespace MEDCoupling
               }
             else
               {//DataArrayInt.New(5)
-                MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                MCAuto<DataArrayInt> ret=DataArrayInt::New();
                 ret->alloc(nbOfTuples1,1);
                 return ret.retn();
               }
@@ -2858,12 +2858,12 @@ namespace MEDCoupling
         return self->accumulatePerChunck(bg,bg+sz);
       }
 
-      DataArrayInt *getIdsEqualTuple(PyObject *inputTuple) const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdsEqualTuple(PyObject *inputTuple) const throw(INTERP_KERNEL::Exception)
       {
         int sw,sz,val;
         std::vector<int> val2;
         const int *bg(convertObjToPossibleCpp1_Safe(inputTuple,sw,sz,val,val2));
-        return self->getIdsEqualTuple(bg,bg+sz);
+        return self->findIdsEqualTuple(bg,bg+sz);
       }
 
       PyObject *splitInBalancedSlices(int nbOfSlices) const throw(INTERP_KERNEL::Exception)
@@ -2897,14 +2897,14 @@ namespace MEDCoupling
         return ret;
       }
    
-      static PyObject *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, PyObject *arr, PyObject *arrI) throw(INTERP_KERNEL::Exception)
+      static PyObject *ConvertIndexArrayToO2N(int nbOfOldTuples, PyObject *arr, PyObject *arrI) throw(INTERP_KERNEL::Exception)
       {
         int newNbOfTuples=-1;
         int szArr,szArrI,sw,iTypppArr,iTypppArrI;
         std::vector<int> stdvecTyyppArr,stdvecTyyppArrI;
         const int *arrPtr=convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr);
         const int *arrIPtr=convertObjToPossibleCpp1_Safe(arrI,sw,szArrI,iTypppArrI,stdvecTyyppArrI);
-        DataArrayInt *ret0=MEDCoupling::DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(nbOfOldTuples,arrPtr,arrIPtr,arrIPtr+szArrI,newNbOfTuples);
+        DataArrayInt *ret0=MEDCoupling::DataArrayInt::ConvertIndexArrayToO2N(nbOfOldTuples,arrPtr,arrIPtr,arrIPtr+szArrI,newNbOfTuples);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_MEDCoupling__DataArrayInt,SWIG_POINTER_OWN | 0));
         PyTuple_SetItem(ret,1,PyInt_FromLong(newNbOfTuples));
@@ -2913,7 +2913,7 @@ namespace MEDCoupling
 
       static DataArrayInt *CheckAndPreparePermutation(PyObject *arr) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+        MCAuto<DataArrayInt> ret(DataArrayInt::New());
         int szArr,sw,iTypppArr;
         std::vector<int> stdvecTyyppArr;
         const int *arrPtr(convertObjToPossibleCpp1_Safe(arr,sw,szArr,iTypppArr,stdvecTyyppArr));
@@ -3034,7 +3034,7 @@ namespace MEDCoupling
           }
       }
 
-      DataArrayInt *getIdsEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdsEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         int sw;
         int singleVal;
@@ -3045,17 +3045,17 @@ namespace MEDCoupling
         switch(sw)
           {
           case 1:
-            return self->getIdsEqualList(&singleVal,&singleVal+1);
+            return self->findIdsEqualList(&singleVal,&singleVal+1);
           case 2:
-            return self->getIdsEqualList(&multiVal[0],&multiVal[0]+multiVal.size());
+            return self->findIdsEqualList(&multiVal[0],&multiVal[0]+multiVal.size());
           case 4:
-            return self->getIdsEqualList(daIntTyypp->begin(),daIntTyypp->end());
+            return self->findIdsEqualList(daIntTyypp->begin(),daIntTyypp->end());
           default:
-            throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+            throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqualList : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
           }
       }
 
-      DataArrayInt *getIdsNotEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
+      DataArrayInt *findIdsNotEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
         int sw;
         int singleVal;
@@ -3066,13 +3066,13 @@ namespace MEDCoupling
         switch(sw)
           {
           case 1:
-            return self->getIdsNotEqualList(&singleVal,&singleVal+1);
+            return self->findIdsNotEqualList(&singleVal,&singleVal+1);
           case 2:
-            return self->getIdsNotEqualList(&multiVal[0],&multiVal[0]+multiVal.size());
+            return self->findIdsNotEqualList(&multiVal[0],&multiVal[0]+multiVal.size());
           case 4:
-            return self->getIdsNotEqualList(daIntTyypp->begin(),daIntTyypp->end());
+            return self->findIdsNotEqualList(daIntTyypp->begin(),daIntTyypp->end());
           default:
-            throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+            throw INTERP_KERNEL::Exception("DataArrayInt::findIdsNotEqualList : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
           }
       }
 
@@ -3298,7 +3298,7 @@ namespace MEDCoupling
               if(PyInt_Check(obj))
                 {
                   int val=(int)PyInt_AS_LONG(obj);
-                  return self->locateValue(val);
+                  return self->findIdFirstEqual(val);
                 }
               else
                 throw INTERP_KERNEL::Exception("DataArrayInt::index : 'this' contains one component and trying to find an element which is not an integer !");
@@ -3307,7 +3307,7 @@ namespace MEDCoupling
             {
               std::vector<int> arr;
               convertPyToNewIntArr3(obj,arr);
-              return self->locateTuple(arr);
+              return self->findIdFirstEqualTuple(arr);
             }
           }
       }
@@ -3351,7 +3351,7 @@ namespace MEDCoupling
         DataArrayInt *dt1=0,*dc1=0;
         int sw;
         convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret;
+        MCAuto<DataArrayInt> ret;
         switch(sw)
           {
           case 1:
@@ -3363,7 +3363,7 @@ namespace MEDCoupling
           case 2:
             return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
           case 3:
-            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
+            return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
           case 4:
             return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
           case 5:
@@ -3376,7 +3376,7 @@ namespace MEDCoupling
             }
           case 7:
             {
-              ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
               std::vector<int> v2(1,ic1);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
@@ -3398,7 +3398,7 @@ namespace MEDCoupling
             }
           case 11:
             {
-              ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
               return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 );
             }
           case 12:
@@ -3426,7 +3426,7 @@ namespace MEDCoupling
             }
           case 15:
             {
-              ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+              ret=self->selectByTupleIdSafeSlice(pt1.first,pt1.second.first,pt1.second.second);
               int nbOfComp=DataArray::GetNumberOfItemGivenBESRelative(pc1.first,pc1.second.first,pc1.second.second,msg2);
               std::vector<int> v2(nbOfComp);
               for(int i=0;i<nbOfComp;i++)
@@ -3464,7 +3464,7 @@ namespace MEDCoupling
         std::pair<int, std::pair<int,int> > pt1,pc1;
         DataArrayInt *dt1=0,*dc1=0;
         convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw2,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+        MCAuto<DataArrayInt> tmp;
         switch(sw2)
           {
           case 1:
@@ -3875,13 +3875,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyLin(1,val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Add(self,aaaa);
             }
           case 3:
@@ -3890,7 +3890,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Add(self,aaaa);
             }
           default:
@@ -3911,18 +3911,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyLin(1,val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Add(self,aaaa);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Add(self,aaaa);
             }
           default:
@@ -3949,7 +3949,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               self->addEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -3962,7 +3962,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               self->addEqual(aaaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -3985,13 +3985,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyLin(1,-val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Substract(self,aaaa);
             }
           case 3:
@@ -4000,7 +4000,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Substract(self,aaaa);
             }
           default:
@@ -4021,18 +4021,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyLin(-1,val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Substract(aaaa,self);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Substract(aaaa,self);
             }
           default:
@@ -4059,7 +4059,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               self->substractEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4072,7 +4072,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               self->substractEqual(aaaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4095,13 +4095,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyLin(val,0);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Multiply(self,aaaa);
             }
           case 3:
@@ -4110,7 +4110,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Multiply(self,aaaa);
             }
           default:
@@ -4131,18 +4131,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyLin(val,0);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Multiply(self,aaaa);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Multiply(self,aaaa);
             }
           default:
@@ -4169,7 +4169,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               self->multiplyEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4182,7 +4182,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               self->multiplyEqual(aaaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4205,13 +4205,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyDivideBy(val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Divide(self,aaaa);
             }
           case 3:
@@ -4220,7 +4220,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Divide(self,aaaa);
             }
           default:
@@ -4241,18 +4241,18 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyInv(val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Divide(aaaa,self);
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Divide(aaaa,self);
             }
           default:
@@ -4279,7 +4279,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               self->divideEqual(bb);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4292,7 +4292,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               self->divideEqual(aaaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4315,13 +4315,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyModulus(val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Modulus(self,aaaa);
             }
           case 3:
@@ -4330,7 +4330,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Modulus(self,aaaa);
             }
           default:
@@ -4351,13 +4351,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyRModulus(val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Modulus(aaaa,self);
             }
           case 3:
@@ -4366,7 +4366,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Modulus(aaaa,self);
             }
           default:
@@ -4399,7 +4399,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               self->modulusEqual(aaaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4422,13 +4422,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyPow(val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Pow(self,aaaa);
             }
           case 3:
@@ -4437,7 +4437,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Pow(self,aaaa);
             }
           default:
@@ -4458,13 +4458,13 @@ namespace MEDCoupling
           {
           case 1:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+              MCAuto<DataArrayInt> ret=self->deepCopy();
               ret->applyRPow(val);
               return ret.retn();
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+              MCAuto<DataArrayInt> aaaa=DataArrayInt::New(); aaaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
               return DataArrayInt::Pow(aaaa,self);
             }
           case 3:
@@ -4473,7 +4473,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               return DataArrayInt::Pow(aaaa,self);
             }
           default:
@@ -4506,7 +4506,7 @@ namespace MEDCoupling
             }
           case 4:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
+              MCAuto<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
               self->powEqual(aaaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4549,10 +4549,10 @@ namespace MEDCoupling
         return pyRet;
       }
       
-      PyObject *searchRangesInListOfIds(const DataArrayInt *listOfIds) const throw(INTERP_KERNEL::Exception)
+      PyObject *findIdsRangesInListOfIds(const DataArrayInt *listOfIds) const throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret0=0,*ret1=0;
-        self->searchRangesInListOfIds(listOfIds,ret0,ret1);
+        self->findIdsRangesInListOfIds(listOfIds,ret0,ret1);
         PyObject *pyRet=PyTuple_New(2);
         PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -4680,7 +4680,7 @@ namespace MEDCoupling
 
       PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+        MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____iadd___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -4688,7 +4688,7 @@ namespace MEDCoupling
   
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+        MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____isub___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -4696,7 +4696,7 @@ namespace MEDCoupling
   
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+        MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____imul___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -4704,7 +4704,7 @@ namespace MEDCoupling
 
       PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+        MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____idiv___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -4712,7 +4712,7 @@ namespace MEDCoupling
 
       PyObject *___imod___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+        MCAuto<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
         MEDCoupling_DataArrayInt____imod___(ret,0,obj);
         Py_XINCREF(trueSelf);
         return trueSelf;
@@ -4950,7 +4950,7 @@ namespace MEDCoupling
     virtual DataArrayChar *buildEmptySpecializedDAChar() const throw(INTERP_KERNEL::Exception);
     int getHashCode() const throw(INTERP_KERNEL::Exception);
     bool empty() const throw(INTERP_KERNEL::Exception);
-    void cpyFrom(const DataArrayChar& other) throw(INTERP_KERNEL::Exception);
+    void deepCopyFrom(const DataArrayChar& other) throw(INTERP_KERNEL::Exception);
     void reserve(std::size_t nbOfElems) throw(INTERP_KERNEL::Exception);
     void pushBackSilent(char val) throw(INTERP_KERNEL::Exception);
     char popBackSilent() throw(INTERP_KERNEL::Exception);
@@ -4977,15 +4977,15 @@ namespace MEDCoupling
     void setIJ(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
     void setIJSilent(int tupleId, int compoId, char newVal) throw(INTERP_KERNEL::Exception);
     char *getPointer() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsEqual(char val) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsNotEqual(char val) const throw(INTERP_KERNEL::Exception);
-    int locateTuple(const std::vector<char>& tupl) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsEqual(char val) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsNotEqual(char val) const throw(INTERP_KERNEL::Exception);
+    int findIdFirstEqualTuple(const std::vector<char>& tupl) const throw(INTERP_KERNEL::Exception);
     bool presenceOfTuple(const std::vector<char>& tupl) const throw(INTERP_KERNEL::Exception);
     char getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     char getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
     char getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     char getMinValueInArray() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsInRange(char vmin, char vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsInRange(char vmin, char vmax) const throw(INTERP_KERNEL::Exception);
     static DataArrayChar *Aggregate(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
     static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2) throw(INTERP_KERNEL::Exception);
     %extend
@@ -5124,7 +5124,7 @@ namespace MEDCoupling
   public:
     static DataArrayByte *New();
     DataArrayByteIterator *iterator() throw(INTERP_KERNEL::Exception);
-    DataArrayByte *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    DataArrayByte *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
     char byteValue() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5152,7 +5152,7 @@ namespace MEDCoupling
                             int nbOfCompo=PyInt_AS_LONG(nbOfComp);
                             if(nbOfCompo<0)
                               throw INTERP_KERNEL::Exception("DataArrayByte::New : should be a positive number of components !");
-                            MEDCouplingAutoRefCountObjectPtr<DataArrayByte> ret=DataArrayByte::New();
+                            MCAuto<DataArrayByte> ret=DataArrayByte::New();
                             std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples1,nbOfCompo);
                             ret->alloc(nbOfTuples1,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                             return ret.retn();
@@ -5162,7 +5162,7 @@ namespace MEDCoupling
                       }
                     else
                       {//DataArrayByte.New([1,3,4],3)
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayByte> ret=DataArrayByte::New();
+                        MCAuto<DataArrayByte> ret=DataArrayByte::New();
                         int tmpp1=-1;
                         std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples1,tmpp1);
                         ret->alloc(nbOfTuples1,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -5174,7 +5174,7 @@ namespace MEDCoupling
               }
             else
               {// DataArrayByte.New([1,3,4])
-                MEDCouplingAutoRefCountObjectPtr<DataArrayByte> ret=DataArrayByte::New();
+                MCAuto<DataArrayByte> ret=DataArrayByte::New();
                 int tmpp1=-1,tmpp2=-1;
                 std::vector<int> tmp=fillArrayWithPyListInt2(elt0,tmpp1,tmpp2);
                 ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -5195,7 +5195,7 @@ namespace MEDCoupling
                         int nbOfCompo=PyInt_AS_LONG(nbOfTuples);
                         if(nbOfCompo<0)
                           throw INTERP_KERNEL::Exception("DataArrayByte::New : should be a positive number of components !");
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayByte> ret=DataArrayByte::New();
+                        MCAuto<DataArrayByte> ret=DataArrayByte::New();
                         ret->alloc(nbOfTuples1,nbOfCompo);
                         return ret.retn();
                       }
@@ -5207,7 +5207,7 @@ namespace MEDCoupling
               }
             else
               {//DataArrayByte.New(5)
-                MEDCouplingAutoRefCountObjectPtr<DataArrayByte> ret=DataArrayByte::New();
+                MCAuto<DataArrayByte> ret=DataArrayByte::New();
                 ret->alloc(nbOfTuples1,1);
                 return ret.retn();
               }
@@ -5281,24 +5281,24 @@ namespace MEDCoupling
         return self->presenceOfValue(vals2);
       }
 
-      int locateValue(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqual(PyObject *vals) const throw(INTERP_KERNEL::Exception)
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
         const int *pt=convertObjToPossibleCpp1_Safe(vals,sw,sz,ival,ivval);
         std::vector<char> vals2(sz);
         std::copy(pt,pt+sz,vals2.begin());
-        return self->locateValue(vals2);
+        return self->findIdFirstEqual(vals2);
       }
 
-      int locateTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqualTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
       {
         int sz=-1,sw=-1;
         int ival=-1; std::vector<int> ivval;
         const int *pt=convertObjToPossibleCpp1_Safe(tupl,sw,sz,ival,ivval);
         std::vector<char> vals(sz);
         std::copy(pt,pt+sz,vals.begin());
-        return self->locateTuple(vals);
+        return self->findIdFirstEqualTuple(vals);
       }
 
       int search(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
@@ -5351,13 +5351,13 @@ namespace MEDCoupling
               if(PyInt_Check(obj))
                 {
                   int val=(int)PyInt_AS_LONG(obj);
-                  return self->locateValue(val);
+                  return self->findIdFirstEqual(val);
                 }
               else
                 throw INTERP_KERNEL::Exception("DataArrayByte::index : 'this' contains one component and trying to find an element which is not an integer !");
             }
           default:
-            return MEDCoupling_DataArrayByte_locateTuple(self,obj);
+            return MEDCoupling_DataArrayByte_findIdFirstEqualTuple(self,obj);
           }
       }
 
@@ -5399,7 +5399,7 @@ namespace MEDCoupling
         std::pair<int, std::pair<int,int> > pt1,pc1;
         DataArrayInt *dt1=0,*dc1=0;
         convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw2,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+        MCAuto<DataArrayInt> tmp;
         switch(sw2)
           {
           case 1:
@@ -5642,7 +5642,7 @@ namespace MEDCoupling
   public:
     static DataArrayAsciiChar *New();
     DataArrayAsciiCharIterator *iterator() throw(INTERP_KERNEL::Exception);
-    DataArrayAsciiChar *performCpy(bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const throw(INTERP_KERNEL::Exception);
     char asciiCharValue() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5670,7 +5670,7 @@ namespace MEDCoupling
                             int nbOfCompo=PyInt_AS_LONG(nbOfComp);
                             if(nbOfCompo<0)
                               throw INTERP_KERNEL::Exception("DataArrayAsciiChar::New : should be a positive number of components !");
-                            MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
+                            MCAuto<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
                             std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples1,nbOfCompo);
                             ret->alloc(nbOfTuples1,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                             return ret.retn();
@@ -5680,7 +5680,7 @@ namespace MEDCoupling
                       }
                     else
                       {//DataArrayAsciiChar.New([1,3,4],3)
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
+                        MCAuto<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
                         int tmpp1=-1;
                         std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples1,tmpp1);
                         ret->alloc(nbOfTuples1,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -5710,7 +5710,7 @@ namespace MEDCoupling
                 else
                   {
                     // DataArrayAsciiChar.New([1,3,4])
-                    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
+                    MCAuto<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
                     int tmpp1=-1,tmpp2=-1;
                     std::vector<int> tmp=fillArrayWithPyListInt2(elt0,tmpp1,tmpp2);
                     ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
@@ -5732,7 +5732,7 @@ namespace MEDCoupling
                         int nbOfCompo=PyInt_AS_LONG(nbOfTuples);
                         if(nbOfCompo<0)
                           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::New : should be a positive number of components !");
-                        MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
+                        MCAuto<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
                         ret->alloc(nbOfTuples1,nbOfCompo);
                         return ret.retn();
                       }
@@ -5744,7 +5744,7 @@ namespace MEDCoupling
               }
             else
               {//DataArrayAsciiChar.New(5)
-                MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
+                MCAuto<DataArrayAsciiChar> ret=DataArrayAsciiChar::New();
                 ret->alloc(nbOfTuples1,1);
                 return ret.retn();
               }
@@ -5823,30 +5823,30 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("DataArrayAsciiChar::presenceOfValue : only strings in input supported !");
       }
 
-      int locateValue(PyObject *vals) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqual(PyObject *vals) const throw(INTERP_KERNEL::Exception)
       {
         if(PyString_Check(vals))
           {
             Py_ssize_t sz=PyString_Size(vals);
             std::vector<char> vals2(sz);
             std::copy(PyString_AsString(vals),PyString_AsString(vals)+sz,vals2.begin());
-            return self->locateValue(vals2);
+            return self->findIdFirstEqual(vals2);
           }
         else
-          throw INTERP_KERNEL::Exception("DataArrayAsciiChar::locateValue : only strings in input supported !");
+          throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqual : only strings in input supported !");
       }
 
-      int locateTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
+      int findIdFirstEqualTuple(PyObject *tupl) const throw(INTERP_KERNEL::Exception)
       {
         if(PyString_Check(tupl))
           {
             Py_ssize_t sz=PyString_Size(tupl);
             std::vector<char> vals(sz);
             std::copy(PyString_AsString(tupl),PyString_AsString(tupl)+sz,vals.begin());
-            return self->locateTuple(vals);
+            return self->findIdFirstEqualTuple(vals);
           }
         else
-          throw INTERP_KERNEL::Exception("DataArrayAsciiChar::locateTuple : only strings in input supported !");
+          throw INTERP_KERNEL::Exception("DataArrayAsciiChar::findIdFirstEqualTuple : only strings in input supported !");
       }
 
       int search(PyObject *strOrListOfInt) const throw(INTERP_KERNEL::Exception)
@@ -5904,7 +5904,7 @@ namespace MEDCoupling
                   Py_ssize_t sz=PyString_Size(obj);
                   char *pt=PyString_AsString(obj);
                   if(sz==1)
-                    return self->locateValue(pt[0]);
+                    return self->findIdFirstEqual(pt[0]);
                   else
                     throw INTERP_KERNEL::Exception("DataArrayAsciiChar::index : 'this' contains one component and trying to find a string with size different from 1 !");
                 }
@@ -5912,7 +5912,7 @@ namespace MEDCoupling
                 throw INTERP_KERNEL::Exception("DataArrayAsciiChar::index : 'this' contains one component and trying to find an element which is not an integer !");
             }
           default:
-            return MEDCoupling_DataArrayAsciiChar_locateTuple(self,obj);
+            return MEDCoupling_DataArrayAsciiChar_findIdFirstEqualTuple(self,obj);
           }
       }
 
@@ -5956,7 +5956,7 @@ namespace MEDCoupling
           case 2:
             return convertDataArrayChar(self->selectByTupleIdSafe(&stdvecTyyppArr[0],&stdvecTyyppArr[0]+stdvecTyyppArr.size()), SWIG_POINTER_OWN | 0 );
           case 3:
-            return convertDataArrayChar(self->selectByTupleId2(sTyyppArr.first,sTyyppArr.second.first,sTyyppArr.second.second), SWIG_POINTER_OWN | 0 );
+            return convertDataArrayChar(self->selectByTupleIdSafeSlice(sTyyppArr.first,sTyyppArr.second.first,sTyyppArr.second.second), SWIG_POINTER_OWN | 0 );
           case 4:
             return convertDataArrayChar(self->selectByTupleIdSafe(daIntTyypp->begin(),daIntTyypp->end()), SWIG_POINTER_OWN | 0 );
           default:
@@ -5991,14 +5991,14 @@ namespace MEDCoupling
                   //value string
                 case 2:
                   {
-                    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
+                    MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
                     self->setPartOfValues3(tmp,&iTypppArr,&iTypppArr+1,0,nbOfCompo,1,false);
                     return self;
                   }
                   //value vector<string>
                 case 3:
                   {
-                    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
+                    MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
                     self->setPartOfValues3(tmp,&iTypppArr,&iTypppArr+1,0,nbOfCompo,1,false);
                     return self;
                   }
@@ -6025,14 +6025,14 @@ namespace MEDCoupling
                     //value string
                   case 2:
                     {
-                      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
+                      MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
                       self->setPartOfValues3(tmp,&stdvecTyyppArr[0],&stdvecTyyppArr[0]+stdvecTyyppArr.size(),0,nbOfCompo,1,false);
                       return self;
                     }
                     //value vector<string>
                   case 3:
                     {
-                      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
+                      MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
                       self->setPartOfValues3(tmp,&stdvecTyyppArr[0],&stdvecTyyppArr[0]+stdvecTyyppArr.size(),0,nbOfCompo,1,false);
                       return self;
                     }
@@ -6060,14 +6060,14 @@ namespace MEDCoupling
                     //value string
                   case 2:
                     {
-                      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
+                      MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
                       self->setPartOfValues1(tmp,sTyyppArr.first,sTyyppArr.second.first,sTyyppArr.second.second,0,nbOfCompo,1,false);
                       return self;
                     }
                     //value vector<string>
                   case 3:
                     {
-                      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
+                      MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
                       self->setPartOfValues1(tmp,sTyyppArr.first,sTyyppArr.second.first,sTyyppArr.second.second,0,nbOfCompo,1,false);
                       return self;
                     }
@@ -6095,14 +6095,14 @@ namespace MEDCoupling
                     //value string
                   case 2:
                     {
-                      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
+                      MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(sc);
                       self->setPartOfValues3(tmp,daIntTyypp->begin(),daIntTyypp->end(),0,nbOfCompo,1,false);
                       return self;
                     }
                     //value vector<string>
                   case 3:
                     {
-                      MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
+                      MCAuto<DataArrayAsciiChar> tmp=DataArrayAsciiChar::New(vsc,' ');
                       self->setPartOfValues3(tmp,daIntTyypp->begin(),daIntTyypp->end(),0,nbOfCompo,1,false);
                       return self;
                     }

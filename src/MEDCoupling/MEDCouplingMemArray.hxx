@@ -146,7 +146,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const std::string& info);
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
     MEDCOUPLING_EXPORT void setPartOfValuesBase3(const DataArray *aBase, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true);
-    MEDCOUPLING_EXPORT virtual DataArray *deepCpy() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArray *deepCopy() const = 0;
     MEDCOUPLING_EXPORT virtual bool isAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void checkAllocated() const = 0;
     MEDCOUPLING_EXPORT virtual void desallocate() = 0;
@@ -158,12 +158,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void renumberInPlace(const int *old2New) = 0;
     MEDCOUPLING_EXPORT virtual void renumberInPlaceR(const int *new2Old) = 0;
     MEDCOUPLING_EXPORT virtual void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec) = 0;
-    MEDCOUPLING_EXPORT virtual void setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) = 0;
+    MEDCOUPLING_EXPORT virtual void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step) = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *keepSelectedComponents(const std::vector<int>& compoIds) const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const = 0;
     MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const = 0;
-    MEDCOUPLING_EXPORT virtual DataArray *selectByTupleId2(int bg, int end2, int step) const = 0;
+    MEDCOUPLING_EXPORT virtual DataArray *selectByTupleIdSafeSlice(int bg, int end2, int step) const = 0;
     MEDCOUPLING_EXPORT virtual void rearrange(int newNbOfCompo) = 0;
     MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const std::string& msg) const;
     MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const std::string& msg) const;
@@ -177,7 +177,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static std::string GetVarNameFromInfo(const std::string& info);
     MEDCOUPLING_EXPORT static std::string GetUnitFromInfo(const std::string& info);
     MEDCOUPLING_EXPORT static std::string BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit);
-    MEDCOUPLING_EXPORT static std::string GetAxTypeRepr(MEDCouplingAxisType at);
+    MEDCOUPLING_EXPORT static std::string GetAxisTypeRepr(MEDCouplingAxisType at);
     MEDCOUPLING_EXPORT static DataArray *Aggregate(const std::vector<const DataArray *>& arrs);
     MEDCOUPLING_EXPORT virtual void reprStream(std::ostream& stream) const = 0;
     MEDCOUPLING_EXPORT virtual void reprZipStream(std::ostream& stream) const = 0;
@@ -217,9 +217,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT double doubleValue() const;
     MEDCOUPLING_EXPORT bool empty() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *deepCpy() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
-    MEDCOUPLING_EXPORT void cpyFrom(const DataArrayDouble& other);
+    MEDCOUPLING_EXPORT DataArrayDouble *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayDouble& other);
     MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
     MEDCOUPLING_EXPORT void pushBackSilent(double val);
     MEDCOUPLING_EXPORT void pushBackValsSilent(const double *valsBg, const double *valsEnd);
@@ -264,7 +264,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const DataArrayInt & di) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId2(int bg, int end2, int step) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafeSlice(int bg, int end2, int step) const;
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const;
     MEDCOUPLING_EXPORT DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
@@ -290,7 +290,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setPartOfValuesSimple4(double a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
-    MEDCOUPLING_EXPORT void setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
+    MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT double front() const;
@@ -359,12 +359,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const std::string& func, bool isSafe=true) const;
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const std::string& func, bool isSafe=true) const;
     MEDCOUPLING_EXPORT void applyFuncOnThis(const std::string& func, bool isSafe=true);
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc2(int nbOfComp, const std::string& func, bool isSafe=true) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFuncCompo(int nbOfComp, const std::string& func, bool isSafe=true) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe=true) const;
     MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotInRange(double vmin, double vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(double vmin, double vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsNotInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const std::vector<const DataArrayDouble *>& arr);
     MEDCOUPLING_EXPORT static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2);
@@ -453,9 +453,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int intValue() const;
     MEDCOUPLING_EXPORT int getHashCode() const;
     MEDCOUPLING_EXPORT bool empty() const;
-    MEDCOUPLING_EXPORT DataArrayInt *deepCpy() const;
-    MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
-    MEDCOUPLING_EXPORT void cpyFrom(const DataArrayInt& other);
+    MEDCOUPLING_EXPORT DataArrayInt *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayInt *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayInt& other);
     MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
     MEDCOUPLING_EXPORT void pushBackSilent(int val);
     MEDCOUPLING_EXPORT void pushBackValsSilent(const int *valsBg, const int *valsEnd);
@@ -513,14 +513,14 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const;
-    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId2(int bg, int end, int step) const;
+    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafeSlice(int bg, int end, int step) const;
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const;
     MEDCOUPLING_EXPORT DataArrayInt *checkAndPreparePermutation() const;
     MEDCOUPLING_EXPORT static DataArrayInt *FindPermutationFromFirstToSecond(const DataArrayInt *ids1, const DataArrayInt *ids2);
     MEDCOUPLING_EXPORT void changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArrayInt *&arrI) const;
-    MEDCOUPLING_EXPORT static DataArrayInt *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, const int *arr, const int *arrIBg, const int *arrIEnd, int &newNbOfTuples);
+    MEDCOUPLING_EXPORT static DataArrayInt *ConvertIndexArrayToO2N(int nbOfOldTuples, const int *arr, const int *arrIBg, const int *arrIEnd, int &newNbOfTuples);
     MEDCOUPLING_EXPORT DataArrayInt *buildPermArrPerLevel() const;
-    MEDCOUPLING_EXPORT bool isIdentity2(int sizeExpected) const;
+    MEDCOUPLING_EXPORT bool isIota(int sizeExpected) const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
@@ -539,7 +539,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setPartOfValuesSimple4(int a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
-    MEDCOUPLING_EXPORT void setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
+    MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT int getIJSafe(int tupleId, int compoId) const;
@@ -553,15 +553,15 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayIntIterator *iterator();
     MEDCOUPLING_EXPORT const int *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const int *end() const { return getConstPointer()+getNbOfElems(); }
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(int val) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const int *valsBg, const int *valsEnd) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const int *valsBg, const int *valsEnd) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(int val) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(int val) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsEqualList(const int *valsBg, const int *valsEnd) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqualList(const int *valsBg, const int *valsEnd) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const;
     MEDCOUPLING_EXPORT int changeValue(int oldValue, int newValue);
-    MEDCOUPLING_EXPORT int locateTuple(const std::vector<int>& tupl) const;
-    MEDCOUPLING_EXPORT int locateValue(int value) const;
-    MEDCOUPLING_EXPORT int locateValue(const std::vector<int>& vals) const;
+    MEDCOUPLING_EXPORT int findIdFirstEqualTuple(const std::vector<int>& tupl) const;
+    MEDCOUPLING_EXPORT int findIdFirstEqual(int value) const;
+    MEDCOUPLING_EXPORT int findIdFirstEqual(const std::vector<int>& vals) const;
     MEDCOUPLING_EXPORT int search(const std::vector<int>& vals) const;
     MEDCOUPLING_EXPORT bool presenceOfTuple(const std::vector<int>& tupl) const;
     MEDCOUPLING_EXPORT bool presenceOfValue(int value) const;
@@ -586,9 +586,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void applyRModulus(int val);
     MEDCOUPLING_EXPORT void applyPow(int val);
     MEDCOUPLING_EXPORT void applyRPow(int val);
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(int vmin, int vmax) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotInRange(int vmin, int vmax) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsStrictlyNegative() const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(int vmin, int vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsNotInRange(int vmin, int vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsStricltyNegative() const;
     MEDCOUPLING_EXPORT bool checkAllIdsInRange(int vmin, int vmax) const;
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& arr);
@@ -610,8 +610,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayInt *buildUniqueNotSorted() const;
     MEDCOUPLING_EXPORT DataArrayInt *deltaShiftIndex() const;
     MEDCOUPLING_EXPORT void computeOffsets();
-    MEDCOUPLING_EXPORT void computeOffsets2();
-    MEDCOUPLING_EXPORT void searchRangesInListOfIds(const DataArrayInt *listOfIds, DataArrayInt *& rangeIdsFetched, DataArrayInt *& idsInInputListThatFetch) const;
+    MEDCOUPLING_EXPORT void computeOffsetsFull();
+    MEDCOUPLING_EXPORT void findIdsRangesInListOfIds(const DataArrayInt *listOfIds, DataArrayInt *& rangeIdsFetched, DataArrayInt *& idsInInputListThatFetch) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildExplicitArrByRanges(const DataArrayInt *offsets) const;
     MEDCOUPLING_EXPORT DataArrayInt *buildExplicitArrOfSliceOnScaledArr(int begin, int stop, int step) const;
     MEDCOUPLING_EXPORT DataArrayInt *findRangeIdForEachTuple(const DataArrayInt *ranges) const;
@@ -699,7 +699,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT int getHashCode() const;
     MEDCOUPLING_EXPORT bool empty() const;
-    MEDCOUPLING_EXPORT void cpyFrom(const DataArrayChar& other);
+    MEDCOUPLING_EXPORT void deepCopyFrom(const DataArrayChar& other);
     MEDCOUPLING_EXPORT void reserve(std::size_t nbOfElems);
     MEDCOUPLING_EXPORT void pushBackSilent(char val);
     MEDCOUPLING_EXPORT void pushBackValsSilent(const char *valsBg, const char *valsEnd);
@@ -725,7 +725,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayChar *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const;
-    MEDCOUPLING_EXPORT DataArrayChar *selectByTupleId2(int bg, int end, int step) const;
+    MEDCOUPLING_EXPORT DataArrayChar *selectByTupleIdSafeSlice(int bg, int end, int step) const;
     MEDCOUPLING_EXPORT bool isUniform(char val) const;
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo);
     MEDCOUPLING_EXPORT DataArrayChar *substr(int tupleIdBg, int tupleIdEnd=-1) const;
@@ -742,7 +742,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void setPartOfValuesSimple4(char a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayChar *a, const DataArrayChar *tuplesSelec);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArray *aBase, const DataArrayInt *tuplesSelec);
-    MEDCOUPLING_EXPORT void setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
+    MEDCOUPLING_EXPORT void setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step);
     MEDCOUPLING_EXPORT DataArray *selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, char *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT char getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
@@ -755,12 +755,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const char *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT const char *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const char *end() const { return getConstPointer()+getNbOfElems(); }
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(char val) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(char val) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsEqual(char val) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsNotEqual(char val) const;
     MEDCOUPLING_EXPORT int search(const std::vector<char>& vals) const;
-    MEDCOUPLING_EXPORT int locateTuple(const std::vector<char>& tupl) const;
-    MEDCOUPLING_EXPORT int locateValue(char value) const;
-    MEDCOUPLING_EXPORT int locateValue(const std::vector<char>& vals) const;
+    MEDCOUPLING_EXPORT int findIdFirstEqualTuple(const std::vector<char>& tupl) const;
+    MEDCOUPLING_EXPORT int findIdFirstEqual(char value) const;
+    MEDCOUPLING_EXPORT int findIdFirstEqual(const std::vector<char>& vals) const;
     MEDCOUPLING_EXPORT bool presenceOfTuple(const std::vector<char>& tupl) const;
     MEDCOUPLING_EXPORT bool presenceOfValue(char value) const;
     MEDCOUPLING_EXPORT bool presenceOfValue(const std::vector<char>& vals) const;
@@ -768,7 +768,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT char getMaxValueInArray() const;
     MEDCOUPLING_EXPORT char getMinValue(int& tupleId) const;
     MEDCOUPLING_EXPORT char getMinValueInArray() const;
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(char vmin, char vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(char vmin, char vmax) const;
     MEDCOUPLING_EXPORT static DataArrayChar *Aggregate(const DataArrayChar *a1, const DataArrayChar *a2);
     MEDCOUPLING_EXPORT static DataArrayChar *Aggregate(const std::vector<const DataArrayChar *>& arr);
     MEDCOUPLING_EXPORT static DataArrayChar *Meld(const DataArrayChar *a1, const DataArrayChar *a2);
@@ -799,8 +799,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayByte *New();
     MEDCOUPLING_EXPORT DataArrayChar *buildEmptySpecializedDAChar() const;
     MEDCOUPLING_EXPORT DataArrayByteIterator *iterator();
-    MEDCOUPLING_EXPORT DataArrayByte *deepCpy() const;
-    MEDCOUPLING_EXPORT DataArrayByte *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT DataArrayByte *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT char byteValue() const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
@@ -857,8 +857,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DataArrayAsciiChar *New(const std::vector<std::string>& vst, char defaultChar);
     MEDCOUPLING_EXPORT DataArrayChar *buildEmptySpecializedDAChar() const;
     MEDCOUPLING_EXPORT DataArrayAsciiCharIterator *iterator();
-    MEDCOUPLING_EXPORT DataArrayAsciiChar *deepCpy() const;
-    MEDCOUPLING_EXPORT DataArrayAsciiChar *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT DataArrayAsciiChar *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayAsciiChar *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT char asciiCharValue() const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;

@@ -59,7 +59,7 @@ MEDCouplingCartesianAMRPatchGen::MEDCouplingCartesianAMRPatchGen(const MEDCoupli
 {
   const MEDCouplingCartesianAMRMeshGen *mesh(other._mesh);
   if(mesh)
-    _mesh=mesh->deepCpy(father);
+    _mesh=mesh->deepCopy(father);
 }
 
 const MEDCouplingCartesianAMRMeshGen *MEDCouplingCartesianAMRPatchGen::getMeshSafe() const
@@ -97,7 +97,7 @@ MEDCouplingCartesianAMRPatch::MEDCouplingCartesianAMRPatch(MEDCouplingCartesianA
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRPatch constructor : space dimension of father and input bottomLeft/topRight size mismatches !");
 }
 
-MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRPatch::deepCpy(MEDCouplingCartesianAMRMeshGen *father) const
+MEDCouplingCartesianAMRPatch *MEDCouplingCartesianAMRPatch::deepCopy(MEDCouplingCartesianAMRMeshGen *father) const
 {
   return new MEDCouplingCartesianAMRPatch(*this,father);
 }
@@ -372,7 +372,7 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoMixedLev(int ghost
   std::vector< std::pair<int,int> > p2RefinedAbs(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(dimsP2NotRefined));
   std::vector<int> dimsP2RefinedGhost(dimsP2Refined.size());
   std::transform(dimsP2Refined.begin(),dimsP2Refined.end(),dimsP2RefinedGhost.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> fineP2(DataArrayDouble::New()); fineP2->alloc(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(dimsP2RefinedGhost),dataOnP2->getNumberOfComponents());
+  MCAuto<DataArrayDouble> fineP2(DataArrayDouble::New()); fineP2->alloc(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(dimsP2RefinedGhost),dataOnP2->getNumberOfComponents());
   MEDCouplingIMesh::SpreadCoarseToFineGhost(dataOnP2,dimsP2NotRefined,fineP2,p2RefinedAbs,factors,ghostLev);
   if(isConservative)
     {
@@ -526,7 +526,7 @@ void MEDCouplingCartesianAMRPatch::UpdateNeighborsOfOneWithTwoInternal(int ghost
   ApplyFactorsOnCompactFrmt(dimsFine,factors);
   ApplyAllGhostOnCompactFrmt(dimsFine,ghostLev);
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ghostVals(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(dimsFine),dataOnP2,tmp2));
+  MCAuto<DataArrayDouble> ghostVals(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(MEDCouplingStructuredMesh::GetDimensionsFromCompactFrmt(dimsFine),dataOnP2,tmp2));
   MEDCouplingIMesh::CondenseFineToCoarse(dimsCoarse,ghostVals,interstRange,fakeFactors,dataOnP1);
 }
 
@@ -572,7 +572,7 @@ MEDCouplingCartesianAMRPatchGF::MEDCouplingCartesianAMRPatchGF(MEDCouplingCartes
 {
 }
 
-MEDCouplingCartesianAMRPatchGF *MEDCouplingCartesianAMRPatchGF::deepCpy(MEDCouplingCartesianAMRMeshGen *father) const
+MEDCouplingCartesianAMRPatchGF *MEDCouplingCartesianAMRPatchGF::deepCopy(MEDCouplingCartesianAMRMeshGen *father) const
 {
   return new MEDCouplingCartesianAMRPatchGF(*this,father);
 }
@@ -613,7 +613,7 @@ void MEDCouplingCartesianAMRMeshGen::setFactors(const std::vector<int>& newFacto
 int MEDCouplingCartesianAMRMeshGen::getMaxNumberOfLevelsRelativeToThis() const
 {
   int ret(1);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     ret=std::max(ret,(*it)->getMaxNumberOfLevelsRelativeToThis()+1);
   return ret;
 }
@@ -637,7 +637,7 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevel() const
  */
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevelGhost(int ghostLev) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> tmp(_mesh->buildWithGhost(ghostLev));
+  MCAuto<MEDCouplingIMesh> tmp(_mesh->buildWithGhost(ghostLev));
   return tmp->getNumberOfCells();
 }
 
@@ -648,7 +648,7 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsAtCurrentLevelGhost(int ghos
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
 {
   int ret(_mesh->getNumberOfCells());
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     {
       ret+=(*it)->getNumberOfCellsRecursiveWithOverlap();
     }
@@ -665,7 +665,7 @@ int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithOverlap() const
 int MEDCouplingCartesianAMRMeshGen::getNumberOfCellsRecursiveWithoutOverlap() const
 {
   int ret(_mesh->getNumberOfCells());
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     {
       ret-=(*it)->getNumberOfOverlapedCellsForFather();
       ret+=(*it)->getNumberOfCellsRecursiveWithoutOverlap();
@@ -746,10 +746,10 @@ std::vector<MEDCouplingCartesianAMRPatchGen *> MEDCouplingCartesianAMRMeshGen::r
 void MEDCouplingCartesianAMRMeshGen::addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors)
 {
   checkFactorsAndIfNotSetAssign(factors);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> mesh(static_cast<MEDCouplingIMesh *>(_mesh->buildStructuredSubPart(bottomLeftTopRight)));
+  MCAuto<MEDCouplingIMesh> mesh(static_cast<MEDCouplingIMesh *>(_mesh->buildStructuredSubPart(bottomLeftTopRight)));
   mesh->refineWithFactor(factors);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshSub> zeMesh(new MEDCouplingCartesianAMRMeshSub(this,mesh));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
+  MCAuto<MEDCouplingCartesianAMRMeshSub> zeMesh(new MEDCouplingCartesianAMRMeshSub(this,mesh));
+  MCAuto<MEDCouplingCartesianAMRPatch> elt(new MEDCouplingCartesianAMRPatch(zeMesh,bottomLeftTopRight));
   _patches.push_back(elt);
   declareAsNew();
 }
@@ -775,8 +775,8 @@ public:
   double getEfficiencyPerAxis(int axisId) const { return (double)_nb_of_true/((double)(_part[axisId].second-_part[axisId].first)); }
   void zipToFitOnCriterion(int minPatchLgth);
   void updateNumberOfTrue() const;
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> extractPart(const std::vector< std::pair<int,int> >&partInGlobal) const;
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> deepCpy() const;
+  MCAuto<InternalPatch> extractPart(const std::vector< std::pair<int,int> >&partInGlobal) const;
+  MCAuto<InternalPatch> deepCopy() const;
 protected:
   ~InternalPatch() { }
 private:
@@ -803,9 +803,9 @@ void InternalPatch::updateNumberOfTrue() const
   _nb_of_true=(int)std::count(_crit.begin(),_crit.end(),true);
 }
 
-MEDCouplingAutoRefCountObjectPtr<InternalPatch> InternalPatch::extractPart(const std::vector< std::pair<int,int> >&partInGlobal) const
+MCAuto<InternalPatch> InternalPatch::extractPart(const std::vector< std::pair<int,int> >&partInGlobal) const
 {
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> ret(new InternalPatch);
+  MCAuto<InternalPatch> ret(new InternalPatch);
   std::vector<int> cgs(computeCGS());
   std::vector< std::pair<int,int> > newPart;
   MEDCouplingStructuredMesh::ChangeReferenceFromGlobalOfCompactFrmt(_part,partInGlobal,newPart);
@@ -815,9 +815,9 @@ MEDCouplingAutoRefCountObjectPtr<InternalPatch> InternalPatch::extractPart(const
   return ret;
 }
 
-MEDCouplingAutoRefCountObjectPtr<InternalPatch> InternalPatch::deepCpy() const
+MCAuto<InternalPatch> InternalPatch::deepCopy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> ret(new InternalPatch);
+  MCAuto<InternalPatch> ret(new InternalPatch);
   (*ret)=*this;
   return ret;
 }
@@ -839,7 +839,7 @@ void DissectBigPatch(const INTERP_KERNEL::BoxSplittingOptions& bso, const Intern
             rectH[axisId].second=patchToBeSplit->getConstPart()[axisId].first+i;
           else
             rectH[axisId].first=patchToBeSplit->getConstPart()[axisId].first+i;
-          MEDCouplingAutoRefCountObjectPtr<InternalPatch> p(patchToBeSplit->deepCpy());
+          MCAuto<InternalPatch> p(patchToBeSplit->deepCopy());
           p->zipToFitOnCriterion(bso.getMinimumPatchLength());
           efficiencyPerAxis[h]=p->getEfficiencyPerAxis(axisId);
         }
@@ -1006,16 +1006,16 @@ bool TryAction4(const INTERP_KERNEL::BoxSplittingOptions& bso, const InternalPat
   return true;
 }
 
-MEDCouplingAutoRefCountObjectPtr<InternalPatch> DealWithNoCut(const InternalPatch *patch)
+MCAuto<InternalPatch> DealWithNoCut(const InternalPatch *patch)
 {
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> ret(const_cast<InternalPatch *>(patch));
+  MCAuto<InternalPatch> ret(const_cast<InternalPatch *>(patch));
   ret->incrRef();
   return ret;
 }
 
-void DealWithCut(double minPatchLgth, const InternalPatch *patchToBeSplit, int axisId, int cutPlace, std::vector<MEDCouplingAutoRefCountObjectPtr<InternalPatch> >& listOfPatches)
+void DealWithCut(double minPatchLgth, const InternalPatch *patchToBeSplit, int axisId, int cutPlace, std::vector<MCAuto<InternalPatch> >& listOfPatches)
 {
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> leftPart,rightPart;
+  MCAuto<InternalPatch> leftPart,rightPart;
   std::vector< std::pair<int,int> > rect(patchToBeSplit->getConstPart());
   std::vector< std::pair<int,int> > leftRect(rect),rightRect(rect);
   leftRect[axisId].second=cutPlace+1;
@@ -1039,7 +1039,7 @@ void MEDCouplingCartesianAMRMeshGen::removePatch(int patchId)
 {
   checkPatchId(patchId);
   int sz((int)_patches.size()),j(0);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> > patches(sz-1);
+  std::vector< MCAuto<MEDCouplingCartesianAMRPatch> > patches(sz-1);
   for(int i=0;i<sz;i++)
     if(i!=patchId)
       patches[j++]=_patches[i];
@@ -1077,16 +1077,16 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion : the number of tuples of criterion array must be equal to the number of cells at the current level !");
   _patches.clear();
   std::vector<int> cgs(_mesh->getCellGridStructure());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> > listOfPatches,listOfPatchesOK;
+  std::vector< MCAuto<InternalPatch> > listOfPatches,listOfPatchesOK;
   //
-  MEDCouplingAutoRefCountObjectPtr<InternalPatch> p(new InternalPatch);
+  MCAuto<InternalPatch> p(new InternalPatch);
   p->setNumberOfTrue(MEDCouplingStructuredMesh::FindMinimalPartOf(bso.getMinimumPatchLength(),cgs,criterion,p->getCriterion(),p->getPart()));
   if(p->presenceOfTrue())
     listOfPatches.push_back(p);
   while(!listOfPatches.empty())
     {
-      std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> > listOfPatchesTmp;
-      for(std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> >::iterator it=listOfPatches.begin();it!=listOfPatches.end();it++)
+      std::vector< MCAuto<InternalPatch> > listOfPatchesTmp;
+      for(std::vector< MCAuto<InternalPatch> >::iterator it=listOfPatches.begin();it!=listOfPatches.end();it++)
         {
           //
           int axisId,largestLength,cutPlace;
@@ -1108,7 +1108,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
         }
       listOfPatches=listOfPatchesTmp;
     }
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<InternalPatch> >::const_iterator it=listOfPatchesOK.begin();it!=listOfPatchesOK.end();it++)
+  for(std::vector< MCAuto<InternalPatch> >::const_iterator it=listOfPatchesOK.begin();it!=listOfPatchesOK.end();it++)
     addPatch((*it)->getConstPart(),factors);
   declareAsNew();
 }
@@ -1137,7 +1137,7 @@ void MEDCouplingCartesianAMRMeshGen::createPatchesFromCriterion(const INTERP_KER
 int MEDCouplingCartesianAMRMeshGen::getPatchIdFromChildMesh(const MEDCouplingCartesianAMRMeshGen *mesh) const
 {
   int ret(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ret++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ret++)
     {
       if((*it)->getMesh()==mesh)
         return ret;
@@ -1189,7 +1189,7 @@ DataArrayDouble *MEDCouplingCartesianAMRMeshGen::createCellFieldOnPatch(int patc
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::createCellFieldOnPatch : the input cell field array is NULL or not allocated !");
   const MEDCouplingCartesianAMRPatch *patch(getPatch(patchId));
   const MEDCouplingIMesh *fine(patch->getMesh()->getImageMesh());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(fine->getNumberOfCells(),cellFieldOnThis->getNumberOfComponents());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(fine->getNumberOfCells(),cellFieldOnThis->getNumberOfComponents());
   ret->copyStringInfoFrom(*cellFieldOnThis);
   MEDCouplingIMesh::SpreadCoarseToFine(cellFieldOnThis,_mesh->getCellGridStructure(),ret,patch->getBLTRRange(),getFactors());
   return ret.retn();
@@ -1377,7 +1377,7 @@ void MEDCouplingCartesianAMRMeshGen::fillCellFieldComingFromPatchGhost(int patch
 DataArrayInt *MEDCouplingCartesianAMRMeshGen::findPatchesInTheNeighborhoodOf(int patchId, int ghostLev) const
 {
   int nbp(getNumberOfPatches());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(int i=0;i<nbp;i++)
     {
       if(i!=patchId)
@@ -1389,17 +1389,17 @@ DataArrayInt *MEDCouplingCartesianAMRMeshGen::findPatchesInTheNeighborhoodOf(int
 
 MEDCouplingUMesh *MEDCouplingCartesianAMRMeshGen::buildUnstructured() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> part(_mesh->buildUnstructured());
+  MCAuto<MEDCouplingUMesh> part(_mesh->buildUnstructured());
   std::vector<bool> bs(_mesh->getNumberOfCells(),false);
   std::vector<int> cgs(_mesh->getCellGridStructure());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msSafe(_patches.size()+1);
+  std::vector< MCAuto<MEDCouplingUMesh> > msSafe(_patches.size()+1);
   std::size_t ii(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
     {
       MEDCouplingStructuredMesh::SwitchOnIdsFrom(cgs,(*it)->getBLTRRange(),bs);
       msSafe[ii+1]=(*it)->getMesh()->buildUnstructured();
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsOff(DataArrayInt::BuildListOfSwitchedOff(bs));
+  MCAuto<DataArrayInt> eltsOff(DataArrayInt::BuildListOfSwitchedOff(bs));
   msSafe[0]=static_cast<MEDCouplingUMesh *>(part->buildPartOfMySelf(eltsOff->begin(),eltsOff->end(),false));
   std::vector< const MEDCouplingUMesh * > ms(msSafe.size());
   for(std::size_t i=0;i<msSafe.size();i++)
@@ -1416,14 +1416,14 @@ MEDCouplingUMesh *MEDCouplingCartesianAMRMeshGen::buildUnstructured() const
 MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop() const
 {
   std::vector<const MEDCoupling1SGTUMesh *> cells;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> > cellsSafe;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  std::vector< MCAuto<MEDCoupling1SGTUMesh> > cellsSafe;
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     {
       const MEDCouplingCartesianAMRPatch *patch(*it);
       if(patch)
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> cell(patch->getMesh()->getImageMesh()->asSingleCell());
-          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> cell1SGT(cell->build1SGTUnstructured());
+          MCAuto<MEDCouplingIMesh> cell(patch->getMesh()->getImageMesh()->asSingleCell());
+          MCAuto<MEDCoupling1SGTUMesh> cell1SGT(cell->build1SGTUnstructured());
           cellsSafe.push_back(cell1SGT); cells.push_back(cell1SGT);
         }
     }
@@ -1433,13 +1433,13 @@ MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop(
 MEDCoupling1SGTUMesh *MEDCouplingCartesianAMRMeshGen::buildMeshOfDirectChildrenOnly() const
 {
   std::vector<const MEDCoupling1SGTUMesh *> patches;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> > patchesSafe;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  std::vector< MCAuto<MEDCoupling1SGTUMesh> > patchesSafe;
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
       {
         const MEDCouplingCartesianAMRPatch *patch(*it);
         if(patch)
           {
-            MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> patchMesh(patch->getMesh()->getImageMesh()->build1SGTUnstructured());
+            MCAuto<MEDCoupling1SGTUMesh> patchMesh(patch->getMesh()->getImageMesh()->build1SGTUnstructured());
             patchesSafe.push_back(patchMesh); patches.push_back(patchMesh);
           }
       }
@@ -1458,23 +1458,23 @@ MEDCouplingFieldDouble *MEDCouplingCartesianAMRMeshGen::buildCellFieldOnRecurseW
   //
   std::vector<bool> bs(_mesh->getNumberOfCells(),false);
   std::vector<int> cgs(_mesh->getCellGridStructure());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > msSafe(_patches.size()+1);
+  std::vector< MCAuto<MEDCouplingFieldDouble> > msSafe(_patches.size()+1);
   std::size_t ii(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++,ii++)
     {
       MEDCouplingStructuredMesh::SwitchOnIdsFrom(cgs,(*it)->getBLTRRange(),bs);
       std::vector<const DataArrayDouble *> tmpArrs(extractSubTreeFromGlobalFlatten((*it)->getMesh(),recurseArrs));
       msSafe[ii+1]=(*it)->getMesh()->buildCellFieldOnRecurseWithoutOverlapWithoutGhost(ghostSz,tmpArrs);
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsOff(DataArrayInt::BuildListOfSwitchedOff(bs));
+  MCAuto<DataArrayInt> eltsOff(DataArrayInt::BuildListOfSwitchedOff(bs));
   //
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(extractGhostFrom(ghostSz,recurseArrs[0]));
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+  MCAuto<DataArrayDouble> arr2(extractGhostFrom(ghostSz,recurseArrs[0]));
   arr2=arr2->selectByTupleIdSafe(eltsOff->begin(),eltsOff->end());
   ret->setArray(arr2);
   ret->setName(arr2->getName());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> part(_mesh->buildUnstructured());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mesh(part->buildPartOfMySelf(eltsOff->begin(),eltsOff->end(),false));
+  MCAuto<MEDCouplingUMesh> part(_mesh->buildUnstructured());
+  MCAuto<MEDCouplingMesh> mesh(part->buildPartOfMySelf(eltsOff->begin(),eltsOff->end(),false));
   ret->setMesh(mesh);
   msSafe[0]=ret;
   //
@@ -1495,7 +1495,7 @@ DataArrayDouble *MEDCouplingCartesianAMRMeshGen::extractGhostFrom(int ghostSz, c
   std::vector< std::pair<int,int> > p(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(st));
   std::transform(st.begin(),st.end(),st.begin(),std::bind2nd(std::plus<int>(),2*ghostSz));
   MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(p,ghostSz);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,arr,p));
+  MCAuto<DataArrayDouble> ret(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(st,arr,p));
   return ret.retn();
 }
 
@@ -1543,13 +1543,13 @@ MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(const MEDCoupling
 {
   const MEDCouplingIMesh *mesh(other._mesh);
   if(mesh)
-    _mesh=static_cast<MEDCouplingIMesh *>(mesh->deepCpy());
+    _mesh=static_cast<MEDCouplingIMesh *>(mesh->deepCopy());
   std::size_t sz(other._patches.size());
   for(std::size_t i=0;i<sz;i++)
     {
       const MEDCouplingCartesianAMRPatch *patch(other._patches[i]);
       if(patch)
-        _patches[i]=patch->deepCpy(this);
+        _patches[i]=patch->deepCopy(this);
     }
 }
 
@@ -1563,7 +1563,7 @@ MEDCouplingCartesianAMRMeshGen::MEDCouplingCartesianAMRMeshGen(MEDCouplingIMesh 
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMeshGen(MEDCouplingIMesh *mesh) constructor : The input mesh is null !");
-  mesh->checkCoherency();
+  mesh->checkConsistencyLight();
   _mesh=mesh; _mesh->incrRef();
 }
 
@@ -1592,29 +1592,29 @@ void MEDCouplingCartesianAMRMeshGen::checkFactorsAndIfNotSetAssign(const std::ve
     }
 }
 
-void MEDCouplingCartesianAMRMeshGen::retrieveGridsAtInternal(int lev, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> >& grids) const
+void MEDCouplingCartesianAMRMeshGen::retrieveGridsAtInternal(int lev, std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> >& grids) const
 {
   if(lev==0)
     {
       const MEDCouplingCartesianAMRMesh *thisc(dynamic_cast<const MEDCouplingCartesianAMRMesh *>(this));//tony
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGF> elt(new MEDCouplingCartesianAMRPatchGF(const_cast<MEDCouplingCartesianAMRMesh *>(thisc)));
+      MCAuto<MEDCouplingCartesianAMRPatchGF> elt(new MEDCouplingCartesianAMRPatchGF(const_cast<MEDCouplingCartesianAMRMesh *>(thisc)));
       grids.push_back(DynamicCastSafe<MEDCouplingCartesianAMRPatchGF,MEDCouplingCartesianAMRPatchGen>(elt));
     }
   else if(lev==1)
     {
-      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+      for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
         {
           const MEDCouplingCartesianAMRPatch *pt(*it);
           if(pt)
             {
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> tmp1(*it);
+              MCAuto<MEDCouplingCartesianAMRPatch> tmp1(*it);
               grids.push_back(DynamicCastSafe<MEDCouplingCartesianAMRPatch,MEDCouplingCartesianAMRPatchGen>(tmp1));
             }
         }
     }
   else
     {
-      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+      for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
         {
           const MEDCouplingCartesianAMRPatch *pt(*it);
           if(pt)
@@ -1676,7 +1676,7 @@ std::vector<const DataArrayDouble *> MEDCouplingCartesianAMRMeshGen::extractSubT
 void MEDCouplingCartesianAMRMeshGen::dumpPatchesOf(const std::string& varName, std::ostream& oss) const
 {
   std::size_t j(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     {
       const MEDCouplingCartesianAMRPatch *patch(*it);
       if(patch)
@@ -1709,7 +1709,7 @@ std::vector<const BigMemoryObject *> MEDCouplingCartesianAMRMeshGen::getDirectCh
 {
   std::vector<const BigMemoryObject *> ret;
   ret.push_back((const MEDCouplingIMesh *)_mesh);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     ret.push_back((const MEDCouplingCartesianAMRPatch*)*it);
   return ret;
 }
@@ -1718,7 +1718,7 @@ void MEDCouplingCartesianAMRMeshGen::updateTime() const
 {
   if((const MEDCouplingIMesh *)_mesh)
     updateTimeWith(*_mesh);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
+  for(std::vector< MCAuto<MEDCouplingCartesianAMRPatch> >::const_iterator it=_patches.begin();it!=_patches.end();it++)
     {
       const MEDCouplingCartesianAMRPatch *elt(*it);
       if(!elt)
@@ -1815,7 +1815,7 @@ MEDCouplingCartesianAMRMeshSub::MEDCouplingCartesianAMRMeshSub(const MEDCoupling
 {
 }
 
-MEDCouplingCartesianAMRMeshSub *MEDCouplingCartesianAMRMeshSub::deepCpy(MEDCouplingCartesianAMRMeshGen *fath) const
+MEDCouplingCartesianAMRMeshSub *MEDCouplingCartesianAMRMeshSub::deepCopy(MEDCouplingCartesianAMRMeshGen *fath) const
 {
   return new MEDCouplingCartesianAMRMeshSub(*this,fath);
 }
@@ -1880,7 +1880,7 @@ int MEDCouplingCartesianAMRMesh::getAbsoluteLevelRelativeTo(const MEDCouplingCar
 
 std::vector<MEDCouplingCartesianAMRPatchGen *> MEDCouplingCartesianAMRMesh::retrieveGridsAt(int absoluteLev) const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > rets;
+  std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> > rets;
   retrieveGridsAtInternal(absoluteLev,rets);
   std::vector< MEDCouplingCartesianAMRPatchGen * > ret(rets.size());
   for(std::size_t i=0;i<rets.size();i++)
@@ -1890,10 +1890,10 @@ std::vector<MEDCouplingCartesianAMRPatchGen *> MEDCouplingCartesianAMRMesh::retr
   return ret;
 }
 
-MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::deepCpy(MEDCouplingCartesianAMRMeshGen *father) const
+MEDCouplingCartesianAMRMesh *MEDCouplingCartesianAMRMesh::deepCopy(MEDCouplingCartesianAMRMeshGen *father) const
 {
   if(father)
-    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::deepCpy : specifying a not null father for a God Father object !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCartesianAMRMesh::deepCopy : specifying a not null father for a God Father object !");
   return new MEDCouplingCartesianAMRMesh(*this);
 }
 
@@ -1926,17 +1926,17 @@ void MEDCouplingCartesianAMRMesh::createPatchesFromCriterionML(const std::vector
       //
       std::vector<MEDCouplingCartesianAMRPatchGen *> elts(retrieveGridsAt((int)(i)));
       std::size_t sz(elts.size());
-      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > elts2(sz);
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > elts3(sz);
+      std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> > elts2(sz);
+      std::vector< MCAuto<DataArrayDouble> > elts3(sz);
       for(std::size_t ii=0;ii<sz;ii++)
         elts2[ii]=elts[ii];
       //
       static const char TMP_STR[]="TMP";
       std::vector< std::pair<std::string,int> > fieldNames(1); fieldNames[0].first=TMP_STR; fieldNames[0].second=1;
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> att(MEDCouplingAMRAttribute::New(this,fieldNames,0));
+      MCAuto<MEDCouplingAMRAttribute> att(MEDCouplingAMRAttribute::New(this,fieldNames,0));
       att->alloc();
       DataArrayDouble *tmpDa(const_cast<DataArrayDouble *>(att->getFieldOn(this,TMP_STR)));
-      tmpDa->cpyFrom(*criterion);
+      tmpDa->deepCopyFrom(*criterion);
       att->synchronizeCoarseToFine();
       for(std::size_t ii=0;ii<sz;ii++)
         {

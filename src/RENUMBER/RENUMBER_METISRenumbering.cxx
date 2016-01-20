@@ -29,13 +29,13 @@ extern "C"
 }
 
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "RENUMBER_METISRenumbering.hxx"
 
 void METISRenumbering::renumber(const int *graph, const int *index_graph, int nbCell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm)
 {
-  MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayInt> out0(MEDCoupling::DataArrayInt::New()),out1(MEDCoupling::DataArrayInt::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> out0(MEDCoupling::DataArrayInt::New()),out1(MEDCoupling::DataArrayInt::New());
   out0->alloc(nbCell,1); out1->alloc(nbCell,1);
   out0->fillWithZero(); out1->fillWithZero();
   int num_flag=1;

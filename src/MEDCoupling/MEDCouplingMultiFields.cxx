@@ -22,7 +22,7 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <sstream>
 #include <algorithm>
@@ -39,7 +39,7 @@ MEDCouplingMultiFields *MEDCouplingMultiFields::New()
   return new MEDCouplingMultiFields;
 }
 
-MEDCouplingMultiFields *MEDCouplingMultiFields::deepCpy() const
+MEDCouplingMultiFields *MEDCouplingMultiFields::deepCopy() const
 {
   return new MEDCouplingMultiFields(*this);
 }
@@ -80,7 +80,7 @@ bool MEDCouplingMultiFields::isEqual(const MEDCouplingMultiFields *other, double
 
 std::string MEDCouplingMultiFields::getName() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getName();
@@ -89,7 +89,7 @@ std::string MEDCouplingMultiFields::getName() const
 
 std::string MEDCouplingMultiFields::getDescription() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getDescription();
@@ -98,7 +98,7 @@ std::string MEDCouplingMultiFields::getDescription() const
 
 std::string MEDCouplingMultiFields::getTimeUnit() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getTimeUnit();
@@ -107,7 +107,7 @@ std::string MEDCouplingMultiFields::getTimeUnit() const
 
 double MEDCouplingMultiFields::getTimeResolution() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       return (*it)->getTimeTolerance();
@@ -180,7 +180,7 @@ const MEDCouplingFieldDouble *MEDCouplingMultiFields::getFieldAtPos(int id) cons
 
 void MEDCouplingMultiFields::updateTime() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((const MEDCouplingFieldDouble *)(*it))
       (*it)->updateTime();
@@ -198,7 +198,7 @@ std::size_t MEDCouplingMultiFields::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDCouplingMultiFields::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
     ret.push_back((const MEDCouplingFieldDouble *)*it);
   return ret;
 }
@@ -206,7 +206,7 @@ std::vector<const BigMemoryObject *> MEDCouplingMultiFields::getDirectChildrenWi
 std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getMeshes() const
 {
   std::vector<MEDCouplingMesh *> ms;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
     {
       const MEDCouplingMesh *m=0;
       if((const MEDCouplingFieldDouble *)(*it))
@@ -221,7 +221,7 @@ std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getDifferentMeshes(std::v
   refs.resize(_fs.size());
   std::vector<MEDCouplingMesh *> ms;
   int id=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++,id++)
+  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++,id++)
     {
       const MEDCouplingMesh *m=0;
       if((const MEDCouplingFieldDouble *)(*it))
@@ -246,7 +246,7 @@ std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getDifferentMeshes(std::v
 std::vector<DataArrayDouble *> MEDCouplingMultiFields::getArrays() const
 {
   std::vector<DataArrayDouble *> tmp;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++)
     {
       std::vector<DataArrayDouble *> tmp2=(*it)->getArrays();
       tmp.insert(tmp.end(),tmp2.begin(),tmp2.end());
@@ -259,7 +259,7 @@ std::vector<DataArrayDouble *> MEDCouplingMultiFields::getDifferentArrays(std::v
   refs.resize(_fs.size());
   int id=0;
   std::vector<DataArrayDouble *> ret;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++,id++)
+  for(std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();it!=_fs.end();it++,id++)
     {
       std::vector<DataArrayDouble *> tmp2;
       if((const MEDCouplingFieldDouble *)(*it))
@@ -290,14 +290,14 @@ std::vector<DataArrayDouble *> MEDCouplingMultiFields::getDifferentArrays(std::v
   return ret;
 }
 
-void MEDCouplingMultiFields::checkCoherency() const
+void MEDCouplingMultiFields::checkConsistencyLight() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     {
       if((const MEDCouplingFieldDouble *)(*it)==0)
-        throw INTERP_KERNEL::Exception("MEDCouplingMultiFields::checkCoherency : There is an empty Field in array...");
-      (*it)->checkCoherency();
+        throw INTERP_KERNEL::Exception("MEDCouplingMultiFields::checkConsistencyLight : There is an empty Field in array...");
+      (*it)->checkConsistencyLight();
     }
 }
 
@@ -310,14 +310,14 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const std::vector<MEDCouplingFiel
         (*it)->incrRef();
       else
         throw INTERP_KERNEL::Exception("MEDCouplingMultiFields constructor : empty field found in vector !");
-      (*it)->checkCoherency();
+      (*it)->checkConsistencyLight();
       _fs[id]=*it;
     }
 }
 
 
 /*!
- * Performs deepCpy.
+ * Performs deepCopy.
  */
 MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& other):RefCountObject(other)
 {
@@ -327,14 +327,14 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& oth
   std::vector< std::vector<int> > refs2;
   std::vector<MEDCouplingMesh *> ms=other.getDifferentMeshes(refs);
   std::size_t msLgh=ms.size();
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> > ms2(msLgh);
+  std::vector< MCAuto<MEDCouplingMesh> > ms2(msLgh);
   for(std::size_t i=0;i<msLgh;i++)
-    ms2[i]=ms[i]->deepCpy();
+    ms2[i]=ms[i]->deepCopy();
   std::vector<DataArrayDouble *> das=other.getDifferentArrays(refs2);
   std::size_t dasLgth=das.size();
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > das2(dasLgth);
+  std::vector< MCAuto<DataArrayDouble> > das2(dasLgth);
   for(std::size_t i=0;i<dasLgth;i++)
-    das2[i]=das[i]->deepCpy();
+    das2[i]=das[i]->deepCopy();
   for(std::size_t i=0;i<sz;i++)
     {
       if((const MEDCouplingFieldDouble *)other._fs[i])

@@ -27,7 +27,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "SauvUtilities.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <vector>
 #include <string>
@@ -97,9 +97,9 @@ namespace MEDCoupling
 
   private:
 
-    MEDCouplingAutoRefCountObjectPtr< MEDFileMesh >                        _fileMesh;
-    std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTS > > _nodeFields;
-    std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTS > > _cellFields;
+    MCAuto< MEDFileMesh >                        _fileMesh;
+    std::vector< MCAuto< MEDFileFieldMultiTS > > _nodeFields;
+    std::vector< MCAuto< MEDFileFieldMultiTS > > _cellFields;
 
     std::vector<SubMesh>                      _subs;
     std::map< int, SubMesh* >                 _famIDs2Sub;

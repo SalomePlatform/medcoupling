@@ -27,7 +27,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <set>
 #include <vector>
@@ -55,7 +55,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *deepCpy() const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *deepCopy() const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clone() const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const;

@@ -341,7 +341,7 @@ class MEDCouplingDataForTest:
         myCoords=DataArrayDouble.New();
         myCoords.setValues(coords,11,2);
         ret.setCoords(myCoords);
-        ret.checkCoherency();
+        ret.checkConsistencyLight();
         return ret;
 
     def build2DTargetMesh_4(cls):
@@ -598,7 +598,7 @@ class MEDCouplingDataForTest:
         for i in xrange(30,36):
             m.insertNextCell(NORM_QUAD8,conn[i])
             pass
-        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH1RB") ; fff.setNature(ConservativeVolumic)
+        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH1RB") ; fff.setNature(IntensiveMaximum)
         fff.setMesh(m)
         fff.setGaussLocalizationOnCells(range(0,12),[0.,0.,1.,0.,0.,1.],[0.3333333333333333,0.3333333333333333],[0.5])
         fff.setGaussLocalizationOnCells(range(12,18),[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[-0.577350269189626,-0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626],[1.,1.,1.,1.])
@@ -627,7 +627,7 @@ class MEDCouplingDataForTest:
         for i in xrange(100,120):
             m.insertNextCell(NORM_QUAD8,conn[i])
             pass
-        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH2RB") ; fff.setNature(ConservativeVolumic)
+        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH2RB") ; fff.setNature(IntensiveMaximum)
         fff.setMesh(m)
         fff.setGaussLocalizationOnCells(range(0,40),[0.,0.,1.,0.,0.,1.],[0.3333333333333333,0.3333333333333333],[0.5])
         fff.setGaussLocalizationOnCells(range(40,60),[-1.,-1.,1.,-1.,1.,1.,-1.,1.],[-0.577350269189626,-0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626,0.577350269189626,-0.577350269189626,0.577350269189626],[1.,1.,1.,1.])
@@ -651,7 +651,7 @@ class MEDCouplingDataForTest:
             pass
         m.insertNextCell(NORM_HEXA8,conn[6])
         m.insertNextCell(NORM_HEXA8,conn[7])
-        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH13") ; fff.setNature(ConservativeVolumic)
+        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH13") ; fff.setNature(IntensiveMaximum)
         fff.setMesh(m)
         fff.setGaussLocalizationOnCells([0],[0.,1.,0.,0.,0.,0.,0.,0.,1.,1.,0.,0.],[0.25,0.25,0.25],[0.16666666666666666])
         fff.setGaussLocalizationOnCells([1],[1.,0.,0.,0.,-1.,0.,-1.,0.,0.,0.,1.,0.,0.,0.,1.],[0.5,0.,0.1531754163448146,0.,0.5,0.1531754163448146,-0.5,0.,0.1531754163448146,0.,-0.5,0.1531754163448146,0.,0.,0.6372983346207416],[0.1333333333333333,0.1333333333333333,0.1333333333333333,0.1333333333333333,0.1333333333333333])
@@ -675,7 +675,7 @@ class MEDCouplingDataForTest:
             pass
         m.insertNextCell(NORM_HEXA8,conn[6])
         m.insertNextCell(NORM_HEXA8,conn[7])
-        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH23") ; fff.setNature(ConservativeVolumic)
+        fff=MEDCouplingFieldDouble.New(ON_GAUSS_PT) ; fff.setName("CH23") ; fff.setNature(IntensiveMaximum)
         fff.setMesh(m)
         fff.setGaussLocalizationOnCells([0],[0.,1.,0.,0.,0.,0.,0.,0.,1.,1.,0.,0.],[0.25,0.25,0.25],[0.16666666666666666])
         fff.setGaussLocalizationOnCells([1],[1.,0.,0.,0.,-1.,0.,-1.,0.,0.,0.,1.,0.,0.,0.,1.],[0.5,0.,0.1531754163448146,0.,0.5,0.1531754163448146,-0.5,0.,0.1531754163448146,0.,-0.5,0.1531754163448146,0.,0.,0.6372983346207416],[0.1333333333333333,0.1333333333333333,0.1333333333333333,0.1333333333333333,0.1333333333333333])

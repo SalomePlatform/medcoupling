@@ -95,7 +95,7 @@ int MEDCoupling1GTUMesh::getMeshDimension() const
  */
 DataArrayInt *MEDCoupling1GTUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   if(type==getCellModelEnum())
     ret->alloc(getNumberOfCells(),1);
   else
@@ -187,7 +187,7 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayInt *profile, std::
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getCellModelEnum(); code[1]=nbTuples;
   idsInPflPerType.resize(1);
-  if(profile->isIdentity2(nbOfCells))
+  if(profile->isIota(nbOfCells))
     {
       code[2]=-1;
       idsInPflPerType[0]=const_cast<DataArrayInt *>(profile); idsInPflPerType[0]->incrRef();
@@ -243,7 +243,7 @@ DataArrayInt *MEDCoupling1GTUMesh::checkTypeConsistencyAndContig(const std::vect
 
 void MEDCoupling1GTUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   m->writeVTKLL(ofs,cellData,pointData,byteData);
 }
 
@@ -296,30 +296,30 @@ bool MEDCoupling1GTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *ot
   return true;
 }
 
-void MEDCoupling1GTUMesh::checkCoherency() const
+void MEDCoupling1GTUMesh::checkConsistencyLight() const
 {
-  MEDCouplingPointSet::checkCoherency();
+  MEDCouplingPointSet::checkConsistencyLight();
 }
 
-DataArrayDouble *MEDCoupling1GTUMesh::getBarycenterAndOwner() const
+DataArrayDouble *MEDCoupling1GTUMesh::computeCellCenterOfMass() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=m->getBarycenterAndOwner();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<DataArrayDouble> ret=m->computeCellCenterOfMass();
   return ret.retn();
 }
 
 MEDCouplingFieldDouble *MEDCoupling1GTUMesh::getMeasureField(bool isAbs) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=m->getMeasureField(isAbs);
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingFieldDouble> ret=m->getMeasureField(isAbs);
   ret->setMesh(this);
   return ret.retn();
 }
 
 MEDCouplingFieldDouble *MEDCoupling1GTUMesh::getMeasureFieldOnNode(bool isAbs) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=m->getMeasureFieldOnNode(isAbs);
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingFieldDouble> ret=m->getMeasureFieldOnNode(isAbs);
   ret->setMesh(this);
   return ret.retn();
 }
@@ -329,51 +329,51 @@ MEDCouplingFieldDouble *MEDCoupling1GTUMesh::getMeasureFieldOnNode(bool isAbs) c
  */
 int MEDCoupling1GTUMesh::getCellContainingPoint(const double *pos, double eps) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   return m->getCellContainingPoint(pos,eps);
 }
 
 MEDCouplingFieldDouble *MEDCoupling1GTUMesh::buildOrthogonalField() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=m->buildOrthogonalField();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingFieldDouble> ret=m->buildOrthogonalField();
   ret->setMesh(this);
   return ret.retn();
 }
 
 DataArrayInt *MEDCoupling1GTUMesh::getCellsInBoundingBox(const double *bbox, double eps) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   return m->getCellsInBoundingBox(bbox,eps);
 }
 
 DataArrayInt *MEDCoupling1GTUMesh::getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   return m->getCellsInBoundingBox(bbox,eps);
 }
 
 MEDCouplingPointSet *MEDCoupling1GTUMesh::buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   return m->buildFacePartOfMySelfNode(start,end,fullyIn);
 }
 
 DataArrayInt *MEDCoupling1GTUMesh::findBoundaryNodes() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   return m->findBoundaryNodes();
 }
 
 MEDCouplingPointSet *MEDCoupling1GTUMesh::buildBoundaryMesh(bool keepCoords) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   return m->buildBoundaryMesh(keepCoords);
 }
 
 void MEDCoupling1GTUMesh::findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  MCAuto<MEDCouplingUMesh> m=buildUnstructured();
   m->findCommonCells(compType,startCellId,commonCellsArr,commonCellsIArr);
 }
 
@@ -411,7 +411,7 @@ MEDCouplingUMesh *MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(const std::v
     throw INTERP_KERNEL::Exception("MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh : the first instance in input parts is null !");
   const DataArrayDouble *coords(firstPart->getCoords());
   int meshDim(firstPart->getMeshDimension());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(firstPart->getName(),meshDim)); ret->setDescription(firstPart->getDescription());
+  MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::New(firstPart->getName(),meshDim)); ret->setDescription(firstPart->getDescription());
   ret->setCoords(coords);
   int nbOfCells(0),connSize(0);
   for(std::vector< const MEDCoupling1GTUMesh *>::const_iterator it=parts.begin();it!=parts.end();it++)
@@ -425,7 +425,7 @@ MEDCouplingUMesh *MEDCoupling1GTUMesh::AggregateOnSameCoordsToUMesh(const std::v
       nbOfCells+=(*it)->getNumberOfCells();
       connSize+=(*it)->getNodalConnectivityLength();
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
+  MCAuto<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
   connI->alloc(nbOfCells+1,1); conn->alloc(connSize+nbOfCells,1);
   int *c(conn->getPointer()),*ci(connI->getPointer()); *ci=0;
   for(std::vector< const MEDCoupling1GTUMesh *>::const_iterator it=parts.begin();it!=parts.end();it++)
@@ -470,7 +470,7 @@ MEDCoupling1SGTUMesh::MEDCoupling1SGTUMesh(const MEDCoupling1SGTUMesh& other, bo
     {
       const DataArrayInt *c(other._conn);
       if(c)
-        _conn=c->deepCpy();
+        _conn=c->deepCopy();
     }
 }
 
@@ -508,11 +508,11 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::New(const MEDCouplingUMesh *m)
   if(gts.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::New : input mesh must have exactly one geometric type !");
   int geoType((int)*gts.begin());
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(m->getName(),*gts.begin()));
+  MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(m->getName(),*gts.begin()));
   ret->setCoords(m->getCoords()); ret->setDescription(m->getDescription());
   int nbCells(m->getNumberOfCells());
   int nbOfNodesPerCell(ret->getNumberOfNodesPerCell());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()); conn->alloc(nbCells*nbOfNodesPerCell,1);
+  MCAuto<DataArrayInt> conn(DataArrayInt::New()); conn->alloc(nbCells*nbOfNodesPerCell,1);
   int *c(conn->getPointer());
   const int *cin(m->getNodalConnectivity()->begin()),*ciin(m->getNodalConnectivityIndex()->begin());
   for(int i=0;i<nbCells;i++,ciin++)
@@ -546,17 +546,17 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
 }
 
 /*!
- * This method behaves mostly like MEDCoupling1SGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
+ * This method behaves mostly like MEDCoupling1SGTUMesh::deepCopy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
  * 
  * \return MEDCoupling1SGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
- * \sa MEDCoupling1SGTUMesh::deepCpy
+ * \sa MEDCoupling1SGTUMesh::deepCopy
  */
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCpyConnectivityOnly() const
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCopyConnectivityOnly() const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(clone(false));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(_conn->deepCpy());
+  checkConsistencyLight();
+  MCAuto<MEDCoupling1SGTUMesh> ret(clone(false));
+  MCAuto<DataArrayInt> c(_conn->deepCopy());
   ret->setNodalConnectivity(c);
   return ret.retn();
 }
@@ -591,7 +591,7 @@ std::vector<const BigMemoryObject *> MEDCoupling1SGTUMesh::getDirectChildrenWith
   return ret;
 }
 
-MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCpy() const
+MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::deepCopy() const
 {
   return clone(true);
 }
@@ -644,7 +644,7 @@ bool MEDCoupling1SGTUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *o
   return true;
 }
 
-void MEDCoupling1SGTUMesh::checkCoherencyOfConnectivity() const
+void MEDCoupling1SGTUMesh::checkConsistencyOfConnectivity() const
 {
   const DataArrayInt *c1(_conn);
   if(c1)
@@ -659,21 +659,21 @@ void MEDCoupling1SGTUMesh::checkCoherencyOfConnectivity() const
     throw INTERP_KERNEL::Exception("Nodal connectivity array not defined !");
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency() const
+void MEDCoupling1SGTUMesh::checkConsistencyLight() const
 {
-  MEDCouplingPointSet::checkCoherency();
-  checkCoherencyOfConnectivity();
+  MEDCouplingPointSet::checkConsistencyLight();
+  checkConsistencyOfConnectivity();
 }
 
-void MEDCoupling1SGTUMesh::checkCoherency1(double eps) const
+void MEDCoupling1SGTUMesh::checkConsistency(double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   const DataArrayInt *c1(_conn);
   int nbOfTuples=c1->getNumberOfTuples();
   int nbOfNodesPerCell=(int)_cm->getNumberOfNodes();
   if(nbOfTuples%nbOfNodesPerCell!=0)
     {
-      std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::checkCoherency1 : the nb of tuples in conn is " << nbOfTuples << " and number of nodes per cell is " << nbOfNodesPerCell << ". But " << nbOfTuples << "%" << nbOfNodesPerCell << " !=0 !";
+      std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::checkConsistency : the nb of tuples in conn is " << nbOfTuples << " and number of nodes per cell is " << nbOfNodesPerCell << ". But " << nbOfTuples << "%" << nbOfNodesPerCell << " !=0 !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   int nbOfNodes=getNumberOfNodes();
@@ -716,7 +716,7 @@ int MEDCoupling1SGTUMesh::getNumberOfNodesPerCell() const
 DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfNodesPerCell() const
 {
   checkNonDynamicGeoType();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(getNumberOfCells(),1);
   ret->fillWithValue((int)_cm->getNumberOfNodes());
   return ret.retn();
@@ -725,7 +725,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfNodesPerCell() const
 DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfFacesPerCell() const
 {
   checkNonDynamicGeoType();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(getNumberOfCells(),1);
   ret->fillWithValue((int)_cm->getNumberOfSons());
   return ret.retn();
@@ -734,7 +734,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::computeNbOfFacesPerCell() const
 DataArrayInt *MEDCoupling1SGTUMesh::computeEffectiveNbOfNodesPerCell() const
 {
   checkNonDynamicGeoType();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   int nbCells(getNumberOfCells());
   ret->alloc(nbCells,1);
   int *retPtr(ret->getPointer());
@@ -852,9 +852,9 @@ std::string MEDCoupling1SGTUMesh::advancedRepr() const
 
 DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
-  int nbOfCells=getNumberOfCells();//checkCoherency()
+  int nbOfCells=getNumberOfCells();//checkConsistencyLight()
   int nbOfNodes=getNumberOfNodes();
   ret->alloc(nbOfCells,spaceDim);
   double *ptToFill=ret->getPointer();
@@ -881,15 +881,15 @@ DataArrayDouble *MEDCoupling1SGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
 void MEDCoupling1SGTUMesh::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
+  MCAuto<DataArrayInt> o2n=DataArrayInt::New();
   o2n->useArray(old2NewBg,false,C_DEALLOC,nbCells,1);
   if(check)
     o2n=o2n->checkAndPreparePermutation();
   //
   const int *conn=_conn->begin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(nbCells);
+  MCAuto<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(nbCells);
   const int *n2oPtr=n2o->begin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
+  MCAuto<DataArrayInt> newConn=DataArrayInt::New();
   newConn->alloc(_conn->getNumberOfTuples(),1);
   newConn->copyStringInfoFrom(*_conn);
   int sz=getNumberOfNodesPerCell();
@@ -917,7 +917,7 @@ void MEDCoupling1SGTUMesh::renumberCells(const int *old2NewBg, bool check)
 void MEDCoupling1SGTUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const
 {
   int nbOfCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsKept=DataArrayInt::New(); cellIdsKept->alloc(0,1);
+  MCAuto<DataArrayInt> cellIdsKept=DataArrayInt::New(); cellIdsKept->alloc(0,1);
   int tmp=-1;
   int sz=_conn->getMaxValue(tmp); sz=std::max(sz,0)+1;
   std::vector<bool> fastFinder(sz,false);
@@ -952,20 +952,20 @@ MEDCouplingMesh *MEDCoupling1SGTUMesh::mergeMyselfWith(const MEDCouplingMesh *ot
 
 MEDCouplingUMesh *MEDCoupling1SGTUMesh::buildUnstructured() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),getMeshDimension());
+  MCAuto<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),getMeshDimension());
   ret->setCoords(getCoords());
   const int *nodalConn=_conn->begin();
   int nbCells=getNumberOfCells();
   int nbNodesPerCell=getNumberOfNodesPerCell();
   int geoType=(int)getCellModelEnum();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New(); c->alloc(nbCells*(nbNodesPerCell+1),1);
+  MCAuto<DataArrayInt> c=DataArrayInt::New(); c->alloc(nbCells*(nbNodesPerCell+1),1);
   int *cPtr=c->getPointer();
   for(int i=0;i<nbCells;i++,nodalConn+=nbNodesPerCell)
     {
       *cPtr++=geoType;
       cPtr=std::copy(nodalConn,nodalConn+nbNodesPerCell,cPtr);
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cI=DataArrayInt::Range(0,(nbCells+1)*(nbNodesPerCell+1),nbNodesPerCell+1);
+  MCAuto<DataArrayInt> cI=DataArrayInt::Range(0,(nbCells+1)*(nbNodesPerCell+1),nbNodesPerCell+1);
   ret->setConnectivity(c,cI,true);
   try
   { ret->copyTinyInfoFrom(this); }
@@ -1011,12 +1011,12 @@ struct MEDCouplingAccVisit
  */
 DataArrayInt *MEDCoupling1SGTUMesh::computeFetchedNodeIds() const
 {
-  checkCoherencyOfConnectivity();
+  checkConsistencyOfConnectivity();
   int nbNodes(getNumberOfNodes());
   std::vector<bool> fetchedNodes(nbNodes,false);
   computeNodeIdsAlg(fetchedNodes);
   int sz((int)std::count(fetchedNodes.begin(),fetchedNodes.end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
   int *retPtr(ret->getPointer());
   for(int i=0;i<nbNodes;i++)
     if(fetchedNodes[i])
@@ -1043,7 +1043,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
   nbrOfNodesInUse=-1;
   int nbOfNodes=getNumberOfNodes();
   int nbOfCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   ret->alloc(nbOfNodes,1);
   int *traducer=ret->getPointer();
   std::fill(traducer,traducer+nbOfNodes,-1);
@@ -1144,7 +1144,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshes(std::vector<const M
   for(std::size_t ii=0;ii<sz;ii++)
     if(&(a[ii]->getCellModel())!=cm)
       throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshes : all items must have the same geo type !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> > bb(sz);
+  std::vector< MCAuto<MEDCoupling1SGTUMesh> > bb(sz);
   std::vector< const MEDCoupling1SGTUMesh * > aa(sz);
   int spaceDim=-3;
   for(std::size_t i=0;i<sz && spaceDim==-3;i++)
@@ -1192,7 +1192,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords(std::ve
       if(coords!=(*it)->getCoords())
         throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::Merge1SGTUMeshesOnSameCoords : not lying on same coords !");
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh("merge",*cm));
+  MCAuto<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh("merge",*cm));
   ret->setCoords(coords);
   ret->_conn=DataArrayInt::Aggregate(ncs);
   return ret.retn();
@@ -1218,10 +1218,10 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const
     }
   std::vector<const MEDCouplingPointSet *> aps(a.size());
   std::copy(a.begin(),a.end(),aps.begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> pts=MergeNodesArray(aps);
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh("merge",*cm));
+  MCAuto<DataArrayDouble> pts=MergeNodesArray(aps);
+  MCAuto<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh("merge",*cm));
   ret->setCoords(pts);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New();
+  MCAuto<DataArrayInt> c=DataArrayInt::New();
   c->alloc(nbOfCells*nbNodesPerCell,1);
   int *cPtr=c->getPointer();
   int offset=0;
@@ -1240,12 +1240,12 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::Merge1SGTUMeshesLL(std::vector<const
 MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
   int ncell=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName(),*_cm));
+  MCAuto<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName(),*_cm));
   ret->setCoords(_coords);
   std::size_t nbOfElemsRet=std::distance(begin,end);
   const int *inConn=_conn->getConstPointer();
   int sz=getNumberOfNodesPerCell();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connRet=DataArrayInt::New(); connRet->alloc((int)nbOfElemsRet*sz,1);
+  MCAuto<DataArrayInt> connRet=DataArrayInt::New(); connRet->alloc((int)nbOfElemsRet*sz,1);
   int *connPtr=connRet->getPointer();
   for(const int *work=begin;work!=end;work++,connPtr+=sz)
     {
@@ -1262,15 +1262,15 @@ MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords(const int
   return ret.retn();
 }
 
-MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
+MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const
 {
   int ncell=getNumberOfCells();
-  int nbOfElemsRet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords2 : ");
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName(),*_cm));
+  int nbOfElemsRet=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoordsSlice : ");
+  MCAuto<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName(),*_cm));
   ret->setCoords(_coords);
   const int *inConn=_conn->getConstPointer();
   int sz=getNumberOfNodesPerCell();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connRet=DataArrayInt::New(); connRet->alloc((int)nbOfElemsRet*sz,1);
+  MCAuto<DataArrayInt> connRet=DataArrayInt::New(); connRet->alloc((int)nbOfElemsRet*sz,1);
   int *connPtr=connRet->getPointer();
   int curId=start;
   for(int i=0;i<nbOfElemsRet;i++,connPtr+=sz,curId+=step)
@@ -1279,7 +1279,7 @@ MEDCouplingPointSet *MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords2(int star
         std::copy(inConn+curId*sz,inConn+(curId+1)*sz,connPtr);
       else
         {
-          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoords2 : On pos #" << i << " input cell id =" << curId  << " should be in [0," << ncell << ") !";
+          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::buildPartOfMySelfKeepCoordsSlice : On pos #" << i << " input cell id =" << curId  << " should be in [0," << ncell << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
@@ -1305,8 +1305,8 @@ void MEDCoupling1SGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) co
 
 MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDim) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName(),*_cm));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1;
+  MCAuto<MEDCoupling1SGTUMesh> ret(new MEDCoupling1SGTUMesh(getName(),*_cm));
+  MCAuto<DataArrayInt> tmp1;
   const DataArrayInt *nodalConn(_conn);
   if(!nodalConn)
     {
@@ -1317,7 +1317,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::buildSetInstanceFromThis(int spaceDi
   ret->_conn=tmp1;
   if(!_coords)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=DataArrayDouble::New(); coords->alloc(0,spaceDim);
+      MCAuto<DataArrayDouble> coords=DataArrayDouble::New(); coords->alloc(0,spaceDim);
       ret->setCoords(coords);
     }
   else
@@ -1330,8 +1330,8 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol0()
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_QUAD4)
     return DataArrayInt::Range(0,nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(2*3*nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(2*nbOfCells,1);
+  MCAuto<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(2*3*nbOfCells,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(2*nbOfCells,1);
   const int *c(_conn->begin());
   int *retPtr(ret->getPointer()),*newConnPtr(newConn->getPointer());
   for(int i=0;i<nbOfCells;i++,c+=4,newConnPtr+=6,retPtr+=2)
@@ -1351,8 +1351,8 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePol1()
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_QUAD4)
     return DataArrayInt::Range(0,nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(2*3*nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(2*nbOfCells,1);
+  MCAuto<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(2*3*nbOfCells,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(2*nbOfCells,1);
   const int *c(_conn->begin());
   int *retPtr(ret->getPointer()),*newConnPtr(newConn->getPointer());
   for(int i=0;i<nbOfCells;i++,c+=4,newConnPtr+=6,retPtr+=2)
@@ -1372,8 +1372,8 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace5()
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA8)
     return DataArrayInt::Range(0,nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(5*4*nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(5*nbOfCells,1);
+  MCAuto<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(5*4*nbOfCells,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(5*nbOfCells,1);
   const int *c(_conn->begin());
   int *retPtr(ret->getPointer()),*newConnPtr(newConn->getPointer());
   for(int i=0;i<nbOfCells;i++,c+=8,newConnPtr+=20,retPtr+=5)
@@ -1393,8 +1393,8 @@ DataArrayInt *MEDCoupling1SGTUMesh::simplexizePlanarFace6()
   int nbOfCells=getNumberOfCells();
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA8)
     return DataArrayInt::Range(0,nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(6*4*nbOfCells,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(6*nbOfCells,1);
+  MCAuto<DataArrayInt> newConn=DataArrayInt::New(); newConn->alloc(6*4*nbOfCells,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(6*nbOfCells,1);
   const int *c(_conn->begin());
   int *retPtr(ret->getPointer()),*newConnPtr(newConn->getPointer());
   for(int i=0;i<nbOfCells;i++,c+=8,newConnPtr+=24,retPtr+=6)
@@ -1716,8 +1716,8 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4 : this method can be applied only on HEXA8 mesh !");
   int nbHexa8(getNumberOfCells());
   const int *inConnPtr(getNodalConnectivity()->begin());
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),INTERP_KERNEL::NORM_QUAD4));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()); c->alloc(nbHexa8*6*4,1);
+  MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),INTERP_KERNEL::NORM_QUAD4));
+  MCAuto<DataArrayInt> c(DataArrayInt::New()); c->alloc(nbHexa8*6*4,1);
   int *cPtr(c->getPointer());
   for(int i=0;i<nbHexa8;i++,inConnPtr+=8)
     {
@@ -1743,15 +1743,15 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::explodeEachHexa8To6Quad4() const
  */
 MEDCouplingCMesh *MEDCoupling1SGTUMesh::structurizeMe(DataArrayInt *& cellPerm, DataArrayInt *& nodePerm, double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int spaceDim(getSpaceDimension()),meshDim(getMeshDimension()),nbNodes(getNumberOfNodes());
   if(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(meshDim)!=getCellModelEnum())
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::structurizeMe : the unique geo type in this is not compatible with the geometric type regarding mesh dimension !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> cm(MEDCouplingCMesh::New());
+  MCAuto<MEDCouplingCMesh> cm(MEDCouplingCMesh::New());
   for(int i=0;i<spaceDim;i++)
     {
       std::vector<int> tmp(1,i);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> elt(static_cast<DataArrayDouble*>(getCoords()->keepSelectedComponents(tmp)));
+      MCAuto<DataArrayDouble> elt(static_cast<DataArrayDouble*>(getCoords()->keepSelectedComponents(tmp)));
       elt=elt->getDifferentValues(eps);
       elt->sort(true);
       cm->setCoordsAt(i,elt);
@@ -1761,7 +1761,7 @@ MEDCouplingCMesh *MEDCoupling1SGTUMesh::structurizeMe(DataArrayInt *& cellPerm, 
   try
   { cm->copyTinyInfoFrom(this); }
   catch(INTERP_KERNEL::Exception&) { }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> um(cm->buildUnstructured()),self(buildUnstructured());
+  MCAuto<MEDCouplingUMesh> um(cm->buildUnstructured()),self(buildUnstructured());
   self->checkGeoEquivalWith(um,12,eps,cellPerm,nodePerm);
   return cm.retn();
 }
@@ -1850,13 +1850,13 @@ bool UpdateHexa8Cell(int validAxis, int neighId, const int *validConnQuad4NeighS
  */
 DataArrayInt *MEDCoupling1SGTUMesh::sortHexa8EachOther()
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> quads(explodeEachHexa8To6Quad4());//checks that only hexa8
+  MCAuto<MEDCoupling1SGTUMesh> quads(explodeEachHexa8To6Quad4());//checks that only hexa8
   int nbHexa8(getNumberOfCells()),*cQuads(quads->getNodalConnectivity()->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighOfQuads(DataArrayInt::New()); neighOfQuads->alloc(nbHexa8*6,1); neighOfQuads->fillWithValue(-1);
+  MCAuto<DataArrayInt> neighOfQuads(DataArrayInt::New()); neighOfQuads->alloc(nbHexa8*6,1); neighOfQuads->fillWithValue(-1);
   int *ptNeigh(neighOfQuads->getPointer());
   {//neighOfQuads tells for each face of each Quad8 which cell (if!=-1) is connected to this face.
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> quadsTmp(quads->buildUnstructured());
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ccSafe,cciSafe;
+    MCAuto<MEDCouplingUMesh> quadsTmp(quads->buildUnstructured());
+    MCAuto<DataArrayInt> ccSafe,cciSafe;
     DataArrayInt *cc(0),*cci(0);
     quadsTmp->findCommonCells(3,0,cc,cci);
     ccSafe=cc; cciSafe=cci;
@@ -1864,7 +1864,7 @@ DataArrayInt *MEDCoupling1SGTUMesh::sortHexa8EachOther()
     for(int i=0;i<nbOfPair;i++)
       { ptNeigh[ccPtr[2*i+0]]=ccPtr[2*i+1]/6; ptNeigh[ccPtr[2*i+1]]=ccPtr[2*i+0]/6; }
   }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   std::vector<bool> fetched(nbHexa8,false);
   std::vector<bool>::iterator it(std::find(fetched.begin(),fetched.end(),false));
   while(it!=fetched.end())//it will turns as time as number of connected zones
@@ -1927,24 +1927,24 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_TETRA4)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh3D : only TETRA4 supported !");
   checkFullyDefined();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> thisu(buildUnstructured());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodArr(DataArrayInt::New()),revNodIArr(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> thisu(buildUnstructured());
+  MCAuto<DataArrayInt> revNodArr(DataArrayInt::New()),revNodIArr(DataArrayInt::New());
   thisu->getReverseNodalConnectivity(revNodArr,revNodIArr);
   const int *revNod(revNodArr->begin()),*revNodI(revNodIArr->begin()),*nodal(_conn->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1Arr(DataArrayInt::New()),di1Arr(DataArrayInt::New()),rd1Arr(DataArrayInt::New()),rdi1Arr(DataArrayInt::New());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> edges(thisu->explode3DMeshTo1D(d1Arr,di1Arr,rd1Arr,rdi1Arr));
+  MCAuto<DataArrayInt> d1Arr(DataArrayInt::New()),di1Arr(DataArrayInt::New()),rd1Arr(DataArrayInt::New()),rdi1Arr(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> edges(thisu->explode3DMeshTo1D(d1Arr,di1Arr,rd1Arr,rdi1Arr));
   const int *d1(d1Arr->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> faces(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
+  MCAuto<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> faces(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
   const int *d2(d2Arr->begin()),*rdi2(rdi2Arr->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),facesBaryArr(faces->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
+  MCAuto<DataArrayDouble> edgesBaryArr(edges->computeCellCenterOfMass()),facesBaryArr(faces->computeCellCenterOfMass()),baryArr(computeCellCenterOfMass());
   const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+faces->getNumberOfCells()),offset1(offset0+edges->getNumberOfCells());
   edges=0; faces=0;
   std::vector<const DataArrayDouble *> v(4); v[0]=getCoords(); v[1]=facesBaryArr; v[2]=edgesBaryArr; v[3]=baryArr;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0; facesBaryArr=0;
+  MCAuto<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0; facesBaryArr=0;
   std::string name("DualOf_"); name+=getName();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name,INTERP_KERNEL::NORM_POLYHED)); ret->setCoords(zeArr);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,1); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
+  MCAuto<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name,INTERP_KERNEL::NORM_POLYHED)); ret->setCoords(zeArr);
+  MCAuto<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,1); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
   for(int i=0;i<nbOfNodes;i++,revNodI++)
     {
       int nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
@@ -2002,21 +2002,21 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_TRI3)
     throw INTERP_KERNEL::Exception("MEDCoupling1SGTUMesh::computeDualMesh2D : only TRI3 supported !");
   checkFullyDefined();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> thisu(buildUnstructured());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodArr(DataArrayInt::New()),revNodIArr(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> thisu(buildUnstructured());
+  MCAuto<DataArrayInt> revNodArr(DataArrayInt::New()),revNodIArr(DataArrayInt::New());
   thisu->getReverseNodalConnectivity(revNodArr,revNodIArr);
   const int *revNod(revNodArr->begin()),*revNodI(revNodIArr->begin()),*nodal(_conn->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> edges(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
+  MCAuto<DataArrayInt> d2Arr(DataArrayInt::New()),di2Arr(DataArrayInt::New()),rd2Arr(DataArrayInt::New()),rdi2Arr(DataArrayInt::New());
+  MCAuto<MEDCouplingUMesh> edges(thisu->buildDescendingConnectivity(d2Arr,di2Arr,rd2Arr,rdi2Arr));  thisu=0;
   const int *d2(d2Arr->begin()),*rdi2(rdi2Arr->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> edgesBaryArr(edges->getBarycenterAndOwner()),baryArr(getBarycenterAndOwner());
+  MCAuto<DataArrayDouble> edgesBaryArr(edges->computeCellCenterOfMass()),baryArr(computeCellCenterOfMass());
   const int nbOfNodes(getNumberOfNodes()),offset0(nbOfNodes+edges->getNumberOfCells());
   edges=0;
   std::vector<const DataArrayDouble *> v(3); v[0]=getCoords(); v[1]=edgesBaryArr; v[2]=baryArr;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0;
+  MCAuto<DataArrayDouble> zeArr(DataArrayDouble::Aggregate(v)); baryArr=0; edgesBaryArr=0;
   std::string name("DualOf_"); name+=getName();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name,INTERP_KERNEL::NORM_POLYGON)); ret->setCoords(zeArr);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,1); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
+  MCAuto<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(name,INTERP_KERNEL::NORM_POLYGON)); ret->setCoords(zeArr);
+  MCAuto<DataArrayInt> cArr(DataArrayInt::New()),ciArr(DataArrayInt::New()); ciArr->alloc(nbOfNodes+1,1); ciArr->setIJ(0,0,0); cArr->alloc(0,1);
   for(int i=0;i<nbOfNodes;i++,revNodI++)
     {
       int nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
@@ -2075,7 +2075,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
 DataArrayDouble *MEDCoupling1SGTUMesh::getBoundingBoxForBBTree(double arcDetEps) const
 {
   int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes()),nbOfNodesPerCell(getNumberOfNodesPerCell());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
   double *bbox(ret->getPointer());
   for(int i=0;i<nbOfCells*spaceDim;i++)
     {
@@ -2117,9 +2117,9 @@ DataArrayDouble *MEDCoupling1SGTUMesh::getBoundingBoxForBBTree(double arcDetEps)
 MEDCouplingFieldDouble *MEDCoupling1SGTUMesh::computeDiameterField() const
 {
   checkFullyDefined();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME));
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME));
   int nbCells(getNumberOfCells());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> arr(DataArrayDouble::New());
   arr->alloc(nbCells,1);
   INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::DiameterCalculator> dc(_cm->buildInstanceOfDiameterCalulator(getSpaceDimension()));
   dc->computeFor1SGTUMeshFrmt(nbCells,_conn->begin(),getCoords()->begin(),arr->getPointer());
@@ -2163,10 +2163,10 @@ MEDCoupling1DGTUMesh::MEDCoupling1DGTUMesh(const MEDCoupling1DGTUMesh& other, bo
     {
       const DataArrayInt *c(other._conn);
       if(c)
-        _conn=c->deepCpy();
+        _conn=c->deepCopy();
       c=other._conn_indx;
       if(c)
-        _conn_indx=c->deepCpy();
+        _conn_indx=c->deepCopy();
     }
 }
 
@@ -2176,17 +2176,17 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
 }
 
 /*!
- * This method behaves mostly like MEDCoupling1DGTUMesh::deepCpy method, except that only nodal connectivity arrays are deeply copied.
+ * This method behaves mostly like MEDCoupling1DGTUMesh::deepCopy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
  * 
  * \return MEDCoupling1DGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
- * \sa MEDCoupling1DGTUMesh::deepCpy
+ * \sa MEDCoupling1DGTUMesh::deepCopy
  */
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCpyConnectivityOnly() const
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCopyConnectivityOnly() const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(clone(false));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(_conn->deepCpy()),ci(_conn_indx->deepCpy());
+  checkConsistencyLight();
+  MCAuto<MEDCoupling1DGTUMesh> ret(clone(false));
+  MCAuto<DataArrayInt> c(_conn->deepCopy()),ci(_conn_indx->deepCopy());
   ret->setNodalConnectivity(c,ci);
   return ret.retn();
 }
@@ -2215,7 +2215,7 @@ std::vector<const BigMemoryObject *> MEDCoupling1DGTUMesh::getDirectChildrenWith
   return ret;
 }
 
-MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCpy() const
+MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::deepCopy() const
 {
   return clone(true);
 }
@@ -2331,7 +2331,7 @@ void MEDCoupling1DGTUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, do
     }
 }
 
-void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const
+void MEDCoupling1DGTUMesh::checkConsistencyOfConnectivity() const
 {
   const DataArrayInt *c1(_conn);
   if(c1)
@@ -2378,7 +2378,7 @@ void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const
   int szOfC1Exp=_conn_indx->back();
   if(sz2<szOfC1Exp)
     {
-      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity : The expected length of nodal connectivity array regarding index is " << szOfC1Exp << " but the actual size of it is " << c1->getNumberOfTuples() << " !";
+      std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::checkConsistencyOfConnectivity : The expected length of nodal connectivity array regarding index is " << szOfC1Exp << " but the actual size of it is " << c1->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -2388,18 +2388,18 @@ void MEDCoupling1DGTUMesh::checkCoherencyOfConnectivity() const
  * In addition you are sure that the length of nodal connectivity index array is bigger than or equal to one.
  * In addition you are also sure that length of nodal connectivity is coherent with the content of the last value in the index array.
  */
-void MEDCoupling1DGTUMesh::checkCoherency() const
+void MEDCoupling1DGTUMesh::checkConsistencyLight() const
 {
-  MEDCouplingPointSet::checkCoherency();
-  checkCoherencyOfConnectivity();
+  MEDCouplingPointSet::checkConsistencyLight();
+  checkConsistencyOfConnectivity();
 }
 
-void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const
+void MEDCoupling1DGTUMesh::checkConsistency(double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   const DataArrayInt *c1(_conn),*c2(_conn_indx);
   if(!c2->isMonotonic(true))
-    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkCoherency1 : the nodal connectivity index is expected to be increasing monotinic !");
+    throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::checkConsistency : the nodal connectivity index is expected to be increasing monotinic !");
   //
   int nbOfTuples=c1->getNumberOfTuples();
   int nbOfNodes=getNumberOfNodes();
@@ -2417,7 +2417,7 @@ void MEDCoupling1DGTUMesh::checkCoherency1(double eps) const
 
 int MEDCoupling1DGTUMesh::getNumberOfCells() const
 {
-  checkCoherencyOfConnectivity();//do not remove
+  checkConsistencyOfConnectivity();//do not remove
   return _conn_indx->getNumberOfTuples()-1;
 }
 
@@ -2431,13 +2431,13 @@ int MEDCoupling1DGTUMesh::getNumberOfCells() const
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   _conn_indx->checkMonotonic(true);
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
     return _conn_indx->deltaShiftIndex();
   // for polyhedrons
   int nbOfCells=_conn_indx->getNumberOfTuples()-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfCells,1);
   int *retPtr=ret->getPointer();
   const int *ci=_conn_indx->begin(),*c=_conn->begin();
@@ -2454,19 +2454,19 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   _conn_indx->checkMonotonic(true);
   if(getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED && getCellModelEnum()!=INTERP_KERNEL::NORM_QPOLYG)
     return _conn_indx->deltaShiftIndex();
   if(getCellModelEnum()==INTERP_KERNEL::NORM_QPOLYG)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=_conn_indx->deltaShiftIndex();
+      MCAuto<DataArrayInt> ret=_conn_indx->deltaShiftIndex();
       ret->applyDivideBy(2);
       return ret.retn();
     }
   // for polyhedrons
   int nbOfCells=_conn_indx->getNumberOfTuples()-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfCells,1);
   int *retPtr=ret->getPointer();
   const int *ci=_conn_indx->begin(),*c=_conn->begin();
@@ -2484,10 +2484,10 @@ DataArrayInt *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeEffectiveNbOfNodesPerCell() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   _conn_indx->checkMonotonic(true);
   int nbOfCells(_conn_indx->getNumberOfTuples()-1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfCells,1);
   int *retPtr(ret->getPointer());
   const int *ci(_conn_indx->begin()),*c(_conn->begin());
@@ -2573,7 +2573,7 @@ std::string MEDCoupling1DGTUMesh::simpleRepr() const
     ret << msg0 << "\n";
   ret << "Number of cells : ";
   bool isOK=true;
-  try { checkCoherency(); } catch(INTERP_KERNEL::Exception& /* e */)
+  try { checkConsistencyLight(); } catch(INTERP_KERNEL::Exception& /* e */)
   {
       ret << "Nodal connectivity arrays are not set or badly set !\n";
       isOK=false;
@@ -2596,7 +2596,7 @@ std::string MEDCoupling1DGTUMesh::advancedRepr() const
   ret << "\n\nNodal Connectivity : \n____________________\n\n";
   //
   bool isOK=true;
-  try { checkCoherency1(); } catch(INTERP_KERNEL::Exception& /* e */)
+  try { checkConsistency(); } catch(INTERP_KERNEL::Exception& /* e */)
   {
       ret << "Nodal connectivity arrays are not set or badly set !\n";
       isOK=false;
@@ -2616,9 +2616,9 @@ std::string MEDCoupling1DGTUMesh::advancedRepr() const
 
 DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
-  int nbOfCells=getNumberOfCells();//checkCoherency()
+  int nbOfCells=getNumberOfCells();//checkConsistencyLight()
   int nbOfNodes=getNumberOfNodes();
   ret->alloc(nbOfCells,spaceDim);
   double *ptToFill=ret->getPointer();
@@ -2694,15 +2694,15 @@ DataArrayDouble *MEDCoupling1DGTUMesh::computeIsoBarycenterOfNodesPerCell() cons
 void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check)
 {
   int nbCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::New();
+  MCAuto<DataArrayInt> o2n=DataArrayInt::New();
   o2n->useArray(old2NewBg,false,C_DEALLOC,nbCells,1);
   if(check)
     o2n=o2n->checkAndPreparePermutation();
   //
   const int *o2nPtr=o2n->getPointer();
   const int *conn=_conn->begin(),*conni=_conn_indx->begin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
+  MCAuto<DataArrayInt> newConn=DataArrayInt::New();
+  MCAuto<DataArrayInt> newConnI=DataArrayInt::New();
   newConn->alloc(_conn->getNumberOfTuples(),1); newConnI->alloc(nbCells,1);
   newConn->copyStringInfoFrom(*_conn); newConnI->copyStringInfoFrom(*_conn_indx);
   //
@@ -2719,7 +2719,7 @@ void MEDCoupling1DGTUMesh::renumberCells(const int *old2NewBg, bool check)
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  newConnI->computeOffsets2(); newCI=newConnI->getPointer();
+  newConnI->computeOffsetsFull(); newCI=newConnI->getPointer();
   //
   for(int i=0;i<nbCells;i++,conni++)
     {
@@ -2740,13 +2740,13 @@ MEDCouplingMesh *MEDCoupling1DGTUMesh::mergeMyselfWith(const MEDCouplingMesh *ot
 
 MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),getMeshDimension());
+  MCAuto<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),getMeshDimension());
   ret->setCoords(getCoords());
   const int *nodalConn=_conn->begin(),*nodalConnI=_conn_indx->begin();
-  int nbCells=getNumberOfCells();//checkCoherency
+  int nbCells=getNumberOfCells();//checkConsistencyLight
   int geoType=(int)getCellModelEnum();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New(); c->alloc(nbCells+_conn->getNumberOfTuples(),1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cI=DataArrayInt::New(); cI->alloc(nbCells+1);
+  MCAuto<DataArrayInt> c=DataArrayInt::New(); c->alloc(nbCells+_conn->getNumberOfTuples(),1);
+  MCAuto<DataArrayInt> cI=DataArrayInt::New(); cI->alloc(nbCells+1);
   int *cPtr=c->getPointer(),*ciPtr=cI->getPointer();
   ciPtr[0]=0;
   for(int i=0;i<nbCells;i++,ciPtr++)
@@ -2777,7 +2777,7 @@ MEDCouplingUMesh *MEDCoupling1DGTUMesh::buildUnstructured() const
 DataArrayInt *MEDCoupling1DGTUMesh::simplexize(int policy)
 {
   int nbOfCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfCells,1);
   ret->iota(0);
   return ret.retn();
@@ -2794,7 +2794,7 @@ void MEDCoupling1DGTUMesh::reprQuickOverview(std::ostream& stream) const
   stream << " Space dimension : " << _coords->getNumberOfComponents() << "." << std::endl;
   stream << "Number of nodes : " << _coords->getNumberOfTuples() << ".";
   bool isOK=true;
-  try { checkCoherency(); } catch(INTERP_KERNEL::Exception&  /* e */)
+  try { checkConsistencyLight(); } catch(INTERP_KERNEL::Exception&  /* e */)
   {
       stream << std::endl << "Nodal connectivity NOT set properly !\n";
       isOK=false;
@@ -2828,31 +2828,31 @@ MEDCouplingPointSet *MEDCoupling1DGTUMesh::mergeMyselfWithOnSameCoords(const MED
 
 MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  checkConsistencyLight();
+  MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
   ret->setCoords(_coords);
   DataArrayInt *c=0,*ci=0;
   MEDCouplingUMesh::ExtractFromIndexedArrays(begin,end,_conn,_conn_indx,c,ci);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
+  MCAuto<DataArrayInt> cSafe(c),ciSafe(ci);
   ret->setNodalConnectivity(c,ci);
   return ret.retn();
 }
 
-MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoords2(int start, int end, int step) const
+MEDCouplingPointSet *MEDCoupling1DGTUMesh::buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  checkConsistencyLight();
+  MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
   ret->setCoords(_coords);
   DataArrayInt *c=0,*ci=0;
-  MEDCouplingUMesh::ExtractFromIndexedArrays2(start,end,step,_conn,_conn_indx,c,ci);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
+  MEDCouplingUMesh::ExtractFromIndexedArraysSlice(start,end,step,_conn,_conn_indx,c,ci);
+  MCAuto<DataArrayInt> cSafe(c),ciSafe(ci);
   ret->setNodalConnectivity(c,ci);
   return ret.retn();
 }
 
 void MEDCoupling1DGTUMesh::computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const
 {
-  checkCoherency1();
+  checkConsistency();
   int sz((int)nodeIdsInUse.size());
   for(const int *conn=_conn->begin();conn!=_conn->end();conn++)
     {
@@ -2980,8 +2980,8 @@ void MEDCoupling1DGTUMesh::resizeForUnserialization(const std::vector<int>& tiny
   std::vector<int> tinyInfo2(tinyInfo.begin()+9,tinyInfo.begin()+9+tinyInfo[6]);
   std::vector<int> tinyInfo1(tinyInfo.begin()+9+tinyInfo[6],tinyInfo.begin()+9+tinyInfo[6]+tinyInfo[7]);
   std::vector<int> tinyInfo12(tinyInfo.begin()+9+tinyInfo[6]+tinyInfo[7],tinyInfo.begin()+9+tinyInfo[6]+tinyInfo[7]+tinyInfo[8]);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(DataArrayInt::New()); p1->resizeForUnserialization(tinyInfo1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(DataArrayInt::New()); p2->resizeForUnserialization(tinyInfo12);
+  MCAuto<DataArrayInt> p1(DataArrayInt::New()); p1->resizeForUnserialization(tinyInfo1);
+  MCAuto<DataArrayInt> p2(DataArrayInt::New()); p2->resizeForUnserialization(tinyInfo12);
   std::vector<const DataArrayInt *> v(2); v[0]=p1; v[1]=p2;
   p2=DataArrayInt::Aggregate(v);
   a2->resizeForUnserialization(tinyInfo2);
@@ -3061,12 +3061,12 @@ void MEDCoupling1DGTUMesh::unserialization(const std::vector<double>& tinyInfoD,
  */
 DataArrayInt *MEDCoupling1DGTUMesh::computeFetchedNodeIds() const
 {
-  checkCoherency1();
+  checkConsistency();
   int nbNodes(getNumberOfNodes());
   std::vector<bool> fetchedNodes(nbNodes,false);
   computeNodeIdsAlg(fetchedNodes);
   int sz((int)std::count(fetchedNodes.begin(),fetchedNodes.end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
   int *retPtr(ret->getPointer());
   for(int i=0;i<nbNodes;i++)
     if(fetchedNodes[i])
@@ -3092,8 +3092,8 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const
 {
   nbrOfNodesInUse=-1;
   int nbOfNodes=getNumberOfNodes();
-  int nbOfCells=getNumberOfCells();//checkCoherency
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  int nbOfCells=getNumberOfCells();//checkConsistencyLight
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfNodes,1);
   int *traducer=ret->getPointer();
   std::fill(traducer,traducer+nbOfNodes,-1);
@@ -3222,7 +3222,7 @@ void MEDCoupling1DGTUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 void MEDCoupling1DGTUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, DataArrayInt *&cellIdsKeptArr) const
 {
   int nbOfCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsKept=DataArrayInt::New(); cellIdsKept->alloc(0,1);
+  MCAuto<DataArrayInt> cellIdsKept=DataArrayInt::New(); cellIdsKept->alloc(0,1);
   int tmp=-1;
   int sz=_conn->getMaxValue(tmp); sz=std::max(sz,0)+1;
   std::vector<bool> fastFinder(sz,false);
@@ -3344,10 +3344,10 @@ DataArrayInt *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const
  */
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool& isShallowCpyOfNodalConnn) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
   DataArrayInt *nc=0,*nci=0;
   isShallowCpyOfNodalConnn=retrievePackedNodalConnectivity(nc,nci);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ncs(nc),ncis(nci);
+  MCAuto<DataArrayInt> ncs(nc),ncis(nci);
   ret->_conn=ncs; ret->_conn_indx=ncis;
   ret->setCoords(getCoords());
   return ret.retn();
@@ -3372,11 +3372,11 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool
  * \return bool - an indication of the content of the 2 output parameters. If true, \a this looks packed (general case), if true, \a this is not packed then
  * output parameters are newly created objects.
  *
- * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkCoherency test
+ * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkConsistencyLight test
  */
 bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalConn, DataArrayInt *&nodalConnIndx) const
 {
-  if(isPacked())//performs the checkCoherency
+  if(isPacked())//performs the checkConsistencyLight
     {
       const DataArrayInt *c0(_conn),*c1(_conn_indx);
       nodalConn=const_cast<DataArrayInt *>(c0); nodalConnIndx=const_cast<DataArrayInt *>(c1);
@@ -3384,8 +3384,8 @@ bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalC
       return true;
     }
   int bg=_conn_indx->front(),end=_conn_indx->back();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nc(_conn->selectByTupleId2(bg,end,1));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nci(_conn_indx->deepCpy());
+  MCAuto<DataArrayInt> nc(_conn->selectByTupleIdSafeSlice(bg,end,1));
+  MCAuto<DataArrayInt> nci(_conn_indx->deepCopy());
   nci->applyLin(1,-bg);
   nodalConn=nc.retn(); nodalConnIndx=nci.retn();
   return false;
@@ -3397,11 +3397,11 @@ bool MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity(DataArrayInt *&nodalC
  * If nodal connectivity index points to a subpart of nodal connectivity index false will be returned.
  * \return bool - true if \a this looks packed, false is not.
  *
- * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkCoherency test
+ * \throw if \a this does not pass MEDCoupling1DGTUMesh::checkConsistencyLight test
  */
 bool MEDCoupling1DGTUMesh::isPacked() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return _conn_indx->front()==0 && _conn_indx->back()==_conn->getNumberOfTuples();
 }
 
@@ -3427,7 +3427,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshes(std::vector<const M
   for(std::size_t ii=0;ii<sz;ii++)
     if(&(a[ii]->getCellModel())!=cm)
       throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshes : all items must have the same geo type !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > bb(sz);
+  std::vector< MCAuto<MEDCoupling1DGTUMesh> > bb(sz);
   std::vector< const MEDCoupling1DGTUMesh * > aa(sz);
   int spaceDim=-3;
   for(std::size_t i=0;i<sz && spaceDim==-3;i++)
@@ -3458,7 +3458,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::ve
   std::vector<const MEDCoupling1DGTUMesh *>::const_iterator it=a.begin();
   if(!(*it))
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : null instance in the first element of input vector !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > objs(a.size());
+  std::vector< MCAuto<MEDCoupling1DGTUMesh> > objs(a.size());
   std::vector<const DataArrayInt *> ncs(a.size()),ncis(a.size());
   (*it)->getNumberOfCells();//to check that all is OK
   const DataArrayDouble *coords=(*it)->getCoords();
@@ -3479,7 +3479,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords(std::ve
       if(coords!=(*it)->getCoords())
         throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords : not lying on same coords !");
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh("merge",*cm));
+  MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh("merge",*cm));
   ret->setCoords(coords);
   ret->_conn=DataArrayInt::Aggregate(ncs);
   ret->_conn_indx=DataArrayInt::AggregateIndexes(ncis);
@@ -3493,7 +3493,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::Merge1DGTUMeshes : input array must be NON EMPTY !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> > objs(a.size());
+  std::vector< MCAuto<MEDCoupling1DGTUMesh> > objs(a.size());
   std::vector<const DataArrayInt *> ncs(a.size()),ncis(a.size());
   std::vector<const MEDCoupling1DGTUMesh *>::const_iterator it=a.begin();
   std::vector<int> nbNodesPerElt(a.size());
@@ -3517,8 +3517,8 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const
     }
   std::vector<const MEDCouplingPointSet *> aps(a.size());
   std::copy(a.begin(),a.end(),aps.begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> pts=MergeNodesArray(aps);
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh("merge",*cm));
+  MCAuto<DataArrayDouble> pts=MergeNodesArray(aps);
+  MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh("merge",*cm));
   ret->setCoords(pts);
   ret->_conn=AggregateNodalConnAndShiftNodeIds(ncs,nbNodesPerElt);
   ret->_conn_indx=DataArrayInt::AggregateIndexes(ncis);
@@ -3527,8 +3527,8 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::Merge1DGTUMeshesLL(std::vector<const
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDim) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1,tmp2;
+  MCAuto<MEDCoupling1DGTUMesh> ret(new MEDCoupling1DGTUMesh(getName(),*_cm));
+  MCAuto<DataArrayInt> tmp1,tmp2;
   const DataArrayInt *nodalConn(_conn),*nodalConnI(_conn_indx);
   if(!nodalConn)
     {
@@ -3548,7 +3548,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(int spaceDi
   //
   if(!_coords)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=DataArrayDouble::New(); coords->alloc(0,spaceDim);
+      MCAuto<DataArrayDouble> coords=DataArrayDouble::New(); coords->alloc(0,spaceDim);
       ret->setCoords(coords);
     }
   else
@@ -3570,7 +3570,7 @@ DataArrayDouble *MEDCoupling1DGTUMesh::getBoundingBoxForBBTree(double arcDetEps)
 {
   checkFullyDefined();
   int spaceDim(getSpaceDimension()),nbOfCells(getNumberOfCells()),nbOfNodes(getNumberOfNodes());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfCells,2*spaceDim);
   double *bbox(ret->getPointer());
   for(int i=0;i<nbOfCells*spaceDim;i++)
     {
@@ -3669,7 +3669,7 @@ DataArrayInt *MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds(const std:
         throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::AggregateNodalConnAndShiftNodeIds : presence of array with not exactly one component !");
       nbOfTuples+=(*it)->getNumberOfTuples();
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuples,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuples,1);
   int *pt=ret->getPointer();
   int i=0;
   for(std::vector<const DataArrayInt *>::const_iterator it=nodalConns.begin();it!=nodalConns.end();it++,i++)
@@ -3696,11 +3696,11 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New(const MEDCouplingUMesh *m)
   if(gts.size()!=1)
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::New : input mesh must have exactly one geometric type !");
   int geoType((int)*gts.begin());
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(m->getName(),*gts.begin()));
+  MCAuto<MEDCoupling1DGTUMesh> ret(MEDCoupling1DGTUMesh::New(m->getName(),*gts.begin()));
   ret->setCoords(m->getCoords()); ret->setDescription(m->getDescription());
   int nbCells(m->getNumberOfCells());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
-  conn->alloc(m->getMeshLength()-nbCells,1); connI->alloc(nbCells+1,1);
+  MCAuto<DataArrayInt> conn(DataArrayInt::New()),connI(DataArrayInt::New());
+  conn->alloc(m->getNodalConnectivityArrayLen()-nbCells,1); connI->alloc(nbCells+1,1);
   int *c(conn->getPointer()),*ci(connI->getPointer()); *ci=0;
   const int *cin(m->getNodalConnectivity()->begin()),*ciin(m->getNodalConnectivityIndex()->begin());
   for(int i=0;i<nbCells;i++,ciin++,ci++)

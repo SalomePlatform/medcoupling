@@ -198,7 +198,7 @@ MEDMeshMultiLev *MEDMeshMultiLev::New(const MEDFileMesh *m, const std::vector<IN
 
 MEDMeshMultiLev *MEDMeshMultiLev::NewOnlyOnNode(const MEDFileMesh *m, const DataArrayInt *pflOnNode)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,m->getNonEmptyLevels()));
+  MCAuto<MEDMeshMultiLev> ret(MEDMeshMultiLev::New(m,m->getNonEmptyLevels()));
   ret->selectPartOfNodes(pflOnNode);
   return ret.retn();
 }
@@ -254,7 +254,7 @@ bool MEDMeshMultiLev::isFastlyTheSameStruct(const MEDFileField1TSStructItem& fst
 
 DataArray *MEDMeshMultiLev::buildDataArray(const MEDFileField1TSStructItem& fst, const MEDFileFieldGlobsReal *globs, const DataArray *vals) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArray> ret(const_cast<DataArray *>(vals)); ret->incrRef();
+  MCAuto<DataArray> ret(const_cast<DataArray *>(vals)); ret->incrRef();
   if(isFastlyTheSameStruct(fst,globs))
     return ret.retn();
   else
@@ -282,7 +282,7 @@ void MEDMeshMultiLev::retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isW
     { famIds=const_cast<DataArrayInt *>(fids); famIds->incrRef(); isWithoutCopy=_mesh->isObjectInTheProgeny(famIds); return ; }
   //bad luck the slowest part
   isWithoutCopy=false;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > retSafe(sz);
+  std::vector< MCAuto<DataArrayInt> > retSafe(sz);
   std::vector< const DataArrayInt *> ret(sz);
   int start(0);
   for(std::size_t i=0;i<sz;i++)
@@ -291,12 +291,12 @@ void MEDMeshMultiLev::retrieveFamilyIdsOnCells(DataArrayInt *& famIds, bool& isW
       int lgth(_nb_entities[i]);
       if(pfl)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(fids->selectByTupleId2(start,start+lgth,1));
+          MCAuto<DataArrayInt> tmp(fids->selectByTupleIdSafeSlice(start,start+lgth,1));
           retSafe[i]=tmp->selectByTupleIdSafe(pfl->begin(),pfl->end());
         }
       else
         {
-          retSafe[i]=fids->selectByTupleId2(start,start+lgth,1);
+          retSafe[i]=fids->selectByTupleIdSafeSlice(start,start+lgth,1);
         }
       ret[i]=retSafe[i];
       start+=lgth;
@@ -325,7 +325,7 @@ void MEDMeshMultiLev::retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isW
     { numIds=const_cast<DataArrayInt *>(nids); numIds->incrRef(); isWithoutCopy=_mesh->isObjectInTheProgeny(numIds); return ; }
   //bad luck the slowest part
   isWithoutCopy=false;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > retSafe(sz);
+  std::vector< MCAuto<DataArrayInt> > retSafe(sz);
   std::vector< const DataArrayInt *> ret(sz);
   int start(0);
   for(std::size_t i=0;i<sz;i++)
@@ -334,12 +334,12 @@ void MEDMeshMultiLev::retrieveNumberIdsOnCells(DataArrayInt *& numIds, bool& isW
       int lgth(_nb_entities[i]);
       if(pfl)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(nids->selectByTupleId2(start,start+lgth,1));
+          MCAuto<DataArrayInt> tmp(nids->selectByTupleIdSafeSlice(start,start+lgth,1));
           retSafe[i]=tmp->selectByTupleIdSafe(pfl->begin(),pfl->end());
         }
       else
         {
-          retSafe[i]=nids->selectByTupleId2(start,start+lgth,1);
+          retSafe[i]=nids->selectByTupleIdSafeSlice(start,start+lgth,1);
         }
       ret[i]=retSafe[i];
       start+=lgth;
@@ -463,28 +463,28 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
       std::string pflName(p.getPflName());
       const DataArrayInt *nr(_node_reduction);
       if(pflName.empty() && !nr)
-        return vals->deepCpy();
+        return vals->deepCopy();
       if(pflName.empty() && nr)
         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 2 !");
       if(!pflName.empty() && nr)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(nr->deepCpy());
+          MCAuto<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCopy());
+          MCAuto<DataArrayInt> p2(nr->deepCopy());
           p1->sort(true); p2->sort(true);
           if(!p1->isEqualWithoutConsideringStr(*p2))
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : it appears that a profile on nodes does not cover the cells correctly !");
           p1=DataArrayInt::FindPermutationFromFirstToSecond(globs->getProfile(pflName.c_str()),nr);
-          MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
+          MCAuto<DataArray> ret(vals->deepCopy());
           ret->renumberInPlace(p1->begin());
           return ret.retn();
         }
       if(!pflName.empty() && !nr)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCpy());
+          MCAuto<DataArrayInt> p1(globs->getProfile(pflName.c_str())->deepCopy());
           p1->sort(true);
-          if(!p1->isIdentity2(getNumberOfNodes()))
+          if(!p1->isIota(getNumberOfNodes()))
             throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for nodes 4 !");
-          MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->deepCpy());
+          MCAuto<DataArray> ret(vals->deepCopy());
           ret->renumberInPlace(globs->getProfile(pflName.c_str())->begin());
           return ret.retn();
         }
@@ -497,7 +497,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
       if(s.size()!=_geo_types.size())
         throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 2 !");
       std::vector< const DataArray *> arr(s.size());
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArray> > arrSafe(s.size());
+      std::vector< MCAuto<DataArray> > arrSafe(s.size());
       int iii(0);
       int nc(vals->getNumberOfComponents());
       std::vector<std::string> compInfo(vals->getInfoOnComponents());
@@ -518,7 +518,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
               int nbi(ps[0]->getNbOfIntegrationPts(globs));
               const DataArrayInt *otherP(ps[0]->getPfl(globs));
               const std::pair<int,int>& strtStop(ps[0]->getStartStop());
-              MEDCouplingAutoRefCountObjectPtr<DataArray> ret(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+              MCAuto<DataArray> ret(vals->selectByTupleIdSafeSlice(strtStop.first,strtStop.second,1));
               if(!thisP && !otherP)
                 {
                   arrSafe[iii]=ret; arr[iii]=ret;
@@ -526,10 +526,10 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
                 }
               if(thisP && otherP)
                 {
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(ps[0]->getGeo())));
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(thisP->deepCpy());
+                  MCAuto<DataArrayInt> p1(otherP->invertArrayN2O2O2N(getNumberOfCells(ps[0]->getGeo())));
+                  MCAuto<DataArrayInt> p2(thisP->deepCopy());
                   p2->transformWithIndArr(p1->begin(),p1->end());
-                  //p1=p2->getIdsNotEqual(-1);
+                  //p1=p2->findIdsNotEqual(-1);
                   //p1=p2->selectByTupleIdSafe(p1->begin(),p1->end());
                   ret->rearrange(nbi*nc); ret=ret->selectByTupleIdSafe(p2->begin(),p2->end()); ret->rearrange(nc); ret->setInfoOnComponents(compInfo);
                   arrSafe[iii]=ret; arr[iii]=ret;
@@ -537,7 +537,7 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
                 }
               if(!thisP && otherP)
                 {
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(otherP->deepCpy());
+                  MCAuto<DataArrayInt> p1(otherP->deepCopy());
                   p1->sort(true);
                   p1->checkAllIdsInRange(0,getNumberOfCells(ps[0]->getGeo()));
                   p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,p1);
@@ -551,45 +551,45 @@ DataArray *MEDMeshMultiLev::constructDataArray(const MEDFileField1TSStructItem& 
             {
               std::vector< const DataArrayInt * >otherPS(ps.size());
               std::vector< const DataArray * > arr2(ps.size());
-              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArray> > arr2Safe(ps.size());
+              std::vector< MCAuto<DataArray> > arr2Safe(ps.size());
               std::vector< const DataArrayInt * > nbis(ps.size());
-              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > nbisSafe(ps.size());
+              std::vector< MCAuto<DataArrayInt> > nbisSafe(ps.size());
               int jj(0);
               for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
                 {
                   int nbi((*it2)->getNbOfIntegrationPts(globs));
                   const DataArrayInt *otherPfl((*it2)->getPfl(globs));
                   const std::pair<int,int>& strtStop((*it2)->getStartStop());
-                  MEDCouplingAutoRefCountObjectPtr<DataArray> ret2(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+                  MCAuto<DataArray> ret2(vals->selectByTupleIdSafeSlice(strtStop.first,strtStop.second,1));
                   if(!otherPfl)
                     throw INTERP_KERNEL::Exception("MEDMeshMultiLev::constructDataArray : unexpected situation for cells 4 !");
                   arr2[jj]=ret2; arr2Safe[jj]=ret2; otherPS[jj]=otherPfl;
                   nbisSafe[jj]=DataArrayInt::New(); nbisSafe[jj]->alloc(otherPfl->getNumberOfTuples(),1); nbisSafe[jj]->fillWithValue(nbi);
                   nbis[jj]=nbisSafe[jj];
                 }
-              MEDCouplingAutoRefCountObjectPtr<DataArray> arr3(DataArray::Aggregate(arr2));
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> otherP(DataArrayInt::Aggregate(otherPS));
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> zenbis(DataArrayInt::Aggregate(nbis));
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> otherPN(otherP->invertArrayN2O2O2N(getNumberOfCells(*it)));
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1;
+              MCAuto<DataArray> arr3(DataArray::Aggregate(arr2));
+              MCAuto<DataArrayInt> otherP(DataArrayInt::Aggregate(otherPS));
+              MCAuto<DataArrayInt> zenbis(DataArrayInt::Aggregate(nbis));
+              MCAuto<DataArrayInt> otherPN(otherP->invertArrayN2O2O2N(getNumberOfCells(*it)));
+              MCAuto<DataArrayInt> p1;
               if(thisP)
                 p1=DataArrayInt::FindPermutationFromFirstToSecond(otherP,thisP);
               else
-                p1=otherP->deepCpy();
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> zenbisN(zenbis->renumber(p1->begin()));
-              zenbisN->computeOffsets2();
+                p1=otherP->deepCopy();
+              MCAuto<DataArrayInt> zenbisN(zenbis->renumber(p1->begin()));
+              zenbisN->computeOffsetsFull();
               jj=0;
               for(std::vector<const MEDFileField1TSStructItem2 *>::const_iterator it2=ps.begin();it2!=ps.end();it2++,jj++)
                 {
                   //int nbi((*it2)->getNbOfIntegrationPts(globs));
                   const DataArrayInt *otherPfl((*it2)->getPfl(globs));
                   const std::pair<int,int>& strtStop((*it2)->getStartStop());
-                  MEDCouplingAutoRefCountObjectPtr<DataArray> ret2(vals->selectByTupleId2(strtStop.first,strtStop.second,1));
+                  MCAuto<DataArray> ret2(vals->selectByTupleIdSafeSlice(strtStop.first,strtStop.second,1));
                   //
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(otherPfl->deepCpy());
+                  MCAuto<DataArrayInt> p2(otherPfl->deepCopy());
                   p2->transformWithIndArr(otherPN->begin(),otherPN->end());
                   p2->transformWithIndArr(p1->begin(),p1->end());
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsN(p2->buildExplicitArrByRanges(zenbisN));
+                  MCAuto<DataArrayInt> idsN(p2->buildExplicitArrByRanges(zenbisN));
                   arr3->setPartOfValuesBase3(ret2,idsN->begin(),idsN->end(),0,nc,1);
                 }
               arrSafe[iii]=arr3; arr[iii]=arr3;
@@ -615,7 +615,7 @@ void MEDMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArra
   const DataArrayInt *cf(_cell_fam_ids),*cn(_cell_num_ids),*nf(_node_fam_ids),*nn(_node_num_ids);
   if(cf)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+      MCAuto<DataArrayInt> tmp;
       std::vector<const DataArrayInt *> a(2);
       a[0]=cf;
       if(nf)
@@ -629,7 +629,7 @@ void MEDMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArra
     }
   if(cn)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp;
+      MCAuto<DataArrayInt> tmp;
       std::vector<const DataArrayInt *> a(2);
       a[0]=cn;
       if(nn)
@@ -811,7 +811,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
       return ;
     }
   //
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > famIdsSafe(sz);
+  std::vector< MCAuto<DataArrayInt> > famIdsSafe(sz);
   std::vector<const DataArrayInt *> famIds(sz);
   bool f(true);
   for(std::size_t i=0;i<sz;i++)
@@ -823,7 +823,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTE
     }
   if(f)
     _cell_fam_ids=DataArrayInt::Aggregate(famIds);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > numIdsSafe(sz);
+  std::vector< MCAuto<DataArrayInt> > numIdsSafe(sz);
   std::vector<const DataArrayInt *> numIds(sz);
   bool n(true);
   for(std::size_t i=0;i<sz;i++)
@@ -849,20 +849,20 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
   if(!pflNodes || !pflNodes->isAllocated())
     return ;
   std::size_t sz(_parts.size());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a(sz);
+  std::vector< MCAuto<DataArrayInt> > a(sz);
   std::vector< const DataArrayInt *> aa(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       const DataArrayInt *pfl(_pfls[i]);
-      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m(_parts[i]);
+      MCAuto<MEDCoupling1GTUMesh> m(_parts[i]);
       if(pfl)
         m=dynamic_cast<MEDCoupling1GTUMesh *>(_parts[i]->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
       DataArrayInt *cellIds=0;
       m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
+      MCAuto<DataArrayInt> cellIdsSafe(cellIds);
+      MCAuto<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
       int tmp=-1;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(m2->getNodeIdsInUse(tmp));
+      MCAuto<DataArrayInt> o2n(m2->getNodeIdsInUse(tmp));
       a[i]=o2n->invertArrayO2N2N2O(tmp); aa[i]=a[i];
       if(pfl)
         _pfls[i]=pfl->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
@@ -872,7 +872,7 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
   if(!aa.empty())
     _node_reduction=DataArrayInt::Aggregate(aa);//general case
   else
-    _node_reduction=pflNodes->deepCpy();//case where no cells in read mesh.
+    _node_reduction=pflNodes->deepCopy();//case where no cells in read mesh.
   _node_reduction->sort(true);
   _node_reduction=_node_reduction->buildUnique();
   if(_node_reduction->getNumberOfTuples()==pflNodes->getNumberOfTuples())
@@ -880,9 +880,9 @@ void MEDUMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
   if(_node_reduction->getNumberOfTuples()>pflNodes->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::selectPartOfNodes : internal error in MEDCoupling during cell select from a list of nodes !");
   // Here the cells available in _parts is not enough to cover all the nodes in pflNodes. So adding vertices cells in _parts...
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflNodes2(pflNodes->deepCpy());
+  MCAuto<DataArrayInt> pflNodes2(pflNodes->deepCopy());
   pflNodes2->sort(true);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
+  MCAuto<DataArrayInt> diff(pflNodes2->buildSubstractionOptimized(_node_reduction));
   appendVertices(diff,pflNodes2);
 }
 
@@ -895,7 +895,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDUMeshMultiLev& other):MEDMeshMultiLe
 {
 }
 
-MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part):MEDMeshMultiLev(other)
+MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MCAuto<MEDCoupling1GTUMesh>& part):MEDMeshMultiLev(other)
 {
   _parts.resize(1);
   _parts[0]=part;
@@ -918,18 +918,18 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
     tmp=_parts[0]->getCoords();
   if(!tmp)
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : the coordinates are null !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
+  MCAuto<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
   int szBCE(0),szD(0),szF(0);
   bool isPolyh(false);
   int iii(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
+  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
     {
       const MEDCoupling1GTUMesh *cur(*it);
       if(!cur)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : a part is null !");
       //
       const DataArrayInt *pfl(_pfls[iii]);
-      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> cur2;
+      MCAuto<MEDCoupling1GTUMesh> cur2;
       if(!pfl)
         { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
       else
@@ -942,25 +942,25 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       else
         {
           isPolyh=true;
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2(cur->computeEffectiveNbOfNodesPerCell());
+          MCAuto<DataArrayInt> tmp2(cur->computeEffectiveNbOfNodesPerCell());
           szD+=tmp2->accumulate(0)+curNbCells;
           szF+=2*curNbCells+cur->getNodalConnectivity()->getNumberOfTuples();
         }
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()); c->alloc(szBCE,1); int *cPtr(c->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d(DataArrayInt::New()); d->alloc(szD,1); int *dPtr(d->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> e(DataArrayInt::New()),f(DataArrayInt::New()); int *ePtr(0),*fPtr(0);
+  MCAuto<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
+  MCAuto<DataArrayInt> c(DataArrayInt::New()); c->alloc(szBCE,1); int *cPtr(c->getPointer());
+  MCAuto<DataArrayInt> d(DataArrayInt::New()); d->alloc(szD,1); int *dPtr(d->getPointer());
+  MCAuto<DataArrayInt> e(DataArrayInt::New()),f(DataArrayInt::New()); int *ePtr(0),*fPtr(0);
   if(isPolyh)
     { e->alloc(szBCE,1); ePtr=e->getPointer(); f->alloc(szF,1); fPtr=f->getPointer(); }
   int k(0);
   iii=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
+  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
     {
       const MEDCoupling1GTUMesh *cur(*it);
       //
       const DataArrayInt *pfl(_pfls[iii]);
-      MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> cur2;
+      MCAuto<MEDCoupling1GTUMesh> cur2;
       if(!pfl)
         { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
       else
@@ -1066,7 +1066,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
   return _mesh->isObjectInTheProgeny(coords);
 }
 
-void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
+void MEDUMeshMultiLev::reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const
 {
   const DataArrayInt *nr(_node_reduction);
   if(!nr)
@@ -1113,14 +1113,14 @@ void MEDUMeshMultiLev::reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<
   if(szExp!=nr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::reorderNodesIfNecessary : internal error #3 !");
   // Go renumbering !
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(DataArrayInt::New()); o2n->alloc(sz,1);
+  MCAuto<DataArrayInt> o2n(DataArrayInt::New()); o2n->alloc(sz,1);
   int *o2nPtr(o2n->getPointer());
   int newId(0);
   for(int i=0;i<sz;i++,o2nPtr++)
     if(b[i]) *o2nPtr=newId++; else *o2nPtr=-1;
   const int *o2nPtrc(o2n->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(nr->getNumberOfTuples()));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> perm(DataArrayInt::FindPermutationFromFirstToSecond(n2o,nr));
+  MCAuto<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(nr->getNumberOfTuples()));
+  MCAuto<DataArrayInt> perm(DataArrayInt::FindPermutationFromFirstToSecond(n2o,nr));
   const int *permPtr(perm->begin());
   int *work2(nodalConnVTK->getPointer()),*endW2(nodalConnVTK->getPointer()+nodalConnVTK->getNumberOfTuples());
   while(work2!=endW2)
@@ -1151,7 +1151,7 @@ void MEDUMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArr
 {
   int nbOfCells(verticesToAdd->getNumberOfTuples());//it is not a bug cells are NORM_POINT1
   MEDMeshMultiLev::appendVertices(verticesToAdd,nr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> elt(MEDCoupling1SGTUMesh::New("",INTERP_KERNEL::NORM_POINT1));
+  MCAuto<MEDCoupling1SGTUMesh> elt(MEDCoupling1SGTUMesh::New("",INTERP_KERNEL::NORM_POINT1));
   elt->allocateCells(nbOfCells);
   for(int i=0;i<nbOfCells;i++)
     {
@@ -1161,7 +1161,7 @@ void MEDUMeshMultiLev::appendVertices(const DataArrayInt *verticesToAdd, DataArr
   if(_parts.empty())
     throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::appendVertices : parts are empty !");
   elt->setCoords(_parts[0]->getCoords());
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> elt2((MEDCoupling1SGTUMesh *)elt); elt2->incrRef();
+  MCAuto<MEDCoupling1GTUMesh> elt2((MEDCoupling1SGTUMesh *)elt); elt2->incrRef();
   _parts.push_back(elt2);
 }
 
@@ -1248,9 +1248,9 @@ bool MEDStructuredMeshMultiLev::prepareForImplicitUnstructuredMeshCase(MEDMeshMu
   const DataArrayInt *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> facesIfPresent2(facesIfPresent); facesIfPresent->incrRef();
+  MCAuto<MEDCoupling1GTUMesh> facesIfPresent2(facesIfPresent); facesIfPresent->incrRef();
   moveFaceToCell();
-  MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret2(new MEDUMeshMultiLev(*this,facesIfPresent2));
+  MCAuto<MEDUMeshMultiLev> ret2(new MEDUMeshMultiLev(*this,facesIfPresent2));
   if(pfl)
     ret2->setCellReduction(pfl);
   if(nr)
@@ -1281,8 +1281,8 @@ void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
   if(!pflNodes || !pflNodes->isAllocated())
     return ;
   std::vector<int> ngs(getNodeGridStructure());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(ngs.size())));
+  MCAuto<DataArrayInt> conn(MEDCouplingStructuredMesh::Build1GTNodalConnectivity(&ngs[0],&ngs[0]+ngs.size()));
+  MCAuto<MEDCoupling1SGTUMesh> m(MEDCoupling1SGTUMesh::New("",MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(ngs.size())));
   m->setNodalConnectivity(conn);
   const DataArrayInt *pfl(_pfls[0]);
   if(pfl)
@@ -1291,8 +1291,8 @@ void MEDStructuredMeshMultiLev::selectPartOfNodes(const DataArrayInt *pflNodes)
     }
   DataArrayInt *cellIds=0;
   m->fillCellIdsToKeepFromNodeIds(pflNodes->begin(),pflNodes->end(),true,cellIds);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsSafe(cellIds);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
+  MCAuto<DataArrayInt> cellIdsSafe(cellIds);
+  MCAuto<MEDCouplingPointSet> m2(m->buildPartOfMySelfKeepCoords(cellIds->begin(),cellIds->end()));
   int tmp=-1;
   _node_reduction=m2->getNodeIdsInUse(tmp);
   if(pfl)
@@ -1374,49 +1374,49 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
   const DataArrayInt *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
+  MCAuto<DataArrayInt> nnr;
   std::vector<int> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
   std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<int>(),-1));
   if(pfl)
     {
       std::vector< std::pair<int,int> > cellParts;
-      MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret2;
+      MCAuto<MEDMeshMultiLev> ret2;
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
+          MCAuto<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
           ret->_is_internal=false;
           if(nr)
-            { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+            { nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret->_nb_entities[0]=pfl->getNumberOfTuples();
           ret->_pfls[0]=0;
-          std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > coords(_coords.size());
+          std::vector< MCAuto<DataArrayDouble> > coords(_coords.size());
           for(std::size_t i=0;i<_coords.size();i++)
-            coords[i]=_coords[i]->selectByTupleId2(cellParts[i].first,cellParts[i].second+1,1);
+            coords[i]=_coords[i]->selectByTupleIdSafeSlice(cellParts[i].first,cellParts[i].second+1,1);
           ret->_coords=coords;
           ret2=(MEDCMeshMultiLev *)ret; ret2->incrRef();
         }
       else
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> m(MEDCouplingCMesh::New());
+          MCAuto<MEDCouplingCMesh> m(MEDCouplingCMesh::New());
           for(std::size_t i=0;i<ngs.size();i++)
             m->setCoordsAt(i,_coords[i]);
-          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
-          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
-          MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
+          MCAuto<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
+          MCAuto<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+          MCAuto<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
           if(nr)
-            { m3->zipCoords(); nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+            { m3->zipCoords(); nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret2=(MEDUMeshMultiLev *)ret; ret2->incrRef();
         }
       const DataArrayInt *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
       if(famIds)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setFamilyIdsOnCells(tmp);
         }
       if(numIds)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setNumberIdsOnCells(tmp);
         }
       return ret2.retn();
@@ -1424,9 +1424,9 @@ MEDMeshMultiLev *MEDCMeshMultiLev::prepare() const
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
+      MCAuto<MEDCMeshMultiLev> ret(new MEDCMeshMultiLev(*this));
       if(nr)
-        { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+        { nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
       return ret.retn();
     }
 }
@@ -1510,14 +1510,14 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
   const DataArrayInt *pfl(0),*nr(_node_reduction);
   if(!_pfls.empty())
     pfl=_pfls[0];
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nnr;
+  MCAuto<DataArrayInt> nnr;
   std::vector<int> cgs,ngs(getNodeGridStructure());
   cgs.resize(ngs.size());
   std::transform(ngs.begin(),ngs.end(),cgs.begin(),std::bind2nd(std::plus<int>(),-1));
   if(pfl)
     {
       std::vector< std::pair<int,int> > cellParts,nodeParts;
-      MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret2;
+      MCAuto<MEDMeshMultiLev> ret2;
       if(MEDCouplingStructuredMesh::IsPartStructured(pfl->begin(),pfl->end(),cgs,cellParts))
         {
           nodeParts=cellParts;
@@ -1527,11 +1527,11 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
               nodeParts[i].second++;
               st[i]=nodeParts[i].second-nodeParts[i].first;
             }
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
-          MEDCouplingAutoRefCountObjectPtr<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
+          MCAuto<DataArrayInt> p(MEDCouplingStructuredMesh::BuildExplicitIdsFrom(ngs,nodeParts));
+          MCAuto<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
           ret->_is_internal=false;
           if(nr)
-            { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+            { nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret->_nb_entities[0]=pfl->getNumberOfTuples();
           ret->_pfls[0]=0;
           ret->_coords=_coords->selectByTupleIdSafe(p->begin(),p->end());
@@ -1540,33 +1540,33 @@ MEDMeshMultiLev *MEDCurveLinearMeshMultiLev::prepare() const
         }
       else
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> m(MEDCouplingCurveLinearMesh::New());
+          MCAuto<MEDCouplingCurveLinearMesh> m(MEDCouplingCurveLinearMesh::New());
           m->setCoords(_coords); m->setNodeGridStructure(&_structure[0],&_structure[0]+_structure.size());
-          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
-          MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
-          MEDCouplingAutoRefCountObjectPtr<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
+          MCAuto<MEDCoupling1SGTUMesh> m2(m->build1SGTUnstructured());
+          MCAuto<MEDCoupling1GTUMesh> m3=dynamic_cast<MEDCoupling1GTUMesh *>(m2->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end()));
+          MCAuto<MEDUMeshMultiLev> ret(new MEDUMeshMultiLev(*this,m3));
           if(nr)
-            { m3->zipCoords(); nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+            { m3->zipCoords(); nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
           ret2=(MEDUMeshMultiLev *)ret; ret2->incrRef();
         }
       const DataArrayInt *famIds(_cell_fam_ids),*numIds(_cell_num_ids);
       if(famIds)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayInt> tmp(famIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setFamilyIdsOnCells(tmp);
         }
       if(numIds)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
+          MCAuto<DataArrayInt> tmp(numIds->selectByTupleIdSafe(pfl->begin(),pfl->end()));
           ret2->setNumberIdsOnCells(tmp);
         }
       return ret2.retn();
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
+      MCAuto<MEDCurveLinearMeshMultiLev> ret(new MEDCurveLinearMeshMultiLev(*this));
       if(nr)
-        { nnr=nr->deepCpy(); nnr->sort(true); ret->setNodeReduction(nnr); }
+        { nnr=nr->deepCopy(); nnr->sort(true); ret->setNodeReduction(nnr); }
       return ret.retn();
     }
 }
@@ -1741,13 +1741,13 @@ MEDFileField1TSStructItem2 MEDFileField1TSStructItem2::BuildAggregationOf(const 
         throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : invalid situation ! Several same geo type chunk must all lie on profiles !");
       arrs[i]=globs->getProfile(obj->_pfl->getName().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(DataArrayInt::Aggregate(arrs));
+  MCAuto<DataArrayInt> arr(DataArrayInt::Aggregate(arrs));
   arr->sort();
   int oldNbTuples(arr->getNumberOfTuples());
   arr=arr->buildUnique();
   if(oldNbTuples!=arr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDFileField1TSStructItem2::BuildAggregationOf : some entities are present several times !");
-  if(arr->isIdentity2(nbEntityRef))
+  if(arr->isIota(nbEntityRef))
     {
       std::pair<int,int> p(0,nbEntityRef);
       std::string a,b;
@@ -1936,9 +1936,9 @@ bool MEDFileField1TSStructItem::isCompatibleWithNodesDiscr(const MEDFileField1TS
   else
     {
       const DataArrayInt *pfl=globs->getProfile(otherNodeIt.getPflName().c_str());
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cpyPfl(pfl->deepCpy());
+      MCAuto<DataArrayInt> cpyPfl(pfl->deepCopy());
       cpyPfl->sort();
-      if(cpyPfl->isIdentity2(nbOfNodes))
+      if(cpyPfl->isIota(nbOfNodes))
         {//on all nodes also !
           if(!ret0)
             return false;
@@ -2195,7 +2195,7 @@ MEDMeshMultiLev *MEDFileField1TSStruct::buildFromScratchDataSetSupport(const MED
   int pos0(-1),pos1(-1);
   if(presenceOfCellDiscr(pos0))
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDMeshMultiLev> ret(_already_checked[pos0].buildFromScratchDataSetSupportOnCells(mst,globs));
+      MCAuto<MEDMeshMultiLev> ret(_already_checked[pos0].buildFromScratchDataSetSupportOnCells(mst,globs));
       if(presenceOfPartialNodeDiscr(pos1))
         ret->setNodeReduction(_already_checked[pos1][0].getPfl(globs));
       return ret.retn();
@@ -2310,7 +2310,7 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
   _f1ts_cmps.resize(nbPts);
   for(int i=0;i<nbPts;i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=ref->getTimeStepAtPos(i);
+      MCAuto<MEDFileAnyTypeField1TS> elt=ref->getTimeStepAtPos(i);
       try
         {
           _f1ts_cmps[i]=MEDFileField1TSStruct::New(elt,_mesh_comp);
@@ -2327,7 +2327,7 @@ MEDFileFastCellSupportComparator::MEDFileFastCellSupportComparator(const MEDFile
 
 std::size_t MEDFileFastCellSupportComparator::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t ret(_f1ts_cmps.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct>));
+  std::size_t ret(_f1ts_cmps.capacity()*sizeof(MCAuto<MEDFileField1TSStruct>));
   return ret;
 }
 
@@ -2337,7 +2337,7 @@ std::vector<const BigMemoryObject *> MEDFileFastCellSupportComparator::getDirect
   const MEDFileMeshStruct *mst(_mesh_comp);
   if(mst)
     ret.push_back(mst);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct> >::const_iterator it=_f1ts_cmps.begin();it!=_f1ts_cmps.end();it++)
+  for(std::vector< MCAuto<MEDFileField1TSStruct> >::const_iterator it=_f1ts_cmps.begin();it!=_f1ts_cmps.end();it++)
     ret.push_back((const MEDFileField1TSStruct *)*it);
   return ret;
 }
@@ -2352,7 +2352,7 @@ bool MEDFileFastCellSupportComparator::isEqual(const MEDFileAnyTypeFieldMultiTS 
     }
   for(int i=0;i<nbPts;i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=other->getTimeStepAtPos(i);
+      MCAuto<MEDFileAnyTypeField1TS> elt=other->getTimeStepAtPos(i);
       if(!_f1ts_cmps[i]->isEqualConsideringThePast(elt,_mesh_comp))
         if(!_f1ts_cmps[i]->isSupportSameAs(elt,_mesh_comp))
           return false;
@@ -2370,7 +2370,7 @@ bool MEDFileFastCellSupportComparator::isCompatibleWithNodesDiscr(const MEDFileA
     }
   for(int i=0;i<nbPts;i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeField1TS> elt=other->getTimeStepAtPos(i);
+      MCAuto<MEDFileAnyTypeField1TS> elt=other->getTimeStepAtPos(i);
       if(!_f1ts_cmps[i]->isCompatibleWithNodesDiscr(elt,_mesh_comp))
         return false;
     }

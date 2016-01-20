@@ -53,7 +53,7 @@ Splitting and Merging a MED file using MEDLoader
 	cellField0_read = MEDLoader.ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
 	cellField1_read = MEDLoader.ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
 	cellField_read = ml.MEDCouplingFieldDouble.MergeFields([cellField0_read,cellField1_read])
-	cellFieldCpy = cellField.deepCpy()
+	cellFieldCpy = cellField.deepCopy()
 	cellFieldCpy.substractInPlaceDM(cellField_read,10,1e-12)
 	cellFieldCpy.getArray().abs()
 	print cellFieldCpy.getArray().isUniform(0.,1e-12)
@@ -62,7 +62,7 @@ Splitting and Merging a MED file using MEDLoader
 	nodeField1_read = MEDLoader.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
 	nodeField_read = ml.MEDCouplingFieldDouble.MergeFields([nodeField0_read, nodeField1_read])
 	nodeField_read.mergeNodes(1e-10)
-	nodeFieldCpy = nodeField.deepCpy()
+	nodeFieldCpy = nodeField.deepCopy()
 	nodeFieldCpy.mergeNodes(1e-10)
 	nodeFieldCpy.substractInPlaceDM(nodeField_read,10,1e-12)
 	print nodeFieldCpy.getArray().isUniform(0.,1e-12)
@@ -114,7 +114,7 @@ Splitting and Merging a MED file using MEDLoader
 				if typp == ml.ON_CELLS:
 				     arr.renumberInPlace(o2nML[lev])
 				mcf = ml.MEDCouplingFieldDouble(typp,ml.ONE_TIME) ; mcf.setName(fieldName) ; mcf.setTime(tim,dt,it) ; mcf.setArray(arr)
-				mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkCoherency()
+				mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkConsistencyLight()
 				mergeField.appendFieldNoProfileSBT(mcf)
 				pass
 			pass

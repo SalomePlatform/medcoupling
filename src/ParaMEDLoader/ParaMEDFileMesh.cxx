@@ -19,7 +19,7 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "ParaMEDFileMesh.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDLoader.hxx"
@@ -87,7 +87,7 @@ MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm
 
 MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret;
+  MCAuto<MEDFileUMesh> ret;
   int meshDim, spaceDim, numberOfNodes;
   std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
@@ -108,10 +108,10 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
 MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::string& fileName)
 {
   std::vector<std::string> ms(GetMeshNames(fileName));
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());
+  MCAuto<MEDFileMeshes> ret(MEDFileMeshes::New());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mesh(ParaMEDFileMesh::New(iPart,nbOfParts,fileName,(*it)));
+      MCAuto<MEDFileMesh> mesh(ParaMEDFileMesh::New(iPart,nbOfParts,fileName,(*it)));
       ret->pushMesh(mesh);
     }
   return ret.retn();
@@ -120,10 +120,10 @@ MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::strin
 MEDFileMeshes *ParaMEDFileMeshes::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName)
 {
   std::vector<std::string> ms(GetMeshNames(fileName));
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());
+  MCAuto<MEDFileMeshes> ret(MEDFileMeshes::New());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mesh(ParaMEDFileMesh::ParaNew(iPart,nbOfParts,com,nfo,fileName,(*it)));
+      MCAuto<MEDFileMesh> mesh(ParaMEDFileMesh::ParaNew(iPart,nbOfParts,com,nfo,fileName,(*it)));
       ret->pushMesh(mesh);
     }
   return ret.retn();

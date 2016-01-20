@@ -48,7 +48,7 @@ SET(medcoupling_SOURCES
   MEDCouplingRefCountObject.cxx
   MEDCouplingPointSet.cxx
   MEDCouplingFieldTemplate.cxx
-  MEDCouplingExtrudedMesh.cxx
+  MEDCouplingMappedExtrudedMesh.cxx
   MEDCouplingMesh.cxx
   MEDCouplingGaussLocalization.cxx
   MEDCouplingNatureOfField.cxx

@@ -347,10 +347,10 @@ namespace MEDCoupling
     NatureOfField nature=elementLocator.getLocalNature();
     switch(nature)
       {
-      case ConservativeVolumic:
+      case IntensiveMaximum:
         computeConservVolDenoW(elementLocator);
         break;
-      case Integral:
+      case ExtensiveMaximum:
         {
           if(!elementLocator.isM1DCorr())
             computeIntegralDenoW(elementLocator);
@@ -358,10 +358,10 @@ namespace MEDCoupling
             computeGlobConstraintDenoW(elementLocator);
           break;
         }
-      case IntegralGlobConstraint:
+      case ExtensiveConservation:
         computeGlobConstraintDenoW(elementLocator);
         break;
-      case RevIntegral:
+      case IntensiveConservation:
         {
           if(!elementLocator.isM1DCorr())
             computeRevIntegralDenoW(elementLocator);
@@ -380,10 +380,10 @@ namespace MEDCoupling
     NatureOfField nature=elementLocator.getLocalNature();
     switch(nature)
       {
-      case ConservativeVolumic:
+      case IntensiveMaximum:
         computeConservVolDenoL(elementLocator);
         break;
-      case Integral:
+      case ExtensiveMaximum:
         {
           if(!elementLocator.isM1DCorr())
             computeIntegralDenoL(elementLocator);
@@ -391,11 +391,11 @@ namespace MEDCoupling
             computeConservVolDenoL(elementLocator);
           break;
         }
-      case IntegralGlobConstraint:
-        //this is not a bug doing like ConservativeVolumic
+      case ExtensiveConservation:
+        //this is not a bug doing like IntensiveMaximum
         computeConservVolDenoL(elementLocator);
         break;
-      case RevIntegral:
+      case IntensiveConservation:
         {
           if(!elementLocator.isM1DCorr())
             computeRevIntegralDenoL(elementLocator);

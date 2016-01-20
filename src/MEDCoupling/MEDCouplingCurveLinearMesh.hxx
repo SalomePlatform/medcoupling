@@ -23,7 +23,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingStructuredMesh.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 namespace MEDCoupling
 {
@@ -32,7 +32,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCurveLinearMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingCurveLinearMesh *New(const std::string& meshName);
-    MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -45,8 +45,8 @@ namespace MEDCoupling
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                             DataArrayInt *&cellCor) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfNodes() const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
@@ -70,7 +70,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void scale(const double *point, double factor);
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     //some useful methods
@@ -92,12 +92,12 @@ namespace MEDCoupling
     void getBarycenterAndOwnerMeshDim1(DataArrayDouble *bary) const;
   private:
     MEDCouplingCurveLinearMesh();
-    MEDCouplingCurveLinearMesh(const MEDCouplingCurveLinearMesh& other, bool deepCpy);
+    MEDCouplingCurveLinearMesh(const MEDCouplingCurveLinearMesh& other, bool deepCopy);
     ~MEDCouplingCurveLinearMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
+    MCAuto<DataArrayDouble> _coords;
     std::vector<int> _structure;
   };
 }

@@ -55,18 +55,18 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true);
     MEDCOUPLING_EXPORT void renumberNodes(const int *old2NewBg, double eps=1e-15);
     MEDCOUPLING_EXPORT void renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15);
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const;
+    MEDCOUPLING_EXPORT DataArrayInt *findIdsInRange(double vmin, double vmax) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPart(const int *partBg, const int *partEnd) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *nodeToCellDiscretization() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *cellToNodeDiscretization() const;
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getTimeDiscretization() const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT void setNature(NatureOfField nat);
     MEDCOUPLING_EXPORT void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
     MEDCOUPLING_EXPORT double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
@@ -119,13 +119,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble &operator=(double value);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT void fillFromAnalytic(int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT void fillFromAnalytic2(int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
+    MEDCOUPLING_EXPORT void fillFromAnalyticCompo(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT void fillFromAnalyticNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
     MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, double val);
     MEDCOUPLING_EXPORT void applyFunc(int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT void applyFunc2(int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
+    MEDCOUPLING_EXPORT void applyFuncCompo(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT void applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
     MEDCOUPLING_EXPORT void applyFunc(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast32(const std::string& func);
     MEDCOUPLING_EXPORT void applyFuncFast64(const std::string& func);
@@ -147,7 +147,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps=1e-15);
     MEDCOUPLING_EXPORT void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps=1e-15);
     MEDCOUPLING_EXPORT bool mergeNodes(double eps, double epsOnVals=1e-15);
-    MEDCOUPLING_EXPORT bool mergeNodes2(double eps, double epsOnVals=1e-15);
+    MEDCOUPLING_EXPORT bool mergeNodesCenter(double eps, double epsOnVals=1e-15);
     MEDCOUPLING_EXPORT bool zipCoords(double epsOnVals=1e-15);
     MEDCOUPLING_EXPORT bool zipConnectivity(int compType, double epsOnVals=1e-15);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *extractSlice3D(const double *origin, const double *vec, double eps) const;

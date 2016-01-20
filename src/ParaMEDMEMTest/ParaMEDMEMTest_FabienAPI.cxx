@@ -72,7 +72,7 @@ void ParaMEDMEMTest::testFabienAPI1()
       MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getSourceGrp(),"source mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
       double *vals=parafield->getField()->getArray()->getPointer();
       vals[0]=7.;
     }
@@ -93,7 +93,7 @@ void ParaMEDMEMTest::testFabienAPI1()
       MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getTargetGrp(),"target mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
     }
   dec->attachLocalField(parafield);
   dec->synchronize();
@@ -157,7 +157,7 @@ void ParaMEDMEMTest::testFabienAPI2()
       MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getSourceGrp(),"source mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
       double *vals=parafield->getField()->getArray()->getPointer();
       vals[0]=7.;
     }
@@ -178,7 +178,7 @@ void ParaMEDMEMTest::testFabienAPI2()
       MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getTargetGrp(),"target mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
     }
   dec->attachLocalField(parafield);
   dec->synchronize();

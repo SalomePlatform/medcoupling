@@ -47,7 +47,7 @@ only the field part having a value within [0.0, 1.0] (variable "ids"). ::
 	fMc=f1ts.getFieldAtLevel(ON_CELLS,0)
 	arr=fMc.getArray()
 	arr.getMinMaxPerComponent() # just to see the variation range of the field per component
-	ids=arr.getIdsInRange(0.,1.)
+	ids=arr.findIdsInRange(0.,1.)
 	f2Mc=fMc[ids]
 
 Using the field "PRESSION_ELEM_DOM" find the 3D pression field applied on the agitator. 
@@ -72,7 +72,7 @@ To achieve this use the constituting mesh MEDCouplingUMesh.buildDescendingConnec
 	agitateurMesh3DMc=pressOnAgitateurMc.getMesh()
 	m3DSurf,desc,descI,revDesc,revDescI=agitateurMesh3DMc.buildDescendingConnectivity()
 	nbOf3DCellSharing=revDescI.deltaShiftIndex()
-	ids2=nbOf3DCellSharing.getIdsEqual(1)
+	ids2=nbOf3DCellSharing.findIdsEqual(1)
 	agitateurSkinMc=m3DSurf[ids2]
 	OffsetsOfTupleIdsInField=revDescI[ids2]
 	tupleIdsInField=revDesc[OffsetsOfTupleIdsInField]
@@ -101,7 +101,7 @@ Compute the polyhedron representing the 3D mesh hull of the agitator "agitateurM
 
 	singlePolyhedron=agitateurMesh3DMc.buildSpreadZonesWithPoly()
 	singlePolyhedron.orientCorrectlyPolyhedrons()
-	centerOfMass=singlePolyhedron.getBarycenterAndOwner()
+	centerOfMass=singlePolyhedron.computeCellCenterOfMass()
 
 .. note:: The call to MEDCouplingUMesh.orientCorrectlyPolyhedrons() is not mandatory
 	but is recommended: if the polyhedron happens to be mis-oriented, its center of mass will
@@ -111,7 +111,7 @@ Compute for each skin cell  the torque with respect to the center of mass "cente
 To this end compute "posSkin", a DataArrayDouble giving for each skin cell the vector
 centerOfMass -> G, where G represents the center of mass of the current cell. ::
 
-	barySkin=agitateurSkinMc.getBarycenterAndOwner()
+	barySkin=agitateurSkinMc.computeCellCenterOfMass()
 	posSkin=barySkin-centerOfMass
 
 Compute the cross product for each cell of "posSkin" using "forceVectSkin"

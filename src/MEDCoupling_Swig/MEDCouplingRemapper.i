@@ -216,7 +216,7 @@ def MEDCouplingIMeshnew(cls,*args):
     return _MEDCouplingRemapper.MEDCouplingIMesh____new___(cls,args)
 def MEDCouplingExtrudedMeshnew(cls,*args):
     import _MEDCouplingRemapper
-    return _MEDCouplingRemapper.MEDCouplingExtrudedMesh____new___(cls,args)
+    return _MEDCouplingRemapper.MEDCouplingMappedExtrudedMesh____new___(cls,args)
 %}
 
 %include "MEDCouplingFinalize.i"

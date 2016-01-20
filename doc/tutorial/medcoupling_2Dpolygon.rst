@@ -96,7 +96,7 @@ For each hexagon of the mesh, you have to give its connectivity: the list of the
 	for i in range(6):
 		mesh.insertNextCell(NORM_POLYGON,6,connectivity[6*i:6*(i+1)])
 		pass
-	mesh.checkCoherency()
+	mesh.checkConsistencyLight()
 
 Saving the mesh in a med file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

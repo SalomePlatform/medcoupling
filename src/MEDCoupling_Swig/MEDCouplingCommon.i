@@ -30,7 +30,7 @@
 %{
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingIMesh.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
@@ -39,7 +39,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingMultiFields.hxx"
 #include "MEDCouplingFieldOverTime.hxx"
 #include "MEDCouplingDefinitionTime.hxx"
@@ -207,7 +207,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::DivideFields;
 %newobject MEDCoupling::MEDCouplingFieldDouble::min;
 %newobject MEDCoupling::MEDCouplingFieldDouble::negate;
-%newobject MEDCoupling::MEDCouplingFieldDouble::getIdsInRange;
+%newobject MEDCoupling::MEDCouplingFieldDouble::findIdsInRange;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildSubPart;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildSubPartRange;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__getitem__;
@@ -223,13 +223,13 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingFieldDouble::__rdiv__;
 %newobject MEDCoupling::MEDCouplingFieldDouble::clone;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cloneWithMesh;
-%newobject MEDCoupling::MEDCouplingFieldDouble::deepCpy;
+%newobject MEDCoupling::MEDCouplingFieldDouble::deepCopy;
 %newobject MEDCoupling::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject MEDCoupling::MEDCouplingFieldDouble::nodeToCellDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject MEDCoupling::MEDCouplingFieldTemplate::New;
-%newobject MEDCoupling::MEDCouplingMesh::deepCpy;
+%newobject MEDCoupling::MEDCouplingMesh::deepCopy;
 %newobject MEDCoupling::MEDCouplingMesh::clone;
 %newobject MEDCoupling::MEDCouplingMesh::checkDeepEquivalOnSameNodesWith;
 %newobject MEDCoupling::MEDCouplingMesh::checkTypeConsistencyAndContig;
@@ -239,14 +239,14 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingMesh::buildPartRange;
 %newobject MEDCoupling::MEDCouplingMesh::giveCellsWithType;
 %newobject MEDCoupling::MEDCouplingMesh::getCoordinatesAndOwner;
-%newobject MEDCoupling::MEDCouplingMesh::getBarycenterAndOwner;
+%newobject MEDCoupling::MEDCouplingMesh::computeCellCenterOfMass;
 %newobject MEDCoupling::MEDCouplingMesh::computeIsoBarycenterOfNodesPerCell;
 %newobject MEDCoupling::MEDCouplingMesh::buildOrthogonalField;
 %newobject MEDCoupling::MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds;
 %newobject MEDCoupling::MEDCouplingMesh::mergeMyselfWith;
 %newobject MEDCoupling::MEDCouplingMesh::fillFromAnalytic;
-%newobject MEDCoupling::MEDCouplingMesh::fillFromAnalytic2;
-%newobject MEDCoupling::MEDCouplingMesh::fillFromAnalytic3;
+%newobject MEDCoupling::MEDCouplingMesh::fillFromAnalyticCompo;
+%newobject MEDCoupling::MEDCouplingMesh::fillFromAnalyticNamedCompo;
 %newobject MEDCoupling::MEDCouplingMesh::getMeasureField;
 %newobject MEDCoupling::MEDCouplingMesh::simplexize;
 %newobject MEDCoupling::MEDCouplingMesh::buildUnstructured;
@@ -256,13 +256,13 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingPointSet::findBoundaryNodes;
 %newobject MEDCoupling::MEDCouplingPointSet::buildBoundaryMesh;
 %newobject MEDCoupling::MEDCouplingPointSet::MergeNodesArray;
-%newobject MEDCoupling::MEDCouplingPointSet::buildPartOfMySelf2;
+%newobject MEDCoupling::MEDCouplingPointSet::buildPartOfMySelfSlice;
 %newobject MEDCoupling::MEDCouplingPointSet::BuildInstanceFromMeshType;
 %newobject MEDCoupling::MEDCouplingPointSet::zipConnectivityTraducer;
 %newobject MEDCoupling::MEDCouplingPointSet::mergeMyselfWithOnSameCoords;
 %newobject MEDCoupling::MEDCouplingPointSet::fillCellIdsToKeepFromNodeIds;
 %newobject MEDCoupling::MEDCouplingPointSet::getCellIdsLyingOnNodes;
-%newobject MEDCoupling::MEDCouplingPointSet::deepCpyConnectivityOnly;
+%newobject MEDCoupling::MEDCouplingPointSet::deepCopyConnectivityOnly;
 %newobject MEDCoupling::MEDCouplingPointSet::getBoundingBoxForBBTree;
 %newobject MEDCoupling::MEDCouplingPointSet::computeFetchedNodeIds;
 %newobject MEDCoupling::MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells;
@@ -336,8 +336,8 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::buildSetInstanceFromThis;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::Merge1DGTUMeshes;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords;
-%newobject MEDCoupling::MEDCouplingExtrudedMesh::New;
-%newobject MEDCoupling::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
+%newobject MEDCoupling::MEDCouplingMappedExtrudedMesh::New;
+%newobject MEDCoupling::MEDCouplingMappedExtrudedMesh::build3DUnstructuredMesh;
 %newobject MEDCoupling::MEDCouplingStructuredMesh::buildStructuredSubPart;
 %newobject MEDCoupling::MEDCouplingStructuredMesh::build1SGTUnstructured;
 %newobject MEDCoupling::MEDCouplingStructuredMesh::build1SGTSubLevelMesh;
@@ -356,11 +356,11 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingCurveLinearMesh::New;
 %newobject MEDCoupling::MEDCouplingCurveLinearMesh::getCoords;
 %newobject MEDCoupling::MEDCouplingMultiFields::New;
-%newobject MEDCoupling::MEDCouplingMultiFields::deepCpy;
+%newobject MEDCoupling::MEDCouplingMultiFields::deepCopy;
 %newobject MEDCoupling::MEDCouplingFieldOverTime::New;
 %newobject MEDCoupling::MEDCouplingCartesianAMRPatchGen::getMesh;
 %newobject MEDCoupling::MEDCouplingCartesianAMRPatchGen::__getitem__;
-%newobject MEDCoupling::MEDCouplingCartesianAMRMeshGen::deepCpy;
+%newobject MEDCoupling::MEDCouplingCartesianAMRMeshGen::deepCopy;
 %newobject MEDCoupling::MEDCouplingCartesianAMRMeshGen::buildUnstructured;
 %newobject MEDCoupling::MEDCouplingCartesianAMRMeshGen::extractGhostFrom;
 %newobject MEDCoupling::MEDCouplingCartesianAMRMeshGen::buildMeshFromPatchEnvelop;
@@ -377,7 +377,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingCartesianAMRMesh::New;
 %newobject MEDCoupling::MEDCouplingDataForGodFather::getMyGodFather;
 %newobject MEDCoupling::MEDCouplingAMRAttribute::New;
-%newobject MEDCoupling::MEDCouplingAMRAttribute::deepCpy;
+%newobject MEDCoupling::MEDCouplingAMRAttribute::deepCopy;
 %newobject MEDCoupling::MEDCouplingAMRAttribute::deepCpyWithoutGodFather;
 %newobject MEDCoupling::MEDCouplingAMRAttribute::getFieldOn;
 %newobject MEDCoupling::MEDCouplingAMRAttribute::projectTo;
@@ -385,7 +385,7 @@ using namespace INTERP_KERNEL;
 %newobject MEDCoupling::MEDCouplingAMRAttribute::buildCellFieldOnWithGhost;
 %newobject MEDCoupling::MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost;
 %newobject MEDCoupling::DenseMatrix::New;
-%newobject MEDCoupling::DenseMatrix::deepCpy;
+%newobject MEDCoupling::DenseMatrix::deepCopy;
 %newobject MEDCoupling::DenseMatrix::shallowCpy;
 %newobject MEDCoupling::DenseMatrix::getData;
 %newobject MEDCoupling::DenseMatrix::matVecMult;
@@ -407,7 +407,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCoupling1GTUMesh "$this->decrRef();"
 %feature("unref") MEDCoupling1SGTUMesh "$this->decrRef();"
 %feature("unref") MEDCoupling1DGTUMesh "$this->decrRef();"
-%feature("unref") MEDCouplingExtrudedMesh "$this->decrRef();"
+%feature("unref") MEDCouplingMappedExtrudedMesh "$this->decrRef();"
 %feature("unref") MEDCouplingCMesh "$this->decrRef();"
 %feature("unref") MEDCouplingIMesh "$this->decrRef();"
 %feature("unref") MEDCouplingCurveLinearMesh "$this->decrRef();"
@@ -553,21 +553,21 @@ namespace MEDCoupling
     std::string getTimeUnit() const;
     virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception);
     bool isStructured() const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *deepCopy() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *clone(bool recDeepCpy) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistency(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception);
-    virtual DataArrayDouble *getBarycenterAndOwner() const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayDouble *computeCellCenterOfMass() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
@@ -585,8 +585,8 @@ namespace MEDCoupling
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalyticCompo(TypeOfField t, int nbOfComp, const std::string& func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalyticNamedCompo(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
@@ -641,7 +641,7 @@ namespace MEDCoupling
            int spaceDim=self->getSpaceDimension();
            const char msg[]="Python wrap of MEDCouplingMesh::getCellsContainingPoint : ";
            const double *pos=convertObjToPossibleCpp5_Safe(p,sw,val,a,aa,bb,msg,nbOfPoints,spaceDim,true);
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elts,eltsIndex;
+           MCAuto<DataArrayInt> elts,eltsIndex;
            self->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
            PyObject *ret=PyTuple_New(2);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elts.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -651,7 +651,7 @@ namespace MEDCoupling
 
          PyObject *getCellsContainingPoints(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elts,eltsIndex;
+           MCAuto<DataArrayInt> elts,eltsIndex;
            int spaceDim=self->getSpaceDimension();
            void *da=0;
            int res1=SWIG_ConvertPtr(p,&da,SWIGTYPE_p_MEDCoupling__DataArrayDouble, 0 |  0 );
@@ -706,8 +706,8 @@ namespace MEDCoupling
          
          virtual PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+           MCAuto<DataArrayInt> d0=DataArrayInt::New();
+           MCAuto<DataArrayInt> d1=DataArrayInt::New();
            self->getReverseNodalConnectivity(d0,d1);
            PyObject *ret=PyTuple_New(2);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -1123,7 +1123,7 @@ namespace MEDCoupling
     int getDimension() const throw(INTERP_KERNEL::Exception);
     int getNumberOfPtsInRefCell() const throw(INTERP_KERNEL::Exception);
     std::string getStringRepr() const throw(INTERP_KERNEL::Exception);
-    void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const throw(INTERP_KERNEL::Exception);
     //
     const std::vector<double>& getRefCoords() const throw(INTERP_KERNEL::Exception);
@@ -1183,7 +1183,7 @@ namespace MEDCoupling
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       virtual void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) throw(INTERP_KERNEL::Exception);
-      virtual MEDCouplingPointSet *buildPartOfMySelf2(int start, int end, int step) const throw(INTERP_KERNEL::Exception);
+      virtual MEDCouplingPointSet *buildPartOfMySelfSlice(int start, int end, int step) const throw(INTERP_KERNEL::Exception);
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       static DataArrayDouble *MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
       static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type) throw(INTERP_KERNEL::Exception);
@@ -1198,7 +1198,7 @@ namespace MEDCoupling
       virtual MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const throw(INTERP_KERNEL::Exception);
       virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
       virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
-      virtual MEDCouplingPointSet *deepCpyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
+      virtual MEDCouplingPointSet *deepCopyConnectivityOnly() const throw(INTERP_KERNEL::Exception);
       virtual DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const throw(INTERP_KERNEL::Exception);
       virtual void renumberNodesWithOffsetInConn(int offset) throw(INTERP_KERNEL::Exception);
       virtual bool areAllNodesFetched() const throw(INTERP_KERNEL::Exception);
@@ -1289,9 +1289,9 @@ namespace MEDCoupling
              return convertMesh(ret, SWIG_POINTER_OWN | 0 );
            }
 
-           virtual PyObject *buildPartOfMySelfKeepCoords2(int start, int end, int step) const throw(INTERP_KERNEL::Exception)
+           virtual PyObject *buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const throw(INTERP_KERNEL::Exception)
            {
-             MEDCouplingPointSet *ret=self->buildPartOfMySelfKeepCoords2(start,end,step);
+             MEDCouplingPointSet *ret=self->buildPartOfMySelfKeepCoordsSlice(start,end,step);
              return convertMesh(ret, SWIG_POINTER_OWN | 0 );
            }
 
@@ -1320,12 +1320,12 @@ namespace MEDCoupling
              self->renumberNodes(tmp,newNbOfNodes);
            }
 
-           void renumberNodes2(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
+           void renumberNodesCenter(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
              int szArr,sw,iTypppArr;
              std::vector<int> stdvecTyyppArr;
              const int *tmp=convertObjToPossibleCpp1_Safe(li,sw,szArr,iTypppArr,stdvecTyyppArr);
-             self->renumberNodes2(tmp,newNbOfNodes);
+             self->renumberNodesCenter(tmp,newNbOfNodes);
            }
 
            PyObject *findNodesOnLine(PyObject *pt, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
@@ -1519,11 +1519,11 @@ namespace MEDCoupling
              return res;
            }
            
-           virtual PyObject *mergeNodes2(double precision) throw(INTERP_KERNEL::Exception)
+           virtual PyObject *mergeNodesCenter(double precision) throw(INTERP_KERNEL::Exception)
            {
              bool ret1;
              int ret2;
-             DataArrayInt *ret0=self->mergeNodes2(precision,ret1,ret2);
+             DataArrayInt *ret0=self->mergeNodesCenter(precision,ret1,ret2);
              PyObject *res = PyList_New(3);
              PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              PyList_SetItem(res,1,SWIG_From_bool(ret1));
@@ -1593,7 +1593,7 @@ namespace MEDCoupling
                  }
                case 3:
                  {
-                   return self->buildPartOfMySelf2(slic.first,slic.second.first,slic.second.second,true);
+                   return self->buildPartOfMySelfSlice(slic.first,slic.second.first,slic.second.second,true);
                  }
                case 4:
                  {
@@ -1757,15 +1757,15 @@ namespace MEDCoupling
   public:
     static MEDCouplingUMesh *New() throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *New(const char *meshName, int meshDim) throw(INTERP_KERNEL::Exception);
-    void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
     void finishInsertingCells() throw(INTERP_KERNEL::Exception);
     MEDCouplingUMeshCellByTypeEntry *cellsByType() throw(INTERP_KERNEL::Exception);
     void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
-    void setPartOfMySelf2(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception);
-    int getMeshLength() const throw(INTERP_KERNEL::Exception);
+    void setPartOfMySelfSlice(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception);
+    int getNodalConnectivityArrayLen() const throw(INTERP_KERNEL::Exception);
     void computeTypes() throw(INTERP_KERNEL::Exception);
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
@@ -1969,7 +1969,7 @@ namespace MEDCoupling
             }
           case 3:
             {
-              self->setPartOfMySelf2(slic.first,slic.second.first,slic.second.second,otherOnSameCoordsThanThis);
+              self->setPartOfMySelfSlice(slic.first,slic.second.first,slic.second.second,otherOnSameCoordsThanThis);
               break;
             }
           case 4:
@@ -2335,30 +2335,30 @@ namespace MEDCoupling
         return ret;
       }
 
-      static PyObject *ExtractFromIndexedArrays2(int strt, int stp, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
+      static PyObject *ExtractFromIndexedArraysSlice(int strt, int stp, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *arrOut=0,*arrIndexOut=0;
-        MEDCouplingUMesh::ExtractFromIndexedArrays2(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
+        MEDCouplingUMesh::ExtractFromIndexedArraysSlice(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
-      static PyObject *ExtractFromIndexedArrays2(PyObject *slic, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
+      static PyObject *ExtractFromIndexedArraysSlice(PyObject *slic, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
       {
         if(!PySlice_Check(slic))
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : the first param is not a pyslice !");
+          throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : the first param is not a pyslice !");
         Py_ssize_t strt=2,stp=2,step=2;
         PySliceObject *sliC=reinterpret_cast<PySliceObject *>(slic);
         if(!arrIndxIn)
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : last array is null !");
+          throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : last array is null !");
         arrIndxIn->checkAllocated();
         if(arrIndxIn->getNumberOfComponents()!=1)
-          throw INTERP_KERNEL::Exception("ExtractFromIndexedArrays2 (wrap) : number of components of last argument must be equal to one !");
-        GetIndicesOfSlice(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArrays2 (wrap) : Invalid slice regarding nb of elements !");
+          throw INTERP_KERNEL::Exception("ExtractFromIndexedArraysSlice (wrap) : number of components of last argument must be equal to one !");
+        GetIndicesOfSlice(sliC,arrIndxIn->getNumberOfTuples(),&strt,&stp,&step,"ExtractFromIndexedArraysSlice (wrap) : Invalid slice regarding nb of elements !");
         DataArrayInt *arrOut=0,*arrIndexOut=0;
-        MEDCouplingUMesh::ExtractFromIndexedArrays2(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
+        MEDCouplingUMesh::ExtractFromIndexedArraysSlice(strt,stp,step,arrIn,arrIndxIn,arrOut,arrIndexOut);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -2509,10 +2509,10 @@ namespace MEDCoupling
         return ret;
       }
 
-      PyObject *areCellsIncludedIn2(const MEDCouplingUMesh *other) const throw(INTERP_KERNEL::Exception)
+      PyObject *areCellsIncludedInPolicy7(const MEDCouplingUMesh *other) const throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret1;
-        bool ret0=self->areCellsIncludedIn2(other,ret1);
+        bool ret0=self->areCellsIncludedInPolicy7(other,ret1);
         PyObject *ret=PyTuple_New(2);
         PyObject *ret0Py=ret0?Py_True:Py_False;
         Py_XINCREF(ret0Py);
@@ -2523,10 +2523,10 @@ namespace MEDCoupling
 
       PyObject *explode3DMeshTo1D() const throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d3=DataArrayInt::New();
+        MCAuto<DataArrayInt> d0=DataArrayInt::New();
+        MCAuto<DataArrayInt> d1=DataArrayInt::New();
+        MCAuto<DataArrayInt> d2=DataArrayInt::New();
+        MCAuto<DataArrayInt> d3=DataArrayInt::New();
         MEDCouplingUMesh *m=self->explode3DMeshTo1D(d0,d1,d2,d3);
         PyObject *ret=PyTuple_New(5);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
@@ -2539,10 +2539,10 @@ namespace MEDCoupling
 
       PyObject *buildDescendingConnectivity() const throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d3=DataArrayInt::New();
+        MCAuto<DataArrayInt> d0=DataArrayInt::New();
+        MCAuto<DataArrayInt> d1=DataArrayInt::New();
+        MCAuto<DataArrayInt> d2=DataArrayInt::New();
+        MCAuto<DataArrayInt> d3=DataArrayInt::New();
         MEDCouplingUMesh *m=self->buildDescendingConnectivity(d0,d1,d2,d3);
         PyObject *ret=PyTuple_New(5);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
@@ -2555,10 +2555,10 @@ namespace MEDCoupling
 
       PyObject *buildDescendingConnectivity2() const throw(INTERP_KERNEL::Exception)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d3=DataArrayInt::New();
+        MCAuto<DataArrayInt> d0=DataArrayInt::New();
+        MCAuto<DataArrayInt> d1=DataArrayInt::New();
+        MCAuto<DataArrayInt> d2=DataArrayInt::New();
+        MCAuto<DataArrayInt> d3=DataArrayInt::New();
         MEDCouplingUMesh *m=self->buildDescendingConnectivity2(d0,d1,d2,d3);
         PyObject *ret=PyTuple_New(5);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
@@ -2601,8 +2601,8 @@ namespace MEDCoupling
 
       PyObject *emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh)
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+        MCAuto<DataArrayInt> d0=DataArrayInt::New();
+        MCAuto<DataArrayInt> d1=DataArrayInt::New();
         DataArrayInt *d2,*d3,*d4,*dd5;
         MEDCouplingUMesh *mOut=self->emulateMEDMEMBDC(nM1LevMesh,d0,d1,d2,d3,d4,dd5);
         PyObject *ret=PyTuple_New(7);
@@ -2792,27 +2792,27 @@ namespace MEDCoupling
 
   //== MEDCouplingUMesh End
 
-  //== MEDCouplingExtrudedMesh
+  //== MEDCouplingMappedExtrudedMesh
 
-  class MEDCouplingExtrudedMesh : public MEDCoupling::MEDCouplingMesh
+  class MEDCouplingMappedExtrudedMesh : public MEDCoupling::MEDCouplingMesh
   {
   public:
-    static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *build3DUnstructuredMesh() const throw(INTERP_KERNEL::Exception);
     %extend {
-      MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+      MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
       {
-        return MEDCouplingExtrudedMesh::New(mesh3D,mesh2D,cell2DId);
+        return MEDCouplingMappedExtrudedMesh::New(mesh3D,mesh2D,cell2DId);
       }
 
-      MEDCouplingExtrudedMesh()
+      MEDCouplingMappedExtrudedMesh()
       {
-        return MEDCouplingExtrudedMesh::New();
+        return MEDCouplingMappedExtrudedMesh::New();
       }
 
       static PyObject *___new___(PyObject *cls, PyObject *args) throw(INTERP_KERNEL::Exception)
       {
-        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingExtrudedMesh");
+        return NewMethWrapCallInitOnlyIfEmptyDictInInput(cls,args,"MEDCouplingMappedExtrudedMesh");
       }
       
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -2851,7 +2851,7 @@ namespace MEDCoupling
     }
   };
 
-  //== MEDCouplingExtrudedMesh End
+  //== MEDCouplingMappedExtrudedMesh End
 
   class MEDCoupling1GTUMesh : public MEDCoupling::MEDCouplingPointSet
   {
@@ -2861,7 +2861,7 @@ namespace MEDCoupling
     INTERP_KERNEL::NormalizedCellType getCellModelEnum() const throw(INTERP_KERNEL::Exception);
     int getNodalConnectivityLength() const throw(INTERP_KERNEL::Exception);
     virtual void allocateCells(int nbOfCells=0) throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyOfConnectivity() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       virtual void insertNextCell(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -3559,7 +3559,7 @@ namespace MEDCoupling
   class MEDCouplingField : public MEDCoupling::RefCountObject, public MEDCoupling::TimeLabel
   {
   public:
-    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatibleForMerge(const MEDCouplingField *other) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
@@ -3761,8 +3761,8 @@ namespace MEDCoupling
     std::string  writeVTK(const std::string& fileName, bool isBinary=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
-    MEDCouplingFieldDouble *deepCpy() const;
-    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *deepCopy() const;
+    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *nodeToCellDiscretization() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *cellToNodeDiscretization() const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
@@ -3790,7 +3790,7 @@ namespace MEDCoupling
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double precOnMesh, double eps=1e-15) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps=1e-15) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
-    bool mergeNodes2(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    bool mergeNodesCenter(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
     bool zipCoords(double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
     bool zipConnectivity(int compType,double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
     bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
@@ -3807,11 +3807,11 @@ namespace MEDCoupling
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic2(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
-    void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalyticCompo(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalyticNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
-    void applyFunc2(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
-    void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFuncCompo(int nbOfComp, const std::string& func) throw(INTERP_KERNEL::Exception);
+    void applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, double val) throw(INTERP_KERNEL::Exception);
     void applyFunc(const std::string& func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const std::string& func) throw(INTERP_KERNEL::Exception);
@@ -3827,7 +3827,7 @@ namespace MEDCoupling
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPartRange(int begin, int end, int step) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
@@ -3980,7 +3980,7 @@ namespace MEDCoupling
           MEDCoupling_DataArrayDouble_setValues__SWIG_0(self->getArray(),li,nbOfTuples,nbOfComp);
         else
           {
-            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New();
+            MCAuto<DataArrayDouble> arr=DataArrayDouble::New();
             MEDCoupling_DataArrayDouble_setValues__SWIG_0(arr,li,nbOfTuples,nbOfComp);
             self->setArray(arr);
           }
@@ -4164,7 +4164,7 @@ namespace MEDCoupling
               { convertObjToPossibleCpp2(elt1,self->getArray()->getNumberOfComponents(),sw,singleVal,multiVal,slic,daIntTyypp); }
             catch(INTERP_KERNEL::Exception& e)
               { std::ostringstream oss; oss << "MEDCouplingFieldDouble::__getitem__ : invalid type in 2nd parameter (compo) !" << e.what(); throw INTERP_KERNEL::Exception(oss.str().c_str()); }
-            MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret0=MEDCoupling_MEDCouplingFieldDouble_buildSubPart(self,elt0);
+            MCAuto<MEDCouplingFieldDouble> ret0=MEDCoupling_MEDCouplingFieldDouble_buildSubPart(self,elt0);
             DataArrayDouble *ret0Arr=ret0->getArray();
             if(!ret0Arr)
               throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::__getitem__ : no array exists to apply restriction on component on it !");
@@ -4173,13 +4173,13 @@ namespace MEDCoupling
               case 1:
                 {
                   std::vector<int> v2(1,singleVal);
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(v2));
+                  MCAuto<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(v2));
                   ret0->setArray(aarr);
                   return ret0.retn();
                 }
               case 2:
                 {
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(multiVal));
+                  MCAuto<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(multiVal));
                   ret0->setArray(aarr);
                   return ret0.retn();
                 }
@@ -4189,7 +4189,7 @@ namespace MEDCoupling
                   std::vector<int> v2(nbOfComp);
                   for(int i=0;i<nbOfComp;i++)
                     v2[i]=slic.first+i*slic.second.second;
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(v2));
+                  MCAuto<DataArrayDouble> aarr(ret0Arr->keepSelectedComponents(v2));
                   ret0->setArray(aarr);
                   return ret0.retn();
                 }
@@ -4289,9 +4289,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->getArray()->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->getArray()->deepCopy();
               ret->applyLin(1.,-val);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4299,8 +4299,8 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),a);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),a);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4308,9 +4308,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),aaa);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),aaa);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4318,9 +4318,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),aaa);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Substract(self->getArray(),aaa);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4373,9 +4373,9 @@ namespace MEDCoupling
                 throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble.__div__ : trying to divide by zero !");
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->getArray()->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->getArray()->deepCopy();
               ret->applyLin(1./val,0);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4383,8 +4383,8 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),a);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),a);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4392,9 +4392,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),aaa);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),aaa);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4402,9 +4402,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),aaa);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Divide(self->getArray(),aaa);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4445,9 +4445,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->getArray()->deepCpy();
+              MCAuto<DataArrayDouble> ret=self->getArray()->deepCopy();
               ret->applyPow(val);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4455,8 +4455,8 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),a);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),a);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4464,9 +4464,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),aaa);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),aaa);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4474,9 +4474,9 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),aaa);
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> ret=DataArrayDouble::Pow(self->getArray(),aaa);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(ret);
               return ret2.retn();
             }
@@ -4527,7 +4527,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(a);
               *self+=*ret2;
               Py_XINCREF(trueSelf);
@@ -4535,8 +4535,8 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(aaa);
               *self+=*ret2;
               Py_XINCREF(trueSelf);
@@ -4546,7 +4546,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->addEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4593,7 +4593,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(a);
               *self-=*ret2;
               Py_XINCREF(trueSelf);
@@ -4601,8 +4601,8 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(aaa);
               *self-=*ret2;
               Py_XINCREF(trueSelf);
@@ -4612,7 +4612,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->substractEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4659,7 +4659,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(a);
               *self*=*ret2;
               Py_XINCREF(trueSelf);
@@ -4667,8 +4667,8 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(aaa);
               *self*=*ret2;
               Py_XINCREF(trueSelf);
@@ -4678,7 +4678,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->multiplyEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4727,7 +4727,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(a);
               *self/=*ret2;
               Py_XINCREF(trueSelf);
@@ -4735,8 +4735,8 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(aaa);
               *self/=*ret2;
               Py_XINCREF(trueSelf);
@@ -4746,7 +4746,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->divideEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4793,7 +4793,7 @@ namespace MEDCoupling
             }
           case 2:
             {
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(a);
               *self^=*ret2;
               Py_XINCREF(trueSelf);
@@ -4801,8 +4801,8 @@ namespace MEDCoupling
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
-              MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret2=self->clone(false);
+              MCAuto<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+              MCAuto<MEDCouplingFieldDouble> ret2=self->clone(false);
               ret2->setArray(aaa);
               *self^=*ret2;
               Py_XINCREF(trueSelf);
@@ -4812,7 +4812,7 @@ namespace MEDCoupling
             {
               if(!self->getArray())
                 throw INTERP_KERNEL::Exception(msg2);
-              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+              MCAuto<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
               self->getArray()->powEqual(aaa);
               Py_XINCREF(trueSelf);
               return trueSelf;
@@ -4914,7 +4914,7 @@ namespace MEDCoupling
 
       PyObject *__getnewargs__() throw(INTERP_KERNEL::Exception)
       {// put an empty dict in input to say to __new__ to call __init__...
-        self->checkCoherency();
+        self->checkConsistencyLight();
         PyObject *ret(PyTuple_New(1));
         PyObject *ret0(PyDict_New());
         {
@@ -4929,7 +4929,7 @@ namespace MEDCoupling
 
       PyObject *__getstate__() const throw(INTERP_KERNEL::Exception)
       {
-        self->checkCoherency();
+        self->checkConsistencyLight();
         PyObject *ret0(MEDCoupling_MEDCouplingFieldDouble_getTinySerializationInformation(self));
         PyObject *ret1(MEDCoupling_MEDCouplingFieldDouble_serialize(self));
         const MEDCouplingMesh *mesh(self->getMesh());
@@ -4996,12 +4996,12 @@ namespace MEDCoupling
   {
   public:
     int getNumberOfFields() const;
-    MEDCouplingMultiFields *deepCpy() const;
+    MEDCouplingMultiFields *deepCopy() const;
     virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     virtual std::string advancedRepr() const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
-    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -5376,9 +5376,9 @@ namespace MEDCoupling
       }
 
       // agy : don't know why typemap fails here ??? let it in the extend section
-      PyObject *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const throw(INTERP_KERNEL::Exception)
+      PyObject *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const throw(INTERP_KERNEL::Exception)
       {
-        return convertCartesianAMRMesh(self->deepCpy(father), SWIG_POINTER_OWN | 0 );
+        return convertCartesianAMRMesh(self->deepCopy(father), SWIG_POINTER_OWN | 0 );
       }
 
       MEDCouplingCartesianAMRPatch *getPatchAtPosition(const std::vector<int>& pos) const throw(INTERP_KERNEL::Exception)
@@ -5578,7 +5578,7 @@ namespace MEDCoupling
   {
   public:
     int getNumberOfLevels() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingAMRAttribute *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingAMRAttribute *deepCopy() const throw(INTERP_KERNEL::Exception);
     MEDCouplingAMRAttribute *deepCpyWithoutGodFather() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnRecurseWithoutOverlapWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const throw(INTERP_KERNEL::Exception);
@@ -5656,7 +5656,7 @@ namespace MEDCoupling
   public:
     static DenseMatrix *New(int nbRows, int nbCols) throw(INTERP_KERNEL::Exception);
     static DenseMatrix *New(DataArrayDouble *array, int nbRows, int nbCols) throw(INTERP_KERNEL::Exception);
-    DenseMatrix *deepCpy() const throw(INTERP_KERNEL::Exception);
+    DenseMatrix *deepCopy() const throw(INTERP_KERNEL::Exception);
     DenseMatrix *shallowCpy() const throw(INTERP_KERNEL::Exception);
     //
     int getNumberOfRows() const throw(INTERP_KERNEL::Exception);
@@ -5753,7 +5753,7 @@ namespace MEDCoupling
     virtual int getNumberOfElems() const throw(INTERP_KERNEL::Exception);
     virtual std::string getRepr() const throw(INTERP_KERNEL::Exception);
     virtual PartDefinition *composeWith(const PartDefinition *other) const throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    virtual void checkConsistencyLight() const throw(INTERP_KERNEL::Exception);
     virtual PartDefinition *tryToSimplify() const throw(INTERP_KERNEL::Exception);
     %extend
     {
@@ -5774,9 +5774,9 @@ namespace MEDCoupling
         return ret;
       }
 
-      virtual PyObject *deepCpy() const throw(INTERP_KERNEL::Exception)
+      virtual PyObject *deepCopy() const throw(INTERP_KERNEL::Exception)
       {
-        return convertPartDefinition(self->deepCpy(),SWIG_POINTER_OWN | 0);
+        return convertPartDefinition(self->deepCopy(),SWIG_POINTER_OWN | 0);
       }
     }
   protected:

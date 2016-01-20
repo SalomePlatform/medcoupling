@@ -32,7 +32,7 @@ Read med File
 	res=f.getValueOn(pos)
 
 	# Verify if value is OK
-	bar = mesh3D.getBarycenterAndOwner()
+	bar = mesh3D.computeCellCenterOfMass()
 	x=bar.getIJ(1,1)
 	y=bar.getIJ(1,2)
 	z=bar.getIJ(1,3)

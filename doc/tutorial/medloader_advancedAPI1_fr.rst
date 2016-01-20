@@ -131,7 +131,7 @@ Créons un champ de vecteurs simple, aux cellules (P0), avec un seul pas de temp
 
 	f = ml.MEDCouplingFieldDouble(ml.ON_CELLS, ml.ONE_TIME)
 	f.setTime(5.6,7,8)
-	f.setArray(targetMesh.getBarycenterAndOwner())
+	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 

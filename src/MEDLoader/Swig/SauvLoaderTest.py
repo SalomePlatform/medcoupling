@@ -290,7 +290,7 @@ class SauvLoaderTest(unittest.TestCase):
         wgt=[0.3,0.3,0.3,0.3,0.4,0.4,0.4,0.4,0.7]
         f.setGaussLocalizationOnType(NORM_QUAD8,refCoo,gpCoo,wgt)
         f.setName("SIGT")
-        f.checkCoherency()
+        f.checkConsistencyLight()
         #
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)

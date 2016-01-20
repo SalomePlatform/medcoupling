@@ -31,7 +31,7 @@ MEDCoupling::MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_K
                                                                        const std::vector<double>& gsCoo, const std::vector<double>& w)
 try:_type(type),_ref_coord(refCoo),_gauss_coord(gsCoo),_weight(w)
 {
-  checkCoherency();
+  checkConsistencyLight();
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -59,7 +59,7 @@ void MEDCoupling::MEDCouplingGaussLocalization::setType(INTERP_KERNEL::Normalize
   _type=typ;
 }
 
-void MEDCoupling::MEDCouplingGaussLocalization::checkCoherency() const
+void MEDCoupling::MEDCouplingGaussLocalization::checkConsistencyLight() const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();

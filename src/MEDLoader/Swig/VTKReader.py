@@ -162,9 +162,9 @@ class VTURawReader:
         offsets=np.memmap(fd,dtype=rd._type_off,mode='r',offset=ref+rd._off_off,shape=(rd._nb_cells,))
         offsets=self.__swapIfNecessary(rd._bo,offsets) ; connLgth=offsets[-1] ; offsets2=DataArrayInt(rd._nb_cells+1) ; offsets2.setIJ(0,0,0)
         offsets2[1:]=DataArrayInt(offsets)
-        offsets3=offsets2.deltaShiftIndex() ; offsets2=offsets3.deepCpy() ; offsets3+=1 ; offsets3.computeOffsets2()
+        offsets3=offsets2.deltaShiftIndex() ; offsets2=offsets3.deepCopy() ; offsets3+=1 ; offsets3.computeOffsetsFull()
         offsets=offsets3
-        tmp1=DataArrayInt(len(offsets2),2) ; tmp1[:,0]=1 ; tmp1[:,1]=offsets2 ; tmp1.rearrange(1) ; tmp1.computeOffsets2()
+        tmp1=DataArrayInt(len(offsets2),2) ; tmp1[:,0]=1 ; tmp1[:,1]=offsets2 ; tmp1.rearrange(1) ; tmp1.computeOffsetsFull()
         tmp1=DataArrayInt.Range(1,2*len(offsets2),2).buildExplicitArrByRanges(tmp1)
         conn=np.memmap(fd,dtype=rd._type_conn,mode='r',offset=ref+rd._off_conn,shape=(connLgth,))
         conn=self.__swapIfNecessary(rd._bo,conn)
@@ -173,7 +173,7 @@ class VTURawReader:
         conn2[offsets[0:-1]]=types
         conn2[tmp1]=DataArrayInt(conn)
         m.setConnectivity(conn2,offsets,True)
-        m.checkCoherency() ; mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m) ; ms.pushMesh(mm)
+        m.checkConsistencyLight() ; mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m) ; ms.pushMesh(mm)
         # Fields on nodes and on cells
         for spatialDisc,nbEnt,fields in [(ON_NODES,rd._nb_nodes,rd._node_fields),(ON_CELLS,rd._nb_cells,rd._cell_fields)]: 
             for name,typ,nbCompo,off in fields:
@@ -183,7 +183,7 @@ class VTURawReader:
                 vals=np.memmap(fd,dtype=typ,mode='r',offset=ref+off,shape=(nbEnt*nbCompo))
                 vals=self.__swapIfNecessary(rd._bo,vals)
                 arr=DataArrayDouble(np.array(vals,dtype='float64')) ; arr.rearrange(nbCompo)
-                f.setArray(arr) ; f.checkCoherency()
+                f.setArray(arr) ; f.checkConsistencyLight()
                 f.setTime(self._time[0],self._time[1],0)
                 ff.appendFieldNoProfileSBT(f)
                 fs.pushField(ff)

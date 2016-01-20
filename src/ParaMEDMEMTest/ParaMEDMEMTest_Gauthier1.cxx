@@ -53,8 +53,8 @@ void afficheGauthier1(const ParaFIELD& field, const double *vals, int lgth)
 
 MEDCouplingUMesh *init_quadGauthier1(int is_master)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_quad",2));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::New());
+  MCAuto<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_quad",2));
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
   if(is_master)
     {
       const double dataCoo[24]={0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1,1,1,1,1};
@@ -76,8 +76,8 @@ MEDCouplingUMesh *init_quadGauthier1(int is_master)
 
 MEDCouplingUMesh *init_triangleGauthier1(int is_master)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_triangle",2));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(DataArrayDouble::New());
+  MCAuto<MEDCouplingUMesh> m(MEDCouplingUMesh::New("champ_triangle",2));
+  MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
   if(is_master)
     {
       const double dataCoo[24]={0,0,0,1,0,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1,1,1,1,1};
@@ -155,7 +155,7 @@ void ParaMEDMEMTest::testGauthier1()
         InterpKernelDEC dec_emetteur(emetteur_group, recepteur_group);
         MEDCoupling::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
         MEDCoupling::ParaMESH *paramesh(0);
-        MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh;
+        MCAuto<MEDCouplingUMesh> mesh;
         dec_emetteur.setOrientation(2);
         if (send==0)
           {
@@ -168,7 +168,7 @@ void ParaMEDMEMTest::testGauthier1()
         paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
         MEDCoupling::ComponentTopology comptopo;
         champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-        champ_emetteur->getField()->setNature(ConservativeVolumic);
+        champ_emetteur->getField()->setNature(IntensiveMaximum);
         champ_emetteur->setOwnSupport(true);
         if (rec==0)
           {
@@ -180,7 +180,7 @@ void ParaMEDMEMTest::testGauthier1()
           }
         paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
         champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-        champ_recepteur->getField()->setNature(ConservativeVolumic);
+        champ_recepteur->getField()->setNature(IntensiveMaximum);
         champ_recepteur->setOwnSupport(true);
         if (cas=="emetteur") 
           {
@@ -279,8 +279,8 @@ void ParaMEDMEMTest::testGauthier2()
 
       if ( entree_chaude_group.containsMyRank())
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("mesh",2));
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(63,3);
+          MCAuto<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("mesh",2));
+          MCAuto<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(63,3);
           const double cooData[189]={0.,0.,0.,0.5,0.,0.,0.5,0.05,0.,0.,0.1,0.,0.5,0.1,0.,0.5,0.15,0.,0.,0.2,0.,0.5,0.2,0.,0.5,0.25,0.,0.,0.3,0.,0.5,0.3,0.,0.5,0.35,0.,0.,0.4,0.,0.5,0.4,0.,0.5,0.45,0.,0.,0.5,0.,0.5,0.5,0.,0.5,0.55,0.,0.,0.6,0.,0.5,0.6,0.,0.5,0.65,0.,0.,0.7,0.,0.5,0.7,0.,0.5,0.75,0.,0.,0.8,0.,0.5,0.8,0.,0.5,0.85,0.,0.,0.9,0.,0.5,0.9,0.,0.5,0.95,0.,1.,0.,0.,1.,0.1,0.,1.,0.2,0.,1.,0.3,0.,1.,0.4,0.,1.,0.5,0.,1.,0.6,0.,1.,0.7,0.,1.,0.8,0.,1.,0.9,0.,1.,0.05,0.,1.,0.15,0.,1.,0.25,0.,1.,0.35,0.,1.,0.45,0.,1.,0.55,0.,1.,0.65,0.,1.,0.75,0.,1.,0.85,0.,1.,0.95,0.,1.,1.,0.,0.,1.,0.,0.5,1.,0.,0.,0.05,0.,0.,0.15,0.,0.,0.25,0.,0.,0.35,0.,0.,0.45,0.,0.,0.55,0.,0.,0.65,0.,0.,0.75,0.,0.,0.85,0.,0.,0.95,0.};
           std::copy(cooData,cooData+189,arr->getPointer());
           mesh->setCoords(arr);
@@ -288,12 +288,12 @@ void ParaMEDMEMTest::testGauthier2()
           const int conn[240]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,2,1,31,5,4,32,8,7,33,11,10,34,14,13,35,17,16,36,20,19,37,23,22,38,26,25,39,29,28,30,40,2,31,41,5,32,42,8,33,43,11,34,44,14,35,45,17,36,46,20,37,47,23,38,48,26,39,49,29,31,2,40,32,5,41,33,8,42,34,11,43,35,14,44,36,17,45,37,20,46,38,23,47,39,26,48,50,29,49,3,2,4,6,5,7,9,8,10,12,11,13,15,14,16,18,17,19,21,20,22,24,23,25,27,26,28,51,29,52,31,4,2,32,7,5,33,10,8,34,13,11,35,16,14,36,19,17,37,22,20,38,25,23,39,28,26,50,52,29,0,2,53,3,5,54,6,8,55,9,11,56,12,14,57,15,17,58,18,20,59,21,23,60,24,26,61,27,29,62,3,53,2,6,54,5,9,55,8,12,56,11,15,57,14,18,58,17,21,59,20,24,60,23,27,61,26,51,62,29};
           for(int i=0;i<80;i++)
             mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+3*i);
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f(MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME));
+          MCAuto<MEDCouplingFieldDouble> f(MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME));
           const double valsOfField[189]={0.,0.,0.,0.,0.,0.,0.,0.,0.05,0.,0.,0.1,0.,0.,0.1,0.,0.,0.15,0.,0.,0.2,0.,0.,0.2,0.,0.,0.25,0.,0.,0.3,0.,0.,0.3,0.,0.,0.35,0.,0.,0.4,0.,0.,0.4,0.,0.,0.45,0.,0.,0.5,0.,0.,0.5,0.,0.,0.55,0.,0.,0.6,0.,0.,0.6,0.,0.,0.65,0.,0.,0.7,0.,0.,0.7,0.,0.,0.75,0.,0.,0.8,0.,0.,0.8,0.,0.,0.85,0.,0.,0.9,0.,0.,0.9,0.,0.,0.95,0.,0.,0.,0.,0.,0.1,0.,0.,0.2,0.,0.,0.3,0.,0.,0.4,0.,0.,0.5,0.,0.,0.6,0.,0.,0.7,0.,0.,0.8,0.,0.,0.9,0.,0.,0.05,0.,0.,0.15,0.,0.,0.25,0.,0.,0.35,0.,0.,0.45,0.,0.,0.55,0.,0.,0.65,0.,0.,0.75,0.,0.,0.85,0.,0.,0.95,0.,0.,1.,0.,0.,1.,0.,0.,1.,0.,0.,0.05,0.,0.,0.15,0.,0.,0.25,0.,0.,0.35,0.,0.,0.45,0.,0.,0.55,0.,0.,0.65,0.,0.,0.75,0.,0.,0.85,0.,0.,0.95};
           f->setMesh(mesh); f->setName("VITESSE_P1_OUT");
           arr=DataArrayDouble::New(); arr->alloc(63,3);
           std::copy(valsOfField,valsOfField+189,arr->getPointer());
-          f->setArray(arr); f->setNature(ConservativeVolumic);
+          f->setArray(arr); f->setNature(IntensiveMaximum);
           MEDCoupling::ParaMESH *paramesh(new MEDCoupling::ParaMESH(mesh,entree_chaude_group,"emetteur mesh"));
           vitesse=new MEDCoupling::ParaFIELD(f,paramesh,entree_chaude_group);
           vitesse->setOwnSupport(true);
@@ -301,8 +301,8 @@ void ParaMEDMEMTest::testGauthier2()
         }
       else
         {
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("mesh",2));
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(22,3);
+          MCAuto<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New("mesh",2));
+          MCAuto<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(22,3);
           const double cooData[66]={0,0,0,1,0,0,0,0.1,0,1,0.1,0,0,0.2,0,1,0.2,0,0,0.3,0,1,0.3,0,0,0.4,0,1,0.4,0,0,0.5,0,1,0.5,0,0,0.6,0,1,0.6,0,0,0.7,0,1,0.7,0,0,0.8,0,1,0.8,0,0,0.9,0,1,0.9,0,0,1,0,1,1,0};
           std::copy(cooData,cooData+66,arr->getPointer());
           mesh->setCoords(arr);
@@ -310,10 +310,10 @@ void ParaMEDMEMTest::testGauthier2()
           const int conn[40]={0,1,3,2,2,3,5,4,4,5,7,6,6,7,9,8,8,9,11,10,10,11,13,12,12,13,15,14,14,15,17,16,16,17,19,18,18,19,21,20};
           for(int i=0;i<10;i++)
             mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4*i);
-          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f(MEDCouplingFieldDouble::New(type==0?ON_CELLS:ON_NODES,ONE_TIME));
+          MCAuto<MEDCouplingFieldDouble> f(MEDCouplingFieldDouble::New(type==0?ON_CELLS:ON_NODES,ONE_TIME));
           f->setMesh(mesh); f->setName("vitesse_in_chaude");
           arr=DataArrayDouble::New(); arr->alloc(f->getNumberOfTuplesExpected()*3); arr->fillWithZero(); arr->rearrange(3);
-          f->setArray(arr); f->setNature(ConservativeVolumic);
+          f->setArray(arr); f->setNature(IntensiveMaximum);
           MEDCoupling::ParaMESH *paramesh(new MEDCoupling::ParaMESH(mesh,Genepi_group,"recepteur mesh"));
           vitesse=new MEDCoupling::ParaFIELD(f,paramesh,Genepi_group);
           vitesse->setOwnSupport(true);
@@ -418,7 +418,7 @@ void ParaMEDMEMTest::testGauthier3()
         InterpKernelDEC& dec_emetteur=decu[0];
         MEDCoupling::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
         MEDCoupling::ParaMESH *paramesh(0);
-        MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh;
+        MCAuto<MEDCouplingUMesh> mesh;
         dec_emetteur.setOrientation(2);
         if (send==0)
           {
@@ -431,7 +431,7 @@ void ParaMEDMEMTest::testGauthier3()
         paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"emetteur mesh");
         MEDCoupling::ComponentTopology comptopo;
         champ_emetteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-        champ_emetteur->getField()->setNature(ConservativeVolumic);
+        champ_emetteur->getField()->setNature(IntensiveMaximum);
         champ_emetteur->setOwnSupport(true);
         if (rec==0)
           {
@@ -443,7 +443,7 @@ void ParaMEDMEMTest::testGauthier3()
           }
         paramesh=new MEDCoupling::ParaMESH(mesh,recepteur_group.containsMyRank()?recepteur_group:emetteur_group,"recepteur mesh");
         champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
-        champ_recepteur->getField()->setNature(ConservativeVolumic);
+        champ_recepteur->getField()->setNature(IntensiveMaximum);
         champ_recepteur->setOwnSupport(true);
         if (cas=="emetteur") 
           {
@@ -612,7 +612,7 @@ void ParaMEDMEMTest::testGauthier4()
   //test 1 - primaire -> secondaire
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
   dec.setIntersectionType(INTERP_KERNEL::PointLocator);
-  parafield->getField()->setNature(ConservativeVolumic);//very important
+  parafield->getField()->setNature(IntensiveMaximum);//very important
   if (source_group->containsMyRank())
     { 
       dec.setMethod("P1");

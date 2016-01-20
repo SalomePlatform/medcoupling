@@ -60,7 +60,7 @@ MEDCoupling1SGTUMesh.__new__=classmethod(MEDCoupling1SGTUMeshnew)
 MEDCouplingCurveLinearMesh.__new__=classmethod(MEDCouplingCurveLinearMeshnew)
 MEDCouplingCMesh.__new__=classmethod(MEDCouplingCMeshnew)
 MEDCouplingIMesh.__new__=classmethod(MEDCouplingIMeshnew)
-MEDCouplingExtrudedMesh.__new__=classmethod(MEDCouplingExtrudedMeshnew)
+MEDCouplingMappedExtrudedMesh.__new__=classmethod(MEDCouplingExtrudedMeshnew)
 MEDCouplingFieldDouble.__new__=classmethod(MEDCouplingFieldDoublenew)
 
 del INTERPKERNELExceptionReduce

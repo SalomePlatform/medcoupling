@@ -384,7 +384,7 @@ class MEDLoaderDataForTest:
         f1.setArray(array);
         tmp=array.getPointer();
         f1.setTime(2.,0,1);
-        f1.checkCoherency();
+        f1.checkConsistencyLight();
         return f1;
 
     def buildVecFieldOnNodes_1(cls):
@@ -402,7 +402,7 @@ class MEDLoaderDataForTest:
         array.setInfoOnComponent(1,"density [g/cm^3]");
         array.setInfoOnComponent(2,"temperature [K]");
         f1.setTime(2.12,2,3);
-        f1.checkCoherency();
+        f1.checkConsistencyLight();
         return f1;
 
     def buildVecFieldOnGauss_1(cls):
@@ -444,7 +444,7 @@ class MEDLoaderDataForTest:
         f.setName("MyFirstFieldOnGaussPoint");
         array.setInfoOnComponent(0,"power [MW/m^3]");
         array.setInfoOnComponent(1,"density");
-        f.checkCoherency();
+        f.checkConsistencyLight();
         return f;
 
     def buildVecFieldOnGauss_2(cls):
@@ -493,7 +493,7 @@ class MEDLoaderDataForTest:
         f.setName("MyFirstFieldOnGaussPoint");
         array.setInfoOnComponent(0,"power [MW/m^3]");
         array.setInfoOnComponent(1,"density");
-        f.checkCoherency();
+        f.checkConsistencyLight();
         return f;
 
     # idem buildVecFieldOnGauss_2 except that different discretizations are sorted inside one type
@@ -543,7 +543,7 @@ class MEDLoaderDataForTest:
         f.setName("MyFirstFieldOnGaussPoint");
         array.setInfoOnComponent(0,"power [MW/m^3]");
         array.setInfoOnComponent(1,"density");
-        f.checkCoherency();
+        f.checkConsistencyLight();
         return f;
 
     def buildVecFieldOnGaussNE_1(cls):
@@ -559,7 +559,7 @@ class MEDLoaderDataForTest:
         array.setInfoOnComponent(0,"power [W]");
         array.setInfoOnComponent(1,"temperature");
         f.setName("MyFieldOnGaussNE");
-        f.checkCoherency();
+        f.checkConsistencyLight();
         return f;
 
     def buildACompleteMEDDataStructureWithFieldsOnCells_1(cls):
@@ -599,7 +599,7 @@ class MEDLoaderDataForTest:
             f11Tmp.setMesh(m0)
             arr=DataArrayDouble(m0.getNumberOfCells(),1) ; arr.iota() ; arr+=1+i ; arr*=0.1
             f11Tmp.setArray(arr)
-            f11Tmp.checkCoherency()
+            f11Tmp.checkConsistencyLight()
             f11Tmp.setName(f1Name)
             f1.appendFieldNoProfileSBT(f11Tmp)
             pass
@@ -614,7 +614,7 @@ class MEDLoaderDataForTest:
             f21Tmp.setMesh(m0)
             arr=DataArrayDouble(m0.getNumberOfCells(),1) ; arr.iota() ; arr+=1+i
             f21Tmp.setArray(arr)
-            f21Tmp.checkCoherency()
+            f21Tmp.checkConsistencyLight()
             f21Tmp.setName(f2Name)
             f2.appendFieldNoProfileSBT(f21Tmp)
             f22Tmp=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
@@ -622,7 +622,7 @@ class MEDLoaderDataForTest:
             f22Tmp.setMesh(m1)
             arr=DataArrayDouble(m1.getNumberOfCells(),1) ; arr.iota() ; arr+=100+1+i
             f22Tmp.setArray(arr)
-            f22Tmp.checkCoherency()
+            f22Tmp.checkConsistencyLight()
             f22Tmp.setName(f2Name)
             f2[it,order].setFieldNoProfileSBT(f22Tmp)
             pass
@@ -639,7 +639,7 @@ class MEDLoaderDataForTest:
             f31Tmp.setMesh(m0Part)
             arr=DataArrayDouble(m0Part.getNumberOfCells(),1) ; arr.iota() ; arr+=1000+i+1
             f31Tmp.setArray(arr)
-            f31Tmp.checkCoherency()
+            f31Tmp.checkConsistencyLight()
             f31Tmp.setName(f3Name)
             f3.appendFieldProfile(f31Tmp,mm,0,pfl1)
             pfl2=DataArrayInt([0,3]) ; pfl2.setName("pfl2Bottom")
@@ -649,7 +649,7 @@ class MEDLoaderDataForTest:
             f32Tmp.setMesh(m1Part)
             arr=DataArrayDouble(m1Part.getNumberOfCells(),1) ; arr.iota() ; arr+=2000+1+i
             f32Tmp.setArray(arr)
-            f32Tmp.checkCoherency()
+            f32Tmp.checkConsistencyLight()
             f32Tmp.setName(f3Name)
             f3[it,order].setFieldProfile(f32Tmp,mm,-1,pfl2)
             pass

@@ -25,7 +25,7 @@
 #include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <mpi.h>
 #include <vector>
@@ -71,8 +71,8 @@ namespace MEDCoupling
     void sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayInt *idsToSend) const;
     void receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayInt *&ids) const;
   private:
-    typedef MEDCouplingAutoRefCountObjectPtr< MEDCouplingPointSet >  AutoMCPointSet;
-    typedef MEDCouplingAutoRefCountObjectPtr< DataArrayInt >         AutoDAInt;
+    typedef MCAuto< MEDCouplingPointSet >  AutoMCPointSet;
+    typedef MCAuto< DataArrayInt >         AutoDAInt;
     typedef std::pair<int,bool>  Proc_SrcOrTgt;  // a key indicating a proc ID and whether the data is for source mesh/field or target mesh/field
 
     static const int START_TAG_MESH_XCH;

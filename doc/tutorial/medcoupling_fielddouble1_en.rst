@@ -73,16 +73,16 @@ Compare f and f2 with a precision of 1e-12 on coordinates and 1e-12 on values. :
 Builing of a subpart of a field
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
-Store in ids1 the list of tuple ids whose value is within [0.0,5.0] (DataArrayDouble.getIdsInRange)	. From ids1 build the sub-part fPart1 of the field "f". ::
+Store in ids1 the list of tuple ids whose value is within [0.0,5.0] (DataArrayDouble.findIdsInRange)	. From ids1 build the sub-part fPart1 of the field "f". ::
 
-	ids1=f.getArray().getIdsInRange(0.,5.)
+	ids1=f.getArray().findIdsInRange(0.,5.)
 	fPart1=f.buildSubPart(ids1)
 	
 .. image:: images/FieldDouble1_1.png
 
 Select the part "fPart2" of the field "f" whose values are in [50.,infinity). ::
 
-	ids2=f.getArray().getIdsInRange(50.,1.e300)
+	ids2=f.getArray().findIdsInRange(50.,1.e300)
 	fPart2=f.buildSubPart(ids2)
 
 Renumbering cells
@@ -91,7 +91,7 @@ Renumbering cells
 The generated file "fPart1" is valid for MEDCoupling, but its cells are not sorted by geometric type: it is not valid from a MED file point of view. By using MEDCouplingUMesh.sortCellsInMEDFileFrmt and DataArrayDouble.renumberInPlace
 renumber manually fPart1 starting from a deep copy of fPart1. ::
 
-	fPart1Cpy=fPart1.deepCpy()
+	fPart1Cpy=fPart1.deepCopy()
 	o2n=fPart1Cpy.getMesh().sortCellsInMEDFileFrmt()
 	fPart1Cpy.getArray().renumberInPlace(o2n)
 	
@@ -124,7 +124,7 @@ Evaluation of a MEDCouplingFieldDouble on given space points
 Evaluate the values of the computed field "fPart12" on the barycenters of its mesh.
 Evaluate the field "f" on the same barycenters. The method used is MEDCouplingFieldDouble.getValueOnMulti(). ::
 
-	bary=fPart12.getMesh().getBarycenterAndOwner()
+	bary=fPart12.getMesh().computeCellCenterOfMass()
 	arr1=fPart12.getValueOnMulti(bary)
 	arr2=f.getValueOnMulti(bary)
 	delta=arr1-arr2

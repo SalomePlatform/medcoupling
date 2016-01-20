@@ -71,7 +71,7 @@
 	myCoords = DataArrayDouble.New()
 	myCoords.setValues(coordinates,nbOfNodes,3)
 	mesh.setCoords(myCoords)
-	mesh.checkCoherency()
+	mesh.checkConsistencyLight()
 
 	print "6 ********************"
 	# Extraction of surfacic meshing
@@ -81,7 +81,7 @@
 	mesh2D = mesh.buildFacePartOfMySelfNode(nodes,True)
 	#print mesh2D
 	mesh2D.setName("3Dcube")
-	mesh2D.checkCoherency()
+	mesh2D.checkConsistencyLight()
 
 	print "7 ********************"
 	# Creation of field : with following definition
@@ -91,12 +91,12 @@
 	field = MEDCouplingFieldDouble.New(ON_CELLS)
 	field.setMesh(mesh)
 	field.setName("field")
-	field.setNature(Integral)
+	field.setNature(ExtensiveMaximum)
 
 	# Computing and setting field values
 	myCoords=DataArrayDouble.New()
 	sampleTab=[]
-	bar = mesh.getBarycenterAndOwner()
+	bar = mesh.computeCellCenterOfMass()
 	print bar.getNbOfElems()
 	for i in range(nbOfCells):
 		x = bar.getIJ(i+1,1)
@@ -113,7 +113,7 @@
 	fBF = MEDCouplingFieldDouble.New(ON_CELLS)
 	fBF.setMesh(mesh2D)
 	fBF.setName("fieldBottomFace")
-	fBF.setNature(Integral)
+	fBF.setNature(ExtensiveMaximum)
 	Cval = 10.
 	myCoords2D=DataArrayDouble.New()
 	sampleTab=[]

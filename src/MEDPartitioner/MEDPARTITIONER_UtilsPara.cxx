@@ -26,7 +26,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
 #include <fstream>

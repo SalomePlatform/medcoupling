@@ -23,7 +23,7 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <set>
 #include <cmath>
@@ -269,7 +269,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellId
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+      MCAuto<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
       return buildPart(cellIds->begin(),cellIds->end());
     }
 }
@@ -281,7 +281,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRange(int beginCellIds, int endCellId
  */
 MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+  MCAuto<DataArrayInt> cellIds=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
   return buildPartAndReduceNodes(cellIds->begin(),cellIds->end(),arr);
 }
 
@@ -303,7 +303,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(int beginCellIds,
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
+  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic(nbOfComp,func);
   ret->synchronizeTimeWithSupport();
@@ -378,7 +378,7 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
+  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic(nbOfComp,func);
   ret->synchronizeTimeWithSupport();
@@ -428,11 +428,11 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  *  \ref  py_mcmesh_fillFromAnalytic2 "Here is a Python example".
  *  \endif
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticCompo(TypeOfField t, int nbOfComp, const std::string& func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
+  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
-  ret->fillFromAnalytic2(nbOfComp,func);
+  ret->fillFromAnalyticCompo(nbOfComp,func);
   ret->synchronizeTimeWithSupport();
   return ret.retn();
 }
@@ -481,11 +481,11 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nb
  *  \ref  py_mcmesh_fillFromAnalytic3 "Here is a Python example".
  *  \endif
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticNamedCompo(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
+  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
-  ret->fillFromAnalytic3(nbOfComp,varsOrder,func);
+  ret->fillFromAnalyticNamedCompo(nbOfComp,varsOrder,func);
   ret->synchronizeTimeWithSupport();
   return ret.retn();
 }
@@ -532,7 +532,7 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, cons
  */
 MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes)
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms1(meshes.size());
+  std::vector< MCAuto<MEDCouplingUMesh> > ms1(meshes.size());
   std::vector< const MEDCouplingUMesh * > ms2(meshes.size());
   for(std::size_t i=0;i<meshes.size();i++)
     {
@@ -668,7 +668,7 @@ void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
  *  \endif
  */
-void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const
+void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const
 {
   eltsIndex=DataArrayInt::New(); elts=DataArrayInt::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
   int *eltsIndexPtr(eltsIndex->getPointer());
@@ -700,7 +700,7 @@ std::string MEDCouplingMesh::writeVTK(const std::string& fileName, bool isBinary
   std::string ret(getVTKFileNameOf(fileName));
   //
   std::string cda,pda;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
+  MCAuto<DataArrayByte> byteArr;
   if(isBinary)
     { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
   writeVTKAdvanced(ret,cda,pda,byteArr);

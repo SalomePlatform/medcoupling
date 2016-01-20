@@ -73,7 +73,7 @@ double Interpolation3DTest::sumCol(const IntersectionMatrix& m, int i) const
 
 void Interpolation3DTest::getVolumes(MEDCoupling::MEDCouplingUMesh& mesh, double *tab) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(true);
+  MCAuto<MEDCouplingFieldDouble> vol=mesh->getMeasureField(true);
   std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
 }
 

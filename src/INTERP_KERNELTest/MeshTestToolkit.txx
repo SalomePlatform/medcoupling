@@ -106,7 +106,7 @@ namespace INTERP_TEST
   template <int SPACEDIM, int MESHDIM>
   void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(MEDCoupling::MEDCouplingUMesh& mesh, double *tab) const
   {
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh.getMeasureField(true);
+    MCAuto<MEDCouplingFieldDouble> vol=mesh.getMeasureField(true);
     std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
   }
 
@@ -347,12 +347,12 @@ namespace INTERP_TEST
     LOG(1, std::endl << "=== -> intersecting src = " << mesh1path << ", target = " << mesh2path );
 
     LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-    MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
+    MCAuto<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
+    MCAuto<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
 
     LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-    MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
+    MCAuto<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
+    MCAuto<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
 
     MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> sMesh_wrapper(sMesh);
     MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> tMesh_wrapper(tMesh);

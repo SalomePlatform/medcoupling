@@ -9,14 +9,14 @@ It has five possible values:
 -      "NoNature", the default value, does not allow the use of any interpolation tools
 
 For intensive fields:
--      \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pressure fields.
+-      \ref TableNatureOfFieldExampleConservVol "IntensiveMaximum", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pressure fields.
 
--      \ref TableNatureOfFieldExampleRevIntegral "RevIntegral", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
+-      \ref TableNatureOfFieldExampleRevIntegral "IntensiveConservation", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
 
 For extensive fields:
--      \ref TableNatureOfFieldExampleIntegral "Integral", for extensive field with the maximum principle favored over conservativity. Relevant for power fields.
+-      \ref TableNatureOfFieldExampleIntegral "ExtensiveMaximum", for extensive field with the maximum principle favored over conservativity. Relevant for power fields.
 
--      \ref TableNatureOfFieldExampleIntegralGlobConstraint "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle. Relevant for power fields.
+-      \ref TableNatureOfFieldExampleIntegralGlobConstraint "ExtensiveConservation", for extensive fields with conservativity favored over the maximum principle. Relevant for power fields.
 
 \n
 
@@ -55,7 +55,7 @@ MEDCouplingFieldDouble *sourceField=MEDLoader::ReadFieldCell(sourceFileName,"Sou
 const char targetFileName[]="target.med";
 MEDCouplingUMesh *med_target_mesh=MEDLoader::ReadUMeshFromFile(targetFileName,"Target_Mesh",0);
 //
-sourceField->setNature(ConservativeVolumic);
+sourceField->setNature(IntensiveMaximum);
 ...
 \endcode
 

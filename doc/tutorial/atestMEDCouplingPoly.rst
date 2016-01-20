@@ -91,7 +91,7 @@
 		pass
 
 	print "5 ********************"
-	mesh.checkCoherency()
+	mesh.checkConsistencyLight()
 
 	medFileName = "MEDCoupling_Fleur.med"
 	MEDLoader.WriteUMesh(medFileName,mesh,True)

@@ -56,7 +56,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::New()
 MEDCouplingIMesh *MEDCouplingIMesh::New(const std::string& meshName, int spaceDim, const int *nodeStrctStart, const int *nodeStrctStop,
                                         const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> ret(new MEDCouplingIMesh);
+  MCAuto<MEDCouplingIMesh> ret(new MEDCouplingIMesh);
   ret->setName(meshName);
   ret->setSpaceDimension(spaceDim);
   ret->setNodeStruct(nodeStrctStart,nodeStrctStop);
@@ -65,7 +65,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::New(const std::string& meshName, int spaceDi
   return ret.retn();
 }
 
-MEDCouplingIMesh *MEDCouplingIMesh::deepCpy() const
+MEDCouplingIMesh *MEDCouplingIMesh::deepCopy() const
 {
   return clone(true);
 }
@@ -87,7 +87,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::buildWithGhost(int ghostLev) const
 {
   if(ghostLev<0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::buildWithGhost : the ghostLev must be >= 0 !");
-  checkCoherency();
+  checkConsistencyLight();
   int spaceDim(getSpaceDimension());
   double origin[3],dxyz[3];
   int structure[3];
@@ -97,7 +97,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::buildWithGhost(int ghostLev) const
       dxyz[i]=_dxyz[i];
       structure[i]=_structure[i]+2*ghostLev;
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> ret(MEDCouplingIMesh::New(getName(),spaceDim,structure,structure+spaceDim,origin,origin+spaceDim,dxyz,dxyz+spaceDim));
+  MCAuto<MEDCouplingIMesh> ret(MEDCouplingIMesh::New(getName(),spaceDim,structure,structure+spaceDim,origin,origin+spaceDim,dxyz,dxyz+spaceDim));
   ret->copyTinyInfoFrom(this);
   return ret.retn();
 }
@@ -170,7 +170,7 @@ std::string MEDCouplingIMesh::getAxisUnit() const
  */
 double MEDCouplingIMesh::getMeasureOfAnyCell() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int dim(getSpaceDimension());
   double ret(1.);
   for(int i=0;i<dim;i++)
@@ -187,8 +187,8 @@ double MEDCouplingIMesh::getMeasureOfAnyCell() const
  */
 MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> ret(MEDCouplingCMesh::New());
+  checkConsistencyLight();
+  MCAuto<MEDCouplingCMesh> ret(MEDCouplingCMesh::New());
   try
   { ret->copyTinyInfoFrom(this); }
   catch(INTERP_KERNEL::Exception& ) { }
@@ -196,7 +196,7 @@ MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
   std::vector<std::string> infos(buildInfoOnComponents());
   for(int i=0;i<spaceDim;i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(_structure[i],1); arr->setInfoOnComponent(0,infos[i]);
+      MCAuto<DataArrayDouble> arr(DataArrayDouble::New()); arr->alloc(_structure[i],1); arr->setInfoOnComponent(0,infos[i]);
       arr->iota(); arr->applyLin(_dxyz[i],_origin[i]);
       ret->setCoordsAt(i,arr);
     }
@@ -213,7 +213,7 @@ void MEDCouplingIMesh::refineWithFactor(const std::vector<int>& factors)
 {
   if((int)factors.size()!=_space_dim)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::refineWithFactor : refinement factors must have size equal to spaceDim !");
-  checkCoherency();
+  checkConsistencyLight();
   std::vector<int> structure(_structure,_structure+3);
   std::vector<double> dxyz(_dxyz,_dxyz+3);
   for(int i=0;i<_space_dim;i++)
@@ -238,11 +238,11 @@ void MEDCouplingIMesh::refineWithFactor(const std::vector<int>& factors)
  *
  * \return MEDCouplingIMesh * - A newly created object (to be managed by the caller with decrRef) containing simply one cell.
  *
- * \throw if \a this does not pass the \c checkCoherency test.
+ * \throw if \a this does not pass the \c checkConsistencyLight test.
  */
 MEDCouplingIMesh *MEDCouplingIMesh::asSingleCell() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int spaceDim(getSpaceDimension()),nodeSt[3];
   double dxyz[3];
   for(int i=0;i<spaceDim;i++)
@@ -258,7 +258,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::asSingleCell() const
           dxyz[i]=_dxyz[i];
         }
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> ret(MEDCouplingIMesh::New(getName(),getSpaceDimension(),nodeSt,nodeSt+spaceDim,_origin,_origin+spaceDim,dxyz,dxyz+spaceDim));
+  MCAuto<MEDCouplingIMesh> ret(MEDCouplingIMesh::New(getName(),getSpaceDimension(),nodeSt,nodeSt+spaceDim,_origin,_origin+spaceDim,dxyz,dxyz+spaceDim));
   ret->copyTinyInfoFrom(this);
   return ret.retn();
 }
@@ -933,20 +933,20 @@ void MEDCouplingIMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
 }
 
-void MEDCouplingIMesh::checkCoherency() const
+void MEDCouplingIMesh::checkConsistencyLight() const
 {
   checkSpaceDimension();
   for(int i=0;i<_space_dim;i++)
     if(_structure[i]<1)
       {
-        std::ostringstream oss; oss << "MEDCouplingIMesh::checkCoherency : On axis " << i << "/" << _space_dim << ", number of nodes is equal to " << _structure[i] << " ! must be >=1 !";
+        std::ostringstream oss; oss << "MEDCouplingIMesh::checkConsistencyLight : On axis " << i << "/" << _space_dim << ", number of nodes is equal to " << _structure[i] << " ! must be >=1 !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
 }
 
-void MEDCouplingIMesh::checkCoherency1(double eps) const
+void MEDCouplingIMesh::checkConsistency(double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
 }
 
 void MEDCouplingIMesh::getNodeGridStructure(int *res) const
@@ -964,7 +964,7 @@ std::vector<int> MEDCouplingIMesh::getNodeGridStructure() const
 
 MEDCouplingStructuredMesh *MEDCouplingIMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int dim(getSpaceDimension());
   if(dim!=(int)cellPart.size())
     {
@@ -973,7 +973,7 @@ MEDCouplingStructuredMesh *MEDCouplingIMesh::buildStructuredSubPart(const std::v
     }
   double retOrigin[3]={0.,0.,0.};
   int retStruct[3]={0,0,0};
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> ret(dynamic_cast<MEDCouplingIMesh *>(deepCpy()));
+  MCAuto<MEDCouplingIMesh> ret(dynamic_cast<MEDCouplingIMesh *>(deepCopy()));
   for(int i=0;i<dim;i++)
     {
       int startNode(cellPart[i].first),endNode(cellPart[i].second+1);
@@ -993,7 +993,7 @@ MEDCouplingStructuredMesh *MEDCouplingIMesh::buildStructuredSubPart(const std::v
     }
   ret->setNodeStruct(retStruct,retStruct+dim);
   ret->setOrigin(retOrigin,retOrigin+dim);
-  ret->checkCoherency();
+  ret->checkConsistencyLight();
   return ret.retn();
 }
 
@@ -1044,7 +1044,7 @@ std::string MEDCouplingIMesh::advancedRepr() const
 
 void MEDCouplingIMesh::getBoundingBox(double *bbox) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int dim(getSpaceDimension());
   for(int idim=0; idim<dim; idim++)
     {
@@ -1074,7 +1074,7 @@ void MEDCouplingIMesh::getBoundingBox(double *bbox) const
  */
 MEDCouplingFieldDouble *MEDCouplingIMesh::getMeasureField(bool isAbs) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   std::string name="MeasureOfMesh_";
   name+=getName();
   int nbelem(getNumberOfCells());
@@ -1169,8 +1169,8 @@ MEDCouplingMesh *MEDCouplingIMesh::mergeMyselfWith(const MEDCouplingMesh *other)
  */
 DataArrayDouble *MEDCouplingIMesh::getCoordinatesAndOwner() const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  checkConsistencyLight();
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   int spaceDim(getSpaceDimension()),nbNodes(getNumberOfNodes());
   ret->alloc(nbNodes,spaceDim);
   double *pt(ret->getPointer());
@@ -1194,10 +1194,10 @@ DataArrayDouble *MEDCouplingIMesh::getCoordinatesAndOwner() const
  *          components. The caller is to delete this array using decrRef() as it is
  *          no more needed.
  */
-DataArrayDouble *MEDCouplingIMesh::getBarycenterAndOwner() const
+DataArrayDouble *MEDCouplingIMesh::computeCellCenterOfMass() const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  checkConsistencyLight();
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   int spaceDim(getSpaceDimension()),nbCells(getNumberOfCells()),tmp[3],tmp2[3];
   ret->alloc(nbCells,spaceDim);
   double *pt(ret->getPointer()),shiftOrigin[3];
@@ -1216,7 +1216,7 @@ DataArrayDouble *MEDCouplingIMesh::getBarycenterAndOwner() const
 
 DataArrayDouble *MEDCouplingIMesh::computeIsoBarycenterOfNodesPerCell() const
 {
-  return MEDCouplingIMesh::getBarycenterAndOwner();
+  return MEDCouplingIMesh::computeCellCenterOfMass();
 }
 
 void MEDCouplingIMesh::renumberCells(const int *old2NewBg, bool check)
@@ -1275,7 +1275,7 @@ void MEDCouplingIMesh::unserialization(const std::vector<double>& tinyInfoD, con
 
 void MEDCouplingIMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   std::ostringstream extent,origin,spacing;
   for(int i=0;i<3;i++)
     {

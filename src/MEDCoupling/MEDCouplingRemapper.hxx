@@ -25,7 +25,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "InterpolationOptions.hxx"
 #include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "InterpKernelException.hxx"
 
@@ -109,8 +109,8 @@ namespace MEDCoupling
     static void ComputeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
                                        std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse);
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> _src_ft;
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> _target_ft;
+    MCAuto<MEDCouplingFieldTemplate> _src_ft;
+    MCAuto<MEDCouplingFieldTemplate> _target_ft;
     InterpolationMatrixPolicy _interp_matrix_pol;
     NatureOfField _nature_of_deno;
     unsigned int _time_deno_update;

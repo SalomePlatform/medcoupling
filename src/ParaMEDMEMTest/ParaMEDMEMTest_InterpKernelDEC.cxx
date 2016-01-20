@@ -149,7 +149,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       double *valueP0=parafieldP0->getField()->getArray()->getPointer();
-      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
       if(rank==0)
         {
           valueP0[0]=7.; valueP0[1]=8.;
@@ -198,7 +198,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_1D()
         }
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
     }
   // test 1
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
@@ -338,7 +338,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       double *valueP0=parafieldP0->getField()->getArray()->getPointer();
-      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
       if(rank==0)
         {
           valueP0[0]=7.; valueP0[1]=8.;
@@ -387,7 +387,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
         }
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
     }
   // test 1
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
@@ -526,7 +526,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       if(srcM=="P0")
         {
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);
         }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
@@ -563,7 +563,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       if(targetM=="P0")
         {
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);
         }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
@@ -730,7 +730,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
           array->alloc(mcfield->getNumberOfTuples(),1);
           mcfield->setArray(array);
           array->decrRef();
-          mcfield->setNature(ConservativeVolumic);
+          mcfield->setNature(IntensiveMaximum);
         }
       else
         {
@@ -773,7 +773,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
           array->alloc(mcfield->getNumberOfTuples(),1);
           mcfield->setArray(array);
           array->decrRef();
-          mcfield->setNature(ConservativeVolumic);
+          mcfield->setNature(IntensiveMaximum);
         }
       else
         {
@@ -899,7 +899,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       if(srcM=="P0")
         {
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);
         }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
@@ -936,7 +936,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       if(targetM=="P0")
         {
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);
         }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
@@ -1165,7 +1165,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
     }
   //test 1 - Conservative volumic
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
-  parafield->getField()->setNature(ConservativeVolumic);
+  parafield->getField()->setNature(IntensiveMaximum);
   if (source_group->containsMyRank())
     { 
       dec.setMethod("P0");
@@ -1186,9 +1186,9 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
-  //test 2 - Integral
+  //test 2 - ExtensiveMaximum
   MEDCoupling::InterpKernelDEC dec2(*source_group,*target_group);
-  parafield->getField()->setNature(Integral);
+  parafield->getField()->setNature(ExtensiveMaximum);
   if (source_group->containsMyRank())
     { 
       dec2.setMethod("P0");
@@ -1209,9 +1209,9 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
-  //test 3 - Integral with global constraint
+  //test 3 - ExtensiveMaximum with global constraint
   MEDCoupling::InterpKernelDEC dec3(*source_group,*target_group);
-  parafield->getField()->setNature(IntegralGlobConstraint);
+  parafield->getField()->setNature(ExtensiveConservation);
   if (source_group->containsMyRank())
     { 
       dec3.setMethod("P0");
@@ -1232,9 +1232,9 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
-  //test 4 - RevIntegral
+  //test 4 - IntensiveConservation
   MEDCoupling::InterpKernelDEC dec4(*source_group,*target_group);
-  parafield->getField()->setNature(RevIntegral);
+  parafield->getField()->setNature(IntensiveConservation);
   if (source_group->containsMyRank())
     { 
       dec4.setMethod("P0");
@@ -1257,7 +1257,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
     }
   //test 5 - Conservative volumic reversed
   MEDCoupling::InterpKernelDEC dec5(*source_group,*target_group);
-  parafield->getField()->setNature(ConservativeVolumic);
+  parafield->getField()->setNature(IntensiveMaximum);
   if (source_group->containsMyRank())
     { 
       dec5.setMethod("P0");
@@ -1282,9 +1282,9 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       res[1]=toSet[1];
       dec5.sendData();
     }
-  //test 6 - Integral reversed
+  //test 6 - ExtensiveMaximum reversed
   MEDCoupling::InterpKernelDEC dec6(*source_group,*target_group);
-  parafield->getField()->setNature(Integral);
+  parafield->getField()->setNature(ExtensiveMaximum);
   if (source_group->containsMyRank())
     { 
       dec6.setMethod("P0");
@@ -1309,9 +1309,9 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       res[1]=toSet[1];
       dec6.sendData();
     }
-  //test 7 - Integral with global constraint reversed
+  //test 7 - ExtensiveMaximum with global constraint reversed
   MEDCoupling::InterpKernelDEC dec7(*source_group,*target_group);
-  parafield->getField()->setNature(IntegralGlobConstraint);
+  parafield->getField()->setNature(ExtensiveConservation);
   if (source_group->containsMyRank())
     { 
       dec7.setMethod("P0");
@@ -1336,9 +1336,9 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       res[1]=toSet[1];
       dec7.sendData();
     }
-  //test 8 - Integral with RevIntegral reversed
+  //test 8 - ExtensiveMaximum with IntensiveConservation reversed
   MEDCoupling::InterpKernelDEC dec8(*source_group,*target_group);
-  parafield->getField()->setNature(RevIntegral);
+  parafield->getField()->setNature(IntensiveConservation);
   if (source_group->containsMyRank())
     { 
       dec8.setMethod("P0");
@@ -1443,8 +1443,8 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       parafieldP1 = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       double *valueP0=parafieldP0->getField()->getArray()->getPointer();
       double *valueP1=parafieldP1->getField()->getArray()->getPointer();
-      parafieldP0->getField()->setNature(ConservativeVolumic);
-      parafieldP1->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
+      parafieldP1->getField()->setNature(IntensiveMaximum);
       if(rank==0)
         {
           valueP0[0]=31.;
@@ -1527,8 +1527,8 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       parafieldP1 = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
-      parafieldP0->getField()->setNature(ConservativeVolumic);
-      parafieldP1->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
+      parafieldP1->getField()->setNature(IntensiveMaximum);
     }
   // test 1 - P0 P1
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
@@ -1654,7 +1654,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
       MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*source_group,"source mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
       double *vals=parafield->getField()->getArray()->getPointer();
       if(rank==0)
         { vals[0]=7.; vals[1]=8.; }
@@ -1667,7 +1667,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
       MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*target_group,"target mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
     }
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
   if(source_group->containsMyRank())
@@ -1704,7 +1704,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
     }
   MEDCoupling::InterpKernelDEC dec2(*source_group,*target_group);
   dec2.setMethod("P0");
-  parafield->getField()->setNature(IntegralGlobConstraint);
+  parafield->getField()->setNature(ExtensiveConservation);
   if(source_group->containsMyRank())
     {
       double *vals=parafield->getField()->getArray()->getPointer();
@@ -1741,7 +1741,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
   //
   MEDCoupling::InterpKernelDEC dec3(*source_group,*target_group);
   dec3.setMethod("P0");
-  parafield->getField()->setNature(Integral);
+  parafield->getField()->setNature(ExtensiveMaximum);
   if(source_group->containsMyRank())
     {
       double *vals=parafield->getField()->getArray()->getPointer();
@@ -1778,7 +1778,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
   //
   MEDCoupling::InterpKernelDEC dec4(*source_group,*target_group);
   dec4.setMethod("P0");
-  parafield->getField()->setNature(RevIntegral);
+  parafield->getField()->setNature(IntensiveConservation);
   if(source_group->containsMyRank())
     {
       double *vals=parafield->getField()->getArray()->getPointer();
@@ -1876,7 +1876,7 @@ void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
           MEDCoupling::ComponentTopology comptopo;
           paramesh=new ParaMESH(mesh,*source_group,"source mesh");
           parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);
           double *vals=parafield->getField()->getArray()->getPointer();
           vals[0]=7.;
           dec=new MEDCoupling::InterpKernelDEC(*source_group,*target_group);
@@ -1902,7 +1902,7 @@ void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
           MEDCoupling::ComponentTopology comptopo;
           paramesh=new ParaMESH(mesh,*target_group,"target mesh");
           parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);
           dec=new MEDCoupling::InterpKernelDEC(*source_group,*target_group);
           dec->attachLocalField(parafield);
           dec->synchronize();
@@ -1978,7 +1978,7 @@ void ParaMEDMEMTest::testInterpKernelDEC3DSurfEmptyBBox()
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       double *valueP0=parafieldP0->getField()->getArray()->getPointer();
-      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
       valueP0[0]=7.; valueP0[1]=8.;
     }
   else
@@ -2016,7 +2016,7 @@ void ParaMEDMEMTest::testInterpKernelDEC3DSurfEmptyBBox()
         }
       MEDCoupling::ComponentTopology comptopo;
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP0->getField()->setNature(IntensiveMaximum);
     }
   // test 1
   MEDCoupling::InterpKernelDEC dec(*source_group,*target_group);
@@ -2157,7 +2157,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       if(srcM=="P0")
         {
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);//InvertIntegral);//ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);//InvertIntegral);//IntensiveMaximum);
         }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
@@ -2198,7 +2198,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       if(targetM=="P0")
         {
           parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-          parafield->getField()->setNature(ConservativeVolumic);//InvertIntegral);//ConservativeVolumic);
+          parafield->getField()->setNature(IntensiveMaximum);//InvertIntegral);//IntensiveMaximum);
         }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);

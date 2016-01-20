@@ -34,7 +34,7 @@
 #include "MEDPARTITIONER_JointFinder.hxx"
 #endif
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
@@ -652,7 +652,7 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCo
   for (int iold =0; iold< ioldMax; iold++)
     if (isParallelMode() && _domain_selector->isMyDomain(iold))
       {
-        MEDCoupling::DataArrayDouble* sourceCoords=meshesCastFrom[iold]->getBarycenterAndOwner();
+        MEDCoupling::DataArrayDouble* sourceCoords=meshesCastFrom[iold]->computeCellCenterOfMass();
         bbox[iold]=sourceCoords->computeBBoxPerTuple(1.e-6);
         acceleratingStructures[iold]=new BBTreeOfDim( sourceCoords->getNumberOfComponents(), bbox[iold]->getConstPointer(),0,0,bbox[iold]->getNumberOfTuples());
         sourceCoords->decrRef();
@@ -727,7 +727,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
 {
 
   if (sourceMesh.getNumberOfCells()<=0) return; //empty mesh could exist
-  MEDCoupling::DataArrayDouble* targetCoords=targetMesh.getBarycenterAndOwner();
+  MEDCoupling::DataArrayDouble* targetCoords=targetMesh.computeCellCenterOfMass();
   const double*  tc=targetCoords->getConstPointer();
   int targetSize=targetMesh.getNumberOfCells();
   int sourceSize=sourceMesh.getNumberOfCells();
@@ -745,7 +745,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
   int dim = targetCoords->getNumberOfComponents();
   if (myTree==0)
     {
-      sourceBBox=sourceMesh.getBarycenterAndOwner()->computeBBoxPerTuple(1e-8);
+      sourceBBox=sourceMesh.computeCellCenterOfMass()->computeBBoxPerTuple(1e-8);
       tree=new BBTreeOfDim( dim, sourceBBox->getConstPointer(),0,0, sourceBBox->getNumberOfTuples(),1e-10);
       cleantree=true;
     }
@@ -971,7 +971,7 @@ namespace
                                      bool removeEqual = false)
   {
     // sort
-    MEDCouplingAutoRefCountObjectPtr< DataArrayInt > renumN2O = ids1->buildPermArrPerLevel();
+    MCAuto< DataArrayInt > renumN2O = ids1->buildPermArrPerLevel();
     ids1->renumberInPlaceR( renumN2O->begin() );
     ids2->renumberInPlaceR( renumN2O->begin() );
 
@@ -1143,9 +1143,9 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
       // separate ids of two domains
       const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getEntityCorresp( 0, 0 );
       const DataArrayInt* ids12 = corrArray->getValueArray();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids1, ids2, ids12Sorted;
-      ids1 = ids12->selectByTupleId2( 0, corrArray->getLength(), 2 );
-      ids2 = ids12->selectByTupleId2( 1, corrArray->getLength(), 2 );
+      MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
+      ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
+      ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
 
       // renumber cells according to mesh->sortCellsInMEDFileFrmt()
       renumber( ids1, o2nRenumber[ cz->getLocalDomainNumber() ]);
@@ -1253,9 +1253,9 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
       // separate ids of two domains
       const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getNodeCorresp();
       const DataArrayInt *ids12 = corrArray->getValueArray();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids1, ids2, ids12Sorted;
-      ids1 = ids12->selectByTupleId2( 0, corrArray->getLength(), 2 );
-      ids2 = ids12->selectByTupleId2( 1, corrArray->getLength(), 2 );
+      MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
+      ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
+      ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
 
       ids12Sorted = sortCorrespondences( ids1, ids2, /*delta=*/0, removeEqual );
       cz->setNodeCorresp( ids12Sorted->begin(), ids12Sorted->getNbOfElems() / 2 );
@@ -1296,7 +1296,7 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
   for (int inew = 0; inew < nbMeshes-1; inew++)
     if ( !isParallelMode() || _domain_selector->isMyDomain(inew) )
       {
-        DataArrayDouble* bcCoords = faceMeshes[inew]->getBarycenterAndOwner();
+        DataArrayDouble* bcCoords = faceMeshes[inew]->computeCellCenterOfMass();
         bbox   [inew] = bcCoords->computeBBoxPerTuple(1.e-6);
         bbTrees[inew] = new BBTreeOfDim( bcCoords->getNumberOfComponents(),
                                          bbox[inew]->getConstPointer(),0,0,
@@ -1341,7 +1341,7 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
           std::vector< int > faces1, faces2;
           if ( mesh1 && mesh2 )
             {
-              const DataArrayDouble* coords2 = mesh2->getBarycenterAndOwner();
+              const DataArrayDouble* coords2 = mesh2->computeCellCenterOfMass();
               const double*   c2 = coords2->getConstPointer();
               const int      dim = coords2->getNumberOfComponents();
               const int nbFaces2 = mesh2->getNumberOfCells();

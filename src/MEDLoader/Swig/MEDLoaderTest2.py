@@ -27,7 +27,7 @@ from MEDLoaderDataForTest import MEDLoaderDataForTest
 class MEDLoaderTest(unittest.TestCase):
     def testMesh1DRW(self):
         mesh=MEDLoaderDataForTest.build1DMesh_1();
-        mesh.checkCoherency();
+        mesh.checkConsistencyLight();
         WriteUMeshDep("Pyfile1.med",mesh,False);
         mesh_rw=ReadUMeshFromFile("Pyfile1.med",mesh.getName(),0);
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
@@ -35,7 +35,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     def testMesh2DCurveRW(self):
         mesh=MEDLoaderDataForTest.build2DCurveMesh_1();
-        mesh.checkCoherency();
+        mesh.checkConsistencyLight();
         WriteUMeshDep("Pyfile2.med",mesh,False);
         mesh_rw=ReadUMeshFromFile("Pyfile2.med",mesh.getName(),0);
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
@@ -43,7 +43,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     def testMesh2DRW(self):
         mesh=MEDLoaderDataForTest.build2DMesh_1();
-        mesh.checkCoherency();
+        mesh.checkConsistencyLight();
         WriteUMeshDep("Pyfile3.med",mesh,False);
         mesh_rw=ReadUMeshFromFile("Pyfile3.med",mesh.getName(),0);
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
@@ -51,7 +51,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     def testMesh3DSurfRW(self):
         mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
-        mesh.checkCoherency();
+        mesh.checkConsistencyLight();
         WriteUMeshDep("Pyfile4.med",mesh,False);
         mesh_rw=ReadUMeshFromFile("Pyfile4.med",mesh.getName(),0);
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
@@ -59,7 +59,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     def testMesh3DRW(self):
         mesh=MEDLoaderDataForTest.build3DMesh_1();
-        mesh.checkCoherency();
+        mesh.checkConsistencyLight();
         WriteUMeshDep("Pyfile5.med",mesh,False);
         mesh_rw=ReadUMeshFromFile("Pyfile5.med",mesh.getName(),0);
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
@@ -260,7 +260,7 @@ class MEDLoaderTest(unittest.TestCase):
         mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
         renumber1=[2,5,1,0,3,4]
         mesh.renumberCells(renumber1,False);
-        mesh.checkCoherency();
+        mesh.checkConsistencyLight();
         WriteUMeshDep(fileName,mesh,False);
         mesh_rw=ReadUMeshFromFile(fileName,mesh.getName(),0);
         self.assertTrue(mesh.isEqual(mesh_rw,1e-12));
@@ -330,7 +330,7 @@ class MEDLoaderTest(unittest.TestCase):
         f1.setArray(array);
         tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
         f1.setTime(3.14,2,7);
-        f1.checkCoherency();
+        f1.checkConsistencyLight();
         WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
         f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
         self.assertTrue(f2.isEqual(f1,1e-12,1e-12));

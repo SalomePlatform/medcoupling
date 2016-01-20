@@ -102,7 +102,7 @@ Creation of a simple vector field on cells called f.  ::
 
 	f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
 	f.setTime(5.6,7,8)
-	f.setArray(targetMesh.getBarycenterAndOwner())
+	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 

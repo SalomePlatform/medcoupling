@@ -4,7 +4,7 @@
 Using the C++ API provided by MED requires you to be familiar with some specificities which are not
 visible to the Python user.
 
-- \ref MEDCoupling::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr"
+- \ref MEDCoupling::MCAuto "MCAuto"
 - \subpage MEDCouplingTimeLabelPage
 
 \b Note: all the standard (sequential) MEDCoupling API lies in the \ref MEDCoupling "MEDCoupling namespace".
@@ -12,7 +12,7 @@ This is quite unfortunate but due to historical reasons. The true parallel funct
 of the \ref library "MED library" are detailed here: \ref parallel
 
 The memory management of the various strucutres is eased by the class 
-\ref MEDCoupling::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr". It acts as an auto pointer and takes care of deleting the
+\ref MEDCoupling::MCAuto "MCAuto". It acts as an auto pointer and takes care of deleting the
 memory automatically when going out of scope. See an example usage in \ref cpp_mcfielddouble_WriteVTK .
 Beware however that not all functions return a pointer that should be deleted when going out of scope.
 Some methods only return an observer to the data, see for example \ref MEDCoupling::MEDCouplingPointSet::getCoords() "getCoords()". The API documentation of each method indicates whether the caller is responsible of the returned

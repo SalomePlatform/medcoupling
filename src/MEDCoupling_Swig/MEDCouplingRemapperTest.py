@@ -32,7 +32,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         remapper.setIntersectionType(Triangulation);
         self.failUnless(remapper.prepare(sourceMesh,targetMesh,"P0P0")==1);
         srcField=MEDCouplingFieldDouble.New(ON_CELLS);
-        srcField.setNature(ConservativeVolumic);
+        srcField.setNature(IntensiveMaximum);
         srcField.setMesh(sourceMesh);
         array=DataArrayDouble.New();
         ptr=sourceMesh.getNumberOfCells()*[None]
@@ -71,7 +71,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trgFt.setMesh(targetMesh);
         self.assertEqual(1,remapper.prepareEx(srcFt,trgFt));
         srcField=MEDCouplingFieldDouble.New(ON_CELLS);
-        srcField.setNature(ConservativeVolumic);
+        srcField.setNature(IntensiveMaximum);
         srcField.setMesh(sourceMesh);
         array=DataArrayDouble.New();
         ptr=sourceMesh.getNumberOfCells()*[None]
@@ -103,7 +103,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trgFt.setMesh(targetMesh);
         self.assertEqual(1,remapper.prepareEx(srcFt,trgFt));
         srcField=MEDCouplingFieldDouble.New(ON_CELLS);
-        srcField.setNature(ConservativeVolumic);
+        srcField.setNature(IntensiveMaximum);
         srcField.setMesh(sourceMesh);
         array=DataArrayDouble.New();
         ptr=sourceMesh.getNumberOfCells()*[None]
@@ -113,7 +113,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
         srcField.setArray(array);
         trgfield=MEDCouplingFieldDouble.New(ON_CELLS);
-        trgfield.setNature(ConservativeVolumic);
+        trgfield.setNature(IntensiveMaximum);
         trgfield.setMesh(targetMesh);
         array=DataArrayDouble.New();
         ptr=targetMesh.getNumberOfCells()*[None]
@@ -140,7 +140,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
         trg.setCoordsAt(0,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -157,7 +157,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
         trg.setCoordsAt(0,arr) ; trg.setCoordsAt(1,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -173,10 +173,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         src.allocateCells(2) ; src.insertNextCell(NORM_TETRA4,[0,1,2,5]) ; src.insertNextCell(NORM_TETRA4,[3,4,0,6]) ; src.finishInsertingCells()
         trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3]) ; arr2=DataArrayDouble([-0.7,0.2,0.6,1.2,2.])
         trg.setCoordsAt(0,arr) ; trg.setCoordsAt(1,arr) ; trg.setCoordsAt(2,arr2)
-        src.checkCoherency1(1e-10)
-        trg.checkCoherency()
+        src.checkConsistency(1e-10)
+        trg.checkConsistencyLight()
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -196,7 +196,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         src=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
         src.setCoordsAt(0,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrTrg=DataArrayDouble([10.,30.,40.,70.,80.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrTrg)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrTrg)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -213,7 +213,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         src=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
         src.setCoordsAt(0,arr) ; src.setCoordsAt(1,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.,40.,70.,80.,110.,130.,140.,170.,180.,210.,230.,240.,270.,280.,310.,330.,340.,370.,380.,410.,430.,440.,470.,480.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -229,10 +229,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg.allocateCells(2) ; trg.insertNextCell(NORM_TETRA4,[0,1,2,5]) ; trg.insertNextCell(NORM_TETRA4,[3,4,0,6]) ; trg.finishInsertingCells()
         src=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3]) ; arr2=DataArrayDouble([-0.7,0.2,0.6,1.2,2.])
         src.setCoordsAt(0,arr) ; src.setCoordsAt(1,arr) ; src.setCoordsAt(2,arr2)
-        trg.checkCoherency1(1e-10)
-        src.checkCoherency()
+        trg.checkConsistency(1e-10)
+        src.checkConsistencyLight()
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble(100) ; arrSrc.iota(7.7)
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -251,7 +251,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.9,-0.1,0.15])
         trg.setCoordsAt(0,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrTrg=DataArrayDouble([10.,30.,40.,70.,80.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrTrg)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrTrg)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -267,7 +267,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.9,-0.1,0.15])
         trg.setCoordsAt(0,arr) ; trg.setCoordsAt(1,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.,40.,70.,80.,110.,130.,140.,170.,180.,210.,230.,240.,270.,280.,310.,330.,340.,370.,380.,410.,430.,440.,470.,480.])
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc)
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -283,7 +283,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.9,-0.1,0.15])
         trg.setCoordsAt(0,arr) ; trg.setCoordsAt(1,arr) ; trg.setCoordsAt(2,arr)
         fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble(125) ; arrSrc.iota(7.7)
-        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc) ; fieldSrc.checkCoherency()
+        fieldSrc.setNature(ExtensiveMaximum) ;  fieldSrc.setArray(arrSrc) ; fieldSrc.checkConsistencyLight()
         rem=MEDCouplingRemapper()
         rem.prepare(src,trg,"P0P0")
         trgField=rem.transferField(fieldSrc,-7.)
@@ -313,14 +313,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(1.25884086663e-06,mat1[0][1],16) ; self.assertAlmostEqual(1.25884086663e-06,mat2[0][1],16)
         #
         d=DataArrayDouble([13.45,27.67],2,1)
-        f1=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f1.setMesh(src1) ; f1.setArray(d) ; f1.setNature(RevIntegral)
-        f2=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f2.setMesh(src2) ; f2.setArray(d) ; f2.setNature(RevIntegral)
+        f1=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f1.setMesh(src1) ; f1.setArray(d) ; f1.setNature(IntensiveConservation)
+        f2=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; f2.setMesh(src2) ; f2.setArray(d) ; f2.setNature(IntensiveConservation)
         f11=rem1.transferField(f1,1e300) ; f22=rem2.transferField(f2,1e300)
         expected1=DataArrayDouble([0.012480539537637884])
         self.assertTrue(f11.getArray().isEqual(expected1,1e-15))
         self.assertTrue(f22.getArray().isEqual(expected1,1e-15))
         #
-        f1.setNature(Integral) ; f2.setNature(Integral)
+        f1.setNature(ExtensiveMaximum) ; f2.setNature(ExtensiveMaximum)
         f11=rem1.transferField(f1,1e300) ; f22=rem2.transferField(f2,1e300)
         #
         expected2=DataArrayDouble([41.12])
@@ -337,8 +337,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         n2o=um.simplexize(PLANAR_FACE_5)
         f.setArray(f.getArray()[n2o])
-        f.checkCoherency()
-        f.setNature(ConservativeVolumic)
+        f.checkConsistencyLight()
+        f.setNature(IntensiveMaximum)
         f.setTime(5.6,7,8)
         f.setName("toto") ; f.setDescription("aDescription")
         p=MEDCouplingRemapper()
@@ -426,7 +426,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testSwig2MixOfUMesh(self):
         arr0=DataArrayDouble([0,1,1.5]) ; arr1=DataArrayDouble([0,1])
         sc=MEDCouplingCMesh() ; sc.setCoords(arr0,arr1,arr1)
-        tc=sc.deepCpy() ; tc.translate([0.4,0.3,0.3])
+        tc=sc.deepCopy() ; tc.translate([0.4,0.3,0.3])
         # umesh-umesh
         # 90 (umesh-1sgtumesh)
         rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
@@ -511,7 +511,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # (umesh-cmesh)
         # 167 (1sgtumesh-cmesh)
         rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
-        s=sc.build1SGTUnstructured() ; t=tc.deepCpy()
+        s=sc.build1SGTUnstructured() ; t=tc.deepCopy()
         self.assertTrue(isinstance(s,MEDCoupling1SGTUMesh))
         self.assertTrue(isinstance(t,MEDCouplingCMesh))
         rem.prepare(s,t,"P0P0")
@@ -521,7 +521,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         del s,t
         # 183 (1dgtumesh-cmesh)
         #rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
-        #s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.deepCpy()
+        #s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.deepCopy()
         #self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
         #self.assertTrue(isinstance(t,MEDCouplingCMesh))
         #rem.prepare(s,t,"P0P0")
@@ -532,7 +532,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # (cmesh-umesh)
         # 122 (cmesh-1sgtumesh)
         rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
-        s=sc.deepCpy() ; t=tc.build1SGTUnstructured()
+        s=sc.deepCopy() ; t=tc.build1SGTUnstructured()
         self.assertTrue(isinstance(s,MEDCouplingCMesh))
         self.assertTrue(isinstance(t,MEDCoupling1SGTUMesh))
         rem.prepare(s,t,"P0P0")
@@ -542,7 +542,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         del s,t
         # 123 (cmesh-1dgtumesh)
         #rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
-        #s=sc.deepCpy() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
+        #s=sc.deepCopy() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
         #self.assertTrue(isinstance(s,MEDCouplingCMesh))
         #self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
         #rem.prepare(s,t,"P0P0")
@@ -597,7 +597,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr=DataArrayDouble(3) ; arr.iota()
         m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
         src=m.buildUnstructured()
-        trg=src.deepCpy() ; trg=trg[[0,1,3]]
+        trg=src.deepCopy() ; trg=trg[[0,1,3]]
         trg.getCoords()[:]*=0.5 ; trg.getCoords()[:]+=[0.3,0.25]
         # Let's interpolate.
         rem=MEDCouplingRemapper()
@@ -618,7 +618,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(m[2,2],0.05,12)
         self.assertAlmostEqual(m[2,3],0.075,12)
         self.assertEqual(diff.getnnz(),0)
-        # IntegralGlobConstraint (division by sum of cols)
+        # ExtensiveConservation (division by sum of cols)
         colSum=m.sum(axis=0)
         # version 0.12.0 # m_0=m*diags(array(1/colSum),[0])
         m_0=m*spdiags(array(1/colSum),[0],colSum.shape[1],colSum.shape[1])
@@ -631,7 +631,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(m_0[2,2],1.,12)
         self.assertAlmostEqual(m_0[2,3],1.,12)
         self.assertEqual(m_0.getnnz(),7)
-        # ConservativeVolumic (division by sum of rows)
+        # IntensiveMaximum (division by sum of rows)
         rowSum=m.sum(axis=1)
         # version 0.12.0 # m_1=diags(array(1/rowSum.transpose()),[0])*m
         m_1=spdiags(array(1/rowSum.transpose()),[0],rowSum.shape[0],rowSum.shape[0])*m
@@ -681,7 +681,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         vals*=1e-5
         eps0=DataArrayDouble(m0.data)-vals ; eps0.abs()
-        self.assertTrue(eps0.getIdsInRange(1e-17,1e300).empty())
+        self.assertTrue(eps0.findIdsInRange(1e-17,1e300).empty())
         self.assertTrue(DataArrayInt(m0.indices).isEqual(DataArrayInt([0,1,3,1,4,5,4,6,7,6,8,9,8,10,11,10,12,13,12,14,15,14,16,17,16,18,19,18,20,21,20,22,23,22,24,25,24,26,27,0,2,3,1,3,5,4,5,7,6,7,9,8,9,11,10,11,13,12,13,15,14,15,17,16,17,19,18,19,21,20,21,23,22,23,25,24,25,27,0,2,3,1,3,5,4,5,7,6,7,9,8,9,11,10,11,13,12,13,15,14,15,17,16,17,19,18,19,21,20,21,23,22,23,25,24,25,27,0,2,3,1,3,5,4,5,7,6,7,9,8,9,11,10,11,13,12,13,15,14,15,17,16,17,19,18,19,21,20,21,23,22,23,25,24,25,27,0,2,3,1,3,5,4,5,7,6,7,9,8,9,11,10,11,13,12,13,15,14,15,17,16,17,19,18,19,21,20,21,23,22,23,25,24,25,27,0,1,3,1,4,5,4,6,7,6,8,9,8,10,11,10,12,13,12,14,15,14,16,17,16,18,19,18,20,21,20,22,23,22,24,25,24,26,27,0,1,3,1,4,5,4,6,7,6,8,9,8,10,11,10,12,13,12,14,15,14,16,17,16,18,19,18,20,21,20,22,23,22,24,25,24,26,27,0,1,3,1,4,5,4,6,7,6,8,9,8,10,11,10,12,13,12,14,15,14,16,17,16,18,19,18,20,21,20,22,23,22,24,25,24,26,27])))
         self.assertTrue(DataArrayInt(m0.indptr).isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99,102,105,108,111,114,117,120,123,126,129,132,135,138,141,144,147,150,153,156,159,162,165,168,171,174,177,180,183,186,189,192,195,198,201,204,207,210,213,216,219,222,225,228,231,234,237,240,243,246,249,252,255,258,261,264,267,270,273,276,279,282,285,288,291,294,297,300,303,306,309,312])))
         #
@@ -706,7 +706,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # m is ready
         m1,d,di,rd,rdi=m.buildUnstructured().buildDescendingConnectivity()
         rdi2=rdi.deltaShiftIndex()
-        cellIds=rdi2.getIdsEqual(1)
+        cellIds=rdi2.findIdsEqual(1)
         skinAndNonConformCells=m1[cellIds]
         skinAndNonConformCells.zipCoords() # at this point skinAndNonConformCells contains non conform cells and skin cells. Now trying to split them in two parts.
         #
@@ -717,8 +717,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mat=rem.getCrudeCSRMatrix()
         indptr=DataArrayInt(mat.indptr)
         indptr2=indptr.deltaShiftIndex()
-        cellIdsOfNonConformCells=indptr2.getIdsNotEqual(1)
-        cellIdsOfSkin=indptr2.getIdsEqual(1)
+        cellIdsOfNonConformCells=indptr2.findIdsNotEqual(1)
+        cellIdsOfSkin=indptr2.findIdsEqual(1)
         self.assertTrue(cellIdsOfSkin.isEqual(DataArrayInt([1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,19,20,21,23])))
         self.assertTrue(cellIdsOfNonConformCells.isEqual(DataArrayInt([0,4,18,22])))
         pass
@@ -744,7 +744,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fsource.setMesh(source)
         arr=DataArrayDouble(len(sourceCoo)) ; arr.iota(0.7) ; arr*=arr
         fsource.setArray(arr)
-        fsource.setNature(ConservativeVolumic)
+        fsource.setNature(IntensiveMaximum)
         #
         rem=MEDCouplingRemapper()
         rem.setIntersectionType(PointLocator)
@@ -773,11 +773,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         srcMesh=m[0].getMesh().buildUnstructured()
         srcField=MEDCouplingFieldDouble(ON_CELLS)
         fine2=DataArrayDouble(3*2*4*4) ; fine2.iota(0) ; srcField.setArray(fine2)
-        srcField.setMesh(srcMesh) ; srcField.setNature(Integral)
+        srcField.setMesh(srcMesh) ; srcField.setNature(ExtensiveMaximum)
         #
         trgField=MEDCouplingFieldDouble(ON_CELLS)
         coarse2=DataArrayDouble(35) ; coarse2.iota(0) ; trgField.setArray(coarse2)
-        trgField.setMesh(trgMesh) ; trgField.setNature(Integral)
+        trgField.setMesh(trgMesh) ; trgField.setNature(ExtensiveMaximum)
         #
         rem=MEDCouplingRemapper()
         rem.prepare(srcMesh,trgMesh,"P0P0")

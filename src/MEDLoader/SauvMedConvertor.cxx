@@ -2379,11 +2379,11 @@ Group* IntermediateMED::addNewGroup(std::vector<SauvUtilities::Group*>* groupsTo
 
 MEDCoupling::MEDFileData* IntermediateMED::convertInMEDFileDS()
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDFileUMesh >  mesh   = makeMEDFileMesh();
-  MEDCouplingAutoRefCountObjectPtr< MEDFileFields > fields = makeMEDFileFields(mesh);
+  MCAuto< MEDFileUMesh >  mesh   = makeMEDFileMesh();
+  MCAuto< MEDFileFields > fields = makeMEDFileFields(mesh);
 
-  MEDCouplingAutoRefCountObjectPtr< MEDFileMeshes > meshes = MEDFileMeshes::New();
-  MEDCouplingAutoRefCountObjectPtr< MEDFileData >  medData = MEDFileData::New();
+  MCAuto< MEDFileMeshes > meshes = MEDFileMeshes::New();
+  MCAuto< MEDFileData >  medData = MEDFileData::New();
   meshes->pushMesh( mesh );
   medData->setMeshes( meshes );
   if ( fields ) medData->setFields( fields );
@@ -3193,7 +3193,7 @@ void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
       const int meshDimRelToMaxExt = ( dim == 0 ? 1 : dim - meshDim );
 
       std::vector<const DataArrayInt *> medGroups;
-      std::vector<MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > refGroups;
+      std::vector<MCAuto<DataArrayInt> > refGroups;
       for ( size_t i = 0; i < _groups.size(); ++i )
         {
           Group& grp = _groups[i];
@@ -3272,7 +3272,7 @@ void IntermediateMED::setGroups( MEDCoupling::MEDFileUMesh* mesh )
             if ( !grp._refNames[ iRef ].empty() &&
                  uniqueNames.insert( grp._refNames[ iRef ]).second ) // for name uniqueness (23155)
               {
-                refGroups.push_back( grp._medGroup->deepCpy() );
+                refGroups.push_back( grp._medGroup->deepCopy() );
                 refGroups.back()->setName( grp._refNames[ iRef ].c_str() );
                 medGroups.push_back( refGroups.back() );
               }
@@ -3433,25 +3433,25 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   // set the mesh
   if ( onAll )
     {
-      MEDCouplingAutoRefCountObjectPtr
+      MCAuto
         < MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
       timeStamp->setMesh( dimMesh );
     }
   else if ( timeStamp->getTypeOfField() == MEDCoupling::ON_NODES )
     {
       DataArrayDouble * coo = mesh->getCoords();
-      MEDCouplingAutoRefCountObjectPtr
+      MCAuto
         <DataArrayDouble> subCoo = coo->selectByTupleId(support->_medGroup->begin(),
                                                         support->_medGroup->end());
-      MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > nodeSubMesh =
+      MCAuto< MEDCouplingUMesh > nodeSubMesh =
         MEDCouplingUMesh::Build0DMeshFromCoords( subCoo );
       timeStamp->setMesh( nodeSubMesh );
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr
+      MCAuto
         < MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
-      MEDCouplingAutoRefCountObjectPtr
+      MCAuto
         <MEDCouplingMesh> subMesh = dimMesh->buildPart(support->_medGroup->begin(),
                                                        support->_medGroup->end());
       timeStamp->setMesh( subMesh);
@@ -3485,7 +3485,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
     timeStamp->setOrder( nbTS );
 
   // add the time-stamp
-  timeStamp->checkCoherency();
+  timeStamp->checkConsistencyLight();
   if ( onAll )
     fld->_curMedField->appendFieldNoProfileSBT( timeStamp );
   else

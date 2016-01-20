@@ -131,7 +131,7 @@ def MEDCouplingIMeshnew(cls,*args):
     return _MEDLoader.MEDCouplingIMesh____new___(cls,args)
 def MEDCouplingExtrudedMeshnew(cls,*args):
     import _MEDLoader
-    return _MEDLoader.MEDCouplingExtrudedMesh____new___(cls,args)
+    return _MEDLoader.MEDCouplingMappedExtrudedMesh____new___(cls,args)
 %}
 
 %pythoncode %{

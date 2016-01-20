@@ -283,7 +283,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
     if(itemSize!=PyArray_STRIDE(elt0,1))
       throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays for component #1 !");
   const char *data=PyArray_BYTES(elt0);
-  typename MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MCData> ret=MCData::New();
+  typename MEDCoupling::MCAuto<MCData> ret=MCData::New();
   if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order
     {
       PyArrayObject *elt0C=reinterpret_cast<PyArrayObject *>(elt0);
@@ -479,8 +479,8 @@ SWIGINTERN PyObject *MEDCoupling_DataArrayDouble_toNumPyArray(MEDCoupling::DataA
 PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) throw(INTERP_KERNEL::Exception)
 {
   int nbRows((int)m.size());
-  MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayInt> indPtr(MEDCoupling::DataArrayInt::New()),indices(MEDCoupling::DataArrayInt::New());
-  MEDCoupling::MEDCouplingAutoRefCountObjectPtr<MEDCoupling::DataArrayDouble> data(MEDCoupling::DataArrayDouble::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> indPtr(MEDCoupling::DataArrayInt::New()),indices(MEDCoupling::DataArrayInt::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> data(MEDCoupling::DataArrayDouble::New());
   indPtr->alloc(nbRows+1,1);
   int *intPtr_ptr(indPtr->getPointer()); intPtr_ptr[0]=0; intPtr_ptr++;
   int sz2(0);

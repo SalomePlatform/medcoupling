@@ -23,7 +23,7 @@
 
 #include "MEDLoaderDefines.hxx"
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 
@@ -108,16 +108,16 @@ namespace MEDCoupling
     MEDMeshMultiLev(const MEDFileMesh *mesh, int nbNodes, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   protected:
     const MEDFileMesh *_mesh;
-    std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _pfls;
+    std::vector< MCAuto<DataArrayInt> > _pfls;
     std::vector< INTERP_KERNEL::NormalizedCellType > _geo_types;
     std::vector<int> _nb_entities;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_reduction;
+    MCAuto<DataArrayInt> _node_reduction;
     int _nb_nodes;
     //
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_fam_ids;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _cell_num_ids;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_fam_ids;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _node_num_ids;
+    MCAuto<DataArrayInt> _cell_fam_ids;
+    MCAuto<DataArrayInt> _cell_num_ids;
+    MCAuto<DataArrayInt> _node_fam_ids;
+    MCAuto<DataArrayInt> _node_num_ids;
   public:
     MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=34;
     MEDLOADER_EXPORT static const unsigned char PARAMEDMEM_2_VTKTYPE[PARAMEDMEM_2_VTKTYPE_LGTH];
@@ -133,20 +133,20 @@ namespace MEDCoupling
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
     void selectPartOfNodes(const DataArrayInt *pflNodes);
     MEDMeshMultiLev *prepare() const;
-    MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh>& part);
+    MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MCAuto<MEDCoupling1GTUMesh>& part);
     MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayInt *&cellLocations, DataArrayInt *& cells, DataArrayInt *&faceLocations, DataArrayInt *&faces) const;
   protected:
     void appendVertices(const DataArrayInt *verticesToAdd, DataArrayInt *nr);
   private:
-    void reorderNodesIfNecessary(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const;
+    void reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayInt *nodalConnVTK, DataArrayInt *polyhedNodalConnVTK) const;
   private:
     MEDUMeshMultiLev(const MEDUMeshMultiLev& other);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<int>& levs);
     MEDUMeshMultiLev(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> > _parts;
+    std::vector< MCAuto<MEDCoupling1GTUMesh> > _parts;
     //! this attribute is used only for mesh with no cells but having coordinates. For classical umeshes those pointer is equal to pointer of coordinates of instances in this->_parts.
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
+    MCAuto<DataArrayDouble> _coords;
   };
 
   class MEDStructuredMeshMultiLev : public MEDMeshMultiLev
@@ -166,8 +166,8 @@ namespace MEDCoupling
     void initStdFieldOfIntegers(const MEDFileStructuredMesh *m);
   protected:
     bool _is_internal;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _face_fam_ids;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _face_num_ids;
+    MCAuto<DataArrayInt> _face_fam_ids;
+    MCAuto<DataArrayInt> _face_num_ids;
   };
 
   class MEDCMeshMultiLev : public MEDStructuredMeshMultiLev
@@ -183,7 +183,7 @@ namespace MEDCoupling
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<int>& levs);
     MEDCMeshMultiLev(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > _coords;
+    std::vector< MCAuto<DataArrayDouble> > _coords;
   };
 
   class MEDCurveLinearMeshMultiLev : public MEDStructuredMeshMultiLev
@@ -199,7 +199,7 @@ namespace MEDCoupling
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
     MEDCurveLinearMeshMultiLev(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& nbEntities);
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
+    MCAuto<DataArrayDouble> _coords;
     std::vector<int> _structure;
   };
 
@@ -233,7 +233,7 @@ namespace MEDCoupling
   private:
     INTERP_KERNEL::NormalizedCellType _geo_type;
     std::pair<int,int> _start_end;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _pfl;
+    MCAuto<DataArrayInt> _pfl;
     std::string _loc;
     int _nb_of_entity;
   };
@@ -303,8 +303,8 @@ namespace MEDCoupling
   private:
     MEDFileFastCellSupportComparator(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref);
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDFileMeshStruct> _mesh_comp;
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSStruct> > _f1ts_cmps;
+    MCAuto<MEDFileMeshStruct> _mesh_comp;
+    std::vector< MCAuto<MEDFileField1TSStruct> > _f1ts_cmps;
   };
 }
 

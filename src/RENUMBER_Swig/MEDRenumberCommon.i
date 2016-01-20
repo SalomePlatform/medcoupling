@@ -25,7 +25,7 @@
 
 %{
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 
 #include "RenumberingFactory.hxx"

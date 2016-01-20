@@ -21,7 +21,7 @@
 #include "MEDCouplingBasicsTest.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
@@ -33,17 +33,17 @@ void CppExample_MEDCouplingFieldDouble_WriteVTK()
   //! [CppSnippet_MEDCouplingFieldDouble_WriteVTK_1]
   // mesh1
   const double coords[3] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh1 = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh1 = MEDCouplingCMesh::New();
   mesh1->setCoords(coordsArr,coordsArr); // mesh becomes a 2D one
 
   // 3 fields (lying on the same mesh!)
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1 =
+  MCAuto<MEDCouplingFieldDouble> field1 =
     mesh1->getMeasureField( true );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2 =
+  MCAuto<MEDCouplingFieldDouble> field2 =
     mesh1->buildOrthogonalField();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field3 =
+  MCAuto<MEDCouplingFieldDouble> field3 =
     mesh1->fillFromAnalytic( ON_CELLS, 1, "x");
   field2->setName( "Normal" ); //  name is necessary!
   field3->setName( "Barycenter" ); //  name is necessary!
@@ -68,20 +68,20 @@ void CppExample_MEDCouplingFieldDouble_MaxFields()
   const double valsMax[4] = {2.,2., 6.,6.}; // expected max field
   const double valsMin[4] = {0.,0., 4.,4.}; // expected min field
   // field 1
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> valsArr1 = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> valsArr1 = DataArrayDouble::New();
   valsArr1->useExternalArrayWithRWAccess( vals1, 2,2 ); // 2 tuples per 2 components
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1 = MEDCouplingFieldDouble::New( ON_NODES );
+  MCAuto<MEDCouplingFieldDouble> field1 = MEDCouplingFieldDouble::New( ON_NODES );
   field1->setArray( valsArr1 );
   // field 2
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> valsArr2 = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> valsArr2 = DataArrayDouble::New();
   valsArr2->useExternalArrayWithRWAccess( vals2, 2,2 ); // 2 tuples per 2 components
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2 = MEDCouplingFieldDouble::New( ON_NODES );
+  MCAuto<MEDCouplingFieldDouble> field2 = MEDCouplingFieldDouble::New( ON_NODES );
   field2->setArray( valsArr2 );
   // max field 
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fieldMax = MEDCouplingFieldDouble::MaxFields( field1, field2 );
+  MCAuto<MEDCouplingFieldDouble> fieldMax = MEDCouplingFieldDouble::MaxFields( field1, field2 );
   CPPUNIT_ASSERT( std::equal( valsMax, valsMax+4, fieldMax->getArray()->getConstPointer() )); // fieldMax == valsMax
   // min field 
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fieldMin = MEDCouplingFieldDouble::MinFields( field1, field2 );
+  MCAuto<MEDCouplingFieldDouble> fieldMin = MEDCouplingFieldDouble::MinFields( field1, field2 );
   CPPUNIT_ASSERT( std::equal( valsMin, valsMin+4, fieldMin->getArray()->getConstPointer() )); // fieldMin == valsMin
   //! [CppSnippet_MEDCouplingFieldDouble_MaxFields_1]
 }
@@ -92,28 +92,28 @@ void CppExample_MEDCouplingFieldDouble_MergeFields()
   //! [CppSnippet_MEDCouplingFieldDouble_MergeFields_1]
   // mesh1
   const double coords[3] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh1 = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh1 = MEDCouplingCMesh::New();
   mesh1->setCoords(coordsArr); // mesh becomes a 1D
   // field1
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1 =
+  MCAuto<MEDCouplingFieldDouble> field1 =
     mesh1->fillFromAnalytic( ON_CELLS, 1, "x");
 
   // mesh2 and field2
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2 =
+  MCAuto<MEDCouplingFieldDouble> field2 =
     field1->cloneWithMesh( true );
   double vec[1] = { 5. };
   (const_cast<MEDCoupling::MEDCouplingMesh *>(field2->getMesh()))->translate(vec); // translate mesh2
   field2->applyFunc("x + 5"); // "translate" field2
 
   // concatenate field1 and field2
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field3 =
+  MCAuto<MEDCouplingFieldDouble> field3 =
     MEDCouplingFieldDouble::MergeFields( field1, field2 );
   std::vector<const MEDCouplingFieldDouble *> fields( 2 );
   fields[0] = field1;
   fields[1] = field2;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field4 =
+  MCAuto<MEDCouplingFieldDouble> field4 =
     MEDCouplingFieldDouble::MergeFields( fields );
   //! [CppSnippet_MEDCouplingFieldDouble_MergeFields_1]
 }
@@ -125,22 +125,22 @@ void CppExample_MEDCouplingFieldDouble_substractInPlaceDM()
   const double coords1[4] = {0.,1.,2.,3.};
   const double coords2[4] = {2.,1.,0.,3.}; //  #0 <==> #2
   // mesh 1
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1 = MEDCouplingUMesh::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<MEDCouplingUMesh> mesh1 = MEDCouplingUMesh::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords1, 4, 1 );
   mesh1->setCoords(coordsArr);
   mesh1->setMeshDimension(0);
   mesh1->allocateCells(0);
   mesh1->finishInsertingCells();
   // mesh 2
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2 =
-    (MEDCouplingUMesh*) mesh1->deepCpy();
+  MCAuto<MEDCouplingUMesh> mesh2 =
+    (MEDCouplingUMesh*) mesh1->deepCopy();
   mesh2->getCoords()->useExternalArrayWithRWAccess( coords2, 4, 1 );
   //! [CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_1]
   //! [CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1 =
+  MCAuto<MEDCouplingFieldDouble> field1 =
     mesh1->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x"); // field1 values == coords1
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2 =
+  MCAuto<MEDCouplingFieldDouble> field2 =
     mesh2->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x"); // field2 values == coords2
   const double levOfCheck = 10; // nodes can be permuted
   field1->substractInPlaceDM( field2, levOfCheck, 1e-13, 0 ); // values #0 and #2 must swap
@@ -158,20 +158,20 @@ void CppExample_MEDCouplingFieldDouble_changeUnderlyingMesh()
   const double coords1[4] = {0.,1.,2.,3.};
   const double coords2[4] = {2.,1.,0.,3.}; //  #0 <==> #2
   // mesh 1
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1 = MEDCouplingUMesh::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<MEDCouplingUMesh> mesh1 = MEDCouplingUMesh::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords1, 4, 1 );
   mesh1->setCoords(coordsArr);
   mesh1->setMeshDimension(0);
   mesh1->allocateCells(0);
   mesh1->finishInsertingCells();
   // mesh 2
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2 =
-    (MEDCouplingUMesh*) mesh1->deepCpy();
+  MCAuto<MEDCouplingUMesh> mesh2 =
+    (MEDCouplingUMesh*) mesh1->deepCopy();
   mesh2->getCoords()->useExternalArrayWithRWAccess( coords2, 4, 1 );
   //! [CppSnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_1]
   //! [CppSnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh1->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x"); // field values == coords1
   const double levOfCheck = 10; // nodes can be permuted
   field->changeUnderlyingMesh( mesh2, levOfCheck, 1e-13, 0 ); // values #0 and #2 must swap
@@ -184,9 +184,9 @@ void CppExample_MEDCouplingFieldDouble_applyFunc_same_nb_comp()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_1]
   const double v[4] = {1.,2., 3.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> array = DataArrayDouble::New();
   array->useExternalArrayWithRWAccess( v, 2, 2 ); // 2 tuples per 2 components
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setArray( array );
   const char func[] = "IVec * v + JVec * w*w + 10";
@@ -208,16 +208,16 @@ void CppExample_MEDCouplingFieldDouble_applyFunc3()
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc3_1]
   // create a 2D vector field
   const double values[4] = {1.,1., 2.,1.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> array = DataArrayDouble::New();
   array->useExternalArrayWithRWAccess( values, 2, 2 ); // 2 tuples per 2 components
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setArray( array );
   // transform the field to a 3D vector field
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y components
   std::vector<std::string> varNamesVec( varNames, varNames+2 );
-  field->applyFunc3( 3, varNamesVec, func ); // require 3 components 
+  field->applyFuncNamedCompo( 3, varNamesVec, func ); // require 3 components 
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components as required
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc3_1]
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc3_2]
@@ -236,16 +236,16 @@ void CppExample_MEDCouplingFieldDouble_applyFunc2()
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc2_1]
   // create a 2D vector field
   const double values[4] = {1.,1., 2.,1.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> array = DataArrayDouble::New();
   array->useExternalArrayWithRWAccess( values, 2, 2 ); // 2 tuples per 2 components
   array->setInfoOnComponent(0,"a"); // name used to refer to X component within a function
   array->setInfoOnComponent(1,"b"); // name used to refer to Y component within a function
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setArray( array );
   // transform the field to a 3D vector field
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
-  field->applyFunc2( 3, func ); // require 3 components 
+  field->applyFuncCompo( 3, func ); // require 3 components 
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components as required
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc2_1]
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc2_2]
@@ -264,9 +264,9 @@ void CppExample_MEDCouplingFieldDouble_applyFunc()
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_1]
   // create a 2D vector field
   const double values[4] = {1.,1., 2.,1.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> array = DataArrayDouble::New();
   array->useExternalArrayWithRWAccess( values, 2, 2 ); // 2 tuples per 2 components
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setArray( array );
   // transform the field to a 3D vector field
@@ -290,12 +290,12 @@ void CppExample_MEDCouplingFieldDouble_applyFunc_val()
   //! [Snippet_MEDCouplingFieldDouble_applyFunc_val_1]
   // mesh
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr); // mesh becomes a 2D structured mesh
   // field
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setMesh( mesh );
   field->fillFromAnalytic(2,"IVec * x + JVec * y"); // 2 components
@@ -314,29 +314,29 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic3()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_1]
   const double coords[4] = {0.,2.,4.,6.}; // 6. is not used
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> y = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> y = DataArrayDouble::New();
   y->useExternalArrayWithRWAccess( coords, 2, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoords(x,y);
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_1]
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setMesh( mesh );
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y coord components
   std::vector<std::string> varNamesVec( varNames, varNames+2 );
-  field->fillFromAnalytic3( 3, varNamesVec, func );
+  field->fillFromAnalyticNamedCompo( 3, varNamesVec, func );
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_2]
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_3]
   double val1[3]; // a value (vector) of the cell #1
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components in the field
   field->getArray()->getTuple( 1, val1 );
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc =
-    mesh->getBarycenterAndOwner(); // func is applied to barycenters of cells
+  MCAuto<DataArrayDouble> bc =
+    mesh->computeCellCenterOfMass(); // func is applied to barycenters of cells
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
@@ -352,17 +352,17 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic2()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic2_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> y = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> y = DataArrayDouble::New();
   y->useExternalArrayWithRWAccess( coords, 2, 1 );
   x->setInfoOnComponent(0,"a"); //  name used to refer to X coordinate within a function
   y->setInfoOnComponent(0,"b"); //  name used to refer to Y coordinate within a function
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoords(x,y);
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic2_1]
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic2_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setMesh( mesh );
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
@@ -373,8 +373,8 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic2()
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components in the field
   field->getArray()->getTuple( 1, val1 );
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc =
-    mesh->getBarycenterAndOwner(); // func is applied to barycenters of cells
+  MCAuto<DataArrayDouble> bc =
+    mesh->computeCellCenterOfMass(); // func is applied to barycenters of cells
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
@@ -390,16 +390,16 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic_1]
   const double coords[3] = {0.,2.,4};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> y = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> y = DataArrayDouble::New();
   y->useExternalArrayWithRWAccess( coords, 2, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoords(x,y);
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic_1]
   //! [CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic_2]
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setMesh( mesh );
   field->fillFromAnalytic( 3, func );
@@ -409,8 +409,8 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic()
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components in the field
   field->getArray()->getTuple( 1, val1 );
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc =
-    mesh->getBarycenterAndOwner(); // func is applied to barycenters of cells
+  MCAuto<DataArrayDouble> bc =
+    mesh->computeCellCenterOfMass(); // func is applied to barycenters of cells
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
@@ -437,12 +437,12 @@ void CppExample_MEDCouplingFieldDouble_fillFromAnalytic_c_func()
   //! [Snippet_MEDCouplingFieldDouble_fillFromAnalytic_c_func_1]
   // mesh
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr); // mesh becomes a 2D structured mesh
   // field
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setMesh( mesh );
   field->fillFromAnalytic( 3, &getNewValue ); // 3 components are required
@@ -457,15 +457,15 @@ void CppExample_MEDCouplingFieldDouble_applyFunc_c_func()
   //! [Snippet_MEDCouplingFieldDouble_applyFunc_c_func_1]
   // mesh
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr); // mesh becomes a 2D structured mesh
   // field
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS );
   field->setMesh( mesh );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc = mesh->getBarycenterAndOwner();
+  MCAuto<DataArrayDouble> bc = mesh->computeCellCenterOfMass();
   field->setArray( bc ); // 2 components here as the mesh is 2D
   //! [Snippet_MEDCouplingFieldDouble_applyFunc_c_func_1]
   //! [Snippet_MEDCouplingFieldDouble_applyFunc_c_func_2]
@@ -480,17 +480,17 @@ void CppExample_MEDCouplingFieldDouble_getValueOn_time()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_time_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr);
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_time_1]
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_time_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     MEDCouplingFieldDouble::New( MEDCoupling::ON_CELLS, MEDCoupling::LINEAR_TIME );
   field->setMesh( mesh );
   field->fillFromAnalytic( 1,"10"); // all values == 10.
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> array2 =
+  MCAuto<DataArrayDouble> array2 =
     DataArrayDouble::Add( field->getArray(), field->getArray() ); // == 2 * field->getArray()
   field->setEndArray( array2 ); // all values == 20.
   const double time1 = 1.1, time2 = 22.;
@@ -510,17 +510,17 @@ void CppExample_MEDCouplingFieldDouble_getValueOnMulti()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnMulti_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalytic( MEDCoupling::ON_CELLS,1,"x+y");
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnMulti_1]
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
   // field values are located at cell barycenters
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc = mesh->getBarycenterAndOwner();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> valArray =
+  MCAuto<DataArrayDouble> bc = mesh->computeCellCenterOfMass();
+  MCAuto<DataArrayDouble> valArray =
     field->getValueOnMulti( bc->getConstPointer(), bc->getNumberOfTuples() );
   CPPUNIT_ASSERT( valArray->isEqual( * field->getArray(), 1e-13 ));
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
@@ -531,16 +531,16 @@ void CppExample_MEDCouplingFieldDouble_getValueOn()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalytic( MEDCoupling::ON_CELLS,1,"x+y");
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_1]
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_2]
   // field values are located at cell barycenters
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc = mesh->getBarycenterAndOwner();
+  MCAuto<DataArrayDouble> bc = mesh->computeCellCenterOfMass();
   std::vector<double> vals( field->getNumberOfTuples() ); // array to collect values returned by getValueOn()
   double cellBC[2]; // we are in 2D space
   for ( int i = 0; i < bc->getNumberOfTuples(); ++i )
@@ -557,18 +557,18 @@ void CppExample_MEDCouplingFieldDouble_getValueOnPos()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnPos_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalytic( MEDCoupling::ON_CELLS,1,"x+y");
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnPos_1]
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnPos_2]
   double val11[1]; // 1 == field->getNumberOfComponents()
   field->getValueOnPos( 1,1,-1, val11 );
   // field values are located at cell barycenters
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc = mesh->getBarycenterAndOwner();
+  MCAuto<DataArrayDouble> bc = mesh->computeCellCenterOfMass();
   CPPUNIT_ASSERT( val11[0] == bc->getIJ(3,0) + bc->getIJ(3,1) );
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOnPos_2]
 }
@@ -578,14 +578,14 @@ void CppExample_MEDCouplingFieldDouble_renumberNodes()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_renumberNodes_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> cmesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> cmesh = MEDCouplingCMesh::New();
   cmesh->setCoords(coordsArr,coordsArr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh = cmesh->buildUnstructured();
+  MCAuto<MEDCouplingUMesh> mesh = cmesh->buildUnstructured();
   //! [CppSnippet_MEDCouplingFieldDouble_renumberNodes_1]
   //! [CppSnippet_MEDCouplingFieldDouble_renumberNodes_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalytic( MEDCoupling::ON_NODES,2,"IVec*x+JVec*y");
   const DataArrayDouble* values = field->getArray();
   const DataArrayDouble* nodeCoords = mesh->getCoords();
@@ -606,17 +606,17 @@ void CppExample_MEDCouplingFieldDouble_renumberCells()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_renumberCells_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> cmesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> cmesh = MEDCouplingCMesh::New();
   cmesh->setCoords(coordsArr,coordsArr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh = cmesh->buildUnstructured();
+  MCAuto<MEDCouplingUMesh> mesh = cmesh->buildUnstructured();
   //! [CppSnippet_MEDCouplingFieldDouble_renumberCells_1]
   //! [CppSnippet_MEDCouplingFieldDouble_renumberCells_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalytic( MEDCoupling::ON_CELLS,2,"IVec*x+JVec*y");
   const DataArrayDouble* values = field->getArray();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc = mesh->getBarycenterAndOwner();
+  MCAuto<DataArrayDouble> bc = mesh->computeCellCenterOfMass();
   CPPUNIT_ASSERT( values->isEqualWithoutConsideringStr( *bc, 1e-13 ));
   //! [CppSnippet_MEDCouplingFieldDouble_renumberCells_2]
   //! [CppSnippet_MEDCouplingFieldDouble_renumberCells_3]
@@ -624,7 +624,7 @@ void CppExample_MEDCouplingFieldDouble_renumberCells()
   field->renumberCells(renumber,false);
   const MEDCouplingMesh* mesh2 = field->getMesh(); // field now refers to another mesh
   values = field->getArray();
-  bc = mesh2->getBarycenterAndOwner();
+  bc = mesh2->computeCellCenterOfMass();
   CPPUNIT_ASSERT( values->isEqualWithoutConsideringStr( *bc, 1e-13 ));
   //! [CppSnippet_MEDCouplingFieldDouble_renumberCells_3]
 }
@@ -634,16 +634,16 @@ void CppExample_MEDCouplingFieldDouble_buildNewTimeReprFromThis()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_1]
   const double coords[4] = {0.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr = DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh = MEDCouplingCMesh::New();
   mesh->setCoords(coordsArr,coordsArr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1 =
+  MCAuto<MEDCouplingFieldDouble> field1 =
     mesh->fillFromAnalytic( MEDCoupling::ON_NODES,1,"x+y");
   CPPUNIT_ASSERT( field1->getTimeDiscretization() == MEDCoupling::ONE_TIME );
   //! [CppSnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_1]
   //! [CppSnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field2 =
+  MCAuto<MEDCouplingFieldDouble> field2 =
     field1->buildNewTimeReprFromThis( MEDCoupling::NO_TIME, false );
   CPPUNIT_ASSERT( field2->getTimeDiscretization() == MEDCoupling::NO_TIME );
   //! [CppSnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_2]
@@ -654,27 +654,27 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic3()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_1]
   const double coords[4] = {0.,2.,4.,6.}; // 6. is not used
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> y = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> y = DataArrayDouble::New();
   y->useExternalArrayWithRWAccess( coords, 2, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoords(x,y);
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_1]
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_2]
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y coord components
   std::vector<std::string> varNamesVec( varNames, varNames+2 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
-    mesh->fillFromAnalytic3( MEDCoupling::ON_CELLS, 3, varNamesVec, func );
+  MCAuto<MEDCouplingFieldDouble> field =
+    mesh->fillFromAnalyticNamedCompo( MEDCoupling::ON_CELLS, 3, varNamesVec, func );
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_2]
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic3_3]
   double val1[3]; // a value (vector) of the cell #1
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components in the field
   field->getArray()->getTuple( 1, val1 );
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc =
-    mesh->getBarycenterAndOwner(); // func is applied to barycenters of cells
+  MCAuto<DataArrayDouble> bc =
+    mesh->computeCellCenterOfMass(); // func is applied to barycenters of cells
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
@@ -690,27 +690,27 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic2()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic2_1]
   const double coords[4] = {0.,2.,4.,6.}; // 6. is not used
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> y = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> y = DataArrayDouble::New();
   y->useExternalArrayWithRWAccess( coords, 2, 1 );
   x->setInfoOnComponent(0,"a"); //  name used to refer to X coordinate within a function
   y->setInfoOnComponent(0,"b"); //  name used to refer to Y coordinate within a function
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoords(x,y);
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic2_1]
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic2_2]
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
-    mesh->fillFromAnalytic2( MEDCoupling::ON_CELLS, 3, func );
+  MCAuto<MEDCouplingFieldDouble> field =
+    mesh->fillFromAnalyticCompo( MEDCoupling::ON_CELLS, 3, func );
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic2_2]
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic2_3]
   double val1[3]; // a value (vector) of the cell #1
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components in the field
   field->getArray()->getTuple( 1, val1 );
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc =
-    mesh->getBarycenterAndOwner(); // func is applied to barycenters of cells
+  MCAuto<DataArrayDouble> bc =
+    mesh->computeCellCenterOfMass(); // func is applied to barycenters of cells
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
@@ -726,16 +726,16 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic_1]
   const double coords[4] = {0.,2.,4.,6.}; // 6. is not used
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> y = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> y = DataArrayDouble::New();
   y->useExternalArrayWithRWAccess( coords, 2, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoords(x,y);
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic_1]
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic_2]
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field =
+  MCAuto<MEDCouplingFieldDouble> field =
     mesh->fillFromAnalytic( MEDCoupling::ON_CELLS, 3, func );
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic_2]
   //! [CppSnippet_MEDCouplingMesh_fillFromAnalytic_3]
@@ -743,8 +743,8 @@ void CppExample_MEDCouplingMesh_fillFromAnalytic()
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components in the field
   field->getArray()->getTuple( 1, val1 );
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bc =
-    mesh->getBarycenterAndOwner(); // func is applied to barycenters of cells
+  MCAuto<DataArrayDouble> bc =
+    mesh->computeCellCenterOfMass(); // func is applied to barycenters of cells
   double bc1[2]; // coordinates of the second point
   bc->getTuple( 1, bc1 );
   //
@@ -760,9 +760,9 @@ void CppExample_MEDCouplingCMesh_getCoordsAt()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingCMesh_getCoordsAt_1]
   const double coords[3] = {1.,2.,4.};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> x = DataArrayDouble::New();
+  MCAuto<DataArrayDouble> x = DataArrayDouble::New();
   x->useExternalArrayWithRWAccess( coords, 3, 1 );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
+  MCAuto<MEDCouplingCMesh> mesh=MEDCouplingCMesh::New();
   mesh->setCoordsAt(0,x);
   const DataArrayDouble* x2=mesh->getCoordsAt(0);
   CPPUNIT_ASSERT( x2->isEqual( *x, 1e-13 ));
@@ -773,7 +773,7 @@ void CppExample_MEDCouplingUMesh_areCellsIncludedIn()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh1=MEDCouplingUMesh::New();
   mesh1->setMeshDimension(2);
   mesh1->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -783,7 +783,7 @@ void CppExample_MEDCouplingUMesh_areCellsIncludedIn()
   mesh1->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // #3
   mesh1->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // #4
   mesh1->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -791,7 +791,7 @@ void CppExample_MEDCouplingUMesh_areCellsIncludedIn()
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_1]
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_2]
   const int cells2[3] = { 4,2,0 }; // even cells selected
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2 =
+  MCAuto<MEDCouplingUMesh> mesh2 =
     (MEDCouplingUMesh*) mesh1->buildPartOfMySelf( cells2, cells2+3, true );
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_2]
   //! [CppSnippet_MEDCouplingUMesh_areCellsIncludedIn_3]
@@ -817,16 +817,16 @@ void CppExample_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells()
   //! [CppSnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_1]
   // 2D coordinates of 5 base nodes
   const double coords[5*2]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2 };
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 5, 2 );
   // coordinates of 5 top nodes
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr2 = coordsArr->deepCpy();
+  MCAuto<DataArrayDouble> coordsArr2 = coordsArr->deepCopy();
   // 3D coordinates of base + top nodes
   coordsArr  = coordsArr-> changeNbOfComponents( 3, 0 );
   coordsArr2 = coordsArr2->changeNbOfComponents( 3, 1 );
   coordsArr = DataArrayDouble::Aggregate( coordsArr, coordsArr2 );
   // mesh
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   mesh->setMeshDimension(3);
   mesh->allocateCells(2);
@@ -837,7 +837,7 @@ void CppExample_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells()
   mesh->finishInsertingCells();
   //! [CppSnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_1]
   //! [CppSnippet_MEDCouplingUMesh_findAndCorrectBadOriented3DExtrudedCells_2]
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fixedCells =
+  MCAuto<DataArrayInt> fixedCells =
     mesh->findAndCorrectBadOriented3DExtrudedCells();
   CPPUNIT_ASSERT( fixedCells->getNumberOfTuples() == 2 ); // 2 cells fixed
   fixedCells = mesh->findAndCorrectBadOriented3DExtrudedCells();
@@ -851,16 +851,16 @@ void CppExample_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented()
   //! [CppSnippet_MEDCouplingUMesh_arePolyhedronsNotCorrectlyOriented_1]
   // 2D coordinates of 5 base nodes
   const double coords[5*2]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2 };
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess( coords, 5, 2 );
   // coordinates of 5 top nodes
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr2 = coordsArr->deepCpy();
+  MCAuto<DataArrayDouble> coordsArr2 = coordsArr->deepCopy();
   // 3D coordinates of base + top nodes
   coordsArr  = coordsArr-> changeNbOfComponents( 3, 0 );
   coordsArr2 = coordsArr2->changeNbOfComponents( 3, 1 );
   coordsArr = DataArrayDouble::Aggregate( coordsArr, coordsArr2 );
   // mesh
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   mesh->setMeshDimension(3);
   mesh->allocateCells(2);
@@ -889,7 +889,7 @@ void CppExample_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -899,7 +899,7 @@ void CppExample_MEDCouplingUMesh_are2DCellsNotCorrectlyOriented()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -924,7 +924,7 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoints()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getCellsContainingPoints_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -934,7 +934,7 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoints()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -945,7 +945,7 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoints()
                             0.3, 0.3,              // point located somewhere inside the mesh
                             coords[2], coords[3]}; // point at the node #1
   const double eps = 1e-4; // ball radius
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cells, cellsIndex;
+  MCAuto<DataArrayInt> cells, cellsIndex;
   mesh->getCellsContainingPoints( pos, 3, eps, cells, cellsIndex );
   const int cellsExpected[3]={4, 0, 1};
   const int cellsIndexExpected[4]={0, 0, 1, 3};
@@ -958,7 +958,7 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoint()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getCellsContainingPoint_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -968,7 +968,7 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoint()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -988,7 +988,7 @@ void CppExample_MEDCouplingUMesh_buildPartOrthogonalField()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildPartOrthogonalField_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -998,7 +998,7 @@ void CppExample_MEDCouplingUMesh_buildPartOrthogonalField()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1006,7 +1006,7 @@ void CppExample_MEDCouplingUMesh_buildPartOrthogonalField()
   //! [CppSnippet_MEDCouplingUMesh_buildPartOrthogonalField_1]
   //! [CppSnippet_MEDCouplingUMesh_buildPartOrthogonalField_2]
   const int part[4] = {1,2,3,4}; // cell #0 is omitted
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vecField=
+  MCAuto<MEDCouplingFieldDouble> vecField=
     mesh->buildPartOrthogonalField( part, part+4 );
   CPPUNIT_ASSERT ( vecField->getArray()->getNumberOfTuples() == 4 );
   CPPUNIT_ASSERT ( vecField->getArray()->getNumberOfComponents() == 3 );
@@ -1017,7 +1017,7 @@ void CppExample_MEDCouplingUMesh_getPartMeasureField()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getPartMeasureField_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,2,4, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1027,7 +1027,7 @@ void CppExample_MEDCouplingUMesh_getPartMeasureField()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1036,7 +1036,7 @@ void CppExample_MEDCouplingUMesh_getPartMeasureField()
   //! [CppSnippet_MEDCouplingUMesh_getPartMeasureField_2]
   const bool isAbs = true;
   const int part[4] = {1,2,3,4}; // cell #0 is omitted
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> areaArr=
+  MCAuto<DataArrayDouble> areaArr=
     mesh->getPartMeasureField( isAbs, part, part+4 );
   CPPUNIT_ASSERT( areaArr->getIJ(0,0) > 0 ); // orientation ignored
   areaArr=mesh->getPartMeasureField( !isAbs, part, part+4 );
@@ -1045,7 +1045,7 @@ void CppExample_MEDCouplingUMesh_getPartMeasureField()
   //! [CppSnippet_MEDCouplingUMesh_getPartMeasureField_2]
   //! [CppSnippet_MEDCouplingUMesh_getPartMeasureField_3]
   const int cellIds[4] = {1,2,3,4}; // cell #0 is omitted
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> baryCenters=
+  MCAuto<DataArrayDouble> baryCenters=
     mesh->getPartBarycenterAndOwner( cellIds, cellIds+4 );
   CPPUNIT_ASSERT( baryCenters->getNumberOfTuples() == 4 );
   CPPUNIT_ASSERT( baryCenters->getNumberOfComponents() == mesh->getSpaceDimension() );
@@ -1056,11 +1056,11 @@ void CppExample_MEDCouplingUMesh_getCellsInBoundingBox()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getCellsInBoundingBox_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(1);
   const double coords[3*2]={0.,0., 0.,1., 1.,1};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 3,2);
   mesh->setCoords(coordsArr);
   mesh->allocateCells(1);
@@ -1070,7 +1070,7 @@ void CppExample_MEDCouplingUMesh_getCellsInBoundingBox()
   //! [CppSnippet_MEDCouplingUMesh_getCellsInBoundingBox_1]
   //! [CppSnippet_MEDCouplingUMesh_getCellsInBoundingBox_2]
   const double bbox[] = {1., 1., 1.001,1.001}; // xMin, xMax, yMin, yMax
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsArr =
+  MCAuto<DataArrayInt> cellIdsArr =
     mesh->getCellsInBoundingBox( bbox, 0.0 );
   CPPUNIT_ASSERT( cellIdsArr->getNumberOfTuples() == 0 );
   cellIdsArr = mesh->getCellsInBoundingBox( bbox, 0.1 );
@@ -1082,7 +1082,7 @@ void CppExample_MEDCouplingUMesh_renumberNodesInConn()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_renumberNodesInConn_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(1);
   const int conn[4]={4,3,2,1};
@@ -1103,10 +1103,10 @@ void CppExample_MEDCouplingUMesh_renumberNodes()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_renumberNodes_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   const double coords[4*2]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.3};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
   mesh->setCoords(coordsArr);
   mesh->allocateCells(0);
@@ -1117,17 +1117,17 @@ void CppExample_MEDCouplingUMesh_renumberNodes()
   mesh->renumberNodes(newIds, 3);
   coordsArr = mesh->getCoordinatesAndOwner(); // get a shorten array
   const double coordsExpected[3*2]={0.7,-0.3, 0.2,-0.3, -0.3,-0.3};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsExpectedArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsExpectedArr=DataArrayDouble::New();
   coordsExpectedArr->useExternalArrayWithRWAccess(coordsExpected, 3,2);
   CPPUNIT_ASSERT( coordsExpectedArr->isEqual( *coordsArr, 1e-13 ));
   //! [CppSnippet_MEDCouplingUMesh_renumberNodes_2]
   //! [CppSnippet_MEDCouplingUMesh_renumberNodes_3]
   coordsArr->useExternalArrayWithRWAccess(coords, 4,2); // restore old nodes
   const int newIds2[] = { 2,1,0,2 };
-  mesh->renumberNodes2(newIds2, 3);
+  mesh->renumberNodesCenter(newIds2, 3);
   coordsArr = mesh->getCoordinatesAndOwner(); // get a shorten array
   const double coordsExpected2[3*2]={0.7,-0.3, 0.2,-0.3, -0.3, 0.0};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsExpectedArr2=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsExpectedArr2=DataArrayDouble::New();
   coordsExpectedArr2->useExternalArrayWithRWAccess(coordsExpected2, 3,2);
   CPPUNIT_ASSERT( coordsExpectedArr2->isEqual( *coordsArr, 1e-13 ));
   //! [CppSnippet_MEDCouplingUMesh_renumberNodes_3]
@@ -1137,7 +1137,7 @@ void CppExample_MEDCouplingUMesh_findBoundaryNodes()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_findBoundaryNodes_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1147,14 +1147,14 @@ void CppExample_MEDCouplingUMesh_findBoundaryNodes()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingUMesh_findBoundaryNodes_1]
   //! [CppSnippet_MEDCouplingUMesh_findBoundaryNodes_2]
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsArr=mesh->findBoundaryNodes();
+  MCAuto<DataArrayInt> nodeIdsArr=mesh->findBoundaryNodes();
   CPPUNIT_ASSERT( nodeIdsArr->getNumberOfTuples() == mesh->getNumberOfNodes() - 1 );
   //! [CppSnippet_MEDCouplingUMesh_findBoundaryNodes_2]
 }
@@ -1163,7 +1163,7 @@ void CppExample_MEDCouplingUMesh_buildBoundaryMesh()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildBoundaryMesh_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1173,15 +1173,15 @@ void CppExample_MEDCouplingUMesh_buildBoundaryMesh()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingUMesh_buildBoundaryMesh_1]
   //! [CppSnippet_MEDCouplingUMesh_buildBoundaryMesh_2]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> mesh1=mesh->buildBoundaryMesh(true);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> mesh2=mesh->buildBoundaryMesh(false);
+  MCAuto<MEDCouplingPointSet> mesh1=mesh->buildBoundaryMesh(true);
+  MCAuto<MEDCouplingPointSet> mesh2=mesh->buildBoundaryMesh(false);
   CPPUNIT_ASSERT(  coordsArr->isEqual( *mesh1->getCoords(), 1e-13 )); // same nodes
   CPPUNIT_ASSERT( !coordsArr->isEqual( *mesh2->getCoords(), 1e-13 )); // different nodes
   //! [CppSnippet_MEDCouplingUMesh_buildBoundaryMesh_2]
@@ -1191,7 +1191,7 @@ void CppExample_MEDCouplingUMesh_buildFacePartOfMySelfNode()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1201,7 +1201,7 @@ void CppExample_MEDCouplingUMesh_buildFacePartOfMySelfNode()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1211,10 +1211,10 @@ void CppExample_MEDCouplingUMesh_buildFacePartOfMySelfNode()
   std::vector<int> nodes;
   mesh->getNodeIdsOfCell( 0, nodes );
   const bool allNodes = true;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1 =
+  MCAuto<MEDCouplingUMesh> mesh1 =
     (MEDCouplingUMesh*)mesh->buildFacePartOfMySelfNode( &nodes[0],&nodes[0]+nodes.size(),allNodes);
   CPPUNIT_ASSERT( mesh1->getNumberOfCells() == 4 ); // 4 segments bounding QUAD4 #0 only
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2 =
+  MCAuto<MEDCouplingUMesh> mesh2 =
     (MEDCouplingUMesh*)mesh->buildFacePartOfMySelfNode( &nodes[0],&nodes[0]+nodes.size(),!allNodes);
   CPPUNIT_ASSERT( mesh2->getNumberOfCells() == 9 ); // more segments added
   //! [CppSnippet_MEDCouplingUMesh_buildFacePartOfMySelfNode_2]
@@ -1224,7 +1224,7 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelfNode()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildPartOfMySelfNode_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1234,7 +1234,7 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelfNode()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1244,9 +1244,9 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelfNode()
   std::vector<int> nodes;
   mesh->getNodeIdsOfCell( 0, nodes );
   const bool allNodes = true;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1 =
+  MCAuto<MEDCouplingUMesh> mesh1 =
     (MEDCouplingUMesh*)mesh->buildPartOfMySelfNode( &nodes[0], &nodes[0]+nodes.size(), allNodes);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2 =
+  MCAuto<MEDCouplingUMesh> mesh2 =
     (MEDCouplingUMesh*)mesh->buildPartOfMySelfNode( &nodes[0], &nodes[0]+nodes.size(),!allNodes);
   CPPUNIT_ASSERT_EQUAL( mesh1->getNumberOfCells(), 1 );
   CPPUNIT_ASSERT_EQUAL( mesh2->getNumberOfCells(), mesh->getNumberOfCells() );
@@ -1257,7 +1257,7 @@ void CppExample_MEDCouplingUMesh_getCellIdsLyingOnNodes()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getCellIdsLyingOnNodes_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1267,7 +1267,7 @@ void CppExample_MEDCouplingUMesh_getCellIdsLyingOnNodes()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1290,7 +1290,7 @@ void CppExample_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1300,7 +1300,7 @@ void CppExample_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1321,7 +1321,7 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelf()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildPartOfMySelf_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1331,7 +1331,7 @@ void CppExample_MEDCouplingUMesh_buildPartOfMySelf()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1359,7 +1359,7 @@ void CppExample_MEDCouplingUMesh_mergeNodes()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_mergeNodes_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2};
@@ -1373,14 +1373,14 @@ void CppExample_MEDCouplingUMesh_mergeNodes()
                             1.1,0.0,     // #3
                             1.1,0.0,     // #4 == #3
                             0.3,-0.303}; // #5 ~~ #0
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(6,2);
   std::copy(coords,coords+6*2,coordsArr->getPointer());
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingUMesh_mergeNodes_1]
   //! [CppSnippet_MEDCouplingUMesh_mergeNodes_2]
   bool areNodesMerged; int newNbOfNodes;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=
+  MCAuto<DataArrayInt> arr=
     mesh->mergeNodes(0.004,areNodesMerged,newNbOfNodes);
   const int idsExpected[6] = {0, 1, 0, 2, 2, 0};
   CPPUNIT_ASSERT(std::equal(idsExpected,idsExpected+6,arr->getPointer()));
@@ -1395,8 +1395,8 @@ void CppExample_MEDCouplingUMesh_mergeNodes()
   coordsArr->alloc(6,2);
   std::copy(coords,coords+6*2,coordsArr->getPointer());
   mesh->setCoords(coordsArr);
-  // call mergeNodes2()
-  arr = mesh->mergeNodes2(0.004,areNodesMerged,newNbOfNodes);
+  // call mergeNodesCenter()
+  arr = mesh->mergeNodesCenter(0.004,areNodesMerged,newNbOfNodes);
   coordsArr=mesh->getCoordinatesAndOwner(); // retrieve a new shorten coord array
   CPPUNIT_ASSERT_DOUBLES_EQUAL( baryCoords2[1], coordsArr->getIJ(0,1), 13 ); // Y of node #0 equals to that of baryCoords2
   //! [CppSnippet_MEDCouplingUMesh_mergeNodes_3]
@@ -1406,7 +1406,7 @@ void CppExample_MEDCouplingUMesh_zipConnectivityTraducer()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_zipConnectivityTraducer_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[11]={0,3,4,1, 1,4,2, 4,1,0,3};
@@ -1416,7 +1416,7 @@ void CppExample_MEDCouplingUMesh_zipConnectivityTraducer()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+0); // 3 == 0
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+7); // 4 ~~ 0
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1436,7 +1436,7 @@ void CppExample_MEDCouplingUMesh_zipCoordsTraducer()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_zipCoordsTraducer_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1446,7 +1446,7 @@ void CppExample_MEDCouplingUMesh_zipCoordsTraducer()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1469,7 +1469,7 @@ void CppExample_MEDCouplingUMesh_getNodeIdsInUse()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getNodeIdsInUse_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1479,7 +1479,7 @@ void CppExample_MEDCouplingUMesh_getNodeIdsInUse()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1507,7 +1507,7 @@ void CppExample_MEDCouplingUMesh_convertToPolyTypes()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_convertToPolyTypes_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1517,7 +1517,7 @@ void CppExample_MEDCouplingUMesh_convertToPolyTypes()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1537,7 +1537,7 @@ void CppExample_MEDCouplingUMesh_buildDescendingConnectivity2()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity2_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1547,7 +1547,7 @@ void CppExample_MEDCouplingUMesh_buildDescendingConnectivity2()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1585,7 +1585,7 @@ void CppExample_MEDCouplingUMesh_buildDescendingConnectivity()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_buildDescendingConnectivity_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1595,7 +1595,7 @@ void CppExample_MEDCouplingUMesh_buildDescendingConnectivity()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1627,7 +1627,7 @@ void CppExample_MEDCouplingUMesh_getReverseNodalConnectivity()
 {
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingUMesh_getReverseNodalConnectivity_1]
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
@@ -1637,7 +1637,7 @@ void CppExample_MEDCouplingUMesh_getReverseNodalConnectivity()
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10); // 3
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14); // 4
   mesh->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->alloc(9,2);
   const double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   std::copy(coords,coords+18,coordsArr->getPointer());
@@ -1668,7 +1668,7 @@ void CppExample_MEDCouplingUMesh_checkDeepEquivalWith()
                             0.0,1.0}; // #3
   {
     mesh1->setMeshDimension(2);
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+    MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
     coordsArr->useExternalArrayWithRWAccess( coords, 4, 2 );
     mesh1->setCoords(coordsArr);
     mesh1->allocateCells(2);
@@ -1685,7 +1685,7 @@ void CppExample_MEDCouplingUMesh_checkDeepEquivalWith()
                              1.0,1.001}; // #3 ~ #2
   {
     mesh2->setMeshDimension(2);
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+    MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
     coordsArr->useExternalArrayWithRWAccess( coords2, 4, 2 );
     mesh2->setCoords(coordsArr);
     mesh2->allocateCells(2);
@@ -1727,11 +1727,11 @@ void CppExample_MEDCouplingPointSet_scale()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingPointSet_scale_1]
   double coords[4*2]={0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0}; // 2D coordinates of 4 nodes
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
-  DataArrayDouble *initCoords = coordsArr->deepCpy();
+  DataArrayDouble *initCoords = coordsArr->deepCopy();
   //! [CppSnippet_MEDCouplingPointSet_scale_1]
   //! [CppSnippet_MEDCouplingPointSet_scale_2]
   const double center[2] = {0.,0.};
@@ -1752,11 +1752,11 @@ void CppExample_MEDCouplingPointSet_translate()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingPointSet_translate_1]
   double coords[4*2]={0.0,0.0, 1.0,0.0, 1.0,1.0, 0.0,1.0}; // 2D coordinates of 4 nodes
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
-  DataArrayDouble *initCoords = coordsArr->deepCpy();
+  DataArrayDouble *initCoords = coordsArr->deepCopy();
   //! [CppSnippet_MEDCouplingPointSet_translate_1]
   //! [CppSnippet_MEDCouplingPointSet_translate_2]
   double vector[2] = {1.,1.};
@@ -1778,9 +1778,9 @@ void CppExample_MEDCouplingPointSet_rotate()
   double coords[4*2]={0.0,0.0, 0.1,0.0, 0.1,0.1, 0.0,0.1}; // 2D coordinates of 4 nodes
   double coordsOrig[4*2];
   std::copy(coords,coords+sizeof(coords)/sizeof(double),coordsOrig);//keep tracks of initial values
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 4,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingPointSet_rotate_1]
   //! [CppSnippet_MEDCouplingPointSet_rotate_2]
@@ -1806,9 +1806,9 @@ void CppExample_MEDCouplingPointSet_getBoundingBox()
   //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_1]
   double cc[2*3]={0.0, 0.1, 0.2, // 3D coordinates of 2 nodes
                   2.0, 2.1, 2.2};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(cc, 2,3);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_1]
   //! [CppSnippet_MEDCouplingPointSet_getBoundingBox_2]
@@ -1832,9 +1832,9 @@ void CppExample_MEDCouplingPointSet_getNodeIdsNearPoint()
                       0.3,-0.30002, // #2
                       1.1,0.0,    // #3
                       0.3,-0.30003};// #4
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 5,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_1]
   //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoint_2]
@@ -1843,7 +1843,7 @@ void CppExample_MEDCouplingPointSet_getNodeIdsNearPoint()
 
   // check found ids
   const int expectedIDs[3] = {0,2,4};
-  DataArrayInt * okIDs = ids->getIdsEqualList ( expectedIDs, expectedIDs+3 );
+  DataArrayInt * okIDs = ids->findIdsEqualList ( expectedIDs, expectedIDs+3 );
   CPPUNIT_ASSERT_EQUAL(3, okIDs->getNumberOfTuples());
 
   // release data
@@ -1863,9 +1863,9 @@ void CppExample_MEDCouplingPointSet_getNodeIdsNearPoints()
                       1.1,0.0,    // #4
                       1.1,0.002,  // #5
                       0.3,-0.303};// #6
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 7,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_1]
   //! [CppSnippet_MEDCouplingPointSet_getNodeIdsNearPoints_2]
@@ -1878,7 +1878,7 @@ void CppExample_MEDCouplingPointSet_getNodeIdsNearPoints()
 
   // check found ids (i.e. contents of 'ids' array)
   const int expectedIDs[4] = {1, 3, 4, 5};
-  DataArrayInt * okIDs = ids->getIdsEqualList ( expectedIDs, expectedIDs+4 );
+  DataArrayInt * okIDs = ids->findIdsEqualList ( expectedIDs, expectedIDs+4 );
   CPPUNIT_ASSERT_EQUAL(4, okIDs->getNumberOfTuples());
 
   // release data
@@ -1898,9 +1898,9 @@ void CppExample_MEDCouplingPointSet_findCommonNodes()
                       1.1,0.0,    // 3
                       1.1,0.0,    // 4
                       0.3,-0.303};// 5
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 6,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_1]
   //! [CppSnippet_MEDCouplingPointSet_findCommonNodes_2]
@@ -1919,9 +1919,9 @@ void CppExample_MEDCouplingPointSet_getCoordinatesOfNode()
   using namespace MEDCoupling;
   //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
   double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3};
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coordsArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> coordsArr=DataArrayDouble::New();
   coordsArr->useExternalArrayWithRWAccess(coords, 3,2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> mesh=MEDCouplingUMesh::New();
   mesh->setCoords(coordsArr);
   //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_1]
   //! [CppSnippet_MEDCouplingPointSet_getCoordinatesOfNode_2]
@@ -1998,7 +1998,7 @@ void CppExample_DataArrayDouble_getIdsInRange()
   da->alloc(10,1);
   da->iota();
 
-  DataArrayInt* da2 = da->getIdsInRange( 2.5, 6 );
+  DataArrayInt* da2 = da->findIdsInRange( 2.5, 6 );
   //! [CppSnippet_DataArrayDouble_getIdsInRange_1]
   da->decrRef();
   da2->decrRef();
@@ -2107,7 +2107,7 @@ void CppExampleFieldDoubleBuildSubPart1()
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getMeshDimension());
   MEDCoupling::MEDCouplingUMesh *m2C=dynamic_cast<MEDCoupling::MEDCouplingUMesh *>(const_cast<MEDCoupling::MEDCouplingMesh *>(f2->getMesh()));
-  CPPUNIT_ASSERT_EQUAL(13,m2C->getMeshLength());
+  CPPUNIT_ASSERT_EQUAL(13,m2C->getNodalConnectivityArrayLen());
   const double expected2[12]={0.2, -0.3, 0.7, -0.3, 0.2, 0.2, 0.7, 0.2, 0.2, 0.7, 0.7, 0.7};
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],m2C->getCoords()->getIJ(0,i),1.e-12);
@@ -2177,7 +2177,7 @@ void CppSnippetUMeshStdBuild1()
   mesh->setCoords(coordsArr);//coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
   coordsArr->decrRef();
   //! [CppSnippetUMeshStdBuild1_4]
-  mesh->checkCoherency();
+  mesh->checkConsistencyLight();
   //! [CppSnippetUMeshStdBuild1_5]
   mesh->decrRef();
   //! [CppSnippetUMeshStdBuild1_5]
@@ -2257,7 +2257,7 @@ void CppSnippetUMeshAdvBuild1()
   mesh->setCoords(coordsArr);//coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
   coordsArr->decrRef();
   //! [CppSnippetUMeshAdvBuild1_4]
-  mesh->checkCoherency();
+  mesh->checkConsistencyLight();
   //! [CppSnippetUMeshAdvBuild1_5]
   mesh->decrRef();
   //! [CppSnippetUMeshAdvBuild1_5]
@@ -2318,7 +2318,7 @@ void CppSnippetDataArrayBuild1()
   std::copy(coords,coords+3*nbOfNodes,tmp);
   MEDCoupling::DataArrayDouble *coordsArrCpy=0;
   //! [CppSnippetDataArrayBuild1_5]
-  coordsArrCpy=coordsArr->deepCpy();
+  coordsArrCpy=coordsArr->deepCopy();
   //! [CppSnippetDataArrayBuild1_5]
   //! [CppSnippetDataArrayBuild1_6]
   CPPUNIT_ASSERT(coordsArrCpy->isEqual(*coordsArr,1e-12));
@@ -2329,14 +2329,14 @@ void CppSnippetDataArrayBuild1()
   coordsArrCpy->decrRef();
   //! [CppSnippetDataArrayBuild1_7]
   //! [CppSnippetDataArrayBuild1_5bis]
-  coordsArrCpy=coordsArr->performCpy(true);
+  coordsArrCpy=coordsArr->performCopyOrIncrRef(true);
   //! [CppSnippetDataArrayBuild1_5bis]
   CPPUNIT_ASSERT(coordsArrCpy->isEqual(*coordsArr,1e-12));
   coordsArrCpy->setIJ(0,0,1000.);
   CPPUNIT_ASSERT(!coordsArrCpy->isEqual(*coordsArr,1e-12));//coordsArrCpy only has been modified
   coordsArrCpy->decrRef();
   //! [CppSnippetDataArrayBuild1_8]
-  coordsArrCpy=coordsArr->performCpy(false);
+  coordsArrCpy=coordsArr->performCopyOrIncrRef(false);
   //! [CppSnippetDataArrayBuild1_8]
   //! [CppSnippetDataArrayBuild1_9]
   CPPUNIT_ASSERT(coordsArrCpy->isEqual(*coordsArr,1e-12));
@@ -2350,7 +2350,7 @@ void CppSnippetDataArrayBuild1()
   coordsArrCpy=MEDCoupling::DataArrayDouble::New();
   //! [CppSnippetDataArrayBuild1_11]
   //! [CppSnippetDataArrayBuild1_12]
-  coordsArrCpy->cpyFrom(*coordsArr);
+  coordsArrCpy->deepCopyFrom(*coordsArr);
   //! [CppSnippetDataArrayBuild1_12]
   //! [CppSnippetDataArrayBuild1_13]
   CPPUNIT_ASSERT(coordsArrCpy->isEqual(*coordsArr,1e-12));

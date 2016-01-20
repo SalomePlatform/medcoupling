@@ -25,7 +25,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "InterpKernelException.hxx"
 
@@ -40,7 +40,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static DenseMatrix *New(int nbRows, int nbCols);
     MEDCOUPLING_EXPORT static DenseMatrix *New(DataArrayDouble *array, int nbRows, int nbCols);
-    MEDCOUPLING_EXPORT DenseMatrix *deepCpy() const;
+    MEDCOUPLING_EXPORT DenseMatrix *deepCopy() const;
     MEDCOUPLING_EXPORT DenseMatrix *shallowCpy() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -79,7 +79,7 @@ namespace MEDCoupling
   private:
     int _nb_rows;
     int _nb_cols;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _data;
+    MCAuto<DataArrayDouble> _data;
   };
 }
 

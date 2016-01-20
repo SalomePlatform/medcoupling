@@ -98,11 +98,11 @@ Construire une sous-partie d'un champ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Récupérer dans une variable ``ids1`` la liste des identifiants de cellules pour lesquelles la valeur du champ est dans le
-range [0.0,5.0]. Utiliser pour cela la méthode ``DataArrayDouble.getIdsInRange()``. Avec ce résultat, construire la
+range [0.0,5.0]. Utiliser pour cela la méthode ``DataArrayDouble.findIdsInRange()``. Avec ce résultat, construire la
 sous-partie ``fPart1`` du champ ``f``. ::
 
 	da1 = f.getArray()              # a DataArrayDouble, which is a direct reference (not a copy) of the field's values 
-	ids1 = da1.getIdsInRange(0., 5.)
+	ids1 = da1.findIdsInRange(0., 5.)
 	fPart1 = f.buildSubPart(ids1)
 	fPart1.writeVTK("ExoField_fPart1.vtu")
 
@@ -111,7 +111,7 @@ sous-partie ``fPart1`` du champ ``f``. ::
 Sélectionner la partie ``fPart2`` du champ ``f`` dont toutes les valeurs de tuples
 sont dans ``[50.,+infinity)``. ::
 
-	ids2 = f.getArray().getIdsInRange(50., 1.e300)
+	ids2 = f.getArray().findIdsInRange(50., 1.e300)
 	fPart2 = f.buildSubPart(ids2)
 
 Ce genre de technique permet d'extraire facilement les parties d'un champ relatives à un groupe de mailles par exemple.
@@ -127,7 +127,7 @@ par type géométrique.
 L'idée est d'utiliser les deux méthodes ``MEDCouplingUMesh.sortCellsInMEDFileFrmt()`` et
 ``DataArrayDouble.renumberInPlace()`` pour renuméroter manuellement une *copie* de ``fPart1``: ::
 
-	fPart1Cpy = fPart1.deepCpy()
+	fPart1Cpy = fPart1.deepCopy()
 	o2n = fPart1Cpy.getMesh().sortCellsInMEDFileFrmt()
 	fPart1Cpy.getArray().renumberInPlace(o2n)
 
@@ -163,14 +163,14 @@ Evaluation d'un champ en des points donnés de l'espace
 
 Evaluer la valeur du champ ``fPart12`` calculé précédemment sur les barycentres des cellules de son
 maillage (variable ``bary``) et mettre le résultat dans ``arr1``.
-Utiliser pour cela les méthodes ``MEDCouplingFieldDouble.getValueOnMulti()`` et ``MEDCouplingMesh.getBarycenterAndOwner()``.  
+Utiliser pour cela les méthodes ``MEDCouplingFieldDouble.getValueOnMulti()`` et ``MEDCouplingMesh.computeCellCenterOfMass()``.  
 
 De manière similaire, évaluer ensuite directement le champ ``f`` en utilisant la même liste de points
 que précédemment (``bary``) et mettre le résultat dans ``arr2``.
 
 Vérifier ensuite que ``arr1`` et ``arr2`` sont bien égaux: ::
 
-	bary = fPart12.getMesh().getBarycenterAndOwner()
+	bary = fPart12.getMesh().computeCellCenterOfMass()
 	arr1 = fPart12.getValueOnMulti(bary)
 	arr2 = f.getValueOnMulti(bary)
 	delta = arr1-arr2

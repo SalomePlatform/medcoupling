@@ -26,7 +26,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
 #include <fstream>
@@ -824,7 +824,7 @@ MEDCoupling::MEDCouplingUMesh* MEDPARTITIONER::CreateEmptyMEDCouplingUMesh()
   umesh->setCoords(myCoords);
   umesh->setName("EMPTY");
   myCoords->decrRef();
-  umesh->checkCoherency();
+  umesh->checkConsistencyLight();
   return umesh;
 }
 

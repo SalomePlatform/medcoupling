@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 %newobject MEDCoupling::MEDCouplingFieldDiscretization::New;
-%newobject MEDCoupling::MEDCouplingFieldDiscretization::deepCpy;
+%newobject MEDCoupling::MEDCouplingFieldDiscretization::deepCopy;
 %newobject MEDCoupling::MEDCouplingFieldDiscretization::clone;
 %newobject MEDCoupling::MEDCouplingFieldDiscretization::clonePartRange;
 %newobject MEDCoupling::MEDCouplingFieldDiscretization::getOffsetArr;
@@ -43,7 +43,7 @@ namespace MEDCoupling
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDiscretization *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDiscretization *deepCopy() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDiscretization *clone() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDiscretization *clonePartRange(int beginCellIds, int endCellIds, int stepCellIds) const throw(INTERP_KERNEL::Exception);
     virtual std::string getStringRepr() const throw(INTERP_KERNEL::Exception);

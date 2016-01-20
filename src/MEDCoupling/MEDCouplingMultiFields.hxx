@@ -23,7 +23,7 @@
 
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingTimeLabel.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "InterpKernelException.hxx"
 
@@ -41,7 +41,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *>& fs);
     MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New();
-    MEDCOUPLING_EXPORT MEDCouplingMultiFields *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingMultiFields *deepCopy() const;
     MEDCOUPLING_EXPORT std::string getName() const;
     MEDCOUPLING_EXPORT std::string getDescription() const;
     MEDCOUPLING_EXPORT std::string getTimeUnit() const;
@@ -65,13 +65,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD,
                                                   const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,
                                                   const std::vector<DataArrayDouble *>& das);
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const;
   protected:
     MEDCOUPLING_EXPORT MEDCouplingMultiFields(const std::vector<MEDCouplingFieldDouble *>& fs);
     MEDCOUPLING_EXPORT MEDCouplingMultiFields(const MEDCouplingMultiFields& other);
     MEDCOUPLING_EXPORT MEDCouplingMultiFields();
   protected:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > _fs;
+    std::vector< MCAuto<MEDCouplingFieldDouble> > _fs;
   };
 }
 

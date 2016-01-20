@@ -32,7 +32,7 @@ MEDCouplingFieldOverTime *MEDCouplingFieldOverTime::New(const std::vector<MEDCou
 
 double MEDCouplingFieldOverTime::getTimeTolerance() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   if(_fs.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::getTimeTolerance : empty set !");
   for(;it!=_fs.end();it++)
@@ -41,14 +41,14 @@ double MEDCouplingFieldOverTime::getTimeTolerance() const
   throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::getTimeTolerance : only empty fields in this !");
 }
 
-void MEDCouplingFieldOverTime::checkCoherency() const
+void MEDCouplingFieldOverTime::checkConsistencyLight() const
 {
-  MEDCouplingMultiFields::checkCoherency();
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
+  MEDCouplingMultiFields::checkConsistencyLight();
+  std::vector< MCAuto<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
     if((*it)->getTimeDiscretization()==NO_TIME)
       {
-        std::ostringstream oss; oss << "MEDCouplingFieldOverTime::checkCoherency : At rank #" << std::distance(_fs.begin(),it) << " the field has no time !";
+        std::ostringstream oss; oss << "MEDCouplingFieldOverTime::checkConsistencyLight : At rank #" << std::distance(_fs.begin(),it) << " the field has no time !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   if(_fs.empty())
@@ -68,7 +68,7 @@ void MEDCouplingFieldOverTime::checkCoherency() const
         }
       double curt=(*it)->getStartTime(tt1,tt2);
       if(curt<reft-eps)
-        throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::checkCoherency : fields are NOT sorted properly in ascending time !");
+        throw INTERP_KERNEL::Exception("MEDCouplingFieldOverTime::checkConsistencyLight : fields are NOT sorted properly in ascending time !");
       reft=(*it)->getEndTime(tt1,tt2);
     }
 }
@@ -123,25 +123,25 @@ bool MEDCouplingFieldOverTime::isEqualWithoutConsideringStr(const MEDCouplingMul
 
 std::vector<MEDCouplingMesh *> MEDCouplingFieldOverTime::getMeshes() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return MEDCouplingMultiFields::getMeshes();
 }
 
 std::vector<MEDCouplingMesh *> MEDCouplingFieldOverTime::getDifferentMeshes(std::vector<int>& refs) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return MEDCouplingMultiFields::getDifferentMeshes(refs);
 }
 
 std::vector<DataArrayDouble *> MEDCouplingFieldOverTime::getArrays() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return MEDCouplingMultiFields::getArrays();
 }
 
 std::vector<DataArrayDouble *> MEDCouplingFieldOverTime::getDifferentArrays(std::vector< std::vector<int> >& refs) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return MEDCouplingMultiFields::getDifferentArrays(refs);
 }
 
@@ -157,7 +157,7 @@ MEDCouplingDefinitionTime MEDCouplingFieldOverTime::getDefinitionTimeZone() cons
 
 MEDCouplingFieldOverTime::MEDCouplingFieldOverTime(const std::vector<MEDCouplingFieldDouble *>& fs):MEDCouplingMultiFields(fs)
 {
-  checkCoherency();
+  checkConsistencyLight();
 }
 
 MEDCouplingFieldOverTime::MEDCouplingFieldOverTime()

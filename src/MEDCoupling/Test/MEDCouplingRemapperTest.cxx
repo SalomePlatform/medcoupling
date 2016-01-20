@@ -20,7 +20,7 @@
 
 #include "MEDCouplingRemapperTest.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -44,7 +44,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -62,7 +62,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected2[5]={3.75 ,1.75 ,1.75,4.,3.75};
@@ -72,7 +72,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
@@ -81,7 +81,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
@@ -90,7 +90,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(Integral);
+  srcField->setNature(ExtensiveMaximum);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
@@ -99,7 +99,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(RevIntegral);
+  srcField->setNature(IntensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
@@ -125,7 +125,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0R_1()
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   
   MEDCouplingFieldDouble *targetField=MEDCouplingFieldDouble::New(ON_CELLS);
-  targetField->setNature(ConservativeVolumic);
+  targetField->setNature(IntensiveMaximum);
   targetField->setMesh(targetMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);
@@ -144,7 +144,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0R_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
   srcfield->decrRef();
   //
-  targetField->setNature(IntegralGlobConstraint);
+  targetField->setNature(ExtensiveConservation);
   srcfield=remapper.reverseTransferField(targetField,4.57);
   values=srcfield->getArray()->getConstPointer();
   const double valuesExpected2[2]={26., 19.};
@@ -168,7 +168,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
   MEDCouplingRemapper remapper;
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -187,7 +187,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected1[i0],values[i0],1e-12);
   trgfield->decrRef();
   const double valuesExpected2[2]={24.75,5.75};
-  srcField->setNature(Integral);
+  srcField->setNature(ExtensiveMaximum);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
@@ -197,7 +197,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
   trgfield->decrRef();
   //
   const double valuesExpected3[2]={24.75,9.25};
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
@@ -207,7 +207,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
   trgfield->decrRef();
   //
   const double valuesExpected4[2]={7.4444444444444446,7.4};
-  srcField->setNature(RevIntegral);
+  srcField->setNature(IntensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
@@ -224,7 +224,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
   targetMesh=MEDCouplingBasicsTest::build2DCurveTargetMesh_2();
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -241,7 +241,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
   for(int i0=0;i0<2;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected1[i0],values[i0],1e-12);
   trgfield->decrRef();
-  srcField->setNature(Integral);
+  srcField->setNature(ExtensiveMaximum);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
@@ -250,7 +250,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
@@ -259,7 +259,7 @@ void MEDCouplingRemapperTest::test1DInterp_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(RevIntegral);
+  srcField->setNature(IntensiveConservation);
   trgfield=remapper.transferField(srcField,4.57);
   values=trgfield->getArray()->getConstPointer();
   CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
@@ -284,7 +284,7 @@ void MEDCouplingRemapperTest::test2DInterpMultiMethods()
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -305,7 +305,7 @@ void MEDCouplingRemapperTest::test2DInterpMultiMethods()
   //
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P1P0"));
   srcField=MEDCouplingFieldDouble::New(ON_NODES);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfNodes(),1);
@@ -326,7 +326,7 @@ void MEDCouplingRemapperTest::test2DInterpMultiMethods()
   //
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P1"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);
@@ -352,7 +352,7 @@ void MEDCouplingRemapperTest::test2DInterpMultiMethods()
   targetMesh=MEDCouplingBasicsTest::build2DTargetMesh_2();
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P1P1"));
   srcField=MEDCouplingFieldDouble::New(ON_NODES);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfNodes(),1);
@@ -387,7 +387,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -412,7 +412,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   targetMesh=MEDCouplingBasicsTest::build3DSurfTargetMesh_1();
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -437,7 +437,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   targetMesh=MEDCouplingBasicsTest::build3DTargetMesh_1();
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -464,7 +464,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -490,7 +490,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -516,7 +516,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -540,7 +540,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -562,7 +562,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   sourceMesh=MEDCouplingBasicsTest::build2DTargetMesh_1();
   targetMesh=MEDCouplingUMesh::New("an example of -1 D mesh",-1);
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -585,7 +585,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,values[i0],1e-14);
   srcField->decrRef();
-  trgField->setNature(Integral);
+  trgField->setNature(ExtensiveMaximum);
   srcField=remapper.reverseTransferField(trgField,4.220173);
   CPPUNIT_ASSERT_EQUAL(5,srcField->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,srcField->getNumberOfComponents());
@@ -598,7 +598,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   // ------------- -1D -> 2D
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P0"));
   trgField=MEDCouplingFieldDouble::New(ON_CELLS);
-  trgField->setNature(ConservativeVolumic);
+  trgField->setNature(IntensiveMaximum);
   trgField->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);
@@ -611,14 +611,14 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,values[i0],1e-14);
   srcField->decrRef();
-  trgField->setNature(IntegralGlobConstraint);
+  trgField->setNature(ExtensiveConservation);
   srcField=remapper.transferField(trgField,4.221073);
   values=srcField->getArray()->getConstPointer();
   const double valuesExpected7[5]={1.75,0.875,0.875,1.75,1.75};
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected7[i0],values[i0],1e-14);
   srcField->decrRef();
-  trgField->setNature(Integral);
+  trgField->setNature(ExtensiveMaximum);
   srcField=remapper.transferField(trgField,4.221073);
   values=srcField->getArray()->getConstPointer();
   for(int i0=0;i0<5;i0++)
@@ -655,7 +655,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::Geometric2D);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(4,1); array->iota(2.);
@@ -673,7 +673,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::Geometric2D);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(3,1); array->iota(2.);
@@ -694,7 +694,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(7,1); array->iota(2.);
@@ -710,7 +710,7 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   //------------- 3D -> 2D
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(3,1); array->iota(2.);
@@ -737,7 +737,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -755,7 +755,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   trgfield=remapper.transferField(srcField,4.220173);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected2[4]={2.8374999999999999, 7.3624999999999998, 4.220173, 4.7999999999999998};
@@ -765,7 +765,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(Integral);
+  srcField->setNature(ExtensiveMaximum);
   trgfield=remapper.transferField(srcField,4.220173);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected3[4]={1.24, 4.5199999999999996, 4.220173, 1.9199999999999999};
@@ -775,7 +775,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(RevIntegral);
+  srcField->setNature(IntensiveConservation);
   trgfield=remapper.transferField(srcField,4.220173);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected9[4]={2.48, 3.766666666666666, 4.220173, 1.9199999999999999};
@@ -788,7 +788,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
   srcField->decrRef();
   // REVERSE ***********
   trgfield=MEDCouplingFieldDouble::New(ON_CELLS);
-  trgfield->setNature(ConservativeVolumic);
+  trgfield->setNature(IntensiveMaximum);
   trgfield->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);
@@ -816,7 +816,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
   //
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -834,7 +834,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected5[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   trgfield=remapper.transferField(srcField,4.220173);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected6[4]={9.25, 15.75};
@@ -844,7 +844,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected6[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(Integral);
+  srcField->setNature(ExtensiveMaximum);
   trgfield=remapper.transferField(srcField,4.220173);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected7[2]={4.56, 4.3466666666666667};
@@ -854,7 +854,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected7[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
-  srcField->setNature(RevIntegral);
+  srcField->setNature(IntensiveConservation);
   trgfield=remapper.transferField(srcField,4.220173);
   values=trgfield->getArray()->getConstPointer();
   const double valuesExpected10[2]={5.08, 3.56};
@@ -867,7 +867,7 @@ void MEDCouplingRemapperTest::testNatureOfField()
   srcField->decrRef();
   // REVERSE ***********
   trgfield=MEDCouplingFieldDouble::New(ON_CELLS);
-  trgfield->setNature(ConservativeVolumic);
+  trgfield->setNature(IntensiveMaximum);
   trgfield->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);
@@ -895,12 +895,12 @@ void MEDCouplingRemapperTest::testExtruded()
 {
   MEDCouplingUMesh *mesh2DS=0;
   MEDCouplingUMesh *mesh3DS=build3DExtrudedUMesh_1(mesh2DS);
-  MEDCouplingExtrudedMesh *extS=MEDCouplingExtrudedMesh::New(mesh3DS,mesh2DS,1);
+  MEDCouplingMappedExtrudedMesh *extS=MEDCouplingMappedExtrudedMesh::New(mesh3DS,mesh2DS,1);
   mesh3DS->decrRef();
   mesh2DS->decrRef();
   MEDCouplingUMesh *mesh2DT=0;
   MEDCouplingUMesh *mesh3DT=build3DExtrudedUMesh_1(mesh2DT);
-  MEDCouplingExtrudedMesh *extT=MEDCouplingExtrudedMesh::New(mesh3DT,mesh2DT,1);
+  MEDCouplingMappedExtrudedMesh *extT=MEDCouplingMappedExtrudedMesh::New(mesh3DT,mesh2DT,1);
   //
   //
   mesh3DT->decrRef();
@@ -932,16 +932,16 @@ void MEDCouplingRemapperTest::testExtruded2()
   MEDCouplingUMesh *meshTF2D=(MEDCouplingUMesh *)meshTF->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
   n.clear();
   //
-  MEDCouplingExtrudedMesh *meshNE=MEDCouplingExtrudedMesh::New(meshN,meshN2D,0);
-  MEDCouplingExtrudedMesh *meshTTE=MEDCouplingExtrudedMesh::New(meshTT,meshTT2D,0);
-  MEDCouplingExtrudedMesh *meshTFE=MEDCouplingExtrudedMesh::New(meshTF,meshTF2D,0);
+  MEDCouplingMappedExtrudedMesh *meshNE=MEDCouplingMappedExtrudedMesh::New(meshN,meshN2D,0);
+  MEDCouplingMappedExtrudedMesh *meshTTE=MEDCouplingMappedExtrudedMesh::New(meshTT,meshTT2D,0);
+  MEDCouplingMappedExtrudedMesh *meshTFE=MEDCouplingMappedExtrudedMesh::New(meshTF,meshTF2D,0);
   //
   MEDCouplingRemapper remapper;
   remapper.setPrecision(1e-12);
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(meshNE,meshTTE,"P0P0"));
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(IntegralGlobConstraint);
+  srcField->setNature(ExtensiveConservation);
   srcField->setMesh(meshNE);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(meshNE->getNumberOfCells(),1);
@@ -1011,7 +1011,7 @@ void MEDCouplingRemapperTest::testExtruded2()
   };
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(meshNE,meshTTE,"P0P0"));
   trgField=MEDCouplingFieldDouble::New(ON_CELLS);
-  trgField->setNature(ConservativeVolumic);
+  trgField->setNature(IntensiveMaximum);
   trgField->setMesh(meshTTE);
   array=DataArrayDouble::New();
   array->alloc(meshTTE->getNumberOfCells(),1);
@@ -1053,7 +1053,7 @@ void MEDCouplingRemapperTest::testExtruded2()
   };
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(meshNE,meshTFE,"P0P0"));
   trgField=MEDCouplingFieldDouble::New(ON_CELLS);
-  trgField->setNature(ConservativeVolumic);
+  trgField->setNature(IntensiveMaximum);
   trgField->setMesh(meshTFE);
   array=DataArrayDouble::New();
   array->alloc(meshTFE->getNumberOfCells(),1);
@@ -1097,7 +1097,7 @@ void MEDCouplingRemapperTest::testPrepareEx1()
   srcFt->decrRef();
   trgFt->decrRef();
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -1244,7 +1244,7 @@ void MEDCouplingRemapperTest::testPartialTransfer1()
   remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
-  srcField->setNature(ConservativeVolumic);
+  srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(sourceMesh->getNumberOfCells(),1);
@@ -1254,7 +1254,7 @@ void MEDCouplingRemapperTest::testPartialTransfer1()
     ptr[i]=(double)(i+7);
   array->decrRef();
   MEDCouplingFieldDouble *trgField=MEDCouplingFieldDouble::New(ON_CELLS);
-  trgField->setNature(ConservativeVolumic);
+  trgField->setNature(IntensiveMaximum);
   trgField->setMesh(targetMesh);
   array=DataArrayDouble::New();
   array->alloc(targetMesh->getNumberOfCells(),1);

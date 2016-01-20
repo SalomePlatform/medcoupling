@@ -218,7 +218,7 @@ namespace MEDCoupling
     
   }
 
-  MPIProcessorGroup *MPIProcessorGroup::deepCpy() const
+  MPIProcessorGroup *MPIProcessorGroup::deepCopy() const
   {
     return new MPIProcessorGroup(*this);
   }

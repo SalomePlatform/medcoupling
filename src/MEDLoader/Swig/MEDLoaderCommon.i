@@ -86,7 +86,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::ReadFieldGaussNE;
 %newobject MEDCoupling::MEDFileMesh::New;
 %newobject MEDCoupling::MEDFileMesh::createNewEmpty;
-%newobject MEDCoupling::MEDFileMesh::deepCpy;
+%newobject MEDCoupling::MEDFileMesh::deepCopy;
 %newobject MEDCoupling::MEDFileMesh::shallowCpy;
 %newobject MEDCoupling::MEDFileMesh::getMeshAtLevel;
 %newobject MEDCoupling::MEDFileMesh::__getitem__;
@@ -126,10 +126,10 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileCMesh::New;
 %newobject MEDCoupling::MEDFileCurveLinearMesh::New;
 %newobject MEDCoupling::MEDFileMeshMultiTS::New;
-%newobject MEDCoupling::MEDFileMeshMultiTS::deepCpy;
+%newobject MEDCoupling::MEDFileMeshMultiTS::deepCopy;
 %newobject MEDCoupling::MEDFileMeshMultiTS::getOneTimeStep;
 %newobject MEDCoupling::MEDFileMeshes::New;
-%newobject MEDCoupling::MEDFileMeshes::deepCpy;
+%newobject MEDCoupling::MEDFileMeshes::deepCopy;
 %newobject MEDCoupling::MEDFileMeshes::getMeshAtPos;
 %newobject MEDCoupling::MEDFileMeshes::getMeshWithName;
 %newobject MEDCoupling::MEDFileMeshes::__getitem__;
@@ -138,7 +138,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::New;
 %newobject MEDCoupling::MEDFileFields::LoadPartOf;
 %newobject MEDCoupling::MEDFileFields::LoadSpecificEntities;
-%newobject MEDCoupling::MEDFileFields::deepCpy;
+%newobject MEDCoupling::MEDFileFields::deepCopy;
 %newobject MEDCoupling::MEDFileFields::shallowCpy;
 %newobject MEDCoupling::MEDFileFields::getFieldWithName;
 %newobject MEDCoupling::MEDFileFields::getFieldAtPos;
@@ -148,7 +148,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileFields::__iter__;
 
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::New;
-%newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::deepCpy;
+%newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::deepCopy;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::shallowCpy;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getTimeStepAtPos;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getTimeStep;
@@ -169,7 +169,7 @@ using namespace MEDCoupling;
 
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::New;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::shallowCpy;
-%newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCpy;
+%newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCopy;
 %newobject MEDCoupling::MEDFileField1TS::New;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevel;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtTopLevel;
@@ -182,34 +182,34 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileIntField1TS::convertToDouble;
 
 %newobject MEDCoupling::MEDFileData::New;
-%newobject MEDCoupling::MEDFileData::deepCpy;
+%newobject MEDCoupling::MEDFileData::deepCopy;
 %newobject MEDCoupling::MEDFileData::getMeshes;
 %newobject MEDCoupling::MEDFileData::getFields;
 %newobject MEDCoupling::MEDFileData::getParams;
 
 %newobject MEDCoupling::MEDFileParameterDouble1TS::New;
-%newobject MEDCoupling::MEDFileParameterDouble1TS::deepCpy;
+%newobject MEDCoupling::MEDFileParameterDouble1TS::deepCopy;
 %newobject MEDCoupling::MEDFileParameterMultiTS::New;
-%newobject MEDCoupling::MEDFileParameterMultiTS::deepCpy;
+%newobject MEDCoupling::MEDFileParameterMultiTS::deepCopy;
 %newobject MEDCoupling::MEDFileParameterMultiTS::getTimeStepAtPos;
 %newobject MEDCoupling::MEDFileParameterMultiTS::__getitem__;
 %newobject MEDCoupling::MEDFileParameters::New;
-%newobject MEDCoupling::MEDFileParameters::deepCpy;
+%newobject MEDCoupling::MEDFileParameters::deepCopy;
 %newobject MEDCoupling::MEDFileParameters::getParamAtPos;
 %newobject MEDCoupling::MEDFileParameters::getParamWithName;
 %newobject MEDCoupling::MEDFileParameters::__getitem__;
 
 %newobject MEDCoupling::MEDFileJointCorrespondence::New;
-%newobject MEDCoupling::MEDFileJointCorrespondence::deepCpy;
+%newobject MEDCoupling::MEDFileJointCorrespondence::deepCopy;
 %newobject MEDCoupling::MEDFileJointCorrespondence::shallowCpy;
 %newobject MEDCoupling::MEDFileJointOneStep::New;
-%newobject MEDCoupling::MEDFileJointOneStep::deepCpy;
+%newobject MEDCoupling::MEDFileJointOneStep::deepCopy;
 %newobject MEDCoupling::MEDFileJointOneStep::shallowCpy;
 %newobject MEDCoupling::MEDFileJoint::New;
-%newobject MEDCoupling::MEDFileJoint::deepCpy;
+%newobject MEDCoupling::MEDFileJoint::deepCopy;
 %newobject MEDCoupling::MEDFileJoint::shallowCpy;
 %newobject MEDCoupling::MEDFileJoints::New;
-%newobject MEDCoupling::MEDFileJoints::deepCpy;
+%newobject MEDCoupling::MEDFileJoints::deepCopy;
 %newobject MEDCoupling::MEDFileJoints::getJointAtPos;
 %newobject MEDCoupling::MEDFileJoints::getJointWithName;
 %newobject MEDCoupling::MEDFileJoints::__getitem__;
@@ -555,7 +555,7 @@ namespace MEDCoupling
                                            INTERP_KERNEL::NormalizedCellType rem_geo_type)
       throw(INTERP_KERNEL::Exception);
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDFileJointCorrespondence *deepCpy() const;
+    MEDFileJointCorrespondence *deepCopy() const;
     MEDFileJointCorrespondence *shallowCpy() const;
     void setIsNodal(bool isNodal);
     bool getIsNodal() const;
@@ -597,7 +597,7 @@ namespace MEDCoupling
   public:
     static MEDFileJointOneStep *New(int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
     static MEDFileJointOneStep *New(const std::string& fileName, const std::string& mName, const std::string& jointName, int number=1) throw(INTERP_KERNEL::Exception);
-    MEDFileJointOneStep *deepCpy() const;
+    MEDFileJointOneStep *deepCopy() const;
     MEDFileJointOneStep *shallowCpy() const;
     bool isEqual(const MEDFileJointOneStep *other) const;
     void setOrder(int order);
@@ -634,7 +634,7 @@ namespace MEDCoupling
     static MEDFileJoint *New() throw(INTERP_KERNEL::Exception);
     static MEDFileJoint *New(const std::string& fileName, const std::string& mName, int num) throw(INTERP_KERNEL::Exception);
     static MEDFileJoint *New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum ) throw(INTERP_KERNEL::Exception);
-    MEDFileJoint *deepCpy() const;
+    MEDFileJoint *deepCopy() const;
     MEDFileJoint *shallowCpy() const;
     bool isEqual(const MEDFileJoint *other) const;
     void setLocalMeshName(const std::string& name);
@@ -677,7 +677,7 @@ namespace MEDCoupling
   public:
     static MEDFileJoints *New() throw(INTERP_KERNEL::Exception);
     static MEDFileJoints *New(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-    MEDFileJoints *deepCpy() const;
+    MEDFileJoints *deepCopy() const;
     std::string simpleRepr() const;
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const;
@@ -889,7 +889,7 @@ namespace MEDCoupling
     static MEDFileMesh *New(const std::string& fileName, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     static MEDFileMesh *New(const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0) throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *createNewEmpty() const throw(INTERP_KERNEL::Exception);
-    virtual MEDFileMesh *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual MEDFileMesh *deepCopy() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileMesh *shallowCpy() const throw(INTERP_KERNEL::Exception);
     virtual void clearNonDiscrAttributes() const throw(INTERP_KERNEL::Exception);
     void setName(const std::string& name);
@@ -908,8 +908,8 @@ namespace MEDCoupling
     double getTimeValue() const;
     void setTimeUnit(const std::string& unit);
     std::string getTimeUnit() const;
-    void setAxType(MEDCouplingAxisType at);
-    MEDCouplingAxisType getAxType() const;
+    void setAxisType(MEDCouplingAxisType at);
+    MEDCouplingAxisType getAxisType() const;
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     virtual bool hasImplicitPart() const throw(INTERP_KERNEL::Exception);
@@ -1276,8 +1276,8 @@ namespace MEDCoupling
            std::vector<double> a0;
            std::vector<int> a1;
            std::vector<std::string> a2;
-           std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a3;
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a4;
+           std::vector< MCAuto<DataArrayInt> > a3;
+           MCAuto<DataArrayDouble> a4;
            self->serialize(a0,a1,a2,a3,a4);
            PyObject *ret(PyTuple_New(5));
            PyTuple_SetItem(ret,0,convertDblArrToPyList2(a0));
@@ -1315,8 +1315,8 @@ namespace MEDCoupling
            std::vector<double> a0;
            std::vector<int> a1;
            std::vector<std::string> a2;
-           std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > a3;
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a4;
+           std::vector< MCAuto<DataArrayInt> > a3;
+           MCAuto<DataArrayDouble> a4;
            //
            PyObject *a0py(PyTuple_GetItem(inp,0)),*a1py(PyTuple_GetItem(inp,1)),*a2py(PyTuple_GetItem(inp,2));
            int tmp(-1);
@@ -1533,7 +1533,7 @@ namespace MEDCoupling
     static MEDFileMeshMultiTS *New();
     static MEDFileMeshMultiTS *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName) throw(INTERP_KERNEL::Exception);
-    MEDFileMeshMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileMeshMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
     std::string getName() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
@@ -1592,7 +1592,7 @@ namespace MEDCoupling
   public:
     static MEDFileMeshes *New();
     static MEDFileMeshes *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    MEDFileMeshes *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileMeshes *deepCopy() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
@@ -1840,7 +1840,7 @@ namespace MEDCoupling
     bool presenceOfMultiDiscPerGeoType() const throw(INTERP_KERNEL::Exception);
     void setTime(int iteration, int order, double val) throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeField1TS *shallowCpy() const throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeField1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileAnyTypeField1TS *deepCopy() const throw(INTERP_KERNEL::Exception);
     std::string getDtUnit() const throw(INTERP_KERNEL::Exception);
     void setDtUnit(const std::string& dtUnit) throw(INTERP_KERNEL::Exception);
     %extend
@@ -1937,7 +1937,7 @@ namespace MEDCoupling
 
       PyObject *splitComponents() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > ret=self->splitComponents();
+        std::vector< MCAuto< MEDFileAnyTypeField1TS > > ret=self->splitComponents();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
@@ -1947,7 +1947,7 @@ namespace MEDCoupling
 
       PyObject *splitDiscretizations() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > ret=self->splitDiscretizations();
+        std::vector< MCAuto< MEDFileAnyTypeField1TS > > ret=self->splitDiscretizations();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
@@ -1957,7 +1957,7 @@ namespace MEDCoupling
 
       PyObject *splitMultiDiscrPerGeoTypes() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeField1TS > > ret=self->splitMultiDiscrPerGeoTypes();
+        std::vector< MCAuto< MEDFileAnyTypeField1TS > > ret=self->splitMultiDiscrPerGeoTypes();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
@@ -2233,7 +2233,7 @@ namespace MEDCoupling
   public:
     static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileAnyTypeFieldMultiTS *New(const std::string& fileName, const std::string& fieldName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
-    MEDFileAnyTypeFieldMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileAnyTypeFieldMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
     virtual MEDFileAnyTypeFieldMultiTS *shallowCpy() const throw(INTERP_KERNEL::Exception);
     std::string getName() const throw(INTERP_KERNEL::Exception);
     void setName(const std::string& name) throw(INTERP_KERNEL::Exception);
@@ -2472,7 +2472,7 @@ namespace MEDCoupling
         if(elt0 && PyList_Check(elt0))
           {
             int sz=PyList_Size(elt0);
-            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=DataArrayInt::New(); da->alloc(sz,1);
+            MCAuto<DataArrayInt> da=DataArrayInt::New(); da->alloc(sz,1);
             int *pt=da->getPointer();
             for(int i=0;i<sz;i++,pt++)
               {
@@ -2500,7 +2500,7 @@ namespace MEDCoupling
 
       PyObject *splitComponents() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret=self->splitComponents();
+        std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > ret=self->splitComponents();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
@@ -2510,7 +2510,7 @@ namespace MEDCoupling
 
       PyObject *splitDiscretizations() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret=self->splitDiscretizations();
+        std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > ret=self->splitDiscretizations();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
@@ -2520,7 +2520,7 @@ namespace MEDCoupling
 
       PyObject *splitMultiDiscrPerGeoTypes() const throw(INTERP_KERNEL::Exception)
       {
-        std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileAnyTypeFieldMultiTS > > ret=self->splitMultiDiscrPerGeoTypes();
+        std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > ret=self->splitMultiDiscrPerGeoTypes();
         std::size_t sz=ret.size();
         PyObject *retPy=PyList_New(sz);
         for(std::size_t i=0;i<sz;i++)
@@ -2571,7 +2571,7 @@ namespace MEDCoupling
       {
         std::vector<MEDFileAnyTypeFieldMultiTS *> vectFMTS;
         convertFromPyObjVectorOfObj<MEDCoupling::MEDFileAnyTypeFieldMultiTS *>(li,SWIGTYPE_p_MEDCoupling__MEDFileAnyTypeFieldMultiTS,"MEDFileAnyTypeFieldMultiTS",vectFMTS);
-        std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFastCellSupportComparator> > ret2;
+        std::vector< MCAuto<MEDFileFastCellSupportComparator> > ret2;
         std::vector< std::vector<MEDFileAnyTypeFieldMultiTS *> > ret=MEDFileAnyTypeFieldMultiTS::SplitPerCommonSupport(vectFMTS,mesh,ret2);
         if(ret2.size()!=ret.size())
           {
@@ -2872,7 +2872,7 @@ namespace MEDCoupling
     static MEDFileFields *New() throw(INTERP_KERNEL::Exception);
     static MEDFileFields *New(const std::string& fileName, bool loadAll=true) throw(INTERP_KERNEL::Exception);
     static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0) throw(INTERP_KERNEL::Exception);
-    MEDFileFields *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileFields *deepCopy() const throw(INTERP_KERNEL::Exception);
     MEDFileFields *shallowCpy() const throw(INTERP_KERNEL::Exception);
     void loadArrays() throw(INTERP_KERNEL::Exception);
     void loadArraysIfNecessary() throw(INTERP_KERNEL::Exception);
@@ -2959,7 +2959,7 @@ namespace MEDCoupling
            if(obj && PyList_Check(obj))
              {
                int sz=PyList_Size(obj);
-               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=DataArrayInt::New(); da->alloc(sz,1);
+               MCAuto<DataArrayInt> da=DataArrayInt::New(); da->alloc(sz,1);
                int *pt=da->getPointer();
                for(int i=0;i<sz;i++,pt++)
                  {
@@ -3097,7 +3097,7 @@ namespace MEDCoupling
     static MEDFileParameterDouble1TS *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName) throw(INTERP_KERNEL::Exception);
     static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it) throw(INTERP_KERNEL::Exception);
-    virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    virtual MEDFileParameter1TS *deepCopy() const throw(INTERP_KERNEL::Exception);
     virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void setName(const std::string& name) throw(INTERP_KERNEL::Exception);
     std::string getName() const throw(INTERP_KERNEL::Exception);
@@ -3151,7 +3151,7 @@ namespace MEDCoupling
     static MEDFileParameterMultiTS *New(const std::string& fileName, const std::string& paramName) throw(INTERP_KERNEL::Exception);
     std::string getName() const;
     void setName(const std::string& name);
-    MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileParameterMultiTS *deepCopy() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void appendValue(int dt, int it, double time, double val) throw(INTERP_KERNEL::Exception);
@@ -3342,7 +3342,7 @@ namespace MEDCoupling
   public:
     static MEDFileParameters *New();
     static MEDFileParameters *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-    MEDFileParameters *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileParameters *deepCopy() const throw(INTERP_KERNEL::Exception);
     void write(const std::string& fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
@@ -3429,7 +3429,7 @@ namespace MEDCoupling
   public:
     static MEDFileData *New(const std::string& fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileData *New();
-    MEDFileData *deepCpy() const throw(INTERP_KERNEL::Exception);
+    MEDFileData *deepCopy() const throw(INTERP_KERNEL::Exception);
     void setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception);
     void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
     void setParams(MEDFileParameters *params) throw(INTERP_KERNEL::Exception);

@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "BoxSplittingOptions.hxx"
 #include "InterpKernelException.hxx"
@@ -49,7 +49,7 @@ namespace MEDCoupling
   class MEDCouplingCartesianAMRPatchGen : public RefCountObject
   {
   public:
-    MEDCOUPLING_EXPORT virtual MEDCouplingCartesianAMRPatchGen *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingCartesianAMRPatchGen *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const = 0;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT int getNumberOfCellsRecursiveWithoutOverlap() const;
     MEDCOUPLING_EXPORT int getMaxNumberOfLevelsRelativeToThis() const;
@@ -62,7 +62,7 @@ namespace MEDCoupling
   private:
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   protected:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMeshGen> _mesh;
+    MCAuto<MEDCouplingCartesianAMRMeshGen> _mesh;
   };
 
   /*!
@@ -72,7 +72,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingCartesianAMRPatch(MEDCouplingCartesianAMRMeshGen *mesh, const std::vector< std::pair<int,int> >& bottomLeftTopRight);
-    MEDCouplingCartesianAMRPatch *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCouplingCartesianAMRPatch *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
     // direct forward to _mesh
     MEDCOUPLING_EXPORT void addPatch(const std::vector< std::pair<int,int> >& bottomLeftTopRight, const std::vector<int>& factors);
     // end of direct forward to _mesh
@@ -115,7 +115,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingCartesianAMRPatchGF(MEDCouplingCartesianAMRMesh *mesh);
-    MEDCouplingCartesianAMRPatchGF *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCouplingCartesianAMRPatchGF *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
   private:
     std::size_t getHeapMemorySizeWithoutChildren() const;
   private:
@@ -132,7 +132,7 @@ namespace MEDCoupling
   class MEDCouplingCartesianAMRMeshGen : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT virtual MEDCouplingCartesianAMRMeshGen *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingCartesianAMRMeshGen *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const = 0;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT const std::vector<int>& getFactors() const { return _factors; }
     MEDCOUPLING_EXPORT void setFactors(const std::vector<int>& newFactors);
@@ -194,7 +194,7 @@ namespace MEDCoupling
     MEDCouplingCartesianAMRMeshGen(MEDCouplingIMesh *mesh);
     void checkPatchId(int patchId) const;
     void checkFactorsAndIfNotSetAssign(const std::vector<int>& factors);
-    void retrieveGridsAtInternal(int lev, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> >& grids) const;
+    void retrieveGridsAtInternal(int lev, std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> >& grids) const;
     static int GetGhostLevelInFineRef(int ghostLev, const std::vector<int>& factors);
     std::vector<const DataArrayDouble *> extractSubTreeFromGlobalFlatten(const MEDCouplingCartesianAMRMeshGen *head, const std::vector<const DataArrayDouble *>& all) const;
     void dumpPatchesOf(const std::string& varName, std::ostream& oss) const;
@@ -205,8 +205,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void updateTime() const;
   protected:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> _mesh;
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatch> > _patches;
+    MCAuto<MEDCouplingIMesh> _mesh;
+    std::vector< MCAuto<MEDCouplingCartesianAMRPatch> > _patches;
     std::vector<int> _factors;
   };
 
@@ -222,7 +222,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
   private:
     MEDCouplingCartesianAMRMeshSub(const MEDCouplingCartesianAMRMeshSub& other, MEDCouplingCartesianAMRMeshGen *father);
-    MEDCouplingCartesianAMRMeshSub *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCouplingCartesianAMRMeshSub *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
     void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<int>& ret) const;
   protected:
     MEDCouplingCartesianAMRMeshGen *_father;
@@ -241,7 +241,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector< std::pair<int,int> > positionRelativeToGodFather(std::vector<int>& st) const;
     MEDCOUPLING_EXPORT int getAbsoluteLevelRelativeTo(const MEDCouplingCartesianAMRMeshGen *ref) const;
     MEDCOUPLING_EXPORT std::vector<MEDCouplingCartesianAMRPatchGen *> retrieveGridsAt(int absoluteLev) const;
-    MEDCouplingCartesianAMRMesh *deepCpy(MEDCouplingCartesianAMRMeshGen *father) const;
+    MEDCouplingCartesianAMRMesh *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const;
     MEDCOUPLING_EXPORT void createPatchesFromCriterionML(const std::vector<const INTERP_KERNEL::BoxSplittingOptions *>& bso, const DataArrayDouble *criterion, const std::vector< std::vector<int> >& factors, double eps);
   private:
     void getPositionRelativeToInternal(const MEDCouplingCartesianAMRMeshGen *ref, std::vector<int>& ret) const;

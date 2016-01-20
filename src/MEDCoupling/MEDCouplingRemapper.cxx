@@ -23,7 +23,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingNormalizedCartesianMesh.txx"
@@ -73,9 +73,9 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepare : presence of NULL input pointer !");
   std::string srcMethod,targetMethod;
   INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::CheckAndSplitInterpolationMethod(method,srcMethod,targetMethod);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> src=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(srcMethod));
+  MCAuto<MEDCouplingFieldTemplate> src=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(srcMethod));
   src->setMesh(srcMesh);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldTemplate> target=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(targetMethod));
+  MCAuto<MEDCouplingFieldTemplate> target=MEDCouplingFieldTemplate::New(MEDCouplingFieldDiscretization::GetTypeOfFieldFromStringRepr(targetMethod));
   target->setMesh(targetMesh);
   return prepareEx(src,target);
 }
@@ -205,7 +205,7 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   if(!srcField || !targetField)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::reverseTransfer : input fields must be both not NULL !");
   checkPrepare();
-  targetField->checkCoherency();
+  targetField->checkConsistencyLight();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
   if(_target_ft->getDiscretization()->getStringRepr()!=targetField->getDiscretization()->getStringRepr())
@@ -223,13 +223,13 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   int trgNbOfCompo=targetField->getNumberOfComponents();
   if(array)
     {
-      srcField->checkCoherency();
+      srcField->checkConsistencyLight();
       if(trgNbOfCompo!=srcField->getNumberOfTuplesExpected())
         throw INTERP_KERNEL::Exception("Number of components mismatch !");
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble > tmp(DataArrayDouble::New());
+      MCAuto<DataArrayDouble > tmp(DataArrayDouble::New());
       tmp->alloc(srcField->getNumberOfTuplesExpected(),trgNbOfCompo);
       srcField->setArray(tmp);
     }
@@ -257,7 +257,7 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFiel
   checkPrepare();
   if(!srcField)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transferField : input srcField is NULL !");
-  srcField->checkCoherency();
+  srcField->checkConsistencyLight();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(*_target_ft,srcField->getTimeDiscretization());
@@ -271,7 +271,7 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCoupl
 {
   if(!targetField)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transferField : input targetField is NULL !");
-  targetField->checkCoherency();
+  targetField->checkConsistencyLight();
   checkPrepare();
   if(_target_ft->getDiscretization()->getStringRepr()!=targetField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
@@ -616,8 +616,8 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
 {
   std::string srcMeth,trgMeth;
   std::string methC=checkAndGiveInterpolationMethodStr(srcMeth,trgMeth);
-  const MEDCouplingExtrudedMesh *src_mesh=static_cast<const MEDCouplingExtrudedMesh *>(_src_ft->getMesh());
-  const MEDCouplingExtrudedMesh *target_mesh=static_cast<const MEDCouplingExtrudedMesh *>(_target_ft->getMesh());
+  const MEDCouplingMappedExtrudedMesh *src_mesh=static_cast<const MEDCouplingMappedExtrudedMesh *>(_src_ft->getMesh());
+  const MEDCouplingMappedExtrudedMesh *target_mesh=static_cast<const MEDCouplingMappedExtrudedMesh *>(_target_ft->getMesh());
   if(methC!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareInterpKernelOnlyEE : Only P0P0 method implemented for Extruded/Extruded meshes !");
   MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh->getMesh2D());
@@ -627,7 +627,7 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyEE()
   int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,methC);
   MEDCouplingUMesh *s1D,*t1D;
   double v[3];
-  MEDCouplingExtrudedMesh::Project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),getPrecision(),s1D,t1D,v);
+  MEDCouplingMappedExtrudedMesh::Project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),getPrecision(),s1D,t1D,v);
   MEDCouplingNormalizedUnstructuredMesh<1,1> s1DWrapper(s1D);
   MEDCouplingNormalizedUnstructuredMesh<1,1> t1DWrapper(t1D);
   std::vector<std::map<int,double> > matrix1D;
@@ -807,10 +807,10 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
 {
   if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : The intersection type is not supported ! Only PointLocator is supported for Gauss->Gauss interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> trgLoc=_target_ft->getLocalizationOfDiscr();
+  MCAuto<DataArrayDouble> trgLoc=_target_ft->getLocalizationOfDiscr();
   const double *trgLocPtr=trgLoc->begin();
   int trgSpaceDim=trgLoc->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> srcOffsetArr=_src_ft->getDiscretization()->getOffsetArr(_src_ft->getMesh());
+  MCAuto<DataArrayInt> srcOffsetArr=_src_ft->getDiscretization()->getOffsetArr(_src_ft->getMesh());
   if(trgSpaceDim!=_src_ft->getMesh()->getSpaceDimension())
     {
       std::ostringstream oss; oss << "MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss : space dimensions mismatch between source and target !";
@@ -819,15 +819,15 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   const int *srcOffsetArrPtr=srcOffsetArr->begin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> srcLoc=_src_ft->getLocalizationOfDiscr();
+  MCAuto<DataArrayDouble> srcLoc=_src_ft->getLocalizationOfDiscr();
   const double *srcLocPtr=srcLoc->begin();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsArr,eltsIndexArr;
+  MCAuto<DataArrayInt> eltsArr,eltsIndexArr;
   int trgNbOfGaussPts=trgLoc->getNumberOfTuples();
   _matrix.resize(trgNbOfGaussPts);
   _src_ft->getMesh()->getCellsContainingPoints(trgLoc->begin(),trgNbOfGaussPts,getPrecision(),eltsArr,eltsIndexArr);
   const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfSrcCellsShTrgPts(eltsIndexArr->deltaShiftIndex());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids0=nbOfSrcCellsShTrgPts->getIdsNotEqual(0);
+  MCAuto<DataArrayInt> nbOfSrcCellsShTrgPts(eltsIndexArr->deltaShiftIndex());
+  MCAuto<DataArrayInt> ids0=nbOfSrcCellsShTrgPts->findIdsNotEqual(0);
   for(const int *trgId=ids0->begin();trgId!=ids0->end();trgId++)
     {
       const double *ptTrg=trgLocPtr+trgSpaceDim*(*trgId);
@@ -847,9 +847,9 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss()
     }
   if(ids0->getNumberOfTuples()!=trgNbOfGaussPts)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> orphanTrgIds=nbOfSrcCellsShTrgPts->getIdsEqual(0);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> orphanTrg=trgLoc->selectByTupleId(orphanTrgIds->begin(),orphanTrgIds->end());
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> srcIdPerTrg=srcLoc->findClosestTupleId(orphanTrg);
+      MCAuto<DataArrayInt> orphanTrgIds=nbOfSrcCellsShTrgPts->findIdsEqual(0);
+      MCAuto<DataArrayDouble> orphanTrg=trgLoc->selectByTupleId(orphanTrgIds->begin(),orphanTrgIds->end());
+      MCAuto<DataArrayInt> srcIdPerTrg=srcLoc->findClosestTupleId(orphanTrg);
       const int *srcIdPerTrgPtr=srcIdPerTrg->begin();
       for(const int *orphanTrgId=orphanTrgIds->begin();orphanTrgId!=orphanTrgIds->end();orphanTrgId++,srcIdPerTrgPtr++)
         _matrix[*orphanTrgId][*srcIdPerTrgPtr]=2.;
@@ -976,7 +976,7 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
 {
   if(!srcField || !targetField)
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::transferUnderground : srcField or targetField is NULL !");
-  srcField->checkCoherency();
+  srcField->checkConsistencyLight();
   checkPrepare();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
@@ -995,7 +995,7 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
   int srcNbOfCompo(srcField->getNumberOfComponents());
   if(array)
     {
-      targetField->checkCoherency();
+      targetField->checkConsistencyLight();
       if(srcNbOfCompo!=targetField->getNumberOfComponents())
         throw INTERP_KERNEL::Exception("Number of components mismatch !");
     }
@@ -1003,7 +1003,7 @@ void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcF
     {
       if(!isDftVal)
         throw INTERP_KERNEL::Exception("MEDCouplingRemapper::partialTransfer : This method requires that the array of target field exists ! Allocate it or call MEDCouplingRemapper::transfer instead !");
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(DataArrayDouble::New());
+      MCAuto<DataArrayDouble> tmp(DataArrayDouble::New());
       tmp->alloc(targetField->getNumberOfTuples(),srcNbOfCompo);
       targetField->setArray(tmp);
     }
@@ -1029,12 +1029,12 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
   _time_deno_update=getTimeOfThis();
   switch(_nature_of_deno)
   {
-    case ConservativeVolumic:
+    case IntensiveMaximum:
       {
         ComputeRowSumAndColSum(_matrix,_deno_multiply,_deno_reverse_multiply);
         break;
       }
-    case Integral:
+    case ExtensiveMaximum:
       {
         MEDCouplingFieldDouble *deno=srcField->getDiscretization()->getMeasureField(srcField->getMesh(),getMeasureAbsStatus());
         MEDCouplingFieldDouble *denoR=trgField->getDiscretization()->getMeasureField(trgField->getMesh(),getMeasureAbsStatus());
@@ -1061,12 +1061,12 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
         denoR->decrRef();
         break;
       }
-    case IntegralGlobConstraint:
+    case ExtensiveConservation:
       {
         ComputeColSumAndRowSum(_matrix,_deno_multiply,_deno_reverse_multiply);
         break;
       }
-    case RevIntegral:
+    case IntensiveConservation:
       {
         MEDCouplingFieldDouble *deno=trgField->getDiscretization()->getMeasureField(trgField->getMesh(),getMeasureAbsStatus());
         MEDCouplingFieldDouble *denoR=srcField->getDiscretization()->getMeasureField(srcField->getMesh(),getMeasureAbsStatus());

@@ -21,7 +21,7 @@
 #ifndef __MEDFILEDATA_HXX__
 #define __MEDFILEDATA_HXX__
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDFileParameter.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
@@ -36,7 +36,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileData *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileData *New();
-    MEDLOADER_EXPORT MEDFileData *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileData *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileFields *getFields() const;
@@ -59,9 +59,9 @@ namespace MEDCoupling
     MEDFileData();
     MEDFileData(const std::string& fileName);
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fields;
-    MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _meshes;
-    MEDCouplingAutoRefCountObjectPtr<MEDFileParameters> _params;
+    MCAuto<MEDFileFields> _fields;
+    MCAuto<MEDFileMeshes> _meshes;
+    MCAuto<MEDFileParameters> _params;
   };
 }
 

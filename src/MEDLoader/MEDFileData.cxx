@@ -32,18 +32,18 @@ MEDFileData *MEDFileData::New()
   return new MEDFileData;
 }
 
-MEDFileData *MEDFileData::deepCpy() const
+MEDFileData *MEDFileData::deepCopy() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFields> fields;
+  MCAuto<MEDFileFields> fields;
   if((const MEDFileFields *)_fields)
-    fields=_fields->deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> meshes;
+    fields=_fields->deepCopy();
+  MCAuto<MEDFileMeshes> meshes;
   if((const MEDFileMeshes *)_meshes)
-    meshes=_meshes->deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<MEDFileParameters> params;
+    meshes=_meshes->deepCopy();
+  MCAuto<MEDFileParameters> params;
   if((const MEDFileParameters *)_params)
-    params=_params->deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> ret(MEDFileData::New());
+    params=_params->deepCopy();
+  MCAuto<MEDFileData> ret(MEDFileData::New());
   ret->_fields=fields; ret->_meshes=meshes; ret->_params=params;
   return ret.retn();
 }
@@ -192,7 +192,7 @@ bool MEDFileData::unPolyzeMeshes()
   std::vector< MEDFileMesh * > meshesImpacted;
   std::vector< DataArrayInt * > renumParamsOfMeshImpacted;//same size as meshesImpacted
   std::vector< std::vector<int> > oldCodeOfMeshImpacted,newCodeOfMeshImpacted;//same size as meshesImpacted
-  std::vector<MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > memSaverIfThrow;//same size as meshesImpacted
+  std::vector<MCAuto<DataArrayInt> > memSaverIfThrow;//same size as meshesImpacted
   for(int i=0;i<ms->getNumberOfMeshes();i++)
     {
       MEDFileMesh *m=ms->getMeshAtPos(i);

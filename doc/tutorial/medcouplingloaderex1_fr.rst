@@ -47,7 +47,7 @@ de cellules correspondant dans ``ids`` : ::
 	fMc = f1ts.getFieldAtLevel(ml.ON_CELLS,0)
 	arr = fMc.getArray()
 	arr.getMinMaxPerComponent()      # just to see the field variation range per component
-	ids = arr.getIdsInRange(0.,1.)
+	ids = arr.findIdsInRange(0.,1.)
 	f2Mc = fMc[ids]
 
 A l'aide du champ "PRESSION_ELEM_DOM" trouver le champ de pression 3D qu'applique l'agitateur. Mettre le résultat dans
@@ -71,7 +71,7 @@ Pour ce faire passer par le maillage descendant ``MEDCouplingUMesh.buildDescendi
 	agitateurMesh3DMc = pressOnAgitateurMc.getMesh()
 	m3DSurf,desc,descI,revDesc,revDescI = agitateurMesh3DMc.buildDescendingConnectivity()
 	nbOf3DCellSharing = revDescI.deltaShiftIndex()
-	ids2 = nbOf3DCellSharing.getIdsEqual(1)            # Cells with only one neighbor are on the boundary, i.e. on the skin
+	ids2 = nbOf3DCellSharing.findIdsEqual(1)            # Cells with only one neighbor are on the boundary, i.e. on the skin
 	agitateurSkinMc = m3DSurf[ids2]
 	offsetsOfTupleIdsInField = revDescI[ids2]
 	tupleIdsInField = revDesc[offsetsOfTupleIdsInField]
@@ -100,7 +100,7 @@ Calculer le polyèdre représentant l'enveloppe du maillage 3D de l'agitateur ``
 
 	singlePolyhedron = agitateurMesh3DMc.buildSpreadZonesWithPoly()
 	singlePolyhedron.orientCorrectlyPolyhedrons()
-	centerOfMass = singlePolyhedron.getBarycenterAndOwner()
+	centerOfMass = singlePolyhedron.computeCellCenterOfMass()
 
 .. note:: L'appel à ``MEDCouplingUMesh.orientCorrectlyPolyhedrons()`` n'est pas obligatoire mais conseillé car 
 	si par malheur le polyhèdre est mal orienté, son barycentre sera incorrect !
@@ -110,7 +110,7 @@ de l'agitateur.
 Pour ce faire calculer ``posSkin`` le ``DataArrayDouble`` donnant pour chaque cellule de la peau de l'agitateur
 le vecteur ``centerOfMass`` -> ``G``, avec ``G`` le barycentre de la cellule courante. ::
 
-	barySkin=agitateurSkinMc.getBarycenterAndOwner()
+	barySkin=agitateurSkinMc.computeCellCenterOfMass()
 	posSkin = barySkin-centerOfMass
 
 Appliquer maintenant la formule classique de calcul du moment : calculer le produit 

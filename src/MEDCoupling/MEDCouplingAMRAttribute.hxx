@@ -32,7 +32,7 @@ namespace MEDCoupling
   {
   public:
     static DataArrayDoubleCollection *New(const std::vector< std::pair<std::string,int> >& fieldNames);
-    DataArrayDoubleCollection *deepCpy() const;
+    DataArrayDoubleCollection *deepCopy() const;
     void allocTuples(int nbOfTuples);
     void dellocTuples();
     void copyFrom(const DataArrayDoubleCollection& other);
@@ -64,14 +64,14 @@ namespace MEDCoupling
     static void CheckSameNatures(NatureOfField n1, NatureOfField n2);
     static void CheckValidNature(NatureOfField n);
   private:
-    std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > > _arrs;
+    std::vector< std::pair< MCAuto<DataArrayDouble>, NatureOfField > > _arrs;
   };
 
   class MEDCouplingGridCollection : public RefCountObject, public TimeLabel
   {
   public:
     static MEDCouplingGridCollection *New(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
-    MEDCouplingGridCollection *deepCpy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const;
+    MEDCouplingGridCollection *deepCopy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const;
     void alloc(int ghostLev);
     void dealloc();
     void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
@@ -96,7 +96,7 @@ namespace MEDCoupling
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     void updateTime() const;
   private:
-    std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > > _map_of_dadc;
+    std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > > _map_of_dadc;
   };
 
   /// @endcond
@@ -124,7 +124,7 @@ namespace MEDCoupling
     virtual bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
     MEDCouplingDataForGodFather(const MEDCouplingDataForGodFather& other, bool deepCpyGF);
   protected:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRMesh> _gf;
+    MCAuto<MEDCouplingCartesianAMRMesh> _gf;
     TimeLabelConstOverseer _tlc;
   };
 
@@ -135,7 +135,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingAMRAttribute *New(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string, std::vector<std::string> > >& fieldNames, int ghostLev);
     MEDCOUPLING_EXPORT void spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames);
     MEDCOUPLING_EXPORT void spillNatures(const std::vector<NatureOfField>& nfs);
-    MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *deepCpyWithoutGodFather() const;
     MEDCOUPLING_EXPORT int getNumberOfLevels() const;
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const;
@@ -172,7 +172,7 @@ namespace MEDCoupling
     void synchronizeCoarseToFineByOneLevel(int level);
   private:
     int _ghost_lev;
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> > _levs;
+    std::vector< MCAuto<MEDCouplingGridCollection> > _levs;
     std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > _neighbors;
     std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > _mixed_lev_neighbors;
     std::vector< std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > > _cross_lev_neighbors;

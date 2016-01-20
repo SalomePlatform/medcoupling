@@ -27,7 +27,7 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "DirectedBoundingBox.hxx"
 
 #include <map>
@@ -88,7 +88,7 @@ namespace MEDCoupling
     if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
       return;
    
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elems;
+    MCAuto<DataArrayInt> elems;
 #ifdef USE_DIRECTED_BB
     INTERP_KERNEL::DirectedBoundingBox dbb;
     double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
@@ -696,7 +696,7 @@ namespace MEDCoupling
     CommInterface comm;
     DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
     const int *globalIdsC=globalIds->getConstPointer();
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates=_local_para_field.getSupport()->getCellMesh()->findBoundaryNodes();
+    MCAuto<DataArrayInt> candidates=_local_para_field.getSupport()->getCellMesh()->findBoundaryNodes();
     for(int *iter1=candidates->getPointer();iter1!=candidates->getPointer()+candidates->getNumberOfTuples();iter1++)
       (*iter1)=globalIdsC[*iter1];
     std::set<int> candidatesS(candidates->begin(),candidates->end());

@@ -34,7 +34,7 @@ Playing with unstructured mesh
 	mesh3D.setCoords(myCoords);
 	mesh3D.orientCorrectlyPolyhedrons()
 	mesh3D.sortCellsInMEDFileFrmt()
-	mesh3D.checkCoherency()
+	mesh3D.checkConsistencyLight()
 	renum = mc.DataArrayInt(60) ; renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
 	mesh3D.renumberNodes(renum,60)
 	# Scale coordinates from meters to centimeters
@@ -47,13 +47,13 @@ Playing with unstructured mesh
 	# Extract cells from a given Z level - Solution 1 
 	tmp,cellIdsSol1 = mesh3D.buildSlice3D([0.,0.,(zLev[1]+zLev[2])/2],[0.,0.,1.],1e-12)
 	# Idem - Solution 2
-	bary = mesh3D.getBarycenterAndOwner()
+	bary = mesh3D.computeCellCenterOfMass()
 	baryZ = bary[:,2]
-	cellIdsSol2 = baryZ.getIdsInRange(zLev[1],zLev[2])
+	cellIdsSol2 = baryZ.findIdsInRange(zLev[1],zLev[2])
 	# Idem - Solution 3
 	nodeIds = mesh3D.findNodesOnPlane([0.,0.,zLev[0]],[0.,0.,1.],1e-10)
 	mesh2D = mesh3D.buildFacePartOfMySelfNode(nodeIds,True)
-	extMesh = mc.MEDCouplingExtrudedMesh(mesh3D,mesh2D,0)
+	extMesh = mc.MEDCouplingMappedExtrudedMesh(mesh3D,mesh2D,0)
 	n_cells = mesh2D.getNumberOfCells()
 	cellIdsSol3 = extMesh.getMesh3DIds()[n_cells:2*n_cells]
 	# Compare the 3 methods
@@ -72,12 +72,12 @@ Playing with unstructured mesh
 	baryXY = bary[:,[0,1]]
 	baryXY -= [250.,150.]
 	magn = baryXY.magnitude()
-	cellIds2Sol1 = magn.getIdsInRange(0.,1e-12)
+	cellIds2Sol1 = magn.findIdsInRange(0.,1e-12)
 	# Extract cells along a line - Solution 2
-	bary2 = mesh2D.getBarycenterAndOwner()[:,[0,1]]
+	bary2 = mesh2D.computeCellCenterOfMass()[:,[0,1]]
 	bary2 -= [250.,150.]
 	magn = bary2.magnitude()
-	ids = magn.getIdsInRange(0.,1e-12)
+	ids = magn.findIdsInRange(0.,1e-12)
 	idStart = int(ids) # ids is assumed to contain only one value, if not an exception is thrown
 	ze_range = range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())
 	cellIds2Sol2 = extMesh.getMesh3DIds()[ze_range]
@@ -85,14 +85,14 @@ Playing with unstructured mesh
 	mesh3DSlice2 = mesh3D[cellIds2Sol1]
 	mesh3DSlice2.zipCoords()
 	# Aggregate two meshes, one being the translated version of the original
-	mesh3DSlice2bis = mesh3DSlice2.deepCpy()
+	mesh3DSlice2bis = mesh3DSlice2.deepCopy()
 	mesh3DSlice2bis.translate([0.,1000.,0.])
 	mesh3DSlice2All = mc.MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2,mesh3DSlice2bis])
 	mesh3DSlice2All.writeVTK("mesh3DSlice2All.vtu")
 	# Discover descending connectivity
 	mesh3DSurf,desc,descIndx,revDesc,revDescIndx = mesh3D.buildDescendingConnectivity()
 	numberOf3DCellSharing = revDescIndx.deltaShiftIndex()
-	cellIds = numberOf3DCellSharing.getIdsNotEqual(1)
+	cellIds = numberOf3DCellSharing.findIdsNotEqual(1)
 	mesh3DSurfInside = mesh3DSurf[cellIds]
 	mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
 

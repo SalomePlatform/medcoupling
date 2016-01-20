@@ -45,7 +45,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT virtual MEDFileMesh *createNewEmpty() const = 0;
-    MEDLOADER_EXPORT virtual MEDFileMesh *deepCpy() const = 0;
+    MEDLOADER_EXPORT virtual MEDFileMesh *deepCopy() const = 0;
     MEDLOADER_EXPORT virtual MEDFileMesh *shallowCpy() const = 0;
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual void clearNonDiscrAttributes() const;
@@ -67,8 +67,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT double getTimeValue() const { return _time; }
     MEDLOADER_EXPORT void setTimeUnit(const std::string& unit) { _dt_unit=unit; }
     MEDLOADER_EXPORT std::string getTimeUnit() const { return _dt_unit; }
-    MEDLOADER_EXPORT void setAxType(MEDCouplingAxisType at) { _axis_type=at; }
-    MEDLOADER_EXPORT MEDCouplingAxisType getAxType() const { return _axis_type; }
+    MEDLOADER_EXPORT void setAxisType(MEDCouplingAxisType at) { _axis_type=at; }
+    MEDLOADER_EXPORT MEDCouplingAxisType getAxisType() const { return _axis_type; }
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDLOADER_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDLOADER_EXPORT virtual int getNumberOfCellsAtLevel(int meshDimRelToMaxExt) const = 0;
@@ -204,7 +204,7 @@ namespace MEDCoupling
     void getFamilyRepr(std::ostream& oss) const;
     virtual void appendFamilyEntries(const DataArrayInt *famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
     virtual void changeFamilyIdArr(int oldId, int newId) = 0;
-    virtual std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const = 0;
+    virtual std::list< MCAuto<DataArrayInt> > getAllNonNullFamilyIds() const = 0;
     virtual void loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs) = 0;
     void loadLLWithAdditionalItems(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void addGroupUnderground(bool isNodeGroup, const DataArrayInt *ids, DataArrayInt *famArr);
@@ -231,8 +231,8 @@ namespace MEDCoupling
     bool _univ_wr_status;
     std::string _desc_name;
     MEDCouplingAxisType _axis_type;
-    MEDCouplingAutoRefCountObjectPtr<MEDFileJoints> _joints;
-    MEDCouplingAutoRefCountObjectPtr<MEDFileEquivalences> _equiv;
+    MCAuto<MEDFileJoints> _joints;
+    MCAuto<MEDFileEquivalences> _equiv;
   protected:
     std::map<std::string, std::vector<std::string> > _groups;
     std::map<std::string,int> _families;
@@ -252,7 +252,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
-    MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void clearNonDiscrAttributes() const;
@@ -331,9 +331,9 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
     // serialization
     MEDLOADER_EXPORT void serialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr,
-                                    std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI, MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& bigArrayD);
+                                    std::vector< MCAuto<DataArrayInt> >& bigArraysI, MCAuto<DataArrayDouble>& bigArrayD);
     MEDLOADER_EXPORT void unserialize(std::vector<double>& tinyDouble, std::vector<int>& tinyInt, std::vector<std::string>& tinyStr,
-                                      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI, MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>& bigArrayD);
+                                      std::vector< MCAuto<DataArrayInt> >& bigArraysI, MCAuto<DataArrayDouble>& bigArrayD);
   private:
     MEDLOADER_EXPORT ~MEDFileUMesh();
     void writeLL(med_idt fid) const;
@@ -349,16 +349,16 @@ namespace MEDCoupling
     void computeRevNum() const;
     void synchronizeTinyInfoOnLeaves() const;
     void changeFamilyIdArr(int oldId, int newId);
-    std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const;
-    MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1>& checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m);
+    std::list< MCAuto<DataArrayInt> > getAllNonNullFamilyIds() const;
+    MCAuto<MEDFileUMeshSplitL1>& checkAndGiveEntryInSplitL1(int meshDimRelToMax, MEDCouplingPointSet *m);
   private:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_coords;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _name_coords;
-    mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_coords;
-    MEDCouplingAutoRefCountObjectPtr<PartDefinition> _part_coords;
+    std::vector< MCAuto<MEDFileUMeshSplitL1> > _ms;
+    MCAuto<DataArrayDouble> _coords;
+    MCAuto<DataArrayInt> _fam_coords;
+    MCAuto<DataArrayInt> _num_coords;
+    MCAuto<DataArrayAsciiChar> _name_coords;
+    mutable MCAuto<DataArrayInt> _rev_num_coords;
+    MCAuto<PartDefinition> _part_coords;
   };
 
   class MEDFileStructuredMesh : public MEDFileMesh
@@ -407,7 +407,7 @@ namespace MEDCoupling
   protected:
     ~MEDFileStructuredMesh() { }
     void changeFamilyIdArr(int oldId, int newId);
-    std::list< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > getAllNonNullFamilyIds() const;
+    std::list< MCAuto<DataArrayInt> > getAllNonNullFamilyIds() const;
     void deepCpyAttributes();
     void loadStrMeshFromFile(MEDFileStrMeshL2 *strm, med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void writeStructuredLL(med_idt fid, const std::string& maa) const;
@@ -416,20 +416,20 @@ namespace MEDCoupling
     static med_geometry_type GetGeoTypeFromMeshDim(int meshDim);
   private:
     static void LoadStrMeshDAFromFile(med_idt fid, int meshDim, int dt, int it, const std::string& mName, MEDFileMeshReadSelector *mrs,
-                                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& famCells, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& numCells, MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar>& namesCells);
+                                      MCAuto<DataArrayInt>& famCells, MCAuto<DataArrayInt>& numCells, MCAuto<DataArrayAsciiChar>& namesCells);
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_nodes;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_nodes;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_nodes;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_cells;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_cells;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_cells;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_faces;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_faces;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names_faces;
-    mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_nodes;
-    mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_cells;
-    mutable MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> _faces_if_necessary;
+    MCAuto<DataArrayInt> _fam_nodes;
+    MCAuto<DataArrayInt> _num_nodes;
+    MCAuto<DataArrayAsciiChar> _names_nodes;
+    MCAuto<DataArrayInt> _fam_cells;
+    MCAuto<DataArrayInt> _num_cells;
+    MCAuto<DataArrayAsciiChar> _names_cells;
+    MCAuto<DataArrayInt> _fam_faces;
+    MCAuto<DataArrayInt> _num_faces;
+    MCAuto<DataArrayAsciiChar> _names_faces;
+    mutable MCAuto<DataArrayInt> _rev_num_nodes;
+    mutable MCAuto<DataArrayInt> _rev_num_cells;
+    mutable MCAuto<MEDCoupling1SGTUMesh> _faces_if_necessary;
   };
 
   class MEDFileCMesh : public MEDFileStructuredMesh
@@ -442,7 +442,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
-    MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT int getMeshDimension() const;
@@ -462,7 +462,7 @@ namespace MEDCoupling
     MEDFileCMesh(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
     void loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
+    MCAuto<MEDCouplingCMesh> _cmesh;
   };
 
   class MEDFileCurveLinearMesh : public MEDFileStructuredMesh
@@ -475,7 +475,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileMesh *createNewEmpty() const;
-    MEDLOADER_EXPORT MEDFileMesh *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileMesh *deepCopy() const;
     MEDLOADER_EXPORT MEDFileMesh *shallowCpy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT int getMeshDimension() const;
@@ -494,7 +494,7 @@ namespace MEDCoupling
     void writeLL(med_idt fid) const;
     void loadLL(med_idt fid, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);//to imp
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> _clmesh;
+    MCAuto<MEDCouplingCurveLinearMesh> _clmesh;
   };
 
   class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
@@ -503,7 +503,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New();
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileMeshMultiTS *New(const std::string& fileName, const std::string& mName);
-    MEDLOADER_EXPORT MEDFileMeshMultiTS *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileMeshMultiTS *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::string getName() const;
@@ -523,7 +523,7 @@ namespace MEDCoupling
     MEDFileMeshMultiTS(const std::string& fileName);
     MEDFileMeshMultiTS(const std::string& fileName, const std::string& mName);
   private:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> > _mesh_one_ts;
+    std::vector< MCAuto<MEDFileMesh> > _mesh_one_ts;
   };
 
   class MEDFileMeshesIterator;
@@ -533,7 +533,7 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileMeshes *New();
     MEDLOADER_EXPORT static MEDFileMeshes *New(const std::string& fileName);
-    MEDLOADER_EXPORT MEDFileMeshes *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileMeshes *deepCopy() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
@@ -554,12 +554,12 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void destroyMeshAtPos(int i);
   private:
     ~MEDFileMeshes() { }
-    void checkCoherency() const;
+    void checkConsistencyLight() const;
     void loadFromFile(const std::string& fileName);
     MEDFileMeshes();
     MEDFileMeshes(const std::string& fileName);
   private:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> > _meshes;
+    std::vector< MCAuto<MEDFileMeshMultiTS> > _meshes;
   };
 
   class MEDFileMeshesIterator
@@ -569,7 +569,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT ~MEDFileMeshesIterator();
     MEDLOADER_EXPORT MEDFileMesh *nextt();
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _ms;
+    MCAuto<MEDFileMeshes> _ms;
     int _iter_id;
     int _nb_iter;
   };

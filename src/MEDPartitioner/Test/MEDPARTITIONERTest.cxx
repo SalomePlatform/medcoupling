@@ -29,7 +29,7 @@
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
@@ -234,7 +234,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
   mesh->setCoords(myCoords);
   mesh->setName(_mesh_name.c_str());
   myCoords->decrRef();
-  mesh->checkCoherency();
+  mesh->checkConsistencyLight();
   return mesh;
 }
 
@@ -302,7 +302,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
   mesh->setCoords(myCoords);
   mesh->setName(_mesh_name.c_str());
   myCoords->decrRef();
-  mesh->checkCoherency();
+  mesh->checkConsistencyLight();
   return mesh;
 }
 
@@ -371,7 +371,7 @@ MEDCoupling::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
   mesh->setCoords(myCoords);
   mesh->setName(_mesh_name.c_str());
   myCoords->decrRef();
-  mesh->checkCoherency();
+  mesh->checkConsistencyLight();
   return mesh;
 }
 
@@ -403,7 +403,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnCells(string myfileN
   myField->setInfoOnComponent(2,"vz");
   myField->decrRef();
   f1->setTime(2.,0,1);
-  f1->checkCoherency();
+  f1->checkConsistencyLight();
   mesh->decrRef();
   return f1;
 }
@@ -436,7 +436,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
   myField->setInfoOnComponent(2,"vz");
   myField->decrRef();
   f1->setTime(2.,0,1);
-  f1->checkCoherency();
+  f1->checkConsistencyLight();
   mesh->decrRef();
   return f1;
 }
@@ -465,8 +465,8 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
     mesh1->setName("testMesh");
     mesh2->setName("theFaces");
     mesh2->tryToShareSameCoordsPermute(*mesh1, 1e-9);
-    mesh2->checkCoherency();
-    mesh1->checkCoherency();
+    mesh2->checkConsistencyLight();
+    mesh1->checkConsistencyLight();
     meshes.push_back(mesh1);
     meshes.push_back(mesh2);
     WriteUMeshes(_file_name_with_faces.c_str(), meshes, true);
@@ -573,7 +573,7 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
 
   int xyz=1;
   string sxyz;
-  DataArrayDouble* coordsInit=mesh->getCoords()->deepCpy();
+  DataArrayDouble* coordsInit=mesh->getCoords()->deepCopy();
   double* ptrInit=coordsInit->getPointer();
   double deltax=cooFin[0]-cooDep[0];
   double deltay=cooFin[1]-cooDep[1];
@@ -703,7 +703,7 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     array->decrRef();
     WriteField(name.c_str(),f3,true);
     if (_verbose) cout<<endl<<name<<" created"<<endl;
-    f3->checkCoherency();
+    f3->checkConsistencyLight();
     f1->decrRef();
     if (_ntot<1000000) //too long
       {
@@ -1374,7 +1374,7 @@ void MEDPARTITIONERTest::testCreateBoundaryFaces2D()
     mesh->setCoords(myCoords);
     mesh->setName("FacesIn2D");
     myCoords->decrRef();
-    mesh->checkCoherency();
+    mesh->checkConsistencyLight();
 
     // groups of cells
     DataArrayInt* cellsFam=DataArrayInt::New();

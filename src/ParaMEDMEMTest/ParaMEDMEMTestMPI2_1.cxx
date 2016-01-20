@@ -100,7 +100,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   value[0]=34+13*((double)grank);
 
   MEDCoupling::InterpKernelDEC dec(*source,*target);
-  parafield->getField()->setNature(ConservativeVolumic);
+  parafield->getField()->setNature(IntensiveMaximum);
 
 
   dec.setMethod("P0");

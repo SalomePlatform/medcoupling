@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "CellModel.hxx"
 
@@ -55,8 +55,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT int getNodalConnectivityLength() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
@@ -72,7 +72,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void allocateCells(int nbOfCells=0) = 0;
     MEDCOUPLING_EXPORT virtual void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd) = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *getNodalConnectivity() const = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherencyOfConnectivity() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyOfConnectivity() const = 0;
   protected:
     MEDCoupling1GTUMesh(const std::string& name, const INTERP_KERNEL::CellModel& cm);
     MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
@@ -93,8 +93,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New();
     // Copy methods
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *deepCpy() const;
-    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *deepCpyConnectivityOnly() const;
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *deepCopy() const;
+    MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *deepCopyConnectivityOnly() const;
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -105,8 +105,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
@@ -124,7 +124,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const;
     MEDCOUPLING_EXPORT void computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCOUPLING_EXPORT void checkFullyDefined() const;
@@ -139,7 +139,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
     // overload of MEDCoupling1GTUMesh
-    MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const;
+    MEDCOUPLING_EXPORT void checkConsistencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd);
   public://specific
@@ -174,7 +174,7 @@ namespace MEDCoupling
     MEDCoupling1DGTUMesh *computeDualMesh3D() const;
     MEDCoupling1DGTUMesh *computeDualMesh2D() const;
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
+    MCAuto<DataArrayInt> _conn;
   public:
     static const int HEXA8_FACE_PAIRS[6];
   };
@@ -188,8 +188,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New();
     // Copy methods
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *deepCpy() const;
-    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *deepCpyConnectivityOnly() const;
+    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *deepCopy() const;
+    MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *deepCopyConnectivityOnly() const;
 
     // overload of TimeLabel and RefCountObject
     MEDCOUPLING_EXPORT void updateTime() const;
@@ -200,8 +200,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayInt *computeNbOfFacesPerCell() const;
@@ -219,7 +219,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const;
     MEDCOUPLING_EXPORT void computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCOUPLING_EXPORT void checkFullyDefined() const;
@@ -234,7 +234,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT DataArrayDouble *getBoundingBoxForBBTree(double arcDetEps=1e-12) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *computeDiameterField() const;
     // overload of MEDCoupling1GTUMesh
-    MEDCOUPLING_EXPORT void checkCoherencyOfConnectivity() const;
+    MEDCOUPLING_EXPORT void checkConsistencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(const int *nodalConnOfCellBg, const int *nodalConnOfCellEnd);
   public://specific
@@ -264,8 +264,8 @@ namespace MEDCoupling
     void checkDynamicGeoT2ype() const;
     static MEDCoupling1DGTUMesh *Merge1DGTUMeshesLL(std::vector<const MEDCoupling1DGTUMesh *>& a);
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn_indx;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _conn;
+    MCAuto<DataArrayInt> _conn_indx;
+    MCAuto<DataArrayInt> _conn;
   };
 }
 

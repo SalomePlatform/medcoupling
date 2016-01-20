@@ -54,7 +54,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static void SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
     MEDCOUPLING_EXPORT static void SpreadCoarseToFineGhostZone(const DataArrayDouble *coarseDA, const std::vector<int>& coarseSt, DataArrayDouble *fineDA, const std::vector< std::pair<int,int> >& fineLocInCoarse, const std::vector<int>& facts, int ghostSize);
     //
-    MEDCOUPLING_EXPORT MEDCouplingIMesh *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingIMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingIMesh *buildWithGhost(int ghostLev) const;
     MEDCOUPLING_EXPORT void updateTime() const;
@@ -68,8 +68,8 @@ namespace MEDCoupling
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                             DataArrayInt *&cellCor) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
@@ -84,7 +84,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void scale(const double *point, double factor);
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     //some useful methods
@@ -101,7 +101,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
   private:
     MEDCouplingIMesh();
-    MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCpy);
+    MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCopy);
     ~MEDCouplingIMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;
