@@ -24,7 +24,7 @@ import unittest
 from math import pi,e,sqrt
 from MEDLoaderDataForTest import MEDLoaderDataForTest
 
-class MEDLoaderTest(unittest.TestCase):
+class MEDLoaderTest1(unittest.TestCase):
     def testMesh1DRW(self):
         mesh=MEDLoaderDataForTest.build1DMesh_1();
         mesh.checkCoherency();
