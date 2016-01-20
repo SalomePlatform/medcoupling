@@ -59,9 +59,9 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //  string tgt_mesh_nam(rep + string("T_SC_Trio_dst.med"));
 ////  string src_mesh_nam(rep + string("h_TH_Trio_src.med"));
 ////  string tgt_mesh_nam(rep + string("h_TH_Trio_dst.med"));
-//  MUMesh src_mesh=MEDLoader::ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
-//  MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
-////  MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
+//  MUMesh src_mesh=ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
+//  MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
+////  MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
 //
 //  MFDouble srcField = MEDCouplingFieldDouble::New(ON_CELLS, ONE_TIME);
 //  srcField->setMesh(src_mesh);
@@ -76,7 +76,7 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //  MFDouble tgtField = remap.transferField(srcField, 1.0e+300);
 //  tgtField->setName("result");
 //  string out_nam(rep + string("adrien.med"));
-//  MEDLoader::WriteField(out_nam,tgtField, true);
+//  WriteField(out_nam,tgtField, true);
 //  cout << "wrote: " << out_nam << "\n";
 //  double integ1 = 0.0, integ2 = 0.0;
 //  srcField->integral(true, &integ1);
@@ -128,9 +128,9 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //    {
 //    //  string src_mesh_nam(rep + string("h_TH_Trio_src.med"));
 //    //  string tgt_mesh_nam(rep + string("h_TH_Trio_dst.med"));
-//      MUMesh src_mesh=MEDLoader::ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
-//      MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
-//    //  MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
+//      MUMesh src_mesh=ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
+//      MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
+//    //  MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
 //
 //      // **** SOURCE
 //      srcField = MEDCouplingFieldDouble::New(ON_CELLS, ONE_TIME);
@@ -170,7 +170,7 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //      tgtField->integral(true, &integ2);
 //      tgtField->setName("result");
 //      string out_nam(rep + string("adrien_para.med"));
-//      MEDLoader::WriteField(out_nam,tgtField, true);
+//      WriteField(out_nam,tgtField, true);
 //      cout << "wrote: " << out_nam << "\n";
 //      CPPUNIT_ASSERT_DOUBLES_EQUAL(integ1,integ2,1e-8);
 //    }

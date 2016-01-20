@@ -75,15 +75,15 @@ using namespace MEDCoupling;
   $result=convertMEDMeshMultiLev($1,$owner);
 }
 
-%newobject MEDLoader::ReadUMeshFromFamilies;
-%newobject MEDLoader::ReadUMeshFromGroups;
-%newobject MEDLoader::ReadUMeshFromFile;
-%newobject MEDLoader::ReadMeshFromFile;
-%newobject MEDLoader::ReadField;
-%newobject MEDLoader::ReadFieldCell;
-%newobject MEDLoader::ReadFieldNode;
-%newobject MEDLoader::ReadFieldGauss;
-%newobject MEDLoader::ReadFieldGaussNE;
+%newobject ReadUMeshFromFamiliesSwig;
+%newobject ReadUMeshFromGroupsSwig;
+%newobject MEDCoupling::ReadUMeshFromFile;
+%newobject MEDCoupling::ReadMeshFromFile;
+%newobject MEDCoupling::ReadField;
+%newobject MEDCoupling::ReadFieldCell;
+%newobject MEDCoupling::ReadFieldNode;
+%newobject MEDCoupling::ReadFieldGauss;
+%newobject MEDCoupling::ReadFieldGaussNE;
 %newobject MEDCoupling::MEDFileMesh::New;
 %newobject MEDCoupling::MEDFileMesh::createNewEmpty;
 %newobject MEDCoupling::MEDFileMesh::deepCpy;
@@ -271,205 +271,230 @@ using namespace MEDCoupling;
 %feature("unref") MEDCurveLinearMeshMultiLev "$this->decrRef();"
 %feature("unref") MEDFileMeshStruct "$this->decrRef();"
 
-class MEDLoader
+namespace MEDCoupling
 {
-public:
-  static bool HasXDR();
-  static std::string MEDFileVersionStr();
-  static void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
-  static void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
-  static void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
-  static void CheckFileForRead(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshNames(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetAllFieldNames(const std::string& fileName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static double GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  static void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj) throw(INTERP_KERNEL::Exception);
-  %extend
-     {
-       static PyObject *MEDFileVersion()
-       {
-         int major,minor,release;
-         MEDLoader::MEDFileVersion(major,minor,release);
-         PyObject *ret(PyTuple_New(3));
-         PyTuple_SetItem(ret,0,SWIG_From_int(major));
-         PyTuple_SetItem(ret,1,SWIG_From_int(minor));
-         PyTuple_SetItem(ret,2,SWIG_From_int(release));
-         return ret;
-       }
+  bool HasXDR();
+  std::string MEDFileVersionStr();
+  void SetEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
+  void SetCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
+  void SetTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
+  void CheckFileForRead(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetMeshNames(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetAllFieldNames(const std::string& fileName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  std::vector<std::string> GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  double GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  void AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingFieldDouble *ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  MEDCoupling::MEDCouplingFieldDouble *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+  void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+}
 
-       static PyObject *GetFieldIterations(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector< std::pair<int,int> > res=MEDLoader::GetFieldIterations(type,fileName,meshName,fieldName);
-         PyObject *ret=PyList_New(res.size());
-         int rk=0;
-         for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
-           {
-             PyObject *elt=PyTuple_New(2);
-             PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
-             PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
-             PyList_SetItem(ret,rk,elt);
-           }
-         return ret;
-       }
+%rename (MEDFileVersion) MEDFileVersionSwig;
+%rename (GetFieldIterations) GetFieldIterationsSwig;
+%rename (GetAllFieldIterations) GetAllFieldIterationsSwig;
+%rename (GetCellFieldIterations) GetCellFieldIterationsSwig;
+%rename (GetNodeFieldIterations) GetNodeFieldIterationsSwig;
+%rename (GetComponentsNamesOfField) GetComponentsNamesOfFieldSwig;
+%rename (GetUMeshGlobalInfo) GetUMeshGlobalInfoSwig;
+%rename (ReadFieldsOnSameMesh) ReadFieldsOnSameMeshSwig;
+%rename (WriteUMeshesPartition) WriteUMeshesPartitionSwig;
+%rename (WriteUMeshesPartitionDep) WriteUMeshesPartitionDepSwig;
+%rename (WriteUMeshes) WriteUMeshesSwig;
+%rename (GetTypesOfField) GetTypesOfFieldSwig;
+%rename (ReadUMeshFromGroups) ReadUMeshFromGroupsSwig;
+%rename (ReadUMeshFromFamilies) ReadUMeshFromFamiliesSwig;
 
-       static PyObject *GetAllFieldIterations(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector< std::pair< std::pair<int,int>, double> > res=MEDLoader::GetAllFieldIterations(fileName,fieldName);
-         PyObject *ret=PyList_New(res.size());
-         int rk=0;
-         for(std::vector< std::pair< std::pair<int,int>, double> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
-           {
-             PyObject *elt=PyTuple_New(3);
-             PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first.first));
-             PyTuple_SetItem(elt,1,SWIG_From_int((*iter).first.second));
-             PyTuple_SetItem(elt,2,SWIG_From_double((*iter).second));
-             PyList_SetItem(ret,rk,elt);
-           }
-         return ret;
-       }
+%inline
+{
+  PyObject *MEDFileVersionSwig()
+  {
+    int major,minor,release;
+    MEDCoupling::MEDFileVersion(major,minor,release);
+    PyObject *ret(PyTuple_New(3));
+    PyTuple_SetItem(ret,0,SWIG_From_int(major));
+    PyTuple_SetItem(ret,1,SWIG_From_int(minor));
+    PyTuple_SetItem(ret,2,SWIG_From_int(release));
+    return ret;
+  }
 
-       static PyObject *GetCellFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector< std::pair<int,int> > res=MEDLoader::GetCellFieldIterations(fileName,meshName,fieldName);
-         PyObject *ret=PyList_New(res.size());
-         int rk=0;
-         for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
-           {
-             PyObject *elt=PyTuple_New(2);
-             PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
-             PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
-             PyList_SetItem(ret,rk,elt);
-           }
-         return ret;
-       }
-       static PyObject *GetNodeFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector< std::pair<int,int> > res=MEDLoader::GetNodeFieldIterations(fileName,meshName,fieldName);
-         PyObject *ret=PyList_New(res.size());
-         int rk=0;
-         for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
-           {
-             PyObject *elt=PyTuple_New(2);
-             PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
-             PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
-             PyList_SetItem(ret,rk,elt);
-           }
-         return ret;
-       }
-       static PyObject *GetComponentsNamesOfField(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector< std::pair<std::string,std::string> > res=MEDLoader::GetComponentsNamesOfField(fileName,fieldName);
-         PyObject *ret=PyList_New(res.size());
-         int rk=0;
-         for(std::vector< std::pair<std::string,std::string> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
-           {
-             PyObject *elt=PyTuple_New(2);
-             PyTuple_SetItem(elt,0,PyString_FromString((*iter).first.c_str()));
-             PyTuple_SetItem(elt,1,PyString_FromString((*iter).second.c_str()));
-             PyList_SetItem(ret,rk,elt);
-           }
-         return ret;
-       }
-       static PyObject *GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception)
-       {
-         int meshDim,spaceDim,numberOfNodes;
-         std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > res=MEDLoader::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
-         PyObject *ret=PyTuple_New(4);
-         PyObject *elt0=PyList_New(res.size());
-         int i=0;
-         for(std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > >::const_iterator it=res.begin();it!=res.end();it++,i++)
-           {
-             const std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >&obj2=(*it);
-             int j=0;
-             PyObject *elt1=PyList_New(obj2.size());
-             for(std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >::const_iterator it2=obj2.begin();it2!=obj2.end();it2++,j++)
-               {
-                 PyObject *elt2=PyTuple_New(2);
-                 PyTuple_SetItem(elt2,0,SWIG_From_int((int)(*it2).first));
-                 PyTuple_SetItem(elt2,1,SWIG_From_int((*it2).second));
-                 PyList_SetItem(elt1,j,elt2);
-               }
-             PyList_SetItem(elt0,i,elt1);
-           }
-         PyTuple_SetItem(ret,0,elt0);
-         PyTuple_SetItem(ret,1,SWIG_From_int(meshDim));
-         PyTuple_SetItem(ret,2,SWIG_From_int(spaceDim));
-         PyTuple_SetItem(ret,3,SWIG_From_int(numberOfNodes));
-         return ret;
-       }
-       static PyObject *ReadFieldsOnSameMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax,
-                                             const std::string& fieldName, PyObject *liIts) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector<std::pair<int,int> > its=convertTimePairIdsFromPy(liIts);
-         std::vector<MEDCoupling::MEDCouplingFieldDouble *> res=MEDLoader::ReadFieldsOnSameMesh(type,fileName,meshName,meshDimRelToMax,fieldName,its);
-         return convertFieldDoubleVecToPy(res);
-       }
-       static void WriteUMeshesPartition(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
-         convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
-         MEDLoader::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
-       }
-       static void WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
-         convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
-         MEDLoader::WriteUMeshesPartitionDep(fileName,meshName,v,writeFromScratch);
-       }
-       static void WriteUMeshes(const std::string& fileName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
-         convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
-         MEDLoader::WriteUMeshes(fileName,v,writeFromScratch);
-       }
-       static PyObject *GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector< MEDCoupling::TypeOfField > v=MEDLoader::GetTypesOfField(fileName,meshName,fieldName);
-         int size=v.size();
-         PyObject *ret=PyList_New(size);
-         for(int i=0;i<size;i++)
-           PyList_SetItem(ret,i,PyInt_FromLong((int)v[i]));
-         return ret;
-       }
-       static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector<std::string> grps;
-         converPyListToVecString(li,grps);
-         return MEDLoader::ReadUMeshFromGroups(fileName,meshName,meshDimRelToMax,grps);
-       }
-       static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
-       {
-         std::vector<std::string> fams;
-         converPyListToVecString(li,fams);
-         return MEDLoader::ReadUMeshFromFamilies(fileName,meshName,meshDimRelToMax,fams);
-       }
-     }
-  static MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingMesh *ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  static int ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingFieldDouble *ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  static MEDCoupling::MEDCouplingFieldDouble *ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
-  static void WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  static void WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  static void WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  static void WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  static void WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
-  static void WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
-};
+  PyObject *GetFieldIterationsSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+  {
+    std::vector< std::pair<int,int> > res=MEDCoupling::GetFieldIterations(type,fileName,meshName,fieldName);
+    PyObject *ret=PyList_New(res.size());
+    int rk=0;
+    for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+      {
+        PyObject *elt=PyTuple_New(2);
+        PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
+        PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+        PyList_SetItem(ret,rk,elt);
+      }
+    return ret;
+  }
+  
+  PyObject *GetAllFieldIterationsSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector< std::pair< std::pair<int,int>, double> > res=MEDCoupling::GetAllFieldIterations(fileName,fieldName);
+      PyObject *ret=PyList_New(res.size());
+      int rk=0;
+      for(std::vector< std::pair< std::pair<int,int>, double> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+        {
+          PyObject *elt=PyTuple_New(3);
+          PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first.first));
+          PyTuple_SetItem(elt,1,SWIG_From_int((*iter).first.second));
+          PyTuple_SetItem(elt,2,SWIG_From_double((*iter).second));
+          PyList_SetItem(ret,rk,elt);
+        }
+      return ret;
+    }
+  
+  PyObject *GetCellFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector< std::pair<int,int> > res=MEDCoupling::GetCellFieldIterations(fileName,meshName,fieldName);
+      PyObject *ret=PyList_New(res.size());
+      int rk=0;
+      for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+        {
+          PyObject *elt=PyTuple_New(2);
+          PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
+          PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+          PyList_SetItem(ret,rk,elt);
+        }
+      return ret;
+    }
+
+  PyObject *GetNodeFieldIterationsSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector< std::pair<int,int> > res=MEDCoupling::GetNodeFieldIterations(fileName,meshName,fieldName);
+      PyObject *ret=PyList_New(res.size());
+      int rk=0;
+      for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+        {
+          PyObject *elt=PyTuple_New(2);
+          PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
+          PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+          PyList_SetItem(ret,rk,elt);
+        }
+      return ret;
+    }
+
+  PyObject *GetComponentsNamesOfFieldSwig(const std::string& fileName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector< std::pair<std::string,std::string> > res=MEDCoupling::GetComponentsNamesOfField(fileName,fieldName);
+      PyObject *ret=PyList_New(res.size());
+      int rk=0;
+      for(std::vector< std::pair<std::string,std::string> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+        {
+          PyObject *elt=PyTuple_New(2);
+          PyTuple_SetItem(elt,0,PyString_FromString((*iter).first.c_str()));
+          PyTuple_SetItem(elt,1,PyString_FromString((*iter).second.c_str()));
+          PyList_SetItem(ret,rk,elt);
+        }
+      return ret;
+    }
+
+  PyObject *GetUMeshGlobalInfoSwig(const std::string& fileName, const std::string& meshName) throw(INTERP_KERNEL::Exception)
+    {
+      int meshDim,spaceDim,numberOfNodes;
+      std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > res=MEDCoupling::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
+      PyObject *ret=PyTuple_New(4);
+      PyObject *elt0=PyList_New(res.size());
+      int i=0;
+      for(std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > >::const_iterator it=res.begin();it!=res.end();it++,i++)
+        {
+          const std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >&obj2=(*it);
+          int j=0;
+          PyObject *elt1=PyList_New(obj2.size());
+          for(std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >::const_iterator it2=obj2.begin();it2!=obj2.end();it2++,j++)
+            {
+              PyObject *elt2=PyTuple_New(2);
+              PyTuple_SetItem(elt2,0,SWIG_From_int((int)(*it2).first));
+              PyTuple_SetItem(elt2,1,SWIG_From_int((*it2).second));
+              PyList_SetItem(elt1,j,elt2);
+            }
+          PyList_SetItem(elt0,i,elt1);
+        }
+      PyTuple_SetItem(ret,0,elt0);
+      PyTuple_SetItem(ret,1,SWIG_From_int(meshDim));
+      PyTuple_SetItem(ret,2,SWIG_From_int(spaceDim));
+      PyTuple_SetItem(ret,3,SWIG_From_int(numberOfNodes));
+      return ret;
+    }
+  
+  PyObject *ReadFieldsOnSameMeshSwig(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax,
+                                     const std::string& fieldName, PyObject *liIts) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector<std::pair<int,int> > its=convertTimePairIdsFromPy(liIts);
+      std::vector<MEDCoupling::MEDCouplingFieldDouble *> res=MEDCoupling::ReadFieldsOnSameMesh(type,fileName,meshName,meshDimRelToMax,fieldName,its);
+      return convertFieldDoubleVecToPy(res);
+    }
+  
+  void WriteUMeshesPartitionSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
+    convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
+    MEDCoupling::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
+  }
+  
+  void WriteUMeshesPartitionDepSwig(const std::string& fileName, const std::string& meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
+    convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
+    MEDCoupling::WriteUMeshesPartitionDep(fileName,meshName,v,writeFromScratch);
+  }
+  
+  void WriteUMeshesSwig(const std::string& fileName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<const MEDCoupling::MEDCouplingUMesh *> v;
+    convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(li,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh",v);
+    MEDCoupling::WriteUMeshes(fileName,v,writeFromScratch);
+  }
+  
+  PyObject *GetTypesOfFieldSwig(const std::string& fileName, const std::string& meshName, const std::string& fieldName) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector< MEDCoupling::TypeOfField > v=MEDCoupling::GetTypesOfField(fileName,meshName,fieldName);
+      int size=v.size();
+      PyObject *ret=PyList_New(size);
+      for(int i=0;i<size;i++)
+        PyList_SetItem(ret,i,PyInt_FromLong((int)v[i]));
+      return ret;
+    }
+  
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromGroupsSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector<std::string> grps;
+      converPyListToVecString(li,grps);
+      return MEDCoupling::ReadUMeshFromGroups(fileName,meshName,meshDimRelToMax,grps);
+    }
+
+  MEDCoupling::MEDCouplingUMesh *ReadUMeshFromFamiliesSwig(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
+    {
+      std::vector<std::string> fams;
+      converPyListToVecString(li,fams);
+      return MEDCoupling::ReadUMeshFromFamilies(fileName,meshName,meshDimRelToMax,fams);
+    }
+}
 
 namespace MEDCoupling
 {

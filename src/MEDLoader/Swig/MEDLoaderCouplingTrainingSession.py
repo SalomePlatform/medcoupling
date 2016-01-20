@@ -226,9 +226,9 @@ myCoords=DataArrayDouble.New(targetCoords,9,2);
 myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
 targetMesh.setCoords(myCoords);
 #
-MEDLoader.WriteUMesh("TargetMesh.med",targetMesh,True)
+WriteUMesh("TargetMesh.med",targetMesh,True)
 #
-meshRead=MEDLoader.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
+meshRead=ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
 print "Is the mesh read in file equals targetMesh ? %s"%(meshRead.isEqual(targetMesh,1e-12)) ; assert meshRead.isEqual(targetMesh,1e-12)
 #
 f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
@@ -236,22 +236,22 @@ f.setTime(5.6,7,8)
 f.setArray(targetMesh.getBarycenterAndOwner())
 f.setMesh(targetMesh)
 f.setName("AFieldName")
-MEDLoader.WriteField("MyFirstField.med",f,True)
+WriteField("MyFirstField.med",f,True)
 #
-f2=MEDLoader.ReadFieldCell("MyFirstField.med",f.getMesh().getName(),0,f.getName(),7,8)
+f2=ReadFieldCell("MyFirstField.med",f.getMesh().getName(),0,f.getName(),7,8)
 print "Is the field read in file equals f ? %s"%(f2.isEqual(f,1e-12,1e-12)) ; assert f2.isEqual(f,1e-12,1e-12)
 #
-MEDLoader.WriteUMesh("MySecondField.med",f.getMesh(),True)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
+WriteUMesh("MySecondField.med",f.getMesh(),True)
+WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
 #
 f2=f.clone(True)
 f2.getArray()[:]*=2.0
 f2.setTime(7.8,9,10)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
+WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
 #
-f3=MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
+f3=ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
 print "Is the field read in file equals f ? %s"%(f.isEqual(f3,1e-12,1e-12)) ; assert f.isEqual(f3,1e-12,1e-12)
-f4=MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
+f4=ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
 print "Is the field read in file equals f ? %s"%(f2.isEqual(f4,1e-12,1e-12)) ; assert f2.isEqual(f4,1e-12,1e-12)
 
 #####
@@ -358,22 +358,22 @@ NodeField0=NodeField[proc0] ; NodeField0.getMesh().setName(m0.getName()) ; CellF
 NodeField1=NodeField[proc1] ; NodeField1.getMesh().setName(m0.getName()) ; CellField1=CellField[proc1] ; CellField1.setMesh(NodeField1.getMesh())
 #
 proc0_fname="proc0.med"
-MEDLoader.WriteField(proc0_fname,NodeField0,True)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc0_fname,CellField0)
+WriteField(proc0_fname,NodeField0,True)
+WriteFieldUsingAlreadyWrittenMesh(proc0_fname,CellField0)
 proc1_fname="proc1.med"
-MEDLoader.WriteField(proc1_fname,NodeField1,True)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,CellField1)
+WriteField(proc1_fname,NodeField1,True)
+WriteFieldUsingAlreadyWrittenMesh(proc1_fname,CellField1)
 #
-CellField0_read=MEDLoader.ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
-CellField1_read=MEDLoader.ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
+CellField0_read=ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
+CellField1_read=ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
 CellField_read=MEDCouplingFieldDouble.MergeFields([CellField0_read,CellField1_read])
 CellFieldCpy=CellField.deepCpy()
 CellFieldCpy.substractInPlaceDM(CellField_read,10,1e-12)
 CellFieldCpy.getArray().abs()
 print CellFieldCpy.getArray().isUniform(0.,1e-12)
 #
-NodeField0_read=MEDLoader.ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
-NodeField1_read=MEDLoader.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
+NodeField0_read=ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
+NodeField1_read=ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
 NodeField_read=MEDCouplingFieldDouble.MergeFields([NodeField0_read,NodeField1_read])
 NodeField_read.mergeNodes(1e-10)
 NodeFieldCpy=NodeField.deepCpy()

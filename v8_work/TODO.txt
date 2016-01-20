@@ -31,7 +31,7 @@ Inheritance fix (OK but at the end of process)
 ===============
     + move up in all classes deepCpy(), shallowCpy(), clone() 
 
-Namespace changes
+Namespace changes [DONE]
 =================
     + MEDCoupling for all
     + MEDLoader static methods moved at namespace level

@@ -243,7 +243,7 @@ MEDCoupling::MEDFileMesh* MeshCollectionDriver::getMesh(int idomain) const
   // if (boundaryMesh!=0)
   //   {
   //     //doing that testMesh becomes second mesh sorted by alphabetical order of name
-  //     MEDLoader::WriteUMesh(distfilename, boundaryMesh, false);
+  //     WriteUMesh(distfilename, boundaryMesh, false);
   //     boundaryMesh->decrRef();
   //   }
 
@@ -403,7 +403,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
       nbfFieldFound++;
       try
         {
-          MEDLoader::WriteField(distfilename,field,false);
+          WriteField(distfilename,field,false);
         }
       catch(INTERP_KERNEL::Exception& e)
         {
@@ -413,8 +413,8 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
           fieldName=field->getName();
           tmp+="_"+fieldName+"_"+IntToStr(nbfFieldFound)+".med";
           newName.replace(newName.find(".med"),4,tmp);
-          std::cout << "WARNING : writeMedFile : create a new file name with only one field because MEDLoader::WriteField throw:" << newName << std::endl;
-          MEDLoader::WriteField(newName,field,true);
+          std::cout << "WARNING : writeMedFile : create a new file name with only one field because WriteField throw:" << newName << std::endl;
+          WriteField(newName,field,true);
         }
     }
   mfm->decrRef();

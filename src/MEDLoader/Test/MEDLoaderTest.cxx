@@ -35,8 +35,8 @@ void MEDLoaderTest::testMesh1DRW()
 {
   MEDCouplingUMesh *mesh=build1DMesh_1();
   mesh->checkCoherency();
-  MEDLoader::WriteUMesh("file1.med",mesh,true);
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile("file1.med",mesh->getName().c_str(),0);
+  WriteUMesh("file1.med",mesh,true);
+  MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile("file1.med",mesh->getName().c_str(),0);
   CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
   mesh_rw->decrRef();
   mesh->decrRef();
@@ -46,8 +46,8 @@ void MEDLoaderTest::testMesh2DCurveRW()
 {
   MEDCouplingUMesh *mesh=build2DCurveMesh_1();
   mesh->checkCoherency();
-  MEDLoader::WriteUMesh("file2.med",mesh,true);
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile("file2.med",mesh->getName().c_str(),0);
+  WriteUMesh("file2.med",mesh,true);
+  MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile("file2.med",mesh->getName().c_str(),0);
   CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
   mesh_rw->decrRef();
   mesh->decrRef();
@@ -57,8 +57,8 @@ void MEDLoaderTest::testMesh2DRW()
 {
   MEDCouplingUMesh *mesh=build2DMesh_1();
   mesh->checkCoherency();
-  MEDLoader::WriteUMesh("file3.med",mesh,true);
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile("file3.med",mesh->getName().c_str(),0);
+  WriteUMesh("file3.med",mesh,true);
+  MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile("file3.med",mesh->getName().c_str(),0);
   CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
   mesh_rw->decrRef();
   mesh->decrRef();
@@ -68,8 +68,8 @@ void MEDLoaderTest::testMesh3DSurfRW()
 {
   MEDCouplingUMesh *mesh=build3DSurfMesh_1();
   mesh->checkCoherency();
-  MEDLoader::WriteUMesh("file4.med",mesh,true);
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile("file4.med",mesh->getName().c_str(),0);
+  WriteUMesh("file4.med",mesh,true);
+  MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile("file4.med",mesh->getName().c_str(),0);
   CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
   mesh_rw->decrRef();
   mesh->decrRef();
@@ -79,8 +79,8 @@ void MEDLoaderTest::testMesh3DRW()
 {
   MEDCouplingUMesh *mesh=build3DMesh_1();
   mesh->checkCoherency();
-  MEDLoader::WriteUMesh("file5.med",mesh,true);
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile("file5.med",mesh->getName().c_str(),0);
+  WriteUMesh("file5.med",mesh,true);
+  MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile("file5.med",mesh->getName().c_str(),0);
   CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
   mesh_rw->decrRef();
   mesh->decrRef();
@@ -92,18 +92,18 @@ void MEDLoaderTest::testMesh3DRW()
 void MEDLoaderTest::testFieldRW1()
 {
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
-  MEDLoader::WriteField("file6.med",f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell("file6.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+  WriteField("file6.med",f1,true);
+  MEDCouplingFieldDouble *f2=ReadFieldCell("file6.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();
   //
   f1=buildVecFieldOnNodes_1();
-  MEDLoader::WriteField("file7.med",f1,true);
-  f2=MEDLoader::ReadFieldNode("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3);
+  WriteField("file7.med",f1,true);
+  f2=ReadFieldNode("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   // testing kind message on error of field type.
-  CPPUNIT_ASSERT_THROW(MEDLoader::ReadFieldCell("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(ReadFieldCell("file7.med",f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3),INTERP_KERNEL::Exception);
   //
   f1->decrRef();
   f2->decrRef();
@@ -118,55 +118,55 @@ void MEDLoaderTest::testFieldRW2()
   static const double VAL1=12345.67890314;
   static const double VAL2=-1111111111111.;
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
-  MEDLoader::WriteField(fileName,f1,true);
+  WriteField(fileName,f1,true);
   f1->setTime(10.,8,9);
   double *tmp=f1->getArray()->getPointer();
   tmp[0]=VAL1;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   //retrieving time steps...
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),8,9);
+  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),8,9);
   f1->setTime(10.,8,9);
   tmp[0]=VAL1;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
-  f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+  f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
   MEDCouplingFieldDouble *f3=buildVecFieldOnCells_1();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   f2->decrRef();
-  f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),18,19);
+  f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),18,19);
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   //test of throw on invalid (dt,it)
-  CPPUNIT_ASSERT_THROW(MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),28,19),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),28,19),INTERP_KERNEL::Exception);
   f2->decrRef();
   f1->decrRef();
   //ON NODES
   f1=buildVecFieldOnNodes_1();
   const char fileName2[]="file9.med";
-  MEDLoader::WriteField(fileName2,f1,true);
+  WriteField(fileName2,f1,true);
   f1->setTime(110.,108,109);
   tmp=f1->getArray()->getPointer();
   tmp[3]=VAL1;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
-  f2=MEDLoader::ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),108,109);
+  WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
+  f2=ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),108,109);
   f1->setTime(110.,108,109);
   tmp[3]=VAL1;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
-  f2=MEDLoader::ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3);
+  f2=ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,3);
   f3=buildVecFieldOnNodes_1();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   f2->decrRef();
-  f2=MEDLoader::ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),208,209);
+  f2=ReadFieldNode(fileName2,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),208,209);
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
@@ -190,42 +190,42 @@ void MEDLoaderTest::testFieldRW3()
   f1->setTime(10.,8,9);
   double *tmp=f1->getArray()->getPointer();
   tmp[0]=VAL1;
-  MEDLoader::WriteField(fileName,f1,true);
+  WriteField(fileName,f1,true);
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(10.55,28,29);
   tmp[0]=3*VAL1;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(10.66,38,39);
   tmp[0]=3*VAL2;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(10.77,48,49);
   tmp[0]=4*VAL2;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   //ON NODES
   f1->decrRef();
   f1=buildVecFieldOnNodes_1();
   f1->setName(name1);
   (const_cast<MEDCouplingMesh *>(f1->getMesh()))->setName(name3);
   f1->setTime(110.,8,9);
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(110.,108,109);
   tmp=f1->getArray()->getPointer();
   tmp[3]=VAL1;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   //
-  std::vector< std::pair<int,int> > it1=MEDLoader::GetCellFieldIterations(fileName,name3,name1);
+  std::vector< std::pair<int,int> > it1=GetCellFieldIterations(fileName,name3,name1);
   CPPUNIT_ASSERT_EQUAL(5,(int)it1.size());
   CPPUNIT_ASSERT_EQUAL(8,it1[0].first); CPPUNIT_ASSERT_EQUAL(9,it1[0].second);
   CPPUNIT_ASSERT_EQUAL(18,it1[1].first); CPPUNIT_ASSERT_EQUAL(19,it1[1].second);
   CPPUNIT_ASSERT_EQUAL(28,it1[2].first); CPPUNIT_ASSERT_EQUAL(29,it1[2].second);
   CPPUNIT_ASSERT_EQUAL(38,it1[3].first); CPPUNIT_ASSERT_EQUAL(39,it1[3].second);
   CPPUNIT_ASSERT_EQUAL(48,it1[4].first); CPPUNIT_ASSERT_EQUAL(49,it1[4].second);
-  std::vector< std::pair<int,int> > it3=MEDLoader::GetNodeFieldIterations(fileName,name3,name1);
+  std::vector< std::pair<int,int> > it3=GetNodeFieldIterations(fileName,name3,name1);
   CPPUNIT_ASSERT_EQUAL(3,(int)it3.size());
   CPPUNIT_ASSERT_EQUAL(8,it3[0].first); CPPUNIT_ASSERT_EQUAL(9,it3[0].second);
   CPPUNIT_ASSERT_EQUAL(108,it3[1].first); CPPUNIT_ASSERT_EQUAL(109,it3[1].second);
@@ -233,29 +233,29 @@ void MEDLoaderTest::testFieldRW3()
   //
   f1->decrRef();
   //
-  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,8,9);
+  f1=ReadFieldCell(fileName,name3,0,name1,8,9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,18,19);
+  f1=ReadFieldCell(fileName,name3,0,name1,18,19);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,28,29);
+  f1=ReadFieldCell(fileName,name3,0,name1,28,29);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,38,39);
+  f1=ReadFieldCell(fileName,name3,0,name1,38,39);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,48,49);
+  f1=ReadFieldCell(fileName,name3,0,name1,48,49);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(4*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
   //
-  f1=MEDLoader::ReadFieldNode(fileName,name3,0,name1,8,9);
+  f1=ReadFieldNode(fileName,name3,0,name1,8,9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(71.,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldNode(fileName,name3,0,name1,108,109);
+  f1=ReadFieldNode(fileName,name3,0,name1,108,109);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldNode(fileName,name3,0,name1,208,209);
+  f1=ReadFieldNode(fileName,name3,0,name1,208,209);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
 }
@@ -284,9 +284,9 @@ void MEDLoaderTest::testMultiMeshRW1()
   meshes.push_back(mesh3);
   meshes.push_back(mesh4);
   const char mnane[]="3DToto";
-  MEDLoader::WriteUMeshesPartition(fileName,mnane,meshes,true);
+  WriteUMeshesPartition(fileName,mnane,meshes,true);
   //
-  MEDCouplingUMesh *mesh5=MEDLoader::ReadUMeshFromFile(fileName,mnane);
+  MEDCouplingUMesh *mesh5=ReadUMeshFromFile(fileName,mnane);
   mesh1->setName(mnane);
   const int part3[18]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
   MEDCouplingUMesh *mesh6=(MEDCouplingUMesh *)mesh5->buildPartOfMySelf(part3,part3+18,true);
@@ -294,7 +294,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   mesh5->decrRef();
   CPPUNIT_ASSERT(mesh6->isEqual(mesh1,1e-12));
   mesh6->decrRef();
-  std::vector<std::string> grps=MEDLoader::GetMeshGroupsNames(fileName,mnane);
+  std::vector<std::string> grps=GetMeshGroupsNames(fileName,mnane);
   CPPUNIT_ASSERT_EQUAL(4,(int)grps.size());
   CPPUNIT_ASSERT(std::find(grps.begin(),grps.end(),std::string("mesh2"))!=grps.end());
   CPPUNIT_ASSERT(std::find(grps.begin(),grps.end(),std::string("mesh3"))!=grps.end());
@@ -303,30 +303,30 @@ void MEDLoaderTest::testMultiMeshRW1()
   //
   std::vector<std::string> vec;
   vec.push_back(std::string("mesh2"));
-  MEDCouplingUMesh *mesh2_2=MEDLoader::ReadUMeshFromGroups(fileName,mnane,0,vec);
+  MEDCouplingUMesh *mesh2_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
   CPPUNIT_ASSERT(mesh2_2->isEqual(mesh2,1e-12));
   mesh2_2->decrRef();
   vec.clear(); vec.push_back(std::string("mesh3"));
-  MEDCouplingUMesh *mesh3_2=MEDLoader::ReadUMeshFromGroups(fileName,mnane,0,vec);
+  MEDCouplingUMesh *mesh3_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
   CPPUNIT_ASSERT(mesh3_2->isEqual(mesh3,1e-12));
   mesh3_2->decrRef();
   vec.clear(); vec.push_back(std::string("mesh4"));
-  MEDCouplingUMesh *mesh4_2=MEDLoader::ReadUMeshFromGroups(fileName,mnane,0,vec);
+  MEDCouplingUMesh *mesh4_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
   CPPUNIT_ASSERT(mesh4_2->isEqual(mesh4,1e-12));
   mesh4_2->decrRef();
   vec.clear(); vec.push_back(std::string("3DMesh_1"));
-  MEDCouplingUMesh *mesh1_2=MEDLoader::ReadUMeshFromGroups(fileName,mnane,0,vec);
+  MEDCouplingUMesh *mesh1_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
   mesh1->setName("3DMesh_1");
   CPPUNIT_ASSERT(mesh1_2->isEqual(mesh1,1e-12));
   mesh1_2->decrRef();
   //
   vec.clear(); vec.push_back(std::string("Family_-3")); vec.push_back(std::string("Family_-5"));
-  mesh2_2=MEDLoader::ReadUMeshFromFamilies(fileName,mnane,0,vec);
+  mesh2_2=ReadUMeshFromFamilies(fileName,mnane,0,vec);
   mesh2_2->setName("mesh2");
   CPPUNIT_ASSERT(mesh2_2->isEqual(mesh2,1e-12));
   mesh2_2->decrRef();
   //
-  std::vector<std::string> ret(MEDLoader::GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1"));
+  std::vector<std::string> ret(GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1"));
   std::set<std::string> s(ret.begin(),ret.end());
   std::set<std::string> ref_s;
   ref_s.insert("Family_-2");
@@ -336,7 +336,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   CPPUNIT_ASSERT_EQUAL(4,(int)ret.size());
   CPPUNIT_ASSERT(s==ref_s);
   //
-  std::vector<std::string> ret1=MEDLoader::GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
+  std::vector<std::string> ret1=GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
   CPPUNIT_ASSERT_EQUAL(2,(int)ret1.size());
   CPPUNIT_ASSERT(ret1[0]=="3DMesh_1");
   CPPUNIT_ASSERT(ret1[1]=="mesh2");
@@ -355,7 +355,7 @@ void MEDLoaderTest::testFieldProfilRW1()
   int newNbOfNodes;
   DataArrayInt *da=mesh1->mergeNodes(1e-12,b,newNbOfNodes);
   da->decrRef();
-  MEDLoader::WriteUMesh(fileName,mesh1,true);
+  WriteUMesh(fileName,mesh1,true);
   const int part1[5]={1,2,4,13,15};
   MEDCouplingUMesh *mesh2=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part1,part1+5,true);
   mesh2->setName(mesh1->getName().c_str());//<- important for the test
@@ -375,10 +375,10 @@ void MEDLoaderTest::testFieldProfilRW1()
   f1->setTime(3.14,2,7);
   f1->checkCoherency();
   //
-  MEDLoader::WriteField(fileName,f1,false);//<- false important for the test
+  WriteField(fileName,f1,false);//<- false important for the test
   //
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
-  std::vector<MEDCoupling::TypeOfField> types=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
+  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  std::vector<MEDCoupling::TypeOfField> types=GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)types.size());
   CPPUNIT_ASSERT(types[0]==ON_CELLS);
   f2->checkCoherency();
@@ -399,7 +399,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   const char fileName2[]="file20.med";
   MEDCouplingUMesh *m=build2DMesh_1();
   int nbOfNodes=m->getNumberOfNodes();
-  MEDLoader::WriteUMesh(fileName,m,true);
+  WriteUMesh(fileName,m,true);
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VFieldOnNodes");
   f1->setMesh(m);
@@ -416,18 +416,18 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   const int arr2[2]={1,4};//node ids are 2,4,5,3,6,7
   MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+2);
   (const_cast<MEDCouplingMesh *>(f2->getMesh()))->setName(f1->getMesh()->getName().c_str());
-  MEDLoader::WriteField(fileName,f2,false);//<- false important for the test
+  WriteField(fileName,f2,false);//<- false important for the test
   //
-  MEDCouplingFieldDouble *f3=MEDLoader::ReadFieldNode(fileName,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f3=ReadFieldNode(fileName,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7);
   f3->checkCoherency();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   //
   const int arr3[6]={1,3,0,5,2,4};
   f2->renumberNodes(arr3);
-  MEDLoader::WriteUMesh(fileName2,m,true);
-  MEDLoader::WriteField(fileName2,f2,false);//<- false important for the test
-  f3=MEDLoader::ReadFieldNode(fileName2,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7);
+  WriteUMesh(fileName2,m,true);
+  WriteField(fileName2,f2,false);//<- false important for the test
+  f3=ReadFieldNode(fileName2,f2->getMesh()->getName().c_str(),0,f2->getName().c_str(),2,7);
   f3->checkCoherency();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
@@ -441,7 +441,7 @@ void MEDLoaderTest::testFieldNodeProfilRW2()
 {
   const char fileName[]="file23.med";
   MEDCouplingUMesh *mesh=build3DSurfMesh_1();
-  MEDLoader::WriteUMesh(fileName,mesh,true);
+  WriteUMesh(fileName,mesh,true);
   //
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("FieldMix");
@@ -463,8 +463,8 @@ void MEDLoaderTest::testFieldNodeProfilRW2()
   const int renumArr[12]={3,7,2,1,5,11,10,0,9,6,8,4};
   f1->renumberNodes(renumArr);
   f1->checkCoherency();
-  MEDLoader::WriteField(fileName,f1,false);//<- false important for the test
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  WriteField(fileName,f1,false);//<- false important for the test
+  MEDCouplingFieldDouble *f2=ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   //
   f2->decrRef();
@@ -476,8 +476,8 @@ void MEDLoaderTest::testFieldGaussRW1()
 {
   const char fileName[]="file13.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGauss_1();
-  MEDLoader::WriteField(fileName,f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadField(ON_GAUSS_PT,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5);
+  WriteField(fileName,f1,true);
+  MEDCouplingFieldDouble *f2=ReadField(ON_GAUSS_PT,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
   f1->decrRef();
@@ -487,11 +487,11 @@ void MEDLoaderTest::testFieldGaussNERW1()
 {
   const char fileName[]="file14.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGaussNE_1();
-  MEDLoader::WriteField(fileName,f1,true);
-  std::vector<MEDCoupling::TypeOfField> tof(MEDLoader::GetTypesOfField(fileName,"2DMesh_2","MyFieldOnGaussNE"));
+  WriteField(fileName,f1,true);
+  std::vector<MEDCoupling::TypeOfField> tof(GetTypesOfField(fileName,"2DMesh_2","MyFieldOnGaussNE"));
   CPPUNIT_ASSERT_EQUAL(1,(int)tof.size());
   CPPUNIT_ASSERT(ON_GAUSS_NE==tof[0]);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5);
+  MEDCouplingFieldDouble *f2=ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),1,5);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
   f1->decrRef();
@@ -535,8 +535,8 @@ void MEDLoaderTest::testMesh3DSurfShuffleRW()
   const int renumber1[6]={2,5,1,0,3,4};
   mesh->renumberCells(renumber1,false);
   mesh->checkCoherency();
-  MEDLoader::WriteUMesh(fileName,mesh,true);
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(fileName,mesh->getName().c_str(),0);
+  WriteUMesh(fileName,mesh,true);
+  MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile(fileName,mesh->getName().c_str(),0);
   CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
   mesh_rw->decrRef();
   mesh->decrRef();
@@ -561,8 +561,8 @@ void MEDLoaderTest::testFieldShuffleRW1()
   //
   const int renumber1[6]={2,1,5,0,3,4};
   f1->renumberCells(renumber1,false);
-  MEDLoader::WriteField(fileName,f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,mesh->getName().c_str(),0,f1->getName().c_str(),2,7);
+  WriteField(fileName,f1,true);
+  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,mesh->getName().c_str(),0,f1->getName().c_str(),2,7);
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   f2->decrRef();
   //
@@ -586,28 +586,28 @@ void MEDLoaderTest::testMultiFieldShuffleRW1()
   m->renumberCells(renum,false);
   m->orientCorrectlyPolyhedrons();
   // Writing
-  MEDLoader::WriteUMesh(fileName,m,true);
+  WriteUMesh(fileName,m,true);
   MEDCouplingFieldDouble *f1Tmp=m->getMeasureField(false);
   MEDCouplingFieldDouble *f1=f1Tmp->buildNewTimeReprFromThis(ONE_TIME,false);
   f1Tmp->decrRef();
   f1->setTime(0.,1,2);
   MEDCouplingFieldDouble *f_1=f1->cloneWithMesh(true);
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->applyFunc("2*x");
   f1->setTime(0.01,3,4);
   MEDCouplingFieldDouble *f_2=f1->cloneWithMesh(true);
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->applyFunc("2*x/3");
   f1->setTime(0.02,5,6);
   MEDCouplingFieldDouble *f_3=f1->cloneWithMesh(true);
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->decrRef();
   // Reading
   std::vector<std::pair<int,int> > its;
   its.push_back(std::pair<int,int>(1,2));
   its.push_back(std::pair<int,int>(3,4));
   its.push_back(std::pair<int,int>(5,6));
-  std::vector<MEDCouplingFieldDouble *> fs=MEDLoader::ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1->getMesh()->getName().c_str(),0,f_1->getName().c_str(),its);
+  std::vector<MEDCouplingFieldDouble *> fs=ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1->getMesh()->getName().c_str(),0,f_1->getName().c_str(),its);
   CPPUNIT_ASSERT_EQUAL(3,(int)fs.size());
   const MEDCouplingMesh *mm=fs[0]->getMesh();
   CPPUNIT_ASSERT(fs[0]->isEqual(f_1,1e-12,1e-12));
@@ -640,12 +640,12 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(m2d);
   meshes.push_back(m3d);
-  MEDLoader::WriteUMeshes(fileName,meshes,true);
-  MEDCouplingUMesh *m3d_bis=MEDLoader::ReadUMeshFromFile(fileName,m2d->getName().c_str(),0);
+  WriteUMeshes(fileName,meshes,true);
+  MEDCouplingUMesh *m3d_bis=ReadUMeshFromFile(fileName,m2d->getName().c_str(),0);
   CPPUNIT_ASSERT(!m3d_bis->isEqual(m3d,1e-12));
   m3d_bis->setName(m3d->getName().c_str());
   CPPUNIT_ASSERT(m3d_bis->isEqual(m3d,1e-12));
-  MEDCouplingUMesh *m2d_bis=MEDLoader::ReadUMeshFromFile(fileName,m2d->getName().c_str(),-1);//-1 for faces
+  MEDCouplingUMesh *m2d_bis=ReadUMeshFromFile(fileName,m2d->getName().c_str(),-1);//-1 for faces
   CPPUNIT_ASSERT(m2d_bis->isEqual(m2d,1e-12));
   // Creation of a field on faces.
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -662,8 +662,8 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   std::copy(arr1,arr1+10,tmp);
   f1->setTime(3.14,2,7);
   f1->checkCoherency();
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),-1,f1->getName().c_str(),2,7);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  MEDCouplingFieldDouble *f2=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),-1,f1->getName().c_str(),2,7);
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();
@@ -711,27 +711,27 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   f2->setTime(3.14,2,7);
   f2->checkCoherency();
   //
-  MEDLoader::WriteField(fileName,f1,true);
-  std::vector<MEDCoupling::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
+  WriteField(fileName,f1,true);
+  std::vector<MEDCoupling::TypeOfField> ts=GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[0]);
-  std::vector<std::string> fs=MEDLoader::GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName().c_str());
+  std::vector<std::string> fs=GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)fs.size());
   CPPUNIT_ASSERT(fs[0]=="FieldMix");
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f2);
-  fs=MEDLoader::GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName().c_str());
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f2);
+  fs=GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)fs.size());
   CPPUNIT_ASSERT(fs[0]=="FieldMix");
   //
-  ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
+  ts=GetTypesOfField(fileName,f1->getMesh()->getName().c_str(),f1->getName().c_str());
   CPPUNIT_ASSERT_EQUAL(2,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_NODES,ts[0]);
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[1]);
   //
-  MEDCouplingFieldDouble *f3=MEDLoader::ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  MEDCouplingFieldDouble *f3=ReadFieldNode(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
-  f3=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
+  f3=ReadFieldCell(fileName,f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),2,7);
   CPPUNIT_ASSERT(f3->isEqual(f1,1e-12,1e-12));
   f3->decrRef();
   //
@@ -749,24 +749,24 @@ void MEDLoaderTest::testGetAllFieldNamesRW1()
   f1->setTime(3.44,5,6);
   f1->setMesh(mesh);
   f1->fillFromAnalytic(2,"x+y");
-  MEDLoader::WriteField(fileName,f1,true);
+  WriteField(fileName,f1,true);
   f1->setTime(1002.3,7,8);
   f1->fillFromAnalytic(2,"x+77.*y");
-  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setName("Field2");
-  MEDLoader::WriteField(fileName,f1,false);
+  WriteField(fileName,f1,false);
   f1->setName("Field3");
   mesh->setName("2DMesh_2Bis");
-  MEDLoader::WriteField(fileName,f1,false);
+  WriteField(fileName,f1,false);
   f1->decrRef();
   f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setName("Field8");
   f1->setTime(8.99,7,9);
   f1->setMesh(mesh);
   f1->fillFromAnalytic(3,"3*x+y");
-  MEDLoader::WriteField(fileName,f1,false);
+  WriteField(fileName,f1,false);
   f1->decrRef();
-  std::vector<std::string> fs=MEDLoader::GetAllFieldNames(fileName);
+  std::vector<std::string> fs=GetAllFieldNames(fileName);
   CPPUNIT_ASSERT_EQUAL(4,(int)fs.size());
   CPPUNIT_ASSERT(fs[0]=="Field1");
   CPPUNIT_ASSERT(fs[1]=="Field2");
@@ -782,9 +782,9 @@ void MEDLoaderTest::testMEDLoaderRead1()
   using namespace INTERP_KERNEL;
 
   string fileName= INTERP_TEST::getResourceFile("pointe.med", 3);
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
+  vector<string> meshNames=GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,mesh->getNumberOfCells());
@@ -802,13 +802,13 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  vector<string> families=MEDLoader::GetMeshFamiliesNames(fileName.c_str(),meshNames[0].c_str());
+  vector<string> families=GetMeshFamiliesNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(8,(int)families.size());
   CPPUNIT_ASSERT(families[2]=="FAMILLE_ELEMENT_3");
   //
   vector<string> families2;
   families2.push_back(families[2]);
-  mesh=MEDLoader::ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
+  mesh=ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getNumberOfCells());
@@ -822,7 +822,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  vector<string> groups=MEDLoader::GetMeshGroupsNames(fileName.c_str(),meshNames[0].c_str());
+  vector<string> groups=GetMeshGroupsNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(5,(int)groups.size());
   CPPUNIT_ASSERT(groups[0]=="groupe1");
   CPPUNIT_ASSERT(groups[1]=="groupe2");
@@ -831,7 +831,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(groups[4]=="groupe5");
   vector<string> groups2;
   groups2.push_back(groups[0]);
-  mesh=MEDLoader::ReadUMeshFromGroups(fileName.c_str(),meshNames[0].c_str(),0,groups2);
+  mesh=ReadUMeshFromGroups(fileName.c_str(),meshNames[0].c_str(),0,groups2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(7,mesh->getNumberOfCells());
@@ -846,20 +846,20 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  std::vector<std::string> fieldsName=MEDLoader::GetCellFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
+  std::vector<std::string> fieldsName=GetCellFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(2,(int)fieldsName.size());
   CPPUNIT_ASSERT(fieldsName[0]=="fieldcelldoublescalar");
   CPPUNIT_ASSERT(fieldsName[1]=="fieldcelldoublevector");
-  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
+  std::vector<std::pair<int,int> > its0=GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
   CPPUNIT_ASSERT_EQUAL(-1,its0[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0[0].second);
-  std::vector<std::pair<int,int> > its1=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[1].c_str());
+  std::vector<std::pair<int,int> > its1=GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[1].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its1.size());
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].second);
   //
-  MEDCouplingFieldDouble *field0=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field0=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field0->checkCoherency();
   CPPUNIT_ASSERT(field0->getName()==fieldsName[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0->getNumberOfComponents());
@@ -888,7 +888,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0->decrRef();
   //
-  MEDCouplingFieldDouble *field1=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
+  MEDCouplingFieldDouble *field1=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
   field1->checkCoherency();
   CPPUNIT_ASSERT(field1->getName()==fieldsName[1]);
   CPPUNIT_ASSERT_EQUAL(3,field1->getNumberOfComponents());
@@ -917,11 +917,11 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field1->decrRef();
   //fields on nodes
-  std::vector<std::string> fieldsNameNode=MEDLoader::GetNodeFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
+  std::vector<std::string> fieldsNameNode=GetNodeFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(2,(int)fieldsNameNode.size());
   CPPUNIT_ASSERT(fieldsNameNode[0]=="fieldnodedouble");
   CPPUNIT_ASSERT(fieldsNameNode[1]=="fieldnodeint");
-  std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsNameNode[0].c_str());
+  std::vector<std::pair<int,int> > its0Node=GetNodeFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsNameNode[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)its0Node.size());
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].second);
@@ -929,7 +929,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[1].second);
   CPPUNIT_ASSERT_EQUAL(2,its0Node[2].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].second);
-  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  MEDCouplingFieldDouble *field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -943,7 +943,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
+  field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -971,7 +971,7 @@ void MEDLoaderTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  field0Nodes=ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -1006,10 +1006,10 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   using namespace INTERP_KERNEL;
 
   string fileName=INTERP_TEST::getResourceFile("polygones.med", 3);
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
+  vector<string> meshNames=GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="Bord");
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -1031,14 +1031,14 @@ void MEDLoaderTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT_EQUAL(725943,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+539,0));
   mesh->decrRef();
   //
-  std::vector<std::string> fieldsName=MEDLoader::GetCellFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
+  std::vector<std::string> fieldsName=GetCellFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)fieldsName.size());
   CPPUNIT_ASSERT(fieldsName[0]=="bord_:_distorsion");
   CPPUNIT_ASSERT(fieldsName[1]=="bord_:_familles");
   CPPUNIT_ASSERT(fieldsName[2]=="bord_:_non-ortho");
-  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
+  std::vector<std::pair<int,int> > its0=GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
-  MEDCouplingFieldDouble *field=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field=ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field->checkCoherency();
   CPPUNIT_ASSERT(field->getName()==fieldsName[0]);
   CPPUNIT_ASSERT_EQUAL(1,field->getNumberOfComponents());
@@ -1072,10 +1072,10 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   using namespace INTERP_KERNEL;
 
   string fileName=INTERP_TEST::getResourceFile("poly3D.med", 3);
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
+  vector<string> meshNames=GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="poly3D");
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
@@ -1091,7 +1091,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(155,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+4,0));
   mesh->decrRef();
   //
-  mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),-1);
+  mesh=ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),-1);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -1120,7 +1120,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(619,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+83,0));
   mesh->decrRef();
   //
-  vector<string> families=MEDLoader::GetMeshFamiliesNames(fileName.c_str(),meshNames[0].c_str());
+  vector<string> families=GetMeshFamiliesNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(4,(int)families.size());
   CPPUNIT_ASSERT(families[0]=="FAMILLE_FACE_POLYGONS3");
   CPPUNIT_ASSERT(families[1]=="FAMILLE_FACE_QUAD41");
@@ -1128,7 +1128,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT(families[3]=="FAMILLE_ZERO");
   vector<string> families2;
   families2.push_back(families[0]);
-  mesh=MEDLoader::ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),-1,families2);
+  mesh=ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),-1,families2);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -1141,7 +1141,7 @@ void MEDLoaderTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(117,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+19,0));
   mesh->decrRef();
   //
-  mesh=MEDLoader::ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
+  mesh=ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(0,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());

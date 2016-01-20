@@ -388,7 +388,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnCells(string myfileN
           field.push_back(k+.3);
         }
 
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(myfileName.c_str(),_mesh_name.c_str(),0);
+  MEDCouplingUMesh *mesh=ReadUMeshFromFile(myfileName.c_str(),_mesh_name.c_str(),0);
   int nbOfCells=mesh->getNumberOfCells();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setName("VectorFieldOnCells");
@@ -421,7 +421,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
           field.push_back(k+.3);
         }
 
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(_file_name.c_str(),_mesh_name.c_str(),0);
+  MEDCouplingUMesh *mesh=ReadUMeshFromFile(_file_name.c_str(),_mesh_name.c_str(),0);
   int nbOfNodes=mesh->getNumberOfNodes();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VectorFieldOnNodes");
@@ -446,11 +446,11 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
 {
   {
     MEDCouplingUMesh * mesh = buildCUBE3DMesh();
-    MEDLoader::WriteUMesh(_file_name.c_str(),mesh,true);
+    WriteUMesh(_file_name.c_str(),mesh,true);
     if (_verbose) cout<<endl<<_file_name<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_file_name.c_str(),mesh->getName().c_str(),0);
+        MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile(_file_name.c_str(),mesh->getName().c_str(),0);
         if (_verbose) cout<<_file_name<<" reread"<<endl;
         CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
         mesh_rw->decrRef();
@@ -469,7 +469,7 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
     mesh1->checkCoherency();
     meshes.push_back(mesh1);
     meshes.push_back(mesh2);
-    MEDLoader::WriteUMeshes(_file_name_with_faces.c_str(), meshes, true);
+    WriteUMeshes(_file_name_with_faces.c_str(), meshes, true);
 
     MEDCoupling::MEDFileUMesh* mfm=MEDCoupling::MEDFileUMesh::New(_file_name_with_faces.c_str(), mesh1->getName().c_str());
     DataArrayInt* FacesFam=DataArrayInt::New();
@@ -504,7 +504,7 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
     if (_verbose) cout<<endl<<_file_name_with_faces<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_file_name_with_faces.c_str(),mesh1->getName().c_str(),0);
+        MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile(_file_name_with_faces.c_str(),mesh1->getName().c_str(),0);
         if (_verbose) cout<<_file_name_with_faces<<" reread"<<endl;
         CPPUNIT_ASSERT(mesh1->isEqual(mesh_rw,1e-12));
         mesh_rw->decrRef();
@@ -516,9 +516,9 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
 
   {
     MEDCouplingUMesh * mesh = buildCARRE3DMesh();
-    MEDLoader::WriteUMesh(_file_name2.c_str(),mesh,true);
+    WriteUMesh(_file_name2.c_str(),mesh,true);
     if (_verbose) cout<<endl<<_file_name2<<" created"<<endl;
-    MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_file_name2.c_str(),mesh->getName().c_str(),0);
+    MEDCouplingUMesh *mesh_rw=ReadUMeshFromFile(_file_name2.c_str(),mesh->getName().c_str(),0);
     if (_verbose) cout<<_file_name2<<" reread"<<endl;
     CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
     mesh_rw->decrRef();
@@ -604,7 +604,7 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
                   *ptr=(*ptrini)+dz; ptr++; ptrini++;
                 }
 
-              MEDLoader::WriteUMesh(fileName.c_str(),mesh,true);
+              WriteUMesh(fileName.c_str(),mesh,true);
 
               tagSubfiles+=tagSubfile;
               tagSubfiles.replace(tagSubfiles.find("$xyz"),4,sxyz);
@@ -642,14 +642,14 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     string name=_file_name;
     MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
     name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
-    MEDLoader::WriteField(name.c_str(),f1,true);
+    WriteField(name.c_str(),f1,true);
     f1->setTime(3.,1,1);  //time,it,order
     f1->applyFunc("x/2.");
-    MEDLoader::WriteField(name.c_str(),f1,false);
+    WriteField(name.c_str(),f1,false);
     if (_verbose) cout<<endl<<name<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+        MEDCouplingFieldDouble *f2=ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
         //DataArrayDouble *res=f2->getArray();
         if (_verbose) cout<<name<<" reread"<<endl;
         //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
@@ -701,14 +701,13 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     f3->setTime(4.,5,6);
     f3->setArray(array);
     array->decrRef();
-    MEDLoader::WriteField(name.c_str(),f3,true);
+    WriteField(name.c_str(),f3,true);
     if (_verbose) cout<<endl<<name<<" created"<<endl;
     f3->checkCoherency();
     f1->decrRef();
     if (_ntot<1000000) //too long
       {
-        MEDCouplingFieldDouble* f4=MEDLoader::ReadField(ON_GAUSS_NE,
-                                                        name.c_str(), f3->getMesh()->getName().c_str(), 0, "MyFieldOnGaussNE", 5, 6);
+        MEDCouplingFieldDouble* f4=ReadField(ON_GAUSS_NE, name.c_str(), f3->getMesh()->getName().c_str(), 0, "MyFieldOnGaussNE", 5, 6);
         if (_verbose) cout<<"MyFieldOnGaussNE reread"<<endl;
         f4->decrRef();
       }
@@ -718,11 +717,11 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     string name=_file_name_with_faces;
     MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
     name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
-    MEDLoader::WriteField(name.c_str(),f1,true);
+    WriteField(name.c_str(),f1,true);
     if (_verbose) cout<<endl<<name<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+        MEDCouplingFieldDouble *f2=ReadFieldCell(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
         if (_verbose) cout<<name<<" reread"<<endl;
         //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
         f2->decrRef();
@@ -736,11 +735,11 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnNodes()
   MEDCouplingFieldDouble *f1=buildVecFieldOnNodes();
   string name=_file_name;
   name.replace(name.find(".med"),4,"_WithVecFieldOnNodes.med");
-  MEDLoader::WriteField(name.c_str(),f1,true);
+  WriteField(name.c_str(),f1,true);
   if (_verbose) cout<<endl<<name<<" created"<<endl;
   if (_ntot<1000000) //too long
     {
-      MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldNode(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
+      MEDCouplingFieldDouble *f2=ReadFieldNode(name.c_str(),f1->getMesh()->getName().c_str(),0,f1->getName().c_str(),0,1);
       if (_verbose) cout<<name<<" reread"<<endl;
       //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
       f2->decrRef();
@@ -752,7 +751,7 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
 {
   string name=_file_name;
   name.replace(name.find(".med"),4,"_WithVecFieldOnNodes.med");
-  MEDCouplingUMesh * m=MEDLoader::ReadUMeshFromFile(name.c_str(),_mesh_name.c_str(),0);
+  MEDCouplingUMesh * m=ReadUMeshFromFile(name.c_str(),_mesh_name.c_str(),0);
   std::set<INTERP_KERNEL::NormalizedCellType> types(m->getAllGeoTypes());
   if (_verbose)
     {
@@ -1184,8 +1183,8 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MEDCouplingFieldDouble* field1=MEDLoader::ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
-  MEDCouplingFieldDouble* field2=MEDLoader::ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MEDCouplingFieldDouble* field1=ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MEDCouplingFieldDouble* field2=ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
@@ -1273,8 +1272,8 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MEDCouplingFieldDouble* field1=MEDLoader::ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
-  MEDCouplingFieldDouble* field2=MEDLoader::ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MEDCouplingFieldDouble* field1=ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MEDCouplingFieldDouble* field2=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);

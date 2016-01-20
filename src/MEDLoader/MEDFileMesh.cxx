@@ -76,7 +76,7 @@ std::vector<const BigMemoryObject *> MEDFileMesh::getDirectChildrenWithNull() co
  */
 MEDFileMesh *MEDFileMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  std::vector<std::string> ms=MEDCoupling::GetMeshNames(fileName);
   if(ms.empty())
     {
       std::ostringstream oss; oss << "MEDFileMesh::New : no meshes in file \"" << fileName << "\" !";
@@ -2255,7 +2255,7 @@ MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, const std::string& 
  */
 MEDFileUMesh *MEDFileUMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
   if(ms.empty())
     {
       std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
@@ -5994,7 +5994,7 @@ MEDFileCMesh *MEDFileCMesh::New()
  */
 MEDFileCMesh *MEDFileCMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
   if(ms.empty())
     {
       std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
@@ -6292,7 +6292,7 @@ MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New()
 
 MEDFileCurveLinearMesh *MEDFileCurveLinearMesh::New(const std::string& fileName, MEDFileMeshReadSelector *mrs)
 {
-  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
   if(ms.empty())
     {
       std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
@@ -6692,7 +6692,7 @@ MEDFileMeshMultiTS::MEDFileMeshMultiTS()
 MEDFileMeshMultiTS::MEDFileMeshMultiTS(const std::string& fileName)
 try
 {
-    std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
     if(ms.empty())
       {
         std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
@@ -6866,7 +6866,7 @@ void MEDFileMeshes::destroyMeshAtPos(int i)
 
 void MEDFileMeshes::loadFromFile(const std::string& fileName)
 {
-  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  std::vector<std::string> ms(MEDCoupling::GetMeshNames(fileName));
   int i=0;
   _meshes.resize(ms.size());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++,i++)

@@ -171,7 +171,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
       meshname<< meshname1<<"_"<< rank+1;
       
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
-    mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+    mesh=ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     if( rank == 0 )
       cout << "IO : Telapse = " << telps << " TuserCPU = " << tcpu_u << " TsysCPU = " << tcpu_s << " TCPU = " << tcpu << endl;
@@ -207,7 +207,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
       meshname<< meshname2<<"_"<<rank-nproc_source+1;
       
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
-    mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+    mesh = ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     mesh->incrRef();
 

@@ -139,11 +139,11 @@ med_geometry_type typmai3[34] = { MED_POINT1,//0
   MED_NONE//33
 };
 
-double MEDLoader::_EPS_FOR_NODE_COMP=1.e-12;
+double _EPS_FOR_NODE_COMP=1.e-12;
 
-int MEDLoader::_COMP_FOR_CELL=0;
+int _COMP_FOR_CELL=0;
 
-int MEDLoader::_TOO_LONG_STR=0;
+int _TOO_LONG_STR=0;
 
 using namespace MEDCoupling;
 
@@ -294,12 +294,12 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
 
 /// @endcond
 
-void MEDLoader::AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj)
+void MEDCoupling::AssignStaticWritePropertiesTo(MEDCoupling::MEDFileWritable& obj)
 {
   obj.setTooLongStrPolicy(_TOO_LONG_STR);
 }
 
-bool MEDLoader::HasXDR()
+bool MEDCoupling::HasXDR()
 {
 #ifdef HAS_XDR
   return true;
@@ -308,12 +308,12 @@ bool MEDLoader::HasXDR()
 #endif
 }
 
-std::string MEDLoader::MEDFileVersionStr()
+std::string MEDCoupling::MEDFileVersionStr()
 {
   return std::string(MED_VERSION_STR);
 }
 
-void MEDLoader::MEDFileVersion(int& major, int& minor, int& release)
+void MEDCoupling::MEDFileVersion(int& major, int& minor, int& release)
 {
   major=MED_NUM_MAJEUR;
   minor=MED_NUM_MINEUR;
@@ -323,7 +323,7 @@ void MEDLoader::MEDFileVersion(int& major, int& minor, int& release)
 /*!
  * This method sets the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
  */
-void MEDLoader::SetEpsilonForNodeComp(double val)
+void MEDCoupling::SetEpsilonForNodeComp(double val)
 {
   _EPS_FOR_NODE_COMP=val;
 }
@@ -331,7 +331,7 @@ void MEDLoader::SetEpsilonForNodeComp(double val)
 /*!
  * This method sets the policy comparison when trying to fit the already written mesh on a field. The semantic of the policy is specified in MEDCouplingUMesh::zipConnectivityTraducer.
  */
-void MEDLoader::SetCompPolicyForCell(int val)
+void MEDCoupling::SetCompPolicyForCell(int val)
 {
   _COMP_FOR_CELL=val;
 }
@@ -340,7 +340,7 @@ void MEDLoader::SetCompPolicyForCell(int val)
  * This method set the behaviour of MEDLoader when a too long string is seen in datastructure before copy it in MED file.
  * By default (0) an exception is thrown. If equal to 1 a warning is emitted in std_err but no exception is thrown.
  */
-void MEDLoader::SetTooLongStrPolicy(int val)
+void MEDCoupling::SetTooLongStrPolicy(int val)
 {
   _TOO_LONG_STR=val;
 }
@@ -353,7 +353,7 @@ void MEDLoader::SetTooLongStrPolicy(int val)
  * - the space dimension
  * - the number of nodes
  */
-std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDLoader::GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, int& numberOfNodes)
+std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDCoupling::GetUMeshGlobalInfo(const std::string& fileName, const std::string& meshName, int &meshDim, int& spaceDim, int& numberOfNodes)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
@@ -373,13 +373,13 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,meshId,nommaa,&spaceDim,&meshDim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit));
   if(type_maillage!=MED_UNSTRUCTURED_MESH)
     {
-      std::ostringstream oss; oss << "MEDLoader::GetUMeshGlobalInfo : Mesh \""<< meshName << "\" in file \"" << fileName;
+      std::ostringstream oss; oss << "GetUMeshGlobalInfo : Mesh \""<< meshName << "\" in file \"" << fileName;
       oss << "\" exists but it is not an unstructured mesh ! This method is not relevant for mesh types that are not unstructured !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   // limitation
   if(nstep!=1)
-    throw INTERP_KERNEL::Exception("MEDLoader::GetUMeshGlobalInfo : multisteps on mesh not managed !");
+    throw INTERP_KERNEL::Exception("GetUMeshGlobalInfo : multisteps on mesh not managed !");
   med_int numdt,numit;
   med_float dt;
   MEDFILESAFECALLERRD0(MEDmeshComputationStepInfo,(fid,nommaa,1,&numdt,&numit,&dt));
@@ -411,22 +411,22 @@ std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > M
   return ret;
 }
 
-void MEDLoader::CheckFileForRead(const std::string& fileName)
+void MEDCoupling::CheckFileForRead(const std::string& fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
 }
 
-std::vector<std::string> MEDLoader::GetMeshNames(const std::string& fileName)
+std::vector<std::string> MEDCoupling::GetMeshNames(const std::string& fileName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   std::vector<std::string> ret=MEDLoaderNS::getMeshNamesFid(fid);
   return ret;
 }
 
-std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesOfField(const std::string& fileName, const std::string& fieldName)
+std::vector< std::pair<std::string,std::string> > MEDCoupling::GetComponentsNamesOfField(const std::string& fileName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields(MEDnField(fid));
   std::vector<std::string> fields(nbFields);
@@ -454,15 +454,15 @@ std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesO
         }
       fields[i]=curFieldName;
     }
-  std::ostringstream oss; oss << "MEDLoader::GetComponentsNamesOfField : no such field \"" << fieldName << "\" in file \"" << fileName << "\" !" << std::endl;
+  std::ostringstream oss; oss << "GetComponentsNamesOfField : no such field \"" << fieldName << "\" in file \"" << fileName << "\" !" << std::endl;
   oss << "Possible field names are : " << std::endl;
   std::copy(fields.begin(),fields.end(),std::ostream_iterator<std::string>(oss," "));
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-std::vector<std::string> MEDLoader::GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName)
+std::vector<std::string> MEDCoupling::GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
   //
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
@@ -489,9 +489,9 @@ std::vector<std::string> MEDLoader::GetMeshNamesOnField(const std::string& fileN
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDCoupling::GetMeshFamiliesNames(const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret(nfam);
@@ -513,9 +513,9 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const std::string& file
 }
 
 
-std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName)
+std::vector<std::string> MEDCoupling::GetMeshFamiliesNamesOnGroup(const std::string& fileName, const std::string& meshName, const std::string& grpName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret;
@@ -541,9 +541,9 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const std::strin
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName)
+std::vector<std::string> MEDCoupling::GetMeshGroupsNamesOnFamily(const std::string& fileName, const std::string& meshName, const std::string& famName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret;
@@ -571,16 +571,16 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const std::string
   if(!found)
     {
       std::ostringstream oss;
-      oss << "MEDLoader::GetMeshGroupsNamesOnFamily : no such family \"" << famName << "\" in file \"" << fileName << "\" in mesh \"" << meshName << "\" !";
+      oss << "GetMeshGroupsNamesOnFamily : no such family \"" << famName << "\" in file \"" << fileName << "\" in mesh \"" << meshName << "\" !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return ret;
 }
 
 
-std::vector<std::string> MEDLoader::GetMeshGroupsNames(const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDCoupling::GetMeshGroupsNames(const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nfam=MEDnFamily(fid,meshName.c_str());
   std::vector<std::string> ret;
@@ -605,13 +605,13 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNames(const std::string& fileNa
   return ret;
 }
 
-std::vector<MEDCoupling::TypeOfField> MEDLoader::GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+std::vector<MEDCoupling::TypeOfField> MEDCoupling::GetTypesOfField(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
   std::vector<MEDCoupling::TypeOfField> ret;
   MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> fs(MEDFileAnyTypeFieldMultiTS::New(fileName,fieldName,false));
   if(fs->getMeshName()!=meshName)
     {
-      std::ostringstream oss; oss << "MEDLoader::GetTypesOfField : The field \"" << fieldName << "\" in file \"" << fileName << "\" is not lying on mesh \"" << meshName << "\"";
+      std::ostringstream oss; oss << "GetTypesOfField : The field \"" << fieldName << "\" in file \"" << fileName << "\" is not lying on mesh \"" << meshName << "\"";
       oss << " The name of the mesh in file is \"" << fs->getMeshName() << "\"!";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -638,9 +638,9 @@ std::vector<MEDCoupling::TypeOfField> MEDLoader::GetTypesOfField(const std::stri
   return ret2;
 }
 
-std::vector<std::string> MEDLoader::GetAllFieldNames(const std::string& fileName)
+std::vector<std::string> MEDCoupling::GetAllFieldNames(const std::string& fileName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
@@ -661,9 +661,9 @@ std::vector<std::string> MEDLoader::GetAllFieldNames(const std::string& fileName
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDCoupling::GetAllFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
@@ -692,9 +692,9 @@ std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const std::string& fi
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDCoupling::GetFieldNamesOnMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   switch(type)
   {
     case ON_CELLS:
@@ -706,9 +706,9 @@ std::vector<std::string> MEDLoader::GetFieldNamesOnMesh(MEDCoupling::TypeOfField
   }
 }
 
-std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDCoupling::GetCellFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
@@ -756,9 +756,9 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const std::string& f
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
+std::vector<std::string> MEDCoupling::GetNodeFieldNamesOnMesh(const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<std::string> ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
@@ -797,9 +797,9 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const std::string& f
   return ret;
 }
 
-std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIterations(const std::string& fileName, const std::string& fieldName)
+std::vector< std::pair< std::pair<int,int>, double> > MEDCoupling::GetAllFieldIterations(const std::string& fileName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector< std::pair< std::pair<int,int>, double > > ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
@@ -812,7 +812,7 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_bool localmesh;
   //
-  std::ostringstream oss; oss << "MEDLoader::GetAllFieldIterations : No field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
+  std::ostringstream oss; oss << "GetAllFieldIterations : No field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
   for(int i=0;i<nbFields;i++)
     {
       med_int ncomp(MEDfieldnComponent(fid,i+1));
@@ -840,9 +840,9 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-double MEDLoader::GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order)
+double MEDCoupling::GetTimeAttachedOnFieldIteration(const std::string& fileName, const std::string& fieldName, int iteration, int order)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
@@ -888,9 +888,9 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const std::string& fileName, c
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+std::vector< std::pair<int,int> > MEDCoupling::GetFieldIterations(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   switch(type)
   {
     case ON_CELLS:
@@ -902,9 +902,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(MEDCoupling::Typ
   }
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+std::vector< std::pair<int,int> > MEDCoupling::GetCellFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
@@ -920,7 +920,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::s
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_bool localmesh;
   //
-  std::ostringstream oss; oss << "MEDLoader::GetCellFieldIterations : No cell Field field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
+  std::ostringstream oss; oss << "GetCellFieldIterations : No cell Field field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
   std::set<std::string> s2;
   for(int i=0;i<nbFields;i++)
     {
@@ -974,9 +974,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const std::s
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
+std::vector< std::pair<int,int> > MEDCoupling::GetNodeFieldIterations(const std::string& fileName, const std::string& meshName, const std::string& fieldName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
@@ -992,7 +992,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const std::s
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   med_bool localmesh;
   //
-  std::ostringstream oss; oss << "MEDLoader::GetNodeFieldIterations : No node Field field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
+  std::ostringstream oss; oss << "GetNodeFieldIterations : No node Field field with name \"" << fieldName<< "\" in file \"" << fileName << "\" ! Possible fields are : ";
   std::set<std::string> s2;
   for(int i=0;i<nbFields;i++)
     {
@@ -1039,9 +1039,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const std::s
   return ret;
 }
 
-MEDCoupling::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingMesh *MEDCoupling::ReadMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
@@ -1059,13 +1059,13 @@ MEDCoupling::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fil
       const MEDCouplingCurveLinearMesh *ret(mmc2Ptr->getMesh()); ret->incrRef();
       return const_cast<MEDCouplingCurveLinearMesh *>(ret);
     }
-  std::ostringstream oss; oss << "MEDLoader::ReadMeshFromFile : The mesh \"" << meshName << "\" in file \"" << fileName << "\" has not a recognized type !";
+  std::ostringstream oss; oss << "ReadMeshFromFile : The mesh \"" << meshName << "\" in file \"" << fileName << "\" has not a recognized type !";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-MEDCoupling::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingMesh *MEDCoupling::ReadMeshFromFile(const std::string& fileName, int meshDimRelToMax)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
@@ -1083,76 +1083,76 @@ MEDCoupling::MEDCouplingMesh *MEDLoader::ReadMeshFromFile(const std::string& fil
       const MEDCouplingCurveLinearMesh *ret(mmc2Ptr->getMesh()); ret->incrRef();
       return const_cast<MEDCouplingCurveLinearMesh *>(ret);
     }
-  std::ostringstream oss; oss << "MEDLoader::ReadMeshFromFile (2) : The first mesh \"" << mm->getName() << "\" in file \"" << fileName << "\" has not a recognized type !";
+  std::ostringstream oss; oss << "ReadMeshFromFile (2) : The first mesh \"" << mm->getName() << "\" in file \"" << fileName << "\" has not a recognized type !";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
-MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingUMesh *MEDCoupling::ReadUMeshFromFile(const std::string& fileName, const std::string& meshName, int meshDimRelToMax)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
     {
-      std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromFile : With fileName=\""<< fileName << "\", meshName=\""<< meshName << "\" exists but it is not an unstructured mesh !";
+      std::ostringstream oss; oss << "ReadUMeshFromFile : With fileName=\""<< fileName << "\", meshName=\""<< meshName << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
-MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax)
+MEDCoupling::MEDCouplingUMesh *MEDCoupling::ReadUMeshFromFile(const std::string& fileName, int meshDimRelToMax)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
     {
-      std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromFile : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
+      std::ostringstream oss; oss << "ReadUMeshFromFile : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return  mmuPtr->getMeshAtLevel(meshDimRelToMax,true);
 }
 
-int MEDLoader::ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName)
+int MEDCoupling::ReadUMeshDimFromFile(const std::string& fileName, const std::string& meshName)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<int> poss;
   return MEDLoaderNS::readUMeshDimFromFile(fileName,meshName,poss);
 }
 
-MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
+MEDCoupling::MEDCouplingUMesh *MEDCoupling::ReadUMeshFromFamilies(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
     {
-      std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromFamilies : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
+      std::ostringstream oss; oss << "ReadUMeshFromFamilies : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return mmuPtr->getFamilies(meshDimRelToMax,fams,true);
 }
 
-MEDCoupling::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
+MEDCoupling::MEDCouplingUMesh *MEDCoupling::ReadUMeshFromGroups(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(fileName,meshName);
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
     {
-      std::ostringstream oss; oss << "MEDLoader::ReadUMeshFromGroups : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
+      std::ostringstream oss; oss << "ReadUMeshFromGroups : With fileName=\""<< fileName << "\", meshName (the first) =\""<< mm->getName() << "\" exists but it is not an unstructured mesh !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return mmuPtr->getGroups(meshDimRelToMax,grps,true);
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadField(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   switch(type)
   {
     case ON_CELLS:
@@ -1168,12 +1168,12 @@ MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadField(MEDCoupling::TypeOfFie
   }
 }
 
-std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
-                                                                                  const std::vector<std::pair<int,int> >& its)
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsOnSameMesh(MEDCoupling::TypeOfField type, const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+                                                                                     const std::vector<std::pair<int,int> >& its)
 {
   if(its.empty())
     return std::vector<MEDCoupling::MEDCouplingFieldDouble *>();
-  CheckFileForRead(fileName);
+  MEDCoupling::CheckFileForRead(fileName);
   std::vector<MEDCoupling::MEDCouplingFieldDouble *> ret(its.size());
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > retSafe(its.size());
   if(its.empty())
@@ -1183,7 +1183,7 @@ std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMe
   MEDFileMesh *mmPtr(mm);
   MEDFileUMesh *mmuPtr=dynamic_cast<MEDFileUMesh *>(mmPtr);
   if(!mmuPtr)
-    throw INTERP_KERNEL::Exception("MEDLoader::ReadFieldsOnSameMesh : only unstructured mesh is managed !");
+    throw INTERP_KERNEL::Exception("ReadFieldsOnSameMesh : only unstructured mesh is managed !");
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=mmuPtr->getMeshAtLevel(meshDimRelToMax);
   const DataArrayInt *o2n=mmuPtr->getNumberFieldAtLevel(meshDimRelToMax);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m2(m->clone(true));
@@ -1205,31 +1205,31 @@ std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMe
   return ret;
 }
 
-std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsCellOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                       const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_CELLS,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsNodeOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                       const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_NODES,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsGaussOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                        const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_GAUSS_PT,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
+std::vector<MEDCoupling::MEDCouplingFieldDouble *> MEDCoupling::ReadFieldsGaussNEOnSameMesh(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName,
                                                                                          const std::vector<std::pair<int,int> >& its)
 {
   return ReadFieldsOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldCell(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1246,7 +1246,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const std::string&
   return ret.retn();
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldNode(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1274,7 +1274,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string&
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr3(arr2->invertArrayO2N2N2O(mzip->getNumberOfNodes()));
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pflSorted(pflSafe->deepCpy()); pflSorted->sort(true);
       if(!arr3->isEqualWithoutConsideringStr(*pflSorted))
-        throw INTERP_KERNEL::Exception("MEDLoader::ReadFieldNode : not implemented yet !");
+        throw INTERP_KERNEL::Exception("ReadFieldNode : not implemented yet !");
       if(!arr3->isEqualWithoutConsideringStr(*pflSafe))
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n2(pflSafe->checkAndPreparePermutation());
@@ -1288,7 +1288,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const std::string&
   return ret.retn();
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldGauss(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1305,7 +1305,7 @@ MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const std::string
   return ret.retn();
 }
 
-MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
+MEDCoupling::MEDCouplingFieldDouble *MEDCoupling::ReadFieldGaussNE(const std::string& fileName, const std::string& meshName, int meshDimRelToMax, const std::string& fieldName, int iteration, int order)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New(fileName,fieldName,iteration,order));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm(MEDFileMesh::New(fileName,meshName));
@@ -1322,10 +1322,10 @@ MEDCoupling::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const std::stri
   return ret.retn();
 }
 
-void MEDLoader::WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch)
+void MEDCoupling::WriteMesh(const std::string& fileName, const MEDCoupling::MEDCouplingMesh *mesh, bool writeFromScratch)
 {
   if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDLoader::WriteMesh : input mesh is null !");
+    throw INTERP_KERNEL::Exception("WriteMesh : input mesh is null !");
   const MEDCouplingUMesh *um(dynamic_cast<const MEDCouplingUMesh *>(mesh));
   if(um)
     {
@@ -1360,13 +1360,13 @@ void MEDLoader::WriteMesh(const std::string& fileName, const MEDCoupling::MEDCou
       mmc->write(fileName,mod);
       return ;
     }
-  throw INTERP_KERNEL::Exception("MEDLoader::WriteMesh : only MEDCouplingUMesh, MEDCoupling1GTUMesh, MEDCouplingCMesh, MEDCouplingCurveLinear are dealed in this API for the moment !");
+  throw INTERP_KERNEL::Exception("WriteMesh : only MEDCouplingUMesh, MEDCoupling1GTUMesh, MEDCouplingCMesh, MEDCouplingCurveLinear are dealed in this API for the moment !");
 }
 
-void MEDLoader::WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch)
+void MEDCoupling::WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDLoader::WriteUMesh : input mesh is null !");
+    throw INTERP_KERNEL::Exception("WriteUMesh : input mesh is null !");
   int mod=writeFromScratch?2:0;
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m(MEDFileUMesh::New());
   AssignStaticWritePropertiesTo(*m);
@@ -1375,12 +1375,12 @@ void MEDLoader::WriteUMesh(const std::string& fileName, const MEDCoupling::MEDCo
   m->write(fileName,mod);
 }
 
-void MEDLoader::WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch)
+void MEDCoupling::WriteUMeshDep(const std::string& fileName, const MEDCoupling::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
-  MEDLoader::WriteUMesh(fileName,mesh,writeFromScratch);
+  WriteUMesh(fileName,mesh,writeFromScratch);
 }
 
-void MEDLoader::WriteUMeshesPartition(const std::string& fileName, const std::string& meshNameC, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+void MEDCoupling::WriteUMeshesPartition(const std::string& fileName, const std::string& meshNameC, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   std::string meshName(meshNameC);
   if(meshName.empty())
@@ -1399,12 +1399,12 @@ void MEDLoader::WriteUMeshesPartition(const std::string& fileName, const std::st
   m->write(fileName,mod);
 }
 
-void MEDLoader::WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshNameC, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+void MEDCoupling::WriteUMeshesPartitionDep(const std::string& fileName, const std::string& meshNameC, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   WriteUMeshesPartition(fileName,meshNameC,meshes,writeFromScratch);
 }
 
-void MEDLoader::WriteUMeshes(const std::string& fileName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+void MEDCoupling::WriteUMeshes(const std::string& fileName, const std::vector<const MEDCoupling::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
 {
   int mod=writeFromScratch?2:0;
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m(MEDFileUMesh::New());
@@ -1416,7 +1416,7 @@ void MEDLoader::WriteUMeshes(const std::string& fileName, const std::vector<cons
 void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ff(MEDFileField1TS::New());
-  MEDLoader::AssignStaticWritePropertiesTo(*ff);
+  AssignStaticWritePropertiesTo(*ff);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f2(f->deepCpy());
   const MEDCouplingMesh *m(f2->getMesh());
   const MEDCouplingUMesh *um(dynamic_cast<const MEDCouplingUMesh *>(m));
@@ -1428,7 +1428,7 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   if(um)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu(MEDFileUMesh::New());
-      MEDLoader::AssignStaticWritePropertiesTo(*mmu);
+      AssignStaticWritePropertiesTo(*mmu);
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n(um->getRenumArrForMEDFileFrmt());
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o(o2n->invertArrayO2N2N2O(o2n->getNumberOfTuples()));
       f2->renumberCells(o2n->begin(),false);
@@ -1440,7 +1440,7 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   else if(um2)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> mmu(MEDFileUMesh::New());
-      MEDLoader::AssignStaticWritePropertiesTo(*mmu);
+      AssignStaticWritePropertiesTo(*mmu);
       mmu->setMeshAtLevel(0,const_cast<MEDCoupling1GTUMesh *>(um2));
       ff->setFieldNoProfileSBT(f2);
       mmu->write(fileName,mod);
@@ -1448,7 +1448,7 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   else if(um3)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> mmc(MEDFileCMesh::New());
-      MEDLoader::AssignStaticWritePropertiesTo(*mmc);
+      AssignStaticWritePropertiesTo(*mmc);
       mmc->setMesh(const_cast<MEDCouplingCMesh *>(um3));
       ff->setFieldNoProfileSBT(f2);
       mmc->write(fileName,mod);
@@ -1456,7 +1456,7 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   else if(um4)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileCurveLinearMesh> mmc(MEDFileCurveLinearMesh::New());
-      MEDLoader::AssignStaticWritePropertiesTo(*mmc);
+      AssignStaticWritePropertiesTo(*mmc);
       mmc->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(um4));
       ff->setFieldNoProfileSBT(f2);
       mmc->write(fileName,mod);
@@ -1466,10 +1466,10 @@ void MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(const std::stri
   ff->write(fileName,0);
 }
 
-void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDCoupling::WriteField(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   if(!f)
-    throw INTERP_KERNEL::Exception("MEDLoader::WriteField : input field is NULL !");
+    throw INTERP_KERNEL::Exception("WriteField : input field is NULL !");
   f->checkCoherency();
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
@@ -1485,7 +1485,7 @@ void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCo
     {
       std::vector<std::string> meshNames=GetMeshNames(fileName);
       if(!f->getMesh())
-        throw INTERP_KERNEL::Exception("MEDLoader::WriteField : trying to write a field with no mesh !");
+        throw INTERP_KERNEL::Exception("WriteField : trying to write a field with no mesh !");
       std::string fileNameCpp(f->getMesh()->getName());
       if(std::find(meshNames.begin(),meshNames.end(),fileNameCpp)==meshNames.end())
         MEDLoaderNS::writeFieldWithoutReadingAndMappingOfMeshInFile(fileName,f,false);
@@ -1496,11 +1496,11 @@ void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCo
           const MEDFileMesh *mmPtr(mm);
           const MEDFileUMesh *mmuPtr=dynamic_cast<const MEDFileUMesh *>(mmPtr);
           if(!mmuPtr)
-            throw INTERP_KERNEL::Exception("MEDLoader::WriteField : only umeshes are supported now !");
+            throw INTERP_KERNEL::Exception("WriteField : only umeshes are supported now !");
           MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f2(f->deepCpy());
           MEDCouplingUMesh *m=dynamic_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh()));
           if(!m)
-            throw INTERP_KERNEL::Exception("MEDLoader::WriteField : only umesh in input field supported !");
+            throw INTERP_KERNEL::Exception("WriteField : only umesh in input field supported !");
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=m->getRenumArrForMEDFileFrmt();
           f2->renumberCells(o2n->begin(),false);
           m=static_cast<MEDCouplingUMesh *>(const_cast<MEDCouplingMesh *>(f2->getMesh()));
@@ -1513,7 +1513,7 @@ void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCo
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> partSafe(part);
               if(!b)
                 {
-                  std::ostringstream oss; oss << "MEDLoader::WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart) with the mesh you intend to write ! This is maybe due to a too strict policy ! Try with to lease it by calling SetCompPolicyForCell !";
+                  std::ostringstream oss; oss << "WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart) with the mesh you intend to write ! This is maybe due to a too strict policy ! Try with to lease it by calling SetCompPolicyForCell !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
               MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
@@ -1535,7 +1535,7 @@ void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCo
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> partSafe(part);
               if(!b)
                 {
-                  std::ostringstream oss; oss << "MEDLoader::WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart regarding nodes) with the mesh you intend to write ! This is maybe due to a too strict epsilon ! Try with to lease it by calling SetEpsilonForNodeComp !";
+                  std::ostringstream oss; oss << "WriteField : The file \""<< fileName << "\" already contains a mesh named \""<< f->getMesh()->getName() << "\" and this mesh in the file is not compatible (a subpart regarding nodes) with the mesh you intend to write ! This is maybe due to a too strict epsilon ! Try with to lease it by calling SetEpsilonForNodeComp !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
               MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> f1ts(MEDFileField1TS::New());
@@ -1553,15 +1553,15 @@ void MEDLoader::WriteField(const std::string& fileName, const MEDCoupling::MEDCo
     }
 }
 
-void MEDLoader::WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDCoupling::WriteFieldDep(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   WriteField(fileName,f,writeFromScratch);
 }
 
-void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f)
+void MEDCoupling::WriteFieldUsingAlreadyWrittenMesh(const std::string& fileName, const MEDCoupling::MEDCouplingFieldDouble *f)
 {
   if(!f)
-    throw INTERP_KERNEL::Exception("MEDLoader::WriteFieldUsingAlreadyWrittenMesh : input field is null !");
+    throw INTERP_KERNEL::Exception("WriteFieldUsingAlreadyWrittenMesh : input field is null !");
   f->checkCoherency();
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   if(status!=MEDLoaderBase::EXIST_RW)

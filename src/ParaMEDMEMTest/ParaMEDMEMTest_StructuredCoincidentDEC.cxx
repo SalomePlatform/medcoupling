@@ -97,7 +97,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     ostringstream meshname;
     meshname<< "Mesh_2_"<< rank+1;
 
-    mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+    mesh=ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
     
 
     paramesh=new ParaMESH (mesh,source_group,"source mesh");
@@ -125,7 +125,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
   if (target_group.containsMyRank()) {
 
     string meshname2("Mesh_2");
-    mesh = MEDLoader::ReadUMeshFromFile(filename_2.c_str(),meshname2.c_str(),0);
+    mesh = ReadUMeshFromFile(filename_2.c_str(),meshname2.c_str(),0);
     
     paramesh=new ParaMESH (mesh,self_group,"target mesh");
     MEDCoupling::ComponentTopology comptopo(6, &target_group);

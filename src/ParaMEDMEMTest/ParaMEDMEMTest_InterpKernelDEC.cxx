@@ -516,7 +516,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       ostringstream meshname ;
       meshname<< "Mesh_2_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh=ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
     
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
@@ -555,7 +555,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
-      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh = ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      MEDCoupling::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
@@ -601,14 +601,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      //MEDLoader::WriteField("./sourcesquareb",parafield->getField());
+      //WriteField("./sourcesquareb",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
       ParaMEDLoader::WriteParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      //MEDLoader::WriteField("./sourcesquare",parafield->getField());
+      //WriteField("./sourcesquare",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -631,7 +631,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
 
       dec.recvData();
       ParaMEDLoader::WriteParaMesh("./targetsquareb",paramesh);
-      //MEDLoader::WriteField("./targetsquareb",parafield->getField());
+      //WriteField("./targetsquareb",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
@@ -639,7 +639,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       aRemover.Register(filename.str().c_str());
       dec.sendData();
       ParaMEDLoader::WriteParaMesh("./targetsquare",paramesh);
-      //MEDLoader::WriteField("./targetsquare",parafield->getField());
+      //WriteField("./targetsquare",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
@@ -720,7 +720,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
       ostringstream meshname ;
       meshname<< "Mesh_2_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh=ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       MEDCoupling::ComponentTopology comptopo;
       if(srcM=="P0")
         {
@@ -763,7 +763,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
       string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
-      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh = ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       MEDCoupling::ComponentTopology comptopo;
       if(targetM=="P0")
         {
@@ -889,7 +889,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       ostringstream meshname ;
       meshname<< "Mesh_3_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh=ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
     
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
@@ -928,7 +928,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       std::string fName = INTERP_TEST::getResourceFile(strstream.str());
       ostringstream meshname ;
       meshname<< "Mesh_6";
-      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh = ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
       
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      MEDCoupling::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
@@ -972,14 +972,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      //MEDLoader::WriteField("./sourcesquareb",parafield->getField());
+      //WriteField("./sourcesquareb",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
       ParaMEDLoader::WriteParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      //MEDLoader::WriteField("./sourcesquare",parafield->getField());
+      //WriteField("./sourcesquare",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -998,7 +998,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
 
       dec.recvData();
       ParaMEDLoader::WriteParaMesh("./targetsquareb",paramesh);
-      //MEDLoader::WriteField("./targetsquareb",parafield->getField());
+      //WriteField("./targetsquareb",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
@@ -1006,7 +1006,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       aRemover.Register(filename.str().c_str());
       dec.sendData();
       ParaMEDLoader::WriteParaMesh("./targetsquare",paramesh);
-      //MEDLoader::WriteField("./targetsquare",parafield->getField());
+      //WriteField("./targetsquare",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
@@ -2148,7 +2148,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       ostringstream meshname ;
       meshname<< "Mesh_2_"<< rank+1;
       
-      mesh=MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh=ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
 
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
     
@@ -2190,7 +2190,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
       ostringstream meshname ;
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
       
-      mesh = MEDLoader::ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
+      mesh = ReadUMeshFromFile(fName.c_str(),meshname.str().c_str(),0);
 
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      MEDCoupling::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);

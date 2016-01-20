@@ -1605,7 +1605,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
     </mesh>\n \
   </mapping>\n \
 </root>\n";
-          std::vector<std::string> meshNames=MEDLoader::GetMeshNames(myfile);
+          std::vector<std::string> meshNames=GetMeshNames(myfile);
           xml.replace(xml.find("$fileName"),9,myfile);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
@@ -2252,7 +2252,7 @@ void MEDPARTITIONER::MeshCollection::setDomainNames(const std::string& name)
 
 MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::string descriptionField, int iold)
 //getField look for and read it if not done, and assume decrRef() in ~MeshCollection;
-//something like MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
+//something like MEDCouplingFieldDouble *f2=ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
 {
   int rank=MyGlobals::_Rank;
   std::string tag="ioldFieldDouble="+IntToStr(iold);
@@ -2274,8 +2274,8 @@ MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::stri
   FieldShortDescriptionToData(descriptionIold, fieldName, typeField, entity, DT, IT);
   meshName=MyGlobals::_Mesh_Names[iold];
   
-  MEDCoupling::MEDCouplingFieldDouble* f2=MEDLoader::ReadField((MEDCoupling::TypeOfField) typeField,
-                                                              fileName, meshName, 0, fieldName, DT, IT);
+  MEDCoupling::MEDCouplingFieldDouble* f2=ReadField((MEDCoupling::TypeOfField) typeField,
+                                                    fileName, meshName, 0, fieldName, DT, IT);
   
   MEDCoupling::DataArrayDouble* res=f2->getArray();
   //to know names of components

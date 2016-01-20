@@ -183,7 +183,7 @@ void MeshCollectionMedAsciiDriver::write(const char* filename, ParaDomainSelecto
       if ( !domainSelector || domainSelector->isMyDomain( idomain ) )
         {
           if ( !_collection->getMesh()[idomain]->getNumberOfCells()==0 ) continue;//empty domain
-          MEDLoader::WriteUMesh(distfilename.c_str(),(_collection->getMesh())[idomain],true);
+          WriteUMesh(distfilename.c_str(),(_collection->getMesh())[idomain],true);
           //writeSubdomain(idomain, nbdomains, distfilename.c_str(), domainSelector);
         }
     }

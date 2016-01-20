@@ -33,10 +33,10 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,MEDFileMesh.New,fileName,"")
         self.assertEqual((0,-1),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getLevel0Mesh(True)
-        m1_1=MEDLoader.ReadUMeshFromFile(fileName,mname,0)
+        m1_1=ReadUMeshFromFile(fileName,mname,0)
         self.assertTrue(m1_0.isEqual(m1_1,1e-12));
         m2_0=medmesh.getLevelM1Mesh(True)
-        m2_1=MEDLoader.ReadUMeshFromFile(fileName,mname,-1)
+        m2_1=ReadUMeshFromFile(fileName,mname,-1)
         self.assertTrue(m2_0.isEqual(m2_1,1e-12));
         pass
 
@@ -47,23 +47,23 @@ class MEDLoaderTest(unittest.TestCase):
         medmesh=MEDFileUMesh.New(fileName,mname)
         self.assertEqual((0,),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getLevel0Mesh(True)
-        m1_1=MEDLoader.ReadUMeshFromFile(fileName,mname,0)
+        m1_1=ReadUMeshFromFile(fileName,mname,0)
         self.assertTrue(m1_0.isEqual(m1_1,1e-12));
         g1_0=medmesh.getGroup(0,"mesh2",True)
-        g1_1=MEDLoader.ReadUMeshFromGroups(fileName,mname,0,["mesh2"]);
+        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh2"]);
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         g1_0=medmesh.getGroup(0,"mesh3",True)
-        g1_1=MEDLoader.ReadUMeshFromGroups(fileName,mname,0,["mesh3"]);
+        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh3"]);
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         g1_0=medmesh.getGroups(0,["mesh3","mesh2"])
-        g1_1=MEDLoader.ReadUMeshFromGroups(fileName,mname,0,["mesh3","mesh2"]);
+        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh3","mesh2"]);
         g1_1.setName(g1_0.getName())
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         g1_0=medmesh.getFamily(0,"Family_-3",True)
-        g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_-3"]);
+        g1_1=ReadUMeshFromFamilies(fileName,mname,0,["Family_-3"]);
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         g1_0=medmesh.getFamilies(0,["Family_-3","Family_-5"],True)
-        g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_-3","Family_-5"]);
+        g1_1=ReadUMeshFromFamilies(fileName,mname,0,["Family_-3","Family_-5"]);
         g1_1.setName(g1_0.getName())
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
@@ -194,7 +194,7 @@ class MEDLoaderTest(unittest.TestCase):
         m.setName(mm.getName()) ; m.setDescription(mm.getDescription())
         self.assertTrue(m.isEqual(mbis,1e-12));
         #
-        self.assertEqual(([[(3, 2), (4, 1), (5, 8)], [(1, 2), (2, 1)], [(0, 4)]], 2, 2, 9),MEDLoader.GetUMeshGlobalInfo(outFileName,"MyFirstMEDCouplingMEDmesh"))
+        self.assertEqual(([[(3, 2), (4, 1), (5, 8)], [(1, 2), (2, 1)], [(0, 4)]], 2, 2, 9),GetUMeshGlobalInfo(outFileName,"MyFirstMEDCouplingMEDmesh"))
         pass
 
     # this test is the testMEDMesh3 except that permutation is dealed here
@@ -439,7 +439,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write("Pyfile19_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile19.med")
         ff.write("Pyfile19_bis.med",0)
-        self.assertEqual([('tyty','mm'),('uiop','MW')],MEDLoader.GetComponentsNamesOfField("Pyfile19_bis.med","VFieldOnNodes"))
+        self.assertEqual([('tyty','mm'),('uiop','MW')],GetComponentsNamesOfField("Pyfile19_bis.med","VFieldOnNodes"))
         pass
 
     #gauss points
@@ -450,7 +450,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff.write("Pyfile13_bis.med",0)
         ff=MEDFileField1TS.New("Pyfile13.med","MyFirstFieldOnGaussPoint",1,5)
         f=ff.getFieldAtLevel(ON_GAUSS_PT,0)
-        f2=MEDLoader.ReadFieldGauss("Pyfile13.med",'2DMesh_2',0,'MyFirstFieldOnGaussPoint',1,5)
+        f2=ReadFieldGauss("Pyfile13.med",'2DMesh_2',0,'MyFirstFieldOnGaussPoint',1,5)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         ff3=MEDFileField1TS.New("Pyfile13.med","MyFirstFieldOnGaussPoint")
         f3=ff3.getFieldAtLevel(ON_GAUSS_PT,0)
@@ -468,7 +468,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff.write("Pyfile14_bis.med",0)
         ff=MEDFileField1TS.New("Pyfile14.med","MyFieldOnGaussNE",1,5)
         f=ff.getFieldAtLevel(ON_GAUSS_NE,0)
-        f2=MEDLoader.ReadFieldGaussNE("Pyfile14.med",'2DMesh_2',0,"MyFieldOnGaussNE",1,5)
+        f2=ReadFieldGaussNE("Pyfile14.med",'2DMesh_2',0,"MyFieldOnGaussNE",1,5)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
 
@@ -476,14 +476,14 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDField5(self):
         ff=MEDFileField1TS.New("Pyfile17.med","MeasureOfMesh_Extruded",1,2)
         f=ff.getFieldAtLevel(ON_CELLS,0)
-        f2=MEDLoader.ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
+        f2=ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
         self.assertTrue(f.getMesh().getCoords().isEqual(f2.getMesh().getCoords(),1e-12))
         f.getMesh().tryToShareSameCoords(f2.getMesh(),1e-12)
         f.changeUnderlyingMesh(f2.getMesh(),22,1e-12)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         # no with renumbering
         f=ff.getFieldAtLevel(ON_CELLS,0,1)
-        f2=MEDLoader.ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
+        f2=ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         f=ff.getFieldAtLevel(ON_CELLS,0,3)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
@@ -499,12 +499,12 @@ class MEDLoaderTest(unittest.TestCase):
         its=ff.getIterations()
         self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
         f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
-        f2=MEDLoader.ReadFieldNode("Pyfile7.med",'3DSurfMesh_1',0,"VectorFieldOnNodes",its[0][0],its[0][1])
+        f2=ReadFieldNode("Pyfile7.med",'3DSurfMesh_1',0,"VectorFieldOnNodes",its[0][0],its[0][1])
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
         its=ff.getIterations()
         f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
-        f2=MEDLoader.ReadFieldNode("Pyfile19.med",'2DMesh_1',0,"VFieldOnNodes",its[0][0],its[0][1])
+        f2=ReadFieldNode("Pyfile19.med",'2DMesh_1',0,"VFieldOnNodes",its[0][0],its[0][1])
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
         self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_NODES,its[0][0],its[0][1],0,1)#request renumber following mesh : it is on profile !
@@ -515,7 +515,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff=MEDFileFieldMultiTS.New("Pyfile12.med","VectorFieldOnCells")
         its=ff.getIterations()
         f=ff.getFieldAtLevel(ON_CELLS,its[0][0],its[0][1],0)
-        f2=MEDLoader.ReadFieldCell("Pyfile12.med",'3DMesh_1',0,"VectorFieldOnCells",its[0][0],its[0][1])
+        f2=ReadFieldCell("Pyfile12.med",'3DMesh_1',0,"VectorFieldOnCells",its[0][0],its[0][1])
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
 
@@ -532,7 +532,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1=MEDFileField1TS.New()
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
-        f2=MEDLoader.ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2]);
+        f2=ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2]);
         itt,orr,ti=ff1.getTime()
         self.assertEqual(0,itt); self.assertEqual(1,orr); self.assertAlmostEqual(2.,ti,14);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
@@ -557,7 +557,7 @@ class MEDLoaderTest(unittest.TestCase):
         nv=1456.
         da=ff1.getUndergroundDataArray().setIJ(0,0,nv)
         ff1.write(fname,0)
-        f2=MEDLoader.ReadFieldNode(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
+        f2=ReadFieldNode(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         self.assertTrue(not f1.isEqual(f2,1e-12,1e-12))
         f1.getArray().setIJ(0,0,nv)
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
@@ -573,7 +573,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1=MEDFileField1TS.New()
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
-        f2=MEDLoader.ReadFieldGaussNE(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
+        f2=ReadFieldGaussNE(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         da,infos=ff1.getUndergroundDataArrayExt()
         f2.getArray().setName(da.getName())#da has the same name than f2
@@ -1070,9 +1070,9 @@ class MEDLoaderTest(unittest.TestCase):
         ff2.setFieldNoProfileSBT(f2)
         ff2.write(fname,0)
         #
-        f3=MEDLoader.ReadFieldCell(fname,"3DSurfMesh_1",0,"VectorFieldOnCells",0,1)
+        f3=ReadFieldCell(fname,"3DSurfMesh_1",0,"VectorFieldOnCells",0,1)
         self.assertTrue(f3.isEqual(f1,1e-12,1e-12))
-        f4=MEDLoader.ReadFieldCell(fname,"3DSurfMesh_2",0,"VectorFieldOnCells2",0,1)
+        f4=ReadFieldCell(fname,"3DSurfMesh_2",0,"VectorFieldOnCells2",0,1)
         self.assertTrue(f4.isEqual(f2,1e-12,1e-12))
         pass
 
@@ -1592,12 +1592,12 @@ class MEDLoaderTest(unittest.TestCase):
         f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
         f2=f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
-        f2_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f2_bis=ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f2_bis.checkCoherency()
         self.assertTrue(f.isEqual(f2_bis,1e-12,1e-12))
         #
-        MEDLoader.WriteField(fname2,f,True)
-        f2_ter=MEDLoader.ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        WriteField(fname2,f,True)
+        f2_ter=ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         self.assertTrue(f.isEqual(f2_ter,1e-12,1e-12))
         ## Use case 2 : Pfl on part tri3 with 2 disc and on part quad8 with 1 disc
         f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
@@ -1630,12 +1630,12 @@ class MEDLoaderTest(unittest.TestCase):
         f3=f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
         f3.renumberCells([0,1,3,2,4,5,6,7,8,9])
         self.assertTrue(f.isEqual(f3,1e-12,1e-12))
-        f3_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f3_bis=ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f3_bis.renumberCells([0,1,3,2,4,5,6,7,8,9])
         self.assertTrue(f.isEqual(f3_bis,1e-12,1e-12))
         #
-        MEDLoader.WriteField(fname2,f,True)
-        f3_ter=MEDLoader.ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        WriteField(fname2,f,True)
+        f3_ter=ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f3_ter.renumberCells([0,1,3,2,4,5,6,7,8,9])
         self.assertTrue(f.isEqual(f3_ter,1e-12,1e-12))
         ## Use case 3 : no pfl but creation of pfls due to gauss pts
@@ -1669,12 +1669,12 @@ class MEDLoaderTest(unittest.TestCase):
         f3=f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
         f3.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
         self.assertTrue(f.isEqual(f3,1e-12,1e-12))
-        f3_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f3_bis=ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f3_bis.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
         self.assertTrue(f.isEqual(f3_bis,1e-12,1e-12))
         #
-        MEDLoader.WriteField(fname2,f,True)
-        f3_ter=MEDLoader.ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        WriteField(fname2,f,True)
+        f3_ter=ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f3_ter.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
         self.assertTrue(f.isEqual(f3_ter,1e-12,1e-12))
         pass
@@ -1740,7 +1740,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff0_3=f0.getFieldOnMeshAtLevel(ON_NODES,0,m)
         ff0_3.checkCoherency()
         self.assertTrue(ff0_3.isEqual(fieldNode0,1e-12,1e-12))
-        ff0_4=MEDLoader.ReadFieldNode(fname,m.getName(),0,fieldNode0.getName(),dt,it)
+        ff0_4=ReadFieldNode(fname,m.getName(),0,fieldNode0.getName(),dt,it)
         ff0_4.checkCoherency()
         self.assertTrue(ff0_4.isEqual(fieldNode0,1e-12,1e-12))
         f1=MEDFileField1TS.New(fname,fieldNode1.getName(),dt,it)
@@ -1756,7 +1756,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1_3=f1.getFieldOnMeshAtLevel(ON_NODES,-1,m)
         ff1_3.checkCoherency()
         self.assertTrue(ff1_3.isEqual(fieldNode1,1e-12,1e-12))
-        ff1_4=MEDLoader.ReadFieldNode(fname,m.getName(),-1,fieldNode1.getName(),dt,it)
+        ff1_4=ReadFieldNode(fname,m.getName(),-1,fieldNode1.getName(),dt,it)
         ff1_4.checkCoherency()
         self.assertTrue(ff1_4.getMesh().isEqual(m10,1e-12))
         self.assertRaises(InterpKernelException,f1.getFieldOnMeshAtLevel,ON_NODES,m0) # error because impossible to build a sub mesh at level 0 lying on nodes [0,1,2,3,4,5,6]
@@ -1830,7 +1830,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff0_3=f0.getFieldOnMeshAtLevel(ON_CELLS,0,m)
         ff0_3.checkCoherency()
         self.assertTrue(ff0_3.isEqual(fieldCell0,1e-12,1e-12))
-        ff0_4=MEDLoader.ReadFieldCell(fname,m.getName(),0,fieldCell0.getName(),dt,it)
+        ff0_4=ReadFieldCell(fname,m.getName(),0,fieldCell0.getName(),dt,it)
         ff0_4.checkCoherency()
         self.assertTrue(ff0_4.isEqual(fieldCell0,1e-12,1e-12))
         f1=MEDFileField1TS.New(fname,fieldCell1.getName(),dt,it)
@@ -1846,7 +1846,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1_3=f1.getFieldOnMeshAtLevel(ON_CELLS,-1,m)
         ff1_3.checkCoherency()
         self.assertTrue(ff1_3.isEqual(fieldCell1,1e-12,1e-12))
-        ff1_4=MEDLoader.ReadFieldCell(fname,m.getName(),-1,fieldCell1.getName(),dt,it)
+        ff1_4=ReadFieldCell(fname,m.getName(),-1,fieldCell1.getName(),dt,it)
         ff1_4.checkCoherency()
         self.assertTrue(ff1_4.getMesh().isEqual(m10,1e-12))
         self.assertRaises(InterpKernelException,f1.getFieldOnMeshAtLevel,ON_CELLS,m0) # error because impossible to build a sub mesh at level 0 lying on cells [0,1,2,3,4,5,6]
@@ -2444,7 +2444,7 @@ class MEDLoaderTest(unittest.TestCase):
         #
         mm0=MEDFileMesh.New(fileName)
         mm1=MEDFileMesh.New(fileName)
-        groupNamesIni=MEDLoader.GetMeshGroupsNames(fileName,"ma")
+        groupNamesIni=GetMeshGroupsNames(fileName,"ma")
         for name in groupNamesIni:
             mm1.changeGroupName(name,name+'N')
             pass
@@ -3794,7 +3794,7 @@ class MEDLoaderTest(unittest.TestCase):
         arr[:,0]=range(25)
         arr[:,1]=range(100,125)
         f.setArray(arr)
-        MEDLoader.WriteField(fileName,f,2)
+        WriteField(fileName,f,2)
         f=MEDCouplingFieldDouble(ON_NODES,ONE_TIME) ; f.setMesh(m)
         f.setName("FieldNode")
         arr=DataArrayDouble(36,2) ; arr.setInfoOnComponents(compos)
@@ -3802,7 +3802,7 @@ class MEDLoaderTest(unittest.TestCase):
         arr[:,1]=range(300,336)
         f.setArray(arr)
         f.checkCoherency()
-        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f)
+        WriteFieldUsingAlreadyWrittenMesh(fileName,f)
         #
         ms=MEDFileMeshes()
         mm=MEDFileUMesh.LoadPartOf(fileName,meshName,[NORM_QUAD4],[0,6,1])
@@ -3859,7 +3859,7 @@ class MEDLoaderTest(unittest.TestCase):
         arr[:,0]=range(25)
         arr[:,1]=range(100,125)
         f.setArray(arr)
-        MEDLoader.WriteField(fileName,f,2)
+        WriteField(fileName,f,2)
         f=MEDCouplingFieldDouble(ON_NODES,ONE_TIME) ; f.setMesh(m)
         f.setName("FieldNode")
         arr=DataArrayDouble(36,2) ; arr.setInfoOnComponents(compos)
@@ -3867,7 +3867,7 @@ class MEDLoaderTest(unittest.TestCase):
         arr[:,1]=range(300,336)
         f.setArray(arr)
         f.checkCoherency()
-        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f)
+        WriteFieldUsingAlreadyWrittenMesh(fileName,f)
         #
         ms=MEDFileMeshes()
         mm=MEDFileUMesh.LoadPartOf(fileName,meshName,[NORM_QUAD4],[4,6,1])
@@ -4196,7 +4196,7 @@ class MEDLoaderTest(unittest.TestCase):
                 d[key]=[val]
             pass
         import re
-        allFields=MEDLoader.GetAllFieldNames(fileName)
+        allFields=GetAllFieldNames(fileName)
         allFieldsDict={}
         pat=re.compile("([\d]+)([\s\S]+)$")
         for st in allFields:

@@ -560,20 +560,20 @@ std::vector<std::string> MEDPARTITIONER::BrowseFieldDouble(const MEDCoupling::ME
 std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfile)
 {
   std::vector<std::string> res;
-  std::vector<std::string> meshNames=MEDLoader::GetMeshNames(myfile);
+  std::vector<std::string> meshNames=MEDCoupling::GetMeshNames(myfile);
   
   for (std::size_t i=0; i<meshNames.size(); i++)
     {
       std::vector<std::string> fieldNames=
-        MEDLoader::GetAllFieldNamesOnMesh(myfile,meshNames[i]);
+        MEDCoupling::GetAllFieldNamesOnMesh(myfile,meshNames[i]);
       for (std::size_t j = 0; j < fieldNames.size(); j++)
         {
           std::vector< MEDCoupling::TypeOfField > typeFields=
-            MEDLoader::GetTypesOfField(myfile, meshNames[i], fieldNames[j]);
+            MEDCoupling::GetTypesOfField(myfile, meshNames[i], fieldNames[j]);
           for (std::size_t k = 0; k < typeFields.size(); k++)
             {
               std::vector< std::pair< int, int > > its=
-                MEDLoader::GetFieldIterations(typeFields[k], myfile, meshNames[i], fieldNames[j]);
+                GetFieldIterations(typeFields[k], myfile, meshNames[i], fieldNames[j]);
               if (MyGlobals::_Is0verbose>100)
                 std::cout<< "fieldName " << fieldNames[j] << " typeField " << typeFields[k] << " its.size() " << its.size() << std::endl;
               for (std::size_t m = 0; m < its.size(); m++)

@@ -247,7 +247,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove(sauvFile)
         pass
 
-    @unittest.skipUnless(MEDLoader.HasXDR(),"requires XDR")
+    @unittest.skipUnless(HasXDR(),"requires XDR")
     def testMissingGroups(self):
         """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
         sauvFile = os.path.join(self.__getResourcesDirectory(),"BDC-714.sauv")

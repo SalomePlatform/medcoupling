@@ -89,7 +89,7 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret;
   int meshDim, spaceDim, numberOfNodes;
-  std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(MEDLoader::GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
+  std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > typesDistrib(GetUMeshGlobalInfo(fileName,mName,meshDim,spaceDim,numberOfNodes));
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
   std::vector<int> distrib;
   for(std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > >::const_iterator it0=typesDistrib.begin();it0!=typesDistrib.end();it0++)
@@ -107,7 +107,7 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
 
 MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::string& fileName)
 {
-  std::vector<std::string> ms(MEDLoader::GetMeshNames(fileName));
+  std::vector<std::string> ms(GetMeshNames(fileName));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
@@ -119,7 +119,7 @@ MEDFileMeshes *ParaMEDFileMeshes::New(int iPart, int nbOfParts, const std::strin
 
 MEDFileMeshes *ParaMEDFileMeshes::ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName)
 {
-  std::vector<std::string> ms(MEDLoader::GetMeshNames(fileName));
+  std::vector<std::string> ms(GetMeshNames(fileName));
   MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> ret(MEDFileMeshes::New());
   for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
