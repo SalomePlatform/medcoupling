@@ -25,7 +25,7 @@ import platform
 from math import pi,e,sqrt
 from MEDLoaderDataForTest import MEDLoaderDataForTest
 
-class MEDLoaderTest(unittest.TestCase):
+class MEDLoaderTest3(unittest.TestCase):
     def testMEDMesh1(self):
         fileName="Pyfile18.med"
         mname="ExampleOfMultiDimW"
