@@ -105,6 +105,7 @@ DataArray
     
 DataArrayInt
 ------------
+    isIdentity2 / isIota
     selectByTupleId2 / selectByTupleIdSlice
     BuildOld2NewArrayFromSurjectiveFormat2 / ConvertIndexArrayToO2N 
   
@@ -113,9 +114,9 @@ DataArrayInt
     getIdsEqualList / findIdsEqualList
     getIdsNotEqualList / findIdsNotEqualList
     getIdsEqualTuple / findIdsEqualTuple
-    locateValue(int) / findIdsFirstEqual
-    locateValue(vec) / findIdsFirstEqualList
-    search / findIdsSequence
+    locateValue / findIdFirstEqual
+    locateTuple / findIdFirstEqualTuple   
+    search / findIdSequence
     getIdsInRange / findIdsInRange
     getIdsNotInRange / findIdsNotInRange
     getIdsStrictlyNegative / findIdsStricltyNegative
