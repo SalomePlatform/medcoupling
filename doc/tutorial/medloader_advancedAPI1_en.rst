@@ -26,7 +26,7 @@ Implementation start
 To implement this exercise we use the Python scripting language and import the MEDLoader Python module.
 The whole MEDCoupling module is fully included in MEDLoader. No need to import MEDCoupling when MEDLoader has been loaded. ::
 
-	from MEDLoader import *
+	import MEDLoader as ml
 
 Writing and Reading meshes using MEDLoader's advanced API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,14 +35,14 @@ First of all, creation of a mesh "targetMesh". ::
 
 	targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        targetMesh=MEDCouplingUMesh.New("MyMesh",2)
+        targetMesh=ml.MEDCouplingUMesh.New("MyMesh",2)
         targetMesh.allocateCells(5)
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
 	targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
-        myCoords=DataArrayDouble.New(targetCoords,9,2)
+        myCoords=ml.DataArrayDouble.New(targetCoords,9,2)
         targetMesh.setCoords(myCoords)
         
 
@@ -66,15 +66,15 @@ Then we are ready to write targetMesh and targetMesh1 into TargetMesh2.med. ::
 
 Create 2 groups on level 0. The first called "grp0_Lev0" on cells [0,1,3] and the second called "grp1_Lev0" on cells [1,2,3,4] ::	
 
-	grp0_0=DataArrayInt.New([0,1,3]) ; grp0_0.setName("grp0_Lev0")
-	grp1_0=DataArrayInt.New([1,2,3,4]) ; grp1_0.setName("grp1_Lev0")
+	grp0_0=ml.DataArrayInt.New([0,1,3]) ; grp0_0.setName("grp0_Lev0")
+	grp1_0=ml.DataArrayInt.New([1,2,3,4]) ; grp1_0.setName("grp1_Lev0")
 	meshMEDFile.setGroupsAtLevel(0,[grp0_0,grp1_0])
 
 Create 3 groups on level -1. The 1st called "grp0_LevM1" on cells [0,1], the 2nd called "grp1_LevM1" on cells [0,1,2], and the 3rd called "grp2_LevM1" on cells [1,2,3] ::
 
-	grp0_M1=DataArrayInt.New([0,1]) ; grp0_M1.setName("grp0_LevM1")
-	grp1_M1=DataArrayInt.New([0,1,2]) ; grp1_M1.setName("grp1_LevM1")
-	grp2_M1=DataArrayInt.New([1,2,3]) ; grp2_M1.setName("grp2_LevM1")
+	grp0_M1=ml.DataArrayInt.New([0,1]) ; grp0_M1.setName("grp0_LevM1")
+	grp1_M1=ml.DataArrayInt.New([0,1,2]) ; grp1_M1.setName("grp1_LevM1")
+	grp2_M1=ml.DataArrayInt.New([1,2,3]) ; grp2_M1.setName("grp2_LevM1")
 	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])
 	
 
@@ -100,7 +100,7 @@ Writing and Reading fields
 
 Creation of a simple vector field on cells called f.  ::
 
-	f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
+	f=ml.MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
 	f.setTime(5.6,7,8)
 	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
@@ -128,7 +128,7 @@ Writing and Reading fields on a "profile"
 
 Build a reduction on cells [1,2,3] of f and call it fPart. ::
 
-	pfl=DataArrayInt.New([1,2,3]) ; pfl.setName("My1stPfl")
+	pfl=ml.DataArrayInt.New([1,2,3]) ; pfl.setName("My1stPfl")
 	fPart=f.buildSubPart(pfl)
 	fPart.setName("fPart")
 

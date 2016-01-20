@@ -6,8 +6,8 @@
 
 The aim of this page is to present MEDLoader basic API. The goal of
 this basic API is to perform a read or a write in one shot without any
-internal state. That's why the basic API of MEDLoader offers \b only \b static methods whose names have the first
-character in capital. You are intended to use these methods. The following
+internal state. That's why the basic API of MEDLoader offers \b only \b static functions whose names have the first
+character in capital. You are intended to use these functions. The following
 chapters will try to describe in details some of important ones.
 
 The basic idea of MEDLoader is to exploit as much as possible MED
@@ -24,16 +24,16 @@ MEDLoader tries to manage that by protecting the user by throwing exceptions whe
 
 \section BasicMEDLoaderBasicAPIGlobalInfo Retrieving tiny global information from MED files using basic API
 
-The MEDLoader::CheckFileForRead method will perform such a check before any attempt of read.
-A field is also discriminated by its name. The methods MEDLoader::GetCellFieldNamesOnMesh and MEDLoader::GetNodeFieldNamesOnMesh are available to know all fields
+The MEDCoupling::CheckFileForRead function will perform such a check before any attempt of read.
+A field is also discriminated by its name. The functions MEDCoupling::GetCellFieldNamesOnMesh and MEDCoupling::GetNodeFieldNamesOnMesh are available to know all fields
 respectively on cells and on nodes lying on a specified mesh.
 
  A field is defined by several time steps discriminated by a pair of ints
 (iteration,order). It is \b not possible to store 2 time steps of a same
 field having the same iteration and order
 numbers. The floating point value attached to this couple of ids (iteration,order) is only present for information.
-Static methods MEDLoader::GetCellFieldIterations and
-MEDLoader::GetNodeFieldIterations return a vector of pairs (iteration, order).
+Static functions MEDCoupling::GetCellFieldIterations and
+MEDCoupling::GetNodeFieldIterations return a vector of pairs (iteration, order).
 
 A field time step lies on one \b or \b more mesh(es) specified by its \b or \b their name(s). A field time step in
 MED file could be defined on point \b and on cell \b and, \b or on Gauss points \b and, \b or on point per element.
@@ -44,7 +44,7 @@ Let's recall basic principles that explains some of the aspect of MEDLoade API.
 \anchor MEDLoaderMeshNameConstraint MED file can contain several meshes. These meshes are
 discriminated by their names (two meshes could not have the same
 name). In the same way a MED file can contain several fields.
-So MEDLoader offers the MEDLoader::GetMeshNames method to
+So MEDLoader offers the MEDCoupling::GetMeshNames function to
 discover all the mesh names contained in your file.
 
 \section BasicMEDLoaderBasicAPIMesh Reading and writing meshes in MED files using basic API
@@ -54,7 +54,7 @@ have different dimension. For example it is possible to mix
 MED_TETRA4, MED_TRIA6, MED_SEG2, MED_POINT1, MED_POLYGON,
 MED_POLYHEDRA in a same mesh. In MEDCouplingUMesh such a mix is not
 allowed as described \ref MEDCouplingMeshes "here". So to \b read such mesh it
-is important to know which mesh dimension you are interested in. The parameter \b meshDimRelToMax of method MEDLoader::ReadUMeshFromFile corresponds to the mesh dimension you are
+is important to know which mesh dimension you are interested in. The parameter \b meshDimRelToMax of function MEDCoupling::ReadUMeshFromFile corresponds to the mesh dimension you are
 interested in, expressed relatively to the maximal dimension of cells contained
 in the mesh in file.
 
@@ -71,7 +71,7 @@ If you are interested in MED_SEG2 and MED_SEG3 you should use :
 
 \snippet MEDLoaderExamplesTest.py PySnippetMeshAdvAPI1_10
 
-The method MEDLoader::ReadUMeshDimFromFile could
+The function MEDCoupling::ReadUMeshDimFromFile could
 help you to have this mesh dimension.
 
 Here is a \ref MEDLoaderExample2 "Python example".<br>
@@ -91,16 +91,16 @@ All cells and nodes having the same id define this family. This id
 is called the familyId. A family is discriminated by its id. MED file
 attaches a name to its id to be more user friendly. So by construction, 2 different
 families could not share anything. The user can retrieve all the
-families names available on a mesh with the static method MEDLoader::GetMeshFamiliesNames.
+families names available on a mesh with the static function MEDCoupling::GetMeshFamiliesNames.
 
 A group is a set of families. So groups can overlap each other,
 contrary to families. Groups are also discriminated by a name. As for
-families the static method to retrieve the groups of a specified mesh is MEDLoader::GetMeshGroupsNames.
+families the static function to retrieve the groups of a specified mesh is MEDCoupling::GetMeshGroupsNames.
 
 MEDLoader allows you to retrieve the
-corresponding "part of meshes" thanks to static methods
-MEDLoader::ReadUMeshFromFamilies and MEDLoader::ReadUMeshFromGroups.
-These methods allow you to combine several families and groups in the
+corresponding "part of meshes" thanks to static functions
+MEDCoupling::ReadUMeshFromFamilies and MEDCoupling::ReadUMeshFromGroups.
+These functions allow you to combine several families and groups in the
 same returned mesh.
 
 \subsection BasicMEDLoaderAPIField Reading a field at one time step in MED files
@@ -139,7 +139,7 @@ constraint on API to precise to MEDLoader if you intend
 to append data to an existing file, or if you want to create a new
 file from scratch. This explains the presence of boolean parameter \b
 writeFromScratch in API of MEDLoader starting with \b
-MEDLoader::Write* .
+MEDCoupling::Write* .
 
 If \b writeFromScratch parameter is set to \b true and if the file
 already exists the file will be crashed and replaced by the new
@@ -147,20 +147,20 @@ corresponding data. If \b writeFromScratch parameter is set to \b false and if t
 file does \b not \b exist the new file is created, but if the file
 exists MEDLoader will enter in appended mode.
 
-Two classes of MEDLoader write methods exist when \b writeFromScratch
+Two classes of MEDLoader write functions exist when \b writeFromScratch
 is set to \b false :
 
--  Methods \b MEDLoader::Write*Dep : The write operation is performed without any question in file. The
+-  Functions \b MEDCoupling::Write*Dep : The write operation is performed without any question in file. The
    responsibility is let to the user because the MED file could be
-   corrupted. The advantage of this method is that it is faster
+   corrupted. The advantage of this function is that it is faster
    because no check is done.
-- Methods \b MEDLoader::Write* : MEDLoader will not corrupt your file
+- Functions \b MEDCoupling::Write* : MEDLoader will not corrupt your file
    by always trying to append data. The consequence is that a
    read of part (and data processing) of MED file could be needed before any attempt of
-   writing. So these methods could be in some cases much time and memory consuming.
+   writing. So these functions could be in some cases much time and memory consuming.
 
 The behaviour of MEDLoader when \b writeFromScratch is set to false will be precised
-for each \b MEDLoader::Write* methods is the next subsections.
+for each \b MEDCoupling::Write* functions is the next subsections.
 
 \subsection MEDLoaderWriteMesh Writing one mesh in a MED file with MEDLoader
 
@@ -182,10 +182,10 @@ It could be interesting to write several meshes in one shot. Two
 possibilities:
 
 - Write several instances of MEDCoupling::MEDCouplingUMesh
-  lying \b on \b same \b coords \b with \b different \b mesh \b dimensions. In this case MEDLoader::WriteUMeshes is the method you should
-  use. Typically this method should be used to write files such as
+  lying \b on \b same \b coords \b with \b different \b mesh \b dimensions. In this case MEDCoupling::WriteUMeshes is the function you should
+  use. Typically this function should be used to write files such as
   defined \ref MEDLoaderExample2 "here".
-  This method first checks that all instances share the same
+  This function first checks that all instances share the same
   MEDCoupling::DataArrayDouble instance as coords. If not an
   INTERP_KERNEL::Exception will be thrown and an invocation on
   MEDCoupling::MEDCouplingPointSet::tryToShareSameCoords will be necessary.
@@ -193,31 +193,31 @@ possibilities:
 - Write a partition of meshes having \b same \b mesh \b dimension, that is to say a set of
   groups and families from given meshes. As in the previous case the
   check of same coords will be done (if not an INTERP_KERNEL::Exception is
-  thrown). After this step this method will
+  thrown). After this step this function will
   merge input (preserving order) and will simplify the
   merged mesh. After this operation, the groups will be constituted by
   assigning the group names with the corresponding names of
-  instance. That's why all meshes must have a not empty name which is different from one mesh to the other. The method to use in this case is
-  MEDLoader::WriteUMeshesPartition.
+  instance. That's why all meshes must have a not empty name which is different from one mesh to the other. The function to use in this case is
+  MEDCoupling::WriteUMeshesPartition.
 
-For these 2 described methods the semantic of \b writeFromScratch when
+For these 2 described functions the semantic of \b writeFromScratch when
 \b false is the same, that is to say : no writing
 (INTERP_KERNEL::Exception thrown) will be done if the
 file already exists and contains a mesh with name 'meshName'
-for MEDLoader::WriteUMeshesPartition method and the name of first element
+for MEDCoupling::WriteUMeshesPartition function and the name of first element
 of unstructured mesh vector passed as first parameter of
-MEDLoader::WriteUMeshes.
+MEDCoupling::WriteUMeshes.
 
 \subsection MEDLoaderWriteField Writing one time step of a field in a MED file with MEDLoader
 
 To write \b one \b time \b step of a field from scratch with MEDLoader
-use MEDLoader::WriteField method. The behaviour of this method depends
+use MEDCoupling::WriteField function. The behaviour of this function depends
 on the value of the \b writeFromScratch parameter :
 
-- When \b writeFromScratch equals to \b true, this method performs two things, it
+- When \b writeFromScratch equals to \b true, this function performs two things, it
 writes the underlying mesh and writes the specified time step on it.
 
-- When \b writeFromScatch equals to \b false, this method checks that
+- When \b writeFromScatch equals to \b false, this function checks that
   the underlying mesh exists (by looking to the contents of \c field->getMesh()->getName()) in file. If not, the behaviour is the
   same that previous case with \b writeFromScratch parameter set to
   \b true. If the mesh already exists, MEDLoader reads the field and

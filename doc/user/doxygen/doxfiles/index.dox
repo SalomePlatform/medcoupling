@@ -44,12 +44,12 @@ This documentation is organized as follows:
   \endif
 
 - \ref appendix
+    - \ref porting
     - \ref glossary
     - \ref med-file
     - \ref install
 
-- \ref ParaMEDMEM "MEDCoupling (and other parallel classes) API documentation"
-- \ref MEDLoader "MEDLoader API documentation"
+- \ref MEDCoupling "MEDCoupling, MEDLoader (and other parallel classes) API documentation"
 
 */
 

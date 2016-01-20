@@ -7,7 +7,6 @@ Reading, Writing a MED file using MEDLoader basic API
 ::
 
 	import MEDLoader as ml
-	from MEDLoader import MEDLoader
 	# Mesh creation
 	targetCoords = [-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
 	targetConn = [0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
@@ -22,9 +21,9 @@ Reading, Writing a MED file using MEDLoader basic API
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
 	targetMesh.setCoords(myCoords)
 	# Writing mesh only
-	MEDLoader.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
+	ml.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
 	# Re-read it and test equality
-	meshRead = MEDLoader.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
+	meshRead = ml.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
 	print "Is the read mesh equal to 'targetMesh' ?", meshRead.isEqual(targetMesh,1e-12)
 	# Writing a field and its support mesh in one go
 	f = ml.MEDCouplingFieldDouble.New(ml.ON_CELLS, ml.ONE_TIME)
@@ -32,21 +31,21 @@ Reading, Writing a MED file using MEDLoader basic API
 	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
-	MEDLoader.WriteField("MyFirstField.med",f,True)
+	ml.WriteField("MyFirstField.med",f,True)
 	# Re-read it ans test equality
-	f2 = MEDLoader.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
+	f2 = ml.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 	print "Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12)
 	# Writing in several steps 
-	MEDLoader.WriteUMesh("MySecondField.med",f.getMesh(),True)
-	MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
+	ml.WriteUMesh("MySecondField.med",f.getMesh(),True)
+	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
 	# A second field to write
 	f2 = f.clone(True)         # 'True' means that we need a deep copy  
 	f2.getArray()[:] = 2.0
 	f2.setTime(7.8,9,10)
-	MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
+	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
 	# Re-read and test this two-timestep field
-	f3 = MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
+	f3 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
 	print "Is the field read in file equals to 'f' ?", f.isEqual(f3,1e-12,1e-12)
-	f4 = MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
+	f4 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
 	print "Is the field read in file equals to 'f2' ?", f2.isEqual(f4,1e-12,1e-12)
 

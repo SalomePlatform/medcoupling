@@ -1,0 +1,123 @@
+/*!
+
+\page porting Porting code/scripts from version 7 to 8
+
+\section port-migrate How to migrate
+
+Significant API changes have been made between version 7.x and 8.x of MEDCoupling.
+This page guides you through the changes you have to apply to migrate.
+
+First of all, the script
+\code
+    medcoup7to8.py
+\endcode
+
+installed in the binary directory can do most of the job. It takes as first argument the path of the directory
+containing the sources you want to port. Only some extensions are handled. A backup of the modified files is
+done. Run
+\code
+    medcoup7to8.py --help
+\endcode
+for a full usage description, including the handled file extensions.
+
+Beware however that the two substitutions below can not be done via this script, because they might conflict with
+standard STL C++ functions:
+- DataArray*::search -> DataArray*::findIdSequence
+- DataArray*::substr -> DataArray*::subArray
+Those will have to be treated manually. 
+
+The script doesn't handle either the namespace change described below. 
+
+\section port-medloader Namespace change and MEDLoader high level API
+
+The namespace ParaMEDMEM has been turned into MEDCoupling, and now contains MEDLoader high level API.
+The MEDLoader high level API is hence accessible:
+ - at the MEDCoupling namespace level in C++ (direct static functions, no more MEDLoader class)
+ - at the MEDLoader module level in Python. Scripts using the high level API of the MEDLoader
+typically need to get read of all the occurences of "MEDLoader." in their code.  
+
+Note that on the Python side the module MEDLoader is still here, but doesn't containt the MEDLoader class anymore.
+As before it re-includes all of MEDCoupling classes, plus the low level MEDLoader classes (MEDFile* classes).
+
+\section port-full-ref Name changes - Reference list
+
+The following changes have been applied:
+- methods ending with a number (mergeNodes2, ...) have been made more explicit
+- search functions have been unified (they all begin with 'findId(s)')
+- plus some other various renames 
+
+Full list of method name changes:
+
+- Interpolation
+    + RevIntegral / IntensiveConservation 
+    + ConservativeVolumic / IntensiveMaximum
+    + IntegralGlobConstraint / ExtensiveConservation
+    + Integral / ExtensiveMaximum
+- All classes
+    + deepCpy / deepCopy
+    + performCpy / performCopyOrIncrRef
+- Auto-pointer
+    + MEDCouplingAutoRefCountObjectPtr / MCAuto
+- MEDCouplingExtrudedMesh
+    + MEDCouplingExtrudedMesh / MEDCouplingMappedExtrudedMesh
+- MEDCouplingMesh
+    + getBarycenterAndOwner / computeCellCenterOfMass
+    + checkCoherency / checkConsistencyLight
+    + checkCoherency1 / checkConsistency
+- MEDCouplingPointSet
+    + mergeNodes2 / mergeNodesCenter
+    + renumberNodes2 / renumberNodesCenter
+    + buildPartOfMySelf2 / buildPartOfMySelfSlice
+    + buildPartOfMySelfKeepCoords2 / buildPartOfMySelfKeepCoordsSlice
+    + deepCpyConnectivityOnly / deepCopyConnectivityOnly
+- MEDCoupling1DGTUMesh
+    + checkCoherencyOfConnectivity / checkConsistencyOfConnectivity
+- MEDCouplingUMesh
+    + getMeshLength / getNodalConnectivityArrayLen
+    + AreCellsEqual0 / AreCellsEqualPolicy0
+    + AreCellsEqual1 / AreCellsEqualPolicy1
+    + AreCellsEqual2 / AreCellsEqualPolicy2
+    + AreCellsEqual7 / AreCellsEqualPolicy7
+    + AreCellsEqual3 / AreCellsEqualPolicy2NoType
+    + areCellsIncludedIn2 / areCellsIncludedInPolicy7
+    + setPartOfMySelf2 / setPartOfMySelfSlice
+    + ExtractFromIndexedArrays2 / ExtractFromIndexedArraysSlice
+    + SetPartOfIndexedArrays2 / SetPartOfIndexedArraysSlice
+    + SetPartOfIndexedArraysSameIdx2 / SetPartOfIndexedArraysSameIdxSlice
+    + deepCpyConnectivityOnly / deepCopyConnectivityOnly
+- DataArray
+    + setContigPartOfSelectedValues2 / setContigPartOfSelectedValuesSlice
+    + selectByTupleId2 / selectByTupleIdSafe
+    + GetAxTypeRepr / GetAxisTypeRepr
+    + cpyFrom / deepCopyFrom
+- DataArrayInt
+    + isIdentity2 / isIota
+    + selectByTupleId2 / selectByTupleIdSlice
+    + BuildOld2NewArrayFromSurjectiveFormat2 / ConvertIndexArrayToO2N   
+    + getIdsEqual / findIdsEqual
+    + getIdsNotEqual / findIdsNotEqual
+    + getIdsEqualList / findIdsEqualList
+    + getIdsNotEqualList / findIdsNotEqualList
+    + getIdsEqualTuple / findIdsEqualTuple
+    + locateValue / findIdFirstEqual
+    + locateTuple / findIdFirstEqualTuple   
+    + search / findIdSequence  (<b>WARNING not handled by the porting script!</b>)
+    + getIdsInRange / findIdsInRange
+    + getIdsNotInRange / findIdsNotInRange
+    + getIdsStrictlyNegative / findIdsStricltyNegative
+    + searchRangesInListOfIds / findIdsRangesInListOfIds
+    + computeOffsets2 / computeOffsetsFull
+- DataArrayDouble
+    + substr / subArray (<b>WARNING not handled by the porting script!</b>) 
+    + applyFunc2 / applyFuncCompo
+    + applyFunc3 / applyFuncNamedCompo
+- MEDCouplingFieldDouble
+    + getIdsInRange / findIdsInRange
+    + fillFromAnalytic2 / fillFromAnalyticCompo
+    + fillFromAnalytic3 / fillFromAnalyticNamedCompo
+    + applyFunc2 / applyFuncCompo
+    + applyFunc3 / applyFuncNamedCompo
+    + mergeNodes2 / mergeNodesCenter
+
+*/
+

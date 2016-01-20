@@ -28,7 +28,6 @@ Pour information, le module ``MEDCoupling`` complet est inclus dans ``MEDLoader`
 si ``MEDLoader`` a été chargé. ::
 
 	import MEDLoader as ml
-	from MEDLoader import MEDLoader
 
 Lecture, écriture d'un maillage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,11 +51,11 @@ Tout d'abord créons un maillage ``targetMesh`` composé de plusieurs types géo
 
 Le maillage peut alors directement être écrit ... ::
 
-	MEDLoader.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
+	ml.WriteUMesh("TargetMesh.med",targetMesh,True)  # True means 'from scratch'
 
 ... et relu. ::
 
-	meshRead = MEDLoader.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
+	meshRead = ml.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
 	print "Is the read mesh equal to 'targetMesh' ?", meshRead.isEqual(targetMesh,1e-12)
 
 Lire/Ecrire un champ sur un pas de temps
@@ -73,7 +72,7 @@ fonctions de l'API se basent sur les deux derniers entiers. ::
 	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
-	MEDLoader.WriteField("MyFirstField.med",f,True)
+	ml.WriteField("MyFirstField.med",f,True)
 
 Question subsidiaire : à quoi correspond le champ ainsi créé ?
 
@@ -81,7 +80,7 @@ Question subsidiaire : à quoi correspond le champ ainsi créé ?
 
 Nous relisons ensuite MyFirstField.med : ::
 
-	f2 = MEDLoader.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
+	f2 = ml.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 	print "Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12)
 	
 .. note:: Lors de la lecture du champ, on doit donc connaître: son nom, le nom de sa mesh de support
@@ -99,27 +98,27 @@ Lire/Ecrire un champ sur plusieurs pas de temps
 Ici contrairement au cas précédent, nous écrivons en plusieurs fois dans le *même* fichier MED.
 Ecrivons tout d'abord le maillage. ::
 
-	MEDLoader.WriteUMesh("MySecondField.med",f.getMesh(),True)
+	ml.WriteUMesh("MySecondField.med",f.getMesh(),True)
 	
 Ensuite, nous écrivons seulement les informations relatives au champ (principalement son tableau de valeurs en fait
 ). ::
 
-	MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)   # mesh is not re-written
+	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)   # mesh is not re-written
 	
 Nous rajoutons ensuite un second pas de temps sur le *même* maillage. ::
 
 	f2 = f.clone(True)         # 'True' means that we need a deep copy  
 	f2.getArray()[:] = 2.0
 	f2.setTime(7.8,9,10)
-	MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
+	ml.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
 
 Maintenant le fichier "MySecondField.med" contient le maillage et un champ à deux pas de temps porté par ce maillage.
 
 Nous pouvons relire tout cela avec des méthodes similaires à ce qui a été vu précédemment : ::
 
-	f3 = MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
+	f3 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
 	print "Is the field read in file equals to 'f' ?", f.isEqual(f3,1e-12,1e-12)
-	f4 = MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
+	f4 = ml.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
 	print "Is the field read in file equals to 'f2' ?", f2.isEqual(f4,1e-12,1e-12)
 
 Solution

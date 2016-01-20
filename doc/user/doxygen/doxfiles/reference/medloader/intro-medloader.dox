@@ -7,7 +7,7 @@
 
 \ref medloader "MEDLoader" is a package in charge of loading from a file or write to a file
 in MED format a \ref medcoupling "MEDCoupling data structure". The fact that these
-functionalities are not merged in the \ref library "MEDCoupling library" is explained by a
+functionalities are not merged in the \ref library "MEDCoupling library" (separated .so files) is explained by a
 willingness of reducing as much as possible the dependencies of this library.
 
 As a MED file can combine several \ref medcoupling "MEDCoupling" aspects in one (for example meshes in
@@ -32,9 +32,9 @@ Whatever the approach(es) you choose, it is advisable to know main concepts of M
 
 This approach is less close to MED file concepts, but closer to \ref medcoupling "MEDCoupling concepts".
 
-So, basic API is simpler, as shown by method MEDLoader::WriteUMesh that needs no special knowledge about MED file concepts to interact with MED files.
+So, basic API is simpler, as shown by method MEDCoupling::WriteUMesh that needs no special knowledge about MED file concepts to interact with MED files.
 
-This API is in the form of a list of public static methods in a class MEDCoupling::MEDLoader.
+This API is in the form of a list of public static functions directly in the namespace MEDCoupling.
 
 This simplicity has a cost, the I/O are not (cannot be) optimized.
 

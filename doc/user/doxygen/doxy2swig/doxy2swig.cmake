@@ -42,7 +42,6 @@ SET(_classes_MEDCoupling
 # MEDLoader classes to include
 #
 SET(_classes_MEDLoader
-    MEDLoader
     MEDCoupling_1_1MEDFileMeshes
     MEDCoupling_1_1MEDFileMesh
     MEDCoupling_1_1MEDFileUMesh

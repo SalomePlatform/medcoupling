@@ -7,7 +7,6 @@ Reading, Writing a MED file using MEDLoader advanced API
 ::
 
 	import MEDLoader as ml
-	from MEDLoader import MEDLoader
 	# Mesh creation
 	targetCoords = [-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
 	targetConn = [0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]

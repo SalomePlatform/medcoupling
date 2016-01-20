@@ -31,7 +31,6 @@ Pour information, le module ``MEDCoupling`` complet est inclus dans ``MEDLoader`
 si ``MEDLoader`` a été chargé. ::
 
 	import MEDLoader as ml
-	from MEDLoader import MEDLoader
 
 Lecture, écriture d'un maillage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
