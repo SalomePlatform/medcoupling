@@ -10,7 +10,7 @@ In this type of mesh space dimension \b and mesh dimension are equals and the va
 
 The n arrays will have only one component and the values contained in these arrays will be ascendently sorted.
 
-The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingCMesh.
+The class that incarnates the described concept is : MEDCoupling::MEDCouplingCMesh.
 
 \section MEDCouplingCMeshStdBuild Standard building of a cartesian mesh from scratch
 

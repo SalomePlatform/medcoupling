@@ -26,7 +26,7 @@
  */
 
 /*!
- * \namespace ParaMEDMEM
+ * \namespace MEDCoupling
  * \brief Namespace gathering the core MEDCoupling functionalities, the advanced MEDLoader classes and the parallel classes.
  */
 

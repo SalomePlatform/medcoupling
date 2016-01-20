@@ -84,14 +84,14 @@ Take a look at this example: \ref medcouplingpyexamplesFieldDoubleBuild1
 For starter, take a look at the \ref MEDLoaderBasicAPIPage "basic MEDLoader API".
 
 \subsubsection f-coher "How to control the validity of my mesh"
-Use the methods \ref ParaMEDMEM::MEDCouplingUMesh::checkCoherency() "MEDCouplingUMesh::checkCoherency()" or
-\ref ParaMEDMEM::MEDCouplingUMesh::checkCoherency1() "MEDCouplingUMesh::checkCoherency1()" 
+Use the methods \ref MEDCoupling::MEDCouplingUMesh::checkCoherency() "MEDCouplingUMesh::checkCoherency()" or
+\ref MEDCoupling::MEDCouplingUMesh::checkCoherency1() "MEDCouplingUMesh::checkCoherency1()" 
 
 \subsubsection f-groups "How can I read/write groups on a mesh"
 Take a look at \ref AdvMEDLoaderAPIMeshReading and \ref AdvMEDLoaderAPIMeshWriting.
 
 \subsubsection f-unstruc "How can I transform a structured mesh into an unstructured one"
-Use the method \ref  ParaMEDMEM::MEDCouplingCMesh::buildUnstructured() "MEDCouplingCMesh::buildUnstructured()"
+Use the method \ref  MEDCoupling::MEDCouplingCMesh::buildUnstructured() "MEDCouplingCMesh::buildUnstructured()"
 
 \subsection faq-interp Projection, interpolation, remapping
 \subsubsection f-proj How to project a field from one mesh to the other
@@ -117,7 +117,7 @@ Re-compile in debug mode (with \c CMAKE_BUILD_TYPE=Debug), and use either valgri
 to spot the place where the segfault happens.
 The most common source of mistake is some memory mis-allocation and/or deallocation.
 With this respect using the auto pointer class 
-\ref ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr"
+\ref MEDCoupling::MEDCouplingAutoRefCountObjectPtr "MEDCouplingAutoRefCountObjectPtr"
 can be of great help.  
  
 \n

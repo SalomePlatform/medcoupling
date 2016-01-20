@@ -34,7 +34,7 @@ This approach is less close to MED file concepts, but closer to \ref medcoupling
 
 So, basic API is simpler, as shown by method MEDLoader::WriteUMesh that needs no special knowledge about MED file concepts to interact with MED files.
 
-This API is in the form of a list of public static methods in a class ParaMEDMEM::MEDLoader.
+This API is in the form of a list of public static methods in a class MEDCoupling::MEDLoader.
 
 This simplicity has a cost, the I/O are not (cannot be) optimized.
 

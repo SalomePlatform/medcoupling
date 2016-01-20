@@ -16,7 +16,7 @@ Two different APIs are available depending on whether you run sequentially or in
 - the \ref remapper "remapper class" (based on the underlying \ref interpkernel "InterpKernel" library) 
 for sequential codes, which uses MEDCoupling \ref fields "fields" and other core data structures.
 - the \ref parallel "ParaMEDMEM API" for parallel MPI based codes using \c %ParaMEDMEM distributed fields
-(\ref ParaMEDMEM::ParaFIELD "ParaFIELD"), which is also based on the algorithms of the 
+(\ref MEDCoupling::ParaFIELD "ParaFIELD"), which is also based on the algorithms of the 
 \ref interpkernel "InterpKernel" library.
 
 The following space/mesh dimensions are covered:

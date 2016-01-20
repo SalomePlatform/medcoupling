@@ -20,7 +20,7 @@
 // This file contains some code used only for
 // * generation of documentation for inline methods of MEDCouplingPointSet
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   /*!

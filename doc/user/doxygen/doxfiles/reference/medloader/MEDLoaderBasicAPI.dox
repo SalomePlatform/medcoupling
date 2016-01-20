@@ -13,9 +13,9 @@ chapters will try to describe in details some of important ones.
 The basic idea of MEDLoader is to exploit as much as possible MED
  file capabilities to store MEDCoupling data file in a MED file and
 reversely to load from a MED file into a MEDCoupling data structure.
-Basically, the info on components of ParaMEDMEM::DataArrayDouble instances are stored into components and units into MED files. The
+Basically, the info on components of MEDCoupling::DataArrayDouble instances are stored into components and units into MED files. The
 name of meshes and fields are used by MEDLoader as is into
-MED file. From a field f with \ref ParaMEDMEM::MEDCouplingTimeDiscretization
+MED file. From a field f with \ref MEDCoupling::MEDCouplingTimeDiscretization
 "time discretization" set to ONE_TIME, calls to
 \c f->getTime(time,iteration,order) are used by MEDLoader to store the field into MED file. All strings used by MEDLoader should fulfill the rules of MED file where string length
 is limited.
@@ -165,7 +165,7 @@ for each \b MEDLoader::Write* methods is the next subsections.
 \subsection MEDLoaderWriteMesh Writing one mesh in a MED file with MEDLoader
 
 The first think to know is that MEDLoader is using the \b meshName in
-ParaMEDMEM::MEDCouplingMesh instance to put it in MED file.
+MEDCoupling::MEDCouplingMesh instance to put it in MED file.
 
 As explained in previous section \ref MEDLoaderMeshNameConstraint "here",
 a mesh in MED file is discriminated by a name, so the \b meshName
@@ -181,14 +181,14 @@ Here is a \ref py_mcumesh_writefile_onemesh_basic "Python example".
 It could be interesting to write several meshes in one shot. Two
 possibilities:
 
-- Write several instances of ParaMEDMEM::MEDCouplingUMesh
+- Write several instances of MEDCoupling::MEDCouplingUMesh
   lying \b on \b same \b coords \b with \b different \b mesh \b dimensions. In this case MEDLoader::WriteUMeshes is the method you should
   use. Typically this method should be used to write files such as
   defined \ref MEDLoaderExample2 "here".
   This method first checks that all instances share the same
-  ParaMEDMEM::DataArrayDouble instance as coords. If not an
+  MEDCoupling::DataArrayDouble instance as coords. If not an
   INTERP_KERNEL::Exception will be thrown and an invocation on
-  ParaMEDMEM::MEDCouplingPointSet::tryToShareSameCoords will be necessary.
+  MEDCoupling::MEDCouplingPointSet::tryToShareSameCoords will be necessary.
 
 - Write a partition of meshes having \b same \b mesh \b dimension, that is to say a set of
   groups and families from given meshes. As in the previous case the

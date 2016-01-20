@@ -28,10 +28,10 @@
 In this example we
 - create two fields with two tuples per two components,
 - use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::MaxFields "MaxFields()"
+\ref MEDCoupling::MEDCouplingFieldDouble::MaxFields "MaxFields()"
 to get a field holding maximal values of the two fields.
 - use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::MinFields "MinFields()"
+\ref MEDCoupling::MEDCouplingFieldDouble::MinFields "MinFields()"
 to get a field holding minimal values of the two fields.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_MaxFields_1
@@ -44,7 +44,7 @@ In this example we
 - make a deep copy of the mesh and the field,
 - translate the mesh and the field,
 - use two variants of
-\ref ParaMEDMEM::MEDCouplingFieldDouble::MergeFields "MergeFields()"
+\ref MEDCoupling::MEDCouplingFieldDouble::MergeFields "MergeFields()"
 to create one field from the two by concatenating them and their meshes.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_MergeFields_1
@@ -54,14 +54,14 @@ The result field is twice "longer" than \b field1.
 \subsubsection cpp_mcfielddouble_buildNewTimeReprFromThis Getting a field copy with different time discretization
 
 First, we create a supporting 2D mesh and a field on it got using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
 \ref MEDCouplingTemporalDisc "Time discretization" of this field is
-\ref ParaMEDMEM::ONE_TIME "ONE_TIME".
+\ref MEDCoupling::ONE_TIME "ONE_TIME".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_1
 Now we use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis "buildNewTimeReprFromThis()"
+\ref MEDCoupling::MEDCouplingFieldDouble::buildNewTimeReprFromThis "buildNewTimeReprFromThis()"
 to get a copy of \b field1 whose time discretization is
-\ref ParaMEDMEM::NO_TIME "NO_TIME".
+\ref MEDCoupling::NO_TIME "NO_TIME".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_buildNewTimeReprFromThis_2
 
 
@@ -70,8 +70,8 @@ to get a copy of \b field1 whose time discretization is
 First, we create a 2D Cartesian mesh constituted by 2 cells.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic3_1
 Now we use
-\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic3 "fillFromAnalytic3()"
-to get a \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
+\ref MEDCoupling::MEDCouplingMesh::fillFromAnalytic3 "fillFromAnalytic3()"
+to get a \ref MEDCoupling::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
 with values computed using an expression \b func. This expression is applied to coordinates of
 each point (barycenter) for which the field value is computed. We want to get the
 field on cells, with 3 components computed as follows. (In \b func, we refer to the
@@ -98,8 +98,8 @@ Note that we set names to coordinates arrays ("a" and "b" ) which will be used t
 corresponding coordinates within a function.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic2_1
 Now we use
-\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic2 "fillFromAnalytic2()"
-to get a \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
+\ref MEDCoupling::MEDCouplingMesh::fillFromAnalytic2 "fillFromAnalytic2()"
+to get a \ref MEDCoupling::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
 with values computed using an expression \b func. This expression is applied to coordinates of
 each point (barycenter) for which the field value is computed. We want to get the
 field on cells, with 3 components computed as follows. (In \b func, we refer to the
@@ -124,8 +124,8 @@ tuple are computed as we want.
 First, we create a 2D Cartesian mesh constituted by 2 cells.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingMesh_fillFromAnalytic_1
 Now we use
-\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic "fillFromAnalytic()"
-to get a \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
+\ref MEDCoupling::MEDCouplingMesh::fillFromAnalytic "fillFromAnalytic()"
+to get a \ref MEDCoupling::MEDCouplingFieldDouble "MEDCouplingFieldDouble" on cells filled
 with values computed using an expression \b func. This expression is applied to coordinates of
 each point (barycenter) for which the field value is computed. We want to get the
 field on cells, with 3 components computed as follows. (In \b func, we refer to the
@@ -154,7 +154,7 @@ So this field \b f1 contains 5 tuples of 2 components each (10 values).
 Now let's create a subfield on cells \b f2 from \b f1.
 \snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_2
 
-\b f1 is a field on cells, \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on cells too.
+\b f1 is a field on cells, \ref MEDCoupling::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on cells too.
 
 So the array \b part1 lists ids on cells.
 
@@ -176,12 +176,12 @@ So this field \b f1 contains 9 tuples of 2 components each (18 values).
 Now let's create a subfield on nodes \b f2 from \b f1.
 \snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_4
 
-\b f1 is a field on nodes, but \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on \b cells.
+\b f1 is a field on nodes, but \ref MEDCoupling::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on \b cells.
 
-After the call of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" on node field \b f1, \b f1 will be reduced on a
+After the call of \ref MEDCoupling::MEDCouplingFieldDouble::buildSubPart "buildSubPart" on node field \b f1, \b f1 will be reduced on a
 submesh of \b mesh1 containing cells whose ids are in \b part2. So here the number of cells of \b f2 is 2 and the number of nodes is 4.
 \n
-So contrary to fields on cells, it is normal for fields on nodes that number of tuples of the returned field of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart"
+So contrary to fields on cells, it is normal for fields on nodes that number of tuples of the returned field of \ref MEDCoupling::MEDCouplingFieldDouble::buildSubPart "buildSubPart"
 method does not match the size of the input array (here \b part2).
 
 
@@ -196,14 +196,14 @@ coordinates of the underlying meshes.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_1
 We are going to subtract \b field2 from \b field1, though they are on
 different meshes.
-\ref ParaMEDMEM::MEDCouplingFieldDouble::substractInPlaceDM "substractInPlaceDM()"
+\ref MEDCoupling::MEDCouplingFieldDouble::substractInPlaceDM "substractInPlaceDM()"
 allows us doing this. We use a mesh comparison level \b levOfCheck = 10 that allows
 subtracting fields on meshes with different node arrays.<br>
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_2
 After applying
-\ref ParaMEDMEM::MEDCouplingFieldDouble::substractInPlaceDM "substractInPlaceDM()"
+\ref MEDCoupling::MEDCouplingFieldDouble::substractInPlaceDM "substractInPlaceDM()"
 the both fields lie on \b mesh2. As
-\ref ParaMEDMEM::MEDCouplingFieldDouble::substractInPlaceDM "substractInPlaceDM()"
+\ref MEDCoupling::MEDCouplingFieldDouble::substractInPlaceDM "substractInPlaceDM()"
 permutes values of \b field1 before value subtraction, and thus \b field1 becomes
 equal to \b field2, hence their subtraction results in a zero field.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_substractInPlaceDM_3
@@ -215,13 +215,13 @@ We make two meshes in 1D space with no cells and 4 nodes. Nodes #0 and #2 are sw
 in the two meshes.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_1
 We are going to use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::changeUnderlyingMesh "changeUnderlyingMesh()"
+\ref MEDCoupling::MEDCouplingFieldDouble::changeUnderlyingMesh "changeUnderlyingMesh()"
 to set \b mesh2 instead of \b mesh1 as a support of a field. <br>
 We use
-\ref ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic "fillFromAnalytic()"
+\ref MEDCoupling::MEDCouplingMesh::fillFromAnalytic "fillFromAnalytic()"
 to make a field on nodes of \b mesh1, so that its values to equal to node coordinates.
 Then we use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::changeUnderlyingMesh "changeUnderlyingMesh()"
+\ref MEDCoupling::MEDCouplingFieldDouble::changeUnderlyingMesh "changeUnderlyingMesh()"
 to change the underlying mesh of the \b field.
 (We use a mesh comparison level \b levOfCheck = 10 that allows substituting meshes with
 different node arrays.) As a result, we expect that values of the \b field are also
@@ -234,7 +234,7 @@ array \b coords2.
 
 We create a 2D vector field with 2 tuples and we want to transform this
 field using an expression using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int, const std::string&) "applyFunc()".
+\ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int, const std::string&) "applyFunc()".
 The expression \b func is applied to each atomic value of the \b field. We want to change
 the \b field as follows. (In \b func, we use the variable "v" to refer to an atomic field value).
 - Component #0 = component #0 (remains the same); hence "IVec * v" in \b func.
@@ -252,7 +252,7 @@ Now we ascertain that the result field is as we expect.
 We create a 2D vector field with 2 values (vectors) and then we transform this
 field into a 3D vector field by applying an expression to values of the 2D field
 using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc3() "applyFunc3()".
+\ref MEDCoupling::MEDCouplingFieldDouble::applyFunc3() "applyFunc3()".
 The expression \b func is applied to components of each vector of the \b field. We want
 the \b field to have 3 components computed as follows. (In \b func, we refer to the
 first component of a field value using the variable "a", and to the second component, using
@@ -274,7 +274,7 @@ the \b field.
 We create a 2D vector field with 2 values (vectors) and then we transform this
 field into a 3D vector field by applying an expression to values of the 2D field
 using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string&) "applyFunc2()".
+\ref MEDCoupling::MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string&) "applyFunc2()".
 Note that we set component info the \b array ("a" and "b" ) which will be used to refer to
 corresponding components within a function.
 The expression \b func is applied to components of each vector of the \b field. We want
@@ -298,7 +298,7 @@ the \b field.
 We create a 2D vector field with 2 values (vectors) and then we transform this
 field into a 3D vector field by applying an expression to values of the 2D field
 using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()".
+\ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()".
 The expression \b func is applied to components of each vector of the \b field. We want
 the \b field to have 3 components computed as follows. (In \b func, we refer to the
 first component of a field value using the variable "a", and to the second component, using
@@ -321,7 +321,7 @@ We want to transform a 2D vector field to a 3D vector field so that all values t
 equal to a certain value. First, we create the 2D mesh and the vector field on it.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_applyFunc_val_1
 Finally we use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val) "applyFunc()"
+\ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val) "applyFunc()"
 to change the number of components and all field values.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_applyFunc_val_2
 As a result, number of tuples in the field equals to the number of cells in the mesh,
@@ -333,7 +333,7 @@ and number of components becomes equal to 3 as required.
 First, we create a 2D Cartesian mesh constituted by 2 cells.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic3_1
 Now we create a field on cells and use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic2 "fillFromAnalytic2()"
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic2 "fillFromAnalytic2()"
 to fill it
 with values computed using an expression \b func. This expression is applied to coordinates of
 each point (barycenter) for which the field value is computed. We want the \b field
@@ -361,7 +361,7 @@ Note that we set names to coordinates arrays ("a" and "b" ) which will be used t
 corresponding coordinates within a function.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic2_1
 Now we create a field on cells and use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic2 "fillFromAnalytic2()"
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic2 "fillFromAnalytic2()"
 to fill it
 with values computed using an expression \b func. This expression is applied to coordinates of
 each point (barycenter) for which the field value is computed. We want the \b field
@@ -387,7 +387,7 @@ tuple are computed as we want.
 First, we create a 2D Cartesian mesh constituted by 2 cells.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_fillFromAnalytic_1
 Now we create a field on cells and use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
 to fill it
 with values computed using an expression \b func. This expression is applied to coordinates of
 each point (barycenter) for which the field value is computed. We want the \b field to have
@@ -424,17 +424,17 @@ The decrementation of ref counter should be carried out in CPlusPlus only ...
 First, we create a supporting 2D mesh constituted by 4 cells. We create a 2x2
 Cartesian mesh and then convert it to an unstructured one, since the Cartesian mesh
 is not suitable for
-\ref ParaMEDMEM::MEDCouplingFieldDouble::renumberNodes "renumberNodes()" as its
+\ref MEDCoupling::MEDCouplingFieldDouble::renumberNodes "renumberNodes()" as its
  nature does not imply node renumbering.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_renumberNodes_1
 Then we create a field on nodes using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()",
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()",
 such that its values to coincide with coordinates of field location points that are
- nodes in our case (as our field is \ref ParaMEDMEM::ON_NODES "ON_NODES").
+ nodes in our case (as our field is \ref MEDCoupling::ON_NODES "ON_NODES").
 At last we ascertain that field values are equal to node coordinates.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_renumberNodes_2
 Now, we are going to reverse order of nodes using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::renumberNodes "renumberNodes()".
+\ref MEDCoupling::MEDCouplingFieldDouble::renumberNodes "renumberNodes()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_renumberNodes_3
 As a result, the underlying mesh of \b field is changed and its nodes are also
  renumbered.
@@ -446,17 +446,17 @@ And the field values are still equal to node coordinates of the renumbered \b me
 First, we create a supporting 2D mesh constituted by 4 cells. We create a 2x2
 Cartesian mesh and then convert it to an unstructured one, since the Cartesian mesh
 is not suitable for
-\ref ParaMEDMEM::MEDCouplingFieldDouble::renumberCells "renumberCells()" as its
+\ref MEDCoupling::MEDCouplingFieldDouble::renumberCells "renumberCells()" as its
  nature does not imply cell renumbering.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_renumberCells_1
 Then we create a field on cells using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()",
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()",
 such that its values to coincide with coordinates of field location points that are
- cell barycenters in our case (as our field is \ref ParaMEDMEM::ON_CELLS "ON_CELLS").
+ cell barycenters in our case (as our field is \ref MEDCoupling::ON_CELLS "ON_CELLS").
 At last we ascertain that field values are equal to cell barycenters.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_renumberCells_2
 Now, we are going to reverse order of cells using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::renumberCells "renumberCells()".
+\ref MEDCoupling::MEDCouplingFieldDouble::renumberCells "renumberCells()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_renumberCells_3
 As a result, the underlying mesh of \b field is changed and its cells are also
  renumbered.
@@ -471,7 +471,7 @@ generator. For that, first, we define the function that computes 3 values basing
 coordinates of a 2D point.
 \snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_fillFromAnalytic_c_func_0
 Then we create the 2D mesh and the field on it, and finally we use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) "fillFromAnalytic()"
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) "fillFromAnalytic()"
 to fill the field with values each composed of 3 components.
 \snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_fillFromAnalytic_c_func_1
 As a result, number of tuples in the field equals to the number of cells in the mesh,
@@ -489,7 +489,7 @@ that computes 3 values basing on 2 components of a 2D vector.
 Then we create the 2D mesh and the vector field on it.
 \snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_applyFunc_c_func_1
 Finally we use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) "applyFunc()"
+\ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) "applyFunc()"
 to change the field values.
 \snippet MEDCouplingExamplesTest.cxx Snippet_MEDCouplingFieldDouble_applyFunc_c_func_2
 As a result, number of tuples in the field equals to the number of cells in the mesh,
@@ -592,7 +592,7 @@ constituted by 4 cells.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOn_time_1
 Then we create a scalar field on cells, whose values vary linearly in time.
 We set all field values at a start time to be equal 10.0 using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
 And we set all field values at an end time to be equal 20.0 by doubling the start
 time array.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOn_time_2
@@ -605,14 +605,14 @@ and end times. We expect the returned value to be equal to an average of 10. and
 
 First, we create a supporting structured mesh. We create a 2x2 Cartesian mesh
 constituted by 4 cells. Then we create a scalar field on cells using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOnMulti_1
 Now, we want to retrieve all field values using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti "getValueOnMulti()".
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti "getValueOnMulti()".
 The field values relate to cells, hence we will use cell barycenters as a parameter of
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti "getValueOnMulti()".
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti "getValueOnMulti()".
 We expect that the double array returned
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti "getValueOnMulti()"
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti "getValueOnMulti()"
 is equal to that stored by \b field.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOnMulti_2
 
@@ -621,15 +621,15 @@ is equal to that stored by \b field.
 
 First, we create a supporting structured mesh. We create a 2x2 Cartesian mesh
 constituted by 4 cells. Then we create a scalar field on cells using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOn_1
 Now, we want to retrieve all field values using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn()".
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOn "getValueOn()".
 The field values relate to cells, hence we will use cell barycenters to get a field
 value at each cell.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOn_2
 We collected all values returned by
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn()" in an array, so
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOn "getValueOn()" in an array, so
 that we can ascertain that the array of returned values is same as that stored by \b
 field.
 
@@ -638,11 +638,11 @@ field.
 
 First, we create a supporting structured mesh. We create a 2x2 Cartesian mesh
 constituted by 4 cells. Then we create a scalar field on cells using
-\ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
+\ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic "fillFromAnalytic()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOnPos_1
 Now, we retrieve a field value relating to the cell #3 (this cell has a structured indexed
 (1,1)). For that we use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOnPos "getValueOnPos()" where we
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOnPos "getValueOnPos()" where we
 pass the structured indexed of the cell: 1,1,-1 (the last index is meaningless as the
 mesh is 2D).
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_getValueOnPos_2

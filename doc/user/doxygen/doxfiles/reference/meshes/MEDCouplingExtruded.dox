@@ -13,5 +13,5 @@ The advantage of this structure is that the interpolation time is highly improve
 
 This class is also useful for users that want to map the 3D unstructured mesh cell ids level by level along an axis.
 
-The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingExtrudedMesh.
+The class that incarnates this concept in MEDCoupling is : \ref MEDCoupling::MEDCouplingExtrudedMesh.
 */

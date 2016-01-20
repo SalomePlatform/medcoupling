@@ -21,7 +21,7 @@
 // generation of documentation for inline methods.
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Checks if \a this field is correctly defined, else an exception is thrown.
@@ -35,9 +35,9 @@ namespace ParaMEDMEM
   void MEDCouplingField::checkCoherency() const throw(INTERP_KERNEL::Exception) {}
   /*!
    * Returns the underlying mesh of \a this field.
-   *  \return const ParaMEDMEM::MEDCouplingMesh * - a const pointer to the underlying mesh.
+   *  \return const MEDCoupling::MEDCouplingMesh * - a const pointer to the underlying mesh.
    */
-  const ParaMEDMEM::MEDCouplingMesh *MEDCouplingField::getMesh() const {}
+  const MEDCoupling::MEDCouplingMesh *MEDCouplingField::getMesh() const {}
   /*!
    * Returns the description of \a this field.
    *  \return const char * - a string containing the field description.

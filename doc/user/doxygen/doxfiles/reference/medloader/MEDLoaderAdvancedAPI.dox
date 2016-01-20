@@ -23,7 +23,7 @@ end of this section might help:
 Each time this parameter appears in API, it will have the semantic
 explained here.
 The value of the parameter \c meshDimRelToMax is at most in {0,-1,-2,-3}. This relative value specifies a level
-relative to the value returned by ParaMEDMEM::MEDFileMesh::getMeshDimension().
+relative to the value returned by MEDCoupling::MEDFileMesh::getMeshDimension().
 
 A mesh containing MED_TETRA4, MED_TRI3, MED_QUAD4 and MED_POINT1 has a meshDimension
 equal to 3. For \c meshDimRelToMax equal to 0 the user will
@@ -32,7 +32,7 @@ say here MED_TETRA4. For \c meshDimRelToMax equal to -1 the user will
 deal with cells which dimension equals 3-1 that is to say MED_TRI3
 and MED_QUAD4.
 
-An important method is ParaMEDMEM::MEDFileUMesh::getNonEmptyLevels(). It returns all
+An important method is MEDCoupling::MEDFileUMesh::getNonEmptyLevels(). It returns all
 non empty levels available. In the previous example, this method will
 return {0,-1,-3}. -2 does not appear because no cells with dimension
 equal to 1 (3-2) appear in MED file mesh (no MED_SEG2, no MED_SEG3).
@@ -42,7 +42,7 @@ equal to 1 (3-2) appear in MED file mesh (no MED_SEG2, no MED_SEG3).
 nodes.
 
 The parameter of \c meshDimRelToMaxExt appears in
-\ref ParaMEDMEM::MEDFileUMesh "umesh advanced API" of %MEDLoader with the following semantics.
+\ref MEDCoupling::MEDFileUMesh "umesh advanced API" of %MEDLoader with the following semantics.
 
 Some of MED file concepts are available both for cells and
 nodes (for example families, groups, numbering) ; that's why for a simpler API this
@@ -92,7 +92,7 @@ instance.
 
 \subsection AdvMEDLoaderAPIMeshReading Reading a mesh.
 
-The class that incarnates Read/Write mesh in MED file is ParaMEDMEM::MEDFileUMesh.
+The class that incarnates Read/Write mesh in MED file is MEDCoupling::MEDFileUMesh.
 
 First of all, like basic %MEDLoader API, only MEDfile files whose version >= 2.2 are able
 to be read with advanced API.
@@ -136,13 +136,13 @@ that can be invalid.
 - Retrieving a family at a specified level :
   - Either an array of node/cell id
     - \c getFamilyArr method or \c getFamiliesArr
-  - Or on \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" form by calling
+  - Or on \ref MEDCoupling::MEDCouplingUMesh "MEDCouplingUMesh" form by calling
     - \c getFamily method or \c getFamilies
 
 - Retrieving a group at a specified level :
   - Either an array of node/cell id
     - \c getGroupArr method or \c getGroupsArr
-  - Or on \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" form by calling
+  - Or on \ref MEDCoupling::MEDCouplingUMesh "MEDCouplingUMesh" form by calling
     - \c getGroup method or \c getGroups
 
 - Retrieving family field array :
@@ -162,21 +162,21 @@ mesh at specified level.
 \anchor AdvMEDLoaderAPIMeshReadingSampl
 
 \if ENABLE_EXAMPLES
-Here is a \ref cpp_mcumesh_loadfile "C++ example" illustrating a typical use of \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" instance.
+Here is a \ref cpp_mcumesh_loadfile "C++ example" illustrating a typical use of \ref MEDCoupling::MEDCouplingUMesh "MEDCouplingUMesh" instance.
 \endif
 
 \subsection AdvMEDLoaderAPIMeshWriting Writing a mesh.
 
 The use is very symmetric to reading part. It is possible to either
-build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance from
+build a \ref MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance from
 scratch, or to work with an existing instance coming from a loading
 from a file.
 
 One important point is that coordinates of a mesh are shared by all
 cells whatever their level. That's why the
-\ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" instance
-should be shared by all \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" used in input parameter of
-set* methods. If the user intends to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance from
+\ref MEDCoupling::DataArrayDouble "DataArrayDouble" instance
+should be shared by all \ref MEDCoupling::MEDCouplingUMesh "MEDCouplingUMesh" used in input parameter of
+set* methods. If the user intends to build a \ref MEDCoupling::MEDFileUMesh "MEDFileUMesh" instance from
 scratch, a call to \c setCoords should be done first.
 
 
@@ -206,21 +206,21 @@ In advanced API fields have been developed using divide and conquer pattern to r
 
 Here the list of classes in %MEDLoader advanced API top down sorted :
 
-- Level 0 : ParaMEDMEM::MEDFileFields
-- Level -1 : ParaMEDMEM::MEDFileFieldMultiTSWithoutSDA
-- Level -2 : ParaMEDMEM::MEDFileField1TSWithoutSDA
-- Level -3 : ParaMEDMEM::MEDFileFieldPerMesh (present only for backward compatibility MED file 2.2)
-- Level -4 : ParaMEDMEM::MEDFileFieldPerMeshPerType
-- Level -5 : ParaMEDMEM::MEDFileFieldPerMeshPerTypePerDisc
+- Level 0 : MEDCoupling::MEDFileFields
+- Level -1 : MEDCoupling::MEDFileFieldMultiTSWithoutSDA
+- Level -2 : MEDCoupling::MEDFileField1TSWithoutSDA
+- Level -3 : MEDCoupling::MEDFileFieldPerMesh (present only for backward compatibility MED file 2.2)
+- Level -4 : MEDCoupling::MEDFileFieldPerMeshPerType
+- Level -5 : MEDCoupling::MEDFileFieldPerMeshPerTypePerDisc
 
 
 Each level in the tree representing a field (cyan box) is represented by a class. The only difference is that values are grouped in a single big array located
-in level -2 (ParaMEDMEM::MEDFileField1TSWithoutSDA)  in which each leaf (level -5) of MED file field
+in level -2 (MEDCoupling::MEDFileField1TSWithoutSDA)  in which each leaf (level -5) of MED file field
 points to range [\a start, \a end).
 
 As different time steps of a same field and different fields inside a MED file can share or not profiles (yellow box) and localization (red box) a manipulable field classes instance
-(ParaMEDMEM::MEDFileField1TS and ParaMEDMEM::MEDFileFieldMultiTS) in advanced API is the result of a subclass of a data class
-(respectively ParaMEDMEM::MEDFileField1TSWithoutSDA, ParaMEDMEM::MEDFileFieldMultiTSWithoutSDA) and an instance of ParaMEDMEM::MEDFileFieldGlobsReal representing the shared data arrays (SDA)
+(MEDCoupling::MEDFileField1TS and MEDCoupling::MEDFileFieldMultiTS) in advanced API is the result of a subclass of a data class
+(respectively MEDCoupling::MEDFileField1TSWithoutSDA, MEDCoupling::MEDFileFieldMultiTSWithoutSDA) and an instance of MEDCoupling::MEDFileFieldGlobsReal representing the shared data arrays (SDA)
 at a specified scope inside the MED file.
 
 \subsection AdvMEDLoaderAPIFieldR Reading a field
@@ -264,30 +264,30 @@ Here is a \ref py_mcfield_writefile_partial "Python example".
 \image html med-loader-adv-classes.png "Class diagram of the advanced MEDLoader API"
 
 The blue rectangles show the links to the MEDCoupling objects. Note that in MEDCoupling there is no
-representation of a field of integer. Those are extracted directly as \ref ParaMEDMEM::DataArrayInt "DataArrayInt".
+representation of a field of integer. Those are extracted directly as \ref MEDCoupling::DataArrayInt "DataArrayInt".
 
-The classes shown on this diagram (all part of the \ref cpp "unfortunately named ParaMEDMEM namespace"):
-- \ref ParaMEDMEM::MEDFileData "MEDFileData", the encapsulation of a complete MED file
-
-and also:
-- \ref ParaMEDMEM::MEDFileMeshes "MEDFileMeshes", the set of meshes in the file
-- \ref ParaMEDMEM::MEDFileMeshMultiTS "MEDFileMeshMultiTS", a single mesh with muliple time steps
-- \ref ParaMEDMEM::MEDFileMesh "MEDFileMesh", a single mesh on a single timestep 
-- \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh", a single unstructured mesh
+The classes shown on this diagram (all part of the \ref cpp "named MEDCoupling namespace"):
+- \ref MEDCoupling::MEDFileData "MEDFileData", the encapsulation of a complete MED file
 
 and also:
-- \ref ParaMEDMEM::MEDFileFields "MEDFileFields", the set of fields in a MED file
-- \ref ParaMEDMEM::MEDFileAnyTypeFieldMultiTS "MEDFileAnyTypeFieldMultiTS", a single field with multiple 
+- \ref MEDCoupling::MEDFileMeshes "MEDFileMeshes", the set of meshes in the file
+- \ref MEDCoupling::MEDFileMeshMultiTS "MEDFileMeshMultiTS", a single mesh with muliple time steps
+- \ref MEDCoupling::MEDFileMesh "MEDFileMesh", a single mesh on a single timestep 
+- \ref MEDCoupling::MEDFileUMesh "MEDFileUMesh", a single unstructured mesh
+
+and also:
+- \ref MEDCoupling::MEDFileFields "MEDFileFields", the set of fields in a MED file
+- \ref MEDCoupling::MEDFileAnyTypeFieldMultiTS "MEDFileAnyTypeFieldMultiTS", a single field with multiple 
 time steps (can be an integer field or a double field)
-- \ref ParaMEDMEM::MEDFileFieldMultiTS "MEDFileFieldMultiTS", a single field of doubles with multiple time steps
-- \ref ParaMEDMEM::MEDFileIntFieldMultiTS "MEDFileIntFieldMultiTS", a single field of int with multiple time steps
-- \ref ParaMEDMEM::MEDFileFieldMultiTS "MEDFileAnyTypeField1TS", a single field with a single time step 
+- \ref MEDCoupling::MEDFileFieldMultiTS "MEDFileFieldMultiTS", a single field of doubles with multiple time steps
+- \ref MEDCoupling::MEDFileIntFieldMultiTS "MEDFileIntFieldMultiTS", a single field of int with multiple time steps
+- \ref MEDCoupling::MEDFileFieldMultiTS "MEDFileAnyTypeField1TS", a single field with a single time step 
 (integer or double)
-- \ref ParaMEDMEM::MEDFileField1TS "MEDFileField1TS", a single field of doubles with a single time step
-- \ref ParaMEDMEM::MEDFileIntField1TS "MEDFileIntField1TS", a single field of ints with a single time step
+- \ref MEDCoupling::MEDFileField1TS "MEDFileField1TS", a single field of doubles with a single time step
+- \ref MEDCoupling::MEDFileIntField1TS "MEDFileIntField1TS", a single field of ints with a single time step
 
 and finally:
-- \ref ParaMEDMEM::MEDFileParameters "MEDFileParameters", numerical parameters stored in a MED file
+- \ref MEDCoupling::MEDFileParameters "MEDFileParameters", numerical parameters stored in a MED file
 
 
 

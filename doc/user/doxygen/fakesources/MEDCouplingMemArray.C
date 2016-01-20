@@ -22,7 +22,7 @@
 // * groupping methods into "Basic API", "Advanced" and "Others..." sections
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 /*!
  * Returns the attribute \a _name of \a this array.
@@ -193,7 +193,7 @@ void DataArrayInt::writeOnPlace(int id, int element0, const int *others, int siz
 
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 //================================================================================
 /////////////////////// DataArray GROUPPING //////////////////////////////////////

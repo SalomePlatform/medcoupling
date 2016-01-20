@@ -15,7 +15,7 @@ of this object is required in many constructors of the following objects.
 - \ref ParaMESH-det "ParaMESH", the parallel instanciation of a \ref meshes "MEDCoupling mesh" 
 - \ref ParaFIELD-det "ParaFIELD", the parallel instanciation of a \ref fields "MEDCoupling field"
 - \ref MPIProcessorGroup-det "MPIProcessorGroup" (which inherits from the abstract 
-\ref ParaMEDMEM::ProcessorGroup "ProcessorGroup"), a group of processors (typically MPI nodes)
+\ref MEDCoupling::ProcessorGroup "ProcessorGroup"), a group of processors (typically MPI nodes)
 
 In an advanced usage, the topology of the nodes in the computation is accessed through the following elements:
 - \ref BlockTopology-det "BlockTopology", specification of a topology based on the (structured) mesh.
@@ -57,7 +57,7 @@ the projection methodology is based on the algorithms of %INTERP_KERNEL, that is
 it works in a similar fashion than what the \ref remapper "sequential remapper" does. 
 - \b NonCoincidentDEC (deprecated for now)
 
-Besides, all the DECs inherit from the class \ref ParaMEDMEM::DECOptions "DECOptions" which provides 
+Besides, all the DECs inherit from the class \ref MEDCoupling::DECOptions "DECOptions" which provides 
 the necessary methods to adjust the parameters used in the transfer/remapping.
 
 The most commonly used %DEC is the \c %InterpKernelDEC, and here is a simple example to of its usage:

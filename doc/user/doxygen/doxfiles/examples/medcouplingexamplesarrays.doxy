@@ -12,7 +12,7 @@ Let's consider a list of floats \c dataDouble.
 
 \snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_0
 
-The easiest way to build the \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble instance" called \c arrayDouble simply call :
+The easiest way to build the \ref MEDCoupling::DataArrayDouble "DataArrayDouble instance" called \c arrayDouble simply call :
 
 \snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_1bis
 
@@ -27,7 +27,7 @@ Let's consider a list of ints \c dataInt.
 
 \snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_2
 
-The easiest way to build the \ref ParaMEDMEM::DataArrayInt "DataArrayInt instance" called \c arrayInt simply call :
+The easiest way to build the \ref MEDCoupling::DataArrayInt "DataArrayInt instance" called \c arrayInt simply call :
 
 \snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_3bis
 
@@ -43,8 +43,8 @@ An another way is to do that :
 In this example we will create arrays with 12 tuples constituted each
 of 3 components. These arrays will be created using different ways.\n
 
-The following code is only based using \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble"
-but the use of \ref ParaMEDMEM::DataArrayInt "DataArrayInt" is strictly equivalent.
+The following code is only based using \ref MEDCoupling::DataArrayDouble "DataArrayDouble"
+but the use of \ref MEDCoupling::DataArrayInt "DataArrayInt" is strictly equivalent.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_0
 
@@ -117,7 +117,7 @@ As \c coordsArrCpy is a copy object, in C++, it needs to be deallocated.
 \anchor MEDCouplingArrayBasicsCopyDeepAssign
 <h3>Assignation by deep copy of DataArray</h3>
 
-We start by building a instance of ParaMEDMEM::DataArrayDouble allocated or not. Here, instance is not allocated, only built empty.
+We start by building a instance of MEDCoupling::DataArrayDouble allocated or not. Here, instance is not allocated, only built empty.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_11
 
@@ -125,7 +125,7 @@ Then, \c coordsArrCpy is assigned with the content of \c coordsArr.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_12
 
-Then \c coordsArrCpy is a deep copy of \c coordsArr except that the instance of ParaMEDMEM::DataArrayDouble is those specified.
+Then \c coordsArrCpy is a deep copy of \c coordsArr except that the instance of MEDCoupling::DataArrayDouble is those specified.
 But the behaviour is the same than those seen for \ref MEDCouplingArrayBasicsCopyDeepTestEqual "deep copy".
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_13
@@ -140,7 +140,7 @@ As always, in C++, \c coordsArrCpy is an object whose life cycle is fully indepe
 \subsubsection cpp_mcdataarrayint_buildpermutationarr Building a permutation array
 
 Here we create two arrays containing same values but in different order and then we use
-\ref ParaMEDMEM::DataArrayInt::buildPermutationArr "DataArrayInt::buildPermutationArr()" to get
+\ref MEDCoupling::DataArrayInt::buildPermutationArr "DataArrayInt::buildPermutationArr()" to get
 an array showing in what places the values of \b b array are located in \b a array.
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_buildPermutationArr_1
 The result array \b c contains [1,0,4,2,3].
@@ -208,7 +208,7 @@ As result contents of the array \b da are as follows.
 Here we re-fill \b da with zeros and copy \b dv into a component of \b da.
 
 Note that the last parameter \b strictCompoCompare should be \c False
-in this case, else \ref ParaMEDMEM::DataArrayDouble::setPartOfValues1()
+in this case, else \ref MEDCoupling::DataArrayDouble::setPartOfValues1()
 throws an exception because \b da has 2 components but only one target
 component is specified.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayDouble_setPartOfValues1_3
@@ -319,7 +319,7 @@ Below more two variants of location of target values are shown.
     Tuple #2 : 0 7 0 7
     Tuple #3 : 0 0 0 0
 </pre>
-\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValuesSimple2() can't
+\note \ref MEDCoupling::DataArrayDouble::setPartOfValuesSimple2() can't
 be explicitly called in Python.
 
 
@@ -363,7 +363,7 @@ Below more two variants of location of target values are shown.
     Tuple #2 : 0 7 0 7
     Tuple #3 : 0 0 0 0
 </pre>
-\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValuesSimple3() can't
+\note \ref MEDCoupling::DataArrayDouble::setPartOfValuesSimple3() can't
 be explicitly called in Python.
 
 
@@ -399,7 +399,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
     Tuple #2 : 7  0  8  9 10 11 12
     Tuple #3 : 7  0  8  9 10 11 12
 </pre>
-\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValues2() can't
+\note \ref MEDCoupling::DataArrayDouble::setPartOfValues2() can't
 be explicitly called in Python.
 
 
@@ -436,7 +436,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
     Tuple #2 : 7  0  8  9 10 11 12
     Tuple #3 : 0  0  0  0  0  0  0
 </pre>
-\note \ref ParaMEDMEM::DataArrayDouble::setPartOfValues3() can't
+\note \ref MEDCoupling::DataArrayDouble::setPartOfValues3() can't
 be explicitly called in Python.
 
 
@@ -481,7 +481,7 @@ As result contents of the array \b da are as follows.
 Here we re-fill \b da with zeros and copy \b dv into a component of \b da.
 
 Note that the last parameter \b strictCompoCompare should be \c False
-in this case, else \ref ParaMEDMEM::DataArrayInt::setPartOfValues1()
+in this case, else \ref MEDCoupling::DataArrayInt::setPartOfValues1()
 throws an exception because \b da has 2 components but only one target
 component is specified.
 \snippet MEDCouplingExamplesTest.py Snippet_DataArrayInt_setPartOfValues1_3
@@ -593,7 +593,7 @@ Below more two variants of location of target values are shown.
     Tuple #2 : 0 7 0 7
     Tuple #3 : 0 0 0 0
 </pre>
-\note \ref ParaMEDMEM::DataArrayInt::setPartOfValuesSimple2() can't
+\note \ref MEDCoupling::DataArrayInt::setPartOfValuesSimple2() can't
 be explicitly called in Python.
 
 
@@ -637,7 +637,7 @@ Below more two variants of location of target values are shown.
     Tuple #2 : 0 7 0 7
     Tuple #3 : 0 0 0 0
 </pre>
-\note \ref ParaMEDMEM::DataArrayInt::setPartOfValuesSimple3() can't
+\note \ref MEDCoupling::DataArrayInt::setPartOfValuesSimple3() can't
 be explicitly called in Python.
 
 
@@ -673,7 +673,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
     Tuple #2 : 7  0  8  9 10 11 12
     Tuple #3 : 7  0  8  9 10 11 12
 </pre>
-\note \ref ParaMEDMEM::DataArrayInt::setPartOfValues2() can't
+\note \ref MEDCoupling::DataArrayInt::setPartOfValues2() can't
 be explicitly called in Python.
 
 
@@ -710,7 +710,7 @@ Every value of \b dv is repeated in the 3 specified tuples within \b da.
     Tuple #2 : 7  0  8  9 10 11 12
     Tuple #3 : 0  0  0  0  0  0  0
 </pre>
-\note \ref ParaMEDMEM::DataArrayInt::setPartOfValues3() can't
+\note \ref MEDCoupling::DataArrayInt::setPartOfValues3() can't
 be explicitly called in Python.
 
 
@@ -725,7 +725,7 @@ The code below creates an array of real values and than an array of
 
 In this example we create two data arrays including \b same number of
 tuples and then we concatenate them using \ref
-ParaMEDMEM::DataArrayDouble::meldWith "meldWith()".
+MEDCoupling::DataArrayDouble::meldWith "meldWith()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayDouble_Meld1_1
 Now the array \b da1 includes 7 tuples (as before) of 3 components
 each. Its components are: "c0da1","c1da1","c0da2".
@@ -735,7 +735,7 @@ each. Its components are: "c0da1","c1da1","c0da2".
 
 In this example we create two data arrays including \b same number of
 tuples and then we concatenate them using \ref
-ParaMEDMEM::DataArrayInt::meldWith "meldWith()".
+MEDCoupling::DataArrayInt::meldWith "meldWith()".
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_DataArrayInt_Meld1_1
 Now the array \b da1 includes 7 tuples (as before) of 3 components
 each. Its components are: "c0da1","c1da1","c0da2".
@@ -815,6 +815,6 @@ Now each tuple of \b a2 includes components named "b","c","b","c","a","a". Thus
 the result array \b a2 includes 30 elements (5 tuples per 6 components).
 
 Note that
-\ref ParaMEDMEM::DataArrayInt::keepSelectedComponents() "DataArrayInt::keepSelectedComponents()"
+\ref MEDCoupling::DataArrayInt::keepSelectedComponents() "DataArrayInt::keepSelectedComponents()"
 is called, providing the same result, by the following python code:
 \snippet MEDCouplingExamplesTest.py SnippeDataArrayIntKeepSelectedComponents1_3

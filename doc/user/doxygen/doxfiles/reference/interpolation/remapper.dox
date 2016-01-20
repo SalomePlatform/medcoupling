@@ -4,9 +4,9 @@
 
 \section InterpKerHighLevUsage High-level usage
 
-The simplest way of using the \ref intro-interp "interpolations" in sequential mode is to use the class \c ParaMEDMEM::MEDCouplingRemapper . This class fulfills \c HXX2SALOME rules and may be used in YACS coupling graphs.
+The simplest way of using the \ref intro-interp "interpolations" in sequential mode is to use the class \c MEDCoupling::MEDCouplingRemapper . This class fulfills \c HXX2SALOME rules and may be used in YACS coupling graphs.
 
-If you intend to use \ref medcoupling "MEDCoupling data structures", the ParaMEDMEM::MEDCouplingRemapper class should be used.
+If you intend to use \ref medcoupling "MEDCoupling data structures", the MEDCoupling::MEDCouplingRemapper class should be used.
 
 \if ENABLE_EXAMPLES
 Here is a \ref cpp_mcfield_remapper_highlevel "C++ example".

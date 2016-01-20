@@ -33,14 +33,14 @@ The main properties of a field are :
 This definition of field in MEDCoupling allows an instance of field to
 know at any point inside its spatial-temporal support the value.
 
-The class that incarnates the concept described above is : \ref ParaMEDMEM::MEDCouplingFieldDouble.
+The class that incarnates the concept described above is : \ref MEDCoupling::MEDCouplingFieldDouble.
 
 Some of most important implemented methods are :
 
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::getNumberOfComponents "getNumberOfComponents"
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn"
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc "applyFunc"
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::AddFields "cross instances operations"
+- \ref MEDCoupling::MEDCouplingFieldDouble::getNumberOfComponents "getNumberOfComponents"
+- \ref MEDCoupling::MEDCouplingFieldDouble::getValueOn "getValueOn"
+- \ref MEDCoupling::MEDCouplingFieldDouble::applyFunc "applyFunc"
+- \ref MEDCoupling::MEDCouplingFieldDouble::AddFields "cross instances operations"
 \section MEDCouplingSpatialDisc Spatial discretization concept
 
 This is the concept that makes the link, independently from temporal
@@ -48,13 +48,13 @@ discretization, between the field and its spatial support (\ref meshes "mesh"). 
 concept allows the field to make a check and interpretation of an
 array of values given a spatial support (\ref meshes "mesh").
 
-The abstract class that incarnates the concept is : \ref ParaMEDMEM::MEDCouplingFieldDiscretization.
+The abstract class that incarnates the concept is : \ref MEDCoupling::MEDCouplingFieldDiscretization.
 
 The most important pure virtual methods are :
 
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getNumberOfTuples "getnumberOfTuples"
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getValueOn "getValueOn"
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getMeasureField "getMeasureField"
+- \ref MEDCoupling::MEDCouplingFieldDiscretization::getNumberOfTuples "getnumberOfTuples"
+- \ref MEDCoupling::MEDCouplingFieldDiscretization::getValueOn "getValueOn"
+- \ref MEDCoupling::MEDCouplingFieldDiscretization::getMeasureField "getMeasureField"
 
 \section MEDCouplingTemporalDisc Temporal discretization concept
 
@@ -63,7 +63,7 @@ associate a time interval, if it exists, on which the field will be
 defined. This concept is able to give the value at any time of
 the definition interval (if any).
 
-The abstract class \ref ParaMEDMEM::MEDCouplingTimeDiscretization
+The abstract class \ref MEDCoupling::MEDCouplingTimeDiscretization
 incarnates this described concept.
 
 This classes and its subclasses are responsible in storing the arrays
@@ -71,10 +71,10 @@ of the aggregating field.
 
 The most important methods are :
 
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setTime "setTime" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getTime "getTime"
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArray "getArray" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setArray "setArray"
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArraysForTime "getArraysForTime"
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getValueForTime "getValueForTime"
+- \ref MEDCoupling::MEDCouplingTimeDiscretization::setTime "setTime" and \ref MEDCoupling::MEDCouplingTimeDiscretization::getTime "getTime"
+- \ref MEDCoupling::MEDCouplingTimeDiscretization::getArray "getArray" and \ref MEDCoupling::MEDCouplingTimeDiscretization::setArray "setArray"
+- \ref MEDCoupling::MEDCouplingTimeDiscretization::getArraysForTime "getArraysForTime"
+- \ref MEDCoupling::MEDCouplingTimeDiscretization::getValueForTime "getValueForTime"
 
 \section MEDCouplingFirstSteps3 Building a field from scratch
 
@@ -106,7 +106,7 @@ Here we will make the assumption that an instance of \c MEDCouplingMesh called \
 
 \section MEDCouplingSecondStep0 Operations on Fields
 
-Here we will make the assumption that an instance of \ref ParaMEDMEM::MEDCouplingMesh "MEDCouplingMesh"
+Here we will make the assumption that an instance of \ref MEDCoupling::MEDCouplingMesh "MEDCouplingMesh"
 called \c mesh has been created with spaceDim==2.
 
 \ref medcouplingcppexamplesFieldDoubleBuild5 "Here a C++ example of more advanced use of MEDCouplingFieldDouble instances".

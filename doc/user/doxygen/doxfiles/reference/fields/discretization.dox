@@ -11,16 +11,16 @@ by the field.
 \section field-space Spatial discretization
 A field can be supported by: 
 - the nodes (vertices) of the mesh: this is built with the 
-\ref ParaMEDMEM::TypeOfField "ON_NODES" keyword in the 
-\ref ParaMEDMEM::MEDCouplingFieldDouble::New(TypeOfField , TypeOfTimeDiscretization) "constructor of a field". 
+\ref MEDCoupling::TypeOfField "ON_NODES" keyword in the 
+\ref MEDCoupling::MEDCouplingFieldDouble::New(TypeOfField , TypeOfTimeDiscretization) "constructor of a field". 
 
 - the cells (or "elements") of the mesh: built with the 
-\ref ParaMEDMEM::TypeOfField "ON_CELLS" keyword in the 
-\ref ParaMEDMEM::MEDCouplingFieldDouble::New(TypeOfField , TypeOfTimeDiscretization) "constructor of a field". 
+\ref MEDCoupling::TypeOfField "ON_CELLS" keyword in the 
+\ref MEDCoupling::MEDCouplingFieldDouble::New(TypeOfField , TypeOfTimeDiscretization) "constructor of a field". 
 - or more complex items:
-    - Gauss points: built with \ref ParaMEDMEM::TypeOfField "ON_GAUSS_PT"
-    - Gauss points on nodes per element: built with \ref ParaMEDMEM::TypeOfField "ON_GAUSS_NE"
-    - Kriging points:  built with \ref ParaMEDMEM::TypeOfField "ON_NODES_KR"
+    - Gauss points: built with \ref MEDCoupling::TypeOfField "ON_GAUSS_PT"
+    - Gauss points on nodes per element: built with \ref MEDCoupling::TypeOfField "ON_GAUSS_NE"
+    - Kriging points:  built with \ref MEDCoupling::TypeOfField "ON_NODES_KR"
 
 The spatial discretization is at the center of the \ref interpolation "interpolation" mechanisms,
 since one of the main interpolation paramter is indeed specifying from which source discretization
@@ -29,28 +29,28 @@ to which target discretization one wants to go. For example:
 - a P1->P0 interpolation means that a field on nodes this time will be transfered to a cell-based field. 
 - etc ...
 
-Finally, in the code itself, the class \ref ParaMEDMEM::MEDCouplingFieldDiscretization "MEDCouplingFieldDiscretization"
+Finally, in the code itself, the class \ref MEDCoupling::MEDCouplingFieldDiscretization "MEDCouplingFieldDiscretization"
 is the concrete representation of this concept.
 
 \section field-time Temporal discretization
 
 Similarly to the spatial discretization, a field object in MEDCoupling has a time discretization
 representing the time range that is covered by the data. It is also specified in the 
-\ref ParaMEDMEM::MEDCouplingFieldDouble::New(TypeOfField , TypeOfTimeDiscretization) "constructor of a field".
+\ref MEDCoupling::MEDCouplingFieldDouble::New(TypeOfField , TypeOfTimeDiscretization) "constructor of a field".
 
 It can be one of:
-- \ref ParaMEDMEM::TypeOfTimeDiscretization "NO_TIME", in this case no time is attached to the field, and no
+- \ref MEDCoupling::TypeOfTimeDiscretization "NO_TIME", in this case no time is attached to the field, and no
 time-related operation is permitted (for example unable to call 
-\ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn()") 
-- \ref ParaMEDMEM::TypeOfTimeDiscretization "ONE_TIME", the field data represent a single time step. 
-- \ref ParaMEDMEM::TypeOfTimeDiscretization "LINEAR_TIME", the field data contains \b two arrays, stamped with two
+\ref MEDCoupling::MEDCouplingFieldDouble::getValueOn "getValueOn()") 
+- \ref MEDCoupling::TypeOfTimeDiscretization "ONE_TIME", the field data represent a single time step. 
+- \ref MEDCoupling::TypeOfTimeDiscretization "LINEAR_TIME", the field data contains \b two arrays, stamped with two
 different time points. A linear interpolation of the field values between those two time steps is then possible. 
-- \ref ParaMEDMEM::TypeOfTimeDiscretization "CONST_ON_TIME_INTERVAL", the field data contains a single array
+- \ref MEDCoupling::TypeOfTimeDiscretization "CONST_ON_TIME_INTERVAL", the field data contains a single array
 of data, but a start- and end-time can be specified, thus declaring that the field represent a constant
 set of data during this time interval. All time evaluation function then just check that the given time
 fits in the interval.  
 
-Finally, in the code itself, the class \ref ParaMEDMEM::MEDCouplingTimeDiscretization "MEDCouplingTimeDiscretization"
+Finally, in the code itself, the class \ref MEDCoupling::MEDCouplingTimeDiscretization "MEDCouplingTimeDiscretization"
 is the concrete representation of this concept.
 
 */

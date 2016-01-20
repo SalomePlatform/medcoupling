@@ -45,6 +45,6 @@ The fundamental set (blue background) consists in three atomic libraries:
 - \ref medcoupling "MEDCoupling" that describes data structures used for cross process exchange of \ref meshes "meshes" and \ref fields "fields".
 - \ref medloader "MEDLoader" and ParaMEDLoader that provides I/O functions to the MED file format with sequential and parallel processing, respectively. Those are built on top of the MED-file library.
 - \ref intro-interp "interpolation tools" that provides mathematical structures and algorithms for interpolation and
-  localization. It is implemented in three blocks: \ref INTERP_KERNEL "InterpKernel", \ref ParaMEDMEM::MEDCouplingRemapper "Remapper" and \ref parallel "ParaMEDMEM" (Remapper with parallel processing).
+  localization. It is implemented in three blocks: \ref INTERP_KERNEL "InterpKernel", \ref MEDCoupling::MEDCouplingRemapper "Remapper" and \ref parallel "ParaMEDMEM" (Remapper with parallel processing).
 
 */
