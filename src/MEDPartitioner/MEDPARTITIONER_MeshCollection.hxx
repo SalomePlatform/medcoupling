@@ -30,7 +30,7 @@
 
 #include "BBTree.txx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMesh;
   class DataArrayInt;
@@ -73,9 +73,9 @@ namespace MEDPARTITIONER
     void setDriverType(MEDPARTITIONER::DriverType type) { _driver_type=type; }
 
     //creation of the cell graph
-    void buildCellGraph(ParaMEDMEM::MEDCouplingSkyLineArray* & array,int *& edgeweights );
+    void buildCellGraph(MEDCoupling::MEDCouplingSkyLineArray* & array,int *& edgeweights );
    //creation of the cell graph
-    void buildParallelCellGraph(ParaMEDMEM::MEDCouplingSkyLineArray* & array,int *& edgeweights );
+    void buildParallelCellGraph(MEDCoupling::MEDCouplingSkyLineArray* & array,int *& edgeweights );
 
     //creation and partition of the associated graph
     Topology* createPartition(int nbdomain, Graph::splitter_type type = Graph::METIS,
@@ -92,24 +92,24 @@ namespace MEDPARTITIONER
     int getNbOfLocalFaces() const;
     
     //getting a reference to mesh vector
-    std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getMesh();
-    std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getFaceMesh();
-    std::vector<std::vector<ParaMEDMEM::MEDCouplingUMesh*> >& getGroupMeshes();
+    std::vector<MEDCoupling::MEDCouplingUMesh*>& getMesh();
+    std::vector<MEDCoupling::MEDCouplingUMesh*>& getFaceMesh();
+    std::vector<std::vector<MEDCoupling::MEDCouplingUMesh*> >& getGroupMeshes();
 
-    ParaMEDMEM::MEDCouplingUMesh* getMesh(int idomain) const;
-    ParaMEDMEM::MEDCouplingUMesh* getFaceMesh(int idomain);
-    std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getGroupMeshes(int idomain);
+    MEDCoupling::MEDCouplingUMesh* getMesh(int idomain) const;
+    MEDCoupling::MEDCouplingUMesh* getFaceMesh(int idomain);
+    std::vector<MEDCoupling::MEDCouplingUMesh*>& getGroupMeshes(int idomain);
 
-    std::vector<ParaMEDMEM::DataArrayInt*>& getCellFamilyIds() { return _cell_family_ids; }
-    std::vector<ParaMEDMEM::DataArrayInt*>& getFaceFamilyIds() { return _face_family_ids; }
+    std::vector<MEDCoupling::DataArrayInt*>& getCellFamilyIds() { return _cell_family_ids; }
+    std::vector<MEDCoupling::DataArrayInt*>& getFaceFamilyIds() { return _face_family_ids; }
     
-    std::map<std::string, ParaMEDMEM::DataArrayInt*>& getMapDataArrayInt() { return _map_dataarray_int; }
-    std::map<std::string, ParaMEDMEM::DataArrayDouble*>& getMapDataArrayDouble() { return _map_dataarray_double; }
+    std::map<std::string, MEDCoupling::DataArrayInt*>& getMapDataArrayInt() { return _map_dataarray_int; }
+    std::map<std::string, MEDCoupling::DataArrayDouble*>& getMapDataArrayDouble() { return _map_dataarray_double; }
 
     std::map<std::string,int>& getFamilyInfo() { return _family_info; }
     std::map<std::string, std::vector<std::string> >& getGroupInfo() { return _group_info; }
 
-    ParaMEDMEM::DataArrayDouble* getField(std::string descriptionField, int iold);
+    MEDCoupling::DataArrayDouble* getField(std::string descriptionField, int iold);
     std::vector<std::string>&  getFieldDescriptions() { return _field_descriptions; }
     void prepareFieldDescriptions();
     void filterFaceOnCell();
@@ -142,7 +142,7 @@ namespace MEDPARTITIONER
     
     void castCellMeshes(MeshCollection& initialCollection, 
                         std::vector<std::vector<std::vector<int> > >& new2oldIds,
-                        std::vector<ParaMEDMEM::DataArrayInt*> & o2nRenumber);
+                        std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber);
     
     //creates faces on the new collection
     void castFaceMeshes(MeshCollection& initialCollection,
@@ -151,16 +151,16 @@ namespace MEDPARTITIONER
 
     //constructing connect zones
     void buildConnectZones( const NodeMapping& nodeMapping,
-                            const std::vector<ParaMEDMEM::DataArrayInt*> & o2nRenumber,
+                            const std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber,
                             int nbInitialDomains );
 
     // Find faces common with neighbor domains and put them in groups
     void buildBoundaryFaces();
 
   private:
-    void castIntField(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
-                       std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo,
-                       std::vector<ParaMEDMEM::DataArrayInt*>& arrayFrom,
+    void castIntField(std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastFrom,
+                       std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastTo,
+                       std::vector<MEDCoupling::DataArrayInt*>& arrayFrom,
                        std::string nameArrayTo);
 
     void castAllFields(MeshCollection& initialCollection,
@@ -170,14 +170,14 @@ namespace MEDPARTITIONER
 
     
     void remapIntField(int inew, int iold, 
-                       const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
-                       const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
+                       const MEDCoupling::MEDCouplingUMesh& sourceMesh,
+                       const MEDCoupling::MEDCouplingUMesh& targetMesh,
                        const int* fromArray,
                        std::string nameArrayTo,
                        const BBTreeOfDim* tree);
 
     void remapDoubleField(int inew, int iold,
-                           ParaMEDMEM::DataArrayDouble* fromArray,
+                           MEDCoupling::DataArrayDouble* fromArray,
                            std::string nameArrayTo,
                            std::string descriptionField);
 
@@ -200,20 +200,20 @@ namespace MEDPARTITIONER
     ParaDomainSelector* _domain_selector;
     
     //links to meshes
-    std::vector<ParaMEDMEM::MEDCouplingUMesh*> _mesh;
-    std::vector<ParaMEDMEM::MEDCouplingUMesh*> _face_mesh;
+    std::vector<MEDCoupling::MEDCouplingUMesh*> _mesh;
+    std::vector<MEDCoupling::MEDCouplingUMesh*> _face_mesh;
     
     //index of a non empty mesh within _mesh (in parallel mode all of meshes can be empty)
     int _i_non_empty_mesh;
     
     //family ids storages
-    std::vector<ParaMEDMEM::DataArrayInt*> _cell_family_ids;
-    std::vector<ParaMEDMEM::DataArrayInt*> _face_family_ids;
+    std::vector<MEDCoupling::DataArrayInt*> _cell_family_ids;
+    std::vector<MEDCoupling::DataArrayInt*> _face_family_ids;
     
     //DataArrayInt* storages
-    std::map<std::string, ParaMEDMEM::DataArrayInt*> _map_dataarray_int;
+    std::map<std::string, MEDCoupling::DataArrayInt*> _map_dataarray_int;
     //DataArrayDouble* storages
-    std::map<std::string, ParaMEDMEM::DataArrayDouble*> _map_dataarray_double;
+    std::map<std::string, MEDCoupling::DataArrayDouble*> _map_dataarray_double;
     
     //fields to be partitioned
     std::vector<std::string> _field_descriptions;

@@ -2,7 +2,7 @@
 \page numbering Array indexing and numbering
 
 The MED library make constant use of arrays of integer or double to represent the various
-data it needs. The arrays of integer (\ref ParaMEDMEM::DataArrayInt "DataArrayInt") are of special importance as they
+data it needs. The arrays of integer (\ref MEDCoupling::DataArrayInt "DataArrayInt") are of special importance as they
 often constitutes the return value of the functions provided by the API. This can be
 a list of nodes, a list of cells, a way to rearrange the cell in a mesh (a permutation), a part of the 
 domain when doing parallel computation, etc ...
@@ -12,13 +12,13 @@ functions available to convert from one format to the other.
 
 Formally a "renumbering" is a mathematical application that can be surjective, injective or bijective. 
 This application is defined using an instance of
-\ref ParaMEDMEM::DataArrayInt "DataArrayInt". There are different ways to define this application.
+\ref MEDCoupling::DataArrayInt "DataArrayInt". There are different ways to define this application.
 
 \section MEDCouplingArrayRenumberingO2N Old-to-new mode
 
 The old to new mode is particularly recommanded for surjective and bijective applications. This 
-is typically the case of \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
-Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes" that reduces the 
+is typically the case of \ref MEDCoupling::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
+Let's consider a call to \ref MEDCoupling::MEDCouplingUMesh::mergeNodes "mergeNodes" that reduces the 
 number of nodes from 5 nodes to 3 nodes.\n
 In old to new mode the array \b MySurjection that specifies this surjection will have 5 tuples 
 and 1 component. The content of the 5*1 values will be in {0,1,2}.\n
@@ -36,25 +36,25 @@ implying renumbering that reduce the number of entities than method that increas
 
 Method in old to new mode that works on bijective applications :
 
-- \ref ParaMEDMEM::DataArrayDouble::renumber "DataArrayDouble::renumber"
-- \ref ParaMEDMEM::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlace"
+- \ref MEDCoupling::DataArrayDouble::renumber "DataArrayDouble::renumber"
+- \ref MEDCoupling::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlace"
 
 Method in old to new mode that works on surjective applications :
 
-- \ref ParaMEDMEM::DataArrayDouble::renumberAndReduce "DataArrayDouble::renumberAndReduce"
+- \ref MEDCoupling::DataArrayDouble::renumberAndReduce "DataArrayDouble::renumberAndReduce"
 
 Sometimes the format old to new for surjections can be replaced by another format with 2 arrays. 
-Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that.
+Less compact in memory. The \ref MEDCoupling::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that.
 
 \section MEDCouplingArrayRenumberingN2O New-to-old mode
 
 The new-to-old mode is particularly recommended for strictly injective and bijective permutations. 
 This is particularly useful for methods that increase the number of entities like for example
-\ref ParaMEDMEM::MEDCouplingUMesh::simplexize "MEDCouplingUMesh::simplexize".\n
-All non static methods in \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" 
-or \ref ParaMEDMEM::DataArrayInt "DataArrayInt" having as last letter \b R (meaning Reversed) in 
+\ref MEDCoupling::MEDCouplingUMesh::simplexize "MEDCouplingUMesh::simplexize".\n
+All non static methods in \ref MEDCoupling::DataArrayDouble "DataArrayDouble" 
+or \ref MEDCoupling::DataArrayInt "DataArrayInt" having as last letter \b R (meaning Reversed) in 
 capital works with the mode new to old.
-Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::simplexize "simplexize" that increases 
+Let's consider a call to \ref MEDCoupling::MEDCouplingUMesh::simplexize "simplexize" that increases 
 the number of cell from 4 cells to 6 cells.\n
 In new-to-old mode the array \b MyInjection that specifies this injection will have 6 tuples 
 and 1 component. The content of the 5*1 values will be in {0,1,2,3}.\n
@@ -69,15 +69,15 @@ If \b MyInjection equals [2,0,1,1,3,0] it means that :
 
 Method in new-to-old mode that works on bijective applications :
 
-- \ref ParaMEDMEM::DataArrayDouble::renumberR "DataArrayDouble::renumberR"
-- \ref ParaMEDMEM::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlaceR"
+- \ref MEDCoupling::DataArrayDouble::renumberR "DataArrayDouble::renumberR"
+- \ref MEDCoupling::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlaceR"
 
 Method in new-to-old mode that works on surjective applications :
 
-- \ref ParaMEDMEM::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
-- \ref ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe "DataArrayDouble::selectByTupleIdSafe"
-- \ref ParaMEDMEM::DataArrayDouble::selectByTupleId2 "DataArrayDouble::selectByTupleId2"
-- \ref ParaMEDMEM::DataArrayDouble::selectByTupleRanges "DataArrayDouble::selectByTupleRanges"
+- \ref MEDCoupling::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
+- \ref MEDCoupling::DataArrayDouble::selectByTupleIdSafe "DataArrayDouble::selectByTupleIdSafe"
+- \ref MEDCoupling::DataArrayDouble::selectByTupleIdSafeSlice "DataArrayDouble::selectByTupleIdSafeSlice"
+- \ref MEDCoupling::DataArrayDouble::selectByTupleRanges "DataArrayDouble::selectByTupleRanges"
 
 \section numbering-indirect Indirect indexing
 
@@ -96,18 +96,18 @@ which provides the necessary offsets to extract a given pack from \c tab.
 This format is widely used internally (this is how the connectivity of 
 \ref MEDCouplingUMeshPage "unstructured cells" is stored for example), and is also returned by 
 many functions, e.g.:
-- \ref  ParaMEDMEM::MEDCouplingPointSet::findCommonCells "MEDCouplingPointSet::findCommonCells"
-- \ref  ParaMEDMEM::MEDCouplingPointSet::findCommonNodes "MEDCouplingPointSet::findCommonNodes"
-- \ref  ParaMEDMEM::MEDCouplingPointSet::getNodeIdsNearPoints "MEDCouplingPointSet::getNodeIdsNearPoints" 
-- \ref  ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity "MEDCouplingUMesh::buildDescendingConnectivity"
-- \ref  ParaMEDMEM::MEDCouplingUMesh::computeNeighborsOfNodes "MEDCouplingUMesh::computeNeighborsOfNodes"
-- \ref  ParaMEDMEM::MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh "MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh"
-- \ref  ParaMEDMEM::MEDCouplingUMesh::setConnectivity "MEDCouplingUMesh::setConnectivity"
-- \ref  ParaMEDMEM::MEDCouplingUMesh::split2DCells "MEDCouplingUMesh::split2DCells"
+- \ref  MEDCoupling::MEDCouplingPointSet::findCommonCells "MEDCouplingPointSet::findCommonCells"
+- \ref  MEDCoupling::MEDCouplingPointSet::findCommonNodes "MEDCouplingPointSet::findCommonNodes"
+- \ref  MEDCoupling::MEDCouplingPointSet::getNodeIdsNearPoints "MEDCouplingPointSet::getNodeIdsNearPoints" 
+- \ref  MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity "MEDCouplingUMesh::buildDescendingConnectivity"
+- \ref  MEDCoupling::MEDCouplingUMesh::computeNeighborsOfNodes "MEDCouplingUMesh::computeNeighborsOfNodes"
+- \ref  MEDCoupling::MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh "MEDCouplingUMesh::convertNodalConnectivityToDynamicGeoTypeMesh"
+- \ref  MEDCoupling::MEDCouplingUMesh::setConnectivity "MEDCouplingUMesh::setConnectivity"
+- \ref  MEDCoupling::MEDCouplingUMesh::split2DCells "MEDCouplingUMesh::split2DCells"
 
 Some functions in the API to manipulate this format:
-- \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat"
-- \ref ParaMEDMEM::MEDCouplingUMesh::ExtractFromIndexedArrays "(static) MEDCouplingUMesh::ExtractFromIndexedArrays"
-- \ref ParaMEDMEM::MEDCouplingUMesh::ExtractFromIndexedArrays2 "(static) MEDCouplingUMesh::ExtractFromIndexedArrays2"
+- \ref MEDCoupling::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat"
+- \ref MEDCoupling::MEDCouplingUMesh::ExtractFromIndexedArrays "(static) MEDCouplingUMesh::ExtractFromIndexedArrays"
+- \ref MEDCoupling::MEDCouplingUMesh::ExtractFromIndexedArraysSlice "(static) MEDCouplingUMesh::ExtractFromIndexedArraysSlice"
 
 */

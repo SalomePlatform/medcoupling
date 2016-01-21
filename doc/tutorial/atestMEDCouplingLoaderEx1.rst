@@ -19,7 +19,7 @@ Agitateur - Swirler
 	fMc = f1ts.getFieldAtLevel(ml.ON_CELLS,0)
 	arr = fMc.getArray()
 	arr.getMinMaxPerComponent()      # just to see the field variation range per component
-	ids = arr.getIdsInRange(0.,1.)
+	ids = arr.findIdsInRange(0.,1.)
 	f2Mc = fMc[ids]
 	# Extract pression field on the swirler
 	pressMts = data.getFields()["PRESSION_ELEM_DOM"]
@@ -32,7 +32,7 @@ Agitateur - Swirler
 	agitateurMesh3DMc = pressOnAgitateurMc.getMesh()
 	m3DSurf,desc,descI,revDesc,revDescI = agitateurMesh3DMc.buildDescendingConnectivity()
 	nbOf3DCellSharing = revDescI.deltaShiftIndex()
-	ids2 = nbOf3DCellSharing.getIdsEqual(1)
+	ids2 = nbOf3DCellSharing.findIdsEqual(1)
 	agitateurSkinMc = m3DSurf[ids2]
 	offsetsOfTupleIdsInField = revDescI[ids2]
 	tupleIdsInField = revDesc[offsetsOfTupleIdsInField]
@@ -48,9 +48,9 @@ Agitateur - Swirler
 	# Torque computation
 	singlePolyhedron = agitateurMesh3DMc.buildSpreadZonesWithPoly()
 	singlePolyhedron.orientCorrectlyPolyhedrons()
-	centerOfMass = singlePolyhedron.getBarycenterAndOwner()
+	centerOfMass = singlePolyhedron.computeCellCenterOfMass()
 
-	barySkin=agitateurSkinMc.getBarycenterAndOwner()
+	barySkin=agitateurSkinMc.computeCellCenterOfMass()
 	posSkin = barySkin-centerOfMass
 
 	torquePerCellOnSkin = ml.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
@@ -81,17 +81,17 @@ Agitateur - Swirler
 	def computeAngle(locAgitateur1ts):
 		fMc = locAgitateur1ts.getFieldAtLevel(ml.ON_CELLS,0)
 		arr = fMc.getArray()
-		ids = arr.getIdsInRange(0.,1.)
+		ids = arr.findIdsInRange(0.,1.)
 		f2Mc = fMc[ids]
 		m3DSurf,desc,descI,revDesc,revDescI = f2Mc.getMesh().buildDescendingConnectivity()
 		nbOf3DCellSharing = revDescI.deltaShiftIndex()
-		ids2 = nbOf3DCellSharing.getIdsEqual(1)
+		ids2 = nbOf3DCellSharing.findIdsEqual(1)
 		agitateurSkinMc = m3DSurf[ids2]
 		#
 		singlePolyhedron = agitateurMesh3DMc.buildSpreadZonesWithPoly()
 		singlePolyhedron.orientCorrectlyPolyhedrons()
-		centerOfMass = singlePolyhedron.getBarycenterAndOwner()
-		bary = agitateurSkinMc.getBarycenterAndOwner()
+		centerOfMass = singlePolyhedron.computeCellCenterOfMass()
+		bary = agitateurSkinMc.computeCellCenterOfMass()
 		posSkin = bary-centerOfMass
 		x2=posSkin[:,0]*posSkin[:,0] ; x2=x2.accumulate()[0]
 		y2=posSkin[:,1]*posSkin[:,1] ; y2=y2.accumulate()[0]

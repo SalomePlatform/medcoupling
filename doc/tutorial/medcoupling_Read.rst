@@ -68,7 +68,7 @@ Retrieving field values
 	res=f.getValueOn(pos)
 
 	# Verify if value is OK
-	bar = mesh3D.getBarycenterAndOwner()
+	bar = mesh3D.computeCellCenterOfMass()
 	x=bar.getIJ(...)
 	y=bar.getIJ(...)
 	z=bar.getIJ(...)

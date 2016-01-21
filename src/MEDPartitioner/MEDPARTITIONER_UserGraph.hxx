@@ -30,7 +30,7 @@ namespace MEDPARTITIONER
   class MEDPARTITIONER_EXPORT UserGraph : public Graph
   {
   public:
-    UserGraph(ParaMEDMEM::MEDCouplingSkyLineArray*, const int*, int);
+    UserGraph(MEDCoupling::MEDCouplingSkyLineArray*, const int*, int);
     virtual ~UserGraph();
     void partGraph(int, const std::string& options=std::string(""), ParaDomainSelector *sel=0);
   };

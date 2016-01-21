@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMemArray.txx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <set>
 #include <cmath>
@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /*!
  * Checks if raw data is allocated. Read more on the raw data
@@ -104,7 +104,7 @@ bool DataArrayChar::empty() const
  *  \param [in] other - another instance of DataArrayChar to copy data from.
  *  \throw If the \a other is not allocated.
  */
-void DataArrayChar::cpyFrom(const DataArrayChar& other)
+void DataArrayChar::deepCopyFrom(const DataArrayChar& other)
 {
   other.checkAllocated();
   int nbOfTuples=other.getNumberOfTuples();
@@ -379,7 +379,7 @@ DataArrayInt *DataArrayChar::convertToIntArr() const
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
@@ -437,7 +437,7 @@ DataArrayChar *DataArrayChar::renumber(const int *old2New) const
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   ret->alloc(nbTuples,nbOfCompo);
   ret->copyStringInfoFrom(*this);
   const char *iptr=getConstPointer();
@@ -452,7 +452,7 @@ DataArrayChar *DataArrayChar::renumber(const int *old2New) const
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
@@ -464,7 +464,7 @@ DataArrayChar *DataArrayChar::renumberR(const int *new2Old) const
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   ret->alloc(nbTuples,nbOfCompo);
   ret->copyStringInfoFrom(*this);
   const char *iptr=getConstPointer();
@@ -493,7 +493,7 @@ DataArrayChar *DataArrayChar::renumberAndReduce(const int *old2New, int newNbOfT
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   ret->alloc(newNbOfTuple,nbOfCompo);
   const char *iptr=getConstPointer();
   char *optr=ret->getPointer();
@@ -550,7 +550,7 @@ DataArrayChar *DataArrayChar::selectByTupleId(const int *new2OldBg, const int *n
 DataArrayChar *DataArrayChar::selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   int nbComp=getNumberOfComponents();
   int oldNbOfTuples=getNumberOfTuples();
   ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
@@ -583,12 +583,12 @@ DataArrayChar *DataArrayChar::selectByTupleIdSafe(const int *new2OldBg, const in
  *  \throw If (\a end2 < \a bg) or (\a step <= 0).
  *  \sa DataArrayChar::substr.
  */
-DataArrayChar *DataArrayChar::selectByTupleId2(int bg, int end2, int step) const
+DataArrayChar *DataArrayChar::selectByTupleIdSafeSlice(int bg, int end2, int step) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayInt::selectByTupleId2 : ");
+  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayInt::selectByTupleIdSafeSlice : ");
   ret->alloc(newNbOfTuples,nbComp);
   char *pt=ret->getPointer();
   const char *srcPt=getConstPointer()+bg*nbComp;
@@ -647,8 +647,8 @@ void DataArrayChar::rearrange(int newNbOfCompo)
 /*!
  * Returns a shorten copy of \a this array. The new DataArrayChar contains all
  * tuples starting from the \a tupleIdBg-th tuple and including all tuples located before
- * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::substr().
- * This method is a specialization of selectByTupleId2().
+ * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::subArray().
+ * This method is a specialization of selectByTupleIdSafeSlice().
  *  \param [in] tupleIdBg - index of the first tuple to copy from \a this array.
  *  \param [in] tupleIdEnd - index of the tuple before which the tuples to copy are located.
  *          If \a tupleIdEnd == -1, all the tuples till the end of \a this array are copied.
@@ -657,9 +657,9 @@ void DataArrayChar::rearrange(int newNbOfCompo)
  *  \throw If \a tupleIdBg < 0.
  *  \throw If \a tupleIdBg > \a this->getNumberOfTuples().
     \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
- *  \sa DataArrayChar::selectByTupleId2
+ *  \sa DataArrayChar::selectByTupleIdSafeSlice
  */
-DataArrayChar *DataArrayChar::substr(int tupleIdBg, int tupleIdEnd) const
+DataArrayChar *DataArrayChar::subArray(int tupleIdBg, int tupleIdEnd) const
 {
   checkAllocated();
   int nbt=getNumberOfTuples();
@@ -676,7 +676,7 @@ DataArrayChar *DataArrayChar::substr(int tupleIdBg, int tupleIdEnd) const
   else
     trueEnd=nbt;
   int nbComp=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   ret->alloc(trueEnd-tupleIdBg,nbComp);
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
@@ -699,7 +699,7 @@ DataArrayChar *DataArrayChar::substr(int tupleIdBg, int tupleIdEnd) const
 DataArrayChar *DataArrayChar::changeNbOfComponents(int newNbOfComp, char dftValue) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   ret->alloc(getNumberOfTuples(),newNbOfComp);
   const char *oldc=getConstPointer();
   char *nc=ret->getPointer();
@@ -741,7 +741,7 @@ DataArrayChar *DataArrayChar::changeNbOfComponents(int newNbOfComp, char dftValu
 DataArrayChar *DataArrayChar::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret(buildEmptySpecializedDAChar());
+  MCAuto<DataArrayChar> ret(buildEmptySpecializedDAChar());
   int newNbOfCompo=(int)compoIds.size();
   int oldNbOfCompo=getNumberOfComponents();
   for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
@@ -1386,27 +1386,27 @@ void DataArrayChar::setContigPartOfSelectedValues(int tupleIdStart, const DataAr
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for the array \a aBase.
  */
-void DataArrayChar::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
+void DataArrayChar::setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
 {
   if(!aBase)
-    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : input DataArray is NULL !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValuesSlice : input DataArray is NULL !");
   const DataArrayChar *a=dynamic_cast<const DataArrayChar *>(aBase);
   if(!a)
-    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : input DataArray aBase is not a DataArrayChar !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValuesSlice : input DataArray aBase is not a DataArrayChar !");
   checkAllocated();
   a->checkAllocated();
   int nbOfComp=getNumberOfComponents();
-  const char msg[]="DataArrayChar::setContigPartOfSelectedValues2";
+  const char msg[]="DataArrayChar::setContigPartOfSelectedValuesSlice";
   int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
   if(nbOfComp!=a->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : This and a do not have the same number of components !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValuesSlice : This and a do not have the same number of components !");
   int thisNt=getNumberOfTuples();
   int aNt=a->getNumberOfTuples();
   char *valsToSet=getPointer()+tupleIdStart*nbOfComp;
   if(tupleIdStart+nbOfTupleToWrite>thisNt)
-    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : invalid number range of values to write !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValuesSlice : invalid number range of values to write !");
   if(end2>aNt)
-    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValues2 : invalid range of values to read !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::setContigPartOfSelectedValuesSlice : invalid range of values to read !");
   const char *valsSrc=a->getConstPointer()+bg*nbOfComp;
   for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
     {
@@ -1433,7 +1433,7 @@ DataArray *DataArrayChar::selectByTupleRanges(const std::vector<std::pair<int,in
   int nbOfTuplesThis=getNumberOfTuples();
   if(ranges.empty())
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+      MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
       ret->alloc(0,nbOfComp);
       ret->copyStringInfoFrom(*this);
       return ret.retn();
@@ -1467,8 +1467,8 @@ DataArray *DataArrayChar::selectByTupleRanges(const std::vector<std::pair<int,in
         }
     }
   if(isIncreasing && nbOfTuplesThis==nbOfTuples)
-    return deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=buildEmptySpecializedDAChar();
+    return deepCopy();
+  MCAuto<DataArrayChar> ret=buildEmptySpecializedDAChar();
   ret->alloc(nbOfTuples,nbOfComp);
   ret->copyStringInfoFrom(*this);
   const char *src=getConstPointer();
@@ -1551,13 +1551,13 @@ char DataArrayChar::back() const
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *DataArrayChar::getIdsEqual(char val) const
+DataArrayInt *DataArrayChar::findIdsEqual(char val) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayChar::getIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::findIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
   const char *cptr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr==val)
@@ -1574,13 +1574,13 @@ DataArrayInt *DataArrayChar::getIdsEqual(char val) const
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *DataArrayChar::getIdsNotEqual(char val) const
+DataArrayInt *DataArrayChar::findIdsNotEqual(char val) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayChar::getIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::findIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
   const char *cptr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr!=val)
@@ -1591,15 +1591,15 @@ DataArrayInt *DataArrayChar::getIdsNotEqual(char val) const
 /*!
  * This method searches the sequence specified in input parameter \b vals in \b this.
  * This works only for DataArrayChar having number of components equal to one (if not an INTERP_KERNEL::Exception will be thrown).
- * This method differs from DataArrayChar::locateTuple in that the position is internal raw data is not considered here contrary to DataArrayChar::locateTuple.
- * \sa DataArrayChar::locateTuple
+ * This method differs from DataArrayChar::findIdFirstEqualTuple in that the position is internal raw data is not considered here contrary to DataArrayChar::findIdFirstEqualTuple.
+ * \sa DataArrayChar::findIdFirstEqualTuple
  */
-int DataArrayChar::search(const std::vector<char>& vals) const
+int DataArrayChar::findIdSequence(const std::vector<char>& vals) const
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   if(nbOfCompo!=1)
-    throw INTERP_KERNEL::Exception("DataArrayChar::search : works only for DataArrayChar instance with one component !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::findIdSequence : works only for DataArrayChar instance with one component !");
   const char *cptr=getConstPointer();
   std::size_t nbOfVals=getNbOfElems();
   const char *loc=std::search(cptr,cptr+nbOfVals,vals.begin(),vals.end());
@@ -1609,7 +1609,7 @@ int DataArrayChar::search(const std::vector<char>& vals) const
 }
 
 /*!
- * This method is an extension of DataArrayChar::locateValue method because this method works for DataArrayChar with
+ * This method is an extension of DataArrayChar::findIdFirstEqual method because this method works for DataArrayChar with
  * any number of components excepted 0 (an INTERP_KERNEL::Exception is thrown in this case).
  * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
  * If any the tuple id is returned. If not -1 is returned.
@@ -1618,17 +1618,17 @@ int DataArrayChar::search(const std::vector<char>& vals) const
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
  *
  * \return tuple id where \b tupl is. -1 if no such tuple exists in \b this.
- * \sa DataArrayChar::search.
+ * \sa DataArrayChar::findIdSequence.
  */
-int DataArrayChar::locateTuple(const std::vector<char>& tupl) const
+int DataArrayChar::findIdFirstEqualTuple(const std::vector<char>& tupl) const
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   if(nbOfCompo==0)
-    throw INTERP_KERNEL::Exception("DataArrayChar::locateTuple : 0 components in 'this' !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::findIdFirstEqualTuple : 0 components in 'this' !");
   if(nbOfCompo!=(int)tupl.size())
     {
-      std::ostringstream oss; oss << "DataArrayChar::locateTuple : 'this' contains " << nbOfCompo << " components and searching for a tuple of length " << tupl.size() << " !";
+      std::ostringstream oss; oss << "DataArrayChar::findIdFirstEqualTuple : 'this' contains " << nbOfCompo << " components and searching for a tuple of length " << tupl.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   const char *cptr=getConstPointer();
@@ -1653,11 +1653,11 @@ int DataArrayChar::locateTuple(const std::vector<char>& tupl) const
  * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
  * This method throws an INTERP_KERNEL::Exception if the number of components in \b this mismatches with the size of
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
- * \sa DataArrayChar::locateTuple
+ * \sa DataArrayChar::findIdFirstEqualTuple
  */
 bool DataArrayChar::presenceOfTuple(const std::vector<char>& tupl) const
 {
-  return locateTuple(tupl)!=-1;
+  return findIdFirstEqualTuple(tupl)!=-1;
 }
 
 /*!
@@ -1666,22 +1666,22 @@ bool DataArrayChar::presenceOfTuple(const std::vector<char>& tupl) const
  *  \return bool - \a true in case if \a value is present within \a this array.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
- *  \sa locateValue()
+ *  \sa findIdFirstEqual()
  */
 bool DataArrayChar::presenceOfValue(char value) const
 {
-  return locateValue(value)!=-1;
+  return findIdFirstEqual(value)!=-1;
 }
 
 /*!
  * This method expects to be called when number of components of this is equal to one.
  * This method returns true if it exists a tuple so that the value is contained in \b vals.
  * If not any tuple contains one of the values contained in 'vals' false is returned.
- * \sa DataArrayChar::locateValue
+ * \sa DataArrayChar::findIdFirstEqual
  */
 bool DataArrayChar::presenceOfValue(const std::vector<char>& vals) const
 {
-  return locateValue(vals)!=-1;
+  return findIdFirstEqual(vals)!=-1;
 }
 
 /*!
@@ -1690,7 +1690,7 @@ bool DataArrayChar::presenceOfValue(const std::vector<char>& vals) const
  * If not any tuple contains \b value -1 is returned.
  * \sa DataArrayChar::presenceOfValue
  */
-int DataArrayChar::locateValue(char value) const
+int DataArrayChar::findIdFirstEqual(char value) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -1709,7 +1709,7 @@ int DataArrayChar::locateValue(char value) const
  * If not any tuple contains one of the values contained in 'vals' false is returned.
  * \sa DataArrayChar::presenceOfValue
  */
-int DataArrayChar::locateValue(const std::vector<char>& vals) const
+int DataArrayChar::findIdFirstEqual(const std::vector<char>& vals) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -1800,13 +1800,13 @@ char DataArrayChar::getMinValueInArray() const
  * \param [in] vmax end of range. This value is \b not included in range.
  * \return a newly allocated data array that the caller should deal with.
  */
-DataArrayInt *DataArrayChar::getIdsInRange(char vmin, char vmax) const
+DataArrayInt *DataArrayChar::findIdsInRange(char vmin, char vmax) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayChar::getIdsInRange : this must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayChar::findIdsInRange : this must have exactly one component !");
   const char *cptr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr>=vmin && *cptr<vmax)
@@ -1869,7 +1869,7 @@ DataArrayChar *DataArrayChar::Aggregate(const std::vector<const DataArrayChar *>
         throw INTERP_KERNEL::Exception("DataArrayChar::Aggregate : Nb of components mismatch for array aggregation !");
       nbt+=(*it)->getNumberOfTuples();
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayChar> ret=a[0]->buildEmptySpecializedDAChar();
+  MCAuto<DataArrayChar> ret=a[0]->buildEmptySpecializedDAChar();
   ret->alloc(nbt,nbOfComp);
   char *pt=ret->getPointer();
   for(it=a.begin();it!=a.end();it++)
@@ -1963,8 +1963,8 @@ DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr
  * For more info see \ref MEDCouplingArraySteps1.
  *  \param [in] array - the C array to be used as raw data of \a this.
  *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == ParaMEDMEM::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == ParaMEDMEM::C_DEALLOC,
+ *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+ *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
  *                     \c free(\c array ) will be called.
  *  \param [in] nbOfTuple - new number of tuples in \a this.
  *  \param [in] nbOfCompo - new number of components in \a this.
@@ -2002,7 +2002,7 @@ DataArrayByteIterator *DataArrayByte::iterator()
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayByte * - a new instance of DataArrayByte.
  */
-DataArrayByte *DataArrayByte::deepCpy() const
+DataArrayByte *DataArrayByte::deepCopy() const
 {
   return new DataArrayByte(*this);
 }
@@ -2014,10 +2014,10 @@ DataArrayByte *DataArrayByte::deepCpy() const
  *  \return DataArrayByte * - either a new instance of DataArrayByte (if \a dCpy
  *          == \a true) or \a this instance (if \a dCpy == \a false).
  */
-DataArrayByte *DataArrayByte::performCpy(bool dCpy) const
+DataArrayByte *DataArrayByte::performCopyOrIncrRef(bool dCpy) const
 {
   if(dCpy)
-    return deepCpy();
+    return deepCopy();
   else
     {
       incrRef();
@@ -2242,8 +2242,8 @@ char DataArrayByteTuple::byteValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayByte::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayByte::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayByte::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayByte::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
@@ -2354,7 +2354,7 @@ DataArrayAsciiCharIterator *DataArrayAsciiChar::iterator()
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayAsciiChar * - a new instance of DataArrayAsciiChar.
  */
-DataArrayAsciiChar *DataArrayAsciiChar::deepCpy() const
+DataArrayAsciiChar *DataArrayAsciiChar::deepCopy() const
 {
   return new DataArrayAsciiChar(*this);
 }
@@ -2366,10 +2366,10 @@ DataArrayAsciiChar *DataArrayAsciiChar::deepCpy() const
  *  \return DataArrayAsciiChar * - either a new instance of DataArrayAsciiChar (if \a dCpy
  *          == \a true) or \a this instance (if \a dCpy == \a false).
  */
-DataArrayAsciiChar *DataArrayAsciiChar::performCpy(bool dCpy) const
+DataArrayAsciiChar *DataArrayAsciiChar::performCopyOrIncrRef(bool dCpy) const
 {
   if(dCpy)
-    return deepCpy();
+    return deepCopy();
   else
     {
       incrRef();
@@ -2580,8 +2580,8 @@ char DataArrayAsciiCharTuple::asciiCharValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayAsciiChar::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayAsciiChar::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayAsciiChar::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayAsciiChar::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */

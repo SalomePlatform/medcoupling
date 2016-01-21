@@ -41,7 +41,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   /**!
@@ -53,7 +53,7 @@ namespace ParaMEDMEM
      \param target_group processor group containing the distant processors
      \param method interpolation method
   */
-  InterpolationMatrix::InterpolationMatrix(const ParaMEDMEM::ParaFIELD *source_field, 
+  InterpolationMatrix::InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field, 
                                            const ProcessorGroup& source_group,
                                            const ProcessorGroup& target_group,
                                            const DECOptions& dec_options,
@@ -347,10 +347,10 @@ namespace ParaMEDMEM
     NatureOfField nature=elementLocator.getLocalNature();
     switch(nature)
       {
-      case ConservativeVolumic:
+      case IntensiveMaximum:
         computeConservVolDenoW(elementLocator);
         break;
-      case Integral:
+      case ExtensiveMaximum:
         {
           if(!elementLocator.isM1DCorr())
             computeIntegralDenoW(elementLocator);
@@ -358,10 +358,10 @@ namespace ParaMEDMEM
             computeGlobConstraintDenoW(elementLocator);
           break;
         }
-      case IntegralGlobConstraint:
+      case ExtensiveConservation:
         computeGlobConstraintDenoW(elementLocator);
         break;
-      case RevIntegral:
+      case IntensiveConservation:
         {
           if(!elementLocator.isM1DCorr())
             computeRevIntegralDenoW(elementLocator);
@@ -380,10 +380,10 @@ namespace ParaMEDMEM
     NatureOfField nature=elementLocator.getLocalNature();
     switch(nature)
       {
-      case ConservativeVolumic:
+      case IntensiveMaximum:
         computeConservVolDenoL(elementLocator);
         break;
-      case Integral:
+      case ExtensiveMaximum:
         {
           if(!elementLocator.isM1DCorr())
             computeIntegralDenoL(elementLocator);
@@ -391,11 +391,11 @@ namespace ParaMEDMEM
             computeConservVolDenoL(elementLocator);
           break;
         }
-      case IntegralGlobConstraint:
-        //this is not a bug doing like ConservativeVolumic
+      case ExtensiveConservation:
+        //this is not a bug doing like IntensiveMaximum
         computeConservVolDenoL(elementLocator);
         break;
-      case RevIntegral:
+      case IntensiveConservation:
         {
           if(!elementLocator.isM1DCorr())
             computeRevIntegralDenoL(elementLocator);

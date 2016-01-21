@@ -20,7 +20,7 @@
 #include "RENUMBER_BOOSTRenumbering.hxx"
 
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -28,9 +28,9 @@
 #include <boost/graph/properties.hpp>
 #include <boost/graph/bandwidth.hpp>
 
-void BOOSTRenumbering::renumber(const int *graph, const int *index_graph, int nbCell, ParaMEDMEM::DataArrayInt *&iperm, ParaMEDMEM::DataArrayInt *&perm)
+void BOOSTRenumbering::renumber(const int *graph, const int *index_graph, int nbCell, MEDCoupling::DataArrayInt *&iperm, MEDCoupling::DataArrayInt *&perm)
 {
-  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayInt> out0(ParaMEDMEM::DataArrayInt::New()),out1(ParaMEDMEM::DataArrayInt::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> out0(MEDCoupling::DataArrayInt::New()),out1(MEDCoupling::DataArrayInt::New());
   out0->alloc(nbCell,1); out1->alloc(nbCell,1);
   out0->fillWithZero(); out1->fillWithZero();
   //

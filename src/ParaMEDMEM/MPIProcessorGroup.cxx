@@ -30,7 +30,7 @@
 using namespace std;
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    \anchor MPIProcessorGroup-det
@@ -218,7 +218,7 @@ namespace ParaMEDMEM
     
   }
 
-  MPIProcessorGroup *MPIProcessorGroup::deepCpy() const
+  MPIProcessorGroup *MPIProcessorGroup::deepCopy() const
   {
     return new MPIProcessorGroup(*this);
   }

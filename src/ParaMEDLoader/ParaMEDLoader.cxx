@@ -26,13 +26,13 @@
 
 #include <fstream>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 ParaMEDLoader::ParaMEDLoader()
 {
 }
 
-void ParaMEDLoader::WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
+void ParaMEDLoader::WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh)
 {
   if(!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
     return ;
@@ -47,7 +47,7 @@ void ParaMEDLoader::WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *me
     }
   if(myRank==0)
     WriteMasterFile(fileName,fileNames,mesh->getCellMesh()->getName().c_str());
-  MEDLoader::WriteUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()),true);
+  WriteUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()),true);
 }
 
 /*!

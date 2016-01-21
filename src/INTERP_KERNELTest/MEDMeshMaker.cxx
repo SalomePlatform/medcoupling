@@ -17,17 +17,17 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingCMesh.hxx"
 
 #include "MEDMeshMaker.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
-ParaMEDMEM::MEDCouplingUMesh *MEDMeshMaker(int dim, int nbedge)
+MEDCoupling::MEDCouplingUMesh *MEDMeshMaker(int dim, int nbedge)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> c=MEDCouplingCMesh::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New();
+  MCAuto<MEDCouplingCMesh> c=MEDCouplingCMesh::New();
+  MCAuto<DataArrayDouble> arr=DataArrayDouble::New();
   arr->alloc(nbedge+1,1); arr->iota(0.); arr->applyLin(1./double(nbedge),0.);
   switch(dim)
   {

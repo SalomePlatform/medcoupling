@@ -19,8 +19,8 @@ As unstructured mesh is dynamically defined enough, this class is also used by M
 The norm used for cells connectivity of different types, is the same as specified in MED file except
 that connectivities are represented in \b C \b format and \b not \b in \b FORTRAN \b format !
 
-The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingUMesh.
-\n This class inherits from ParaMEDMEM::MEDCouplingPointSet abstract class.
+The class that incarnates the described concept is : MEDCoupling::MEDCouplingUMesh.
+\n This class inherits from MEDCoupling::MEDCouplingPointSet abstract class.
 \n So \ref MEDCouplingUMeshPage "MEDCouplingUMesh" inherits from all \ref MEDCouplingPointSetPage "point set features".
 
 \section MEDCouplingUMeshStdBuild Standard building of an unstructured mesh  from scratch
@@ -42,10 +42,10 @@ equal to meshDim to respect \ref MEDCouplingMeshes "this rule".
 
 \section MEDCouplingUMeshNodalConnectivity How MEDCouplingUMesh stores its nodal connectivity
 
-\ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh class" stores its nodal connectivity into 2 arrays.
+\ref MEDCoupling::MEDCouplingUMesh "MEDCouplingUMesh class" stores its nodal connectivity into 2 arrays.
 
-- The first one, the biggest is ParaMEDMEM::MEDCouplingUMesh::_nodal_connectivity.
-- The second one, the less big is ParaMEDMEM::MEDCouplingUMesh::_nodal_connectivity_index.
+- The first one, the biggest is MEDCoupling::MEDCouplingUMesh::_nodal_connectivity.
+- The second one, the less big is MEDCoupling::MEDCouplingUMesh::_nodal_connectivity_index.
 
 \image html MEDCouplingUMeshConn.png "Nodal connectivity storage into MEDCouplingUMesh class"
 \image latex MEDCouplingUMeshConn.eps "Nodal connectivity storage into MEDCouplingUMesh class"
@@ -55,7 +55,7 @@ are given in format [\b begin,\b end) where \b begin is included and \b end excl
 
 \section MEDCouplingUMeshAdvBuild Advanced building of an unstructured mesh  from scratch
 
-Here we are going to build the mesh in a more advanced manner. This method expects that the user knows the storage format underlying ParaMEDMEM::MEDCouplingUMesh.
+Here we are going to build the mesh in a more advanced manner. This method expects that the user knows the storage format underlying MEDCoupling::MEDCouplingUMesh.
 
 The same mesh than \ref MEDCouplingUMeshStdBuild "in the standard section above" is going to be implemented using advanced method.
 

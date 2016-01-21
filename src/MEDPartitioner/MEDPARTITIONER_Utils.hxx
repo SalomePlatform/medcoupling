@@ -77,13 +77,13 @@ namespace MEDPARTITIONER
   MEDPARTITIONER_EXPORT void FieldShortDescriptionToData(const std::string& description,
                                    std::string& fieldName, int& typeField, int& entity, int& DT, int& IT);
   
-  ParaMEDMEM::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v);
-  ParaMEDMEM::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v, const int nbComponents);
-  ParaMEDMEM::DataArrayDouble *CreateDataArrayDoubleFromVector(const std::vector<double>& v);
+  MEDCoupling::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v);
+  MEDCoupling::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v, const int nbComponents);
+  MEDCoupling::DataArrayDouble *CreateDataArrayDoubleFromVector(const std::vector<double>& v);
   
-  ParaMEDMEM::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
+  MEDCoupling::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
 
-  std::vector<std::string> BrowseFieldDouble(const ParaMEDMEM::MEDCouplingFieldDouble* fd);
+  std::vector<std::string> BrowseFieldDouble(const MEDCoupling::MEDCouplingFieldDouble* fd);
   std::vector<std::string> BrowseAllFields(const std::string& myfile);
   std::vector<std::string> BrowseAllFieldsOnMesh(const std::string& myfile, const std::string& mymesh, const int idomain);
   std::vector<std::string> GetInfosOfField(const char *fileName, const char *meshName, const int idomain );
@@ -104,10 +104,10 @@ namespace MEDPARTITIONER
   std::vector<int>* RecvIntVec(int source);
   void RecvIntVec(std::vector<int>& vec, const int source);
   
-  void SendDataArrayInt(const ParaMEDMEM::DataArrayInt* da, const int target);
-  ParaMEDMEM::DataArrayInt *RecvDataArrayInt(const int source);
-  void SendDataArrayDouble(const ParaMEDMEM::DataArrayDouble* da, const int target);
-  ParaMEDMEM::DataArrayDouble *RecvDataArrayDouble(const int source);
+  void SendDataArrayInt(const MEDCoupling::DataArrayInt* da, const int target);
+  MEDCoupling::DataArrayInt *RecvDataArrayInt(const int source);
+  void SendDataArrayDouble(const MEDCoupling::DataArrayDouble* da, const int target);
+  MEDCoupling::DataArrayDouble *RecvDataArrayDouble(const int source);
 
   void TestVectorOfStringMpi();
   void TestMapOfStringIntMpi();

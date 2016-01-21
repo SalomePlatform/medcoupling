@@ -24,19 +24,19 @@
 #include <sstream>
 #include <algorithm>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
-const char *ParaMEDMEM::MEDCouplingVersionStr()
+const char *MEDCoupling::MEDCouplingVersionStr()
 {
   return MEDCOUPLING_VERSION_STR;
 }
 
-int ParaMEDMEM::MEDCouplingVersion()
+int MEDCoupling::MEDCouplingVersion()
 {
   return MEDCOUPLING_VERSION;
 }
 
-void ParaMEDMEM::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
+void MEDCoupling::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
 {
   int ver=MEDCOUPLING_VERSION;
   maj=(ver & 0xFF0000) >> 16;
@@ -44,7 +44,7 @@ void ParaMEDMEM::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
   releas=(ver & 0xFF);
 }
 
-int ParaMEDMEM::MEDCouplingSizeOfVoidStar()
+int MEDCoupling::MEDCouplingSizeOfVoidStar()
 {
   return 8*sizeof(std::size_t);
 }
@@ -54,14 +54,14 @@ int ParaMEDMEM::MEDCouplingSizeOfVoidStar()
  * If false it is a BigEndian machine.
  * \return the coding mode of integers of the machine.
  */
-bool ParaMEDMEM::MEDCouplingByteOrder()
+bool MEDCoupling::MEDCouplingByteOrder()
 {
   unsigned int x(1);
   unsigned char *xc(reinterpret_cast<unsigned char *>(&x));
   return xc[0]==1;
 }
 
-const char *ParaMEDMEM::MEDCouplingByteOrderStr()
+const char *MEDCoupling::MEDCouplingByteOrderStr()
 {
   static const char LITTLEENDIAN_STR[]="LittleEndian";
   static const char BIGENDIAN_STR[]="BigEndian";

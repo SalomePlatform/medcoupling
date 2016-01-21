@@ -63,11 +63,11 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
         if source_group.containsMyRank():
             filename = filename_xml1 + str(rank+1) + ".med"
             meshname = "Mesh_2_" + str(rank+1)
-            mesh=MEDLoader.ReadUMeshFromFile(filename,meshname,0)
+            mesh=ReadUMeshFromFile(filename,meshname,0)
             paramesh=ParaMESH(mesh,source_group,"source mesh")
             comptopo=ComponentTopology(6)
             parafield=ParaFIELD(ON_CELLS,NO_TIME,paramesh,comptopo)
-            parafield.getField().setNature(ConservativeVolumic)
+            parafield.getField().setNature(IntensiveMaximum)
             nb_local=mesh.getNumberOfCells()
             global_numbering=paramesh.getGlobalNumberingCell2()
             value = []
@@ -86,11 +86,11 @@ class ParaMEDMEMBasicsTest2(unittest.TestCase):
 
         if target_group.containsMyRank():
             meshname2 = "Mesh_2"
-            mesh=MEDLoader.ReadUMeshFromFile(filename_2, meshname2,0)
+            mesh=ReadUMeshFromFile(filename_2, meshname2,0)
             paramesh=ParaMESH(mesh, self_group, "target mesh")
             comptopo=ComponentTopology(6,target_group)
             parafield=ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
-            parafield.getField().setNature(ConservativeVolumic)
+            parafield.getField().setNature(IntensiveMaximum)
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*(nb_local*comptopo.nbLocalComponents())
             parafield.getField().setValues(value)

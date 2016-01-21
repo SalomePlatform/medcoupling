@@ -24,14 +24,14 @@
 #include "MEDLoaderDefines.hxx"
 #include "MEDFileUtilities.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileParameter1TS : public RefCountObject
   {
   public:
-    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCpy() const = 0;
+    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCopy() const = 0;
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual void simpleRepr2(int bkOffset, std::ostream& oss) const = 0;
     MEDLOADER_EXPORT virtual void readValue(med_idt fid, const std::string& name) = 0;
@@ -58,7 +58,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDLOADER_EXPORT static MEDFileParameterDouble1TSWTI *New(int iteration, int order, double time);
-    MEDLOADER_EXPORT MEDFileParameter1TS *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileParameter1TS *deepCopy() const;
     MEDLOADER_EXPORT void setValue(double val) { _arr=val; }
     MEDLOADER_EXPORT double getValue() const { return _arr; }
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
@@ -102,7 +102,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName);
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName);
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it);
-    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCpy() const;
+    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCopy() const;
     MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -127,7 +127,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDLOADER_EXPORT MEDFileParameterMultiTS *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileParameterMultiTS *deepCopy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& mw) const;
@@ -149,7 +149,7 @@ namespace ParaMEDMEM
     MEDFileParameterMultiTS(const std::string& fileName, const std::string& paramName);
     void finishLoading(med_idt fid, med_parameter_type typ, int nbOfSteps);
   protected:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameter1TS> > _param_per_ts;
+    std::vector< MCAuto<MEDFileParameter1TS> > _param_per_ts;
   };
 
   class MEDFileParameters : public RefCountObject, public MEDFileWritable
@@ -159,7 +159,7 @@ namespace ParaMEDMEM
     MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDLOADER_EXPORT MEDFileParameters *deepCpy() const;
+    MEDLOADER_EXPORT MEDFileParameters *deepCopy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
@@ -180,7 +180,7 @@ namespace ParaMEDMEM
     MEDFileParameters(const MEDFileParameters& other, bool deepCopy);
     MEDFileParameters();
   protected:
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileParameterMultiTS> > _params;
+    std::vector< MCAuto<MEDFileParameterMultiTS> > _params;
   };
 }
 

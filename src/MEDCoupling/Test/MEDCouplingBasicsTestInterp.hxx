@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayDouble;
   class MEDCouplingUMesh;

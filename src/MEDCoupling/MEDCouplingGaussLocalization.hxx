@@ -27,7 +27,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingMesh;
 
@@ -44,7 +44,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfPtsInRefCell() const;
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT std::size_t getMemorySize() const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const;
     MEDCOUPLING_EXPORT void pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void pushTinySerializationDblInfo(std::vector<double>& tinyInfo) const;

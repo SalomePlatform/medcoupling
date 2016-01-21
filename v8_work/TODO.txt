@@ -31,7 +31,7 @@ Inheritance fix (OK but at the end of process)
 ===============
     + move up in all classes deepCpy(), shallowCpy(), clone() 
 
-Namespace changes
+Namespace changes [DONE]
 =================
     + MEDCoupling for all
     + MEDLoader static methods moved at namespace level
@@ -105,6 +105,7 @@ DataArray
     
 DataArrayInt
 ------------
+    isIdentity2 / isIota
     selectByTupleId2 / selectByTupleIdSlice
     BuildOld2NewArrayFromSurjectiveFormat2 / ConvertIndexArrayToO2N 
   
@@ -113,9 +114,9 @@ DataArrayInt
     getIdsEqualList / findIdsEqualList
     getIdsNotEqualList / findIdsNotEqualList
     getIdsEqualTuple / findIdsEqualTuple
-    locateValue(int) / findIdsFirstEqual
-    locateValue(vec) / findIdsFirstEqualList
-    search / findIdsSequence
+    locateValue / findIdFirstEqual
+    locateTuple / findIdFirstEqualTuple   
+    search / findIdSequence
     getIdsInRange / findIdsInRange
     getIdsNotInRange / findIdsNotInRange
     getIdsStrictlyNegative / findIdsStricltyNegative

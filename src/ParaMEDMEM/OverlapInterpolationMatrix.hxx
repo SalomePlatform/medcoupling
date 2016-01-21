@@ -26,7 +26,7 @@
 #include "InterpolationOptions.hxx"
 #include "DECOptions.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ParaFIELD;
   class MEDCouplingPointSet;

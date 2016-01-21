@@ -36,7 +36,7 @@ Another example: a mesh with a mesh dimension equal
 to 2, can have \b cells of type NORM_TRI3 (triangles) and NORM_POLYGON (arbitrary 2D polygons) for example.
 It can still have a space dimension of 3, meaning that we describe a planar surface embedded in a 3D space. 
 
-The (abstract) class that covers the concept described above is \ref ParaMEDMEM::MEDCouplingMesh.
+The (abstract) class that covers the concept described above is \ref MEDCoupling::MEDCouplingMesh.
 
 <h1>Available (non abstract) mesh types in MEDCoupling</h1>
 

@@ -22,7 +22,7 @@
 // * groupping methods into "Basic API", "Advanced" and "Others..." sections
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   //================================================================================
   /*!
@@ -72,7 +72,7 @@ namespace ParaMEDMEM
   void MEDCouplingMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception) {}
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 //================================================================================
 /////////////////////// GROUPPING members of MEDCouplingMesh /////////////////////

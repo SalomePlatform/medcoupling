@@ -29,7 +29,7 @@
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
@@ -48,7 +48,7 @@
 #include <mpi.h>
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace MEDPARTITIONER;
 
 #if defined(HAVE_MPI)
@@ -77,9 +77,9 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   execName=getPartitionerParaExe();
   fileName=_file_name_with_faces;
 
-  ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
-  ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
-  ParaMEDMEM::MEDCouplingUMesh* faceMesh=initialMesh->getLevelM1Mesh(false);
+  MEDCoupling::MEDFileUMesh* initialMesh=MEDCoupling::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
+  MEDCoupling::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
+  MEDCoupling::MEDCouplingUMesh* faceMesh=initialMesh->getLevelM1Mesh(false);
 
   cmd="mpirun -np 5 "+execName+" --ndomains=5 --split-method=metis";  //on same proc
   sourceName=fileName;
@@ -94,14 +94,14 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
   MEDPARTITIONER::MeshCollection collection(input,parallelizer);
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
-  std::vector<ParaMEDMEM::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
+  std::vector<MEDCoupling::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
   int nbcells=0;
   for (std::size_t i = 0; i < cellMeshes.size(); i++)
     nbcells+=cellMeshes[i]->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
 
-  std::vector<ParaMEDMEM::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
+  std::vector<MEDCoupling::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
   int nbfaces=0;
   for (std::size_t i=0; i < faceMeshes.size(); i++)
@@ -119,18 +119,18 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   CPPUNIT_ASSERT_EQUAL(0, res);
 
   string refusedName=targetName+"1.med";
-  ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
-  ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
-  ParaMEDMEM::MEDCouplingUMesh* refusedFaceMesh=refusedMesh->getLevelM1Mesh(false);
+  MEDCoupling::MEDFileUMesh* refusedMesh=MEDCoupling::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
+  MEDCoupling::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
+  MEDCoupling::MEDCouplingUMesh* refusedFaceMesh=refusedMesh->getLevelM1Mesh(false);
 
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), refusedFaceMesh->getNumberOfCells());
 
   /*not the good job
-    ParaMEDMEM::MEDCouplingMesh* mergeCell=cellMesh->mergeMyselfWith(refusedCellMesh);
+    MEDCoupling::MEDCouplingMesh* mergeCell=cellMesh->mergeMyselfWith(refusedCellMesh);
     CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), mergeCell->getNumberOfCells());
 
-    ParaMEDMEM::MEDCouplingMesh* mergeFace=faceMesh->mergeMyselfWith(refusedFaceMesh);
+    MEDCoupling::MEDCouplingMesh* mergeFace=faceMesh->mergeMyselfWith(refusedFaceMesh);
     CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), mergeFace->getNumberOfCells());
 
     CPPUNIT_ASSERT(faceMesh->isEqual(refusedFaceMesh,1e-12));
@@ -175,8 +175,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnCells.med");
 
-  ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
-  ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
+  MEDCoupling::MEDFileUMesh* initialMesh=MEDCoupling::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
+  MEDCoupling::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
 
   cmd="mpirun -np 5 "+execName+" --ndomains=5 --split-method=metis";  //on same proc
   sourceName=fileName;
@@ -199,8 +199,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   CPPUNIT_ASSERT_EQUAL(0, res);
 
   string refusedName=targetName+"1.med";
-  ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
-  ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
+  MEDCoupling::MEDFileUMesh* refusedMesh=MEDCoupling::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
+  MEDCoupling::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
 
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
 
@@ -212,8 +212,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MEDCouplingFieldDouble* field1=MEDLoader::ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
-  MEDCouplingFieldDouble* field2=MEDLoader::ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MEDCouplingFieldDouble* field1=ReadFieldCell(fileName.c_str(),initialMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
+  MEDCouplingFieldDouble* field2=ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"VectorFieldOnCells",0,1);
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
@@ -262,8 +262,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnGaussNe.med");
 
-  ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
-  ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
+  MEDCoupling::MEDFileUMesh* initialMesh=MEDCoupling::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
+  MEDCoupling::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
 
   cmd="mpirun -np 5 "+execName+" --ndomains=5 --split-method=metis";  //on same proc
   sourceName=fileName;
@@ -286,8 +286,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   CPPUNIT_ASSERT_EQUAL(0, res);
 
   string refusedName=targetName+"1.med";
-  ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
-  ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
+  MEDCoupling::MEDFileUMesh* refusedMesh=MEDCoupling::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
+  MEDCoupling::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
 
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
 
@@ -299,8 +299,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
 
-  MEDCouplingFieldDouble* field1=MEDLoader::ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
-  MEDCouplingFieldDouble* field2=MEDLoader::ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MEDCouplingFieldDouble* field1=ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
+  MEDCouplingFieldDouble* field2=ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName().c_str(),0,"MyFieldOnGaussNE",5,6);
 
   int nbcells=corr[1]->getNumberOfTuples();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);

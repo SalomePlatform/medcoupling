@@ -42,7 +42,7 @@
 
 //#define VOL_PREC 1.0e-6
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
 
 double Interpolation3DTest::sumRow(const IntersectionMatrix& m, int i) const
@@ -71,9 +71,9 @@ double Interpolation3DTest::sumCol(const IntersectionMatrix& m, int i) const
 }
 
 
-void Interpolation3DTest::getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double *tab) const
+void Interpolation3DTest::getVolumes(MEDCoupling::MEDCouplingUMesh& mesh, double *tab) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(true);
+  MCAuto<MEDCouplingFieldDouble> vol=mesh->getMeasureField(true);
   std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
 }
 

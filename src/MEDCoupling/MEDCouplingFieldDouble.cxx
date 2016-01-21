@@ -23,7 +23,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingNatureOfField.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -33,23 +33,23 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 
 /*!
  * Creates a new MEDCouplingFieldDouble, of given spatial type and time discretization.
  * For more info, see \ref MEDCouplingFirstSteps3.
  * \param [in] type - the type of spatial discretization of the created field, one of
- *        (\ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- *         \ref ParaMEDMEM::ON_NODES "ON_NODES",
- *         \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- *         \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE",
- *         \ref ParaMEDMEM::ON_NODES_KR "ON_NODES_KR").
+ *        (\ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ *         \ref MEDCoupling::ON_NODES "ON_NODES",
+ *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ *         \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+ *         \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref ParaMEDMEM::NO_TIME "NO_TIME", 
- *         \ref ParaMEDMEM::ONE_TIME "ONE_TIME", 
- *         \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", 
- *         \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. 
  */
@@ -69,10 +69,10 @@ MEDCouplingFieldDouble* MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTime
  * \param [in] ft - the \ref MEDCouplingFieldTemplatesPage "field template" defining
  *        the spatial discretization and the supporting mesh.
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref ParaMEDMEM::NO_TIME "NO_TIME", 
- *         \ref ParaMEDMEM::ONE_TIME "ONE_TIME", 
- *         \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", 
- *         \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. 
  */
@@ -123,7 +123,7 @@ void MEDCouplingFieldDouble::synchronizeTimeWithSupport()
  * \c clone(false) is rather dedicated for advanced users that want to limit the amount
  * of memory. It allows the user to perform methods like operator+(), operator*()
  * etc. with \a this and the returned field. If the user wants to duplicate deeply the
- * underlying mesh he should call cloneWithMesh() method or deepCpy() instead. 
+ * underlying mesh he should call cloneWithMesh() method or deepCopy() instead. 
  * \warning The underlying \b mesh of the returned field is **always the same**
  *         (pointer) as \a this one **whatever the value** of \a recDeepCpy parameter.
  *  \param [in] recDeepCpy - if \c true, the copy of the underlying data arrays is
@@ -148,7 +148,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
  * 
  * This method behaves exactly like clone() except that here the underlying **mesh is
  * always deeply duplicated**, whatever the value \a recDeepCpy parameter.
- * The result of \c cloneWithMesh(true) is exactly the same as that of deepCpy().
+ * The result of \c cloneWithMesh(true) is exactly the same as that of deepCopy().
  * So the resulting field can not be used together with \a this one in the methods
  * like operator+(), operator*() etc. To avoid deep copying the underlying mesh,
  * the user can call clone().
@@ -160,10 +160,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=clone(recDeepCpy);
+  MCAuto<MEDCouplingFieldDouble> ret=clone(recDeepCpy);
   if(_mesh)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> mCpy=_mesh->deepCpy();
+      MCAuto<MEDCouplingMesh> mCpy=_mesh->deepCopy();
       ret->setMesh(mCpy);
     }
   return ret.retn();
@@ -180,7 +180,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) c
  *         caller is to delete this field using decrRef() as it is no more needed.
  * \sa cloneWithMesh()
  */
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCopy() const
 {
   return cloneWithMesh(true);
 }
@@ -191,10 +191,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
  * shares the data array(s) with \a this field, or holds a deep copy of it, depending on
  * \a deepCopy parameter. But the underlying \b mesh is always **shallow copied**.
  * \param [in] td - the type of time discretization of the created field, one of
- *        (\ref ParaMEDMEM::NO_TIME "NO_TIME", 
- *         \ref ParaMEDMEM::ONE_TIME "ONE_TIME", 
- *         \ref ParaMEDMEM::LINEAR_TIME "LINEAR_TIME", 
- *         \ref ParaMEDMEM::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
+ *        (\ref MEDCoupling::NO_TIME "NO_TIME", 
+ *         \ref MEDCoupling::ONE_TIME "ONE_TIME", 
+ *         \ref MEDCoupling::LINEAR_TIME "LINEAR_TIME", 
+ *         \ref MEDCoupling::CONST_ON_TIME_INTERVAL "CONST_ON_TIME_INTERVAL").
  * \param [in] deepCopy - if \c true, the copy of the underlying data arrays is
  *         deep, else all data arrays of \a this field are shared by the new field.
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
@@ -209,10 +209,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const
 {
   MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(td,deepCopy);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization> disc;
+  MCAuto<MEDCouplingFieldDiscretization> disc;
   if(_type)
     disc=_type->clone();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),tdo,disc.retn());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),tdo,disc.retn());
   ret->setMesh(getMesh());
   ret->setName(getName());
   ret->setDescription(getDescription());
@@ -227,25 +227,25 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. The returned field will share the same mesh object object than those in \a this.
  * \throw If \a this spatial discretization is empty or not ON_NODES.
- * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
+ * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkConsistencyLight).
  * 
  * \warning This method is a \b non \b conservative method of remapping from node spatial discretization to cell spatial discretization.
- * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P1P0" method.
+ * If a conservative method of interpolation is required MEDCoupling::MEDCouplingRemapper class should be used instead with "P1P0" method.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   TypeOfField tf(getTypeOfField());
   if(tf!=ON_NODES)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::nodeToCellDiscretization : this field is expected to be on ON_NODES !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(clone(false));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP0> nsp(new MEDCouplingFieldDiscretizationP0);
+  MCAuto<MEDCouplingFieldDouble> ret(clone(false));
+  MCAuto<MEDCouplingFieldDiscretizationP0> nsp(new MEDCouplingFieldDiscretizationP0);
   ret->setDiscretization(nsp);
-  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
+  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkConsistencyLight call
   int nbCells(m->getNumberOfCells());
   std::vector<DataArrayDouble *> arrs(getArrays());
   std::size_t sz(arrs.size());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
+  std::vector< MCAuto<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
   for(std::size_t j=0;j<sz;j++)
     {
       int nbCompo(arrs[j]->getNumberOfComponents());
@@ -283,31 +283,31 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::nodeToCellDiscretization() const
  * \return MEDCouplingFieldDouble* - a new instance of MEDCouplingFieldDouble. The
  *         caller is to delete this field using decrRef() as it is no more needed. The returned field will share the same mesh object object than those in \a this.
  * \throw If \a this spatial discretization is empty or not ON_CELLS.
- * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkCoherency).
+ * \throw If \a this is not coherent (see MEDCouplingFieldDouble::checkConsistencyLight).
  *
  * \warning This method is a \b non \b conservative method of remapping from cell spatial discretization to node spatial discretization.
- * If a conservative method of interpolation is required ParaMEDMEM::MEDCouplingRemapper class should be used instead with "P0P1" method.
+ * If a conservative method of interpolation is required MEDCoupling::MEDCouplingRemapper class should be used instead with "P0P1" method.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cellToNodeDiscretization() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   TypeOfField tf(getTypeOfField());
   if(tf!=ON_CELLS)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::cellToNodeDiscretization : this field is expected to be on ON_CELLS !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(clone(false));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretizationP1> nsp(new MEDCouplingFieldDiscretizationP1);
+  MCAuto<MEDCouplingFieldDouble> ret(clone(false));
+  MCAuto<MEDCouplingFieldDiscretizationP1> nsp(new MEDCouplingFieldDiscretizationP1);
   ret->setDiscretization(nsp);
-  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkCoherency call
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rn(DataArrayInt::New()),rni(DataArrayInt::New());
+  const MEDCouplingMesh *m(getMesh());//m is non empty thanks to checkConsistencyLight call
+  MCAuto<DataArrayInt> rn(DataArrayInt::New()),rni(DataArrayInt::New());
   m->getReverseNodalConnectivity(rn,rni);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rni2(rni->deltaShiftIndex());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> rni3(rni2->convertToDblArr()); rni2=0;
+  MCAuto<DataArrayInt> rni2(rni->deltaShiftIndex());
+  MCAuto<DataArrayDouble> rni3(rni2->convertToDblArr()); rni2=0;
   std::vector<DataArrayDouble *> arrs(getArrays());
   std::size_t sz(arrs.size());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
+  std::vector< MCAuto<DataArrayDouble> > outArrsSafe(sz); std::vector<DataArrayDouble *> outArrs(sz);
   for(std::size_t j=0;j<sz;j++)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(arrs[j]->selectByTupleIdSafe(rn->begin(),rn->end()));
+      MCAuto<DataArrayDouble> tmp(arrs[j]->selectByTupleIdSafe(rn->begin(),rn->end()));
       outArrsSafe[j]=(tmp->accumulatePerChunck(rni->begin(),rni->end())); tmp=0;
       outArrsSafe[j]->divideEqual(rni3);
       outArrsSafe[j]->copyStringInfoFrom(*arrs[j]);
@@ -605,7 +605,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *
 void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check)
 {
   renumberCellsWithoutMesh(old2NewBg,check);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=_mesh->deepCpy();
+  MCAuto<MEDCouplingMesh> m=_mesh->deepCopy();
   m->renumberCells(old2NewBg,check);
   setMesh(m);
   updateTime();
@@ -673,7 +673,7 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, double eps)
   if(!meshC)
     throw INTERP_KERNEL::Exception("Invalid mesh to apply renumberNodes on it !");
   int nbOfNodes=meshC->getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+  MCAuto<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCopy());
   int newNbOfNodes=*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1;
   renumberNodesWithoutMesh(old2NewBg,newNbOfNodes,eps);
   meshC2->renumberNodes(old2NewBg,newNbOfNodes);
@@ -715,7 +715,7 @@ void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int 
 
 /*!
  * Returns all tuple ids of \a this scalar field that fit the range [\a vmin,
- * \a vmax]. This method calls DataArrayDouble::getIdsInRange().
+ * \a vmax]. This method calls DataArrayDouble::findIdsInRange().
  *  \param [in] vmin - a lower boundary of the range. Tuples with values less than \a
  *         vmin are not included in the result array.
  *  \param [in] vmax - an upper boundary of the range. Tuples with values more than \a
@@ -726,11 +726,11 @@ void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int 
  *  \throw If the data array is not set.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) const
+DataArrayInt *MEDCouplingFieldDouble::findIdsInRange(double vmin, double vmax) const
 {
   if(getArray()==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getIdsInRange : no default array set !");
-  return getArray()->getIdsInRange(vmin,vmax);
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::findIdsInRange : no default array set !");
+  return getArray()->findIdsInRange(vmin,vmax);
 }
 
 /*!
@@ -738,11 +738,11 @@ DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) co
  * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
  * This method returns a restriction of \a this so that only tuples with ids specified in \a part will be contained in the returned field.
  * Parameter \a part specifies **cell ids whatever the spatial discretization of this** (
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- * \ref ParaMEDMEM::ON_NODES "ON_NODES",
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE",
- * \ref ParaMEDMEM::ON_NODES_KR "ON_NODES_KR").
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ * \ref MEDCoupling::ON_NODES "ON_NODES",
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+ * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  *
  * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a part contains following cell ids [3,7,6].
  * Then the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.<br>
@@ -773,14 +773,14 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
 
 /*!
  * Builds a newly created field, that the caller will have the responsability to deal with.
- * \n This method makes the assumption that \a this field is correctly defined when this method is called (\a this->checkCoherency() returns without any exception thrown), **no check of this will be done**.
+ * \n This method makes the assumption that \a this field is correctly defined when this method is called (\a this->checkConsistencyLight() returns without any exception thrown), **no check of this will be done**.
  * \n This method returns a restriction of \a this so that only tuple ids specified in [ \a partBg , \a partEnd ) will be contained in the returned field.
  * \n Parameter [\a partBg, \a partEnd ) specifies **cell ids whatever the spatial discretization** of \a this (
- * \ref ParaMEDMEM::ON_CELLS "ON_CELLS", 
- * \ref ParaMEDMEM::ON_NODES "ON_NODES",
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", 
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE",
- * \ref ParaMEDMEM::ON_NODES_KR "ON_NODES_KR").
+ * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+ * \ref MEDCoupling::ON_NODES "ON_NODES",
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
+ * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR").
  *
  * For example, \a this is a field on cells lying on a mesh that have 10 cells, \a partBg contains the following cell ids [3,7,6].
  * Then the returned field will lie on mesh having 3 cells and will contain 3 tuples.
@@ -802,24 +802,24 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."<br>
  * \ref py_mcfielddouble_subpart1 "Here a Python example."
  * \endif
- * \sa ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
+ * \sa MEDCoupling::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const, MEDCouplingFieldDouble::buildSubPartRange
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : Expecting a not NULL spatial discretization !");
   DataArrayInt *arrSelect;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrSelect2(arrSelect);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=clone(false);//quick shallow copy.
+  MCAuto<MEDCouplingMesh> m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
+  MCAuto<DataArrayInt> arrSelect2(arrSelect);
+  MCAuto<MEDCouplingFieldDouble> ret=clone(false);//quick shallow copy.
   const MEDCouplingFieldDiscretization *disc=getDiscretization();
   if(disc)
-    ret->setDiscretization(MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization>(disc->clonePart(partBg,partEnd)));
+    ret->setDiscretization(MCAuto<MEDCouplingFieldDiscretization>(disc->clonePart(partBg,partEnd)));
   ret->setMesh(m);
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   std::vector<DataArrayDouble *> arrs;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrsSafe;
+  std::vector< MCAuto<DataArrayDouble> > arrsSafe;
   const int *arrSelBg=arrSelect->begin();
   const int *arrSelEnd=arrSelect->end();
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
@@ -845,17 +845,17 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPartRange(int begin, int
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : Expecting a not NULL spatial discretization !");
   DataArrayInt *arrSelect;
   int beginOut,endOut,stepOut;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=_type->buildSubMeshDataRange(_mesh,begin,end,step,beginOut,endOut,stepOut,arrSelect);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrSelect2(arrSelect);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=clone(false);//quick shallow copy.
+  MCAuto<MEDCouplingMesh> m=_type->buildSubMeshDataRange(_mesh,begin,end,step,beginOut,endOut,stepOut,arrSelect);
+  MCAuto<DataArrayInt> arrSelect2(arrSelect);
+  MCAuto<MEDCouplingFieldDouble> ret=clone(false);//quick shallow copy.
   const MEDCouplingFieldDiscretization *disc=getDiscretization();
   if(disc)
-    ret->setDiscretization(MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization>(disc->clonePartRange(begin,end,step)));
+    ret->setDiscretization(MCAuto<MEDCouplingFieldDiscretization>(disc->clonePartRange(begin,end,step)));
   ret->setMesh(m);
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   std::vector<DataArrayDouble *> arrs;
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrsSafe;
+  std::vector< MCAuto<DataArrayDouble> > arrsSafe;
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     {
       DataArrayDouble *arr=0;
@@ -868,7 +868,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPartRange(int begin, int
               arr=(*iter)->selectByTupleIdSafe(arrSelBg,arrSelEnd);
             }
           else
-            arr=(*iter)->selectByTupleId2(beginOut,endOut,stepOut);
+            arr=(*iter)->selectByTupleIdSafeSlice(beginOut,endOut,stepOut);
         }
       arrs.push_back(arr); arrsSafe.push_back(arr);
     }
@@ -878,7 +878,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPartRange(int begin, int
 
 /*!
  * Returns a type of \ref MEDCouplingTemporalDisc "time discretization" of \a this field.
- *  \return ParaMEDMEM::TypeOfTimeDiscretization - an enum item describing the time
+ *  \return MEDCoupling::TypeOfTimeDiscretization - an enum item describing the time
  *          discretization type.
  */
 TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
@@ -900,7 +900,7 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate& f
 }
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy):MEDCouplingField(other,deepCopy),
-    _time_discr(other._time_discr->performCpy(deepCopy))
+    _time_discr(other._time_discr->performCopyOrIncrRef(deepCopy))
 {
 }
 
@@ -922,13 +922,13 @@ MEDCouplingFieldDouble::~MEDCouplingFieldDouble()
  *  \throw If the temporal discretization data is incorrect.
  *  \throw If mesh data does not correspond to field data.
  */
-void MEDCouplingFieldDouble::checkCoherency() const
+void MEDCouplingFieldDouble::checkConsistencyLight() const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Field invalid because no mesh specified !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::checkCoherency : no spatial discretization !");
-  _time_discr->checkCoherency();
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::checkConsistencyLight : no spatial discretization !");
+  _time_discr->checkConsistencyLight();
   _type->checkCoherencyBetween(_mesh,getArray());
 }
 
@@ -1006,7 +1006,7 @@ double MEDCouplingFieldDouble::getMaxValue2(DataArrayInt*& tupleIds) const
   double ret=-std::numeric_limits<double>::max();
   bool isExistingArr=false;
   tupleIds=0;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1;
+  MCAuto<DataArrayInt> ret1;
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     {
       if(*iter)
@@ -1014,7 +1014,7 @@ double MEDCouplingFieldDouble::getMaxValue2(DataArrayInt*& tupleIds) const
           isExistingArr=true;
           DataArrayInt *tmp;
           ret=std::max(ret,(*iter)->getMaxValue2(tmp));
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmpSafe(tmp);
+          MCAuto<DataArrayInt> tmpSafe(tmp);
           if(!((const DataArrayInt *)ret1))
             ret1=tmpSafe;
         }
@@ -1070,7 +1070,7 @@ double MEDCouplingFieldDouble::getMinValue2(DataArrayInt*& tupleIds) const
   double ret=-std::numeric_limits<double>::max();
   bool isExistingArr=false;
   tupleIds=0;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1;
+  MCAuto<DataArrayInt> ret1;
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     {
       if(*iter)
@@ -1078,7 +1078,7 @@ double MEDCouplingFieldDouble::getMinValue2(DataArrayInt*& tupleIds) const
           isExistingArr=true;
           DataArrayInt *tmp;
           ret=std::max(ret,(*iter)->getMinValue2(tmp));
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmpSafe(tmp);
+          MCAuto<DataArrayInt> tmpSafe(tmp);
           if(!((const DataArrayInt *)ret1))
             ret1=tmpSafe;
         }
@@ -1146,9 +1146,9 @@ void MEDCouplingFieldDouble::getWeightedAverageValue(double *res, bool isWAbs) c
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getWeightedAverageValue : no default array defined !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> w=buildMeasureField(isWAbs);
+  MCAuto<MEDCouplingFieldDouble> w=buildMeasureField(isWAbs);
   double deno=w->getArray()->accumulate(0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=getArray()->deepCpy();
+  MCAuto<DataArrayDouble> arr=getArray()->deepCopy();
   arr->multiplyEqual(w->getArray());
   arr->accumulate(res);
   int nCompo = getArray()->getNumberOfComponents();
@@ -1506,7 +1506,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate f
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic : no mesh defined !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform fillFromAnalytic !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  MCAuto<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
   _time_discr->fillFromAnalytic(loc,nbOfComp,func);
 }
 
@@ -1553,7 +1553,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& f
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic : no mesh defined !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform fillFromAnalytic !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  MCAuto<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
   _time_discr->fillFromAnalytic(loc,nbOfComp,func);
 }
 
@@ -1562,7 +1562,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& f
  * The function is applied to coordinates of value location points. For example, if
  * \a this field is on cells, the function is applied to cell barycenters.<br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a variable name corresponding to a component is retrieved from
@@ -1596,14 +1596,14 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& f
  *  \ref  py_mcfielddouble_fillFromAnalytic2 "Here is a Python example".
  *  \endif
  */
-void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& func)
+void MEDCouplingFieldDouble::fillFromAnalyticCompo(int nbOfComp, const std::string& func)
 {
   if(!_mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalyticCompo : no mesh defined !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
-    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform fillFromAnalytic2 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
-  _time_discr->fillFromAnalytic2(loc,nbOfComp,func);
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform fillFromAnalyticCompo !");
+  MCAuto<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  _time_discr->fillFromAnalyticCompo(loc,nbOfComp,func);
 }
 
 /*!
@@ -1611,7 +1611,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& 
  * The function is applied to coordinates of value location points. For example, if
  * \a this field is on cells, the function is applied to cell barycenters.<br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const std::string& func) "fillFromAnalytic()"
  * by the way how variable
  * names, used in the function, are associated with components of coordinates of field
  * location points; here, a component index of a variable is defined by a
@@ -1645,14 +1645,14 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const std::string& 
  *  \ref  py_mcfielddouble_fillFromAnalytic3 "Here is a Python example".
  *  \endif
  */
-void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
+void MEDCouplingFieldDouble::fillFromAnalyticNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
   if(!_mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalyticCompo : no mesh defined !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
-    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform fillFromAnalytic3 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
-  _time_discr->fillFromAnalytic3(loc,nbOfComp,varsOrder,func);
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform fillFromAnalyticNamedCompo !");
+  MCAuto<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  _time_discr->fillFromAnalyticNamedCompo(loc,nbOfComp,varsOrder,func);
 }
 
 /*!
@@ -1675,7 +1675,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
 /*!
  * Fill \a this field with a given value.<br>
  * This method is a specialization of other overloaded methods. When \a nbOfComp == 1
- * this method is equivalent to ParaMEDMEM::MEDCouplingFieldDouble::operator=().
+ * this method is equivalent to MEDCoupling::MEDCouplingFieldDouble::operator=().
  *  \param [in] nbOfComp - the number of components for \a this field to have.
  *  \param [in] val - the value to assign to every atomic value of \a this field.
  *  \throw If the spatial discretization of \a this field is NULL.
@@ -1740,7 +1740,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
  * For more info on supported expressions that can be used in the function, see \ref
  * MEDCouplingArrayApplyFuncExpr. <br>
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
  * by the way how variable
  * names, used in the function, are associated with components of field values;
  * here, a variable name corresponding to a component is retrieved from
@@ -1768,16 +1768,16 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func)
  *  \ref  py_mcfielddouble_applyFunc2 "Here is a Python example".
  *  \endif
  */
-void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string& func)
+void MEDCouplingFieldDouble::applyFuncCompo(int nbOfComp, const std::string& func)
 {
-  _time_discr->applyFunc2(nbOfComp,func);
+  _time_discr->applyFuncCompo(nbOfComp,func);
 }
 
 /*!
  * Modifies values of \a this field by applying a function to each tuple of all
  * data arrays.
  * This method differs from
- * \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
+ * \ref MEDCoupling::MEDCouplingFieldDouble::applyFunc(int nbOfComp, const std::string& func) "applyFunc()"
  * by the way how variable
  * names, used in the function, are associated with components of field values;
  * here, a component index of a variable is defined by a
@@ -1807,9 +1807,9 @@ void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const std::string& func)
  *  \ref  py_mcfielddouble_applyFunc3 "Here is a Python example".
  *  \endif
  */
-void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
+void MEDCouplingFieldDouble::applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func)
 {
-  _time_discr->applyFunc3(nbOfComp,varsOrder,func);
+  _time_discr->applyFuncNamedCompo(nbOfComp,varsOrder,func);
 }
 
 /*!
@@ -1885,7 +1885,7 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
  * - the number of entities in the underlying mesh
  * - \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field (e.g. number
  * of Gauss points if \a this->getTypeOfField() == 
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT").
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT").
  *
  * The returned value does \b not \b depend on the number of tuples in the data array
  * (which has to be equal to the returned value), \b contrary to
@@ -1893,7 +1893,7 @@ int MEDCouplingFieldDouble::getNumberOfComponents() const
  * data array (Sorry, it is confusing !).
  * So \b this \b method \b behaves \b exactly \b as MEDCouplingField::getNumberOfTuplesExpected \b method.
  *
- * \warning No checkCoherency() is done here.
+ * \warning No checkConsistencyLight() is done here.
  * For more info on the data arrays, see \ref arrays.
  *  \return int - the number of tuples.
  *  \throw If the mesh is not set.
@@ -1953,7 +1953,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDouble::getDirectChildrenWi
 
 /*!
  * Sets \ref NatureOfField.
- *  \param [in] nat - an item of enum ParaMEDMEM::NatureOfField.
+ *  \param [in] nat - an item of enum MEDCoupling::NatureOfField.
  */
 void MEDCouplingFieldDouble::setNature(NatureOfField nat)
 {
@@ -1979,8 +1979,8 @@ void MEDCouplingFieldDouble::synchronizeTimeWithMesh()
 
 /*!
  * Returns a value of \a this field of type either
- * \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT" or
- * \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE".
+ * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" or
+ * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  *  \param [in] cellId - an id of cell of interest.
  *  \param [in] nodeIdInCell - a node index within the cell.
  *  \param [in] compoId - an index of component.
@@ -1989,8 +1989,8 @@ void MEDCouplingFieldDouble::synchronizeTimeWithMesh()
  *  \throw If the mesh is not set.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If \a this field if of type other than 
- *         \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT" or
- *         \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE".
+ *         \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT" or
+ *         \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE".
  */
 double MEDCouplingFieldDouble::getIJK(int cellId, int nodeIdInCell, int compoId) const
 {
@@ -2189,7 +2189,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
   DataArrayInt *cellCor=0,*nodeCor=0;
   other->checkGeoEquivalWith(_mesh,levOfCheck,precOnMesh,cellCor,nodeCor);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2(cellCor),nodeCor2(nodeCor);
+  MCAuto<DataArrayInt> cellCor2(cellCor),nodeCor2(nodeCor);
   if(cellCor)
     renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
   if(nodeCor)
@@ -2208,7 +2208,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
  * The job of this method consists in calling
  * \a this->changeUnderlyingMesh() with \a f->getMesh() as the first parameter, and then
  * \a this -= \a f.<br>
- * This method requires that \a f and \a this are coherent (checkCoherency()) and that \a f
+ * This method requires that \a f and \a this are coherent (checkConsistencyLight()) and that \a f
  * and \a this are coherent for a merge.<br>
  * "DM" in the method name stands for "different meshes".
  *  \param [in] f - the field to subtract from this.
@@ -2234,10 +2234,10 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
  */
 void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double precOnMesh, double eps)
 {
-  checkCoherency();
+  checkConsistencyLight();
   if(!f)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::substractInPlaceDM : input field is NULL !");
-  f->checkCoherency();
+  f->checkConsistencyLight();
   if(!areCompatibleForMerge(f))
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::substractInPlaceDM : Fields are not compatible ; unable to apply mergeFields on them !");
   changeUnderlyingMesh(f->getMesh(),levOfCheck,precOnMesh,eps);
@@ -2266,10 +2266,10 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
     throw INTERP_KERNEL::Exception("Invalid support mesh to apply mergeNodes on it : must be a MEDCouplingPointSet one !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform mergeNodes !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+  MCAuto<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCopy());
   bool ret;
   int ret2;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->mergeNodes(eps,ret,ret2);
+  MCAuto<DataArrayInt> arr=meshC2->mergeNodes(eps,ret,ret2);
   if(!ret)//no nodes have been merged.
     return ret;
   std::vector<DataArrayDouble *> arrays;
@@ -2298,17 +2298,17 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals)
  *  \throw If the data array is not set.
  *  \throw If field values at merged nodes (if any) deffer more than \a epsOnVals.
  */
-bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals)
+bool MEDCouplingFieldDouble::mergeNodesCenter(double eps, double epsOnVals)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("Invalid support mesh to apply mergeNodes on it : must be a MEDCouplingPointSet one !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
-    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform mergeNodes2 !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+    throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform mergeNodesCenter !");
+  MCAuto<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCopy());
   bool ret;
   int ret2;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->mergeNodes2(eps,ret,ret2);
+  MCAuto<DataArrayInt> arr=meshC2->mergeNodesCenter(eps,ret,ret2);
   if(!ret)//no nodes have been merged.
     return ret;
   std::vector<DataArrayDouble *> arrays;
@@ -2342,9 +2342,9 @@ bool MEDCouplingFieldDouble::zipCoords(double epsOnVals)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::zipCoords : Invalid support mesh to apply zipCoords on it : must be a MEDCouplingPointSet one !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform zipCoords !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+  MCAuto<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCopy());
   int oldNbOfNodes=meshC2->getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->zipCoordsTraducer();
+  MCAuto<DataArrayInt> arr=meshC2->zipCoordsTraducer();
   if(meshC2->getNumberOfNodes()!=oldNbOfNodes)
     {
       std::vector<DataArrayDouble *> arrays;
@@ -2383,9 +2383,9 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::zipConnectivity : Invalid support mesh to apply zipCoords on it : must be a MEDCouplingPointSet one !");
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform zipConnectivity !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshC2((MEDCouplingUMesh *)meshC->deepCpy());
+  MCAuto<MEDCouplingUMesh> meshC2((MEDCouplingUMesh *)meshC->deepCopy());
   int oldNbOfCells=meshC2->getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->zipConnectivityTraducer(compType);
+  MCAuto<DataArrayInt> arr=meshC2->zipConnectivityTraducer(compType);
   if(meshC2->getNumberOfCells()!=oldNbOfCells)
     {
       std::vector<DataArrayDouble *> arrays;
@@ -2412,19 +2412,19 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *ori
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::extractSlice3D : underlying mesh is null !");
   if(getTypeOfField()!=ON_CELLS)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::extractSlice3D : only implemented for fields on cells !");
-  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=clone(false);
+  const MCAuto<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
+  MCAuto<MEDCouplingFieldDouble> ret=clone(false);
   ret->setMesh(umesh);
   DataArrayInt *cellIds=0;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2=umesh->buildSlice3D(origin,vec,eps,cellIds);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds2=cellIds;
+  MCAuto<MEDCouplingUMesh> mesh2=umesh->buildSlice3D(origin,vec,eps,cellIds);
+  MCAuto<DataArrayInt> cellIds2=cellIds;
   ret->setMesh(mesh2);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tupleIds=computeTupleIdsToSelectFromCellIds(cellIds->begin(),cellIds->end());
+  MCAuto<DataArrayInt> tupleIds=computeTupleIdsToSelectFromCellIds(cellIds->begin(),cellIds->end());
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   int i=0;
   std::vector<DataArrayDouble *> newArr(arrays.size());
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > newArr2(arrays.size());
+  std::vector< MCAuto<DataArrayDouble> > newArr2(arrays.size());
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++,i++)
     {
       if(*iter)
@@ -2459,8 +2459,8 @@ bool MEDCouplingFieldDouble::simplexize(int policy)
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform simplexize !");
   int oldNbOfCells=_mesh->getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> meshC2(_mesh->deepCpy());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->simplexize(policy);
+  MCAuto<MEDCouplingMesh> meshC2(_mesh->deepCopy());
+  MCAuto<DataArrayInt> arr=meshC2->simplexize(policy);
   int newNbOfCells=meshC2->getNumberOfCells();
   if(oldNbOfCells==newNbOfCells)
     return false;
@@ -2490,7 +2490,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform doublyContractedProduct !");
   MEDCouplingTimeDiscretization *td=_time_discr->doublyContractedProduct();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("DoublyContractedProduct");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2513,7 +2513,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::determinant() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform determinant !");
   MEDCouplingTimeDiscretization *td=_time_discr->determinant();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("Determinant");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2537,7 +2537,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenValues() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform eigenValues !");
   MEDCouplingTimeDiscretization *td=_time_discr->eigenValues();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("EigenValues");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2560,7 +2560,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::eigenVectors() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform eigenVectors !");
   MEDCouplingTimeDiscretization *td=_time_discr->eigenVectors();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("EigenVectors");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2585,7 +2585,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::inverse() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform inverse !");
   MEDCouplingTimeDiscretization *td=_time_discr->inverse();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("Inversion");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2610,7 +2610,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::trace() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform trace !");
   MEDCouplingTimeDiscretization *td=_time_discr->trace();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("Trace");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2634,7 +2634,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deviator() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform deviator !");
   MEDCouplingTimeDiscretization *td=_time_discr->deviator();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("Deviator");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2656,7 +2656,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::magnitude() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform magnitude !");
   MEDCouplingTimeDiscretization *td=_time_discr->magnitude();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName("Magnitude");
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2676,7 +2676,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform maxPerTuple !");
   MEDCouplingTimeDiscretization *td=_time_discr->maxPerTuple();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   std::ostringstream oss;
   oss << "Max_" << getName();
   ret->setName(oss.str());
@@ -2717,7 +2717,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform keepSelectedComponents !");
   MEDCouplingTimeDiscretization *td=_time_discr->keepSelectedComponents(compoIds);
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setName(getName());
   ret->setMesh(getMesh());
   return ret.retn();
@@ -2780,12 +2780,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::MergeFields : no spatial discr of f1 !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->aggregate(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setName(f1->getName());
   ret->setDescription(f1->getDescription());
   if(m1)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=m1->mergeMyselfWith(m2);
+      MCAuto<MEDCouplingMesh> m=m1->mergeMyselfWith(m2);
       ret->setMesh(m);
     }
   return ret.retn();
@@ -2814,7 +2814,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
 {
   if(a.size()<1)
     throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : size of array must be >= 1 !");
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms(a.size());
+  std::vector< MCAuto<MEDCouplingUMesh> > ms(a.size());
   std::vector< const MEDCouplingUMesh *> ms2(a.size());
   std::vector< const MEDCouplingTimeDiscretization *> tds(a.size());
   std::vector<const MEDCouplingFieldDouble *>::const_iterator it=a.begin();
@@ -2834,12 +2834,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
     }
   MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
   td->copyTinyAttrFrom(*(a[0]->_time_discr));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
   ret->setName(a[0]->getName());
   ret->setDescription(a[0]->getDescription());
   if(ms2[0])
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
+      MCAuto<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
       m->copyTinyInfoFrom(ms2[0]);
       ret->setMesh(m);
     }
@@ -2867,7 +2867,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFiel
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MeldFields on them ! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->meld(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -2925,7 +2925,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCoup
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply CrossProductFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->crossProduct(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -2955,7 +2955,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingField
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MaxFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->max(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -2985,7 +2985,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingField
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MinFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->min(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3005,7 +3005,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::negate() const
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform negate !");
   MEDCouplingTimeDiscretization *td=_time_discr->negate();
   td->copyTinyAttrFrom(*_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
   ret->setMesh(getMesh());
   return ret.retn();
 }
@@ -3031,7 +3031,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingField
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply AddFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->add(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3075,7 +3075,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplin
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply SubstractFields on them! Check support mesh, field nature, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->substract(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3126,7 +3126,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCoupling
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply MultiplyFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3187,7 +3187,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFi
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply DivideFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3231,7 +3231,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::PowFields(const MEDCouplingField
     throw INTERP_KERNEL::Exception("Fields are not compatible. Unable to apply PowFields on them! Check support mesh, and spatial and time discretisation.");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->pow(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
+  MCAuto<MEDCouplingFieldDouble> ret=new MEDCouplingFieldDouble(NoNature,td,f1->_type->clone());
   ret->setMesh(f1->getMesh());
   return ret.retn();
 }
@@ -3289,7 +3289,7 @@ std::string MEDCouplingFieldDouble::WriteVTK(const std::string& fileName, const 
   if(!m)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are lying on a same mesh but it is empty !");
   std::string ret(m->getVTKFileNameOf(fileName));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayByte> byteArr;
+  MCAuto<DataArrayByte> byteArr;
   if(isBinary)
     { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
   std::ostringstream coss,noss;

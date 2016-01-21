@@ -23,26 +23,26 @@
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class PartDefinition : public RefCountObject, public TimeLabel
   {
   public:
     MEDCOUPLING_EXPORT static PartDefinition *New(int start, int stop, int step);
     MEDCOUPLING_EXPORT static PartDefinition *New(DataArrayInt *listOfIds);
-    MEDCOUPLING_EXPORT static PartDefinition *Unserialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI);
+    MEDCOUPLING_EXPORT static PartDefinition *Unserialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI);
     MEDCOUPLING_EXPORT virtual bool isEqual(const PartDefinition *other, std::string& what) const = 0;
-    MEDCOUPLING_EXPORT virtual PartDefinition *deepCpy() const = 0;
+    MEDCOUPLING_EXPORT virtual PartDefinition *deepCopy() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *toDAI() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfElems() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *operator+(const PartDefinition& other) const = 0;
     MEDCOUPLING_EXPORT virtual std::string getRepr() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *composeWith(const PartDefinition *other) const = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *tryToSimplify() const = 0;
-    MEDCOUPLING_EXPORT virtual void serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const = 0;
+    MEDCOUPLING_EXPORT virtual void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const = 0;
   protected:
     virtual ~PartDefinition();
   };
@@ -54,15 +54,15 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static DataArrayPartDefinition *New(DataArrayInt *listOfIds);
     MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
-    MEDCOUPLING_EXPORT DataArrayPartDefinition *deepCpy() const;
+    MEDCOUPLING_EXPORT DataArrayPartDefinition *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayInt *toDAI() const;
     MEDCOUPLING_EXPORT int getNumberOfElems() const;
     MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
     MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
-    MEDCOUPLING_EXPORT void serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const;
+    MEDCOUPLING_EXPORT void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const;
   private:
     DataArrayPartDefinition(DataArrayInt *listOfIds);
     void checkInternalArrayOK() const;
@@ -74,7 +74,7 @@ namespace ParaMEDMEM
     DataArrayPartDefinition *add2(const SlicePartDefinition *other) const;
     virtual ~DataArrayPartDefinition();
   private:
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _arr;
+    MCAuto<DataArrayInt> _arr;
   };
 
   class SlicePartDefinition : public PartDefinition
@@ -82,15 +82,15 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static SlicePartDefinition *New(int start, int stop, int step);
     MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
-    MEDCOUPLING_EXPORT SlicePartDefinition *deepCpy() const;
+    MEDCOUPLING_EXPORT SlicePartDefinition *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayInt *toDAI() const;
     MEDCOUPLING_EXPORT int getNumberOfElems() const;
     MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
     MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
-    MEDCOUPLING_EXPORT void serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const;
+    MEDCOUPLING_EXPORT void serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const;
     //specific method
     MEDCOUPLING_EXPORT int getEffectiveStop() const;
     MEDCOUPLING_EXPORT void getSlice(int& start, int& stop, int& step) const;

@@ -49,7 +49,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 //#define VOL_PREC 1.0e-6
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
@@ -104,9 +104,9 @@ namespace INTERP_TEST
    * @param tab    pointer to double[no. elements of mesh] array in which to store the volumes
    */
   template <int SPACEDIM, int MESHDIM>
-  void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double *tab) const
+  void MeshTestToolkit<SPACEDIM,MESHDIM>::getVolumes(MEDCoupling::MEDCouplingUMesh& mesh, double *tab) const
   {
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh.getMeasureField(true);
+    MCAuto<MEDCouplingFieldDouble> vol=mesh.getMeasureField(true);
     std::copy(vol->getArray()->begin(),vol->getArray()->end(),tab);
   }
 
@@ -150,7 +150,7 @@ namespace INTERP_TEST
    * @return true if the condition is verified, false if not.
    */
   template <int SPACEDIM, int MESHDIM>
-  bool MeshTestToolkit<SPACEDIM,MESHDIM>::testVolumes(const IntersectionMatrix& m,  ParaMEDMEM::MEDCouplingUMesh& sMesh,  ParaMEDMEM::MEDCouplingUMesh& tMesh) const
+  bool MeshTestToolkit<SPACEDIM,MESHDIM>::testVolumes(const IntersectionMatrix& m,  MEDCoupling::MEDCouplingUMesh& sMesh,  MEDCoupling::MEDCouplingUMesh& tMesh) const
   {
     bool ok = true;
 
@@ -347,12 +347,12 @@ namespace INTERP_TEST
     LOG(1, std::endl << "=== -> intersecting src = " << mesh1path << ", target = " << mesh2path );
 
     LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-    MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
+    MCAuto<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
+    MCAuto<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
 
     LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-    MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
+    MCAuto<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
+    MCAuto<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
 
     MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> sMesh_wrapper(sMesh);
     MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> tMesh_wrapper(tMesh);

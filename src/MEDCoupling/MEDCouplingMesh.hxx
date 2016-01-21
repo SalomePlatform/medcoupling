@@ -25,14 +25,14 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "InterpKernelException.hxx"
 
 #include <set>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
     {
@@ -67,7 +67,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual MEDCouplingMeshType getType() const = 0;
     MEDCOUPLING_EXPORT bool isStructured() const;
     // Copy methods
-    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCpy() const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingMesh *deepCopy() const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingMesh *clone(bool recDeepCpy) const = 0;
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT virtual void copyTinyInfoFrom(const MEDCouplingMesh *other);
@@ -83,14 +83,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
                                                 DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
     //
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
-    MEDCOUPLING_EXPORT virtual void checkCoherency1(double eps=1e-12) const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistency(double eps=1e-12) const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfCells() const = 0;
     MEDCOUPLING_EXPORT virtual int getNumberOfNodes() const = 0;
     MEDCOUPLING_EXPORT virtual int getSpaceDimension() const = 0;
     MEDCOUPLING_EXPORT virtual int getMeshDimension() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
-    MEDCOUPLING_EXPORT virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
+    MEDCOUPLING_EXPORT virtual DataArrayDouble *computeCellCenterOfMass() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *computeNbOfNodesPerCell() const = 0;
@@ -113,11 +113,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
     MEDCOUPLING_EXPORT virtual int getCellContainingPoint(const double *pos, double eps) const = 0;
     MEDCOUPLING_EXPORT virtual void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
-    MEDCOUPLING_EXPORT virtual void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const;
+    MEDCOUPLING_EXPORT virtual void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const std::string& func) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalyticCompo(TypeOfField t, int nbOfComp, const std::string& func) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *fillFromAnalyticNamedCompo(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     MEDCOUPLING_EXPORT virtual void rotate(const double *center, const double *vector, double angle) = 0;
     MEDCOUPLING_EXPORT virtual void translate(const double *vector) = 0;

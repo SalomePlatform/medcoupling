@@ -133,7 +133,7 @@ int MEDPARTITIONER::ParaDomainSelector::getProcessorID(int domainIndex) const
  * 1) for MED_CELL to know global id shift for domains at graph construction;
  * 2) for sub-entity to know total nb of sub-entities before creating those of joints
  */
-void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& domain_meshes)
+void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<MEDCoupling::MEDCouplingUMesh*>& domain_meshes)
 {
   evaluateMemory();
   // get nb of elems of each domain mesh
@@ -530,7 +530,7 @@ double MEDPARTITIONER::ParaDomainSelector::getPassedTime() const
   \param target processor id of the target
 */
 
-void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const
+void MEDPARTITIONER::ParaDomainSelector::sendMesh(const MEDCoupling::MEDCouplingUMesh& mesh, int target) const
 {
 #ifndef HAVE_MPI
   throw INTERP_KERNEL::Exception("ParaDomainSelector::sendMesh : incoherent call in non_MPI mode");
@@ -552,8 +552,8 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
 
   if (mesh.getNumberOfCells()>0) //no sends if empty
     {
-      ParaMEDMEM::DataArrayInt *v1Local=0;
-      ParaMEDMEM::DataArrayDouble *v2Local=0;
+      MEDCoupling::DataArrayInt *v1Local=0;
+      MEDCoupling::DataArrayDouble *v2Local=0;
       //serialization of local mesh to send data to distant proc.
       mesh.serialize(v1Local,v2Local);
       int nbLocalElems=0;
@@ -583,7 +583,7 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
   \param mesh  pointer to mesh that is filled
   \param source processor id of the incoming messages
 */
-void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source)const
+void MEDPARTITIONER::ParaDomainSelector::recvMesh(MEDCoupling::MEDCouplingUMesh*& mesh, int source)const
 {
 #ifndef HAVE_MPI
   throw INTERP_KERNEL::Exception("ParaDomainSelector::recvMesh : incoherent call in non_MPI mode");
@@ -606,14 +606,14 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*&
   int NumberOfCells=tinyInfoDistant[tinyVecSize-1];
   if (NumberOfCells>0)
     {
-      ParaMEDMEM::DataArrayInt *v1Distant=ParaMEDMEM::DataArrayInt::New();
-      ParaMEDMEM::DataArrayDouble *v2Distant=ParaMEDMEM::DataArrayDouble::New();
+      MEDCoupling::DataArrayInt *v1Distant=MEDCoupling::DataArrayInt::New();
+      MEDCoupling::DataArrayDouble *v2Distant=MEDCoupling::DataArrayDouble::New();
       //Building the right instance of copy of distant mesh.
-      ParaMEDMEM::MEDCouplingPointSet *distant_mesh_tmp=
-        ParaMEDMEM::MEDCouplingPointSet::BuildInstanceFromMeshType(
-                                                                   (ParaMEDMEM::MEDCouplingMeshType) tinyInfoDistant[0]);
+      MEDCoupling::MEDCouplingPointSet *distant_mesh_tmp=
+        MEDCoupling::MEDCouplingPointSet::BuildInstanceFromMeshType(
+                                                                   (MEDCoupling::MEDCouplingMeshType) tinyInfoDistant[0]);
       std::vector<std::string> unusedTinyDistantSts;
-      mesh=dynamic_cast<ParaMEDMEM::MEDCouplingUMesh*> (distant_mesh_tmp);
+      mesh=dynamic_cast<MEDCoupling::MEDCouplingUMesh*> (distant_mesh_tmp);
  
       mesh->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
       int nbDistElem=0;

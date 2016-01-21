@@ -22,7 +22,7 @@
 // * groupping methods into "Basic API", "Advanced" and "Others..." sections
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 /*!
  * Returns the attribute \a _name of \a this array.
@@ -193,7 +193,7 @@ void DataArrayInt::writeOnPlace(int id, int element0, const int *others, int siz
 
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 //================================================================================
 /////////////////////// DataArray GROUPPING //////////////////////////////////////
@@ -285,7 +285,7 @@ DataArrayDouble::selectByTupleId(const int* new2OldBg, const int* new2OldEnd) co
 DataArrayDouble::selectByTupleIdSafe(const int* new2OldBg, const int* new2OldEnd) const;
 DataArrayDouble::selectByTupleId2(int bg, int end2, int step) const;
 DataArrayDouble::selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const;
-DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd=-1) const;
+DataArrayDouble::subArray(int tupleIdBg, int tupleIdEnd=-1) const;
 DataArrayDouble::rearrange(int newNbOfCompo);
 DataArrayDouble::transpose();
 DataArrayDouble::changeNbOfComponents(int newNbOfComp, double dftValue) const;
@@ -480,7 +480,7 @@ DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArray
 DataArrayInt::buildPermArrPerLevel() const;
 DataArrayInt::isIdentity2(int sizeExpected) const;
 DataArrayInt::isUniform(int val) const;
-DataArrayInt::substr(int tupleIdBg, int tupleIdEnd=-1) const;
+DataArrayInt::subArray(int tupleIdBg, int tupleIdEnd=-1) const;
 DataArrayInt::rearrange(int newNbOfCompo);
 DataArrayInt::transpose();
 DataArrayInt::changeNbOfComponents(int newNbOfComp, int dftValue) const;
@@ -585,7 +585,7 @@ DataArrayInt::end() const;
 DataArrayInt::locateTuple(const std::vector<int>& tupl) const;
 DataArrayInt::locateValue(int value) const;
 DataArrayInt::locateValue(const std::vector<int>& vals) const;
-DataArrayInt::search(const std::vector<int>& vals) const;
+DataArrayInt::findIdSequence(const std::vector<int>& vals) const;
 DataArrayInt::presenceOfTuple(const std::vector<int>& tupl) const;
 DataArrayInt::accumulate(int* res) const;
 DataArrayInt::accumulate(int compId) const;

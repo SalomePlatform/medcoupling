@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMemArray.txx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "BBTree.txx"
 #include "GenMathFormulae.hxx"
@@ -35,7 +35,7 @@
 
 typedef double (*MYFUNCPTR)(double);
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 template<int SPACEDIM>
 void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, DataArrayInt *c, DataArrayInt *cI) const
@@ -434,7 +434,7 @@ std::string DataArray::BuildInfoFromVarAndUnit(const std::string& var, const std
   return oss.str();
 }
 
-std::string DataArray::GetAxTypeRepr(MEDCouplingAxisType at)
+std::string DataArray::GetAxisTypeRepr(MEDCouplingAxisType at)
 {
   switch(at)
     {
@@ -445,7 +445,7 @@ std::string DataArray::GetAxTypeRepr(MEDCouplingAxisType at)
     case AX_SPHER:
       return std::string("AX_SPHER");
     default:
-      throw INTERP_KERNEL::Exception("DataArray::GetAxTypeRepr : unrecognized axis type enum !");
+      throw INTERP_KERNEL::Exception("DataArray::GetAxisTypeRepr : unrecognized axis type enum !");
     }
 }
 
@@ -825,7 +825,7 @@ bool DataArrayDouble::empty() const
  *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
  *          delete this array using decrRef() as it is no more needed. 
  */
-DataArrayDouble *DataArrayDouble::deepCpy() const
+DataArrayDouble *DataArrayDouble::deepCopy() const
 {
   return new DataArrayDouble(*this);
 }
@@ -837,10 +837,10 @@ DataArrayDouble *DataArrayDouble::deepCpy() const
  *  \return DataArrayDouble * - either a new instance of DataArrayDouble (if \a dCpy
  *          == \a true) or \a this instance (if \a dCpy == \a false).
  */
-DataArrayDouble *DataArrayDouble::performCpy(bool dCpy) const
+DataArrayDouble *DataArrayDouble::performCopyOrIncrRef(bool dCpy) const
 {
   if(dCpy)
-    return deepCpy();
+    return deepCopy();
   else
     {
       incrRef();
@@ -854,7 +854,7 @@ DataArrayDouble *DataArrayDouble::performCpy(bool dCpy) const
  *  \param [in] other - another instance of DataArrayDouble to copy data from.
  *  \throw If the \a other is not allocated.
  */
-void DataArrayDouble::cpyFrom(const DataArrayDouble& other)
+void DataArrayDouble::deepCopyFrom(const DataArrayDouble& other)
 {
   other.checkAllocated();
   int nbOfTuples=other.getNumberOfTuples();
@@ -1463,7 +1463,7 @@ DataArrayDouble *DataArrayDouble::toNoInterlace() const
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
@@ -1541,7 +1541,7 @@ DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbTuples,nbOfCompo);
   ret->copyStringInfoFrom(*this);
   const double *iptr=getConstPointer();
@@ -1556,7 +1556,7 @@ DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
@@ -1568,7 +1568,7 @@ DataArrayDouble *DataArrayDouble::renumberR(const int *new2Old) const
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbTuples,nbOfCompo);
   ret->copyStringInfoFrom(*this);
   const double *iptr=getConstPointer();
@@ -1597,7 +1597,7 @@ DataArrayDouble *DataArrayDouble::renumberAndReduce(const int *old2New, int newN
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(newNbOfTuple,nbOfCompo);
   const double *iptr=getConstPointer();
   double *optr=ret->getPointer();
@@ -1630,7 +1630,7 @@ DataArrayDouble *DataArrayDouble::renumberAndReduce(const int *old2New, int newN
 DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int nbComp=getNumberOfComponents();
   ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
   ret->copyStringInfoFrom(*this);
@@ -1670,7 +1670,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleId(const DataArrayInt & di) const
 DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int nbComp=getNumberOfComponents();
   int oldNbOfTuples=getNumberOfTuples();
   ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
@@ -1700,14 +1700,14 @@ DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, cons
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble that the caller
  *          is to delete using decrRef() as it is no more needed.
- *  \sa DataArrayDouble::substr.
+ *  \sa DataArrayDouble::subArray.
  */
-DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end2, int step) const
+DataArrayDouble *DataArrayDouble::selectByTupleIdSafeSlice(int bg, int end2, int step) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayDouble::selectByTupleId2 : ");
+  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayDouble::selectByTupleIdSafeSlice : ");
   ret->alloc(newNbOfTuples,nbComp);
   double *pt=ret->getPointer();
   const double *srcPt=getConstPointer()+bg*nbComp;
@@ -1770,8 +1770,8 @@ DataArray *DataArrayDouble::selectByTupleRanges(const std::vector<std::pair<int,
         }
     }
   if(isIncreasing && nbOfTuplesThis==nbOfTuples)
-    return deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+    return deepCopy();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbOfTuples,nbOfComp);
   ret->copyStringInfoFrom(*this);
   const double *src=getConstPointer();
@@ -1785,7 +1785,7 @@ DataArray *DataArrayDouble::selectByTupleRanges(const std::vector<std::pair<int,
  * Returns a shorten copy of \a this array. The new DataArrayDouble contains all
  * tuples starting from the \a tupleIdBg-th tuple and including all tuples located before
  * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::substr().
- * This method is a specialization of selectByTupleId2().
+ * This method is a specialization of selectByTupleIdSafeSlice().
  *  \param [in] tupleIdBg - index of the first tuple to copy from \a this array.
  *  \param [in] tupleIdEnd - index of the tuple before which the tuples to copy are located.
  *          If \a tupleIdEnd == -1, all the tuples till the end of \a this array are copied.
@@ -1794,26 +1794,26 @@ DataArray *DataArrayDouble::selectByTupleRanges(const std::vector<std::pair<int,
  *  \throw If \a tupleIdBg < 0.
  *  \throw If \a tupleIdBg > \a this->getNumberOfTuples().
     \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
- *  \sa DataArrayDouble::selectByTupleId2
+ *  \sa DataArrayDouble::selectByTupleIdSafeSlice
  */
-DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const
+DataArrayDouble *DataArrayDouble::subArray(int tupleIdBg, int tupleIdEnd) const
 {
   checkAllocated();
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter must be greater than 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::subArray : The tupleIdBg parameter must be greater than 0 !");
   if(tupleIdBg>nbt)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter is greater than number of tuples !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::subArray : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
       if(tupleIdEnd>nbt)
-        throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+        throw INTERP_KERNEL::Exception("DataArrayDouble::subArray : The tupleIdBg parameter is greater or equal than number of tuples !");
     }
   else
     trueEnd=nbt;
   int nbComp=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(trueEnd-tupleIdBg,nbComp);
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
@@ -1836,7 +1836,7 @@ DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const
 DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double dftValue) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(getNumberOfTuples(),newNbOfComp);
   const double *oldc=getConstPointer();
   double *nc=ret->getPointer();
@@ -1921,7 +1921,7 @@ void DataArrayDouble::transpose()
 DataArrayDouble *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   std::size_t newNbOfCompo=compoIds.size();
   int oldNbOfCompo=getNumberOfComponents();
   for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
@@ -1996,13 +1996,13 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
   checkAllocated(); other->checkAllocated();
   if(getNumberOfComponents()!=other->getNumberOfComponents())
     throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : the number of components does not match !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> a=DataArrayDouble::Aggregate(this,other);
+  MCAuto<DataArrayDouble> a=DataArrayDouble::Aggregate(this,other);
   DataArrayInt *c=0,*ci=0;
   a->findCommonTuples(prec,getNumberOfTuples(),c,ci);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cSafe(c),ciSafe(ci);
+  MCAuto<DataArrayInt> cSafe(c),ciSafe(ci);
   int newNbOfTuples=-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(a->getNumberOfTuples(),c->begin(),ci->begin(),ci->end(),newNbOfTuples);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=ids->selectByTupleId2(getNumberOfTuples(),a->getNumberOfTuples(),1);
+  MCAuto<DataArrayInt> ids=DataArrayInt::ConvertIndexArrayToO2N(a->getNumberOfTuples(),c->begin(),ci->begin(),ci->end(),newNbOfTuples);
+  MCAuto<DataArrayInt> ret1=ids->selectByTupleIdSafeSlice(getNumberOfTuples(),a->getNumberOfTuples(),1);
   tupleIds=ret1.retn();
   return newNbOfTuples==getNumberOfTuples();
 }
@@ -2038,7 +2038,7 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
  *
  *  \ref py_mcdataarraydouble_findcommontuples  "Here is a Python example".
  *  \endif
- *  \sa DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(), DataArrayDouble::areIncludedInMe
+ *  \sa DataArrayInt::ConvertIndexArrayToO2N(), DataArrayDouble::areIncludedInMe
  */
 void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const
 {
@@ -2049,7 +2049,7 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
 
   int nbOfTuples=getNumberOfTuples();
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(DataArrayInt::New()),cI(DataArrayInt::New()); c->alloc(0,1); cI->pushBackSilent(0);
+  MCAuto<DataArrayInt> c(DataArrayInt::New()),cI(DataArrayInt::New()); c->alloc(0,1); cI->pushBackSilent(0);
   switch(nbOfCompo)
   {
     case 4:
@@ -2087,7 +2087,7 @@ DataArrayDouble *DataArrayDouble::duplicateEachTupleNTimes(int nbTimes) const
     throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : nb times should be >= 1 !");
   int nbTuples=getNumberOfTuples();
   const double *inPtr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbTimes*nbTuples,1);
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbTimes*nbTuples,1);
   double *retPtr=ret->getPointer();
   for(int i=0;i<nbTuples;i++,inPtr++)
     {
@@ -2111,7 +2111,7 @@ DataArrayDouble *DataArrayDouble::duplicateEachTupleNTimes(int nbTimes) const
  */
 double DataArrayDouble::minimalDistanceTo(const DataArrayDouble *other, int& thisTupleId, int& otherTupleId) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> part1=findClosestTupleId(other);
+  MCAuto<DataArrayInt> part1=findClosestTupleId(other);
   int nbOfCompo(getNumberOfComponents());
   int otherNbTuples(other->getNumberOfTuples());
   const double *thisPt(begin()),*otherPt(other->begin());
@@ -2150,7 +2150,7 @@ DataArrayInt *DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) 
     }
   int nbOfTuples=other->getNumberOfTuples();
   int thisNbOfTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuples,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuples,1);
   double bounds[6];
   getMinMaxPerComponent(bounds);
   switch(nbOfCompo)
@@ -2215,7 +2215,7 @@ DataArrayInt *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble
       std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : Number of components (" << nbOfComp << ") is not even ! It should be to be compatible with bbox format !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfTuples,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(nbOfTuples,1);
   const double *thisBBPtr(begin());
   int *retPtr(ret->getPointer());
   switch(nbOfComp/2)
@@ -2273,9 +2273,9 @@ DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, int limitTuple
   checkAllocated();
   DataArrayInt *c0=0,*cI0=0;
   findCommonTuples(prec,limitTupleId,c0,cI0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(c0),cI(cI0);
+  MCAuto<DataArrayInt> c(c0),cI(cI0);
   int newNbOfTuples=-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfTuples(),c0->begin(),cI0->begin(),cI0->end(),newNbOfTuples);
+  MCAuto<DataArrayInt> o2n=DataArrayInt::ConvertIndexArrayToO2N(getNumberOfTuples(),c0->begin(),cI0->begin(),cI0->end(),newNbOfTuples);
   return renumberAndReduce(o2n->getConstPointer(),newNbOfTuples);
 }
 
@@ -2931,27 +2931,27 @@ void DataArrayDouble::setContigPartOfSelectedValues(int tupleIdStart, const Data
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for the array \a aBase.
  */
-void DataArrayDouble::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
+void DataArrayDouble::setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
 {
   if(!aBase)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : input DataArray is NULL !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValuesSlice : input DataArray is NULL !");
   const DataArrayDouble *a=dynamic_cast<const DataArrayDouble *>(aBase);
   if(!a)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : input DataArray aBase is not a DataArrayDouble !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValuesSlice : input DataArray aBase is not a DataArrayDouble !");
   checkAllocated();
   a->checkAllocated();
   int nbOfComp=getNumberOfComponents();
-  const char msg[]="DataArrayDouble::setContigPartOfSelectedValues2";
+  const char msg[]="DataArrayDouble::setContigPartOfSelectedValuesSlice";
   int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
   if(nbOfComp!=a->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : This and a do not have the same number of components !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValuesSlice : This and a do not have the same number of components !");
   int thisNt=getNumberOfTuples();
   int aNt=a->getNumberOfTuples();
   double *valsToSet=getPointer()+tupleIdStart*nbOfComp;
   if(tupleIdStart+nbOfTupleToWrite>thisNt)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : invalid number range of values to write !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValuesSlice : invalid number range of values to write !");
   if(end2>aNt)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : invalid range of values to read !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValuesSlice : invalid range of values to read !");
   const double *valsSrc=a->getConstPointer()+bg*nbOfComp;
   for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
     {
@@ -3041,8 +3041,8 @@ void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &ar
  * For more info see \ref MEDCouplingArraySteps1.
  *  \param [in] array - the C array to be used as raw data of \a this.
  *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == ParaMEDMEM::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == ParaMEDMEM::C_DEALLOC,
+ *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+ *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
  *                     \c free(\c array ) will be called.
  *  \param [in] nbOfTuple - new number of tuples in \a this.
  *  \param [in] nbOfCompo - new number of components in \a this.
@@ -3129,7 +3129,7 @@ DataArrayDouble *DataArrayDouble::computeBBoxPerTuple(double epsilon) const
   const double *dataPtr=getConstPointer();
   int nbOfCompo=getNumberOfComponents();
   int nbTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> bbox=DataArrayDouble::New();
   bbox->alloc(nbTuples,2*nbOfCompo);
   double *bboxPtr=bbox->getPointer();
   for(int i=0;i<nbTuples;i++)
@@ -3172,7 +3172,7 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
   if(nbOfCompo!=otherNbOfCompo)
     throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : number of components should be equal between this and other !");
   int nbOfTuplesOther=other->getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cArr(DataArrayInt::New()),cIArr(DataArrayInt::New()); cArr->alloc(0,1); cIArr->pushBackSilent(0);
+  MCAuto<DataArrayInt> cArr(DataArrayInt::New()),cIArr(DataArrayInt::New()); cArr->alloc(0,1); cIArr->pushBackSilent(0);
   switch(nbOfCompo)
   {
     case 3:
@@ -3270,7 +3270,7 @@ double DataArrayDouble::getMaxValue2(DataArrayInt*& tupleIds) const
   int tmp;
   tupleIds=0;
   double ret=getMaxValue(tmp);
-  tupleIds=getIdsInRange(ret,ret);
+  tupleIds=findIdsInRange(ret,ret);
   return ret;
 }
 
@@ -3322,7 +3322,7 @@ double DataArrayDouble::getMinValue2(DataArrayInt*& tupleIds) const
   int tmp;
   tupleIds=0;
   double ret=getMinValue(tmp);
-  tupleIds=getIdsInRange(ret,ret);
+  tupleIds=findIdsInRange(ret,ret);
   return ret;
 }
 
@@ -3537,7 +3537,7 @@ DataArrayDouble *DataArrayDouble::accumulatePerChunck(const int *bgOfIndex, cons
   if(sz<1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : invalid size of input index array !");
   sz--;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(sz,nbCompo);
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(sz,nbCompo);
   const int *w=bgOfIndex;
   if(*w<0 || *w>=nbOfTuples)
     throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : The first element of the input index not in [0,nbOfTuples) !");
@@ -3673,11 +3673,11 @@ DataArrayDouble *DataArrayDouble::cartesianize(MEDCouplingAxisType atOfThis) con
 {
   checkAllocated();
   int nbOfComp(getNumberOfComponents());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret;
+  MCAuto<DataArrayDouble> ret;
   switch(atOfThis)
     {
     case AX_CART:
-      ret=deepCpy();
+      ret=deepCopy();
     case AX_CYL:
       if(nbOfComp==3)
         {
@@ -3998,7 +3998,7 @@ DataArrayDouble *DataArrayDouble::sumPerTuple() const
 {
   checkAllocated();
   int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfTuple,1);
   const double *src(getConstPointer());
   double *dest(ret->getPointer());
@@ -4020,7 +4020,7 @@ DataArrayDouble *DataArrayDouble::maxPerTuple() const
 {
   checkAllocated();
   int nbOfComp=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int nbOfTuple=getNumberOfTuples();
   ret->alloc(nbOfTuple,1);
   const double *src=getConstPointer();
@@ -4047,8 +4047,8 @@ DataArrayDouble *DataArrayDouble::maxPerTupleWithCompoId(DataArrayInt* &compoIdO
 {
   checkAllocated();
   int nbOfComp=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret0=DataArrayDouble::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New();
+  MCAuto<DataArrayDouble> ret0=DataArrayDouble::New();
+  MCAuto<DataArrayInt> ret1=DataArrayInt::New();
   int nbOfTuple=getNumberOfTuples();
   ret0->alloc(nbOfTuple,1); ret1->alloc(nbOfTuple,1);
   const double *src=getConstPointer();
@@ -4071,7 +4071,7 @@ DataArrayDouble *DataArrayDouble::maxPerTupleWithCompoId(DataArrayInt* &compoIdO
  *
  * \warning use this method with care because it can leads to big amount of consumed memory !
  * 
- * \return A newly allocated (huge) ParaMEDMEM::DataArrayDouble instance that the caller should deal with.
+ * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
  * \throw If \a this is not allocated.
  *
@@ -4083,7 +4083,7 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrix() const
   int nbOfComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
   const double *inData=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbOfTuples*nbOfTuples,1);
   double *outData=ret->getPointer();
   for(int i=0;i<nbOfTuples;i++)
@@ -4112,7 +4112,7 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrix() const
  * \warning use this method with care because it can leads to big amount of consumed memory !
  * 
  * \param [in] other DataArrayDouble instance having same number of components than \a this.
- * \return A newly allocated (huge) ParaMEDMEM::DataArrayDouble instance that the caller should deal with.
+ * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
  * \throw If \a this is not allocated, or if \a other is null or if \a other is not allocated, or if number of components of \a other and \a this differs.
  *
@@ -4135,7 +4135,7 @@ DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const Da
   int otherNbOfTuples=other->getNumberOfTuples();
   const double *inData=getConstPointer();
   const double *inDataOther=other->getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(otherNbOfTuples*nbOfTuples,1);
   double *outData=ret->getPointer();
   for(int i=0;i<otherNbOfTuples;i++,inDataOther+=nbOfComp)
@@ -4429,7 +4429,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const std::string& fun
   std::set<std::string> vars;
   expr.getTrueSetOfVars(vars);
   std::vector<std::string> varsV(vars.begin(),vars.end());
-  return applyFunc3(nbOfComp,varsV,func,isSafe);
+  return applyFuncNamedCompo(nbOfComp,varsV,func,isSafe);
 }
 
 /*!
@@ -4457,7 +4457,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func, bool isSafe
     throw INTERP_KERNEL::Exception("DataArrayDouble::applyFunc : output number of component must be > 0 !");
   checkAllocated();
   int nbOfTuples(getNumberOfTuples());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newArr(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> newArr(DataArrayDouble::New());
   newArr->alloc(nbOfTuples,nbOfComp);
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
@@ -4465,7 +4465,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func, bool isSafe
   expr.getTrueSetOfVars(vars);
   if((int)vars.size()>1)
     {
-      std::ostringstream oss; oss << "DataArrayDouble::applyFunc : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFunc2 or applyFunc3 instead ! Vars in expr are : ";
+      std::ostringstream oss; oss << "DataArrayDouble::applyFunc : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFuncCompo or applyFuncNamedCompo instead ! Vars in expr are : ";
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -4548,7 +4548,7 @@ void DataArrayDouble::applyFuncOnThis(const std::string& func, bool isSafe)
   expr.getTrueSetOfVars(vars);
   if((int)vars.size()>1)
     {
-      std::ostringstream oss; oss << "DataArrayDouble::applyFuncOnThis : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFunc2 or applyFunc3 instead ! Vars in expr are : ";
+      std::ostringstream oss; oss << "DataArrayDouble::applyFuncOnThis : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFuncCompo or applyFuncNamedCompo instead ! Vars in expr are : ";
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -4623,9 +4623,9 @@ void DataArrayDouble::applyFuncOnThis(const std::string& func, bool isSafe)
  *  \throw If \a func contains vars that are not in \a this->getInfoOnComponent().
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& func, bool isSafe) const
+DataArrayDouble *DataArrayDouble::applyFuncCompo(int nbOfComp, const std::string& func, bool isSafe) const
 {
-  return applyFunc3(nbOfComp,getVarsOnComponent(),func,isSafe);
+  return applyFuncNamedCompo(nbOfComp,getVarsOnComponent(),func,isSafe);
 }
 
 /*!
@@ -4646,10 +4646,10 @@ DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const std::string& fu
  *  \throw If \a func contains vars not in \a varsOrder.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe) const
+DataArrayDouble *DataArrayDouble::applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe) const
 {
   if(nbOfComp<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFunc3 : output number of component must be > 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFuncNamedCompo : output number of component must be > 0 !");
   std::vector<std::string> varsOrder2(varsOrder);
   int oldNbOfComp(getNumberOfComponents());
   for(int i=(int)varsOrder.size();i<oldNbOfComp;i++)
@@ -4667,7 +4667,7 @@ DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newArr(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> newArr(DataArrayDouble::New());
   newArr->alloc(nbOfTuples,nbOfComp);
   INTERP_KERNEL::AutoPtr<double> buff(new double[oldNbOfComp]);
   double *buffPtr(buff),*ptrToFill;
@@ -4763,20 +4763,20 @@ DataArrayDoubleIterator *DataArrayDouble::iterator()
  *          needed.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *
- *  \sa DataArrayDouble::getIdsNotInRange
+ *  \sa DataArrayDouble::findIdsNotInRange
  *
  *  \if ENABLE_EXAMPLES
  *  \ref cpp_mcdataarraydouble_getidsinrange "Here is a C++ example".<br>
  *  \ref py_mcdataarraydouble_getidsinrange "Here is a Python example".
  *  \endif
  */
-DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const
+DataArrayInt *DataArrayDouble::findIdsInRange(double vmin, double vmax) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getIdsInRange : this must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::findIdsInRange : this must have exactly one component !");
   const double *cptr(begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr>=vmin && *cptr<=vmax)
@@ -4794,15 +4794,15 @@ DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() != 1.
  *
- *  \sa DataArrayDouble::getIdsInRange
+ *  \sa DataArrayDouble::findIdsInRange
  */
-DataArrayInt *DataArrayDouble::getIdsNotInRange(double vmin, double vmax) const
+DataArrayInt *DataArrayDouble::findIdsNotInRange(double vmin, double vmax) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getIdsNotInRange : this must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::findIdsNotInRange : this must have exactly one component !");
   const double *cptr(begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr<vmin || *cptr>vmax)
@@ -4863,7 +4863,7 @@ DataArrayDouble *DataArrayDouble::Aggregate(const std::vector<const DataArrayDou
         throw INTERP_KERNEL::Exception("DataArrayDouble::Aggregate : Nb of components mismatch for array aggregation !");
       nbt+=(*it)->getNumberOfTuples();
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbt,nbOfComp);
   double *pt=ret->getPointer();
   for(it=a.begin();it!=a.end();it++)
@@ -5143,7 +5143,7 @@ DataArrayDouble *DataArrayDouble::Add(const DataArrayDouble *a1, const DataArray
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=0;
+  MCAuto<DataArrayDouble> ret=0;
   if(nbOfTuple==nbOfTuple2)
     {
       if(nbOfComp==nbOfComp2)
@@ -5303,7 +5303,7 @@ DataArrayDouble *DataArrayDouble::Substract(const DataArrayDouble *a1, const Dat
     {
       if(nbOfComp1==nbOfComp2)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
           ret->alloc(nbOfTuple2,nbOfComp1);
           std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<double>());
           ret->copyStringInfoFrom(*a1);
@@ -5311,7 +5311,7 @@ DataArrayDouble *DataArrayDouble::Substract(const DataArrayDouble *a1, const Dat
         }
       else if(nbOfComp2==1)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
           ret->alloc(nbOfTuple1,nbOfComp1);
           const double *a2Ptr=a2->getConstPointer();
           const double *a1Ptr=a1->getConstPointer();
@@ -5330,7 +5330,7 @@ DataArrayDouble *DataArrayDouble::Substract(const DataArrayDouble *a1, const Dat
   else if(nbOfTuple2==1)
     {
       a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+      MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
       ret->alloc(nbOfTuple1,nbOfComp1);
       const double *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
       double *pt=ret->getPointer();
@@ -5440,7 +5440,7 @@ DataArrayDouble *DataArrayDouble::Multiply(const DataArrayDouble *a1, const Data
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=0;
+  MCAuto<DataArrayDouble> ret=0;
   if(nbOfTuple==nbOfTuple2)
     {
       if(nbOfComp==nbOfComp2)
@@ -5601,7 +5601,7 @@ DataArrayDouble *DataArrayDouble::Divide(const DataArrayDouble *a1, const DataAr
     {
       if(nbOfComp1==nbOfComp2)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
           ret->alloc(nbOfTuple2,nbOfComp1);
           std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<double>());
           ret->copyStringInfoFrom(*a1);
@@ -5609,7 +5609,7 @@ DataArrayDouble *DataArrayDouble::Divide(const DataArrayDouble *a1, const DataAr
         }
       else if(nbOfComp2==1)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
           ret->alloc(nbOfTuple1,nbOfComp1);
           const double *a2Ptr=a2->getConstPointer();
           const double *a1Ptr=a1->getConstPointer();
@@ -5628,7 +5628,7 @@ DataArrayDouble *DataArrayDouble::Divide(const DataArrayDouble *a1, const DataAr
   else if(nbOfTuple2==1)
     {
       a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+      MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
       ret->alloc(nbOfTuple1,nbOfComp1);
       const double *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
       double *pt=ret->getPointer();
@@ -5732,7 +5732,7 @@ DataArrayDouble *DataArrayDouble::Pow(const DataArrayDouble *a1, const DataArray
     throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : number of tuples mismatches !");
   if(nbOfComp!=1 || nbOfComp2!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : number of components of both arrays must be equal to 1 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbOfTuple,1);
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbOfTuple,1);
   const double *ptr1(a1->begin()),*ptr2(a2->begin());
   double *ptr=ret->getPointer();
   for(int i=0;i<nbOfTuple;i++,ptr1++,ptr2++,ptr++)
@@ -5942,8 +5942,8 @@ double DataArrayDoubleTuple::doubleValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayDouble::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayDouble::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayDouble::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayDouble::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
@@ -6067,7 +6067,7 @@ bool DataArrayInt::empty() const
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayInt * - a new instance of DataArrayInt.
  */
-DataArrayInt *DataArrayInt::deepCpy() const
+DataArrayInt *DataArrayInt::deepCopy() const
 {
   return new DataArrayInt(*this);
 }
@@ -6079,10 +6079,10 @@ DataArrayInt *DataArrayInt::deepCpy() const
  *  \return DataArrayInt * - either a new instance of DataArrayInt (if \a dCpy
  *          == \a true) or \a this instance (if \a dCpy == \a false).
  */
-DataArrayInt *DataArrayInt::performCpy(bool dCpy) const
+DataArrayInt *DataArrayInt::performCopyOrIncrRef(bool dCpy) const
 {
   if(dCpy)
-    return deepCpy();
+    return deepCopy();
   else
     {
       incrRef();
@@ -6096,7 +6096,7 @@ DataArrayInt *DataArrayInt::performCpy(bool dCpy) const
  *  \param [in] other - another instance of DataArrayInt to copy data from.
  *  \throw If the \a other is not allocated.
  */
-void DataArrayInt::cpyFrom(const DataArrayInt& other)
+void DataArrayInt::deepCopyFrom(const DataArrayInt& other)
 {
   other.checkAllocated();
   int nbOfTuples=other.getNumberOfTuples();
@@ -6561,9 +6561,9 @@ void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
   typedef std::reverse_iterator<const int *> rintstart;
   rintstart bg(arrEnd);//OK no problem because size of 'arr' is greater or equal 2
   rintstart end2(arrBg);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret3=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret1=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret2=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret3=DataArrayInt::New();
   ret1->alloc(nbOfTuples,1);
   ret2->alloc(nbOfTuples,1);
   int *ret1Ptr=ret1->getPointer();
@@ -6670,7 +6670,7 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
   int nbElemsIn=(int)std::distance(indArrBg,indArrEnd);
   int nbOfTuples=getNumberOfTuples();
   const int *pt=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples,1);
   ret->fillWithValue(-1);
   int *tmp=ret->getPointer();
@@ -6713,7 +6713,7 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
  */
 DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(newNbOfElem,1);
   int nbOfOldNodes=getNumberOfTuples();
   const int *old2New=getConstPointer();
@@ -6741,7 +6741,7 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
  */
 DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(newNbOfElem,1);
   int nbOfOldNodes=getNumberOfTuples();
   const int *old2New=getConstPointer();
@@ -6782,7 +6782,7 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2OBis(int newNbOfElem) const
 DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(oldNbOfElem,1);
   const int *new2Old=getConstPointer();
   int *pt=ret->getPointer();
@@ -6850,8 +6850,8 @@ bool DataArrayInt::isEqualWithoutConsideringStr(const DataArrayInt& other) const
  */
 bool DataArrayInt::isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a=deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> b=other.deepCpy();
+  MCAuto<DataArrayInt> a=deepCopy();
+  MCAuto<DataArrayInt> b=other.deepCopy();
   a->sort();
   b->sort();
   return a->isEqualWithoutConsideringStr(*b);
@@ -6950,7 +6950,7 @@ DataArrayInt *DataArrayInt::sumPerTuple() const
 {
   checkAllocated();
   int nbOfComp(getNumberOfComponents()),nbOfTuple(getNumberOfTuples());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   ret->alloc(nbOfTuple,1);
   const int *src(getConstPointer());
   int *dest(ret->getPointer());
@@ -7111,7 +7111,7 @@ DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const
   other.checkAllocated();
   if(nbTuple!=other.getNumberOfTuples())
     throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' must have the same number of tuple !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbTuple,1);
   ret->fillWithValue(-1);
   const int *pt=getConstPointer();
@@ -7139,8 +7139,8 @@ DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const
  * For more info see \ref MEDCouplingArraySteps1.
  *  \param [in] array - the C array to be used as raw data of \a this.
  *  \param [in] ownership - if \a true, \a array will be deallocated at destruction of \a this.
- *  \param [in] type - specifies how to deallocate \a array. If \a type == ParaMEDMEM::CPP_DEALLOC,
- *                     \c delete [] \c array; will be called. If \a type == ParaMEDMEM::C_DEALLOC,
+ *  \param [in] type - specifies how to deallocate \a array. If \a type == MEDCoupling::CPP_DEALLOC,
+ *                     \c delete [] \c array; will be called. If \a type == MEDCoupling::C_DEALLOC,
  *                     \c free(\c array ) will be called.
  *  \param [in] nbOfTuple - new number of tuples in \a this.
  *  \param [in] nbOfCompo - new number of components in \a this.
@@ -7205,7 +7205,7 @@ DataArrayInt *DataArrayInt::toNoInterlace() const
  * Permutes values of \a this array as required by \a old2New array. The values are
  * permuted so that \c new[ \a old2New[ i ]] = \c old[ i ]. Number of tuples remains
  * the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] old2New - C array of length equal to \a this->getNumberOfTuples()
  *     giving a new position for i-th old value.
@@ -7283,7 +7283,7 @@ DataArrayInt *DataArrayInt::renumber(const int *old2New) const
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbTuples,nbOfCompo);
   ret->copyStringInfoFrom(*this);
   const int *iptr=getConstPointer();
@@ -7298,7 +7298,7 @@ DataArrayInt *DataArrayInt::renumber(const int *old2New) const
  * Returns a copy of \a this array with values permuted as required by \a new2Old array.
  * The values are permuted so that  \c new[ i ] = \c old[ \a new2Old[ i ]]. Number of
  * tuples in the result array remains the same as in \c this one.
- * If a permutation reduction is needed, substr() or selectByTupleId() should be used.
+ * If a permutation reduction is needed, subArray() or selectByTupleId() should be used.
  * For more info on renumbering see \ref numbering.
  *  \param [in] new2Old - C array of length equal to \a this->getNumberOfTuples()
  *     giving a previous position of i-th new value.
@@ -7310,7 +7310,7 @@ DataArrayInt *DataArrayInt::renumberR(const int *new2Old) const
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbTuples,nbOfCompo);
   ret->copyStringInfoFrom(*this);
   const int *iptr=getConstPointer();
@@ -7339,7 +7339,7 @@ DataArrayInt *DataArrayInt::renumberAndReduce(const int *old2New, int newNbOfTup
   checkAllocated();
   int nbTuples=getNumberOfTuples();
   int nbOfCompo=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(newNbOfTuple,nbOfCompo);
   const int *iptr=getConstPointer();
   int *optr=ret->getPointer();
@@ -7372,7 +7372,7 @@ DataArrayInt *DataArrayInt::renumberAndReduce(const int *old2New, int newNbOfTup
 DataArrayInt *DataArrayInt::selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   int nbComp=getNumberOfComponents();
   ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
   ret->copyStringInfoFrom(*this);
@@ -7407,7 +7407,7 @@ DataArrayInt *DataArrayInt::selectByTupleId(const int *new2OldBg, const int *new
 DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   int nbComp=getNumberOfComponents();
   int oldNbOfTuples=getNumberOfTuples();
   ret->alloc((int)std::distance(new2OldBg,new2OldEnd),nbComp);
@@ -7437,14 +7437,14 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
  *  \param [in] step - index increment to get index of the next tuple to copy.
  *  \return DataArrayInt * - the new instance of DataArrayInt that the caller
  *          is to delete using decrRef() as it is no more needed.
- *  \sa DataArrayInt::substr.
+ *  \sa DataArrayInt::subArray.
  */
-DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end2, int step) const
+DataArrayInt *DataArrayInt::selectByTupleIdSafeSlice(int bg, int end2, int step) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayInt::selectByTupleId2 : ");
+  int newNbOfTuples=GetNumberOfItemGivenBESRelative(bg,end2,step,"DataArrayInt::selectByTupleIdSafeSlice : ");
   ret->alloc(newNbOfTuples,nbComp);
   int *pt=ret->getPointer();
   const int *srcPt=getConstPointer()+bg*nbComp;
@@ -7473,7 +7473,7 @@ DataArray *DataArrayInt::selectByTupleRanges(const std::vector<std::pair<int,int
   int nbOfTuplesThis=getNumberOfTuples();
   if(ranges.empty())
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      MCAuto<DataArrayInt> ret=DataArrayInt::New();
       ret->alloc(0,nbOfComp);
       ret->copyStringInfoFrom(*this);
       return ret.retn();
@@ -7507,8 +7507,8 @@ DataArray *DataArrayInt::selectByTupleRanges(const std::vector<std::pair<int,int
         }
     }
   if(isIncreasing && nbOfTuplesThis==nbOfTuples)
-    return deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+    return deepCopy();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples,nbOfComp);
   ret->copyStringInfoFrom(*this);
   const int *src=getConstPointer();
@@ -7571,8 +7571,8 @@ DataArrayInt *DataArrayInt::FindPermutationFromFirstToSecond(const DataArrayInt 
       std::ostringstream oss; oss << "DataArrayInt::FindPermutationFromFirstToSecond : first array has " << ids1->getNumberOfTuples() << " tuples and the second one " << ids2->getNumberOfTuples() << " tuples ! No chance to find a permutation between the 2 arrays !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p1(ids1->deepCpy());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> p2(ids2->deepCpy());
+  MCAuto<DataArrayInt> p1(ids1->deepCopy());
+  MCAuto<DataArrayInt> p2(ids2->deepCopy());
   p1->sort(true); p2->sort(true);
   if(!p1->isEqualWithoutConsideringStr(*p2))
     throw INTERP_KERNEL::Exception("DataArrayInt::FindPermutationFromFirstToSecond : the two arrays are not lying on same ids ! Impossible to find a permutation between the 2 arrays !");
@@ -7624,8 +7624,8 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::changeSurjectiveFormat : number of components must == 1 !");
   int nbOfTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> retI(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> retI(DataArrayInt::New());
   retI->alloc(targetNb+1,1);
   const int *input=getConstPointer();
   std::vector< std::vector<int> > tmp(targetNb);
@@ -7658,7 +7658,7 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
 /*!
  * Returns a new DataArrayInt containing a renumbering map in "Old to New" mode computed
  * from a zip representation of a surjective format (returned e.g. by
- * \ref ParaMEDMEM::DataArrayDouble::findCommonTuples() "DataArrayDouble::findCommonTuples()"
+ * \ref MEDCoupling::DataArrayDouble::findCommonTuples() "DataArrayDouble::findCommonTuples()"
  * for example). The result array minimizes the permutation. <br>
  * For more info on renumbering see \ref numbering. <br>
  * \b Example: <br>
@@ -7680,9 +7680,9 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
  *          array using decrRef() as it is no more needed.
  *  \throw If any value of \a arr breaks condition ( 0 <= \a arr[ i ] < \a nbOfOldTuples ).
  */
-DataArrayInt *DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, const int *arr, const int *arrIBg, const int *arrIEnd, int &newNbOfTuples)
+DataArrayInt *DataArrayInt::ConvertIndexArrayToO2N(int nbOfOldTuples, const int *arr, const int *arrIBg, const int *arrIEnd, int &newNbOfTuples)
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfOldTuples,1);
   int *pt=ret->getPointer();
   std::fill(pt,pt+nbOfOldTuples,-1);
@@ -7706,7 +7706,7 @@ DataArrayInt *DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTu
                     pt[arr[j]]=newNb;
                   else
                     {
-                      std::ostringstream oss; oss << "DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2 : With element #" << j << " value is " << arr[j] << " should be in [0," << nbOfOldTuples << ") !";
+                      std::ostringstream oss; oss << "DataArrayInt::ConvertIndexArrayToO2N : With element #" << j << " value is " << arr[j] << " should be in [0," << nbOfOldTuples << ") !";
                       throw INTERP_KERNEL::Exception(oss.str().c_str());
                     }
                 }
@@ -7740,7 +7740,7 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const
   int nbOfTuples=getNumberOfTuples();
   const int *pt=getConstPointer();
   std::map<int,int> m;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples,1);
   int *opt=ret->getPointer();
   for(int i=0;i<nbOfTuples;i++,pt++,opt++)
@@ -7784,7 +7784,7 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-bool DataArrayInt::isIdentity2(int sizeExpected) const
+bool DataArrayInt::isIota(int sizeExpected) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -7842,7 +7842,7 @@ DataArrayDouble *DataArrayInt::convertToDblArr() const
  * Returns a shorten copy of \a this array. The new DataArrayInt contains all
  * tuples starting from the \a tupleIdBg-th tuple and including all tuples located before
  * the \a tupleIdEnd-th one. This methods has a similar behavior as std::string::substr().
- * This method is a specialization of selectByTupleId2().
+ * This method is a specialization of selectByTupleIdSafeSlice().
  *  \param [in] tupleIdBg - index of the first tuple to copy from \a this array.
  *  \param [in] tupleIdEnd - index of the tuple before which the tuples to copy are located.
  *          If \a tupleIdEnd == -1, all the tuples till the end of \a this array are copied.
@@ -7851,26 +7851,26 @@ DataArrayDouble *DataArrayInt::convertToDblArr() const
  *  \throw If \a tupleIdBg < 0.
  *  \throw If \a tupleIdBg > \a this->getNumberOfTuples().
     \throw If \a tupleIdEnd != -1 && \a tupleIdEnd < \a this->getNumberOfTuples().
- *  \sa DataArrayInt::selectByTupleId2
+ *  \sa DataArrayInt::selectByTupleIdSafeSlice
  */
-DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const
+DataArrayInt *DataArrayInt::subArray(int tupleIdBg, int tupleIdEnd) const
 {
   checkAllocated();
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::subArray : The tupleIdBg parameter must be greater than 0 !");
   if(tupleIdBg>nbt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater than number of tuples !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::subArray : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
       if(tupleIdEnd>nbt)
-        throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+        throw INTERP_KERNEL::Exception("DataArrayInt::subArray : The tupleIdBg parameter is greater or equal than number of tuples !");
     }
   else
     trueEnd=nbt;
   int nbComp=getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(trueEnd-tupleIdBg,nbComp);
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
@@ -7936,7 +7936,7 @@ void DataArrayInt::transpose()
 DataArrayInt *DataArrayInt::changeNbOfComponents(int newNbOfComp, int dftValue) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(getNumberOfTuples(),newNbOfComp);
   const int *oldc=getConstPointer();
   int *nc=ret->getPointer();
@@ -7995,7 +7995,7 @@ void DataArrayInt::reAlloc(int nbOfTuples)
 DataArrayInt *DataArrayInt::keepSelectedComponents(const std::vector<int>& compoIds) const
 {
   checkAllocated();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   int newNbOfCompo=(int)compoIds.size();
   int oldNbOfCompo=getNumberOfComponents();
   for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
@@ -8673,27 +8673,27 @@ void DataArrayInt::setContigPartOfSelectedValues(int tupleIdStart, const DataArr
  *            non-empty range of increasing indices or indices are out of a valid range
  *            for the array \a aBase.
  */
-void DataArrayInt::setContigPartOfSelectedValues2(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
+void DataArrayInt::setContigPartOfSelectedValuesSlice(int tupleIdStart, const DataArray *aBase, int bg, int end2, int step)
 {
   if(!aBase)
-    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : input DataArray is NULL !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValuesSlice : input DataArray is NULL !");
   const DataArrayInt *a=dynamic_cast<const DataArrayInt *>(aBase);
   if(!a)
-    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : input DataArray aBase is not a DataArrayInt !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValuesSlice : input DataArray aBase is not a DataArrayInt !");
   checkAllocated();
   a->checkAllocated();
   int nbOfComp=getNumberOfComponents();
-  const char msg[]="DataArrayInt::setContigPartOfSelectedValues2";
+  const char msg[]="DataArrayInt::setContigPartOfSelectedValuesSlice";
   int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
   if(nbOfComp!=a->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : This and a do not have the same number of components !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValuesSlice : This and a do not have the same number of components !");
   int thisNt=getNumberOfTuples();
   int aNt=a->getNumberOfTuples();
   int *valsToSet=getPointer()+tupleIdStart*nbOfComp;
   if(tupleIdStart+nbOfTupleToWrite>thisNt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : invalid number range of values to write !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValuesSlice : invalid number range of values to write !");
   if(end2>aNt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : invalid range of values to read !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValuesSlice : invalid range of values to read !");
   const int *valsSrc=a->getConstPointer()+bg*nbOfComp;
   for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
     {
@@ -8796,15 +8796,15 @@ DataArrayIntIterator *DataArrayInt::iterator()
  *          array using decrRef() as it is no more needed.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
- *  \sa DataArrayInt::getIdsEqualTuple
+ *  \sa DataArrayInt::findIdsEqualTuple
  */
-DataArrayInt *DataArrayInt::getIdsEqual(int val) const
+DataArrayInt *DataArrayInt::findIdsEqual(int val) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
   const int *cptr(getConstPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr==val)
@@ -8821,13 +8821,13 @@ DataArrayInt *DataArrayInt::getIdsEqual(int val) const
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const
+DataArrayInt *DataArrayInt::findIdsNotEqual(int val) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
   const int *cptr(getConstPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr!=val)
@@ -8837,7 +8837,7 @@ DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const
 
 /*!
  * Creates a new DataArrayInt containing IDs (indices) of tuples holding tuple equal to those defined by [ \a tupleBg , \a tupleEnd )
- * This method is an extension of  DataArrayInt::getIdsEqual method.
+ * This method is an extension of  DataArrayInt::findIdsEqual method.
  *
  *  \param [in] tupleBg - the begin (included) of the input tuple to find within \a this.
  *  \param [in] tupleEnd - the end (excluded) of the input tuple to find within \a this.
@@ -8846,20 +8846,20 @@ DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != std::distance(tupleBg,tupleEnd).
  * \throw If \a this->getNumberOfComponents() is equal to 0.
- * \sa DataArrayInt::getIdsEqual
+ * \sa DataArrayInt::findIdsEqual
  */
-DataArrayInt *DataArrayInt::getIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const
+DataArrayInt *DataArrayInt::findIdsEqualTuple(const int *tupleBg, const int *tupleEnd) const
 {
   std::size_t nbOfCompoExp(std::distance(tupleBg,tupleEnd));
   checkAllocated();
   if(getNumberOfComponents()!=(int)nbOfCompoExp)
     {
-      std::ostringstream oss; oss << "DataArrayInt::getIdsEqualTuple : mismatch of number of components. Input tuple has " << nbOfCompoExp << " whereas this array has " << getNumberOfComponents() << " components !";
+      std::ostringstream oss; oss << "DataArrayInt::findIdsEqualTuple : mismatch of number of components. Input tuple has " << nbOfCompoExp << " whereas this array has " << getNumberOfComponents() << " components !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   if(nbOfCompoExp==0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualTuple : number of components should be > 0 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqualTuple : number of components should be > 0 !");
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   const int *bg(begin()),*end2(end()),*work(begin());
   while(work!=end2)
     {
@@ -8916,15 +8916,15 @@ int DataArrayInt::changeValue(int oldValue, int newValue)
  *          array using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *DataArrayInt::getIdsEqualList(const int *valsBg, const int *valsEnd) const
+DataArrayInt *DataArrayInt::findIdsEqualList(const int *valsBg, const int *valsEnd) const
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : the array must have only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsEqualList : the array must have only one component, you can call 'rearrange' method before !");
   std::set<int> vals2(valsBg,valsEnd);
   const int *cptr(getConstPointer());
   std::vector<int> res;
   int nbOfTuples(getNumberOfTuples());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(vals2.find(*cptr)!=vals2.end())
       ret->pushBackSilent(i);
@@ -8941,15 +8941,15 @@ DataArrayInt *DataArrayInt::getIdsEqualList(const int *valsBg, const int *valsEn
  *          array using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 1.
  */
-DataArrayInt *DataArrayInt::getIdsNotEqualList(const int *valsBg, const int *valsEnd) const
+DataArrayInt *DataArrayInt::findIdsNotEqualList(const int *valsBg, const int *valsEnd) const
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : the array must have only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsNotEqualList : the array must have only one component, you can call 'rearrange' method before !");
   std::set<int> vals2(valsBg,valsEnd);
   const int *cptr=getConstPointer();
   std::vector<int> res;
   int nbOfTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(vals2.find(*cptr)==vals2.end())
       ret->pushBackSilent(i);
@@ -8957,7 +8957,7 @@ DataArrayInt *DataArrayInt::getIdsNotEqualList(const int *valsBg, const int *val
 }
 
 /*!
- * This method is an extension of DataArrayInt::locateValue method because this method works for DataArrayInt with
+ * This method is an extension of DataArrayInt::findIdFirstEqual method because this method works for DataArrayInt with
  * any number of components excepted 0 (an INTERP_KERNEL::Exception is thrown in this case).
  * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
  * If any the tuple id is returned. If not -1 is returned.
@@ -8966,17 +8966,17 @@ DataArrayInt *DataArrayInt::getIdsNotEqualList(const int *valsBg, const int *val
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
  *
  * \return tuple id where \b tupl is. -1 if no such tuple exists in \b this.
- * \sa DataArrayInt::search, DataArrayInt::presenceOfTuple.
+ * \sa DataArrayInt::findIdSequence, DataArrayInt::presenceOfTuple.
  */
-int DataArrayInt::locateTuple(const std::vector<int>& tupl) const
+int DataArrayInt::findIdFirstEqualTuple(const std::vector<int>& tupl) const
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   if(nbOfCompo==0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::locateTuple : 0 components in 'this' !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdFirstEqualTuple : 0 components in 'this' !");
   if(nbOfCompo!=(int)tupl.size())
     {
-      std::ostringstream oss; oss << "DataArrayInt::locateTuple : 'this' contains " << nbOfCompo << " components and searching for a tuple of length " << tupl.size() << " !";
+      std::ostringstream oss; oss << "DataArrayInt::findIdFirstEqualTuple : 'this' contains " << nbOfCompo << " components and searching for a tuple of length " << tupl.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   const int *cptr=getConstPointer();
@@ -8998,15 +8998,15 @@ int DataArrayInt::locateTuple(const std::vector<int>& tupl) const
 /*!
  * This method searches the sequence specified in input parameter \b vals in \b this.
  * This works only for DataArrayInt having number of components equal to one (if not an INTERP_KERNEL::Exception will be thrown).
- * This method differs from DataArrayInt::locateTuple in that the position is internal raw data is not considered here contrary to DataArrayInt::locateTuple.
- * \sa DataArrayInt::locateTuple
+ * This method differs from DataArrayInt::findIdFirstEqualTuple in that the position is internal raw data is not considered here contrary to DataArrayInt::findIdFirstEqualTuple.
+ * \sa DataArrayInt::findIdFirstEqualTuple
  */
-int DataArrayInt::search(const std::vector<int>& vals) const
+int DataArrayInt::findIdSequence(const std::vector<int>& vals) const
 {
   checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   if(nbOfCompo!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::search : works only for DataArrayInt instance with one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdSequence : works only for DataArrayInt instance with one component !");
   const int *cptr=getConstPointer();
   std::size_t nbOfVals=getNbOfElems();
   const int *loc=std::search(cptr,cptr+nbOfVals,vals.begin(),vals.end());
@@ -9021,7 +9021,7 @@ int DataArrayInt::search(const std::vector<int>& vals) const
  * If not any tuple contains \b value -1 is returned.
  * \sa DataArrayInt::presenceOfValue
  */
-int DataArrayInt::locateValue(int value) const
+int DataArrayInt::findIdFirstEqual(int value) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -9040,7 +9040,7 @@ int DataArrayInt::locateValue(int value) const
  * If not any tuple contains one of the values contained in 'vals' -1 is returned.
  * \sa DataArrayInt::presenceOfValue
  */
-int DataArrayInt::locateValue(const std::vector<int>& vals) const
+int DataArrayInt::findIdFirstEqual(const std::vector<int>& vals) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -9083,11 +9083,11 @@ int DataArrayInt::count(int value) const
  * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
  * This method throws an INTERP_KERNEL::Exception if the number of components in \b this mismatches with the size of
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
- * \sa DataArrayInt::locateTuple
+ * \sa DataArrayInt::findIdFirstEqualTuple
  */
 bool DataArrayInt::presenceOfTuple(const std::vector<int>& tupl) const
 {
-  return locateTuple(tupl)!=-1;
+  return findIdFirstEqualTuple(tupl)!=-1;
 }
 
 
@@ -9097,22 +9097,22 @@ bool DataArrayInt::presenceOfTuple(const std::vector<int>& tupl) const
  *  \return bool - \a true in case if \a value is present within \a this array.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
- *  \sa locateValue()
+ *  \sa findIdFirstEqual()
  */
 bool DataArrayInt::presenceOfValue(int value) const
 {
-  return locateValue(value)!=-1;
+  return findIdFirstEqual(value)!=-1;
 }
 
 /*!
  * This method expects to be called when number of components of this is equal to one.
  * This method returns true if it exists a tuple so that the value is contained in \b vals.
  * If not any tuple contains one of the values contained in 'vals' false is returned.
- * \sa DataArrayInt::locateValue
+ * \sa DataArrayInt::findIdFirstEqual
  */
 bool DataArrayInt::presenceOfValue(const std::vector<int>& vals) const
 {
-  return locateValue(vals)!=-1;
+  return findIdFirstEqual(vals)!=-1;
 }
 
 /*!
@@ -9174,7 +9174,7 @@ DataArrayInt *DataArrayInt::accumulatePerChunck(const int *bgOfIndex, const int 
   if(sz<1)
     throw INTERP_KERNEL::Exception("DataArrayInt::accumulatePerChunck : invalid size of input index array !");
   sz--;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(sz,nbCompo);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(sz,nbCompo);
   const int *w=bgOfIndex;
   if(*w<0 || *w>=nbOfTuples)
     throw INTERP_KERNEL::Exception("DataArrayInt::accumulatePerChunck : The first element of the input index not in [0,nbOfTuples) !");
@@ -9272,7 +9272,7 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
         throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : Nb of components mismatch for array aggregation !");
       nbt+=(*it)->getNumberOfTuples();
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbt,nbOfComp);
   int *pt=ret->getPointer();
   for(it=a.begin();it!=a.end();it++)
@@ -9323,7 +9323,7 @@ DataArrayInt *DataArrayInt::AggregateIndexes(const std::vector<const DataArrayIn
     }
   if(arrs.empty())
     throw INTERP_KERNEL::Exception("DataArrayInt::AggregateIndexes : input list must be NON EMPTY !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(retSz,1);
   int *pt=ret->getPointer(); *pt++=0;
   for(std::vector<const DataArrayInt *>::const_iterator it=arrs.begin();it!=arrs.end();it++)
@@ -9599,15 +9599,15 @@ void DataArrayInt::applyModulus(int val)
  * \param [in] vmax end of range. This value is \b not included in range (excluded).
  * \return a newly allocated data array that the caller should deal with.
  *
- * \sa DataArrayInt::getIdsNotInRange , DataArrayInt::getIdsStrictlyNegative
+ * \sa DataArrayInt::findIdsNotInRange , DataArrayInt::findIdsStricltyNegative
  */
-DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const
+DataArrayInt *DataArrayInt::findIdsInRange(int vmin, int vmax) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsInRange : this must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsInRange : this must have exactly one component !");
   const int *cptr(begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr>=vmin && *cptr<vmax)
@@ -9624,15 +9624,15 @@ DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const
  * \param [in] vmax end of range. This value is included in range (included).
  * \return a newly allocated data array that the caller should deal with.
  * 
- * \sa DataArrayInt::getIdsInRange , DataArrayInt::getIdsStrictlyNegative
+ * \sa DataArrayInt::findIdsInRange , DataArrayInt::findIdsStricltyNegative
  */
-DataArrayInt *DataArrayInt::getIdsNotInRange(int vmin, int vmax) const
+DataArrayInt *DataArrayInt::findIdsNotInRange(int vmin, int vmax) const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotInRange : this must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsNotInRange : this must have exactly one component !");
   const int *cptr(getConstPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr<vmin || *cptr>=vmax)
@@ -9644,15 +9644,15 @@ DataArrayInt *DataArrayInt::getIdsNotInRange(int vmin, int vmax) const
  * This method works only on data array with one component. This method returns a newly allocated array storing stored ascendantly of tuple ids in \a this so that this[id]<0.
  *
  * \return a newly allocated data array that the caller should deal with.
- * \sa DataArrayInt::getIdsInRange
+ * \sa DataArrayInt::findIdsInRange
  */
-DataArrayInt *DataArrayInt::getIdsStrictlyNegative() const
+DataArrayInt *DataArrayInt::findIdsStricltyNegative() const
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsStrictlyNegative : this must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsStricltyNegative : this must have exactly one component !");
   const int *cptr(getConstPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   int nbOfTuples(getNumberOfTuples());
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr<0)
@@ -9891,7 +9891,7 @@ DataArrayInt *DataArrayInt::MakePartition(const std::vector<const DataArrayInt *
   for(std::vector<const DataArrayInt *>::const_iterator it4=groups.begin();it4!=groups.end();it4++)
     if(*it4)
       groups2.push_back(*it4);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(newNb,1);
   int *retPtr=ret->getPointer();
   std::fill(retPtr,retPtr+newNb,0);
@@ -10021,7 +10021,7 @@ DataArrayInt *DataArrayInt::BuildIntersection(const std::vector<const DataArrayI
 }
 
 /// @cond INTERNAL
-namespace ParaMEDMEMImpl
+namespace MEDCouplingImpl
 {
   class OpSwitchedOn
   {
@@ -10051,8 +10051,8 @@ namespace ParaMEDMEMImpl
 DataArrayInt *DataArrayInt::BuildListOfSwitchedOn(const std::vector<bool>& v)
 {
   int sz((int)std::count(v.begin(),v.end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
-  std::for_each(v.begin(),v.end(),ParaMEDMEMImpl::OpSwitchedOn(ret->getPointer()));
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  std::for_each(v.begin(),v.end(),MEDCouplingImpl::OpSwitchedOn(ret->getPointer()));
   return ret.retn();
 }
 
@@ -10062,8 +10062,8 @@ DataArrayInt *DataArrayInt::BuildListOfSwitchedOn(const std::vector<bool>& v)
 DataArrayInt *DataArrayInt::BuildListOfSwitchedOff(const std::vector<bool>& v)
 {
   int sz((int)std::count(v.begin(),v.end(),false));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
-  std::for_each(v.begin(),v.end(),ParaMEDMEMImpl::OpSwitchedOff(ret->getPointer()));
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  std::for_each(v.begin(),v.end(),MEDCouplingImpl::OpSwitchedOff(ret->getPointer()));
   return ret.retn();
 }
 
@@ -10078,7 +10078,7 @@ DataArrayInt *DataArrayInt::BuildListOfSwitchedOff(const std::vector<bool>& v)
 void DataArrayInt::PutIntoToSkylineFrmt(const std::vector< std::vector<int> >& v, DataArrayInt *& data, DataArrayInt *& dataIndex)
 {
   int sz((int)v.size());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0(DataArrayInt::New()),ret1(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret0(DataArrayInt::New()),ret1(DataArrayInt::New());
   ret1->alloc(sz+1,1);
   int *pt(ret1->getPointer()); *pt=0;
   for(int i=0;i<sz;i++,pt++)
@@ -10180,7 +10180,7 @@ DataArrayInt *DataArrayInt::buildSubstractionOptimized(const DataArrayInt *other
   if(other->getNumberOfComponents()!=1) throw INTERP_KERNEL::Exception(MSG);
   const int *pt1Bg(begin()),*pt1End(end()),*pt2Bg(other->begin()),*pt2End(other->end());
   const int *work1(pt1Bg),*work2(pt2Bg);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(;work1!=pt1End;work1++)
     {
       if(work2!=pt2End && *work1==*work2)
@@ -10244,10 +10244,10 @@ DataArrayInt *DataArrayInt::buildUnique() const
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnique : only single component allowed !");
   int nbOfTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=deepCpy();
+  MCAuto<DataArrayInt> tmp=deepCopy();
   int *data=tmp->getPointer();
   int *last=std::unique(data,data+nbOfTuples);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(std::distance(data,last),1);
   std::copy(data,last,ret->getPointer());
   return ret.retn();
@@ -10272,7 +10272,7 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
   getMinMaxValues(minVal,maxVal);
   std::vector<bool> b(maxVal-minVal+1,false);
   const int *ptBg(begin()),*endBg(end());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(0,1);
   for(const int *pt=ptBg;pt!=endBg;pt++)
     {
       if(!b[*pt-minVal])
@@ -10288,11 +10288,11 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
 /*!
  * Returns a new DataArrayInt which contains size of every of groups described by \a this
  * "index" array. Such "index" array is returned for example by 
- * \ref ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity
+ * \ref MEDCoupling::MEDCouplingUMesh::buildDescendingConnectivity
  * "MEDCouplingUMesh::buildDescendingConnectivity" and
- * \ref ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex
+ * \ref MEDCoupling::MEDCouplingUMesh::getNodalConnectivityIndex
  * "MEDCouplingUMesh::getNodalConnectivityIndex" etc.
- * This method preforms the reverse operation of DataArrayInt::computeOffsets2.
+ * This method preforms the reverse operation of DataArrayInt::computeOffsetsFull.
  *  \return DataArrayInt * - a new instance of DataArrayInt, whose number of tuples
  *          equals to \a this->getNumberOfComponents() - 1, and number of components is 1.
  *          The caller is to delete this array using decrRef() as it is no more needed. 
@@ -10305,7 +10305,7 @@ DataArrayInt *DataArrayInt::buildUniqueNotSorted() const
  *         - result array contains [2,3,1,0,2,6],
  *          where 2 = 3 - 1, 3 = 6 - 3, 1 = 7 - 6 etc.
  *
- * \sa DataArrayInt::computeOffsets2
+ * \sa DataArrayInt::computeOffsetsFull
  */
 DataArrayInt *DataArrayInt::deltaShiftIndex() const
 {
@@ -10329,7 +10329,7 @@ DataArrayInt *DataArrayInt::deltaShiftIndex() const
  * Or: for each i>0 new[i]=new[i-1]+old[i-1] for i==0 new[i]=0. Number of tuples
  * and components remains the same.<br>
  * This method is useful for allToAllV in MPI with contiguous policy. This method
- * differs from computeOffsets2() in that the number of tuples is \b not changed by
+ * differs from computeOffsetsFull() in that the number of tuples is \b not changed by
  * this one.
  *  \throw If \a this is not allocated.
  *  \throw If \a this->getNumberOfComponents() != 1.
@@ -10377,11 +10377,11 @@ void DataArrayInt::computeOffsets()
  *          - After \a this contains  [0,3,8,9,11,11,19]<br>
  * \sa DataArrayInt::deltaShiftIndex
  */
-void DataArrayInt::computeOffsets2()
+void DataArrayInt::computeOffsetsFull()
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets2 : only single component allowed !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsetsFull : only single component allowed !");
   int nbOfTuples=getNumberOfTuples();
   int *ret=(int *)malloc((nbOfTuples+1)*sizeof(int));
   const int *work=getConstPointer();
@@ -10394,7 +10394,7 @@ void DataArrayInt::computeOffsets2()
 
 /*!
  * Returns two new DataArrayInt instances whose contents is computed from that of \a this and \a listOfIds arrays as follows.
- * \a this is expected to be an offset format ( as returned by DataArrayInt::computeOffsets2 ) that is to say with one component
+ * \a this is expected to be an offset format ( as returned by DataArrayInt::computeOffsetsFull ) that is to say with one component
  * and ** sorted strictly increasingly **. \a listOfIds is expected to be sorted ascendingly (not strictly needed for \a listOfIds).
  * This methods searches in \a this, considered as a set of contiguous \c this->getNumberOfComponents() ranges, all ids in \a listOfIds
  * filling completely one of the ranges in \a this.
@@ -10404,7 +10404,7 @@ void DataArrayInt::computeOffsets2()
  * \param [out] idsInInputListThatFetch contains the list of ids in \a listOfIds that are \b fully included in a range in \a this. So
  *              \a idsInInputListThatFetch is a part of input \a listOfIds.
  *
- * \sa DataArrayInt::computeOffsets2
+ * \sa DataArrayInt::computeOffsetsFull
  *
  *  \b Example: <br>
  *          - \a this : [0,3,7,9,15,18]
@@ -10414,17 +10414,17 @@ void DataArrayInt::computeOffsets2()
  * In this example id 3 in input \a listOfIds is alone so it do not appear in output \a idsInInputListThatFetch.
  * <br>
  */
-void DataArrayInt::searchRangesInListOfIds(const DataArrayInt *listOfIds, DataArrayInt *& rangeIdsFetched, DataArrayInt *& idsInInputListThatFetch) const
+void DataArrayInt::findIdsRangesInListOfIds(const DataArrayInt *listOfIds, DataArrayInt *& rangeIdsFetched, DataArrayInt *& idsInInputListThatFetch) const
 {
   if(!listOfIds)
-    throw INTERP_KERNEL::Exception("DataArrayInt::searchRangesInListOfIds : input list of ids is null !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsRangesInListOfIds : input list of ids is null !");
   listOfIds->checkAllocated(); checkAllocated();
   if(listOfIds->getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::searchRangesInListOfIds : input list of ids must have exactly one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsRangesInListOfIds : input list of ids must have exactly one component !");
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::searchRangesInListOfIds : this must have exactly one component !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0=DataArrayInt::New(); ret0->alloc(0,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New(); ret1->alloc(0,1);
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdsRangesInListOfIds : this must have exactly one component !");
+  MCAuto<DataArrayInt> ret0=DataArrayInt::New(); ret0->alloc(0,1);
+  MCAuto<DataArrayInt> ret1=DataArrayInt::New(); ret1->alloc(0,1);
   const int *tupEnd(listOfIds->end()),*offBg(begin()),*offEnd(end()-1);
   const int *tupPtr(listOfIds->begin()),*offPtr(offBg);
   while(tupPtr!=tupEnd && offPtr!=offEnd)
@@ -10506,7 +10506,7 @@ DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(retNbOftuples,1);
   int *retPtr=ret->getPointer();
   for(int i=0;i<nbOfTuples;i++)
@@ -10569,7 +10569,7 @@ DataArrayInt *DataArrayInt::buildExplicitArrOfSliceOnScaledArr(int bg, int stop,
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
+  MCAuto<DataArrayInt> ret(DataArrayInt::New()); ret->alloc(sz,1);
   int *retPtr(ret->getPointer());
   pos=bg;
   for(int i=0;i<nbOfEltsInSlc;i++,pos+=step)
@@ -10607,7 +10607,7 @@ DataArrayInt *DataArrayInt::findRangeIdForEachTuple(const DataArrayInt *ranges) 
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::findRangeIdForEachTuple : this should have only one component !");
   int nbTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTuples,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTuples,1);
   int nbOfRanges=ranges->getNumberOfTuples();
   const int *rangesPtr=ranges->getConstPointer();
   int *retPtr=ret->getPointer();
@@ -10656,7 +10656,7 @@ DataArrayInt *DataArrayInt::findIdInRangeForEachTuple(const DataArrayInt *ranges
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::findIdInRangeForEachTuple : this should have only one component !");
   int nbTuples=getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTuples,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTuples,1);
   int nbOfRanges=ranges->getNumberOfTuples();
   const int *rangesPtr=ranges->getConstPointer();
   int *retPtr=ret->getPointer();
@@ -10757,7 +10757,7 @@ DataArrayInt *DataArrayInt::duplicateEachTupleNTimes(int nbTimes) const
     throw INTERP_KERNEL::Exception("DataArrayInt::duplicateEachTupleNTimes : nb times should be >= 1 !");
   int nbTuples=getNumberOfTuples();
   const int *inPtr=getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTimes*nbTuples,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTimes*nbTuples,1);
   int *retPtr=ret->getPointer();
   for(int i=0;i<nbTuples;i++,inPtr++)
     {
@@ -10779,7 +10779,7 @@ DataArrayInt *DataArrayInt::getDifferentValues() const
   checkAllocated();
   std::set<int> ret;
   ret.insert(begin(),end());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=DataArrayInt::New(); ret2->alloc((int)ret.size(),1);
+  MCAuto<DataArrayInt> ret2=DataArrayInt::New(); ret2->alloc((int)ret.size(),1);
   std::copy(ret.begin(),ret.end(),ret2->getPointer());
   return ret2.retn();
 }
@@ -10888,7 +10888,7 @@ DataArrayInt *DataArrayInt::Add(const DataArrayInt *a1, const DataArrayInt *a2)
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=0;
+  MCAuto<DataArrayInt> ret=0;
   if(nbOfTuple==nbOfTuple2)
     {
       if(nbOfComp==nbOfComp2)
@@ -11047,7 +11047,7 @@ DataArrayInt *DataArrayInt::Substract(const DataArrayInt *a1, const DataArrayInt
     {
       if(nbOfComp1==nbOfComp2)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          MCAuto<DataArrayInt> ret=DataArrayInt::New();
           ret->alloc(nbOfTuple2,nbOfComp1);
           std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<int>());
           ret->copyStringInfoFrom(*a1);
@@ -11055,7 +11055,7 @@ DataArrayInt *DataArrayInt::Substract(const DataArrayInt *a1, const DataArrayInt
         }
       else if(nbOfComp2==1)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          MCAuto<DataArrayInt> ret=DataArrayInt::New();
           ret->alloc(nbOfTuple1,nbOfComp1);
           const int *a2Ptr=a2->getConstPointer();
           const int *a1Ptr=a1->getConstPointer();
@@ -11074,7 +11074,7 @@ DataArrayInt *DataArrayInt::Substract(const DataArrayInt *a1, const DataArrayInt
   else if(nbOfTuple2==1)
     {
       a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      MCAuto<DataArrayInt> ret=DataArrayInt::New();
       ret->alloc(nbOfTuple1,nbOfComp1);
       const int *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
       int *pt=ret->getPointer();
@@ -11178,7 +11178,7 @@ DataArrayInt *DataArrayInt::Multiply(const DataArrayInt *a1, const DataArrayInt 
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=0;
+  MCAuto<DataArrayInt> ret=0;
   if(nbOfTuple==nbOfTuple2)
     {
       if(nbOfComp==nbOfComp2)
@@ -11340,7 +11340,7 @@ DataArrayInt *DataArrayInt::Divide(const DataArrayInt *a1, const DataArrayInt *a
     {
       if(nbOfComp1==nbOfComp2)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          MCAuto<DataArrayInt> ret=DataArrayInt::New();
           ret->alloc(nbOfTuple2,nbOfComp1);
           std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<int>());
           ret->copyStringInfoFrom(*a1);
@@ -11348,7 +11348,7 @@ DataArrayInt *DataArrayInt::Divide(const DataArrayInt *a1, const DataArrayInt *a
         }
       else if(nbOfComp2==1)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          MCAuto<DataArrayInt> ret=DataArrayInt::New();
           ret->alloc(nbOfTuple1,nbOfComp1);
           const int *a2Ptr=a2->getConstPointer();
           const int *a1Ptr=a1->getConstPointer();
@@ -11367,7 +11367,7 @@ DataArrayInt *DataArrayInt::Divide(const DataArrayInt *a1, const DataArrayInt *a
   else if(nbOfTuple2==1)
     {
       a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      MCAuto<DataArrayInt> ret=DataArrayInt::New();
       ret->alloc(nbOfTuple1,nbOfComp1);
       const int *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
       int *pt=ret->getPointer();
@@ -11483,7 +11483,7 @@ DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *
     {
       if(nbOfComp1==nbOfComp2)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          MCAuto<DataArrayInt> ret=DataArrayInt::New();
           ret->alloc(nbOfTuple2,nbOfComp1);
           std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::modulus<int>());
           ret->copyStringInfoFrom(*a1);
@@ -11491,7 +11491,7 @@ DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *
         }
       else if(nbOfComp2==1)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          MCAuto<DataArrayInt> ret=DataArrayInt::New();
           ret->alloc(nbOfTuple1,nbOfComp1);
           const int *a2Ptr=a2->getConstPointer();
           const int *a1Ptr=a1->getConstPointer();
@@ -11510,7 +11510,7 @@ DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *
   else if(nbOfTuple2==1)
     {
       a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Modulus !");
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      MCAuto<DataArrayInt> ret=DataArrayInt::New();
       ret->alloc(nbOfTuple1,nbOfComp1);
       const int *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
       int *pt=ret->getPointer();
@@ -11613,7 +11613,7 @@ DataArrayInt *DataArrayInt::Pow(const DataArrayInt *a1, const DataArrayInt *a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Pow : number of tuples mismatches !");
   if(nbOfComp!=1 || nbOfComp2!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::Pow : number of components of both arrays must be equal to 1 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuple,1);
+  MCAuto<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfTuple,1);
   const int *ptr1(a1->begin()),*ptr2(a2->begin());
   int *ptr=ret->getPointer();
   for(int i=0;i<nbOfTuple;i++,ptr1++,ptr2++,ptr++)
@@ -11728,7 +11728,7 @@ int *DataArrayInt::CheckAndPreparePermutation(const int *start, const int *end)
 DataArrayInt *DataArrayInt::Range(int begin, int end, int step)
 {
   int nbOfTuples=GetNumberOfItemGivenBESRelative(begin,end,step,"DataArrayInt::Range");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples,1);
   int *ptr=ret->getPointer();
   if(step>0)
@@ -11869,8 +11869,8 @@ int DataArrayIntTuple::intValue() const
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayInt::decrRef.
- * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayInt::useArray with ownership set to \b false.
+ * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayInt::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayInt::useArray with ownership set to \b false.
  * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */

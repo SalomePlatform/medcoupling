@@ -22,14 +22,14 @@
 #define __PARAMEDMEM_MEDCOUPLINGDEFINITIONTIME_HXX__
 
 #include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "InterpKernelException.hxx"
 
 #include <vector>
 #include <sstream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingFieldDouble;
 
@@ -159,7 +159,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialize(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
   private:
     double _eps;
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingDefinitionTimeSlice> > _slices;
+    std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> > _slices;
     static const double EPS_DFT;
   };
 }

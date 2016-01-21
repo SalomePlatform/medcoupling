@@ -23,7 +23,7 @@
 
 #include <cmath>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const double MEDCouplingDefinitionTime::EPS_DFT=1e-15;
 
@@ -528,7 +528,7 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
 {
   std::vector<int> ids;
   int id=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++,id++)
+  for(std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++,id++)
     if((*it)->isContaining(tm,_eps))
       ids.push_back(id);
   if(ids.empty())
@@ -548,7 +548,7 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
 std::vector<double> MEDCouplingDefinitionTime::getHotSpotsTime() const
 {
   std::vector<double> ret;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
+  for(std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
     {
       std::vector<double> tmp;
       (*it)->getHotSpotsTime(tmp);
@@ -568,7 +568,7 @@ std::vector<double> MEDCouplingDefinitionTime::getHotSpotsTime() const
 void MEDCouplingDefinitionTime::appendRepr(std::ostream& stream) const
 {
   stream << "Time definition :\n";
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
+  for(std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
     {
       stream << " - ";
       (*it)->appendRepr(stream);

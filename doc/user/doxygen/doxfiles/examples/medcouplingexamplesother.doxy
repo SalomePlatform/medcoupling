@@ -8,7 +8,7 @@
 In this example we
 - create an 2D mesh and 3 fields on it,
 - use
-\ref ParaMEDMEM::MEDCouplingFieldDouble::WriteVTK "WriteVTK()"
+\ref MEDCoupling::MEDCouplingFieldDouble::WriteVTK "WriteVTK()"
 to write all the fields and the mesh to a VTK file.
 
 \snippet MEDCouplingExamplesTest.cxx CppSnippet_MEDCouplingFieldDouble_WriteVTK_1
@@ -165,15 +165,15 @@ by \a iteration and \a order.
 
 To read it there are 3 main approaches :
 
-- Use ParaMEDMEM::MEDFileField1TS class :
+- Use MEDCoupling::MEDFileField1TS class :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldOnAllEntity1_3
 
-- Use ParaMEDMEM::MEDFileFieldMultiTS class :
+- Use MEDCoupling::MEDFileFieldMultiTS class :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldOnAllEntity1_4
 
-- Use iteration ParaMEDMEM::MEDFileFieldMultiTS class :
+- Use iteration MEDCoupling::MEDFileFieldMultiTS class :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldOnAllEntity1_5
 
@@ -200,7 +200,7 @@ Fields defined partially on a meshes can been read using 2 main approaches :
 
 \snippet MEDLoaderExamplesTest.py PySnippetReadFieldPartial1_4
 
-\ref medcoupling "MEDCoupling" allows to make bridges between the approaches. For example \a pfl \ref ParaMEDMEM::DataArrayInt "DataArrayInt instance" retrieved directly
+\ref medcoupling "MEDCoupling" allows to make bridges between the approaches. For example \a pfl \ref MEDCoupling::DataArrayInt "DataArrayInt instance" retrieved directly
 from the file in the second approach can be retrieved starting from first approach.
 
 Starting from mesh \a firstApproachMesh of read field in first approach \a fread, whith the whole mesh \a wholeMesh the profile \a pflComputed can be computed :

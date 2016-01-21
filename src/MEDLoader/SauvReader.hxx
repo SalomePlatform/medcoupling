@@ -39,15 +39,15 @@ namespace SauvUtilities
   struct Group;
   struct DoubleField;
 }
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileData;
 
-class SauvReader : public ParaMEDMEM::RefCountObject
+class SauvReader : public MEDCoupling::RefCountObject
 {
  public:
   MEDLOADER_EXPORT static SauvReader* New(const std::string& fileName);
-  MEDLOADER_EXPORT ParaMEDMEM::MEDFileData * loadInMEDFileDS();
+  MEDLOADER_EXPORT MEDCoupling::MEDFileData * loadInMEDFileDS();
   MEDLOADER_EXPORT ~SauvReader();
 
  private:

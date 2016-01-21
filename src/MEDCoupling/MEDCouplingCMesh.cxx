@@ -30,7 +30,7 @@
 #include <sstream>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
@@ -41,15 +41,15 @@ MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCopy)
   if(deepCopy)
     {
       if(other._x_array)
-        _x_array=other._x_array->deepCpy();
+        _x_array=other._x_array->deepCopy();
       else
         _x_array=0;
       if(other._y_array)
-        _y_array=other._y_array->deepCpy();
+        _y_array=other._y_array->deepCopy();
       else
         _y_array=0;
       if(other._z_array)
-        _z_array=other._z_array->deepCpy();
+        _z_array=other._z_array->deepCopy();
       else
         _z_array=0;
     }
@@ -89,7 +89,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::New(const std::string& meshName)
   return ret;
 }
 
-MEDCouplingCMesh *MEDCouplingCMesh::deepCpy() const
+MEDCouplingCMesh *MEDCouplingCMesh::deepCopy() const
 {
   return clone(true);
 }
@@ -101,14 +101,14 @@ MEDCouplingCMesh *MEDCouplingCMesh::clone(bool recDeepCpy) const
 
 MEDCouplingCurveLinearMesh *MEDCouplingCMesh::buildCurveLinear() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int dim(getSpaceDimension());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> ret(MEDCouplingCurveLinearMesh::New());
+  MCAuto<MEDCouplingCurveLinearMesh> ret(MEDCouplingCurveLinearMesh::New());
   ret->MEDCouplingStructuredMesh::operator=(*this);
   INTERP_KERNEL::AutoPtr<int> ngs(new int[dim]);
   getNodeGridStructure(ngs);
   ret->setNodeGridStructure(ngs,ngs+dim);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo(getCoordinatesAndOwner());
+  MCAuto<DataArrayDouble> coo(getCoordinatesAndOwner());
   ret->setCoords(coo);
   return ret.retn();
 }
@@ -215,8 +215,8 @@ void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
 }
 
 /*!
- * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCMesh, \a this and \a other are the same !
+ * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingCMesh instance too).
+ * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingCMesh, \a this and \a other are the same !
  */
 void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayInt *&cellCor) const
@@ -225,7 +225,7 @@ void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
 }
 
-void MEDCouplingCMesh::checkCoherency() const
+void MEDCouplingCMesh::checkConsistencyLight() const
 {
   const char msg0[]="Invalid ";
   const char msg1[]=" array ! Must contain more than 1 element.";
@@ -272,9 +272,9 @@ void MEDCouplingCMesh::checkCoherency() const
     }
 }
 
-void MEDCouplingCMesh::checkCoherency1(double eps) const
+void MEDCouplingCMesh::checkConsistency(double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   if(_x_array)
     _x_array->checkMonotonic(true, eps);
   if(_y_array)
@@ -325,17 +325,17 @@ std::vector<int> MEDCouplingCMesh::getNodeGridStructure() const
 
 MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int dim(getSpaceDimension());
   if(dim!=(int)cellPart.size())
     {
       std::ostringstream oss; oss << "MEDCouplingCMesh::buildStructuredSubPart : the space dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> ret(dynamic_cast<MEDCouplingCMesh *>(deepCpy()));
+  MCAuto<MEDCouplingCMesh> ret(dynamic_cast<MEDCouplingCMesh *>(deepCopy()));
   for(int i=0;i<dim;i++)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(ret->getCoordsAt(i)->selectByTupleId2(cellPart[i].first,cellPart[i].second+1,1));
+      MCAuto<DataArrayDouble> tmp(ret->getCoordsAt(i)->selectByTupleIdSafeSlice(cellPart[i].first,cellPart[i].second+1,1));
       ret->setCoordsAt(i,tmp);
     }
   return ret.retn();
@@ -691,7 +691,7 @@ MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other)
  */
 DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   int spaceDim(getSpaceDimension()),nbNodes(getNumberOfNodes());
   ret->alloc(nbNodes,spaceDim);
   double *pt(ret->getPointer());
@@ -722,7 +722,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
  *          components. The caller is to delete this array using decrRef() as it is
  *          no more needed.
  */
-DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
+DataArrayDouble *MEDCouplingCMesh::computeCellCenterOfMass() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
@@ -754,7 +754,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
 
 DataArrayDouble *MEDCouplingCMesh::computeIsoBarycenterOfNodesPerCell() const
 {
-  return MEDCouplingCMesh::getBarycenterAndOwner();
+  return MEDCouplingCMesh::computeCellCenterOfMass();
 }
 
 void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check)
@@ -865,7 +865,7 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
         thisArr[i]->writeVTK(ofs,8,"Array",byteData);
       else
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=DataArrayDouble::New(); coo->alloc(1,1);
+          MCAuto<DataArrayDouble> coo=DataArrayDouble::New(); coo->alloc(1,1);
           coo->setIJ(0,0,0.);
           coo->writeVTK(ofs,8,"Array",byteData);
         }

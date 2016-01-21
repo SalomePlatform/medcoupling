@@ -31,7 +31,7 @@ namespace ICoCo
     \a field.
   */
     
-  MEDField::MEDField(ParaMEDMEM::MEDCouplingFieldDouble *field):_field(field)
+  MEDField::MEDField(MEDCoupling::MEDCouplingFieldDouble *field):_field(field)
   {
     if(_field)
       _field->incrRef();

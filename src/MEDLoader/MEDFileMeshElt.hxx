@@ -24,13 +24,13 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingPartDefinition.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
 
 #include "med.h"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMesh;
   class MEDFileMeshReadSelector;
@@ -67,11 +67,11 @@ namespace ParaMEDMEM
     void loadCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
     void loadPartOfCellCommonPart(med_idt fid, const char *mName, int strt, int stp, int step, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs);
   private:
-    MEDCouplingAutoRefCountObjectPtr<MEDCoupling1GTUMesh> _m;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
-    MEDCouplingAutoRefCountObjectPtr<DataArrayAsciiChar> _names;
-    MEDCouplingAutoRefCountObjectPtr<PartDefinition> _pd;
+    MCAuto<MEDCoupling1GTUMesh> _m;
+    MCAuto<DataArrayInt> _num;
+    MCAuto<DataArrayInt> _fam;
+    MCAuto<DataArrayAsciiChar> _names;
+    MCAuto<PartDefinition> _pd;
     med_entity_type _entity;
   };
 }

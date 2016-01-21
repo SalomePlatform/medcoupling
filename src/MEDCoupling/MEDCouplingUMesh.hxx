@@ -29,7 +29,7 @@
 
 #include <set>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMeshCellByTypeEntry;
   class MEDCouplingUMeshCellIterator;
@@ -43,9 +43,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const std::string& meshName, int meshDim);
     // Copy methods
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpy() const;;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopy() const;;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCpyConnectivityOnly() const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopyConnectivityOnly() const;
 
     MEDCOUPLING_EXPORT void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other);
     MEDCOUPLING_EXPORT void updateTime() const;
@@ -55,8 +55,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell);
@@ -83,7 +83,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
-    MEDCOUPLING_EXPORT int getMeshLength() const;
+    MEDCOUPLING_EXPORT int getNodalConnectivityArrayLen() const;
     MEDCOUPLING_EXPORT void computeTypes();
     //! size of returned tinyInfo must be always the same.
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
@@ -97,11 +97,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     //tools
     MEDCOUPLING_EXPORT static int AreCellsEqual(const int *conn, const int *connI, int cell1, int cell2, int compType);
-    MEDCOUPLING_EXPORT static int AreCellsEqual0(const int *conn, const int *connI, int cell1, int cell2);
-    MEDCOUPLING_EXPORT static int AreCellsEqual1(const int *conn, const int *connI, int cell1, int cell2);
-    MEDCOUPLING_EXPORT static int AreCellsEqual2(const int *conn, const int *connI, int cell1, int cell2);
-    MEDCOUPLING_EXPORT static int AreCellsEqual3(const int *conn, const int *connI, int cell1, int cell2);
-    MEDCOUPLING_EXPORT static int AreCellsEqual7(const int *conn, const int *connI, int cell1, int cell2);
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy0(const int *conn, const int *connI, int cell1, int cell2);
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy1(const int *conn, const int *connI, int cell1, int cell2);
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy2(const int *conn, const int *connI, int cell1, int cell2);
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy2NoType(const int *conn, const int *connI, int cell1, int cell2);
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy7(const int *conn, const int *connI, int cell1, int cell2);
     MEDCOUPLING_EXPORT void convertToPolyTypes(const int *cellIdsToConvertBg, const int *cellIdsToConvertEnd);
     MEDCOUPLING_EXPORT void convertAllToPoly();
     MEDCOUPLING_EXPORT void convertExtrudedPolyhedra();
@@ -118,7 +118,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer();
     MEDCOUPLING_EXPORT void findCommonCells(int compType, int startCellId, DataArrayInt *& commonCellsArr, DataArrayInt *& commonCellsIArr) const;
     MEDCOUPLING_EXPORT bool areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayInt *& arr) const;
-    MEDCOUPLING_EXPORT bool areCellsIncludedIn2(const MEDCouplingUMesh *other, DataArrayInt *& arr) const;
+    MEDCOUPLING_EXPORT bool areCellsIncludedInPolicy7(const MEDCouplingUMesh *other, DataArrayInt *& arr) const;
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *explode3DMeshTo1D(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
@@ -129,9 +129,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void computeNeighborsOfNodes(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords=true) const;
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelf2(int start, int end, int step, bool keepCoords=true) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildPartOfMySelfSlice(int start, int end, int step, bool keepCoords=true) const;
     MEDCOUPLING_EXPORT void setPartOfMySelf(const int *cellIdsBg, const int *cellIdsEnd, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
-    MEDCOUPLING_EXPORT void setPartOfMySelf2(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
+    MEDCOUPLING_EXPORT void setPartOfMySelfSlice(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT DataArrayInt *findBoundaryNodes() const;
@@ -165,7 +165,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *distanceToPoints(const DataArrayDouble *pts, DataArrayInt *& cellIds) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
     MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
-    MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const;
+    MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
     MEDCOUPLING_EXPORT void checkButterflyCells(std::vector<int>& cells, double eps=1e-12) const;
     MEDCOUPLING_EXPORT DataArrayInt *convexEnvelop2D();
     MEDCOUPLING_EXPORT DataArrayInt *findAndCorrectBadOriented3DExtrudedCells();
@@ -222,7 +222,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::vector<bool> getQuadraticStatus() const;
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getPartBarycenterAndOwner(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT DataArrayDouble *computePlaneEquationOf3DFaces() const;
@@ -253,17 +253,17 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static bool RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0);
     MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                             DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
-    MEDCOUPLING_EXPORT static void ExtractFromIndexedArrays2(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+    MEDCOUPLING_EXPORT static void ExtractFromIndexedArraysSlice(int idsOfSelectStart, int idsOfSelectStop, int idsOfSelectStep, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                              DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                           const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
                                                           DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
     MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
                                                                  const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
-    MEDCOUPLING_EXPORT static void SetPartOfIndexedArrays2(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+    MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSlice(int start, int end, int step, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
                                                            const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
                                                            DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut);
-    MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdx2(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
+    MEDCOUPLING_EXPORT static void SetPartOfIndexedArraysSameIdxSlice(int start, int end, int step, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
                                                                   const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeSpreadZoneGradually(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn);
     MEDCOUPLING_EXPORT static DataArrayInt *ComputeSpreadZoneGraduallyFromSeed(const int *seedBg, const int *seedEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn, int nbOfDepthPeeling, int& nbOfDepthPeelingPerformed);
@@ -297,7 +297,7 @@ namespace ParaMEDMEM
     DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation3D(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     static bool AreCellsEqualInPool(const std::vector<int>& candidates, int compType, const int *conn, const int *connI, DataArrayInt *result) ;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
-    MEDCouplingUMesh *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const;
     DataArrayInt *convertLinearCellsToQuadratic1D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayInt *convertLinearCellsToQuadratic2DAnd3D0(const MEDCouplingUMesh *m1D, const DataArrayInt *desc, const DataArrayInt *descI, DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
     DataArrayInt *convertLinearCellsToQuadratic2D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const;
@@ -308,7 +308,7 @@ namespace ParaMEDMEM
     DataArrayInt *buildUnionOf2DMeshQuadratic(const MEDCouplingUMesh *skin, const DataArrayInt *n2o) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
-                                     double eps, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& elts, MEDCouplingAutoRefCountObjectPtr<DataArrayInt>& eltsIndex) const;
+                                     double eps, MCAuto<DataArrayInt>& elts, MCAuto<DataArrayInt>& eltsIndex) const;
 /// @cond INTERNAL
     static MEDCouplingUMesh *MergeUMeshesLL(std::vector<const MEDCouplingUMesh *>& a);
     typedef int (*DimM1DescNbrer)(int id, unsigned nb, const INTERP_KERNEL::CellModel& cm, bool compute, const int *conn1, const int *conn2);

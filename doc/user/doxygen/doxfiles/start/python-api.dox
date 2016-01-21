@@ -8,9 +8,9 @@ The Python API is highly similar to the C++ one. The main modules to import are:
 
 The following intuitive rules have been used to map the C++ objects to the Python ones:
 - std::vector become standard Python lists, see for example \ref py_mcdataarrayint_setpartofvalues where the function
-ParaMEDMEM::DataArray::setInfoOnComponents() is used.
+MEDCoupling::DataArray::setInfoOnComponents() is used.
 - the return values of C++ functions (usually passed as last arguments in the C++ prototype) are
-returned directly as a tuple, see for example the Python usage of ParaMEDMEM::MEDCouplingUMesh::getReverseNodalConnectivity() in \ref cpp_mcumesh_getReverseNodalConnectivity. The 
+returned directly as a tuple, see for example the Python usage of MEDCoupling::MEDCouplingUMesh::getReverseNodalConnectivity() in \ref cpp_mcumesh_getReverseNodalConnectivity. The 
 initial prototype where the return values are passed as argument can however still be used, provided you instantiate
 the returned objects first.
 - the indexing mechanism is greatly simplified in Python, and offers similar functionalities to what NumPy 

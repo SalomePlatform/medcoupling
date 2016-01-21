@@ -23,14 +23,14 @@
 #include <algorithm>
 #include <sstream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   const char *MEDCouplingNatureOfField::REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]=
   { "NoNature",
-    "ConservativeVolumic",
-    "Integral",
-    "IntegralGlobConstraint",
-    "RevIntegral"};
+    "IntensiveMaximum",
+    "ExtensiveMaximum",
+    "ExtensiveConservation",
+    "IntensiveConservation"};
 
   const int MEDCouplingNatureOfField::POS_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]={17,26,32,35,37};
 

@@ -40,7 +40,7 @@
 // * generation of documentation for inline methods of MEDCouplingUMesh class,
 // * groupping methods into "Basic API", "Advanced" and "Others..." sections
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Returns the nodal connectivity array. For more info on how data in stored in
@@ -72,7 +72,7 @@ namespace ParaMEDMEM
   DataArrayInt * MEDCouplingUMesh::getNodalConnectivityIndex() {}
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 //================================================================================
 /////////////////////// MEDCouplingUMesh GROUPPING ///////////////////////////////

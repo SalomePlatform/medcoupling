@@ -27,7 +27,7 @@
 
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingStructuredMesh::MEDCouplingStructuredMesh()
 {
@@ -97,7 +97,7 @@ int MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::Normalize
 
 DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   if(getTypeOfCell(0)==type)
     {
       ret->alloc(getNumberOfCells(),1);
@@ -111,7 +111,7 @@ DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::Normal
 DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const
 {
   int nbCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbCells,1);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
   ret->fillWithValue((int)cm.getNumberOfNodes());
@@ -121,7 +121,7 @@ DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const
 DataArrayInt *MEDCouplingStructuredMesh::computeNbOfFacesPerCell() const
 {
   int nbCells=getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbCells,1);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
   ret->fillWithValue((int)cm.getNumberOfSons());
@@ -321,10 +321,10 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
   code.resize(3); idsInPflPerType.resize(1);
   code[0]=(int)getTypeOfCell(0); code[1]=nbOfCells;
   idsInPflPerType.resize(1);
-  if(profile->isIdentity2(nbOfCells))
+  if(profile->isIota(nbOfCells))
     {
       code[2]=-1;
-      idsInPflPerType[0]=profile->deepCpy();
+      idsInPflPerType[0]=profile->deepCopy();
       idsPerType.clear();
       return ;
     }
@@ -332,7 +332,7 @@ void MEDCouplingStructuredMesh::splitProfilePerType(const DataArrayInt *profile,
   code[2]=0;
   profile->checkAllIdsInRange(0,nbOfCells);
   idsPerType.resize(1);
-  idsPerType[0]=profile->deepCpy();
+  idsPerType[0]=profile->deepCopy();
   idsInPflPerType[0]=DataArrayInt::Range(0,nbTuples,1);
 }
 
@@ -347,11 +347,11 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTUnstructured() const
   int meshDim(getMeshDimension()),spaceDim(getSpaceDimensionOnNodeStruct());
   if((meshDim<0 || meshDim>3) || (spaceDim<0 || spaceDim>3))
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTUnstructured : meshdim and spacedim must be in [1,2,3] !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
+  MCAuto<DataArrayDouble> coords(getCoordinatesAndOwner());
   int ns[3];
   getNodeGridStructure(ns);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+spaceDim));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
+  MCAuto<DataArrayInt> conn(Build1GTNodalConnectivity(ns,ns+spaceDim));
+  MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   try
     { ret->copyTinyInfoFrom(this); }
@@ -370,11 +370,11 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
   int meshDim(getMeshDimension());
   if(meshDim<1 || meshDim>3)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::build1SGTSubLevelMesh : meshdim must be in [2,3] !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getCoordinatesAndOwner());
+  MCAuto<DataArrayDouble> coords(getCoordinatesAndOwner());
   int ns[3];
   getNodeGridStructure(ns);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(Build1GTNodalConnectivityOfSubLevelMesh(ns,ns+meshDim));
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim-1)));
+  MCAuto<DataArrayInt> conn(Build1GTNodalConnectivityOfSubLevelMesh(ns,ns+meshDim));
+  MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New(getName(),GetGeoTypeGivenMeshDimension(meshDim-1)));
   ret->setNodalConnectivity(conn); ret->setCoords(coords);
   return ret.retn();
 }
@@ -387,7 +387,7 @@ MEDCoupling1SGTUMesh *MEDCouplingStructuredMesh::build1SGTSubLevelMesh() const
  */
 MEDCouplingUMesh *MEDCouplingStructuredMesh::buildUnstructured() const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCoupling1SGTUMesh> ret0(build1SGTUnstructured());
+  MCAuto<MEDCoupling1SGTUMesh> ret0(build1SGTUnstructured());
   return ret0->buildUnstructured();
 }
 
@@ -415,14 +415,14 @@ MEDCouplingMesh *MEDCouplingStructuredMesh::buildPartAndReduceNodes(const int *s
   std::vector< std::pair<int,int> > cellPartFormat,nodePartFormat;
   if(IsPartStructured(start,end,cgs,cellPartFormat))
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingStructuredMesh> ret(buildStructuredSubPart(cellPartFormat));
+      MCAuto<MEDCouplingStructuredMesh> ret(buildStructuredSubPart(cellPartFormat));
       nodePartFormat=cellPartFormat;
       for(std::vector< std::pair<int,int> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
         (*it).second++;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2(DataArrayInt::New()); tmp2->alloc(getNumberOfNodes(),1);
+      MCAuto<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
+      MCAuto<DataArrayInt> tmp2(DataArrayInt::New()); tmp2->alloc(getNumberOfNodes(),1);
       tmp2->fillWithValue(-1);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp3(DataArrayInt::New()); tmp3->alloc(tmp1->getNumberOfTuples(),1); tmp3->iota(0);
+      MCAuto<DataArrayInt> tmp3(DataArrayInt::New()); tmp3->alloc(tmp1->getNumberOfTuples(),1); tmp3->iota(0);
       tmp2->setPartOfValues3(tmp3,tmp1->begin(),tmp1->end(),0,1,1);
       arr=tmp2.retn();
       return ret.retn();
@@ -632,7 +632,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity(const int *no
   {
     case 0:
       {
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+        MCAuto<DataArrayInt> conn(DataArrayInt::New());
         conn->alloc(1,1); conn->setIJ(0,0,0);
         return conn.retn();
       }
@@ -674,7 +674,7 @@ DataArrayInt *MEDCouplingStructuredMesh::ComputeCornersGhost(const std::vector<i
   if(ghostLev<0)
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ComputeCornersGhost : ghost lev must be >= 0 !");
   std::size_t dim(st.size());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   switch(dim)
   {
     case 1:
@@ -963,7 +963,7 @@ std::vector< std::vector<int> > MEDCouplingStructuredMesh::ComputeSignaturePerAx
 DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity1D(const int *nodeStBg)
 {
   int nbOfCells(*nodeStBg-1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(2*nbOfCells,1);
   int *cp=conn->getPointer();
   for(int i=0;i<nbOfCells;i++)
@@ -978,7 +978,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity2D(const int *
 {
   int n1=nodeStBg[0]-1;
   int n2=nodeStBg[1]-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(4*n1*n2,1);
   int *cp=conn->getPointer();
   int pos=0;
@@ -998,7 +998,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivity3D(const int *
   int n1=nodeStBg[0]-1;
   int n2=nodeStBg[1]-1;
   int n3=nodeStBg[2]-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(8*n1*n2*n3,1);
   int *cp=conn->getPointer();
   int pos=0;
@@ -1024,7 +1024,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
   std::vector<int> ngs(3);
   int n0(nodeStBg[0]-1),n1(nodeStBg[1]-1),n2(nodeStBg[2]-1); ngs[0]=n0; ngs[1]=n1; ngs[2]=n2;
   int off0(nodeStBg[0]),off1(nodeStBg[0]*nodeStBg[1]);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(4*GetNumberOfCellsOfSubLevelMesh(ngs,3));
   int *cp(conn->getPointer());
   //X
@@ -1189,7 +1189,7 @@ DataArrayInt *MEDCouplingStructuredMesh::Build1GTNodalConnectivityOfSubLevelMesh
   std::vector<int> ngs(2);
   int n0(nodeStBg[0]-1),n1(nodeStBg[1]-1); ngs[0]=n0; ngs[1]=n1;
   int off0(nodeStBg[0]);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn(DataArrayInt::New());
+  MCAuto<DataArrayInt> conn(DataArrayInt::New());
   conn->alloc(2*GetNumberOfCellsOfSubLevelMesh(ngs,2));
   int *cp(conn->getPointer());
   //X
@@ -1713,7 +1713,7 @@ DataArrayDouble *MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(const std::
     throw INTERP_KERNEL::Exception("MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom : invalid size of input array of double regarding the structure !");
   std::vector<int> dims(GetDimensionsFromCompactFrmt(partCompactFormat));
   int nbOfTuplesOfOutField(DeduceNumberOfGivenStructure(dims)),nbComp(fieldOfDbl->getNumberOfComponents());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfTuplesOfOutField,nbComp);
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfTuplesOfOutField,nbComp);
   ret->copyStringInfoFrom(*fieldOfDbl);
   double *ptRet(ret->getPointer());
   const double *fieldOfDblPtr(fieldOfDbl->begin());
@@ -1909,7 +1909,7 @@ DataArrayInt *MEDCouplingStructuredMesh::BuildExplicitIdsFrom(const std::vector<
       dims[i]=partCompactFormat[i].second-partCompactFormat[i].first;
       nbOfItems*=dims[i];
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  MCAuto<DataArrayInt> ret(DataArrayInt::New());
   ret->alloc(nbOfItems,1);
   int *pt(ret->getPointer());
   switch(st.size())

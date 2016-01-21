@@ -19,7 +19,7 @@
 
 #include "MEDCouplingSkyLineArray.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingSkyLineArray::MEDCouplingSkyLineArray():
   _index( DataArrayInt::New() ), _value( DataArrayInt::New() )

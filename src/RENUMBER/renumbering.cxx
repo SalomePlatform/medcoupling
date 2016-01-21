@@ -32,7 +32,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace MED_RENUMBER;
 
 int main(int argc, char** argv)
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     }
   // Reading file structure
   cout << "Reading : " << flush;
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> fd(MEDFileData::New(filename_in));
+  MCAuto<MEDFileData> fd(MEDFileData::New(filename_in));
   MEDFileMesh *m=fd->getMeshes()->getMeshWithName(meshname);
   MEDFileUMesh *mc=dynamic_cast<MEDFileUMesh *>(m);
   if(!mc)
@@ -68,12 +68,12 @@ int main(int argc, char** argv)
   t_read_st=clock();
   cout << (t_read_st-t_begin)/(double) CLOCKS_PER_SEC << "s" << endl << flush;
   // Reading mesh
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> workMesh=mc->getMeshAtLevel(0);
+  MCAuto<MEDCouplingUMesh> workMesh=mc->getMeshAtLevel(0);
   std::vector<int> code=workMesh->getDistributionOfTypes();
   cout << "Building the graph : " << flush;
   DataArrayInt *neighb=0,*neighbI=0;
   workMesh->computeNeighborsOfCells(neighb,neighbI);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighbSafe(neighb),neighbISafe(neighbI),ipermSafe,permSafe;
+  MCAuto<DataArrayInt> neighbSafe(neighb),neighbISafe(neighbI),ipermSafe,permSafe;
   const int *graph=neighbSafe->begin();
   const int *graph_index=neighbISafe->begin();
   // Compute permutation iperm->new2old perm->old2new
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
   const DataArrayInt *famField=mc->getFamilyFieldAtLevel(0);
   if(famField)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famField2=famField->renumber(perm->begin());
+      MCAuto<DataArrayInt> famField2=famField->renumber(perm->begin());
       mc->setFamilyFieldArr(0,famField2);
     }
   mc->write(filename_out,2);

@@ -31,7 +31,7 @@ namespace MEDPARTITIONER
   {
   public:
     SCOTCHGraph();
-    SCOTCHGraph(ParaMEDMEM::MEDCouplingSkyLineArray*, int* edgeweight=0);
+    SCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray*, int* edgeweight=0);
     virtual ~SCOTCHGraph();
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
   };

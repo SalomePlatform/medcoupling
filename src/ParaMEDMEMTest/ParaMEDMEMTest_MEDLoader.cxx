@@ -31,5 +31,5 @@
 
 using namespace std;
 using namespace INTERP_KERNEL;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 

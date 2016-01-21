@@ -24,7 +24,7 @@
 #include "SauvReader.hxx"
 
 #include "SauvMedConvertor.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 
@@ -32,7 +32,7 @@
 #include <sstream>
 #include <iostream>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace SauvUtilities;
 using namespace std;
 
@@ -48,7 +48,7 @@ SauvReader* SauvReader::New(const std::string& fileName)
 {
   if ( fileName.empty() ) THROW_IK_EXCEPTION("Invalid file name");
 
-  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr< SauvUtilities::FileReader> parser;
+  MEDCoupling::MCAuto< SauvUtilities::FileReader> parser;
 
   // try to open as XRD
   parser = new XDRReader( fileName.c_str() );
@@ -112,7 +112,7 @@ std::string SauvReader::lineNb() const
  */
 //================================================================================
 
-ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS()
+MEDCoupling::MEDFileData * SauvReader::loadInMEDFileDS()
 {
   SauvUtilities::IntermediateMED iMed; // intermadiate DS
   _iMed = &iMed;
@@ -146,7 +146,7 @@ ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS()
           THROW_IK_EXCEPTION("XDR : ENREGISTREMENT DE TYPE " << recordNumber << " not implemented!!!");
     }
 
-  ParaMEDMEM::MEDFileData* medFileData = iMed.convertInMEDFileDS();
+  MEDCoupling::MEDFileData* medFileData = iMed.convertInMEDFileDS();
 
   return medFileData;
 }

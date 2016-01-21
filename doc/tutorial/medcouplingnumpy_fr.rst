@@ -169,7 +169,7 @@ l'ensemble des lignes de la matrice ``mat`` ayant exactement un élément non nu
 
 	indptr = mc.DataArrayInt(mat.indptr)
 	indptr2 = indptr.deltaShiftIndex()
-	cellIdsOfSkin = indptr2.getIdsEqual(1)
+	cellIdsOfSkin = indptr2.findIdsEqual(1)
 
 C'est presque fini. Créer le sous maillage contenant uniquement la peau et l'écrire dans 
 un fichier VTK ou MED pour le visualiser avec ParaView. ::

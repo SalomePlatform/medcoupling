@@ -95,7 +95,7 @@ For each hexahedron of the mesh, you have to give its connectivity: the list of 
 		pass
 		
 	# Check mesh consistency:
-	mesh.checkCoherency()
+	mesh.checkConsistencyLight()
 	
 Method by extrusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -257,12 +257,12 @@ The field will be a sin function dependant of distance of the barycenter of each
 	field = MEDCouplingFieldDouble.New(ON_CELLS)
 	field.setMesh(mesh)
 	field.setName("field")
-	field.setNature(Integral)
+	field.setNature(ExtensiveMaximum)
 
 	# Computing and setting field values
 	myCoords=DataArrayDouble.New()
 	sampleTab=[]
-	bar = mesh.getBarycenterAndOwner()
+	bar = mesh.computeCellCenterOfMass()
 	print bar.getNbOfElems()
 	for i in range(nbOfCells):
 		x = bar.getIJ(...)
@@ -307,7 +307,7 @@ The connectivity must respect following figure:
 	mesh2D = mesh.buildFacePartOfMySelfNode(nodes,True)
 	#print mesh2D
 	mesh2D.setName("3Dcube")
-	mesh2D.checkCoherency()
+	mesh2D.checkConsistencyLight()
 	
 	medFileName = "MEDCoupling_cube3D.med"
 	meshes=[mesh2D,mesh]

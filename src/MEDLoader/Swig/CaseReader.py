@@ -61,7 +61,7 @@ class CaseReader(CaseIO):
             pass
         c=DataArrayInt(len(cells),nbNodesPerCell+1) ; c[:,0]=ct ; c[:,1:]=c2-1 ; c.rearrange(1)
         m.setConnectivity(c,cI,True)
-        m.checkCoherency1()
+        m.checkConsistency()
         return m
 
     def __traduceMeshForPolyhed(self,name,coords,arr0,arr1,arr2):
@@ -72,13 +72,13 @@ class CaseReader(CaseIO):
         m.setCoords(coo)
         #
         arr2=arr2[:]-1
-        arr0mc0=DataArrayInt(arr0) ; arr0mc0.computeOffsets2()
-        arr0mc1=DataArrayInt(arr0).deepCpy()
-        arr0mc2=DataArrayInt(len(arr0),2) ; arr0mc2[:,0]=DataArrayInt(arr0)-1 ; arr0mc2[:,1]=1 ; arr0mc2.rearrange(1) ; arr0mc2.computeOffsets2()
+        arr0mc0=DataArrayInt(arr0) ; arr0mc0.computeOffsetsFull()
+        arr0mc1=DataArrayInt(arr0).deepCopy()
+        arr0mc2=DataArrayInt(len(arr0),2) ; arr0mc2[:,0]=DataArrayInt(arr0)-1 ; arr0mc2[:,1]=1 ; arr0mc2.rearrange(1) ; arr0mc2.computeOffsetsFull()
         arr0mc3=DataArrayInt.Range(0,2*len(arr0),2).buildExplicitArrByRanges(arr0mc2)
-        arr1mc0=DataArrayInt(arr1) ; arr1mc0.computeOffsets2()
+        arr1mc0=DataArrayInt(arr1) ; arr1mc0.computeOffsetsFull()
         arr1mc1=arr1mc0[arr0mc0] ; arr1mc1[1:]+=arr0mc0[1:] 
-        arr1mc2=DataArrayInt(arr1).deepCpy() ; arr1mc2+=1 ; arr1mc2.computeOffsets2()
+        arr1mc2=DataArrayInt(arr1).deepCopy() ; arr1mc2+=1 ; arr1mc2.computeOffsetsFull()
         arr2mc0=(arr1mc2[1:])[arr0mc3]
         #
         c=DataArrayInt(arr1.size+arr2.size)
@@ -88,7 +88,7 @@ class CaseReader(CaseIO):
         c[a]=DataArrayInt(arr2)
         #
         m.setConnectivity(c,arr1mc1,True)
-        m.checkCoherency1()
+        m.checkConsistency()
         return m
 
     def __traduceMeshForPolygon(self,name,coords,arr0,arr1):
@@ -98,14 +98,14 @@ class CaseReader(CaseIO):
         m=MEDCouplingUMesh(name,2)
         m.setCoords(coo)
         #
-        arr0_0=DataArrayInt(arr0+1) ; arr0_0.computeOffsets2()
-        arr0_1=DataArrayInt(len(arr0),2) ; arr0_1[:,1]=DataArrayInt(arr0) ; arr0_1[:,0]=1 ; arr0_1.rearrange(1) ; arr0_1.computeOffsets2()
+        arr0_0=DataArrayInt(arr0+1) ; arr0_0.computeOffsetsFull()
+        arr0_1=DataArrayInt(len(arr0),2) ; arr0_1[:,1]=DataArrayInt(arr0) ; arr0_1[:,0]=1 ; arr0_1.rearrange(1) ; arr0_1.computeOffsetsFull()
         arr0_2=DataArrayInt.Range(1,2*len(arr0),2).buildExplicitArrByRanges(arr0_1)
         c=DataArrayInt(len(arr0)+len(arr1)) ; c[:]=0 ; c[arr0_0[:-1]]=NORM_POLYGON
         c[arr0_2]=DataArrayInt(arr1-1)
         #
         m.setConnectivity(c,arr0_0,True)
-        m.checkCoherency1()
+        m.checkConsistency()
         return m
 
     def __convertGeo2MED(self,geoFileName):
@@ -289,7 +289,7 @@ class CaseReader(CaseIO):
                 pass
             f=MEDCouplingFieldDouble(self.discSpatial2[discr],ONE_TIME) ; f.setName("%s_%s"%(fieldName,mcmeshes[meshId].getName()))
             f.setMesh(mcmeshes[meshId]) ; f.setArray(vals2) ; f.setTime(float(it),it,-1)
-            f.checkCoherency()
+            f.checkConsistencyLight()
             mlfields[locId+meshId].appendFieldNoProfileSBT(f)
             pass
 
@@ -342,7 +342,7 @@ class CaseReader(CaseIO):
                 pass
             f=MEDCouplingFieldDouble(self.discSpatial2[discr],ONE_TIME) ; f.setName("%s_%s"%(fieldName,mcmeshes[nbTurn].getName()))
             f.setMesh(mcmeshes[nbTurn]) ; f.setArray(vals2) ; f.setTime(float(it),it,-1)
-            f.checkCoherency()
+            f.checkConsistencyLight()
             mlfields[locId+nbTurn].appendFieldNoProfileSBT(f)
             nbTurn+=1
             pass

@@ -107,8 +107,8 @@ struct PyCallBackDataArraySt {
     MCData *_pt_mc;
 };
 
-typedef struct PyCallBackDataArraySt<ParaMEDMEM::DataArrayInt> PyCallBackDataArrayInt;
-typedef struct PyCallBackDataArraySt<ParaMEDMEM::DataArrayDouble> PyCallBackDataArrayDouble;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt> PyCallBackDataArrayInt;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDataArrayDouble;
 
 extern "C"
 {
@@ -137,7 +137,7 @@ extern "C"
   {
     if(self->_pt_mc)
       {
-        ParaMEDMEM::MemArray<int>& mma=self->_pt_mc->accessToMemArray();
+        MEDCoupling::MemArray<int>& mma=self->_pt_mc->accessToMemArray();
         mma.destroy();
       }
     Py_XINCREF(Py_None);
@@ -150,7 +150,7 @@ extern "C"
   {
     if(self->_pt_mc)
       {
-        ParaMEDMEM::MemArray<double>& mma=self->_pt_mc->accessToMemArray();
+        MEDCoupling::MemArray<double>& mma=self->_pt_mc->accessToMemArray();
         mma.destroy();
       }
     Py_XINCREF(Py_None);
@@ -283,7 +283,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
     if(itemSize!=PyArray_STRIDE(elt0,1))
       throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays for component #1 !");
   const char *data=PyArray_BYTES(elt0);
-  typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<MCData> ret=MCData::New();
+  typename MEDCoupling::MCAuto<MCData> ret=MCData::New();
   if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order
     {
       PyArrayObject *elt0C=reinterpret_cast<PyArrayObject *>(elt0);
@@ -315,15 +315,15 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
           std::size_t nbOfElems(sz0*sz1);
           T *dataCpy=(T*)malloc(sizeof(T)*nbOfElems);
           std::copy(reinterpret_cast<const T*>(data),reinterpret_cast<const T*>(data)+nbOfElems,dataCpy);
-          ret->useArray(dataCpy,true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
+          ret->useArray(dataCpy,true,MEDCoupling::C_DEALLOC,sz0,sz1);
           return ret.retn();
         }
-      typename ParaMEDMEM::MemArray<T>& mma=ret->accessToMemArray();
+      typename MEDCoupling::MemArray<T>& mma=ret->accessToMemArray();
       if(eltOwning==NULL)
         {
           PyCallBackDataArraySt<MCData> *cb=PyObject_GC_New(PyCallBackDataArraySt<MCData>,pytype);
           cb->_pt_mc=ret;
-          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
+          ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(deepestObj,(PyObject *)cb);
           void **objs=new void *[2]; objs[0]=cb; objs[1]=ref;
           mma.setParameterForDeallocator(objs);
@@ -332,9 +332,9 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         }
       else
         {
-          ret->useArray(reinterpret_cast<const T *>(data),true,ParaMEDMEM::C_DEALLOC,sz0,sz1);
+          ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::C_DEALLOC,sz0,sz1);
           PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(eltOwning),NULL);
-          typename ParaMEDMEM::MemArray<T>::Deallocator tmp(ParaMEDMEM::MemArray<T>::CDeallocator);
+          typename MEDCoupling::MemArray<T>::Deallocator tmp(MEDCoupling::MemArray<T>::CDeallocator);
           void **tmp2 = reinterpret_cast<void**>(&tmp); // MSVC2010 does not support constructor()
           void **objs=new void *[2]; objs[0]=ref; objs[1]=*tmp2;
           mma.setParameterForDeallocator(objs);
@@ -342,7 +342,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
         }
     }
   else if(PyArray_ISBEHAVED_RO(elt0))
-    ret->useArray(reinterpret_cast<const T *>(data),false,ParaMEDMEM::CPP_DEALLOC,sz0,sz1);
+    ret->useArray(reinterpret_cast<const T *>(data),false,MEDCoupling::CPP_DEALLOC,sz0,sz1);
   return ret.retn();
 }
 
@@ -423,7 +423,7 @@ PyObject *ToNumPyArrayUnderground(MCData *self, int npyObjectType, const char *M
       std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : this is not allocated !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  ParaMEDMEM::MemArray<T>& mem=self->accessToMemArray();
+  MEDCoupling::MemArray<T>& mem=self->accessToMemArray();
   if(nbComp==0)
     {
       std::ostringstream oss; oss << MCDataStr << "::toNumPyArray : number of components of this is 0 ! Should be > 0 !"; 
@@ -439,7 +439,7 @@ PyObject *ToNumPyArrayUnderground(MCData *self, int npyObjectType, const char *M
       if(mem.getDeallocator()!=numarrdeal)
         {// case for the first call of toNumPyArray
           PyObject *ref(PyWeakref_NewRef(ret,NULL));
-          typename ParaMEDMEM::MemArray<T>::Deallocator tmp(mem.getDeallocator());
+          typename MEDCoupling::MemArray<T>::Deallocator tmp(mem.getDeallocator());
           void **tmp2 = reinterpret_cast<void**>(&tmp); // MSVC2010 does not support constructor()
           void **objs=new void *[2]; objs[0]=reinterpret_cast<void*>(ref); objs[1]=*tmp2;
           mem.setParameterForDeallocator(objs);
@@ -473,14 +473,14 @@ PyObject *ToNumPyArray(MCData *self, int npyObjectType, const char *MCDataStr)
   return ToNumPyArrayUnderground<MCData,T>(self,npyObjectType,MCDataStr,self->getNumberOfTuples(),self->getNumberOfComponents());
 }
 
-SWIGINTERN PyObject *ParaMEDMEM_DataArrayInt_toNumPyArray(ParaMEDMEM::DataArrayInt *self);
-SWIGINTERN PyObject *ParaMEDMEM_DataArrayDouble_toNumPyArray(ParaMEDMEM::DataArrayDouble *self);
+SWIGINTERN PyObject *MEDCoupling_DataArrayInt_toNumPyArray(MEDCoupling::DataArrayInt *self);
+SWIGINTERN PyObject *MEDCoupling_DataArrayDouble_toNumPyArray(MEDCoupling::DataArrayDouble *self);
 
 PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) throw(INTERP_KERNEL::Exception)
 {
   int nbRows((int)m.size());
-  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayInt> indPtr(ParaMEDMEM::DataArrayInt::New()),indices(ParaMEDMEM::DataArrayInt::New());
-  ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::DataArrayDouble> data(ParaMEDMEM::DataArrayDouble::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayInt> indPtr(MEDCoupling::DataArrayInt::New()),indices(MEDCoupling::DataArrayInt::New());
+  MEDCoupling::MCAuto<MEDCoupling::DataArrayDouble> data(MEDCoupling::DataArrayDouble::New());
   indPtr->alloc(nbRows+1,1);
   int *intPtr_ptr(indPtr->getPointer()); intPtr_ptr[0]=0; intPtr_ptr++;
   int sz2(0);
@@ -498,7 +498,7 @@ PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) t
         *indices_ptr=(*it1).first;
         *data_ptr=(*it1).second;
       }
-  PyObject *a(ParaMEDMEM_DataArrayDouble_toNumPyArray(data)),*b(ParaMEDMEM_DataArrayInt_toNumPyArray(indices)),*c(ParaMEDMEM_DataArrayInt_toNumPyArray(indPtr));
+  PyObject *a(MEDCoupling_DataArrayDouble_toNumPyArray(data)),*b(MEDCoupling_DataArrayInt_toNumPyArray(indices)),*c(MEDCoupling_DataArrayInt_toNumPyArray(indPtr));
   //
   PyObject *args(PyTuple_New(1)),*args0(PyTuple_New(3)),*kw(PyDict_New()),*kw1(PyTuple_New(2));
   PyTuple_SetItem(args0,0,a); PyTuple_SetItem(args0,1,b); PyTuple_SetItem(args0,2,c); PyTuple_SetItem(args,0,args0);
@@ -520,7 +520,7 @@ PyObject *ToCSRMatrix(const std::vector<std::map<int,double> >& m, int nbCols) t
 
 #endif
 
-static PyObject *convertDataArrayChar(ParaMEDMEM::DataArrayChar *dac, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertDataArrayChar(MEDCoupling::DataArrayChar *dac, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(!dac)
@@ -528,16 +528,16 @@ static PyObject *convertDataArrayChar(ParaMEDMEM::DataArrayChar *dac, int owner)
       Py_XINCREF(Py_None);
       return Py_None;
     }
-  if(dynamic_cast<ParaMEDMEM::DataArrayByte *>(dac))
-    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,owner);
-  if(dynamic_cast<ParaMEDMEM::DataArrayAsciiChar *>(dac))
-    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayByte *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayByte,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayAsciiChar *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayAsciiChar,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of DataArrayChar on downcast !");
   return ret;
 }
 
-static PyObject *convertDataArray(ParaMEDMEM::DataArray *dac, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertDataArray(MEDCoupling::DataArray *dac, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(!dac)
@@ -545,14 +545,14 @@ static PyObject *convertDataArray(ParaMEDMEM::DataArray *dac, int owner) throw(I
       Py_XINCREF(Py_None);
       return Py_None;
     }
-  if(dynamic_cast<ParaMEDMEM::DataArrayDouble *>(dac))
-    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,owner);
-  if(dynamic_cast<ParaMEDMEM::DataArrayInt *>(dac))
-    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,owner);
-  if(dynamic_cast<ParaMEDMEM::DataArrayByte *>(dac))
-    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,owner);
-  if(dynamic_cast<ParaMEDMEM::DataArrayAsciiChar *>(dac))
-    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayDouble *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayDouble,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayInt *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayInt,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayByte *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayByte,owner);
+  if(dynamic_cast<MEDCoupling::DataArrayAsciiChar *>(dac))
+    ret=SWIG_NewPointerObj((void*)dac,SWIGTYPE_p_MEDCoupling__DataArrayAsciiChar,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of DataArray on downcast !");
   return ret;
@@ -1381,7 +1381,7 @@ static std::vector<double> fillArrayWithPyListDbl2(PyObject *pyLi, int& nbOfTupl
   return ret;
 }
 
-//convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(pyLi,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh")
+//convertFromPyObjVectorOfObj<const MEDCoupling::MEDCouplingUMesh *>(pyLi,SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh,"MEDCouplingUMesh")
 template<class T>
 static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, const char *typeStr, typename std::vector<T>& ret)
 {
@@ -1439,7 +1439,7 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, ParaMEDMEM::DataArrayInt *& daIntTyypp, ParaMEDMEM::DataArrayIntTuple *&daIntTuple) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, MEDCoupling::DataArrayInt *& daIntTyypp, MEDCoupling::DataArrayIntTuple *&daIntTuple) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyInt_Check(value))
@@ -1485,17 +1485,17 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0);
   if(SWIG_IsOK(status))
     {
-      daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayInt * >(argp);
       sw=3;
       return;
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      daIntTuple=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      daIntTuple=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
       sw=4;
       return ;
     }
@@ -1513,7 +1513,7 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, ParaMEDMEM::DataArrayDouble *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, MEDCoupling::DataArrayDouble *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1569,10 +1569,10 @@ static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, s
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(!SWIG_IsOK(status))
     throw INTERP_KERNEL::Exception("5 types accepted : double float, integer, tuple of double float or int, list of double float or int, DataArrayDouble");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+  daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
   sw=3;
 }
 
@@ -1587,7 +1587,7 @@ static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, s
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, ParaMEDMEM::DataArrayDoubleTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, MEDCoupling::DataArrayDoubleTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1643,10 +1643,10 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(!SWIG_IsOK(status))
     throw INTERP_KERNEL::Exception("5 types accepted : double float, integer, tuple of double float or int, list of double float or int, DataArrayDoubleTuple");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+  daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
   sw=3;
 }
 
@@ -1659,7 +1659,7 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   const char *msg="5 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt, DataArrayIntTuple";
   sw=-1;
@@ -1717,10 +1717,10 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
       return ;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0);
   if(SWIG_IsOK(status))
     {
-      daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayInt * >(argp);
       if(!daIntTyypp)
         {
           std::ostringstream oss; oss << msg << " Instance in null !";
@@ -1729,10 +1729,10 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
       sw=4;
       return ;
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
   if(SWIG_IsOK(status))
     {
-      ParaMEDMEM::DataArrayIntTuple *tmp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      MEDCoupling::DataArrayIntTuple *tmp=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
       if(!tmp)
         {
           std::ostringstream oss; oss << msg << " Instance in null !";
@@ -1749,7 +1749,7 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
 /*!
  * Idem than convertObjToPossibleCpp2
  */
-static void convertObjToPossibleCpp2WithNegIntInterp(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp2WithNegIntInterp(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   convertObjToPossibleCpp2(value,nbelem,sw,iTyypp,stdvecTyypp,p,daIntTyypp);
   if(sw==1)
@@ -1765,7 +1765,7 @@ static void convertObjToPossibleCpp2WithNegIntInterp(PyObject *value, int nbelem
  * if python slice -> cpp pair sw=3
  * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4 . WARNING The returned pointer can be the null pointer !
  */
-static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayIntTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, MEDCoupling::DataArrayIntTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyInt_Check(value))
@@ -1822,10 +1822,10 @@ static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int&
       return ;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
   if(!SWIG_IsOK(status))
     throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, slice, DataArrayIntTuple");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+  daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
   sw=4;
 }
 
@@ -1836,7 +1836,7 @@ static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int&
  * if python not null pointer of DataArrayChar -> cpp DataArrayChar sw=4
  * switch between (int,string,vector<string>,DataArrayChar)
  */
-static void convertObjToPossibleCpp6(PyObject *value, int& sw, char& cTyp, std::string& sType, std::vector<std::string>& vsType, ParaMEDMEM::DataArrayChar *& dacType) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp6(PyObject *value, int& sw, char& cTyp, std::string& sType, std::vector<std::string>& vsType, MEDCoupling::DataArrayChar *& dacType) throw(INTERP_KERNEL::Exception)
 {
   const char *msg="4 types accepted : string, list or tuple of strings having same size, not null DataArrayChar instance.";
   sw=-1;
@@ -1894,10 +1894,10 @@ static void convertObjToPossibleCpp6(PyObject *value, int& sw, char& cTyp, std::
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayChar,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayChar,0|0);
   if(SWIG_IsOK(status))
     {
-      dacType=reinterpret_cast< ParaMEDMEM::DataArrayChar * >(argp);
+      dacType=reinterpret_cast< MEDCoupling::DataArrayChar * >(argp);
       if(!dacType)
         {
           std::ostringstream oss; oss << msg << " Instance in null !";
@@ -1940,7 +1940,7 @@ static void convertObjToPossibleCpp6(PyObject *value, int& sw, char& cTyp, std::
  */
 static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, int& sw, int& it, int& ic, std::vector<int>& vt, std::vector<int>& vc,
                                      std::pair<int, std::pair<int,int> >& pt, std::pair<int, std::pair<int,int> >& pc,
-                                     ParaMEDMEM::DataArrayInt *&dt, ParaMEDMEM::DataArrayInt *&dc) throw(INTERP_KERNEL::Exception)
+                                     MEDCoupling::DataArrayInt *&dt, MEDCoupling::DataArrayInt *&dc) throw(INTERP_KERNEL::Exception)
 {
   if(!PyTuple_Check(value))
     {
@@ -1969,7 +1969,7 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
  * if value list[int,double] -> cpp std::vector<double> sw=4
  * if value tuple[int,double] -> cpp std::vector<double> sw=4
  */
-static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e, std::vector<double>& f)
+static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -2025,17 +2025,17 @@ static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, Para
       return;
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
     {  
-      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       return ;
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       return ;
     }
@@ -2050,7 +2050,7 @@ static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, Para
  * if value list[int,double] -> cpp std::vector<double> sw=4
  * if value tuple[int,double] -> cpp std::vector<double> sw=4
  */
-static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e, std::vector<double>& f,
+static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f,
                                                    const char *msg, int nbTuplesExpected, int nbCompExpected, bool throwIfNullPt) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
@@ -2089,10 +2089,10 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
       catch(INTERP_KERNEL::Exception& exc) { throw exc; }
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
     {  
-      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       if(d)
         {
@@ -2125,10 +2125,10 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
             return 0;
         }
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       if(e->getNumberOfCompo()==nbCompExpected)
         {
@@ -2157,7 +2157,7 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
  * if value list[int,double] -> cpp std::vector<double> sw=4
  * if value tuple[int,double] -> cpp std::vector<double> sw=4
  */
-static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e, std::vector<double>& f,
+static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, double& val, MEDCoupling::DataArrayDouble *&d, MEDCoupling::DataArrayDoubleTuple *&e, std::vector<double>& f,
                                                     const char *msg, int nbCompExpected, bool throwIfNullPt, int& nbTuples) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
@@ -2238,10 +2238,10 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
       return &f[0];
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
     {  
-      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       if(d)
         {
@@ -2267,10 +2267,10 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
             { nbTuples=0; return 0; }
         }
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       if(e)
         {
@@ -2310,8 +2310,8 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
 static const double *convertObjToPossibleCpp5_SingleCompo(PyObject *value, int& sw, double& val, std::vector<double>& f,
                                                           const char *msg, bool throwIfNullPt, int& nbTuples) throw(INTERP_KERNEL::Exception)
 {
-  ParaMEDMEM::DataArrayDouble *d=0;
-  ParaMEDMEM::DataArrayDoubleTuple *e=0;
+  MEDCoupling::DataArrayDouble *d=0;
+  MEDCoupling::DataArrayDoubleTuple *e=0;
   sw=-1;
   if(PyFloat_Check(value))
     {
@@ -2370,10 +2370,10 @@ static const double *convertObjToPossibleCpp5_SingleCompo(PyObject *value, int& 
       return &f[0];
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
   if(SWIG_IsOK(status))
     {  
-      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      d=reinterpret_cast< MEDCoupling::DataArrayDouble * >(argp);
       sw=2;
       if(d)
         {
@@ -2399,10 +2399,10 @@ static const double *convertObjToPossibleCpp5_SingleCompo(PyObject *value, int& 
             { nbTuples=0; return 0; }
         }
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayDoubleTuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      e=reinterpret_cast< MEDCoupling::DataArrayDoubleTuple * >(argp);
       sw=3;
       if(e)
         {
@@ -2478,10 +2478,10 @@ static const int *convertObjToPossibleCpp1_Safe(PyObject *value, int& sw, int& s
       return &stdvecTyypp[0];
     }
   void *argp;
-  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0);
   if(SWIG_IsOK(status))
     {
-      ParaMEDMEM::DataArrayInt *daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      MEDCoupling::DataArrayInt *daIntTyypp=reinterpret_cast< MEDCoupling::DataArrayInt * >(argp);
       if(daIntTyypp)
         {
           sw=3; sz=daIntTyypp->getNbOfElems();
@@ -2493,37 +2493,37 @@ static const int *convertObjToPossibleCpp1_Safe(PyObject *value, int& sw, int& s
           return 0;
         }
     }
-  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_MEDCoupling__DataArrayIntTuple,0|0);
   if(SWIG_IsOK(status))
     {  
-      ParaMEDMEM::DataArrayIntTuple *daIntTuple=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      MEDCoupling::DataArrayIntTuple *daIntTuple=reinterpret_cast< MEDCoupling::DataArrayIntTuple * >(argp);
       sw=4; sz=daIntTuple->getNumberOfCompo();
       return daIntTuple->getConstPointer();
     }
   throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
 }
 
-static ParaMEDMEM::DataArray *CheckAndRetrieveDataArrayInstance(PyObject *obj, const char *msg)
+static MEDCoupling::DataArray *CheckAndRetrieveDataArrayInstance(PyObject *obj, const char *msg)
 {
   void *aBasePtrVS=0;
-  int status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArray,0|0);
+  int status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_MEDCoupling__DataArray,0|0);
   if(!SWIG_IsOK(status))
     {
-      status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+      status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_MEDCoupling__DataArrayDouble,0|0);
       if(!SWIG_IsOK(status))
         {
-          status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+          status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_MEDCoupling__DataArrayInt,0|0);
           if(!SWIG_IsOK(status))
             {
-              status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayAsciiChar,0|0);
+              status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_MEDCoupling__DataArrayAsciiChar,0|0);
               if(!SWIG_IsOK(status))
                 {
-                  status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_ParaMEDMEM__DataArrayByte,0|0);
+                  status=SWIG_ConvertPtr(obj,&aBasePtrVS,SWIGTYPE_p_MEDCoupling__DataArrayByte,0|0);
                   std::ostringstream oss; oss << msg << " ! Accepted instances are DataArrayDouble, DataArrayInt, DataArrayAsciiChar, DataArrayByte !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
         }
     }
-  return reinterpret_cast< ParaMEDMEM::DataArray * >(aBasePtrVS);
+  return reinterpret_cast< MEDCoupling::DataArray * >(aBasePtrVS);
 }

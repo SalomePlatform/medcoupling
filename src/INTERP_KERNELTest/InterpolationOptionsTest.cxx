@@ -28,7 +28,7 @@
 #include <iostream>
 #include <vector>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 namespace INTERP_TEST
 {

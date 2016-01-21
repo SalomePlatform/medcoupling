@@ -29,7 +29,7 @@
 
 #include <set>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void ParaMEDMEMTest::testFabienAPI1()
 {
@@ -45,17 +45,17 @@ void ParaMEDMEMTest::testFabienAPI1()
   int procs_target_c[1]={1};
   std::set<int> procs_target(procs_target_c,procs_target_c+1);
   //
-  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
-  ParaMEDMEM::ParaMESH *paramesh=0;
-  ParaMEDMEM::ParaFIELD *parafield=0;
+  MEDCoupling::MEDCouplingUMesh *mesh=0;
+  MEDCoupling::ParaMESH *paramesh=0;
+  MEDCoupling::ParaFIELD *parafield=0;
   //
-  ParaMEDMEM::CommInterface interface;
+  MEDCoupling::CommInterface interface;
   //
   MPI_Barrier(MPI_COMM_WORLD);
   double targetCoords[8]={ 0.,0., 1., 0., 0., 1., 1., 1. };
   CommInterface comm;
   //
-  ParaMEDMEM::InterpKernelDEC *dec=new ParaMEDMEM::InterpKernelDEC(procs_source,procs_target);
+  MEDCoupling::InterpKernelDEC *dec=new MEDCoupling::InterpKernelDEC(procs_source,procs_target);
   if(dec->isInSourceSide())
     {    
       mesh=MEDCouplingUMesh::New();
@@ -69,10 +69,10 @@ void ParaMEDMEMTest::testFabienAPI1()
       mesh->allocateCells(1);
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
       mesh->finishInsertingCells();
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getSourceGrp(),"source mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
       double *vals=parafield->getField()->getArray()->getPointer();
       vals[0]=7.;
     }
@@ -90,10 +90,10 @@ void ParaMEDMEMTest::testFabienAPI1()
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
       mesh->finishInsertingCells();
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getTargetGrp(),"target mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
     }
   dec->attachLocalField(parafield);
   dec->synchronize();
@@ -130,17 +130,17 @@ void ParaMEDMEMTest::testFabienAPI2()
   int procs_target_c[1]={1};
   std::set<int> procs_target(procs_target_c,procs_target_c+1);
   //
-  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
-  ParaMEDMEM::ParaMESH *paramesh=0;
-  ParaMEDMEM::ParaFIELD *parafield=0;
+  MEDCoupling::MEDCouplingUMesh *mesh=0;
+  MEDCoupling::ParaMESH *paramesh=0;
+  MEDCoupling::ParaFIELD *parafield=0;
   //
-  ParaMEDMEM::CommInterface interface;
+  MEDCoupling::CommInterface interface;
   //
   MPI_Barrier(MPI_COMM_WORLD);
   double targetCoords[8]={ 0.,0., 1., 0., 0., 1., 1., 1. };
   CommInterface comm;
   //
-  ParaMEDMEM::InterpKernelDEC *dec=new ParaMEDMEM::InterpKernelDEC(procs_source,procs_target);
+  MEDCoupling::InterpKernelDEC *dec=new MEDCoupling::InterpKernelDEC(procs_source,procs_target);
   if(dec->isInSourceSide())
     {    
       mesh=MEDCouplingUMesh::New();
@@ -154,10 +154,10 @@ void ParaMEDMEMTest::testFabienAPI2()
       mesh->allocateCells(1);
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
       mesh->finishInsertingCells();
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getSourceGrp(),"source mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
       double *vals=parafield->getField()->getArray()->getPointer();
       vals[0]=7.;
     }
@@ -175,10 +175,10 @@ void ParaMEDMEMTest::testFabienAPI2()
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
       mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
       mesh->finishInsertingCells();
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       paramesh=new ParaMESH(mesh,*dec->getTargetGrp(),"target mesh");
       parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-      parafield->getField()->setNature(ConservativeVolumic);
+      parafield->getField()->setNature(IntensiveMaximum);
     }
   dec->attachLocalField(parafield);
   dec->synchronize();

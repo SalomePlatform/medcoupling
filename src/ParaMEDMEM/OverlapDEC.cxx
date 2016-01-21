@@ -26,7 +26,7 @@
 #include "OverlapElementLocator.hxx"
 #include "OverlapInterpolationMatrix.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 /*!
     \anchor OverlapDEC-det
@@ -71,7 +71,7 @@ namespace ParaMEDMEM
     Here the pair (0,2) does not appear because the bounding box of fieldtemplateA of proc#2 does
     not intersect that of fieldtemplate B on proc#0.
 
-    Stage performed by ParaMEDMEM::OverlapElementLocator::computeBoundingBoxes.
+    Stage performed by MEDCoupling::OverlapElementLocator::computeBoundingBoxes.
 
     \subsection ParaMEDMEMOverlapDECAlgoStep2 Step 2 : Computation of local TODO list
 
@@ -156,7 +156,7 @@ namespace ParaMEDMEM
     keep track of the ids sent to proc \#m for te matrix-vector computation.
     This is incarnated by OverlapMapping::keepTracksOfSourceIds in proc k.
 
-    This step is performed in ParaMEDMEM::OverlapElementLocator::exchangeMeshes method.
+    This step is performed in MEDCoupling::OverlapElementLocator::exchangeMeshes method.
 
     \subsection ParaMEDMEMOverlapDECAlgoStep4 Step 4 : Computation of the interpolation matrix
 
@@ -166,7 +166,7 @@ namespace ParaMEDMEM
     the \b local TODO list per proc is expected to
     be as well balanced as possible.
 
-    The interpolation is performed as the \ref ParaMEDMEM::MEDCouplingRemapper "remapper" does.
+    The interpolation is performed as the \ref MEDCoupling::MEDCouplingRemapper "remapper" does.
 
     This operation is performed by OverlapInterpolationMatrix::addContribution method.
 
@@ -184,7 +184,7 @@ namespace ParaMEDMEM
     is equal to k.
 
     After this step, the matrix repartition is the following after a call to
-    ParaMEDMEM::OverlapMapping::prepare :
+    MEDCoupling::OverlapMapping::prepare :
 
     - proc\#0 : (0,0),(1,0),(2,0)
     - proc\#1 : (0,1),(2,1)
@@ -194,19 +194,19 @@ namespace ParaMEDMEM
     "prepare". This is an example of item 0 in \ref ParaMEDMEMOverlapDECAlgoStep2 "Step2".
     Tuple (0,1) computed on proc 1 is stored in proc 1 too. This is an example of item 1 in \ref ParaMEDMEMOverlapDECAlgoStep2 "Step2".
 
-    In the end ParaMEDMEM::OverlapMapping::_proc_ids_to_send_vector_st will contain :
+    In the end MEDCoupling::OverlapMapping::_proc_ids_to_send_vector_st will contain :
 
     - Proc\#0 : 0,1
     - Proc\#1 : 0,2
     - Proc\#2 : 0,1,2
 
-    In the end ParaMEDMEM::OverlapMapping::_proc_ids_to_recv_vector_st will contain :
+    In the end MEDCoupling::OverlapMapping::_proc_ids_to_recv_vector_st will contain :
 
     - Proc\#0 : 0,1,2
     - Proc\#1 : 0,2
     - Proc\#2 : 1,2
 
-    The method in charge to perform this is : ParaMEDMEM::OverlapMapping::prepare.
+    The method in charge to perform this is : MEDCoupling::OverlapMapping::prepare.
 */
   OverlapDEC::OverlapDEC(const std::set<int>& procIds, const MPI_Comm& world_comm):
       _load_balancing_algo(1),
@@ -216,7 +216,7 @@ namespace ParaMEDMEM
       _default_field_value(0.0),
       _comm(MPI_COMM_NULL)
   {
-    ParaMEDMEM::CommInterface comm;
+    MEDCoupling::CommInterface comm;
     int *ranks_world=new int[procIds.size()]; // ranks of sources and targets in world_comm
     std::copy(procIds.begin(),procIds.end(),ranks_world);
     MPI_Group group,world_group;
@@ -249,7 +249,7 @@ namespace ParaMEDMEM
     delete _locator;
     if (_comm != MPI_COMM_NULL)
       {
-        ParaMEDMEM::CommInterface comm;
+        MEDCoupling::CommInterface comm;
         comm.commFree(&_comm);
       }
   }

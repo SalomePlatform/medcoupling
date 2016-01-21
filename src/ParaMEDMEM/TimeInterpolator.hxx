@@ -25,7 +25,7 @@
 #include <map>
 #include <iostream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   /*!

@@ -27,13 +27,13 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "SauvUtilities.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include <vector>
 #include <string>
 #include <map>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDFileData;
   class MEDFileMesh;
@@ -43,7 +43,7 @@ namespace ParaMEDMEM
   /*!
    * \brief Class to write a MEDFileData into a SAUVE format file
    */
-  class SauvWriter : public ParaMEDMEM::RefCountObject
+  class SauvWriter : public MEDCoupling::RefCountObject
   {
   public:
     MEDLOADER_EXPORT static SauvWriter *New();
@@ -97,9 +97,9 @@ namespace ParaMEDMEM
 
   private:
 
-    MEDCouplingAutoRefCountObjectPtr< MEDFileMesh >                        _fileMesh;
-    std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTS > > _nodeFields;
-    std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTS > > _cellFields;
+    MCAuto< MEDFileMesh >                        _fileMesh;
+    std::vector< MCAuto< MEDFileFieldMultiTS > > _nodeFields;
+    std::vector< MCAuto< MEDFileFieldMultiTS > > _cellFields;
 
     std::vector<SubMesh>                      _subs;
     std::map< int, SubMesh* >                 _famIDs2Sub;

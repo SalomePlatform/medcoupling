@@ -86,7 +86,7 @@ In the two files "proc0.med" and "proc1.med" read the respective "CellField" wit
 Compare "CellField_read" and "CellField0". Problem: because of the constraint on the MED file numbering, the initial numbering has been lost. Or more exactly there is no standard way to retrieve it. This means that a call to MEDCouplingFieldDouble.isEqual() won't succeed. Let's use the method MEDCouplingFieldDouble.substractInPlaceDM() which operates a renumbering based on a given policy (see HTML doc).
 To this end, create a deep copy of "CellField" into "CellFieldCpy" and invoke substractInPlaceDM() on it (DM stands for "Different Meshes", contrarily to substract() which only succeeds if the fields share the same mesh). ::
 
-     CellFieldCpy=CellField.deepCpy()
+     CellFieldCpy=CellField.deepCopy()
      CellFieldCpy.substractInPlaceDM(CellField_read,10,1e-12)
      CellFieldCpy.getArray().abs()
      print CellFieldCpy.getArray().isUniform(0.,1e-12)
@@ -103,7 +103,7 @@ Invoke MEDCouplingUMesh.mergeNodes() on "NodeField_read" to remove duplicate nod
 Make a deep copy called  "NodeFieldCpy" from "NodeField" and call  MEDCouplingUMesh.mergeNodes(). ::
 
      NodeField_read.mergeNodes(1e-10)
-     NodeFieldCpy=NodeField.deepCpy()
+     NodeFieldCpy=NodeField.deepCopy()
      NodeFieldCpy.mergeNodes(1e-10)
 
 .. note:: mergeNodes() takes two epsilons: the first classical one on the absolute distance between nodes, and the second expressing a tolerance on the values. If the field value of two nodes to be merged is bigger than this an exception is raised.
@@ -170,7 +170,7 @@ MEDFileUMesh.getNonEmptyLevels() on the instance coming from "proc0.med". ::
                  if typp==ON_CELLS:
                      arr.renumberInPlace(o2nML[lev])
                  mcf=MEDCouplingFieldDouble(typp,ONE_TIME) ; mcf.setName(fieldName) ; mcf.setTime(tim,dt,it) ; mcf.setArray(arr)
-                 mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkCoherency()
+                 mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkConsistencyLight()
                  mergeField.appendFieldNoProfileSBT(mcf)
                  pass
              pass

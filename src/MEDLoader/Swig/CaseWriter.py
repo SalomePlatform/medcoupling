@@ -172,7 +172,7 @@ time values:
                         c=mp.computeNbOfFacesPerCell()
                         a=np.memmap(f,dtype='int32',mode='w+',offset=mm.tell(),shape=(nbelem,))
                         a[:]=c.toNumPyArray(); a.flush() ; mm.seek(mm.tell()+nbelem*4)
-                        c=mp.getNodalConnectivity()[:] ; c.pushBackSilent(-1) ; c[mp.getNodalConnectivityIndex()[:-1]]=-1 ; ids=c.getIdsEqual(-1) ; nbOfNodesPerFace=ids.deltaShiftIndex()-1
+                        c=mp.getNodalConnectivity()[:] ; c.pushBackSilent(-1) ; c[mp.getNodalConnectivityIndex()[:-1]]=-1 ; ids=c.findIdsEqual(-1) ; nbOfNodesPerFace=ids.deltaShiftIndex()-1
                         a=np.memmap(f,dtype='int32',mode='w+',offset=mm.tell(),shape=(len(nbOfNodesPerFace),))
                         a[:]=nbOfNodesPerFace.toNumPyArray() ; a.flush() ; mm.seek(mm.tell()+len(nbOfNodesPerFace)*4)
                         ids2=ids.buildComplement(ids.back()+1)

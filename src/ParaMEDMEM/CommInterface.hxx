@@ -21,7 +21,7 @@
 #define __COMMINTERFACE_HXX__
 
 #include <mpi.h>
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   class CommInterface

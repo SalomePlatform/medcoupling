@@ -83,7 +83,7 @@ void INTERP_TEST::ThreeDSurfProjectionTest::test1()
 void INTERP_TEST::ThreeDSurfProjectionTest::test2()
 {// here the two triangles have their center of inertia very close (eps) but the angle between the two planes is "big"
   //coo=DataArrayDouble([0.,0.,0.,1.,0.,0.,0.,1.,0.],3,3)
-  //coocpy=coo.deepCpy()
+  //coocpy=coo.deepCopy()
   //MEDCouplingPointSet.Rotate3DAlg([0.,0.,0.],[-1,-1.,0.],pi/3,coocpy)
   //coocpy+=[eps*sqrt(3)/2,eps/2,eps*0.]
   //

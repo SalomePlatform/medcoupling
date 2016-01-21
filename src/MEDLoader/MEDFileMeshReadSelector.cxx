@@ -20,7 +20,7 @@
 
 #include "MEDFileMeshReadSelector.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileMeshReadSelector::MEDFileMeshReadSelector():_code(0xFFFFFFFF)
 {

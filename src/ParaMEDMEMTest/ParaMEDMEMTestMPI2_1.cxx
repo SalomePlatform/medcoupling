@@ -41,7 +41,7 @@ public:
   void testBasicMPI2_1();
 };
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MPI2ParaMEDMEMTest::testBasicMPI2_1()
 {
@@ -49,11 +49,11 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   MPI_Comm gcom;
   std::string service = "SERVICE";
   std::ostringstream meshfilename, meshname;
-  ParaMEDMEM::ParaMESH *paramesh=0;
-  ParaMEDMEM::MEDCouplingUMesh *mesh;
-  ParaMEDMEM::ParaFIELD *parafield=0;
-  ParaMEDMEM::CommInterface *interface;
-  ParaMEDMEM::MPIProcessorGroup *source, *target;
+  MEDCoupling::ParaMESH *paramesh=0;
+  MEDCoupling::MEDCouplingUMesh *mesh;
+  MEDCoupling::ParaFIELD *parafield=0;
+  MEDCoupling::CommInterface *interface;
+  MEDCoupling::MPIProcessorGroup *source, *target;
 
   MPI_Comm_size( MPI_COMM_WORLD, &lsize );
   MPI_Comm_rank( MPI_COMM_WORLD, &lrank );
@@ -73,9 +73,9 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
       CPPUNIT_ASSERT(false);
       return;
     }
-  interface = new ParaMEDMEM::CommInterface;
-  source = new ParaMEDMEM::MPIProcessorGroup(*interface,0,lsize-1,gcom);
-  target = new ParaMEDMEM::MPIProcessorGroup(*interface,lsize,gsize-1,gcom);
+  interface = new MEDCoupling::CommInterface;
+  source = new MEDCoupling::MPIProcessorGroup(*interface,0,lsize-1,gcom);
+  target = new MEDCoupling::MPIProcessorGroup(*interface,lsize,gsize-1,gcom);
 
   const double sourceCoordsAll[2][8]={{0.4,0.5,0.4,1.5,1.6,1.5,1.6,0.5},
                                       {0.3,-0.5,1.6,-0.5,1.6,-1.5,0.3,-1.5}};
@@ -94,13 +94,13 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   mesh->setCoords(myCoords);
   myCoords->decrRef();
   paramesh=new ParaMESH(mesh,*source,"source mesh");
-  ParaMEDMEM::ComponentTopology comptopo;
+  MEDCoupling::ComponentTopology comptopo;
   parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
   double *value=parafield->getField()->getArray()->getPointer();
   value[0]=34+13*((double)grank);
 
-  ParaMEDMEM::InterpKernelDEC dec(*source,*target);
-  parafield->getField()->setNature(ConservativeVolumic);
+  MEDCoupling::InterpKernelDEC dec(*source,*target);
+  parafield->getField()->setNature(IntensiveMaximum);
 
 
   dec.setMethod("P0");

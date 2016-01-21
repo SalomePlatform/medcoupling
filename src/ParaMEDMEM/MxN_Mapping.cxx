@@ -25,7 +25,7 @@
 
 using namespace std;
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 
   MxN_Mapping::MxN_Mapping(const ProcessorGroup& source_group, const ProcessorGroup& target_group,const DECOptions& dec_options)

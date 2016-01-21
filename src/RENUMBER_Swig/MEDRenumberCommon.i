@@ -25,13 +25,13 @@
 
 %{
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 
 #include "RenumberingFactory.hxx"
 #include "RENUMBER_Renumbering.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
  using namespace MED_RENUMBER;
 %}
@@ -61,17 +61,17 @@ class Renumbering
 public:
   %extend
   {
-    virtual PyObject *renumber(const ParaMEDMEM::DataArrayInt *graph, const ParaMEDMEM::DataArrayInt *index_graph) throw(INTERP_KERNEL::Exception)
+    virtual PyObject *renumber(const MEDCoupling::DataArrayInt *graph, const MEDCoupling::DataArrayInt *index_graph) throw(INTERP_KERNEL::Exception)
     {
       if(!graph || !index_graph)
         throw INTERP_KERNEL::Exception("wrap of Renumbering::renumber : One of the input arrays is NULL !");
       if(!graph->isAllocated() || !index_graph->isAllocated())
         throw INTERP_KERNEL::Exception("wrap of Renumbering::renumber : One of the input arrays is not allocated !");
-      ParaMEDMEM::DataArrayInt *out0(0),*out1(0);
+      MEDCoupling::DataArrayInt *out0(0),*out1(0);
       self->renumber(graph->begin(),index_graph->begin(),index_graph->getNumberOfTuples()-1,out0,out1);
       PyObject *ret=PyTuple_New(2);
-      PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(out0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-      PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(out1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+      PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(out0),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+      PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(out1),SWIGTYPE_p_MEDCoupling__DataArrayInt, SWIG_POINTER_OWN | 0 ));
       return ret;
     }
   }

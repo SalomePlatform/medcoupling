@@ -19,7 +19,7 @@
 
 #include "CommInterface.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*! \anchor CommInterface-det
      \class CommInterface
@@ -43,12 +43,12 @@ namespace ParaMEDMEM
     {
     //initialization
     MPI_Init(&argc, &argv);
-    ParaMEDMEM::CommInterface comm_interface;
+    MEDCoupling::CommInterface comm_interface;
 
     //setting up a processor group with proc 0
     set<int> procs;
     procs.insert(0);
-    ParaMEDMEM::ProcessorGroup group(procs, comm_interface);
+    MEDCoupling::ProcessorGroup group(procs, comm_interface);
 
     //cleanup
     MPI_Finalize();

@@ -20,70 +20,70 @@
 %include "MEDRenumberCommon.i"
 
 %pythoncode %{
-def ParaMEDMEMDataArrayDoublenew(cls,*args):
+def MEDCouplingDataArrayDoublenew(cls,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____new___(cls,args)
-def ParaMEDMEMDataArrayDoubleIadd(self,*args):
+def MEDCouplingDataArrayDoubleIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleIsub(self,*args):
+def MEDCouplingDataArrayDoubleIsub(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____isub___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleImul(self,*args):
+def MEDCouplingDataArrayDoubleImul(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____imul___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
+def MEDCouplingDataArrayDoubleIdiv(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleIpow(self,*args):
+def MEDCouplingDataArrayDoubleIpow(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDouble____ipow___(self, self, *args)
-def ParaMEDMEMDataArrayIntnew(cls,*args):
+def MEDCouplingDataArrayIntnew(cls,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____new___(cls,args)
-def ParaMEDMEMDataArrayIntIadd(self,*args):
+def MEDCouplingDataArrayIntIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayIntIsub(self,*args):
+def MEDCouplingDataArrayIntIsub(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____isub___(self, self, *args)
-def ParaMEDMEMDataArrayIntImul(self,*args):
+def MEDCouplingDataArrayIntImul(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____imul___(self, self, *args)
-def ParaMEDMEMDataArrayIntIdiv(self,*args):
+def MEDCouplingDataArrayIntIdiv(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayIntImod(self,*args):
+def MEDCouplingDataArrayIntImod(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____imod___(self, self, *args)
-def ParaMEDMEMDataArrayIntIpow(self,*args):
+def MEDCouplingDataArrayIntIpow(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayInt____ipow___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleIadd(self,*args):
+def MEDCouplingDataArrayDoubleTupleIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDoubleTuple____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleIsub(self,*args):
+def MEDCouplingDataArrayDoubleTupleIsub(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDoubleTuple____isub___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleImul(self,*args):
+def MEDCouplingDataArrayDoubleTupleImul(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDoubleTuple____imul___(self, self, *args)
-def ParaMEDMEMDataArrayDoubleTupleIdiv(self,*args):
+def MEDCouplingDataArrayDoubleTupleIdiv(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayDoubleTuple____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleIadd(self,*args):
+def MEDCouplingDataArrayIntTupleIadd(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayIntTuple____iadd___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleIsub(self,*args):
+def MEDCouplingDataArrayIntTupleIsub(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayIntTuple____isub___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleImul(self,*args):
+def MEDCouplingDataArrayIntTupleImul(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayIntTuple____imul___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleIdiv(self,*args):
+def MEDCouplingDataArrayIntTupleIdiv(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayIntTuple____idiv___(self, self, *args)
-def ParaMEDMEMDataArrayIntTupleImod(self,*args):
+def MEDCouplingDataArrayIntTupleImod(self,*args):
     import _MEDRenumber
     return _MEDRenumber.DataArrayIntTuple____imod___(self, self, *args)
 %}
@@ -91,51 +91,51 @@ def ParaMEDMEMDataArrayIntTupleImod(self,*args):
 
 %pythoncode %{
 InterpKernelException.__reduce__=INTERPKERNELExceptionReduce
-DataArrayDouble.__new__=classmethod(ParaMEDMEMDataArrayDoublenew)
-DataArrayDouble.__iadd__=ParaMEDMEMDataArrayDoubleIadd
-DataArrayDouble.__isub__=ParaMEDMEMDataArrayDoubleIsub
-DataArrayDouble.__imul__=ParaMEDMEMDataArrayDoubleImul
-DataArrayDouble.__idiv__=ParaMEDMEMDataArrayDoubleIdiv
-DataArrayDouble.__ipow__=ParaMEDMEMDataArrayDoubleIpow
+DataArrayDouble.__new__=classmethod(MEDCouplingDataArrayDoublenew)
+DataArrayDouble.__iadd__=MEDCouplingDataArrayDoubleIadd
+DataArrayDouble.__isub__=MEDCouplingDataArrayDoubleIsub
+DataArrayDouble.__imul__=MEDCouplingDataArrayDoubleImul
+DataArrayDouble.__idiv__=MEDCouplingDataArrayDoubleIdiv
+DataArrayDouble.__ipow__=MEDCouplingDataArrayDoubleIpow
 
-DataArrayInt.__new__=classmethod(ParaMEDMEMDataArrayIntnew)
-DataArrayInt.__iadd__=ParaMEDMEMDataArrayIntIadd
-DataArrayInt.__isub__=ParaMEDMEMDataArrayIntIsub
-DataArrayInt.__imul__=ParaMEDMEMDataArrayIntImul
-DataArrayInt.__idiv__=ParaMEDMEMDataArrayIntIdiv
-DataArrayInt.__imod__=ParaMEDMEMDataArrayIntImod
-DataArrayInt.__ipow__=ParaMEDMEMDataArrayIntIpow
+DataArrayInt.__new__=classmethod(MEDCouplingDataArrayIntnew)
+DataArrayInt.__iadd__=MEDCouplingDataArrayIntIadd
+DataArrayInt.__isub__=MEDCouplingDataArrayIntIsub
+DataArrayInt.__imul__=MEDCouplingDataArrayIntImul
+DataArrayInt.__idiv__=MEDCouplingDataArrayIntIdiv
+DataArrayInt.__imod__=MEDCouplingDataArrayIntImod
+DataArrayInt.__ipow__=MEDCouplingDataArrayIntIpow
 
-DataArrayDoubleTuple.__iadd__=ParaMEDMEMDataArrayDoubleTupleIadd
-DataArrayDoubleTuple.__isub__=ParaMEDMEMDataArrayDoubleTupleIsub
-DataArrayDoubleTuple.__imul__=ParaMEDMEMDataArrayDoubleTupleImul
-DataArrayDoubleTuple.__idiv__=ParaMEDMEMDataArrayDoubleTupleIdiv
+DataArrayDoubleTuple.__iadd__=MEDCouplingDataArrayDoubleTupleIadd
+DataArrayDoubleTuple.__isub__=MEDCouplingDataArrayDoubleTupleIsub
+DataArrayDoubleTuple.__imul__=MEDCouplingDataArrayDoubleTupleImul
+DataArrayDoubleTuple.__idiv__=MEDCouplingDataArrayDoubleTupleIdiv
 
-DataArrayIntTuple.__iadd__=ParaMEDMEMDataArrayIntTupleIadd
-DataArrayIntTuple.__isub__=ParaMEDMEMDataArrayIntTupleIsub
-DataArrayIntTuple.__imul__=ParaMEDMEMDataArrayIntTupleImul
-DataArrayIntTuple.__idiv__=ParaMEDMEMDataArrayIntTupleIdiv
-DataArrayIntTuple.__imod__=ParaMEDMEMDataArrayIntTupleImod
+DataArrayIntTuple.__iadd__=MEDCouplingDataArrayIntTupleIadd
+DataArrayIntTuple.__isub__=MEDCouplingDataArrayIntTupleIsub
+DataArrayIntTuple.__imul__=MEDCouplingDataArrayIntTupleImul
+DataArrayIntTuple.__idiv__=MEDCouplingDataArrayIntTupleIdiv
+DataArrayIntTuple.__imod__=MEDCouplingDataArrayIntTupleImod
 
 del INTERPKERNELExceptionReduce
-del ParaMEDMEMDataArrayDoublenew
-del ParaMEDMEMDataArrayDoubleIadd
-del ParaMEDMEMDataArrayDoubleIsub
-del ParaMEDMEMDataArrayDoubleImul
-del ParaMEDMEMDataArrayDoubleIdiv
-del ParaMEDMEMDataArrayIntnew
-del ParaMEDMEMDataArrayIntIadd
-del ParaMEDMEMDataArrayIntIsub
-del ParaMEDMEMDataArrayIntImul
-del ParaMEDMEMDataArrayIntIdiv
-del ParaMEDMEMDataArrayIntImod
-del ParaMEDMEMDataArrayDoubleTupleIadd
-del ParaMEDMEMDataArrayDoubleTupleIsub
-del ParaMEDMEMDataArrayDoubleTupleImul
-del ParaMEDMEMDataArrayDoubleTupleIdiv
-del ParaMEDMEMDataArrayIntTupleIadd
-del ParaMEDMEMDataArrayIntTupleIsub
-del ParaMEDMEMDataArrayIntTupleImul
-del ParaMEDMEMDataArrayIntTupleIdiv
-del ParaMEDMEMDataArrayIntTupleImod
+del MEDCouplingDataArrayDoublenew
+del MEDCouplingDataArrayDoubleIadd
+del MEDCouplingDataArrayDoubleIsub
+del MEDCouplingDataArrayDoubleImul
+del MEDCouplingDataArrayDoubleIdiv
+del MEDCouplingDataArrayIntnew
+del MEDCouplingDataArrayIntIadd
+del MEDCouplingDataArrayIntIsub
+del MEDCouplingDataArrayIntImul
+del MEDCouplingDataArrayIntIdiv
+del MEDCouplingDataArrayIntImod
+del MEDCouplingDataArrayDoubleTupleIadd
+del MEDCouplingDataArrayDoubleTupleIsub
+del MEDCouplingDataArrayDoubleTupleImul
+del MEDCouplingDataArrayDoubleTupleIdiv
+del MEDCouplingDataArrayIntTupleIadd
+del MEDCouplingDataArrayIntTupleIsub
+del MEDCouplingDataArrayIntTupleImul
+del MEDCouplingDataArrayIntTupleIdiv
+del MEDCouplingDataArrayIntTupleImod
 %}

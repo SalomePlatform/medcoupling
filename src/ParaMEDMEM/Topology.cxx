@@ -19,7 +19,7 @@
 
 #include "Topology.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   Topology::Topology()
   {

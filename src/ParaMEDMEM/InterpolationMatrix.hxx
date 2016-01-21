@@ -25,7 +25,7 @@
 #include "InterpolationOptions.hxx"
 #include "DECOptions.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ElementLocator;
 
@@ -42,7 +42,7 @@ namespace ParaMEDMEM
   {
   public:
     
-    InterpolationMatrix(const ParaMEDMEM::ParaFIELD *source_field, 
+    InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field, 
                         const ProcessorGroup& source_group,
                         const ProcessorGroup& target_group,
                         const DECOptions& dec_opt,
@@ -93,7 +93,7 @@ namespace ParaMEDMEM
   private:
     bool isSurfaceComputationNeeded(const std::string& method) const;
   private:
-    const ParaMEDMEM::ParaFIELD *_source_field;
+    const MEDCoupling::ParaFIELD *_source_field;
     std::vector<int> _row_offsets;
     std::map<std::pair<int,int>, int > _col_offsets;
     MEDCouplingPointSet *_source_support;

@@ -21,14 +21,14 @@
 #ifndef __OVERLAPMAPPING_HXX__
 #define __OVERLAPMAPPING_HXX__
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "OverlapElementLocator.hxx"
 
 #include <vector>
 #include <map>
 //#define DEC_DEBUG
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ProcessorGroup;
   class DataArrayInt;
@@ -83,10 +83,10 @@ namespace ParaMEDMEM
      * gives an old2new map for the local part of the source mesh that has been sent to proc#i, just based on the
      * bounding box computation (this is potentially a larger set than what is finally in the interp matrix).
      * Second member gives proc ID.  */
-    map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _sent_src_ids;
+    map < int, MCAuto<DataArrayInt> > _sent_src_ids;
 
     //! See _sent_src_ids. Same for target mesh.
-    map < int, MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _sent_trg_ids;
+    map < int, MCAuto<DataArrayInt> > _sent_trg_ids;
 
     /**! Vector of matrixes (partial interpolation ratios), result of the LOCAL interpolator run.
      * Indexing shared with _source_proc_id_st, and _target_proc_id_st.   */

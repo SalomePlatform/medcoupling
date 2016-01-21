@@ -40,8 +40,8 @@ namespace MEDPARTITIONER
   public:
 
     ParallelTopology();
-    ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>&);
-    ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>&,
+    ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMesh*>&);
+    ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMesh*>&,
                      const std::vector<MEDPARTITIONER::ConnectZone*>&,
                      std::vector<int*>&,
                      std::vector<int*>&,

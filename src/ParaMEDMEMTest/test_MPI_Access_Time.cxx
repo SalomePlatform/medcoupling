@@ -38,7 +38,7 @@
 #define ENABLE_FORCED_FAILURES
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MPIAccessTest::test_MPI_Access_Time() {
 
@@ -61,11 +61,11 @@ void MPIAccessTest::test_MPI_Access_Time() {
 
   debugStream << "test_MPI_Access_Time" << myrank << endl ;
 
-  ParaMEDMEM::CommInterface interface ;
+  MEDCoupling::CommInterface interface ;
 
-  ParaMEDMEM::MPIProcessorGroup* group = new ParaMEDMEM::MPIProcessorGroup(interface) ;
+  MEDCoupling::MPIProcessorGroup* group = new MEDCoupling::MPIProcessorGroup(interface) ;
 
-  ParaMEDMEM::MPIAccess mpi_access( group ) ;
+  MEDCoupling::MPIAccess mpi_access( group ) ;
 
 #define maxreq 10
 
@@ -87,8 +87,8 @@ void MPIAccessTest::test_MPI_Access_Time() {
   int sendbuf[maxreq] ;
   int recvbuf[maxreq] ;
   int i = 0 ;
-  ParaMEDMEM::TimeMessage aSendTimeMsg[maxreq] ;
-  ParaMEDMEM::TimeMessage aRecvTimeMsg[maxreq] ;
+  MEDCoupling::TimeMessage aSendTimeMsg[maxreq] ;
+  MEDCoupling::TimeMessage aRecvTimeMsg[maxreq] ;
   double t ;
   double dt = 1. ;
   double maxt = 10. ;

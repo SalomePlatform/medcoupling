@@ -73,6 +73,6 @@ Playing with NumPy and SciPy
 	mat = rem.getCrudeCSRMatrix()
 	indptr = mc.DataArrayInt(mat.indptr)
 	indptr2 = indptr.deltaShiftIndex()
-	cellIdsOfSkin = indptr2.getIdsEqual(1)
+	cellIdsOfSkin = indptr2.findIdsEqual(1)
 	skin = skinAndNCFaces[cellIdsOfSkin]
 	skin.writeVTK("skin.vtu")

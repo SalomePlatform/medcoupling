@@ -90,7 +90,7 @@ namespace SauvUtilities
   /*!
    * \brief Base class for ASCII and XDR file readers
    */
-  class FileReader : public ParaMEDMEM::RefCountObject
+  class FileReader : public MEDCoupling::RefCountObject
   {
   public:
     FileReader(const char* fileName);

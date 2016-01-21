@@ -38,7 +38,7 @@
 
 #include <mpi.h>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace ICoCo;
       
 enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
@@ -69,7 +69,7 @@ public:
 };
 #endif
 
-%extend ParaMEDMEM::ParaMESH
+%extend MEDCoupling::ParaMESH
 {
   PyObject *getGlobalNumberingCell2() const
   {
@@ -289,22 +289,22 @@ def ParaMEDMEMDataArrayDoubleTupleImul(self,*args):
 def ParaMEDMEMDataArrayDoubleTupleIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.DataArrayDoubleTuple____idiv___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoublenew(cls,*args):
+def MEDCouplingFieldDoublenew(cls,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____new___(cls,args)
-def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
+def MEDCouplingFieldDoubleIadd(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____iadd___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIsub(self,*args):
+def MEDCouplingFieldDoubleIsub(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____isub___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
+def MEDCouplingFieldDoubleImul(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____imul___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
+def MEDCouplingFieldDoubleIdiv(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____idiv___(self, self, *args)
-def ParaMEDMEMMEDCouplingFieldDoubleIpow(self,*args):
+def MEDCouplingFieldDoubleIpow(self,*args):
     import _ParaMEDMEM
     return _ParaMEDMEM.MEDCouplingFieldDouble____ipow___(self, self, *args)
 def ParaMEDMEMDataArrayIntnew(cls,*args):

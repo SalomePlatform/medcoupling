@@ -35,14 +35,14 @@
 #include <vector>
 #include <string>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void SauvLoaderTest::testSauv2Med()
 {
   // read a file containing all types of readable piles
   std::string file = INTERP_TEST::getResourceFile("allPillesTest.sauv", 3);
-  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(file.c_str());
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  MCAuto<SauvReader> sr=SauvReader::New(file.c_str());
+  MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   // write MED
   d2->write("allPillesTest.med",0);
   // check
@@ -59,23 +59,23 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
   const int nbOfNodes = 6;
   double coords[nbOfNodes*spaceDim] = {0,0, 1,0, 1,1, 0,1, 2,0, 2,1};
   int conn[8]={0,1,2,3, 1,4,5,2};
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
+  MCAuto<MEDCouplingUMesh> mesh2d=MEDCouplingUMesh::New("Mesh",spaceDim);
   mesh2d->allocateCells(2);
   mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
   mesh2d->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
   mesh2d->finishInsertingCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> myCoords=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> myCoords=DataArrayDouble::New();
   myCoords->alloc(nbOfNodes,spaceDim);
   std::copy(coords,coords+nbOfNodes*spaceDim,myCoords->getPointer());
   mesh2d->setCoords(myCoords);
 
   // create a MedFileUMesh
-  MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> m= MEDFileUMesh::New();
+  MCAuto<MEDFileUMesh> m= MEDFileUMesh::New();
   m->setMeshAtLevel(0,mesh2d);
 
   // Create families and groups
 
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam = DataArrayInt::New();
+  MCAuto<DataArrayInt> fam = DataArrayInt::New();
   fam->alloc(2,1);
   int elemsFams[2] = {-2,-3};
   std::copy(elemsFams,elemsFams+2,fam->getPointer());
@@ -102,23 +102,23 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
 
   // write to SAUV
   const char* sauvFile = "mesh_with_void_family.sauv";
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> medData = MEDFileData::New();
-  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> medMeshes = MEDFileMeshes::New();
-  MEDCouplingAutoRefCountObjectPtr<SauvWriter> sw=SauvWriter::New();
+  MCAuto<MEDFileData> medData = MEDFileData::New();
+  MCAuto<MEDFileMeshes> medMeshes = MEDFileMeshes::New();
+  MCAuto<SauvWriter> sw=SauvWriter::New();
   medMeshes->setMeshAtPos(0, m);
   medData->setMeshes(medMeshes);
   sw->setMEDFileDS(medData);
   sw->write(sauvFile);
 
   // read SAUV and check groups
-  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  MCAuto<SauvReader> sr=SauvReader::New(sauvFile);
+  MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> group1 = m2->getGroup(0, "Group1");
+  MCAuto<MEDCouplingUMesh> group1 = m2->getGroup(0, "Group1");
   CPPUNIT_ASSERT_EQUAL(1,(int)group1->getNumberOfCells());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> group2 = m2->getGroup(0, "Group2");
+  MCAuto<MEDCouplingUMesh> group2 = m2->getGroup(0, "Group2");
   CPPUNIT_ASSERT_EQUAL(1,(int)group2->getNumberOfCells());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> grptot = m2->getGroup(0, "Grouptot");
+  MCAuto<MEDCouplingUMesh> grptot = m2->getGroup(0, "Grouptot");
   CPPUNIT_ASSERT_EQUAL(2,(int)grptot->getNumberOfCells());
 }
 
@@ -126,22 +126,22 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
 {
   // read SAUV
   std::string sauvFile = INTERP_TEST::getResourceFile("portico_3subs.sauv", 3);
-  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile.c_str());
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  MCAuto<SauvReader> sr=SauvReader::New(sauvFile.c_str());
+  MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   // check mesh
   MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>(d2->getMeshes()->getMeshAtPos(0));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh1d = m2->getMeshAtLevel(0);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> length1dField = mesh1d->getMeasureField(0);
+  MCAuto<MEDCouplingUMesh> mesh1d = m2->getMeshAtLevel(0);
+  MCAuto<MEDCouplingFieldDouble> length1dField = mesh1d->getMeasureField(0);
   std::cout << "Length of 1d elements: " << length1dField->accumulate(0) << std::endl;
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3, length1dField->accumulate(0), 1e-12);
   // check field
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> field =
+  MCAuto<MEDFileFieldMultiTS> field =
     dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("CHAM1D"));
   std::cout << "Number of components in field: " << field->getInfo().size() << std::endl;
   CPPUNIT_ASSERT_EQUAL(6,(int)field->getInfo().size());
   std::vector< std::pair<int,int> > timesteps = field->getIterations();
 
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field1d =
+  MCAuto<MEDCouplingFieldDouble> field1d =
     field->getFieldOnMeshAtLevel(ON_GAUSS_NE, timesteps[0].first, timesteps[0].second, 0, m2);
 
   // Check first component of the field
@@ -170,11 +170,11 @@ void SauvLoaderTest::testMed2Sauv()
 {
   // read pointe.med
   std::string file = INTERP_TEST::getResourceFile("pointe.med", 3);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> pointeMed=MEDFileData::New(file.c_str());
+  MCAuto<MEDFileData> pointeMed=MEDFileData::New(file.c_str());
 
   // add 3 faces to pointeMed
   MEDFileUMesh* pointeMedMesh = static_cast<MEDFileUMesh*>(pointeMed->getMeshes()->getMeshAtPos(0));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> pointeM1D = MEDCouplingUMesh::New();
+  MCAuto<MEDCouplingUMesh> pointeM1D = MEDCouplingUMesh::New();
   DataArrayDouble     *coords = pointeMedMesh->getCoords();
   pointeM1D->setCoords( coords );
   pointeM1D->setMeshDimension( 2 );
@@ -191,11 +191,11 @@ void SauvLoaderTest::testMed2Sauv()
   pointeMed->getMeshes()->setMeshAtPos( 0, pointeMedMesh );
 
   // add a field on 2 faces to pointeMed
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> ff1=MEDFileFieldMultiTS::New();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> f1=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
+  MCAuto<MEDFileFieldMultiTS> ff1=MEDFileFieldMultiTS::New();
+  MCAuto<MEDCouplingFieldDouble> f1=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
   f1->setMesh( pointeM1D );
   f1->setName("Field on 2 faces");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> d=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> d=DataArrayDouble::New();
   d->alloc(3+4,2);
   d->setInfoOnComponent(0,"sigX [MPa]");
   d->setInfoOnComponent(1,"sigY [GPa]");
@@ -205,7 +205,7 @@ void SauvLoaderTest::testMed2Sauv()
     };
   std::copy(vals,vals+d->getNbOfElems(),d->getPointer());
   f1->setArray(d);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=DataArrayInt::New();
+  MCAuto<DataArrayInt> da=DataArrayInt::New();
   int ids[] =
     {
       0,2
@@ -220,7 +220,7 @@ void SauvLoaderTest::testMed2Sauv()
   MEDFileFields* pointeFields = pointeMed->getFields();
   for ( int i = 0; i < pointeFields->getNumberOfFields(); ++i )
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDFileAnyTypeFieldMultiTS> ts = pointeFields->getFieldAtPos(i);
+      MCAuto<MEDFileAnyTypeFieldMultiTS> ts = pointeFields->getFieldAtPos(i);
       if ( std::string("fieldnodeint") == ts->getName())
         {
           pointeFields->destroyFieldAtPos( i );
@@ -229,13 +229,13 @@ void SauvLoaderTest::testMed2Sauv()
     }
   // write pointeMed to SAUV
   const char* sauvFile = "pointe.sauv";
-  MEDCouplingAutoRefCountObjectPtr<SauvWriter> sw=SauvWriter::New();
+  MCAuto<SauvWriter> sw=SauvWriter::New();
   sw->setMEDFileDS(pointeMed);
   sw->write(sauvFile);
 
   // read SAUV and check
-  MEDCouplingAutoRefCountObjectPtr<SauvReader> sr=SauvReader::New(sauvFile);
-  MEDCouplingAutoRefCountObjectPtr<MEDFileData> d2=sr->loadInMEDFileDS();
+  MCAuto<SauvReader> sr=SauvReader::New(sauvFile);
+  MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   CPPUNIT_ASSERT_EQUAL(1,d2->getNumberOfMeshes());
   CPPUNIT_ASSERT_EQUAL(4,d2->getNumberOfFields());
   MEDFileUMesh * m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
@@ -250,25 +250,25 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe5") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"maa1") != groups.end() );
   CPPUNIT_ASSERT_EQUAL(16,m->getSizeAtLevel(0));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um0 = m->getMeshAtLevel(0);
+  MCAuto<MEDCouplingMesh> um0 = m->getMeshAtLevel(0);
   CPPUNIT_ASSERT_EQUAL(12, um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TETRA4 ));
   CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_PYRA5 ));
   CPPUNIT_ASSERT_EQUAL(2,  um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um1 = m->getMeshAtLevel(-1);
+  MCAuto<MEDCouplingMesh> um1 = m->getMeshAtLevel(-1);
   CPPUNIT_ASSERT_EQUAL(2, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> pointeUM0 =
+  MCAuto<MEDCouplingUMesh> pointeUM0 =
     static_cast<MEDCouplingUMesh*>( pointeMedMesh->getMeshAtLevel(0));
   DataArrayDouble *coo = m->getCoords();
   DataArrayDouble *pointeCoo = pointeMedMesh->getCoords();
   CPPUNIT_ASSERT(coo->isEqualWithoutConsideringStr(*pointeCoo,1e-12));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol = um0->getMeasureField(0);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> pointeVol = pointeUM0->getMeasureField(0);
+  MCAuto<MEDCouplingFieldDouble> vol = um0->getMeasureField(0);
+  MCAuto<MEDCouplingFieldDouble> pointeVol = pointeUM0->getMeasureField(0);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( vol->accumulate(0), pointeVol->accumulate(0),1e-12);
   // check fields
   // fieldnodedouble
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldnodedoubleTS1 =
+  MCAuto<MEDFileFieldMultiTS> fieldnodedoubleTS1 =
     dynamic_cast<MEDFileFieldMultiTS *>(pointeMed->getFields()->getFieldWithName("fieldnodedouble"));
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldnodedoubleTS2 =
+  MCAuto<MEDFileFieldMultiTS> fieldnodedoubleTS2 =
     dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("fieldnodedouble"));
   CPPUNIT_ASSERT_EQUAL( fieldnodedoubleTS1->getInfo().size(), fieldnodedoubleTS2->getInfo().size());
   for ( size_t i = 0; i < fieldnodedoubleTS1->getInfo().size(); ++i )
@@ -278,16 +278,16 @@ void SauvLoaderTest::testMed2Sauv()
   std::vector< std::pair<int,int> > io2 = fieldnodedoubleTS2->getIterations();
   for ( int i =0; i < fieldnodedoubleTS1->getNumberOfTS(); ++i )
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fnd1 =
+      MCAuto<MEDCouplingFieldDouble> fnd1 =
         fieldnodedoubleTS1->getFieldOnMeshAtLevel(ON_NODES, io1[i].first,io1[i].second,pointeUM0);
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fnd2 =
+      MCAuto<MEDCouplingFieldDouble> fnd2 =
         fieldnodedoubleTS2->getFieldOnMeshAtLevel(ON_NODES, io2[i].first,io2[i].second,um0);
       CPPUNIT_ASSERT( fnd1->getArray()->isEqual( *fnd2->getArray(), 1e-12 ));
     }
   // fieldcelldoublevector
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldcelldoublevectorTS1 =
+  MCAuto<MEDFileFieldMultiTS> fieldcelldoublevectorTS1 =
     dynamic_cast<MEDFileFieldMultiTS *>(pointeMed->getFields()->getFieldWithName("fieldcelldoublevector"));
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldcelldoublevectorTS2 =
+  MCAuto<MEDFileFieldMultiTS> fieldcelldoublevectorTS2 =
     dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName("fieldcelldoublevector"));
   CPPUNIT_ASSERT_EQUAL( fieldcelldoublevectorTS1->getInfo().size(), fieldcelldoublevectorTS2->getInfo().size());
   for ( size_t i = 0; i < fieldcelldoublevectorTS1->getInfo().size(); ++i )
@@ -297,19 +297,19 @@ void SauvLoaderTest::testMed2Sauv()
   io2 = fieldcelldoublevectorTS2->getIterations();
   for ( int i =0; i < fieldcelldoublevectorTS1->getNumberOfTS(); ++i )
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fnd1 =
+      MCAuto<MEDCouplingFieldDouble> fnd1 =
         fieldcelldoublevectorTS1->getFieldOnMeshAtLevel(ON_CELLS, io1[i].first,io1[i].second,pointeUM0);
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fnd2 =
+      MCAuto<MEDCouplingFieldDouble> fnd2 =
         fieldcelldoublevectorTS2->getFieldOnMeshAtLevel(ON_CELLS, io2[i].first,io2[i].second,um0);
       CPPUNIT_ASSERT_DOUBLES_EQUAL( fnd1->accumulate(0), fnd2->accumulate(0), 1e-12 );
       CPPUNIT_ASSERT_DOUBLES_EQUAL( fnd1->accumulate(1), fnd2->accumulate(1), 1e-12 );
       CPPUNIT_ASSERT_DOUBLES_EQUAL( fnd1->accumulate(2), fnd2->accumulate(2), 1e-12 );
     }
   // "Field on 2 faces"
-  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> fieldOnFaces =
+  MCAuto<MEDFileFieldMultiTS> fieldOnFaces =
     dynamic_cast<MEDFileFieldMultiTS *>(d2->getFields()->getFieldWithName(f1->getName().c_str()));
   io1 = fieldOnFaces->getIterations();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> fof =
+  MCAuto<MEDCouplingFieldDouble> fof =
     fieldOnFaces->getFieldOnMeshAtLevel(f1->getTypeOfField(),io1[0].first,io1[0].second,um1);
   CPPUNIT_ASSERT( d->isEqual( *fof->getArray(), 1e-12 ));
 }

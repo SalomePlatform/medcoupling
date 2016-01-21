@@ -56,7 +56,7 @@ Copy paste the following lines. ::
         mesh3D.setCoords(myCoords)
         mesh3D.orientCorrectlyPolyhedrons()
         mesh3D.sortCellsInMEDFileFrmt()
-        mesh3D.checkCoherency()
+        mesh3D.checkConsistencyLight()
         renum=DataArrayInt.New(60) ; renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
         mesh3D.renumberNodes(renum,60)
 
@@ -97,14 +97,14 @@ and foreach 2D cell in slicemesh, the corresponding cell id into mesh3D. ::
 Firstly, compute the barycenters of the 3D cells. Then select the 2nd component of the barycenter of the cells.
 Finally select the tuple ids (corresponding to cell ids) falling in the range [zLev[1],zLev[2]]. ::
 
-        bary=mesh3D.getBarycenterAndOwner()
+        bary=mesh3D.computeCellCenterOfMass()
         baryZ=bary[:,2]
-        cellIdsSol2=baryZ.getIdsInRange(zLev[1],zLev[2])
+        cellIdsSol2=baryZ.findIdsInRange(zLev[1],zLev[2])
 
-* Using MEDCouplingExtrudedMesh :
+* Using MEDCouplingMappedExtrudedMesh :
 
 This is the safest method since it only uses the nodal connectivity to compute the extrusion. The coordinates are ignored.
-Two things are needed to build a MEDCouplingExtrudedMesh. The 3D mesh you expect to be an extruded mesh, and a 2D mesh
+Two things are needed to build a MEDCouplingMappedExtrudedMesh. The 3D mesh you expect to be an extruded mesh, and a 2D mesh
 lying on the same coordinates, from which the extrusion will be computed.
 Let's begin with the build of the 2D mesh. We build it from all the nodes on a plane going through point [0.,0.,zLev[0]] and with normal vector [0.,0.,1.] (MEDCouplingUMesh.findNodesOnPlane()).
 Then invoke MEDCouplingUMesh.buildFacePartOfMySelfNode to build mesh2D (read the documentation of buildFacePartOfMySelfNode()). ::
@@ -114,7 +114,7 @@ Then invoke MEDCouplingUMesh.buildFacePartOfMySelfNode to build mesh2D (read the
 
 Then it is possible to compute an extrusion from mesh3D and mesh2D. ::
 
-        extMesh=MEDCouplingExtrudedMesh.New(mesh3D,mesh2D,0)
+        extMesh=MEDCouplingMappedExtrudedMesh.New(mesh3D,mesh2D,0)
 
 Then simply request the 2nd row. ::
 
@@ -161,14 +161,14 @@ There are 2 solutions to do that.
         baryXY=bary[:,[0,1]]
         baryXY-=[250.,150.]
         magn=baryXY.magnitude()
-        cellIds2Sol1=magn.getIdsInRange(0.,1e-12)
+        cellIds2Sol1=magn.findIdsInRange(0.,1e-12)
 
-* using extrusion extMesh: starting from the unique cell in mesh2D whose center is at [250.,150.,0.] MEDCouplingExtrudedMesh.getMesh3DIds retrieves the cell IDs sorted by slice. ::
+* using extrusion extMesh: starting from the unique cell in mesh2D whose center is at [250.,150.,0.] MEDCouplingMappedExtrudedMesh.getMesh3DIds retrieves the cell IDs sorted by slice. ::
 
-        bary2=mesh2D.getBarycenterAndOwner()[:,[0,1]]
+        bary2=mesh2D.computeCellCenterOfMass()[:,[0,1]]
         bary2-=[250.,150.]
         magn=bary2.magnitude()
-        ids=magn.getIdsInRange(0.,1e-12)
+        ids=magn.findIdsInRange(0.,1e-12)
         idStart=int(ids) # ids is assumed to contain only one value, if not an exception is thrown
         cellIds2Sol2=extMesh.getMesh3DIds()[range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())]
 
@@ -185,7 +185,7 @@ This part of the exercise shows how to perform copy and aggregation. This can be
 Perform a deep copy of mesh3DSlice2. On this copy perform a translation v=[0.,1000.,0.].
 Then aggregate mesh3DSlice2 with its translated copy, using MEDCouplingUMesh.MergeUMeshes. ::
 
-        mesh3DSlice2bis=mesh3DSlice2.deepCpy()
+        mesh3DSlice2bis=mesh3DSlice2.deepCopy()
         mesh3DSlice2bis.translate([0.,1000.,0.])
         mesh3DSlice2All=MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2,mesh3DSlice2bis])
 
@@ -203,7 +203,7 @@ A face from "mesh3DSurf" is said to be internal if and only if it is shared by m
 
         mesh3DSurf,desc,descIndx,revDesc,revDescIndx=mesh3D.buildDescendingConnectivity()
         numberOf3DCellSharing=revDescIndx.deltaShiftIndex()
-        cellIds=numberOf3DCellSharing.getIdsNotEqual(1)
+        cellIds=numberOf3DCellSharing.findIdsNotEqual(1)
         mesh3DSurfInside=mesh3DSurf[cellIds]
         mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
 

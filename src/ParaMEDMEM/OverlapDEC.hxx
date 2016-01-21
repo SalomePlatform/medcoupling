@@ -27,7 +27,7 @@
 #include <mpi.h>
 #include <string>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class OverlapInterpolationMatrix;
   class OverlapElementLocator;

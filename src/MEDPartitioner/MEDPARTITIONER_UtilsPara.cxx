@@ -26,7 +26,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
 #include <fstream>
@@ -217,7 +217,7 @@ void MEDPARTITIONER::RecvIntVec(std::vector<int>& vec, const int source)
   \param da dataArray to be sent
   \param target processor id of the target
 */
-void MEDPARTITIONER::SendDataArrayInt(const ParaMEDMEM::DataArrayInt *da, const int target)
+void MEDPARTITIONER::SendDataArrayInt(const MEDCoupling::DataArrayInt *da, const int target)
 {
   if (da==0)
     throw INTERP_KERNEL::Exception("Problem send DataArrayInt* NULL");
@@ -240,7 +240,7 @@ void MEDPARTITIONER::SendDataArrayInt(const ParaMEDMEM::DataArrayInt *da, const 
   \param da dataArrayInt that is filled
   \param source processor id of the incoming messages
 */
-ParaMEDMEM::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
+MEDCoupling::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
 {
   int tag = 111004;
   int size[3];
@@ -251,7 +251,7 @@ ParaMEDMEM::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
     std::cout << "proc " << MyGlobals::_Rank << " : <-- RecvDataArrayInt " << size[0] << std::endl;
   if (size[0]!=(size[1]*size[2]))
     throw INTERP_KERNEL::Exception("Problem in RecvDataArrayInt incoherent sizes");
-  ParaMEDMEM::DataArrayInt* da=ParaMEDMEM::DataArrayInt::New();
+  MEDCoupling::DataArrayInt* da=MEDCoupling::DataArrayInt::New();
   da->alloc(size[1],size[2]);
   int *p=da->getPointer();
   MPI_Recv(const_cast<int*>(&p[0]), size[0], MPI_INT, source, tag+100, MPI_COMM_WORLD, &status);
@@ -265,7 +265,7 @@ ParaMEDMEM::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
   \param da dataArray to be sent
   \param target processor id of the target
 */
-void MEDPARTITIONER::SendDataArrayDouble(const ParaMEDMEM::DataArrayDouble *da, const int target)
+void MEDPARTITIONER::SendDataArrayDouble(const MEDCoupling::DataArrayDouble *da, const int target)
 {
   if (da==0)
     throw INTERP_KERNEL::Exception("Problem send DataArrayDouble* NULL");
@@ -288,7 +288,7 @@ void MEDPARTITIONER::SendDataArrayDouble(const ParaMEDMEM::DataArrayDouble *da, 
   \param da dataArrayDouble that is filled
   \param source processor id of the incoming messages
 */
-ParaMEDMEM::DataArrayDouble* MEDPARTITIONER::RecvDataArrayDouble(const int source)
+MEDCoupling::DataArrayDouble* MEDPARTITIONER::RecvDataArrayDouble(const int source)
 {
   int tag = 111005;
   int size[3];
@@ -299,7 +299,7 @@ ParaMEDMEM::DataArrayDouble* MEDPARTITIONER::RecvDataArrayDouble(const int sourc
     std::cout << "proc " << MyGlobals::_Rank << " : <-- RecvDataArrayDouble " << size[0] << std::endl;
   if (size[0]!=(size[1]*size[2]))
     throw INTERP_KERNEL::Exception("Problem in RecvDataArrayDouble incoherent sizes");
-  ParaMEDMEM::DataArrayDouble* da=ParaMEDMEM::DataArrayDouble::New();
+  MEDCoupling::DataArrayDouble* da=MEDCoupling::DataArrayDouble::New();
   da->alloc(size[1],size[2]);
   double *p=da->getPointer();
   MPI_Recv(const_cast<double*>(&p[0]), size[0], MPI_DOUBLE, source, tag+100, MPI_COMM_WORLD, &status);
@@ -458,8 +458,8 @@ void MEDPARTITIONER::TestDataArrayMpi()
   int rank=MyGlobals::_Rank;
   //int
   {
-    ParaMEDMEM::DataArrayInt* send=ParaMEDMEM::DataArrayInt::New();
-    ParaMEDMEM::DataArrayInt* recv=0;
+    MEDCoupling::DataArrayInt* send=MEDCoupling::DataArrayInt::New();
+    MEDCoupling::DataArrayInt* recv=0;
     int nbOfTuples=5;
     int numberOfComponents=3;
     send->alloc(nbOfTuples,numberOfComponents);
@@ -487,8 +487,8 @@ void MEDPARTITIONER::TestDataArrayMpi()
   }
   //double
   {
-    ParaMEDMEM::DataArrayDouble* send=ParaMEDMEM::DataArrayDouble::New();
-    ParaMEDMEM::DataArrayDouble* recv=0;
+    MEDCoupling::DataArrayDouble* send=MEDCoupling::DataArrayDouble::New();
+    MEDCoupling::DataArrayDouble* recv=0;
     int nbOfTuples=5;
     int numberOfComponents=3;
     send->alloc(nbOfTuples,numberOfComponents);

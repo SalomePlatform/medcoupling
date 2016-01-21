@@ -49,7 +49,7 @@ print tmp
 a=cI.deltaShiftIndex()
 b=a-1
 myNewNbOfTuples=oldNbOfTuples-sum(b.getValues())
-o2n,newNbOfTuples=DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfTuples,c,cI)
+o2n,newNbOfTuples=DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples,c,cI)
 print "Ai je trouve le bon resultat ? %s"%(str(myNewNbOfTuples==newNbOfTuples)) ; assert myNewNbOfTuples==newNbOfTuples
 #
 d3=d2.renumberAndReduce(o2n,newNbOfTuples)
@@ -66,7 +66,7 @@ for i in xrange(7):
   m.insertNextCell(NORM_POLYGON,o2n[6*i:6*(i+1)].getValues())
   pass
 m.finishInsertingCells()
-m.checkCoherency()
+m.checkConsistencyLight()
 #
 m.writeVTK("My7hexagons.vtu")
 
@@ -98,7 +98,7 @@ myCoords.setInfoOnComponents(["X [m]","Y [m]","Z [m]"])
 mesh3D.setCoords(myCoords);
 mesh3D.orientCorrectlyPolyhedrons()
 mesh3D.sortCellsInMEDFileFrmt()
-mesh3D.checkCoherency()
+mesh3D.checkConsistencyLight()
 renum=DataArrayInt.New(60) ; renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
 mesh3D.renumberNodes(renum,60)
 #
@@ -110,12 +110,12 @@ zLev=zLev.getDifferentValues(1e-12)
 zLev.sort()
 #
 tmp,cellIdsSol1=mesh3D.buildSlice3D([0.,0.,(zLev[1]+zLev[2])/2],[0.,0.,1.],1e-12)
-bary=mesh3D.getBarycenterAndOwner()
+bary=mesh3D.computeCellCenterOfMass()
 baryZ=bary[:,2]
-cellIdsSol2=baryZ.getIdsInRange(zLev[1],zLev[2])
+cellIdsSol2=baryZ.findIdsInRange(zLev[1],zLev[2])
 nodeIds=mesh3D.findNodesOnPlane([0.,0.,zLev[0]],[0.,0.,1.],1e-10)
 mesh2D=mesh3D.buildFacePartOfMySelfNode(nodeIds,True)
-extMesh=MEDCouplingExtrudedMesh.New(mesh3D,mesh2D,0)
+extMesh=MEDCouplingMappedExtrudedMesh.New(mesh3D,mesh2D,0)
 cellIdsSol3=extMesh.getMesh3DIds()[mesh2D.getNumberOfCells():2*mesh2D.getNumberOfCells()]
 for i in xrange(3):
   exec("print cellIdsSol%s.getValues()"%(i+1))
@@ -129,26 +129,26 @@ print mesh3DPart.checkConsecutiveCellTypes() ; assert mesh3DPart.checkConsecutiv
 baryXY=bary[:,[0,1]]
 baryXY-=[250.,150.]
 magn=baryXY.magnitude()
-cellIds2Sol1=magn.getIdsInRange(0.,1e-12)
+cellIds2Sol1=magn.findIdsInRange(0.,1e-12)
 #
-bary2=mesh2D.getBarycenterAndOwner()[:,[0,1]]
+bary2=mesh2D.computeCellCenterOfMass()[:,[0,1]]
 bary2-=[250.,150.]
 magn=bary2.magnitude()
-ids=magn.getIdsInRange(0.,1e-12)
+ids=magn.findIdsInRange(0.,1e-12)
 idStart=int(ids) # ids is assumed to contain only one value, if not an exception is thrown
 cellIds2Sol2=extMesh.getMesh3DIds()[range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())]
 #
 mesh3DSlice2=mesh3D[cellIds2Sol1]
 mesh3DSlice2.zipCoords()
 #
-mesh3DSlice2bis=mesh3DSlice2.deepCpy()
+mesh3DSlice2bis=mesh3DSlice2.deepCopy()
 mesh3DSlice2bis.translate([0.,1000.,0.])
 mesh3DSlice2All=MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2,mesh3DSlice2bis])
 mesh3DSlice2All.writeVTK("mesh3DSlice2All.vtu")
 #
 mesh3DSurf,desc,descIndx,revDesc,revDescIndx=mesh3D.buildDescendingConnectivity()
 numberOf3DCellSharing=revDescIndx.deltaShiftIndex()
-cellIds=numberOf3DCellSharing.getIdsNotEqual(1)
+cellIds=numberOf3DCellSharing.findIdsNotEqual(1)
 mesh3DSurfInside=mesh3DSurf[cellIds]
 mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
 
@@ -171,12 +171,12 @@ f2.setName("MyField2")
 f2.fillFromAnalytic(1,"(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")
 print "f and f2 are equal : %s"%(f.isEqualWithoutConsideringStr(f2,1e-13,1e-12)) ; assert f.isEqualWithoutConsideringStr(f2,1e-13,1e-12)
 #
-ids1=f.getArray().getIdsInRange(0.,5.)
+ids1=f.getArray().findIdsInRange(0.,5.)
 fPart1=f.buildSubPart(ids1)
-ids2=f.getArray().getIdsInRange(50.,1.e300)
+ids2=f.getArray().findIdsInRange(50.,1.e300)
 fPart2=f.buildSubPart(ids2)
 #Renumbering cells to follow MED file
-fPart1Cpy=fPart1.deepCpy()
+fPart1Cpy=fPart1.deepCopy()
 o2n=fPart1Cpy.getMesh().sortCellsInMEDFileFrmt()
 fPart1Cpy.getArray().renumberInPlace(o2n)
 #Check that fPart1Cpy and fPart1 are the same
@@ -186,7 +186,7 @@ print "Fields are the same ? %s"%(fPart1Cpy.getArray().accumulate()[0]<1e-12) ; 
 #
 fPart12=MEDCouplingFieldDouble.MergeFields([fPart1,fPart2])
 # evaluation on points
-bary=fPart12.getMesh().getBarycenterAndOwner()
+bary=fPart12.getMesh().computeCellCenterOfMass()
 arr1=fPart12.getValueOnMulti(bary)
 arr2=f.getValueOnMulti(bary)
 delta=arr1-arr2
@@ -226,32 +226,32 @@ myCoords=DataArrayDouble.New(targetCoords,9,2);
 myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
 targetMesh.setCoords(myCoords);
 #
-MEDLoader.WriteUMesh("TargetMesh.med",targetMesh,True)
+WriteUMesh("TargetMesh.med",targetMesh,True)
 #
-meshRead=MEDLoader.ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
+meshRead=ReadUMeshFromFile("TargetMesh.med",targetMesh.getName(),0)
 print "Is the mesh read in file equals targetMesh ? %s"%(meshRead.isEqual(targetMesh,1e-12)) ; assert meshRead.isEqual(targetMesh,1e-12)
 #
 f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
 f.setTime(5.6,7,8)
-f.setArray(targetMesh.getBarycenterAndOwner())
+f.setArray(targetMesh.computeCellCenterOfMass())
 f.setMesh(targetMesh)
 f.setName("AFieldName")
-MEDLoader.WriteField("MyFirstField.med",f,True)
+WriteField("MyFirstField.med",f,True)
 #
-f2=MEDLoader.ReadFieldCell("MyFirstField.med",f.getMesh().getName(),0,f.getName(),7,8)
+f2=ReadFieldCell("MyFirstField.med",f.getMesh().getName(),0,f.getName(),7,8)
 print "Is the field read in file equals f ? %s"%(f2.isEqual(f,1e-12,1e-12)) ; assert f2.isEqual(f,1e-12,1e-12)
 #
-MEDLoader.WriteUMesh("MySecondField.med",f.getMesh(),True)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
+WriteUMesh("MySecondField.med",f.getMesh(),True)
+WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
 #
 f2=f.clone(True)
 f2.getArray()[:]*=2.0
 f2.setTime(7.8,9,10)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
+WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)
 #
-f3=MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
+f3=ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),7,8)
 print "Is the field read in file equals f ? %s"%(f.isEqual(f3,1e-12,1e-12)) ; assert f.isEqual(f3,1e-12,1e-12)
-f4=MEDLoader.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
+f4=ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
 print "Is the field read in file equals f ? %s"%(f2.isEqual(f4,1e-12,1e-12)) ; assert f2.isEqual(f4,1e-12,1e-12)
 
 #####
@@ -303,7 +303,7 @@ print "Is group \"grp0_Lev0\" are the same ? %s"%(grp0_0_read.isEqual(grp0_0)) ;
 #
 f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
 f.setTime(5.6,7,8)
-f.setArray(targetMesh.getBarycenterAndOwner())
+f.setArray(targetMesh.computeCellCenterOfMass())
 f.setMesh(targetMesh)
 f.setName("AFieldName")
 #
@@ -358,25 +358,25 @@ NodeField0=NodeField[proc0] ; NodeField0.getMesh().setName(m0.getName()) ; CellF
 NodeField1=NodeField[proc1] ; NodeField1.getMesh().setName(m0.getName()) ; CellField1=CellField[proc1] ; CellField1.setMesh(NodeField1.getMesh())
 #
 proc0_fname="proc0.med"
-MEDLoader.WriteField(proc0_fname,NodeField0,True)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc0_fname,CellField0)
+WriteField(proc0_fname,NodeField0,True)
+WriteFieldUsingAlreadyWrittenMesh(proc0_fname,CellField0)
 proc1_fname="proc1.med"
-MEDLoader.WriteField(proc1_fname,NodeField1,True)
-MEDLoader.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,CellField1)
+WriteField(proc1_fname,NodeField1,True)
+WriteFieldUsingAlreadyWrittenMesh(proc1_fname,CellField1)
 #
-CellField0_read=MEDLoader.ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
-CellField1_read=MEDLoader.ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
+CellField0_read=ReadFieldCell("proc0.med","mesh",0,"CellField",5,6)
+CellField1_read=ReadFieldCell("proc1.med","mesh",0,"CellField",5,6)
 CellField_read=MEDCouplingFieldDouble.MergeFields([CellField0_read,CellField1_read])
-CellFieldCpy=CellField.deepCpy()
+CellFieldCpy=CellField.deepCopy()
 CellFieldCpy.substractInPlaceDM(CellField_read,10,1e-12)
 CellFieldCpy.getArray().abs()
 print CellFieldCpy.getArray().isUniform(0.,1e-12)
 #
-NodeField0_read=MEDLoader.ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
-NodeField1_read=MEDLoader.ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
+NodeField0_read=ReadFieldNode("proc0.med","mesh",0,"NodeField",5,6)
+NodeField1_read=ReadFieldNode("proc1.med","mesh",0,"NodeField",5,6)
 NodeField_read=MEDCouplingFieldDouble.MergeFields([NodeField0_read,NodeField1_read])
 NodeField_read.mergeNodes(1e-10)
-NodeFieldCpy=NodeField.deepCpy()
+NodeFieldCpy=NodeField.deepCopy()
 NodeFieldCpy.mergeNodes(1e-10)
 NodeFieldCpy.substractInPlaceDM(NodeField_read,10,1e-12)
 print NodeFieldCpy.getArray().isUniform(0.,1e-12) ; assert NodeFieldCpy.getArray().isUniform(0.,1e-12)
@@ -426,7 +426,7 @@ for fieldName in fsML[0].getFieldsNames():
             if typp==ON_CELLS:
                arr.renumberInPlace(o2nML[lev])
             mcf=MEDCouplingFieldDouble(typp,ONE_TIME) ; mcf.setName(fieldName) ; mcf.setTime(tim,dt,it) ; mcf.setArray(arr)
-            mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkCoherency()
+            mcf.setMesh(mergeMLMesh.getMeshAtLevel(lev)) ; mcf.checkConsistencyLight()
             mergeField.appendFieldNoProfileSBT(mcf)
             pass
         pass
@@ -463,17 +463,17 @@ srcField=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME) ; srcField.setMesh(srcMesh)
 srcField.fillFromAnalytic(1,"7-sqrt((x-5.)*(x-5.)+(y-5.)*(y-5.))") ; CellField.getArray().setInfoOnComponent(0,"powercell [W]")
 #
 #remap.transferField(srcField,1e300)
-srcField.setNature(ConservativeVolumic)
+srcField.setNature(IntensiveMaximum)
 trgFieldCV=remap.transferField(srcField,1e300)
 #
-print "ConservativeVolumic %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0]) ; assert abs(srcField.integral(True)[0]-trgFieldCV.integral(True)[0])<1e-6
-print "ConservativeVolumic %lf != %lf"%(srcField.getArray().accumulate()[0],trgFieldCV.getArray().accumulate()[0]) ; assert abs(srcField.getArray().accumulate()[0]-trgFieldCV.getArray().accumulate()[0])>1e-6
+print "IntensiveMaximum %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0]) ; assert abs(srcField.integral(True)[0]-trgFieldCV.integral(True)[0])<1e-6
+print "IntensiveMaximum %lf != %lf"%(srcField.getArray().accumulate()[0],trgFieldCV.getArray().accumulate()[0]) ; assert abs(srcField.getArray().accumulate()[0]-trgFieldCV.getArray().accumulate()[0])>1e-6
 #
-srcField.setNature(Integral)
+srcField.setNature(ExtensiveMaximum)
 trgFieldI=remap.transferField(srcField,1e300)
 #
-print "IntegralGlobConstraint %lf != %lf"%(srcField.integral(True)[0],trgFieldI.integral(True)[0]) ; assert abs(srcField.integral(True)[0]-trgFieldI.integral(True)[0])>1e-6
-print "IntegralGlobConstraint %lf == %lf"%(srcField.getArray().accumulate()[0],trgFieldI.getArray().accumulate()[0]) ; assert abs(srcField.getArray().accumulate()[0]-trgFieldI.getArray().accumulate()[0])<1e-6
+print "ExtensiveConservation %lf != %lf"%(srcField.integral(True)[0],trgFieldI.integral(True)[0]) ; assert abs(srcField.integral(True)[0]-trgFieldI.integral(True)[0])>1e-6
+print "ExtensiveConservation %lf == %lf"%(srcField.getArray().accumulate()[0],trgFieldI.getArray().accumulate()[0]) ; assert abs(srcField.getArray().accumulate()[0]-trgFieldI.getArray().accumulate()[0])<1e-6
 
 ######
 
@@ -496,7 +496,7 @@ f1ts=fMts[(2,-1)]
 fMc=f1ts.getFieldAtLevel(ON_CELLS,0)
 arr=fMc.getArray()
 arr.getMinMaxPerComponent() # juste pour voir la plage de variation du champ par compo
-ids=arr.getIdsInRange(0.,1.)
+ids=arr.findIdsInRange(0.,1.)
 f2Mc=fMc[ids]
 #
 pressMts=data.getFields()["PRESSION_ELEM_DOM"]
@@ -509,7 +509,7 @@ pressOnAgitateurMc.getMesh().zipCoords()
 agitateurMesh3DMc=pressOnAgitateurMc.getMesh()
 m3DSurf,desc,descI,revDesc,revDescI=agitateurMesh3DMc.buildDescendingConnectivity()
 nbOf3DCellSharing=revDescI.deltaShiftIndex()
-ids2=nbOf3DCellSharing.getIdsEqual(1)
+ids2=nbOf3DCellSharing.findIdsEqual(1)
 agitateurSkinMc=m3DSurf[ids2]
 OffsetsOfTupleIdsInField=revDescI[ids2]
 tupleIdsInField=revDesc[OffsetsOfTupleIdsInField]
@@ -525,9 +525,9 @@ forceVectSkin=forceSkin*normalSkin
 #
 singlePolyhedron=agitateurMesh3DMc.buildSpreadZonesWithPoly()
 singlePolyhedron.orientCorrectlyPolyhedrons()
-centerOfMass=singlePolyhedron.getBarycenterAndOwner()
+centerOfMass=singlePolyhedron.computeCellCenterOfMass()
 
-barySkin=agitateurSkinMc.getBarycenterAndOwner()
+barySkin=agitateurSkinMc.computeCellCenterOfMass()
 posSkin=barySkin-centerOfMass
 
 torquePerCellOnSkin=DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
@@ -555,17 +555,17 @@ print vect0
 def computeAngle(locAgitateur1ts):
     fMc=locAgitateur1ts.getFieldAtLevel(ON_CELLS,0)
     arr=fMc.getArray()
-    ids=arr.getIdsInRange(0.,1.)
+    ids=arr.findIdsInRange(0.,1.)
     f2Mc=fMc[ids]
     m3DSurf,desc,descI,revDesc,revDescI=f2Mc.getMesh().buildDescendingConnectivity()
     nbOf3DCellSharing=revDescI.deltaShiftIndex()
-    ids2=nbOf3DCellSharing.getIdsEqual(1)
+    ids2=nbOf3DCellSharing.findIdsEqual(1)
     agitateurSkinMc=m3DSurf[ids2]
     #
     singlePolyhedron=agitateurMesh3DMc.buildSpreadZonesWithPoly()
     singlePolyhedron.orientCorrectlyPolyhedrons()
-    centerOfMass=singlePolyhedron.getBarycenterAndOwner()
-    bary=agitateurSkinMc.getBarycenterAndOwner()
+    centerOfMass=singlePolyhedron.computeCellCenterOfMass()
+    bary=agitateurSkinMc.computeCellCenterOfMass()
     posSkin=bary-centerOfMass
     x2=posSkin[:,0]*posSkin[:,0] ; x2=x2.accumulate()[0]
     y2=posSkin[:,1]*posSkin[:,1] ; y2=y2.accumulate()[0]

@@ -45,24 +45,24 @@ Interpoler avec MEDCouplingRemapper
 	srcField.getArray().setInfoOnComponent(0, "powercell [W]")
 	# Transfer field
 	#remap.transferField(srcField, 1e300)
-	srcField.setNature(mc.ConservativeVolumic)
+	srcField.setNature(mc.IntensiveMaximum)
 	trgFieldCV = remap.transferField(srcField,1e300)
-	# ConservativeVolumic
+	# IntensiveMaximum
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldCV.integral(True)[0]
-	print "ConservativeVolumic -- integrals: %lf == %lf" % (integSource, integTarget)
+	print "IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget)
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldCV.getArray().accumulate()[0]
-	print "ConservativeVolumic -- sums: %lf != %lf" % (accSource, accTarget)
-	# IntegralGlobConstraint
-	srcField.setNature(mc.IntegralGlobConstraint)
+	print "IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget)
+	# ExtensiveConservation
+	srcField.setNature(mc.ExtensiveConservation)
 	trgFieldI = remap.transferField(srcField,1e300)
 	#
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldI.integral(True)[0]
-	print "IntegralGlobConstraint -- integrals: %lf != %lf" % (integSource, integTarget)
+	print "ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget)
 	
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldI.getArray().accumulate()[0]
-	print "IntegralGlobConstraint -- sums: %lf == %lf" % (accSource, accTarget)
+	print "ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget)

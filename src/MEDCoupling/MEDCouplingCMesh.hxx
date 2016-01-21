@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingStructuredMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingCurveLinearMesh;
   
@@ -33,7 +33,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingCMesh *New(const std::string& meshName);
-    MEDCOUPLING_EXPORT MEDCouplingCMesh *deepCpy() const;
+    MEDCOUPLING_EXPORT MEDCouplingCMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *buildCurveLinear() const;
     MEDCOUPLING_EXPORT void updateTime() const;
@@ -47,8 +47,8 @@ namespace ParaMEDMEM
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                             DataArrayInt *&cellCor) const;
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT void checkConsistency(double eps=1e-12) const;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
@@ -69,7 +69,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void scale(const double *point, double factor);
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getCoordinatesAndOwner() const;
-    MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check=true);
     //some useful methods
@@ -86,7 +86,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
   private:
     MEDCouplingCMesh();
-    MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy);
+    MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCopy);
     ~MEDCouplingCMesh();
     void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const;
     std::string getVTKDataSetType() const;

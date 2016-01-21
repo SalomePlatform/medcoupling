@@ -110,7 +110,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh1.allocateCells(0)
         mesh1.finishInsertingCells()
         # mesh 2
-        mesh2=mesh1.deepCpy()
+        mesh2=mesh1.deepCopy()
         mesh2.getCoords().setValues(coords2, 4, 1)
         #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_1]
         #! [PySnippet_MEDCouplingFieldDouble_substractInPlaceDM_2]
@@ -137,7 +137,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh1.allocateCells(0)
         mesh1.finishInsertingCells()
         # mesh 2
-        mesh2=mesh1.deepCpy()
+        mesh2=mesh1.deepCopy()
         mesh2.getCoords().setValues(coords2, 4, 1)
         #! [PySnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_1]
         #! [PySnippet_MEDCouplingFieldDouble_changeUnderlyingMesh_2]
@@ -177,7 +177,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # transform the field to a 3D vector field
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
         varNames=["a","b"] # names used to refer to X and Y components
-        field.applyFunc3( 3, varNames, func ) # require 3 components 
+        field.applyFuncNamedCompo( 3, varNames, func ) # require 3 components 
         self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_1]
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc3_2]
@@ -200,7 +200,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field.setArray( array )
         # transform the field to a 3D vector field
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
-        field.applyFunc2( 3, func ) # require 3 components 
+        field.applyFuncCompo( 3, func ) # require 3 components 
         self.assertTrue( field.getNumberOfComponents() == 3 ) # 3 components as required
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_1]
         #! [PySnippet_MEDCouplingFieldDouble_applyFunc2_2]
@@ -265,13 +265,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field.setMesh( mesh )
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
         varNames=["a","b"] # names used to refer to X and Y coord components
-        field.fillFromAnalytic3(3,varNames,func)
+        field.fillFromAnalyticNamedCompo(3,varNames,func)
         #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_2]
         #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic3_3]
         vals1 = field.getArray().getTuple(1) # values of the cell #1
         assert len( vals1 ) == 3 # 3 components in the field
         #
-        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc = mesh.computeCellCenterOfMass() # func is applied to barycenters of cells
         bc1 = bc.getTuple(1) # coordinates of the second point
         #
         dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
@@ -295,13 +295,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field = MEDCouplingFieldDouble( ON_CELLS )
         field.setMesh( mesh )
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
-        field.fillFromAnalytic2(3,func)
+        field.fillFromAnalyticCompo(3,func)
         #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_2]
         #! [PySnippet_MEDCouplingFieldDouble_fillFromAnalytic2_3]
         vals1 = field.getArray().getTuple(1) # values of the cell #1
         assert len( vals1 ) == 3 # 3 components in the field
         #
-        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc = mesh.computeCellCenterOfMass() # func is applied to barycenters of cells
         bc1 = bc.getTuple(1) # coordinates of the second point
         #
         dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
@@ -329,7 +329,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         vals1 = field.getArray().getTuple(1) # values of the cell #1
         assert len( vals1 ) == 3 # 3 components in the field
         #
-        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc = mesh.computeCellCenterOfMass() # func is applied to barycenters of cells
         bc1 = bc.getTuple(1) # coordinates of the second point
         #
         dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
@@ -371,7 +371,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field = mesh.fillFromAnalytic(ON_CELLS,1,"x+y")
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_1]
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
-        bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
+        bc = mesh.computeCellCenterOfMass() # field values are located at cell barycenters
         valArray = field.getValueOnMulti( bc )
         self.assertTrue( valArray.isEqual( field.getArray(), 1e-13 ))
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnMulti_2]
@@ -386,7 +386,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field = mesh.fillFromAnalytic(ON_CELLS,1,"x+y")
         #! [PySnippet_MEDCouplingFieldDouble_getValueOn_1]
         #! [PySnippet_MEDCouplingFieldDouble_getValueOn_2]
-        bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
+        bc = mesh.computeCellCenterOfMass() # field values are located at cell barycenters
         vals = [] # array to collect values returned by getValueOn()
         for i,tupl in enumerate( bc ):
             vals.extend( field.getValueOn( tupl ) )
@@ -404,7 +404,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_1]
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_2]
         val11 = field.getValueOnPos( 1,1,-1)
-        bc = mesh.getBarycenterAndOwner() # field values are located at cell barycenters
+        bc = mesh.computeCellCenterOfMass() # field values are located at cell barycenters
         self.assertTrue( val11[0] == bc[3,0] + bc[3,1] )
         #! [PySnippet_MEDCouplingFieldDouble_getValueOnPos_2]
         return
@@ -445,7 +445,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingFieldDouble_renumberCells_2]
         field = mesh.fillFromAnalytic(ON_CELLS,2,"IVec*x+JVec*y")
         values = field.getArray()
-        bc = mesh.getBarycenterAndOwner()
+        bc = mesh.computeCellCenterOfMass()
         self.assertTrue( values.isEqualWithoutConsideringStr( bc, 1e-13 ))
         #! [PySnippet_MEDCouplingFieldDouble_renumberCells_2]
         #! [PySnippet_MEDCouplingFieldDouble_renumberCells_3]
@@ -453,7 +453,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field.renumberCells(renumber,False)
         mesh2 = field.getMesh() # field now refers to another mesh
         values = field.getArray()
-        bc = mesh2.getBarycenterAndOwner()
+        bc = mesh2.computeCellCenterOfMass()
         self.assertTrue( values.isEqualWithoutConsideringStr( bc, 1e-13 ))
         #! [PySnippet_MEDCouplingFieldDouble_renumberCells_3]
         return
@@ -484,13 +484,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_2]
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
         varNames=["a","b"] # names used to refer to X and Y coord components
-        field=mesh.fillFromAnalytic3(ON_CELLS,3,varNames,func)
+        field=mesh.fillFromAnalyticNamedCompo(ON_CELLS,3,varNames,func)
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_2]
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic3_3]
         vals1 = field.getArray().getTuple(1) # values of the cell #1
         assert len( vals1 ) == 3 # 3 components in the field
         #
-        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc = mesh.computeCellCenterOfMass() # func is applied to barycenters of cells
         bc1 = bc.getTuple(1) # coordinates of the second point
         #
         dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
@@ -512,13 +512,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_1]
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_2]
         func = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10"
-        field=mesh.fillFromAnalytic2(ON_CELLS,3,func)
+        field=mesh.fillFromAnalyticCompo(ON_CELLS,3,func)
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_2]
         #! [PySnippet_MEDCouplingMesh_fillFromAnalytic2_3]
         vals1 = field.getArray().getTuple(1) # values of the cell #1
         assert len( vals1 ) == 3 # 3 components in the field
         #
-        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc = mesh.computeCellCenterOfMass() # func is applied to barycenters of cells
         bc1 = bc.getTuple(1) # coordinates of the second point
         #
         dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
@@ -544,7 +544,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         vals1 = field.getArray().getTuple(1) # values of the cell #1
         assert len( vals1 ) == 3 # 3 components in the field
         #
-        bc = mesh.getBarycenterAndOwner() # func is applied to barycenters of cells
+        bc = mesh.computeCellCenterOfMass() # func is applied to barycenters of cells
         bc1 = bc.getTuple(1) # coordinates of the second point
         #
         dist = sqrt( bc1[0]*bc1[0] + bc1[1]*bc1[1] ) # "sqrt( a*a + b*b )"
@@ -603,7 +603,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2]
         coordsArr=DataArrayDouble(coords,5,2)
         # coordinates of 5 top nodes
-        coordsArr2 = coordsArr.deepCpy()
+        coordsArr2 = coordsArr.deepCopy()
         # 3D coordinates of base + top nodes
         coordsArr  = coordsArr.changeNbOfComponents( 3, 0 )
         coordsArr2 = coordsArr2.changeNbOfComponents( 3, 1 )
@@ -633,7 +633,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2]
         coordsArr=DataArrayDouble(coords,5,2)
         # coordinates of 5 top nodes
-        coordsArr2 = coordsArr.deepCpy()
+        coordsArr2 = coordsArr.deepCopy()
         # 3D coordinates of base + top nodes
         coordsArr  = coordsArr.changeNbOfComponents( 3, 0 )
         coordsArr2 = coordsArr2.changeNbOfComponents( 3, 1 )
@@ -859,7 +859,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #! [PySnippet_MEDCouplingUMesh_renumberNodes_2]
         #! [PySnippet_MEDCouplingUMesh_renumberNodes_3]
         coordsArr.setValues(coords,4,2) # restore old nodes
-        mesh.renumberNodes2([ 2,1,0,2 ], 3)
+        mesh.renumberNodesCenter([ 2,1,0,2 ], 3)
         coordsArr = mesh.getCoords() # get a shorten array
         assert coordsArr.getValues() == [0.7,-0.3, 0.2,-0.3, -0.3,0.0]
         #! [PySnippet_MEDCouplingUMesh_renumberNodes_3]
@@ -1079,8 +1079,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # restore coordinates
         coordsArr = DataArrayDouble(coords,6,2)
         mesh.setCoords(coordsArr)
-        # call mergeNodes2()
-        mesh.mergeNodes2(0.004)
+        # call mergeNodesCenter()
+        mesh.mergeNodesCenter(0.004)
         coordsArr = mesh.getCoords() # retrieve a new shorten coord array
         self.assertAlmostEqual( baryCoords2[1], coordsArr.getIJ(0,1), 13 ) # Y of node #0 equals to that of baryCoords2
         #! [PySnippet_MEDCouplingUMesh_mergeNodes_3]
@@ -1318,7 +1318,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         coordsArr=DataArrayDouble(coords,4,2)
         mesh=MEDCouplingUMesh()
         mesh.setCoords(coordsArr)
-        initCoords = coordsArr.deepCpy()
+        initCoords = coordsArr.deepCopy()
         #! [PySnippet_MEDCouplingPointSet_scale_1]
         #! [PySnippet_MEDCouplingPointSet_scale_2]
         center = [0.,0.]
@@ -1338,7 +1338,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         coordsArr=DataArrayDouble(coords,4,2)
         mesh=MEDCouplingUMesh()
         mesh.setCoords(coordsArr)
-        initCoords = coordsArr.deepCpy()
+        initCoords = coordsArr.deepCopy()
         #! [PySnippet_MEDCouplingPointSet_translate_1]
         #! [PySnippet_MEDCouplingPointSet_translate_2]
         vector = [1.,1.]
@@ -1525,7 +1525,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da=DataArrayDouble()
         da.alloc( 10, 1 )
         da[ :, :] = range(10)
-        da2 = da.getIdsInRange( 2.5, 6 )
+        da2 = da.findIdsInRange( 2.5, 6 )
 #! [PySnippet_DataArrayDouble_getIdsInRange_1]
         return
 
@@ -1642,7 +1642,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setPartOfValues1( dv, 0,3,2, 1,4,2, True )
 #! [Snippet_DataArrayDouble_setPartOfValues1_5]
 #! [Snippet_DataArrayDouble_setPartOfValues1_6]
-        da2 = da.deepCpy()
+        da2 = da.deepCopy()
         da2.fillWithZero()
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2, 1e-20 ))
@@ -1678,7 +1678,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setPartOfValues1( dv, 0,3,2, 1,4,2, True )
 #! [Snippet_DataArrayInt_setPartOfValues1_5]
 #! [Snippet_DataArrayInt_setPartOfValues1_6]
-        da2 = da.deepCpy()
+        da2 = da.deepCopy()
         da2.fillWithZero()
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2 ))
@@ -1708,7 +1708,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setPartOfValuesSimple1( dv, 0,3,2, 1,4,2 )
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple1_5]
 #! [Snippet_DataArrayDouble_setPartOfValuesSimple1_6]
-        da2 = da.deepCpy()
+        da2 = da.deepCopy()
         da2.fillWithZero()
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2, 1e-20 ))
@@ -1738,7 +1738,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setPartOfValuesSimple1( dv, 0,3,2, 1,4,2 )
 #! [Snippet_DataArrayInt_setPartOfValuesSimple1_5]
 #! [Snippet_DataArrayInt_setPartOfValuesSimple1_6]
-        da2 = da.deepCpy()
+        da2 = da.deepCopy()
         da2.fillWithZero()
         da2[ 0:3:2, 1:4:2 ] = dv
         self.assertTrue( da.isEqual( da2 ))
@@ -1852,7 +1852,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.alloc( 4, 4 )
         dv.fillWithZero()
         dv.setInfoOnComponents( ["v1","v2","v3","v4"])
-        dv2 = dv.deepCpy()
+        dv2 = dv.deepCopy()
         dv.setSelectedComponents( da, [1,0] )
 #! [Snippet_DataArrayDouble_setSelectedComponents2]
 #! [Snippet_DataArrayDouble_setSelectedComponents3]
@@ -1873,7 +1873,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dv.alloc( 4, 4 )
         dv.fillWithZero()
         dv.setInfoOnComponents( ["v1","v2","v3","v4"])
-        dv2 = dv.deepCpy()
+        dv2 = dv.deepCopy()
         dv.setSelectedComponents( da, [1,0] )
 #! [Snippet_DataArrayInt_setSelectedComponents2]
 #! [Snippet_DataArrayInt_setSelectedComponents3]
@@ -1927,7 +1927,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da3.setInfoOnComponent(1,"c1da3")
         da3.setInfoOnComponent(2,"c2da3")
         #
-        da1C=da1.deepCpy()
+        da1C=da1.deepCopy()
         da1.meldWith(da3)
 #! [PySnippet_DataArrayDouble_Meld1_1]
 
@@ -2017,7 +2017,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getSpaceDimension())
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.assertEqual(13,m2C.getMeshLength())
+        self.assertEqual(13,m2C.getNodalConnectivityArrayLen())
         expected2=[0.2, -0.3, 0.7, -0.3, 0.2, 0.2, 0.7, 0.2, 0.2, 0.7, 0.7, 0.7]
         for i in xrange(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
@@ -2050,7 +2050,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getSpaceDimension())
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.assertEqual(8,m2C.getMeshLength())
+        self.assertEqual(8,m2C.getNodalConnectivityArrayLen())
         for i in xrange(8):#8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
@@ -2072,7 +2072,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getSpaceDimension())
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.assertEqual(8,m2C.getMeshLength())
+        self.assertEqual(8,m2C.getNodalConnectivityArrayLen())
         for i in xrange(8):#8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
@@ -2092,7 +2092,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f2.getMesh().getSpaceDimension())
         self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.assertEqual(13,m2C.getMeshLength())
+        self.assertEqual(13,m2C.getNodalConnectivityArrayLen())
         for i in xrange(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
@@ -2128,7 +2128,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 # ! [PySnippetUMeshStdBuild1_4]
 # ! [PySnippetUMeshStdBuild1_5]
 # ! [PySnippetUMeshStdBuild1_5]
-        mesh.checkCoherency()
+        mesh.checkConsistencyLight()
         return
 
     def testExampleCMeshStdBuild1(self):
@@ -2184,7 +2184,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 # ! [PySnippetUMeshAdvBuild1_4]
 # ! [PySnippetUMeshAdvBuild1_5]
 # ! [PySnippetUMeshAdvBuild1_5]
-        mesh.checkCoherency()
+        mesh.checkConsistencyLight()
         return
 
     def testExampleDataArrayBuild1(self):
@@ -2331,11 +2331,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ddd.setInfoOnComponents(["Y [m]","AA [m/s]","GG [MW]"])
 # ! [PySnippetDataArrayApplyFunc1_7]
 # ! [PySnippetDataArrayApplyFunc1_8]
-        ddd1=ddd.applyFunc2(1,"Y+GG")
+        ddd1=ddd.applyFuncCompo(1,"Y+GG")
         self.assertTrue(ddd1.isEqual(DataArrayDouble([4.,24.,44.,64.],4,1),1e-12))
 # ! [PySnippetDataArrayApplyFunc1_8]
 # ! [PySnippetDataArrayApplyFunc1_9]
-        ddd1=ddd.applyFunc3(1,["X","Y","Z"],"X+Z")
+        ddd1=ddd.applyFuncNamedCompo(1,["X","Y","Z"],"X+Z")
         self.assertTrue(ddd1.isEqual(DataArrayDouble([4.,24.,44.,64.],4,1),1e-12))
 # ! [PySnippetDataArrayApplyFunc1_9]
         return

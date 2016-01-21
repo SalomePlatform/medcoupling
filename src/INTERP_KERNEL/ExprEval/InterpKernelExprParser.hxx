@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT virtual void compileX86(std::vector<std::string>& ass) const = 0;
     INTERPKERNEL_EXPORT virtual void compileX86_64(std::vector<std::string>& ass) const = 0;
     INTERPKERNEL_EXPORT virtual void replaceValues(const std::vector<double>& valuesInExpr) = 0;
-    INTERPKERNEL_EXPORT virtual LeafExpr *deepCpy() const = 0;
+    INTERPKERNEL_EXPORT virtual LeafExpr *deepCopy() const = 0;
     INTERPKERNEL_EXPORT static LeafExpr *buildInstanceFrom(const std::string& expr);
   };
 
@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void fillValue(Value *val) const;
     INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr);
-    INTERPKERNEL_EXPORT LeafExprVal *deepCpy() const;
+    INTERPKERNEL_EXPORT LeafExprVal *deepCopy() const;
   private:
     double _value;
   };
@@ -79,7 +79,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const;
     INTERPKERNEL_EXPORT void replaceValues(const std::vector<double>& valuesInExpr);
     INTERPKERNEL_EXPORT static bool isRecognizedKeyVar(const std::string& var, int& pos);
-    INTERPKERNEL_EXPORT LeafExprVar *deepCpy() const;
+    INTERPKERNEL_EXPORT LeafExprVar *deepCopy() const;
   public:
     static const char END_OF_RECOGNIZED_VAR[];
   private:

@@ -37,7 +37,7 @@ namespace INTERP_KERNEL
 }
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingUMesh;
 }
@@ -71,9 +71,9 @@ namespace INTERP_TEST
 
     double sumCol(const IntersectionMatrix& m, int i) const;
 
-    void getVolumes(ParaMEDMEM::MEDCouplingUMesh& mesh, double* tab) const;
+    void getVolumes(MEDCoupling::MEDCouplingUMesh& mesh, double* tab) const;
 
-    bool testVolumes(const IntersectionMatrix& m,  ParaMEDMEM::MEDCouplingUMesh& sMesh,  ParaMEDMEM::MEDCouplingUMesh& tMesh) const;
+    bool testVolumes(const IntersectionMatrix& m,  MEDCoupling::MEDCouplingUMesh& sMesh,  MEDCoupling::MEDCouplingUMesh& tMesh) const;
 
     double sumVolume(const IntersectionMatrix& m) const;
 

@@ -55,7 +55,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int 
   parallelizer.evaluateMemory();
 }
 
-MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const ParaMEDMEM::MEDFileData* filedata, int ndomains, const std::string& library,bool creates_boundary_faces, bool create_joints, bool mesure_memory):
+MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, int ndomains, const std::string& library,bool creates_boundary_faces, bool create_joints, bool mesure_memory):
   _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
@@ -77,7 +77,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const ParaMEDMEM::MEDFileData* fi
   parallelizer.evaluateMemory();
 }
 
-MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const ParaMEDMEM::MEDFileData* filedata, MEDPARTITIONER ::Graph* graph, bool creates_boundary_faces, bool create_joints, bool mesure_memory):
+MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, MEDPARTITIONER ::Graph* graph, bool creates_boundary_faces, bool create_joints, bool mesure_memory):
   _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
@@ -128,15 +128,15 @@ void MEDPARTITIONER::MEDPartitioner::write(const std::string& filename)
   parallelizer.evaluateMemory();
 }
 
-ParaMEDMEM::MEDFileData* MEDPARTITIONER::MEDPartitioner::getMEDFileData()
+MEDCoupling::MEDFileData* MEDPARTITIONER::MEDPartitioner::getMEDFileData()
 {
   return _output_collection->retrieveDriver()->getMEDFileData();
 }
 
-MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(ParaMEDMEM::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight)
+MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight)
 {
   MEDPARTITIONER::Graph* cellGraph=0;
-  ParaMEDMEM::MEDCouplingSkyLineArray* arr = new ParaMEDMEM::MEDCouplingSkyLineArray(graph->getIndexArray(), graph->getValueArray());
+  MEDCoupling::MEDCouplingSkyLineArray* arr = new MEDCoupling::MEDCouplingSkyLineArray(graph->getIndexArray(), graph->getValueArray());
   switch (split)
     {
     case Graph::METIS:

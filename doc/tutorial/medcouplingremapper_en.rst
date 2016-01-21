@@ -94,28 +94,28 @@ Apply the interpolation using MEDCouplingRemapper.transferField(): ::
 .. note:: An exception is raised since "srcField" hasn't got an explicitly defined nature.
 	In what follows the impact of this attribute on the final result will be explained.
 
-Set the nature of "srcField" to ConservativeVolumic (intensive field, e.g. a temperature). ::
+Set the nature of "srcField" to IntensiveMaximum (intensive field, e.g. a temperature). ::
 
-	srcField.setNature(ConservativeVolumic)
+	srcField.setNature(IntensiveMaximum)
 	trgFieldCV=remap.transferField(srcField,1e300)
 
 Check that with this nature the field integral is conserved. On the other side 
 the sum on cells (accumulation) is NOT conserved. ::
 
-	print "ConservativeVolumic %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0])
-	print "ConservativeVolumic %lf != %lf"%(srcField.getArray().accumulate()[0],trgFieldCV.getArray().accumulate()[0])
+	print "IntensiveMaximum %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0])
+	print "IntensiveMaximum %lf != %lf"%(srcField.getArray().accumulate()[0],trgFieldCV.getArray().accumulate()[0])
 
-Set the nature of "srcField" to IntegralGlobConstraint (extensive field, e.g. a power). ::
+Set the nature of "srcField" to ExtensiveConservation (extensive field, e.g. a power). ::
 
-	srcField.setNature(IntegralGlobConstraint)
+	srcField.setNature(ExtensiveConservation)
 	trgFieldI=remap.transferField(srcField,1e300)
 
 Check that given this nature the field integral is NOT conserved. On the other side the 
 cumulative sum on cells is conserved. ::
 ::
 
-	print "IntegralGlobConstraint %lf != %lf"%(srcField.integral(True)[0],trgFieldI.integral(True)[0])
-	print "IntegralGlobConstraint %lf == %lf"%(srcField.getArray().accumulate()[0],trgFieldI.getArray().accumulate()[0])
+	print "ExtensiveConservation %lf != %lf"%(srcField.integral(True)[0],trgFieldI.integral(True)[0])
+	print "ExtensiveConservation %lf == %lf"%(srcField.getArray().accumulate()[0],trgFieldI.getArray().accumulate()[0])
 
 Visualize the fields using ParaViS.
 

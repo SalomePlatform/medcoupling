@@ -24,7 +24,7 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMesh.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCoupling1SGTUMesh;
 
@@ -117,7 +117,7 @@ namespace ParaMEDMEM
     static int ZipNodeStructure(const int *nodeStBg, const int *nodeStEnd, int zipNodeSt[3]);
   protected:
     MEDCOUPLING_EXPORT MEDCouplingStructuredMesh();
-    MEDCOUPLING_EXPORT MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingStructuredMesh(const MEDCouplingStructuredMesh& other, bool deepCopy);
     MEDCOUPLING_EXPORT ~MEDCouplingStructuredMesh();
   };
 }

@@ -34,7 +34,7 @@
 
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
  
 /*
  * Check methods defined in MPPIProcessorGroup.hxx

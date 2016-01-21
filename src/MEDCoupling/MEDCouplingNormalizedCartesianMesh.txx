@@ -25,7 +25,7 @@
 #include "MEDCouplingCMesh.hxx"
 
 template<int SPACEDIM>
-MEDCouplingNormalizedCartesianMesh<SPACEDIM>::MEDCouplingNormalizedCartesianMesh(const ParaMEDMEM::MEDCouplingCMesh *mesh):_mesh(mesh)
+MEDCouplingNormalizedCartesianMesh<SPACEDIM>::MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh):_mesh(mesh)
 {
   if(_mesh)
     _mesh->incrRef();

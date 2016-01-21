@@ -26,7 +26,7 @@
 #include <sstream>
 #include <fstream>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 /// @cond INTERNAL
 DataArrayDoubleCollection *DataArrayDoubleCollection::New(const std::vector< std::pair<std::string,int> >& fieldNames)
@@ -34,7 +34,7 @@ DataArrayDoubleCollection *DataArrayDoubleCollection::New(const std::vector< std
   return new DataArrayDoubleCollection(fieldNames);
 }
 
-DataArrayDoubleCollection *DataArrayDoubleCollection::deepCpy() const
+DataArrayDoubleCollection *DataArrayDoubleCollection::deepCopy() const
 {
   return new DataArrayDoubleCollection(*this);
 }
@@ -64,7 +64,7 @@ void DataArrayDoubleCollection::copyFrom(const DataArrayDoubleCollection& other)
       const DataArrayDouble *otherArr(other._arrs[i].first);
       if(!thisArr || !otherArr)
         throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::copyFrom : empty DataArray !");
-      thisArr->cpyFrom(*otherArr);
+      thisArr->deepCopyFrom(*otherArr);
     }
 }
 
@@ -132,7 +132,7 @@ std::vector<DataArrayDouble *> DataArrayDoubleCollection::retrieveFields() const
 const DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::string& name) const
 {
   std::vector<std::string> vec;
-  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MCAuto<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
     {
       const DataArrayDouble *obj((*it).first);
       if(obj)
@@ -151,7 +151,7 @@ const DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::st
 DataArrayDouble *DataArrayDoubleCollection::getFieldWithName(const std::string& name)
 {
   std::vector<std::string> vec;
-  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MCAuto<DataArrayDouble>, NatureOfField > >::iterator it=_arrs.begin();it!=_arrs.end();it++)
     {
       DataArrayDouble *obj((*it).first);
       if(obj)
@@ -306,7 +306,7 @@ DataArrayDoubleCollection::DataArrayDoubleCollection(const std::vector< std::pai
       _arrs[i].first->alloc(0,info.second);
       _arrs[i].first->setName(info.first);
       names[i]=info.second;
-      _arrs[i].second=ConservativeVolumic;
+      _arrs[i].second=IntensiveMaximum;
     }
   CheckDiscriminantNames(names);
 }
@@ -319,28 +319,28 @@ DataArrayDoubleCollection::DataArrayDoubleCollection(const DataArrayDoubleCollec
       _arrs[i].second=other._arrs[i].second;
       const DataArrayDouble *da(other._arrs[i].first);
       if(da)
-        _arrs[i].first=da->deepCpy();
+        _arrs[i].first=da->deepCopy();
     }
 }
 
 std::size_t DataArrayDoubleCollection::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(DataArrayDoubleCollection));
-  ret+=_arrs.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>);
+  ret+=_arrs.capacity()*sizeof(MCAuto<DataArrayDouble>);
   return ret;
 }
 
 std::vector<const BigMemoryObject *> DataArrayDoubleCollection::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MCAuto<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
     ret.push_back((const DataArrayDouble *)(*it).first);
   return ret;
 }
 
 void DataArrayDoubleCollection::updateTime() const
 {
-  for(std::vector< std::pair< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
+  for(std::vector< std::pair< MCAuto<DataArrayDouble>, NatureOfField > >::const_iterator it=_arrs.begin();it!=_arrs.end();it++)
     {
       const DataArrayDouble *pt((*it).first);
       if(pt)
@@ -358,7 +358,7 @@ void DataArrayDoubleCollection::CheckDiscriminantNames(const std::vector<std::st
 bool DataArrayDoubleCollection::IsConservativeNature(NatureOfField n)
 {
   CheckValidNature(n);
-  return n==RevIntegral || n==IntegralGlobConstraint;
+  return n==IntensiveConservation || n==ExtensiveConservation;
 }
 
 void DataArrayDoubleCollection::CheckSameNatures(NatureOfField n1, NatureOfField n2)
@@ -371,7 +371,7 @@ void DataArrayDoubleCollection::CheckSameNatures(NatureOfField n1, NatureOfField
 
 void DataArrayDoubleCollection::CheckValidNature(NatureOfField n)
 {
-  if(n!=ConservativeVolumic && n!=Integral && n!=IntegralGlobConstraint && n!=RevIntegral)
+  if(n!=IntensiveMaximum && n!=ExtensiveMaximum && n!=ExtensiveConservation && n!=IntensiveConservation)
     throw INTERP_KERNEL::Exception("DataArrayDoubleCollection::CheckValidNature : unrecognized nature !");
 }
 
@@ -380,14 +380,14 @@ MEDCouplingGridCollection *MEDCouplingGridCollection::New(const std::vector<cons
   return new MEDCouplingGridCollection(ms,fieldNames);
 }
 
-MEDCouplingGridCollection *MEDCouplingGridCollection::deepCpy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const
+MEDCouplingGridCollection *MEDCouplingGridCollection::deepCopy(const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf) const
 {
   return new MEDCouplingGridCollection(*this,newGf,oldGf);
 }
 
 void MEDCouplingGridCollection::alloc(int ghostLev)
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       int nbTuples((*it).first->getNumberOfCellsAtCurrentLevelGhost(ghostLev));
       DataArrayDoubleCollection *dadc((*it).second);
@@ -400,7 +400,7 @@ void MEDCouplingGridCollection::alloc(int ghostLev)
 
 void MEDCouplingGridCollection::dealloc()
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       DataArrayDoubleCollection *dadc((*it).second);
       if(dadc)
@@ -412,13 +412,13 @@ void MEDCouplingGridCollection::dealloc()
 
 void MEDCouplingGridCollection::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     (*it).second->spillInfoOnComponents(compNames);
 }
 
 void MEDCouplingGridCollection::spillNatures(const std::vector<NatureOfField>& nfs)
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     (*it).second->spillNatures(nfs);
 }
 
@@ -445,7 +445,7 @@ std::vector<NatureOfField> MEDCouplingGridCollection::getNatures() const
 bool MEDCouplingGridCollection::presenceOf(const MEDCouplingCartesianAMRMeshGen *m, int& pos) const
 {
   int ret(0);
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++,ret++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++,ret++)
     {
       if((*it).first==m)
         {
@@ -477,13 +477,13 @@ DataArrayDoubleCollection& MEDCouplingGridCollection::getFieldsAt(int pos)
  */
 void MEDCouplingGridCollection::copyOverlappedZoneFrom(int ghostLev, const MEDCouplingGridCollection& other)
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       std::vector<int> deltaThis,deltaOther;
       std::vector< std::pair<int,int> > rgThis((*it).first->positionRelativeToGodFather(deltaThis));
       std::vector<int> thisSt((*it).first->getImageMesh()->getCellGridStructure());
       std::transform(thisSt.begin(),thisSt.end(),thisSt.begin(),std::bind2nd(std::plus<int>(),2*ghostLev));
-      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it2=other._map_of_dadc.begin();it2!=other._map_of_dadc.end();it2++)
+      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it2=other._map_of_dadc.begin();it2!=other._map_of_dadc.end();it2++)
         {
           std::vector< std::pair<int,int> > rgOther((*it2).first->positionRelativeToGodFather(deltaOther));
           if(MEDCouplingStructuredMesh::AreRangesIntersect(rgThis,rgOther))
@@ -501,7 +501,7 @@ void MEDCouplingGridCollection::copyOverlappedZoneFrom(int ghostLev, const MEDCo
                 {
                   const DataArrayDouble *otherArr((*it2).second->at(i));
                   DataArrayDouble *thisArr((*it).second->at(i));
-                  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> partOfOther(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(otherSt,otherArr,pOther));
+                  MCAuto<DataArrayDouble> partOfOther(MEDCouplingStructuredMesh::ExtractFieldOfDoubleFrom(otherSt,otherArr,pOther));
                   MEDCouplingStructuredMesh::AssignPartOfFieldOfDoubleUsing(thisSt,thisArr,pThis,partOfOther);
                 }
             }
@@ -513,14 +513,14 @@ void MEDCouplingGridCollection::SynchronizeFineToCoarse(int ghostLev, const MEDC
 {
   if(!fine || !coarse)
     throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::SynchronizeFineToCoarse : one or more input pointer is NULL !");
-  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >& mf(fine->_map_of_dadc);
-  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >& mc(coarse->_map_of_dadc);
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=mf.begin();it!=mf.end();it++)
+  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >& mf(fine->_map_of_dadc);
+  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >& mc(coarse->_map_of_dadc);
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=mf.begin();it!=mf.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *fineMesh((*it).first);
       const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh(fineMesh->getFather());
       bool found(false);
-      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it0=mc.begin();it0!=mc.end() && !found;it0++)
+      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it0=mc.begin();it0!=mc.end() && !found;it0++)
         {
           if((*it0).first==fatherOfFineMesh)
             {
@@ -540,14 +540,14 @@ void MEDCouplingGridCollection::SynchronizeCoarseToFine(int ghostLev, const MEDC
 {
   if(!fine || !coarse)
     throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::SynchronizeCoarseToFine : one or more input pointer is NULL !");
-  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >& mf(fine->_map_of_dadc);
-  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >& mc(coarse->_map_of_dadc);
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=mf.begin();it!=mf.end();it++)
+  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >& mf(fine->_map_of_dadc);
+  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >& mc(coarse->_map_of_dadc);
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=mf.begin();it!=mf.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *fineMesh((*it).first);
       const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh(fineMesh->getFather());
       bool found(false);
-      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it0=mc.begin();it0!=mc.end() && !found;it0++)
+      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it0=mc.begin();it0!=mc.end() && !found;it0++)
         {
           if((*it0).first==fatherOfFineMesh)
             {
@@ -610,7 +610,7 @@ std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCar
 {
   std::vector< std::pair<const MEDCouplingCartesianAMRPatch *,const MEDCouplingCartesianAMRPatch *> > ret;
   std::map<const MEDCouplingCartesianAMRMeshGen *,std::vector< const MEDCouplingCartesianAMRMeshGen * > > m;
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *fineMesh((*it).first);
       const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh(fineMesh->getFather());
@@ -639,14 +639,14 @@ void MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghost
 {
   if(!fine || !coarse)
     throw INTERP_KERNEL::Exception("MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone : one or more input pointer is NULL !");
-  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >& mf(fine->_map_of_dadc);
-  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >& mc(coarse->_map_of_dadc);
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=mf.begin();it!=mf.end();it++)
+  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >& mf(fine->_map_of_dadc);
+  const std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >& mc(coarse->_map_of_dadc);
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=mf.begin();it!=mf.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *fineMesh((*it).first);
       const MEDCouplingCartesianAMRMeshGen *fatherOfFineMesh(fineMesh->getFather());
       bool found(false);
-      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it0=mc.begin();it0!=mc.end() && !found;it0++)
+      for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it0=mc.begin();it0!=mc.end() && !found;it0++)
         {
           if((*it0).first==fatherOfFineMesh)
             {
@@ -664,7 +664,7 @@ void MEDCouplingGridCollection::SynchronizeCoarseToFineOnlyInGhostZone(int ghost
 
 void MEDCouplingGridCollection::fillIfInTheProgenyOf(const std::string& fieldName, const MEDCouplingCartesianAMRMeshGen *head, std::vector<const DataArrayDouble *>& recurseArrs) const
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *a((*it).first);
       if(head==a || head->isObjectInTheProgeny(a))
@@ -696,28 +696,28 @@ MEDCouplingGridCollection::MEDCouplingGridCollection(const MEDCouplingGridCollec
       _map_of_dadc[i].first=newGf->getMeshAtPosition(pos);
       const DataArrayDoubleCollection *dac(other._map_of_dadc[i].second);
       if(dac)
-        _map_of_dadc[i].second=dac->deepCpy();
+        _map_of_dadc[i].second=dac->deepCopy();
     }
 }
 
 std::size_t MEDCouplingGridCollection::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingGridCollection));
-  ret+=_map_of_dadc.capacity()*sizeof(std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> >);
+  ret+=_map_of_dadc.capacity()*sizeof(std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> >);
   return ret;
 }
 
 std::vector<const BigMemoryObject *> MEDCouplingGridCollection::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     ret.push_back((const DataArrayDoubleCollection *)(*it).second);
   return ret;
 }
 
 void MEDCouplingGridCollection::updateTime() const
 {
-  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MEDCouplingAutoRefCountObjectPtr<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
+  for(std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > >::const_iterator it=_map_of_dadc.begin();it!=_map_of_dadc.end();it++)
     {
       const MEDCouplingCartesianAMRMeshGen *a((*it).first);
       if(a)
@@ -771,7 +771,7 @@ MEDCouplingDataForGodFather::MEDCouplingDataForGodFather(const MEDCouplingDataFo
     {
       const MEDCouplingCartesianAMRMesh *gf(other._gf);
       if(gf)
-        _gf=gf->deepCpy(0);
+        _gf=gf->deepCopy(0);
       _tlc.keepTrackOfNewTL(_gf);
     }
 }
@@ -795,7 +795,7 @@ MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMes
       fieldNames2[i].second=(int)fieldNames[i].second.size();
       compNames[i]=fieldNames[i].second;
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> ret(New(gf,fieldNames2,ghostLev));
+  MCAuto<MEDCouplingAMRAttribute> ret(New(gf,fieldNames2,ghostLev));
   ret->spillInfoOnComponents(compNames);
   return ret.retn();
 }
@@ -809,7 +809,7 @@ MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::New(MEDCouplingCartesianAMRMes
 void MEDCouplingAMRAttribute::spillInfoOnComponents(const std::vector< std::vector<std::string> >& compNames)
 {
   _tlc.checkConst();
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     (*it)->spillInfoOnComponents(compNames);
 }
 
@@ -820,11 +820,11 @@ void MEDCouplingAMRAttribute::spillInfoOnComponents(const std::vector< std::vect
 void MEDCouplingAMRAttribute::spillNatures(const std::vector<NatureOfField>& nfs)
 {
   _tlc.checkConst();
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     (*it)->spillNatures(nfs);
 }
 
-MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::deepCpy() const
+MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::deepCopy() const
 {
   return new MEDCouplingAMRAttribute(*this,true);
 }
@@ -853,7 +853,7 @@ int MEDCouplingAMRAttribute::getNumberOfLevels() const
  */
 std::vector<DataArrayDouble *> MEDCouplingAMRAttribute::retrieveFieldsOn(MEDCouplingCartesianAMRMeshGen *mesh) const
 {
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
@@ -870,7 +870,7 @@ std::vector<DataArrayDouble *> MEDCouplingAMRAttribute::retrieveFieldsOn(MEDCoup
  */
 const DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
@@ -884,7 +884,7 @@ const DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianA
 
 DataArrayDouble *MEDCouplingAMRAttribute::getFieldOn(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName)
 {
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
@@ -906,7 +906,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
 {
   std::vector<const DataArrayDouble *> recurseArrs;
   std::size_t lev(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++,lev++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++,lev++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
@@ -936,7 +936,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnRecurseWithoutO
 MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
   const DataArrayDouble *arr(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
@@ -947,8 +947,8 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCo
     }
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithGhost : the mesh specified is not in the progeny of this !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+  MCAuto<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
   ret->setMesh(im);
   ret->setArray(const_cast<DataArrayDouble *>(arr));
   ret->setName(arr->getName());
@@ -966,7 +966,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithGhost(MEDCo
 MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(MEDCouplingCartesianAMRMeshGen *mesh, const std::string& fieldName) const
 {
   const DataArrayDouble *arr(0);
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
       int tmp(-1);
       if((*it)->presenceOf(mesh,tmp))
@@ -978,9 +978,9 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost : the mesh specified is not in the progeny of this !");
   //
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
+  MCAuto<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
   std::vector<int> cgs(mesh->getImageMesh()->getCellGridStructure()),cgsWG(im->getCellGridStructure());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> arr2(DataArrayDouble::New());
   arr2->alloc(mesh->getImageMesh()->getNumberOfCells(),arr->getNumberOfComponents());
   std::vector< std::pair<int,int> > cgs2(MEDCouplingStructuredMesh::GetCompactFrmtFromDimensions(cgs));
   MEDCouplingStructuredMesh::ApplyGhostOnCompactFrmt(cgs2,_ghost_lev);
@@ -988,7 +988,7 @@ MEDCouplingFieldDouble *MEDCouplingAMRAttribute::buildCellFieldOnWithoutGhost(ME
   MEDCouplingIMesh::SpreadCoarseToFine(arr,cgsWG,arr2,cgs2,fakeFactors);
   arr2->copyStringInfoFrom(*arr);
   //
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
+  MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_CELLS));
   ret->setMesh(mesh->getImageMesh());
   ret->setArray(arr2);
   ret->setName(arr->getName());
@@ -1027,7 +1027,7 @@ std::string MEDCouplingAMRAttribute::writeVTHB(const std::string& fileName) cons
     {
       std::vector<MEDCouplingCartesianAMRPatchGen *> patches(gf->retrieveGridsAt(i));
       std::size_t sz(patches.size());
-      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > patchesSafe(sz);
+      std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> > patchesSafe(sz);
       for(std::size_t j=0;j<sz;j++)
         patchesSafe[j]=patches[j];
       if(sz==0)
@@ -1068,14 +1068,14 @@ std::string MEDCouplingAMRAttribute::writeVTHB(const std::string& fileName) cons
               const DataArrayDoubleCollection& ddc(_levs[i]->getFieldsAt(tmp));
               std::vector<DataArrayDouble *> arrs(ddc.retrieveFields());
               std::size_t nbFields(arrs.size());
-              std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrsSafe(nbFields),arrs2Safe(nbFields);
+              std::vector< MCAuto<DataArrayDouble> > arrsSafe(nbFields),arrs2Safe(nbFields);
               std::vector< const MEDCouplingFieldDouble *> fields(nbFields);
-              std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> > fieldsSafe(nbFields);
+              std::vector< MCAuto<MEDCouplingFieldDouble> > fieldsSafe(nbFields);
               for(std::size_t pp=0;pp<nbFields;pp++)
                 arrsSafe[pp]=arrs[pp];
               for(std::size_t pp=0;pp<nbFields;pp++)
                 {
-                  MEDCouplingAutoRefCountObjectPtr<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
+                  MCAuto<MEDCouplingIMesh> im(mesh->getImageMesh()->buildWithGhost(_ghost_lev));
                   std::vector<int> cgs(mesh->getImageMesh()->getCellGridStructure()),cgsWG(im->getCellGridStructure());
                   arrs2Safe[pp]=DataArrayDouble::New();
                   arrs2Safe[pp]->alloc(mesh->getImageMesh()->getNumberOfCells(),arrs[pp]->getNumberOfComponents());
@@ -1127,7 +1127,7 @@ MEDCouplingAMRAttribute *MEDCouplingAMRAttribute::projectTo(MEDCouplingCartesian
   if(!lev0)
     throw INTERP_KERNEL::Exception("MEDCouplingAMRAttribute::projectTo : lev0 is NULL !");
   std::vector< std::pair < std::string, std::vector<std::string> > > fieldNames(lev0->getInfoOnComponents());
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingAMRAttribute> ret(MEDCouplingAMRAttribute::New(targetGF,fieldNames,_ghost_lev));
+  MCAuto<MEDCouplingAMRAttribute> ret(MEDCouplingAMRAttribute::New(targetGF,fieldNames,_ghost_lev));
   ret->spillNatures(lev0->getNatures());
   ret->alloc();
   int nbLevs(getNumberOfLevels());
@@ -1352,7 +1352,7 @@ void MEDCouplingAMRAttribute::synchronizeAllGhostZonesAtASpecifiedLevelUsingOnly
 void MEDCouplingAMRAttribute::alloc()
 {
   _tlc.resetState();
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     {
       MEDCouplingGridCollection *elt(*it);
       if(elt)
@@ -1369,7 +1369,7 @@ void MEDCouplingAMRAttribute::alloc()
 void MEDCouplingAMRAttribute::dealloc()
 {
   _tlc.checkConst();
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::iterator it=_levs.begin();it!=_levs.end();it++)
     {
       MEDCouplingGridCollection *elt(*it);
       if(elt)
@@ -1388,14 +1388,14 @@ bool MEDCouplingAMRAttribute::changeGodFather(MEDCouplingCartesianAMRMesh *gf)
 std::size_t MEDCouplingAMRAttribute::getHeapMemorySizeWithoutChildren() const
 {
   std::size_t ret(sizeof(MEDCouplingAMRAttribute));
-  ret+=_levs.capacity()*sizeof(MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection>);
+  ret+=_levs.capacity()*sizeof(MCAuto<MEDCouplingGridCollection>);
   return ret;
 }
 
 std::vector<const BigMemoryObject *> MEDCouplingAMRAttribute::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     ret.push_back((const MEDCouplingGridCollection *)*it);
   return ret;
 }
@@ -1413,7 +1413,7 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf
     {
       std::vector<MEDCouplingCartesianAMRPatchGen *> patches(gf->retrieveGridsAt(i));
       std::size_t sz(patches.size());
-      std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingCartesianAMRPatchGen> > patchesSafe(patches.size());
+      std::vector< MCAuto<MEDCouplingCartesianAMRPatchGen> > patchesSafe(patches.size());
       for(std::size_t j=0;j<sz;j++)
         patchesSafe[j]=patches[j];
       std::vector<const MEDCouplingCartesianAMRMeshGen *> ms(sz);
@@ -1460,7 +1460,7 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& 
       const MEDCouplingGridCollection *elt(other._levs[i]);
       if(elt)
         {
-          _levs[i]=other._levs[i]->deepCpy(_gf,other._gf);
+          _levs[i]=other._levs[i]->deepCopy(_gf,other._gf);
         }
     }
   //_cross_lev_neighbors(other._cross_lev_neighbors)
@@ -1506,7 +1506,7 @@ MEDCouplingAMRAttribute::MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& 
 
 const DataArrayDoubleCollection& MEDCouplingAMRAttribute::findCollectionAttachedTo(const MEDCouplingCartesianAMRMeshGen *m) const
 {
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
+  for(std::vector< MCAuto<MEDCouplingGridCollection> >::const_iterator it=_levs.begin();it!=_levs.end();it++)
     {
       const MEDCouplingGridCollection *elt(*it);
       if(elt)

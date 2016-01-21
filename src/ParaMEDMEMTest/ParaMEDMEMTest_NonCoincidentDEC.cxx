@@ -44,7 +44,7 @@
 
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace MEDMEM;
 
 /*
@@ -113,24 +113,24 @@ void ParaMEDMEMTest::testNonCoincidentDEC(const string& filename1,
     procs_target.insert(i);
   self_procs.insert(rank);
 
-  ParaMEDMEM::CommInterface interface;
+  MEDCoupling::CommInterface interface;
 
-  ParaMEDMEM::ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
-  ParaMEDMEM::ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
-  ParaMEDMEM::ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  MEDCoupling::ProcessorGroup* self_group = new MEDCoupling::MPIProcessorGroup(interface,self_procs);
+  MEDCoupling::ProcessorGroup* target_group = new MEDCoupling::MPIProcessorGroup(interface,procs_target);
+  MEDCoupling::ProcessorGroup* source_group = new MEDCoupling::MPIProcessorGroup(interface,procs_source);
 
-  ParaMEDMEM::ParaMESH* source_mesh=0;
-  ParaMEDMEM::ParaMESH* target_mesh=0;
-  ParaMEDMEM::ParaSUPPORT* parasupport=0;
+  MEDCoupling::ParaMESH* source_mesh=0;
+  MEDCoupling::ParaMESH* target_mesh=0;
+  MEDCoupling::ParaSUPPORT* parasupport=0;
   //loading the geometry for the source group
 
-  ParaMEDMEM::NonCoincidentDEC dec (*source_group,*target_group);
+  MEDCoupling::NonCoincidentDEC dec (*source_group,*target_group);
 
   MEDMEM::MESH* mesh;
   MEDMEM::SUPPORT* support;
   MEDMEM::FIELD<double>* field;
-  ParaMEDMEM::ParaMESH* paramesh;
-  ParaMEDMEM::ParaFIELD* parafield;
+  MEDCoupling::ParaMESH* paramesh;
+  MEDCoupling::ParaFIELD* parafield;
 
   string filename_xml1              = getResourceFile(filename1);
   string filename_xml2              = getResourceFile(filename2);
@@ -158,7 +158,7 @@ void ParaMEDMEMTest::testNonCoincidentDEC(const string& filename1,
       paramesh=new ParaMESH (*mesh,*source_group,"source mesh");
 
       parasupport=new UnstructuredParaSUPPORT( support,*source_group);
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       parafield = new ParaFIELD(parasupport, comptopo);
 
 
@@ -188,7 +188,7 @@ void ParaMEDMEMTest::testNonCoincidentDEC(const string& filename1,
 
       paramesh=new ParaMESH (*mesh,*target_group,"target mesh");
       parasupport=new UnstructuredParaSUPPORT(support,*target_group);
-      ParaMEDMEM::ComponentTopology comptopo;
+      MEDCoupling::ComponentTopology comptopo;
       parafield = new ParaFIELD(parasupport, comptopo);
 
 

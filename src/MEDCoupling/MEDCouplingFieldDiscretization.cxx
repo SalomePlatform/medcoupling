@@ -22,7 +22,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 
 #include "CellModel.hxx"
 #include "InterpolationUtils.hxx"
@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <functional>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 const double MEDCouplingFieldDiscretization::DFLT_PRECISION=1.e-12;
 
@@ -189,7 +189,7 @@ bool MEDCouplingFieldDiscretization::isEqualWithoutConsideringStr(const MEDCoupl
  * This method is an alias of MEDCouplingFieldDiscretization::clone. It is only here for coherency with all the remaining of MEDCoupling.
  * \sa MEDCouplingFieldDiscretization::clone.
  */
-MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::deepCpy() const
+MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::deepCopy() const
 {
   return clone();
 }
@@ -234,7 +234,7 @@ std::vector<const BigMemoryObject *> MEDCouplingFieldDiscretization::getDirectCh
  */
 void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=getMeasureField(mesh,true);
+  MCAuto<MEDCouplingFieldDouble> vol=getMeasureField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
@@ -258,7 +258,7 @@ void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const D
  */
 void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=getMeasureField(mesh,true);
+  MCAuto<MEDCouplingFieldDouble> vol=getMeasureField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
@@ -287,7 +287,7 @@ void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::integral : mesh is NULL !");
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretization::integral : input array is NULL !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=getMeasureField(mesh,isWAbs);
+  MCAuto<MEDCouplingFieldDouble> vol=getMeasureField(mesh,isWAbs);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   if(nbOfElems!=arr->getNumberOfTuples())
@@ -319,7 +319,7 @@ void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const
  */
 MEDCouplingMesh *MEDCouplingFieldDiscretization::buildSubMeshDataRange(const MEDCouplingMesh *mesh, int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt *&di) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
+  MCAuto<DataArrayInt> da=DataArrayInt::Range(beginCellIds,endCellIds,stepCellIds);
   return buildSubMeshData(mesh,da->begin(),da->end(),di);
 }
 
@@ -433,7 +433,7 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, cons
   int oldNbOfElems=arr->getNumberOfTuples();
   int nbOfComp=arr->getNumberOfComponents();
   int newNbOfTuples=newNbOfEntity;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrCpy=arr->deepCpy();
+  MCAuto<DataArrayDouble> arrCpy=arr->deepCopy();
   const double *ptSrc=arrCpy->getConstPointer();
   arr->reAlloc(newNbOfTuples);
   double *ptToFill=arr->getPointer();
@@ -467,7 +467,7 @@ void MEDCouplingFieldDiscretization::RenumberEntitiesFromO2NArr(double eps, cons
 void MEDCouplingFieldDiscretization::RenumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const std::string& msg)
 {
   int nbOfComp=arr->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrCpy=arr->deepCpy();
+  MCAuto<DataArrayDouble> arrCpy=arr->deepCopy();
   const double *ptSrc=arrCpy->getConstPointer();
   arr->reAlloc(new2OldSz);
   double *ptToFill=arr->getPointer();
@@ -488,9 +488,9 @@ TypeOfField MEDCouplingFieldDiscretizationP0::getEnum() const
 }
 
 /*!
- * This method is simply called by MEDCouplingFieldDiscretization::deepCpy. It performs the deep copy of \a this.
+ * This method is simply called by MEDCouplingFieldDiscretization::deepCopy. It performs the deep copy of \a this.
  *
- * \sa MEDCouplingFieldDiscretization::deepCpy.
+ * \sa MEDCouplingFieldDiscretization::deepCopy.
  */
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationP0::clone() const
 {
@@ -605,7 +605,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues(c
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues : NULL input mesh !");
-  return mesh->getBarycenterAndOwner();
+  return mesh->computeCellCenterOfMass();
 }
 
 void MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *tupleIdsBg, const int *tupleIdsEnd,
@@ -613,10 +613,10 @@ void MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds(const 
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=DataArrayInt::New();
+  MCAuto<DataArrayInt> tmp=DataArrayInt::New();
   tmp->alloc((int)std::distance(tupleIdsBg,tupleIdsEnd),1);
   std::copy(tupleIdsBg,tupleIdsEnd,tmp->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2(tmp->deepCpy());
+  MCAuto<DataArrayInt> tmp2(tmp->deepCopy());
   cellRestriction=tmp.retn();
   trueTupleRestriction=tmp2.retn();
 }
@@ -673,12 +673,12 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP0::getValueOnMulti(const DataArr
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getValueOnMulti : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsArr,eltsIndexArr;
+  MCAuto<DataArrayInt> eltsArr,eltsIndexArr;
   mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,eltsArr,eltsIndexArr);
   const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
   int spaceDim=mesh->getSpaceDimension();
   int nbOfComponents=arr->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbOfPoints,nbOfComponents);
   double *ptToFill=ret->getPointer();
   for(int i=0;i<nbOfPoints;i++,ptToFill+=nbOfComponents)
@@ -721,7 +721,7 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnCellsR(const MEDCouplingM
  */
 DataArrayInt *MEDCouplingFieldDiscretizationP0::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc((int)std::distance(startCellIds,endCellIds),1);
   std::copy(startCellIds,endCellIds,ret->getPointer());
   return ret.retn();
@@ -738,8 +738,8 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const MEDCou
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::buildSubMeshData : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPart(start,end);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diSafe=DataArrayInt::New();
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPart(start,end);
+  MCAuto<DataArrayInt> diSafe=DataArrayInt::New();
   diSafe->alloc((int)std::distance(start,end),1);
   std::copy(start,end,diSafe->getPointer());
   di=diSafe.retn();
@@ -760,7 +760,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshDataRange(const M
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::buildSubMeshDataRange : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
   di=0; beginOut=beginCellIds; endOut=endCellIds; stepOut=stepCellIds;
   return ret.retn();
 }
@@ -848,12 +848,12 @@ void MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds(c
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=mesh->getCellIdsFullyIncludedInNodeIds(tupleIdsBg,tupleIdsEnd);
+  MCAuto<DataArrayInt> ret1=mesh->getCellIdsFullyIncludedInNodeIds(tupleIdsBg,tupleIdsEnd);
   const MEDCouplingUMesh *meshc=dynamic_cast<const MEDCouplingUMesh *>(mesh);
   if(!meshc)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds : trying to subpart field on nodes by node ids ! Your mesh has to be unstructured !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshPart=static_cast<MEDCouplingUMesh *>(meshc->buildPartOfMySelf(ret1->begin(),ret1->end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=meshPart->computeFetchedNodeIds();
+  MCAuto<MEDCouplingUMesh> meshPart=static_cast<MEDCouplingUMesh *>(meshc->buildPartOfMySelf(ret1->begin(),ret1->end(),true));
+  MCAuto<DataArrayInt> ret2=meshPart->computeFetchedNodeIds();
   cellRestriction=ret1.retn();
   trueTupleRestriction=ret2.retn();
 }
@@ -881,9 +881,9 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshData(const M
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationNodes::buildSubMeshData : NULL input mesh !");
   DataArrayInt *diTmp=0;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPartAndReduceNodes(start,end,diTmp);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diTmpSafe(diTmp);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> di2=diTmpSafe->invertArrayO2N2N2O(ret->getNumberOfNodes());
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPartAndReduceNodes(start,end,diTmp);
+  MCAuto<DataArrayInt> diTmpSafe(diTmp);
+  MCAuto<DataArrayInt> di2=diTmpSafe->invertArrayO2N2N2O(ret->getNumberOfNodes());
   di=di2.retn();
   return ret.retn();
 }
@@ -903,11 +903,11 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshDataRange(co
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationOnNodes::buildSubMeshDataRange : NULL input mesh !");
   DataArrayInt *diTmp=0;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPartRangeAndReduceNodes(beginCellIds,endCellIds,stepCellIds,beginOut,endOut,stepOut,diTmp);
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPartRangeAndReduceNodes(beginCellIds,endCellIds,stepCellIds,beginOut,endOut,stepOut,diTmp);
   if(diTmp)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diTmpSafe(diTmp);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> di2=diTmpSafe->invertArrayO2N2N2O(ret->getNumberOfNodes());
+      MCAuto<DataArrayInt> diTmpSafe(diTmp);
+      MCAuto<DataArrayInt> di2=diTmpSafe->invertArrayO2N2N2O(ret->getNumberOfNodes());
       di=di2.retn();
     }
   return ret.retn();
@@ -925,8 +925,8 @@ DataArrayInt *MEDCouplingFieldDiscretizationOnNodes::computeTupleIdsToSelectFrom
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::computeTupleIdsToSelectFromCellIds : NULL input mesh !");
-  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh2=static_cast<MEDCouplingUMesh *>(umesh->buildPartOfMySelf(startCellIds,endCellIds,true));
+  const MCAuto<MEDCouplingUMesh> umesh=mesh->buildUnstructured();
+  MCAuto<MEDCouplingUMesh> umesh2=static_cast<MEDCouplingUMesh *>(umesh->buildPartOfMySelf(startCellIds,endCellIds,true));
   return umesh2->computeFetchedNodeIds();
 }
 
@@ -964,9 +964,9 @@ TypeOfField MEDCouplingFieldDiscretizationP1::getEnum() const
 }
 
 /*!
- * This method is simply called by MEDCouplingFieldDiscretization::deepCpy. It performs the deep copy of \a this.
+ * This method is simply called by MEDCouplingFieldDiscretization::deepCopy. It performs the deep copy of \a this.
  *
- * \sa MEDCouplingFieldDiscretization::deepCpy.
+ * \sa MEDCouplingFieldDiscretization::deepCopy.
  */
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationP1::clone() const
 {
@@ -999,8 +999,8 @@ bool MEDCouplingFieldDiscretizationP1::isEqualIfNotWhy(const MEDCouplingFieldDis
 
 void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const
 {
-  if(nat!=ConservativeVolumic)
-    throw INTERP_KERNEL::Exception("Invalid nature for P1 field  : expected ConservativeVolumic !");
+  if(nat!=IntensiveMaximum)
+    throw INTERP_KERNEL::Exception("Invalid nature for P1 field  : expected IntensiveMaximum !");
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
@@ -1058,12 +1058,12 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArr
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::getValueOnMulti : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsArr,eltsIndexArr;
+  MCAuto<DataArrayInt> eltsArr,eltsIndexArr;
   mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,eltsArr,eltsIndexArr);
   const int *elts(eltsArr->begin()),*eltsIndex(eltsIndexArr->begin());
   int spaceDim=mesh->getSpaceDimension();
   int nbOfComponents=arr->getNumberOfComponents();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbOfPoints,nbOfComponents);
   double *ptToFill=ret->getPointer();
   for(int i=0;i<nbOfPoints;i++)
@@ -1095,7 +1095,7 @@ MEDCouplingFieldDiscretizationPerCell::~MEDCouplingFieldDiscretizationPerCell()
 }
 
 /*!
- * This constructor deep copies ParaMEDMEM::DataArrayInt instance from other (if any).
+ * This constructor deep copies MEDCoupling::DataArrayInt instance from other (if any).
  */
 MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other, const int *startCellIds, const int *endCellIds):_discr_per_cell(0)
 {
@@ -1103,7 +1103,7 @@ MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(con
   if(arr)
     {
       if(startCellIds==0 && endCellIds==0)
-        _discr_per_cell=arr->deepCpy();
+        _discr_per_cell=arr->deepCopy();
       else
         _discr_per_cell=arr->selectByTupleIdSafe(startCellIds,endCellIds);
     }
@@ -1114,7 +1114,7 @@ MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(con
   DataArrayInt *arr=other._discr_per_cell;
   if(arr)
     {
-      _discr_per_cell=arr->selectByTupleId2(beginCellIds,endCellIds,stepCellIds);
+      _discr_per_cell=arr->selectByTupleIdSafeSlice(beginCellIds,endCellIds,stepCellIds);
     }
 }
 
@@ -1220,7 +1220,7 @@ void MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells() const
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells : no discretization defined !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> test=_discr_per_cell->getIdsEqual(DFT_INVALID_LOCID_VALUE);
+  MCAuto<DataArrayInt> test=_discr_per_cell->findIdsEqual(DFT_INVALID_LOCID_VALUE);
   if(test->getNumberOfTuples()!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells : presence of orphan cells !");
 }
@@ -1325,9 +1325,9 @@ bool MEDCouplingFieldDiscretizationGauss::isEqualWithoutConsideringStr(const MED
 }
 
 /*!
- * This method is simply called by MEDCouplingFieldDiscretization::deepCpy. It performs the deep copy of \a this.
+ * This method is simply called by MEDCouplingFieldDiscretization::deepCopy. It performs the deep copy of \a this.
  *
- * \sa MEDCouplingFieldDiscretization::deepCpy.
+ * \sa MEDCouplingFieldDiscretization::deepCopy.
  */
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGauss::clone() const
 {
@@ -1456,14 +1456,14 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfMeshPlaces(const MEDCoupling
 
 /*!
  * This method is redevelopped for performance reasons, but it is equivalent to a call to MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellField
- * and a call to DataArrayDouble::computeOffsets2 on the returned array.
+ * and a call to DataArrayDouble::computeOffsetsFull on the returned array.
  */
 DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplingMesh *mesh) const
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getOffsetArr : NULL input mesh !");
   int nbOfTuples=mesh->getNumberOfCells();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples+1,1);
   int *retPtr=ret->getPointer();
   const int *start=_discr_per_cell->getConstPointer();
@@ -1521,16 +1521,16 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValues : NULL input mesh !");
   checkNoOrphanCells();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();//in general do nothing
+  MCAuto<MEDCouplingUMesh> umesh=mesh->buildUnstructured();//in general do nothing
   int nbOfTuples=getNumberOfTuples(mesh);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=mesh->getSpaceDimension();
   ret->alloc(nbOfTuples,spaceDim);
   std::vector< int > locIds;
   std::vector<DataArrayInt *> parts=splitIntoSingleGaussDicrPerCellType(locIds);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > parts2(parts.size());
+  std::vector< MCAuto<DataArrayInt> > parts2(parts.size());
   std::copy(parts.begin(),parts.end(),parts2.begin());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> offsets=buildNbOfGaussPointPerCellField();
+  MCAuto<DataArrayInt> offsets=buildNbOfGaussPointPerCellField();
   offsets->computeOffsets();
   const int *ptrOffsets=offsets->getConstPointer();
   const double *coords=umesh->getCoords()->getConstPointer();
@@ -1561,13 +1561,13 @@ void MEDCouplingFieldDiscretizationGauss::computeMeshRestrictionFromTupleIds(con
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeMeshRestrictionFromTupleIds : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=DataArrayInt::New(); tmp->alloc((int)std::distance(tupleIdsBg,tupleIdsEnd),1);
+  MCAuto<DataArrayInt> tmp=DataArrayInt::New(); tmp->alloc((int)std::distance(tupleIdsBg,tupleIdsEnd),1);
   std::copy(tupleIdsBg,tupleIdsEnd,tmp->getPointer());
   tmp->sort(true);
   tmp=tmp->buildUnique();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=buildNbOfGaussPointPerCellField();
-  nbOfNodesPerCell->computeOffsets2();
-  nbOfNodesPerCell->searchRangesInListOfIds(tmp,cellRestriction,trueTupleRestriction);
+  MCAuto<DataArrayInt> nbOfNodesPerCell=buildNbOfGaussPointPerCellField();
+  nbOfNodesPerCell->computeOffsetsFull();
+  nbOfNodesPerCell->findIdsRangesInListOfIds(tmp,cellRestriction,trueTupleRestriction);
 }
 
 /*!
@@ -1658,7 +1658,7 @@ void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplin
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween : NULL input mesh or DataArray !");
   MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(mesh,da);
   for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++)
-    (*iter).checkCoherency();
+    (*iter).checkConsistencyLight();
   int nbOfDesc=(int)_loc.size();
   int nbOfCells=mesh->getNumberOfCells();
   const int *dc=_discr_per_cell->getConstPointer();
@@ -1692,9 +1692,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : mesh instance specified is NULL !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isAbs);
+  MCAuto<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isAbs);
   const double *volPtr=vol->getArray()->begin();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_PT);
+  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_PT);
   ret->setMesh(mesh);
   ret->setDiscretization(const_cast<MEDCouplingFieldDiscretizationGauss *>(this));
   if(!_discr_per_cell)
@@ -1704,15 +1704,15 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(con
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but with nb of components different from 1 !");
   if(_discr_per_cell->getNumberOfTuples()!=vol->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : no discr per cell array defined but mismatch between nb of cells of mesh and size of spatial disr array !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> offset=getOffsetArr(mesh);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(getNumberOfTuples(mesh),1);
+  MCAuto<DataArrayInt> offset=getOffsetArr(mesh);
+  MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(getNumberOfTuples(mesh),1);
   ret->setArray(arr);
   double *arrPtr=arr->getPointer();
   const int *offsetPtr=offset->getConstPointer();
   int maxGaussLoc=(int)_loc.size();
   std::vector<int> locIds;
   std::vector<DataArrayInt *> ids=splitIntoSingleGaussDicrPerCellType(locIds);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > ids2(ids.size()); std::copy(ids.begin(),ids.end(),ids2.begin());
+  std::vector< MCAuto<DataArrayInt> > ids2(ids.size()); std::copy(ids.begin(),ids.end(),ids2.begin());
   for(std::size_t i=0;i<locIds.size();i++)
     {
       const DataArrayInt *curIds=ids[i];
@@ -1757,8 +1757,8 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const MED
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::buildSubMeshData : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diSafe=computeTupleIdsToSelectFromCellIds(mesh,start,end);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPart(start,end);
+  MCAuto<DataArrayInt> diSafe=computeTupleIdsToSelectFromCellIds(mesh,start,end);
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPart(start,end);
   di=diSafe.retn();
   return ret.retn();
 }
@@ -1805,7 +1805,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshDataRange(cons
       else
         { std::ostringstream oss; oss << msg << i << " is detected as orphan !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
   return ret.retn();
 }
 
@@ -1820,12 +1820,12 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCe
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : null mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=buildNbOfGaussPointPerCellField();//check of _discr_per_cell not NULL pointer
+  MCAuto<DataArrayInt> nbOfNodesPerCell=buildNbOfGaussPointPerCellField();//check of _discr_per_cell not NULL pointer
   int nbOfCells=mesh->getNumberOfCells();
   if(_discr_per_cell->getNumberOfTuples()!=nbOfCells)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : mismatch of nb of tuples of cell ids array and number of cells !");
-  nbOfNodesPerCell->computeOffsets2();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
+  nbOfNodesPerCell->computeOffsetsFull();
+  MCAuto<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
   return sel->buildExplicitArrByRanges(nbOfNodesPerCell);
 }
 
@@ -2013,7 +2013,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellFie
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellField : no discretization array set !");
   int nbOfTuples=_discr_per_cell->getNumberOfTuples();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  MCAuto<DataArrayInt> ret=DataArrayInt::New();
   const int *w=_discr_per_cell->begin();
   ret->alloc(nbOfTuples,1);
   int *valsToFill=ret->getPointer();
@@ -2100,9 +2100,9 @@ TypeOfField MEDCouplingFieldDiscretizationGaussNE::getEnum() const
 }
 
 /*!
- * This method is simply called by MEDCouplingFieldDiscretization::deepCpy. It performs the deep copy of \a this.
+ * This method is simply called by MEDCouplingFieldDiscretization::deepCopy. It performs the deep copy of \a this.
  *
- * \sa MEDCouplingFieldDiscretization::deepCpy.
+ * \sa MEDCouplingFieldDiscretization::deepCopy.
  */
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGaussNE::clone() const
 {
@@ -2261,8 +2261,8 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscVal
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscValues : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();//in general do nothing
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<MEDCouplingUMesh> umesh=mesh->buildUnstructured();//in general do nothing
   int nbOfTuples=getNumberOfTuples(umesh);
   int spaceDim=mesh->getSpaceDimension();
   ret->alloc(nbOfTuples,spaceDim);
@@ -2288,10 +2288,10 @@ void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh
   int nbOfCompo=arr->getNumberOfComponents();
   std::fill(res,res+nbOfCompo,0.);
   //
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isWAbs);
+  MCAuto<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isWAbs);
   std::set<INTERP_KERNEL::NormalizedCellType> types=mesh->getAllGeoTypes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
-  nbOfNodesPerCell->computeOffsets2();
+  MCAuto<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
+  nbOfNodesPerCell->computeOffsetsFull();
   const double *arrPtr=arr->begin(),*volPtr=vol->getArray()->begin();
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=types.begin();it!=types.end();it++)
     {
@@ -2300,8 +2300,8 @@ void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh
       INTERP_KERNEL::AutoPtr<double> wArr2=new double[wArrSz];
       double sum=std::accumulate(wArr,wArr+wArrSz,0.);
       std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind2nd(std::multiplies<double>(),1./sum));      
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=mesh->giveCellsWithType(*it);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
+      MCAuto<DataArrayInt> ids=mesh->giveCellsWithType(*it);
+      MCAuto<DataArrayInt> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
       const int *ptIds2=ids2->begin(),*ptIds=ids->begin();
       int nbOfCellsWithCurGeoType=ids->getNumberOfTuples();
       for(int i=0;i<nbOfCellsWithCurGeoType;i++,ptIds++,ptIds2+=wArrSz)
@@ -2558,13 +2558,13 @@ void MEDCouplingFieldDiscretizationGaussNE::computeMeshRestrictionFromTupleIds(c
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::computeMeshRestrictionFromTupleIds : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=DataArrayInt::New(); tmp->alloc((int)std::distance(tupleIdsBg,tupleIdsEnd),1);
+  MCAuto<DataArrayInt> tmp=DataArrayInt::New(); tmp->alloc((int)std::distance(tupleIdsBg,tupleIdsEnd),1);
   std::copy(tupleIdsBg,tupleIdsEnd,tmp->getPointer());
   tmp->sort(true);
   tmp=tmp->buildUnique();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
-  nbOfNodesPerCell->computeOffsets2();
-  nbOfNodesPerCell->searchRangesInListOfIds(tmp,cellRestriction,trueTupleRestriction);
+  MCAuto<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
+  nbOfNodesPerCell->computeOffsetsFull();
+  nbOfNodesPerCell->findIdsRangesInListOfIds(tmp,cellRestriction,trueTupleRestriction);
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::checkCompatibilityWithNature(NatureOfField nat) const
@@ -2599,16 +2599,16 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getMeasureField(c
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getMeasureField : mesh instance specified is NULL !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isAbs);
+  MCAuto<MEDCouplingFieldDouble> vol=mesh->getMeasureField(isAbs);
   const double *volPtr=vol->getArray()->begin();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_NE);
+  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(ON_GAUSS_NE);
   ret->setMesh(mesh);
   //
   std::set<INTERP_KERNEL::NormalizedCellType> types=mesh->getAllGeoTypes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
+  MCAuto<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
   int nbTuples=nbOfNodesPerCell->accumulate(0);
-  nbOfNodesPerCell->computeOffsets2();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(nbTuples,1);
+  nbOfNodesPerCell->computeOffsetsFull();
+  MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); arr->alloc(nbTuples,1);
   ret->setArray(arr);
   double *arrPtr=arr->getPointer();
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=types.begin();it!=types.end();it++)
@@ -2618,8 +2618,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getMeasureField(c
       INTERP_KERNEL::AutoPtr<double> wArr2=new double[wArrSz];
       double sum=std::accumulate(wArr,wArr+wArrSz,0.);
       std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind2nd(std::multiplies<double>(),1./sum));      
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=mesh->giveCellsWithType(*it);
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
+      MCAuto<DataArrayInt> ids=mesh->giveCellsWithType(*it);
+      MCAuto<DataArrayInt> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
       const int *ptIds2=ids2->begin(),*ptIds=ids->begin();
       int nbOfCellsWithCurGeoType=ids->getNumberOfTuples();
       for(int i=0;i<nbOfCellsWithCurGeoType;i++,ptIds++)
@@ -2649,8 +2649,8 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const M
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData : NULL input mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diSafe=computeTupleIdsToSelectFromCellIds(mesh,start,end);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPart(start,end);
+  MCAuto<DataArrayInt> diSafe=computeTupleIdsToSelectFromCellIds(mesh,start,end);
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPart(start,end);
   di=diSafe.retn();
   return ret.retn();
 }
@@ -2687,7 +2687,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshDataRange(co
       if(i>=endCellIds)
         break;
     }
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
+  MCAuto<MEDCouplingMesh> ret=mesh->buildPartRange(beginCellIds,endCellIds,stepCellIds);
   return ret.retn();
 }
 
@@ -2703,9 +2703,9 @@ DataArrayInt *MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFrom
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFromCellIds : null mesh !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
-  nbOfNodesPerCell->computeOffsets2();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
+  MCAuto<DataArrayInt> nbOfNodesPerCell=mesh->computeNbOfNodesPerCell();
+  nbOfNodesPerCell->computeOffsetsFull();
+  MCAuto<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
   return sel->buildExplicitArrByRanges(nbOfNodesPerCell);
 }
 
@@ -2746,9 +2746,9 @@ const char *MEDCouplingFieldDiscretizationKriging::getRepr() const
 }
 
 /*!
- * This method is simply called by MEDCouplingFieldDiscretization::deepCpy. It performs the deep copy of \a this.
+ * This method is simply called by MEDCouplingFieldDiscretization::deepCopy. It performs the deep copy of \a this.
  *
- * \sa MEDCouplingFieldDiscretization::deepCpy.
+ * \sa MEDCouplingFieldDiscretization::deepCopy.
  */
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationKriging::clone() const
 {
@@ -2762,8 +2762,8 @@ std::string MEDCouplingFieldDiscretizationKriging::getStringRepr() const
 
 void MEDCouplingFieldDiscretizationKriging::checkCompatibilityWithNature(NatureOfField nat) const
 {
-  if(nat!=ConservativeVolumic)
-    throw INTERP_KERNEL::Exception("Invalid nature for Kriging field : expected ConservativeVolumic !");
+  if(nat!=IntensiveMaximum)
+    throw INTERP_KERNEL::Exception("Invalid nature for Kriging field : expected IntensiveMaximum !");
 }
 
 bool MEDCouplingFieldDiscretizationKriging::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
@@ -2789,7 +2789,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationKriging::getMeasureField(c
 
 void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> res2=MEDCouplingFieldDiscretizationKriging::getValueOnMulti(arr,mesh,loc,1);
+  MCAuto<DataArrayDouble> res2=MEDCouplingFieldDiscretizationKriging::getValueOnMulti(arr,mesh,loc,1);
   std::copy(res2->begin(),res2->end(),res);
 }
 
@@ -2804,8 +2804,8 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const Da
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   int nbCols(-1),nbCompo(arr->getNumberOfComponents());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> m(computeEvaluationMatrixOnGivenPts(mesh,loc,nbOfTargetPoints,nbCols));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> m(computeEvaluationMatrixOnGivenPts(mesh,loc,nbOfTargetPoints,nbCols));
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfTargetPoints,nbCompo);
   INTERP_KERNEL::matrixProduct(m->begin(),nbOfTargetPoints,nbCols,arr->begin(),nbOfRows,nbCompo,ret->getPointer());
   return ret.retn();
@@ -2824,18 +2824,18 @@ void MEDCouplingFieldDiscretizationKriging::reprQuickOverview(std::ostream& stre
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints, int& nbCols) const
 {
   int isDrift(-1),nbRows(-1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
+  MCAuto<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
+  MCAuto<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
   int nbOfPts(coords->getNumberOfTuples()),dimension(coords->getNumberOfComponents());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> locArr=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> locArr=DataArrayDouble::New();
   locArr->useArray(loc,false,CPP_DEALLOC,nbOfTargetPoints,dimension);
   nbCols=nbOfPts;
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
+  MCAuto<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
   operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfTargetPoints*nbOfPts,matrix2->getPointer());
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix3=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> matrix3=DataArrayDouble::New();
   matrix3->alloc(nbOfTargetPoints*nbRows,1);
   double *work=matrix3->getPointer();
   const double *workCst(matrix2->begin()),*workCst2(loc);
@@ -2847,10 +2847,10 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixO
       for(int j=0;j<isDrift-1;j++)
         work[i*nbRows+(nbOfPts+1+j)]=workCst2[j];
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfTargetPoints,nbRows);
   INTERP_KERNEL::matrixProduct(matrix3->begin(),nbOfTargetPoints,nbRows,matrixInv->begin(),nbRows,nbRows,ret->getPointer());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret2(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> ret2(DataArrayDouble::New());
   ret2->alloc(nbOfTargetPoints*nbOfPts,1);
   workCst=ret->begin(); work=ret2->getPointer();
   for(int i=0;i<nbOfTargetPoints;i++,workCst+=nbRows)
@@ -2869,8 +2869,8 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixO
  */
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeInverseMatrix(const MEDCouplingMesh *mesh, int& isDrift, int& matSz) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift(computeMatrix(mesh,isDrift,matSz));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> matrixWithDrift(computeMatrix(mesh,isDrift,matSz));
+  MCAuto<DataArrayDouble> matrixInv(DataArrayDouble::New());
   matrixInv->alloc(matSz*matSz,1);
   INTERP_KERNEL::inverseMatrix(matrixWithDrift->getConstPointer(),matSz,matrixInv->getPointer());
   return matrixInv.retn();
@@ -2885,12 +2885,12 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeMatrix(const MEDC
 {
   if(!mesh)
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::computeMatrix : NULL input mesh !");
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords(getLocalizationOfDiscValues(mesh));
+    MCAuto<DataArrayDouble> coords(getLocalizationOfDiscValues(mesh));
     int nbOfPts(coords->getNumberOfTuples());
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix(coords->buildEuclidianDistanceDenseMatrix());
+    MCAuto<DataArrayDouble> matrix(coords->buildEuclidianDistanceDenseMatrix());
     operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfPts,matrix->getPointer());
     // Drift
-    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift(performDrift(matrix,coords,isDrift));
+    MCAuto<DataArrayDouble> matrixWithDrift(performDrift(matrix,coords,isDrift));
     matSz=nbOfPts+isDrift;
     return matrixWithDrift.retn();
 }
@@ -2908,10 +2908,10 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeMatrix(const MEDC
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const
 {
   int nbRows(-1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> matrixInv(computeInverseMatrix(mesh,isDrift,nbRows));
+  MCAuto<DataArrayDouble> KnewiK(DataArrayDouble::New());
   KnewiK->alloc(nbRows*1,1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(PerformDriftOfVec(arr,isDrift));
+  MCAuto<DataArrayDouble> arr2(PerformDriftOfVec(arr,isDrift));
   INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbRows,nbRows,arr2->getConstPointer(),arr2->getNumberOfTuples(),1,KnewiK->getPointer());
   return KnewiK.retn();
 }
@@ -2985,7 +2985,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::PerformDriftRect(const D
   int nbOfCols(nbOfEltInMatrx/nbOfPts);
   if(nbOfEltInMatrx%nbOfPts!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftRect : size of input dense matrix and input arrays mismatch ! NbOfElems in matrix % nb of tuples in array must be equal to 0 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfPts*(nbOfCols+delta));
+  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfPts*(nbOfCols+delta));
   double *retPtr(ret->getPointer());
   const double *mPtr(matr->begin()),*aPtr(arr->begin());
   for(int i=0;i<nbOfPts;i++,aPtr+=spaceDimension,mPtr+=nbOfCols)
@@ -3007,7 +3007,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec(const 
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec : input array must be not NULL allocated and with one component !");
   if(isDrift<0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::PerformDriftOfVec : isDrift parameter must be >=0 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2(DataArrayDouble::New());
+  MCAuto<DataArrayDouble> arr2(DataArrayDouble::New());
   arr2->alloc((arr->getNumberOfTuples()+isDrift)*1,1);
   double *work(std::copy(arr->begin(),arr->end(),arr2->getPointer()));
   std::fill(work,work+isDrift,0.);
@@ -3032,7 +3032,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataA
   int szOfMatrix=arr->getNumberOfTuples();
   if(szOfMatrix*szOfMatrix!=matr->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::performDrift : invalid size");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc((szOfMatrix+delta)*(szOfMatrix+delta),1);
   const double *srcWork=matr->getConstPointer();
   const double *srcWork2=arr->getConstPointer();
@@ -3047,7 +3047,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataA
     }
   std::fill(destWork,destWork+szOfMatrix,1.); destWork+=szOfMatrix;
   std::fill(destWork,destWork+spaceDimension+1,0.); destWork+=spaceDimension+1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrNoI=arr->toNoInterlace();
+  MCAuto<DataArrayDouble> arrNoI=arr->toNoInterlace();
   srcWork2=arrNoI->getConstPointer();
   for(int i=0;i<spaceDimension;i++)
     {

@@ -163,31 +163,31 @@ class MEDLoaderBasicsTest(unittest.TestCase):
 #! [PySnippetMeshAdvAPI1_1]
         self.assertTrue(isinstance(myMesh,MEDCouplingUMesh))
         myMesh.setName(meshName)
-        MEDLoader.WriteUMesh("wFile1.med",myMesh,True)
+        WriteUMesh("wFile1.med",myMesh,True)
 #! [PySnippetMeshAdvAPI1_1]
         os.remove("wFile1.med")
 #! [PySnippetMeshAdvAPI1_2]
         self.assertTrue(isinstance(myMesh,MEDCouplingUMesh))
         myMesh.setName(meshName)
-        MEDLoader.WriteUMesh("wFile1.med",myMesh,False)
+        WriteUMesh("wFile1.med",myMesh,False)
 #! [PySnippetMeshAdvAPI1_2]
         f=myMesh.getMeasureField(ON_CELLS)
         f=f.buildNewTimeReprFromThis(ONE_TIME,False)
         f.setName("myField")
 #! [PySnippetMeshAdvAPI1_3]
-        MEDLoader.WriteUMesh("file3.med",f.getMesh(),True)
+        WriteUMesh("file3.med",f.getMesh(),True)
         f.setTime(1.2,1,0)
         fileNameMultiTimeStep="file3.med"
-        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileNameMultiTimeStep,f)
+        WriteFieldUsingAlreadyWrittenMesh(fileNameMultiTimeStep,f)
         f.setTime(1.3,2,0)
         f.applyFunc("sqrt(x)");
         #Writing second time step with iteration==2 and order==0
-        MEDLoader.WriteFieldUsingAlreadyWrittenMesh("file3.med",f);
+        WriteFieldUsingAlreadyWrittenMesh("file3.med",f);
 #! [PySnippetMeshAdvAPI1_3]
 #! [PySnippetMeshAdvAPI1_11]
-        timeStepsIds=MEDLoader.GetCellFieldIterations("file3.med","Example2","myField")
+        timeStepsIds=GetCellFieldIterations("file3.med","Example2","myField")
         self.assertEqual([(1, 0),(2, 0)],timeStepsIds)
-        fs=MEDLoader.ReadFieldsOnSameMesh(ON_CELLS,"file3.med","Example2",0,"myField",timeStepsIds);
+        fs=ReadFieldsOnSameMesh(ON_CELLS,"file3.med","Example2",0,"myField",timeStepsIds);
 #! [PySnippetMeshAdvAPI1_11]
         ###
         myMesh0=myMesh[:] ; myMesh0.setName("Example2")
@@ -205,32 +205,32 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         F1Cell.setArray(myMesh0.getCoords()[:myMesh0.getNumberOfCells()])
         F1Cell.setTime(1000.,2,3)
         F1Cell.setName("F1Cell")
-        MEDLoader.WriteFieldUsingAlreadyWrittenMesh("file2.med",F1Cell)
-        F1Cell1=F1Cell.deepCpy()
+        WriteFieldUsingAlreadyWrittenMesh("file2.med",F1Cell)
+        F1Cell1=F1Cell.deepCopy()
         F1Cell1.setMesh(myMesh1)
-        F1Cell1.setArray(myMesh1.getBarycenterAndOwner())
-        MEDLoader.WriteFieldUsingAlreadyWrittenMesh("file2.med",F1Cell1)
+        F1Cell1.setArray(myMesh1.computeCellCenterOfMass())
+        WriteFieldUsingAlreadyWrittenMesh("file2.med",F1Cell1)
 #! [PySnippetMeshAdvAPI1_12]
-        f1Cell_3D=MEDLoader.ReadFieldCell("file2.med","Example2",0,"F1Cell",2,3)
+        f1Cell_3D=ReadFieldCell("file2.med","Example2",0,"F1Cell",2,3)
 #! [PySnippetMeshAdvAPI1_12]
 #! [PySnippetMeshAdvAPI1_13]
-        f1Cell_2D=MEDLoader.ReadFieldCell("file2.med","Example2",-1,"F1Cell",2,3)
+        f1Cell_2D=ReadFieldCell("file2.med","Example2",-1,"F1Cell",2,3)
 #! [PySnippetMeshAdvAPI1_13]
         self.assertTrue(F1Cell.isEqual(f1Cell_3D,1e-12,1e-12))
 #! [PySnippetMeshAdvAPI1_8]
-        self.assertEqual(3,MEDLoader.ReadUMeshDimFromFile("file2.med","Example2"))
+        self.assertEqual(3,ReadUMeshDimFromFile("file2.med","Example2"))
 #! [PySnippetMeshAdvAPI1_8]
 #! [PySnippetMeshAdvAPI1_7]
-        m2D=MEDLoader.ReadUMeshFromFile("file2.med","Example2",0)
+        m2D=ReadUMeshFromFile("file2.med","Example2",0)
 #! [PySnippetMeshAdvAPI1_7]
 #! [PySnippetMeshAdvAPI1_4]
-        m2D=MEDLoader.ReadUMeshFromFile("file2.med","Example2",-1)
+        m2D=ReadUMeshFromFile("file2.med","Example2",-1)
 #! [PySnippetMeshAdvAPI1_4]
 #! [PySnippetMeshAdvAPI1_5]
-        m1D=MEDLoader.ReadUMeshFromFile("file2.med","Example2",-2)
+        m1D=ReadUMeshFromFile("file2.med","Example2",-2)
 #! [PySnippetMeshAdvAPI1_5]
 #! [PySnippetMeshAdvAPI1_6]
-        m0D=MEDLoader.ReadUMeshFromFile("file2.med","Example2",-3)
+        m0D=ReadUMeshFromFile("file2.med","Example2",-3)
 #! [PySnippetMeshAdvAPI1_6]
         for i in xrange(4):
             mm.removeMeshAtLevel(-i)
@@ -240,10 +240,10 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         mm.setName("MyMesh")
         mm.write("file1.med",2)
 #! [PySnippetMeshAdvAPI1_9]
-        m2D=MEDLoader.ReadUMeshFromFile("file1.med","MyMesh",0)
+        m2D=ReadUMeshFromFile("file1.med","MyMesh",0)
 #! [PySnippetMeshAdvAPI1_9]
 #! [PySnippetMeshAdvAPI1_10]
-        m1D=MEDLoader.ReadUMeshFromFile("file1.med","MyMesh",-1)
+        m1D=ReadUMeshFromFile("file1.med","MyMesh",-1)
 #! [PySnippetMeshAdvAPI1_10]
         pass
 

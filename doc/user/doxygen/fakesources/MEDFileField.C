@@ -21,7 +21,7 @@
 // generation of documentation for inline methods.
 
 
-namespace ParaMEDMEM // inline methods of MEDFileField1TSWithoutSDA
+namespace MEDCoupling // inline methods of MEDFileField1TSWithoutSDA
 {
   /*!
    * Returns the number of iteration where \a this field has been calculated.
@@ -56,7 +56,7 @@ namespace ParaMEDMEM // inline methods of MEDFileField1TSWithoutSDA
 //  const std::string& MEDFileField1TSWithoutSDA::getDtUnit() const {}
 }
 
-namespace ParaMEDMEM // inline methods of MEDFileFieldGlobsReal
+namespace MEDCoupling // inline methods of MEDFileFieldGlobsReal
 {
   /*!
    * Returns non empty names of all used profiles. To get all profiles call getPfls().

@@ -19,7 +19,7 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingPointSet.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -33,7 +33,7 @@
 #include <limits>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingPointSet::MEDCouplingPointSet():_coords(0)
 {
@@ -42,7 +42,7 @@ MEDCouplingPointSet::MEDCouplingPointSet():_coords(0)
 MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCopy):MEDCouplingMesh(other),_coords(0)
 {
   if(other._coords)
-    _coords=other._coords->performCpy(deepCopy);
+    _coords=other._coords->performCopyOrIncrRef(deepCopy);
 }
 
 MEDCouplingPointSet::~MEDCouplingPointSet()
@@ -265,7 +265,7 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, 
   DataArrayInt *comm,*commI;
   findCommonNodes(precision,limitNodeId,comm,commI);
   int oldNbOfNodes=getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
+  MCAuto<DataArrayInt> ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
   comm->decrRef();
   commI->decrRef();
@@ -326,7 +326,7 @@ DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double
 {
   DataArrayInt *c=0,*cI=0;
   getNodeIdsNearPoints(pos,1,eps,c,cI);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cITmp(cI);
+  MCAuto<DataArrayInt> cITmp(cI);
   return c;
 }
 
@@ -362,7 +362,7 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfPoints
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
   int spaceDim=getSpaceDimension();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> points=DataArrayDouble::New();
+  MCAuto<DataArrayDouble> points=DataArrayDouble::New();
   points->useArray(pos,false,CPP_DEALLOC,nbOfPoints,spaceDim);
   _coords->computeTupleIdsNearTuples(points,eps,c,cI);
 }
@@ -377,7 +377,7 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat : no coords specified !");
-  return DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfNodes(),comm->begin(),commIndex->begin(),commIndex->end(),newNbOfNodes);
+  return DataArrayInt::ConvertIndexArrayToO2N(getNumberOfNodes(),comm->begin(),commIndex->begin(),commIndex->end(),newNbOfNodes);
 }
 
 /*!
@@ -401,7 +401,7 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::renumberNodes : no coords specified !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=_coords->renumberAndReduce(newNodeNumbers,newNbOfNodes);
+  MCAuto<DataArrayDouble> newCoords=_coords->renumberAndReduce(newNodeNumbers,newNbOfNodes);
   renumberNodesInConn(newNodeNumbers);
   setCoords(newCoords);//let it here not before renumberNodesInConn because old number of nodes is sometimes used...
 }
@@ -425,7 +425,7 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
  *  \ref  py_mcumesh_renumberNodes "Here is a Python example".
  *  \endif
  */
-void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfNodes)
+void MEDCouplingPointSet::renumberNodesCenter(const int *newNodeNumbers, int newNbOfNodes)
 {
   DataArrayDouble *newCoords=DataArrayDouble::New();
   std::vector<int> div(newNbOfNodes);
@@ -674,8 +674,8 @@ void MEDCouplingPointSet::duplicateNodesInCoords(const int *nodeIdsToDuplicateBg
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::duplicateNodesInCoords : no coords set !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=_coords->selectByTupleIdSafe(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords2=DataArrayDouble::Aggregate(_coords,newCoords);
+  MCAuto<DataArrayDouble> newCoords=_coords->selectByTupleIdSafe(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd);
+  MCAuto<DataArrayDouble> newCoords2=DataArrayDouble::Aggregate(_coords,newCoords);
   setCoords(newCoords2);
 }
 
@@ -947,10 +947,10 @@ void MEDCouplingPointSet::unserialization(const std::vector<double>& tinyInfoD, 
     }
 }
 
-void MEDCouplingPointSet::checkCoherency() const
+void MEDCouplingPointSet::checkConsistencyLight() const
 {
   if(!_coords)
-    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkCoherency : no coordinates set !");
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkConsistencyLight : no coordinates set !");
 }
 
 /*!
@@ -1081,7 +1081,7 @@ DataArrayInt *MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells(const MED
 {
   if(!srcMesh || !trgMesh)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells : the input meshes must be not NULL !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> sbbox(srcMesh->getBoundingBoxForBBTree()),tbbox(trgMesh->getBoundingBoxForBBTree());
+  MCAuto<DataArrayDouble> sbbox(srcMesh->getBoundingBoxForBBTree()),tbbox(trgMesh->getBoundingBoxForBBTree());
   return tbbox->computeNbOfInteractionsWith(sbbox,eps);
 }
 
@@ -1115,7 +1115,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> ret=buildPartOfMySelf(start,end,true);
+  MCAuto<MEDCouplingPointSet> ret=buildPartOfMySelf(start,end,true);
   arr=ret->zipCoordsTraducer();
   return ret.retn();
 }
@@ -1129,7 +1129,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, 
  *
  * \return a new ref to be managed by the caller. Warning this ref can be equal to \a this if input slice is exactly equal to the whole cells in the same order.
  *
- * \sa MEDCouplingUMesh::buildPartOfMySelf2
+ * \sa MEDCouplingUMesh::buildPartOfMySelfSlice
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCellIds, int stepCellIds) const
 {
@@ -1141,7 +1141,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCe
     }
   else
     {
-      return buildPartOfMySelf2(beginCellIds,endCellIds,stepCellIds,true);
+      return buildPartOfMySelfSlice(beginCellIds,endCellIds,stepCellIds,true);
     }
 }
 
@@ -1153,11 +1153,11 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(int beginCellIds, int endCe
  * \param [out] stepOut valid only if \a arr not NULL !
  * \param [out] arr correspondance old to new in node ids.
  * 
- * \sa MEDCouplingUMesh::buildPartOfMySelf2
+ * \sa MEDCouplingUMesh::buildPartOfMySelfSlice
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(int beginCellIds, int endCellIds, int stepCellIds, int& beginOut, int& endOut, int& stepOut, DataArrayInt*& arr) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> ret=buildPartOfMySelf2(beginCellIds,endCellIds,stepCellIds,true);
+  MCAuto<MEDCouplingPointSet> ret=buildPartOfMySelfSlice(beginCellIds,endCellIds,stepCellIds,true);
   arr=ret->zipCoordsTraducer();
   return ret.retn();
 }
@@ -1308,13 +1308,13 @@ void MEDCouplingPointSet::tryToShareSameCoordsPermute(const MEDCouplingPointSet&
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::tryToShareSameCoordsPermute : No coords specified in this whereas there is any in other !");
   int otherNbOfNodes=other.getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=MergeNodesArray(&other,this);
+  MCAuto<DataArrayDouble> newCoords=MergeNodesArray(&other,this);
   _coords->incrRef();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> oldCoords=_coords;
+  MCAuto<DataArrayDouble> oldCoords=_coords;
   setCoords(newCoords);
   bool areNodesMerged;
   int newNbOfNodes;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=buildPermArrayForMergeNode(epsilon,otherNbOfNodes,areNodesMerged,newNbOfNodes);
+  MCAuto<DataArrayInt> da=buildPermArrayForMergeNode(epsilon,otherNbOfNodes,areNodesMerged,newNbOfNodes);
   if(!areNodesMerged)
     {
       setCoords(oldCoords);
@@ -1334,15 +1334,15 @@ void MEDCouplingPointSet::tryToShareSameCoordsPermute(const MEDCouplingPointSet&
 
 MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> ret=buildPartOfMySelfKeepCoords(begin,end);
+  MCAuto<MEDCouplingPointSet> ret=buildPartOfMySelfKeepCoords(begin,end);
   if(!keepCoords)
     ret->zipCoords();
   return ret.retn();
 }
 
-MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const
+MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfSlice(int start, int end, int step, bool keepCoords) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> ret=buildPartOfMySelfKeepCoords2(start,end,step);
+  MCAuto<MEDCouplingPointSet> ret=buildPartOfMySelfKeepCoordsSlice(start,end,step);
   if(!keepCoords)
     ret->zipCoords();
   return ret.retn();
@@ -1375,7 +1375,7 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfNode(const int *begin
 {
   DataArrayInt *cellIdsKept=0;
   fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsKept2(cellIdsKept);
+  MCAuto<DataArrayInt> cellIdsKept2(cellIdsKept);
   return buildPartOfMySelf(cellIdsKept->begin(),cellIdsKept->end(),true);
 }
 
@@ -1414,12 +1414,12 @@ DataArrayInt *MEDCouplingPointSet::zipConnectivityTraducer(int compType, int sta
 {
   DataArrayInt *commonCells=0,*commonCellsI=0;
   findCommonCells(compType,startCellId,commonCells,commonCellsI);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> commonCellsTmp(commonCells),commonCellsITmp(commonCellsI);
+  MCAuto<DataArrayInt> commonCellsTmp(commonCells),commonCellsITmp(commonCellsI);
   int newNbOfCells=-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfCells(),commonCells->begin(),commonCellsI->begin(),
+  MCAuto<DataArrayInt> ret=DataArrayInt::ConvertIndexArrayToO2N(getNumberOfCells(),commonCells->begin(),commonCellsI->begin(),
                                                                                                           commonCellsI->end(),newNbOfCells);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=ret->invertArrayO2N2N2O(newNbOfCells);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> self=buildPartOfMySelf(ret2->begin(),ret2->end(),true);
+  MCAuto<DataArrayInt> ret2=ret->invertArrayO2N2N2O(newNbOfCells);
+  MCAuto<MEDCouplingPointSet> self=buildPartOfMySelf(ret2->begin(),ret2->end(),true);
   shallowCopyConnectivityFrom(self);
   return ret.retn();
 }
@@ -1468,11 +1468,11 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalWith : other is not a PointSet mesh !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m=dynamic_cast<MEDCouplingPointSet *>(mergeMyselfWith(otherC));
+  MCAuto<MEDCouplingPointSet> m=dynamic_cast<MEDCouplingPointSet *>(mergeMyselfWith(otherC));
   bool areNodesMerged;
   int newNbOfNodes;
   int oldNbOfNodes=getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->buildPermArrayForMergeNode(prec,oldNbOfNodes,areNodesMerged,newNbOfNodes);
+  MCAuto<DataArrayInt> da=m->buildPermArrayForMergeNode(prec,oldNbOfNodes,areNodesMerged,newNbOfNodes);
   //mergeNodes
   if(!areNodesMerged && oldNbOfNodes != 0)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Nodes are incompatible ! ");
@@ -1481,7 +1481,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some nodes in other are not in this !");
   m->renumberNodes(da->getConstPointer(),newNbOfNodes);
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeCor2=da->substr(oldNbOfNodes);
+  MCAuto<DataArrayInt> nodeCor2=da->subArray(oldNbOfNodes);
   da=m->mergeNodes(prec,areNodesMerged,newNbOfNodes);
   //
   da=m->zipConnectivityTraducer(cellCompPol);
@@ -1491,7 +1491,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   int dan(da->getNumberOfTuples());
   if (dan)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da1(DataArrayInt::New()),da2(DataArrayInt::New());
+      MCAuto<DataArrayInt> da1(DataArrayInt::New()),da2(DataArrayInt::New());
       da1->alloc(dan/2,1); da2->alloc(dan/2,1);
       std::copy(da->getConstPointer(), da->getConstPointer()+dan/2, da1->getPointer());
       std::copy(da->getConstPointer()+dan/2, da->getConstPointer()+dan, da2->getPointer());
@@ -1499,9 +1499,9 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
       if (!da1->isEqualWithoutConsideringStr(*da2))
         throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(nbCells,da->getNbOfElems(),1);
-  nodeCor=nodeCor2->isIdentity2(nodeCor2->getNumberOfTuples())?0:nodeCor2.retn();
-  cellCor=cellCor2->isIdentity2(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
+  MCAuto<DataArrayInt> cellCor2=da->selectByTupleIdSafeSlice(nbCells,da->getNbOfElems(),1);
+  nodeCor=nodeCor2->isIota(nodeCor2->getNumberOfTuples())?0:nodeCor2.retn();
+  cellCor=cellCor2->isIota(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
 }
 
 /*!
@@ -1533,16 +1533,16 @@ void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh 
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith : other is not a PointSet mesh !");
   if(_coords!=otherC->_coords)
     throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : meshes do not share the same coordinates ! Use tryToShareSameCoordinates or call checkDeepEquivalWith !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> m=mergeMyselfWithOnSameCoords(otherC);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->zipConnectivityTraducer(cellCompPol);
+  MCAuto<MEDCouplingPointSet> m=mergeMyselfWithOnSameCoords(otherC);
+  MCAuto<DataArrayInt> da=m->zipConnectivityTraducer(cellCompPol);
   int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
   const int *pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     {
       throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : some cells in other are not in this !");
     }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=da->selectByTupleId2(getNumberOfCells(),da->getNbOfElems(),1);
-  cellCor=cellCor2->isIdentity2(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
+  MCAuto<DataArrayInt> cellCor2=da->selectByTupleIdSafeSlice(getNumberOfCells(),da->getNbOfElems(),1);
+  cellCor=cellCor2->isIota(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
 }
 
 void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
@@ -1636,7 +1636,7 @@ DataArrayInt *MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds(const int *p
 DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer()
 {
   int newNbOfNodes=-1;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> traducer=getNodeIdsInUse(newNbOfNodes);
+  MCAuto<DataArrayInt> traducer=getNodeIdsInUse(newNbOfNodes);
   renumberNodes(traducer->getConstPointer(),newNbOfNodes);
   return traducer.retn();
 }
@@ -1661,7 +1661,7 @@ DataArrayInt *MEDCouplingPointSet::zipCoordsTraducer()
  */
 DataArrayInt *MEDCouplingPointSet::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
+  MCAuto<DataArrayInt> ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
   if(areNodesMerged)
     renumberNodes(ret->begin(),newNbOfNodes);
   return ret.retn();
@@ -1686,10 +1686,10 @@ DataArrayInt *MEDCouplingPointSet::mergeNodes(double precision, bool& areNodesMe
  *  \ref  py_mcumesh_mergeNodes "Here is a Python example".
  *  \endif
  */
-DataArrayInt *MEDCouplingPointSet::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
+DataArrayInt *MEDCouplingPointSet::mergeNodesCenter(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
   DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
   if(areNodesMerged)
-    renumberNodes2(ret->getConstPointer(),newNbOfNodes);
+    renumberNodesCenter(ret->getConstPointer(),newNbOfNodes);
   return ret;
 }

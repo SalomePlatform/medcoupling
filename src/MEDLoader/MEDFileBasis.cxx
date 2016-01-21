@@ -22,7 +22,7 @@
 
 #include <cstring>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDFileString::MEDFileString(int maxLgth):_max_lgth(maxLgth),_content(new char[maxLgth+1])
 {

@@ -24,7 +24,7 @@
 
 #include <string>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingSkyLineArray;
 }
@@ -39,7 +39,7 @@ namespace MEDPARTITIONER
 
     Graph(){};
     //creates a graph from a SKYLINEARRAY
-    Graph(ParaMEDMEM::MEDCouplingSkyLineArray* graph, int* edgeweight=0);
+    Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, int* edgeweight=0);
     virtual ~Graph();
 
     void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
@@ -57,12 +57,12 @@ namespace MEDPARTITIONER
     // returns nb of domains in _partition
     int nbDomains() const;
     
-    const ParaMEDMEM::MEDCouplingSkyLineArray *getGraph() const { return _graph; }
-    const ParaMEDMEM::MEDCouplingSkyLineArray *getPartition() const { return _partition; }
+    const MEDCoupling::MEDCouplingSkyLineArray *getGraph() const { return _graph; }
+    const MEDCoupling::MEDCouplingSkyLineArray *getPartition() const { return _partition; }
 
   protected:
-    ParaMEDMEM::MEDCouplingSkyLineArray* _graph;
-    ParaMEDMEM::MEDCouplingSkyLineArray* _partition;
+    MEDCoupling::MEDCouplingSkyLineArray* _graph;
+    MEDCoupling::MEDCouplingSkyLineArray* _partition;
     int* _edge_weight;  
     int* _cell_weight;
   };

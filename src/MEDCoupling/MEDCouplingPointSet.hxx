@@ -33,14 +33,14 @@ namespace INTERP_KERNEL
   class DirectedBoundingBox;
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class DataArrayDouble;
   
   /*!
    * This class is abstract and not instanciable.
-   * ParaMEDMEM::MEDCouplingUMesh class inherits from this class.
+   * MEDCoupling::MEDCouplingUMesh class inherits from this class.
    * This class aggregates an array '_coords' containing nodes coordinates.
    * So all operations on coordinates are managed by this class.
    * This is the case for example for following methods :
@@ -73,10 +73,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areCoordsEqualIfNotWhy(const MEDCouplingPointSet& other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     MEDCOUPLING_EXPORT bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *deepCpyConnectivityOnly() const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *deepCopyConnectivityOnly() const = 0;
     MEDCOUPLING_EXPORT virtual void shallowCopyConnectivityFrom(const MEDCouplingPointSet *other) = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
-    MEDCOUPLING_EXPORT virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes);
+    MEDCOUPLING_EXPORT virtual DataArrayInt *mergeNodesCenter(double precision, bool& areNodesMerged, int& newNbOfNodes);
     MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *mergeMyselfWithOnSameCoords(const MEDCouplingPointSet *other) const = 0;
     MEDCOUPLING_EXPORT virtual void computeNodeIdsAlg(std::vector<bool>& nodeIdsInUse) const = 0;
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
@@ -113,9 +113,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *getCellIdsLyingOnNodes(const int *begin, const int *end, bool fullyIn) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords=true) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelf2(int start, int end, int step, bool keepCoords=true) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelfSlice(int start, int end, int step, bool keepCoords=true) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const = 0;
-    MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelfKeepCoords2(int start, int end, int step) const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelfKeepCoordsSlice(int start, int end, int step) const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayInt *findBoundaryNodes() const = 0;
@@ -128,7 +128,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void renumberNodesInConn(const INTERP_KERNEL::HashMap<int,int>& newNodeNumbersO2N) = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodesWithOffsetInConn(int offset) = 0;
     MEDCOUPLING_EXPORT virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
-    MEDCOUPLING_EXPORT virtual void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
+    MEDCOUPLING_EXPORT virtual void renumberNodesCenter(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
     MEDCOUPLING_EXPORT virtual void checkFullyDefined() const = 0;
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
@@ -147,7 +147,7 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT bool areCellsFrom2MeshEqual(const MEDCouplingPointSet *other, int cellId, double prec) const;
   protected:
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
     MEDCOUPLING_EXPORT static bool intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps);
     MEDCOUPLING_EXPORT void rotate2D(const double *center, double angle);

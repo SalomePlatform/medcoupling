@@ -24,7 +24,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class Topology;
   class BlockTopology;
@@ -44,7 +44,7 @@ namespace ParaMEDMEM
   private:
     MEDCouplingCMesh* _grid;
     // structured grid topology
-    ParaMEDMEM::BlockTopology* _block_topology;
+    MEDCoupling::BlockTopology* _block_topology;
     // stores the x,y,z axes on the global grid
     std::vector<std::vector<double> > _global_axis;
     //id of the local grid

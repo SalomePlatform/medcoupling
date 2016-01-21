@@ -32,7 +32,7 @@ namespace ICoCo
   class MEDField;
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ProcessorGroup;
   class ParaFIELD;

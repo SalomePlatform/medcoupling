@@ -25,7 +25,7 @@
 
 #include <cstddef>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Class representing a label of time of the lastely modified part of this.

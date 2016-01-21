@@ -26,14 +26,14 @@
 #include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class DataArrayInt;
   class DataArrayDouble;
@@ -44,7 +44,7 @@ namespace ParaMEDMEM
   class MEDCouplingField : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const = 0;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
@@ -52,9 +52,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingField *other);
-    MEDCOUPLING_EXPORT void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
-    MEDCOUPLING_EXPORT const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
-    MEDCOUPLING_EXPORT ParaMEDMEM::MEDCouplingMesh *getMesh() { return const_cast<ParaMEDMEM::MEDCouplingMesh *>(_mesh); }
+    MEDCOUPLING_EXPORT void setMesh(const MEDCoupling::MEDCouplingMesh *mesh);
+    MEDCOUPLING_EXPORT const MEDCoupling::MEDCouplingMesh *getMesh() const { return _mesh; }
+    MEDCOUPLING_EXPORT MEDCoupling::MEDCouplingMesh *getMesh() { return const_cast<MEDCoupling::MEDCouplingMesh *>(_mesh); }
     MEDCOUPLING_EXPORT void setName(const std::string& name) { _name=name; }
     MEDCOUPLING_EXPORT std::string getDescription() const { return _desc; }
     MEDCOUPLING_EXPORT void setDescription(const std::string& desc) { _desc=desc; }
@@ -101,7 +101,7 @@ namespace ParaMEDMEM
     std::string _desc;
     NatureOfField _nature;
     const MEDCouplingMesh *_mesh;
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization> _type;
+    MCAuto<MEDCouplingFieldDiscretization> _type;
   };
 }
 

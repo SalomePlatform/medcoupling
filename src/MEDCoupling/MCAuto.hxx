@@ -24,19 +24,19 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   template<class T>
-  class MEDCouplingAutoRefCountObjectPtr
+  class MCAuto
   {
   public:
-    MEDCouplingAutoRefCountObjectPtr(const MEDCouplingAutoRefCountObjectPtr& other):_ptr(0) { referPtr(other._ptr); }
-    MEDCouplingAutoRefCountObjectPtr(T *ptr=0):_ptr(ptr) { }
-    ~MEDCouplingAutoRefCountObjectPtr() { destroyPtr(); }
-    bool operator==(const MEDCouplingAutoRefCountObjectPtr& other) const { return _ptr==other._ptr; }
+    MCAuto(const MCAuto& other):_ptr(0) { referPtr(other._ptr); }
+    MCAuto(T *ptr=0):_ptr(ptr) { }
+    ~MCAuto() { destroyPtr(); }
+    bool operator==(const MCAuto& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
-    MEDCouplingAutoRefCountObjectPtr &operator=(const MEDCouplingAutoRefCountObjectPtr& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
-    MEDCouplingAutoRefCountObjectPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
+    MCAuto &operator=(const MCAuto& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
+    MCAuto &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }
     T& operator*() { return *_ptr; }
@@ -52,24 +52,24 @@ namespace ParaMEDMEM
   };
 
   template<class T, class U>
-  typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> DynamicCast(typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<T>& autoSubPtr) throw()
+  typename MEDCoupling::MCAuto<U> DynamicCast(typename MEDCoupling::MCAuto<T>& autoSubPtr) throw()
   {
     T *subPtr(autoSubPtr);
     U *ptr(dynamic_cast<U *>(subPtr));
-    typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> ret(ptr);
+    typename MEDCoupling::MCAuto<U> ret(ptr);
     if(ptr)
       ptr->incrRef();
     return ret;
   }
 
   template<class T, class U>
-  typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> DynamicCastSafe(typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<T>& autoSubPtr)
+  typename MEDCoupling::MCAuto<U> DynamicCastSafe(typename MEDCoupling::MCAuto<T>& autoSubPtr)
   {
     T *subPtr(autoSubPtr);
     U *ptr(dynamic_cast<U *>(subPtr));
     if(subPtr && !ptr)
       throw INTERP_KERNEL::Exception("DynamicCastSafe : U is not a subtype of T !");
-    typename ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr<U> ret(ptr);
+    typename MEDCoupling::MCAuto<U> ret(ptr);
     if(ptr)
       ptr->incrRef();
     return ret;

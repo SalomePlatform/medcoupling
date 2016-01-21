@@ -59,7 +59,7 @@ Faire un bon gros copier-coller des lignes suivantes pour construire la mesh (l'
 	mesh3D.setCoords(myCoords)
 	mesh3D.orientCorrectlyPolyhedrons()
 	mesh3D.sortCellsInMEDFileFrmt()
-	mesh3D.checkCoherency()
+	mesh3D.checkConsistencyLight()
 	renum = mc.DataArrayInt(60); renum[:15]=range(15,30) ; renum[15:30]=range(15) ; renum[30:45]=range(45,60) ; renum[45:]=range(30,45)
 	mesh3D.renumberNodes(renum,60)
 	
@@ -110,22 +110,22 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	L'utilisation des barycentres est une technique classique pour identifier un ensemble de cellules répondant à certains
 	critères géométriques.
 	Il s'agit d'abord de calculer les barycentres des cellules 3D de ``mesh3D`` (méthode 
-	``MEDCouplingUMesh.getBarycenterAndOwner()``).
+	``MEDCouplingUMesh.computeCellCenterOfMass()``).
 	(*Note*: le nom -- un peu trop long -- de cette méthode hérite du passé. Le "AndOwner" indique le fait qu'en C++
 	l'appelant est responsable de la désallocation de l'objet retourné : il prend l'*ownership* du résultat). 
 	
 	Ensuite sélectionner la composante #2 des barycentres des cellules et mettre le résultat dans ``baryZ``.
 	Ensuite il suffit de selectionner dans ``baryZ`` les tuples qui sont dans l'intervalle ``[zLev[1], zLev[2]]``. 
 	Les identifiants de ces tuples (i.e. leur index dans ``baryZ``) est directement un identifiant de cellule
-	car ``getBarycenterAndOwner()`` retourne un tableau indéxé par les numéros de cellule.::
+	car ``computeCellCenterOfMass()`` retourne un tableau indéxé par les numéros de cellule.::
 	
-		bary = mesh3D.getBarycenterAndOwner()
+		bary = mesh3D.computeCellCenterOfMass()
 		baryZ = bary[:,2]
-		cellIdsSol2 = baryZ.getIdsInRange(zLev[1], zLev[2])
+		cellIdsSol2 = baryZ.findIdsInRange(zLev[1], zLev[2])
 
-* En utilisant ``MEDCouplingExtrudedMesh`` :
+* En utilisant ``MEDCouplingMappedExtrudedMesh`` :
 	C'est la méthode exclusivement basée sur la connectivité nodale pour déduire l'extrusion. Les coordonnées sont ici ignorées.
-	Pour construire un ``MEDCouplingExtrudedMesh`` deux objets sont requis. Le maillage non-structuré 3D  
+	Pour construire un ``MEDCouplingMappedExtrudedMesh`` deux objets sont requis. Le maillage non-structuré 3D  
 	représentant en fait un maillage *extrudé*, et un maillage non structuré 3D surfacique (mesh-dim 2) 
 	reposant sur les mêmes coordonnéees, à partir duquel l'extrusion sera calculée.
 	Commencer par construire le maillage 3D surfacique. Pour ce faire il suffit de repérer les noeuds appartenant 
@@ -143,10 +143,10 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	plante. Le maillage 2D est forcément en haut ou en bas du 3D volumique, et le dernier entier spécifie la cellule à partir
 	de laquelle le fil de fer 1D guidant l'extrusion sera construit : ::
 	
-		extMesh = mc.MEDCouplingExtrudedMesh(mesh3D, mesh2D, 0)
+		extMesh = mc.MEDCouplingMappedExtrudedMesh(mesh3D, mesh2D, 0)
 	
 	On a alors la garantie que, dans ``extMesh``,  les cellules sont ordonnées par niveau Z croissant. 
-	Il suffit de récupérer le 2ème niveau (``MEDCouplingExtrudedMesh.getMesh3DIds()``). ::
+	Il suffit de récupérer le 2ème niveau (``MEDCouplingMappedExtrudedMesh.getMesh3DIds()``). ::
 	
 		n_cells = mesh2D.getNumberOfCells()
 		cellIdsSol3 = extMesh.getMesh3DIds()[n_cells:2*n_cells]
@@ -211,16 +211,16 @@ Il y a deux solutions.
 	baryXY = bary[:,[0,1]]
 	baryXY -= [250.,150.]
 	magn = baryXY.magnitude()
-	cellIds2Sol1 = magn.getIdsInRange(0.,1e-12)
+	cellIds2Sol1 = magn.findIdsInRange(0.,1e-12)
 	
 * utiliser le maillage extrudé ``extMesh`` : partant de l'unique cellule dans ``mesh2D`` dont le centre est 
-  en ``[250.,150.,0.]``, la méthdode ``MEDCouplingExtrudedMesh.getMesh3DIds()`` retourne les identifiants de 
+  en ``[250.,150.,0.]``, la méthdode ``MEDCouplingMappedExtrudedMesh.getMesh3DIds()`` retourne les identifiants de 
   cellules rangée par rangée. ::
 
-	bary2 = mesh2D.getBarycenterAndOwner()[:,[0,1]]
+	bary2 = mesh2D.computeCellCenterOfMass()[:,[0,1]]
 	bary2 -= [250.,150.]
 	magn = bary2.magnitude()
-	ids = magn.getIdsInRange(0.,1e-12)
+	ids = magn.findIdsInRange(0.,1e-12)
 	idStart = int(ids) # ids is assumed to contain only one value, if not an exception is thrown
 	ze_range = range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells())
 	cellIds2Sol2 = extMesh.getMesh3DIds()[ze_range]
@@ -242,7 +242,7 @@ Effectuer une copie complète de ``mesh3DSlice2`` (aussi appelée *deep copy*) s
 Sur cette copie effectuer une translation de ``v=[0.,1000.,0.]``.
 Puis aggréger ``mesh3DSlice2`` avec sa copie translatée ``mesh3DSlice2bis``, en utilisant ``MEDCouplingUMesh.MergeUMeshes()``. ::
 
-	mesh3DSlice2bis = mesh3DSlice2.deepCpy()
+	mesh3DSlice2bis = mesh3DSlice2.deepCopy()
 	mesh3DSlice2bis.translate([0.,1000.,0.])
 	mesh3DSlice2All = mc.MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2,mesh3DSlice2bis])
 	mesh3DSlice2All.writeVTK("mesh3DSlice2All.vtu")
@@ -278,7 +278,7 @@ Ce lien est exprimé au format *indirect index* vu dans le premier exercice :ref
 
 	mesh3DSurf, desc, descIndx, revDesc, revDescIndx = mesh3D.buildDescendingConnectivity()
 	numberOf3DCellSharing = revDescIndx.deltaShiftIndex()
-	cellIds = numberOf3DCellSharing.getIdsNotEqual(1)
+	cellIds = numberOf3DCellSharing.findIdsNotEqual(1)
 	mesh3DSurfInside = mesh3DSurf[cellIds]
 	mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
 	

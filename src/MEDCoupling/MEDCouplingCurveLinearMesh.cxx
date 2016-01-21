@@ -31,7 +31,7 @@
 #include <sstream>
 #include <numeric>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 MEDCouplingCurveLinearMesh::MEDCouplingCurveLinearMesh():_coords(0),_structure(0)
 {
@@ -42,7 +42,7 @@ MEDCouplingCurveLinearMesh::MEDCouplingCurveLinearMesh(const MEDCouplingCurveLin
   if(deepCopy)
     {
       if((const DataArrayDouble *)other._coords)
-        _coords=other._coords->deepCpy();
+        _coords=other._coords->deepCopy();
     }
   else
     _coords=other._coords;
@@ -64,7 +64,7 @@ MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::New(const std::string& m
   return ret;
 }
 
-MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::deepCpy() const
+MEDCouplingCurveLinearMesh *MEDCouplingCurveLinearMesh::deepCopy() const
 {
   return clone(true);
 }
@@ -166,8 +166,8 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalWith(const MEDCouplingMesh *oth
 }
 
 /*!
- * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCurveLinearMesh instance too).
- * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCurveLinearMesh, \a this and \a other are the same !
+ * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingCurveLinearMesh instance too).
+ * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingCurveLinearMesh, \a this and \a other are the same !
  */
 void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                                  DataArrayInt *&cellCor) const
@@ -176,44 +176,44 @@ void MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith(const MEDCoupli
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
 }
 
-void MEDCouplingCurveLinearMesh::checkCoherency() const
+void MEDCouplingCurveLinearMesh::checkConsistencyLight() const
 {
   std::size_t sz=_structure.size(),i=0,nbOfNodes=1;
   if(sz<1)
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkCoherency : structure should have a lgth of size 1 at least !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : structure should have a lgth of size 1 at least !");
   for(std::vector<int>::const_iterator it=_structure.begin();it!=_structure.end();it++,i++)
     {
       if((*it)<1)
-        { std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::checkCoherency : At pos #" << i << " of structure value is " << *it << "should be >= 1 !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
+        { std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::checkConsistencyLight : At pos #" << i << " of structure value is " << *it << "should be >= 1 !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
       nbOfNodes*=*it;
     }
   if(!((const DataArrayDouble *)_coords))
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkCoherency : the array is not set !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : the array is not set !");
   if(!_coords->isAllocated())
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkCoherency : the array is not allocated !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : the array is not allocated !");
   if(_coords->getNumberOfComponents()<1)
-    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkCoherency : the array should have >= 1 components !");
+    throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::checkConsistencyLight : the array should have >= 1 components !");
   if(_coords->getNumberOfTuples()!=(int)nbOfNodes)
     {
-      std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::checkCoherency : structure said that number of nodes should be equal to " << nbOfNodes << " but number of tuples in array is equal to " << _coords->getNumberOfTuples() << " !";
+      std::ostringstream oss; oss << "MEDCouplingCurveLinearMesh::checkConsistencyLight : structure said that number of nodes should be equal to " << nbOfNodes << " but number of tuples in array is equal to " << _coords->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void MEDCouplingCurveLinearMesh::checkCoherency1(double eps) const
+void MEDCouplingCurveLinearMesh::checkConsistency(double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
 }
 
 int MEDCouplingCurveLinearMesh::getNumberOfCells() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return MEDCouplingStructuredMesh::getNumberOfCells();
 }
 
 int MEDCouplingCurveLinearMesh::getNumberOfNodes() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   return MEDCouplingStructuredMesh::getNumberOfNodes();
 }
 
@@ -313,7 +313,7 @@ std::vector<int> MEDCouplingCurveLinearMesh::getNodeGridStructure() const
 
 MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(const std::vector< std::pair<int,int> >& cellPart) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int dim(getSpaceDimension());
   std::vector<int> dims(getMeshDimension());
   if(dim!=(int)cellPart.size())
@@ -324,12 +324,12 @@ MEDCouplingStructuredMesh *MEDCouplingCurveLinearMesh::buildStructuredSubPart(co
   std::vector< std::pair<int,int> > nodePartFormat(cellPart);
   for(std::vector< std::pair<int,int> >::iterator it=nodePartFormat.begin();it!=nodePartFormat.end();it++)
     (*it).second++;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> ret(dynamic_cast<MEDCouplingCurveLinearMesh *>(deepCpy()));
+  MCAuto<DataArrayInt> tmp1(BuildExplicitIdsFrom(getNodeGridStructure(),nodePartFormat));
+  MCAuto<MEDCouplingCurveLinearMesh> ret(dynamic_cast<MEDCouplingCurveLinearMesh *>(deepCopy()));
   const DataArrayDouble *coo(ret->getCoords());
   if(coo)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo2(coo->selectByTupleIdSafe(tmp1->begin(),tmp1->end()));
+      MCAuto<DataArrayDouble> coo2(coo->selectByTupleIdSafe(tmp1->begin(),tmp1->end()));
       ret->setCoords(coo2);
     }
   for(int i=0;i<dim;i++)
@@ -351,10 +351,10 @@ void MEDCouplingCurveLinearMesh::getBoundingBox(double *bbox) const
 
 MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::getMeasureField(bool isAbs) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int meshDim=getMeshDimension();
   std::string name="MeasureOfMesh_"; name+=getName();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  MCAuto<MEDCouplingFieldDouble> field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   field->setName(name); field->setMesh(const_cast<MEDCouplingCurveLinearMesh *>(this)); field->synchronizeTimeWithMesh();
   switch(meshDim)
   {
@@ -377,7 +377,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCoupling
 {
   int nbnodes=getNumberOfNodes();
   int spaceDim=getSpaceDimension();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
+  MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
   if(nbnodes==0)
     { arr->alloc(0,1); return; }
   if(spaceDim==1)
@@ -389,9 +389,9 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim1(bool isAbs, MEDCoupling
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp=DataArrayDouble::New(); tmp->alloc(nbnodes-1,spaceDim);
+      MCAuto<DataArrayDouble> tmp=DataArrayDouble::New(); tmp->alloc(nbnodes-1,spaceDim);
       std::transform(_coords->begin()+spaceDim,_coords->end(),_coords->begin(),tmp->getPointer(),std::minus<double>());
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp2=tmp->magnitude(); field->setArray(tmp2);
+      MCAuto<DataArrayDouble> tmp2=tmp->magnitude(); field->setArray(tmp2);
     }
 }
 
@@ -405,7 +405,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2(bool isAbs, MEDCoupling
   int spaceDim=getSpaceDimension();
   if(spaceDim!=2 && spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim2 : with meshDim 2 only space dimension 2 and 3 are possible !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
+  MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
   arr->alloc(nbcells,1);
   double *pt=arr->getPointer();
   const double *coords=_coords->begin();
@@ -431,7 +431,7 @@ void MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3(bool isAbs, MEDCoupling
   int spaceDim=getSpaceDimension();
   if(spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getMeasureFieldMeshDim3 : with meshDim 3 only space dimension 3 is possible !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
+  MCAuto<DataArrayDouble> arr=DataArrayDouble::New(); field->setArray(arr);
   arr->alloc(nbcells,1);
   double *pt=arr->getPointer();
   const double *coords=_coords->begin();
@@ -478,7 +478,7 @@ MEDCouplingFieldDouble *MEDCouplingCurveLinearMesh::buildOrthogonalField() const
 
 /// @cond INTERNAL
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   template<const int SPACEDIMM>
   class DummyClsMCL
@@ -502,7 +502,7 @@ namespace ParaMEDMEM
 
 int MEDCouplingCurveLinearMesh::getCellContainingPoint(const double *pos, double eps) const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int spaceDim=getSpaceDimension();
   const double *coords=_coords->getConstPointer();
   int nodeId=-1;
@@ -694,10 +694,10 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::getCoordinatesAndOwner() const
   return ret;
 }
 
-DataArrayDouble *MEDCouplingCurveLinearMesh::getBarycenterAndOwner() const
+DataArrayDouble *MEDCouplingCurveLinearMesh::computeCellCenterOfMass() const
 {
-  checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  checkConsistencyLight();
+  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
   int meshDim=getMeshDimension();
   int nbOfCells=getNumberOfCells();
@@ -712,18 +712,18 @@ DataArrayDouble *MEDCouplingCurveLinearMesh::getBarycenterAndOwner() const
     case 1:
       { getBarycenterAndOwnerMeshDim1(ret); return ret.retn(); }
     default:
-      throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::getBarycenterAndOwner : mesh dimension must be in [1,2,3] !");
+      throw INTERP_KERNEL::Exception("MEDCouplingCurveLinearMesh::computeCellCenterOfMass : mesh dimension must be in [1,2,3] !");
   }
 }
 
 DataArrayDouble *MEDCouplingCurveLinearMesh::computeIsoBarycenterOfNodesPerCell() const
 {
-  return MEDCouplingCurveLinearMesh::getBarycenterAndOwner();
+  return MEDCouplingCurveLinearMesh::computeCellCenterOfMass();
 }
 
 /*!
  * \param [in,out] bary Barycenter array feeded with good values.
- * \sa MEDCouplingCurveLinearMesh::getBarycenterAndOwner
+ * \sa MEDCouplingCurveLinearMesh::computeCellCenterOfMass
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3(DataArrayDouble *bary) const
 {
@@ -749,7 +749,7 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim3(DataArrayDouble *
 
 /*!
  * \param [in,out] bary Barycenter array feeded with good values.
- * \sa MEDCouplingCurveLinearMesh::getBarycenterAndOwner
+ * \sa MEDCouplingCurveLinearMesh::computeCellCenterOfMass
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim2(DataArrayDouble *bary) const
 {
@@ -772,7 +772,7 @@ void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim2(DataArrayDouble *
 
 /*!
  * \param [in,out] bary Barycenter array feeded with good values.
- * \sa MEDCouplingCurveLinearMesh::getBarycenterAndOwner
+ * \sa MEDCouplingCurveLinearMesh::computeCellCenterOfMass
  */
 void MEDCouplingCurveLinearMesh::getBarycenterAndOwnerMeshDim1(DataArrayDouble *bary) const
 {
@@ -880,7 +880,7 @@ void MEDCouplingCurveLinearMesh::writeVTKLL(std::ostream& ofs, const std::string
     _coords->writeVTK(ofs,8,"Points",byteData);
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=_coords->changeNbOfComponents(3,0.);
+      MCAuto<DataArrayDouble> coo=_coords->changeNbOfComponents(3,0.);
       coo->writeVTK(ofs,8,"Points",byteData);
     }
   ofs << "      </Points>\n";

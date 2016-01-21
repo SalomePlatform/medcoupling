@@ -21,15 +21,15 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELDENUM__
 #define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELDENUM__
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   typedef enum
   {
     NoNature               = 17,
-    ConservativeVolumic    = 26,
-    Integral               = 32,
-    IntegralGlobConstraint = 35,
-    RevIntegral            = 37
+    IntensiveMaximum    = 26,
+    ExtensiveMaximum               = 32,
+    ExtensiveConservation = 35,
+    IntensiveConservation            = 37
   } NatureOfField;
 }
 

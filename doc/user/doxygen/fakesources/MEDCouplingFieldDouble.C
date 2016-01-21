@@ -22,7 +22,7 @@
 // * groupping methods into "Basic API", "Advanced" and "Others..." sections
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Returns a new MEDCouplingFieldDouble containing sum values of corresponding values of
@@ -217,7 +217,7 @@ namespace ParaMEDMEM
   double MEDCouplingFieldDouble::getIJ(int tupleId, int compoId) const {}
 }
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
 /*! \name Basic API   */
 ///@{

@@ -27,7 +27,7 @@ import argparse
 from optparse import OptionParser
 import os
 
-DEFAULT_EXT = ['.hxx', '.cxx', '.txx', '.py', '.i', '.dox', '.rst', '.h', '.hh', '.hpp', '.c', '.cpp', ]
+DEFAULT_EXT = ['.hxx', '.cxx', '.txx', '.py', '.i', '.dox', '.rst', '.h', '.hh', '.hpp', '.c', '.cpp']
 
 ## The API changes:
 REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"), 
@@ -35,7 +35,65 @@ REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"),
                 ("IntegralGlobConstraint", "ExtensiveConservation"),
                 ("Integral", "ExtensiveMaximum"),
                 ("MEDCouplingAutoRefCountObjectPtr", "MCAuto"),
-                ("deepCpy", "deepCopy") 
+                ("deepCpy", "deepCopy"),
+                ("performCpy", "performCopyOrIncrRef"),
+                ("MEDCouplingExtrudedMesh", "MEDCouplingMappedExtrudedMesh"),
+                ("getBarycenterAndOwner", "computeCellCenterOfMass"),
+                ("checkCoherency", "checkConsistencyLight"),
+                ("checkCoherency1", "checkConsistency"),
+                ("mergeNodes2", "mergeNodesCenter"),
+                ("renumberNodes2", "renumberNodesCenter"),
+                ("buildPartOfMySelf2", "buildPartOfMySelfSlice"),
+                ("buildPartOfMySelfKeepCoords2", "buildPartOfMySelfKeepCoordsSlice"),
+                ("deepCpyConnectivityOnly", "deepCopyConnectivityOnly"),
+                ("checkCoherencyOfConnectivity", "checkConsistencyOfConnectivity"),
+                ("getMeshLength", "getNodalConnectivityArrayLen"),
+                ("AreCellsEqual0", "AreCellsEqualPolicy0"),
+                ("AreCellsEqual1", "AreCellsEqualPolicy1"),
+                ("AreCellsEqual2", "AreCellsEqualPolicy2"),
+                ("AreCellsEqual7", "AreCellsEqualPolicy7"),
+                ("AreCellsEqual3", "AreCellsEqualPolicy2NoType"),
+                ("areCellsIncludedIn2", "areCellsIncludedInPolicy7"),
+                ("setPartOfMySelf2", "setPartOfMySelfSlice"),
+                ("ExtractFromIndexedArrays2", "ExtractFromIndexedArraysSlice"),
+                ("SetPartOfIndexedArrays2", "SetPartOfIndexedArraysSlice"),
+                ("SetPartOfIndexedArraysSameIdx2", "SetPartOfIndexedArraysSameIdxSlice"),
+                ("deepCpyConnectivityOnly", "deepCopyConnectivityOnly"),
+                ("setContigPartOfSelectedValues2", "setContigPartOfSelectedValuesSlice"),
+                ("selectByTupleId2", "selectByTupleIdSafeSlice"),
+                ("GetAxTypeRepr", "GetAxisTypeRepr"),
+                ("cpyFrom", "deepCopyFrom"),
+                ("selectByTupleId2", "selectByTupleIdSlice"),
+                ("BuildOld2NewArrayFromSurjectiveFormat2", "ConvertIndexArrayToO2N"),  
+                ("getIdsEqual", "findIdsEqual"),
+                ("getIdsNotEqual", "findIdsNotEqual"),
+                ("getIdsEqualList", "findIdsEqualList"),
+                ("getIdsNotEqualList", "findIdsNotEqualList"),
+                ("getIdsEqualTuple", "findIdsEqualTuple"),
+                ("getIdsInRange", "findIdsInRange"),
+                ("getIdsNotInRange", "findIdsNotInRange"),
+                ("getIdsStrictlyNegative", "findIdsStricltyNegative"),
+                ("searchRangesInListOfIds", "findIdsRangesInListOfIds"),
+                ("computeOffsets2", "computeOffsetsFull"),
+                ("applyFunc2", "applyFuncCompo"),
+                ("applyFunc3", "applyFuncNamedCompo"),
+                ("getIdsInRange", "findIdsInRange"),
+                ("fillFromAnalytic2", "fillFromAnalyticCompo"),
+                ("fillFromAnalytic3", "fillFromAnalyticNamedCompo"),
+                ("applyFunc2", "applyFuncCompo"),
+                ("applyFunc3", "applyFuncNamedCompo"),
+                ("mergeNodes2", "mergeNodesCenter"),
+                ("setAxType", "setAxisType"),
+                ("getAxType", "getAxisType"),
+                ("isIdentity2", "isIota"),
+                ("SWIGTYPE_p_MEDCoupling__MEDCouplingExtrudedMesh", "SWIGTYPE_p_MEDCoupling__MEDCouplingMappedExtrudedMesh"),
+                ("MEDCouplingExtrudedMesh____new___", "MEDCouplingMappedExtrudedMesh____new___"),
+                ("locateValue", "findIdFirstEqual"),
+                ("locateTuple", "findIdFirstEqualTuple"),   
+                ("MEDCoupling_DataArrayByte_locateTuple", "MEDCoupling_DataArrayByte_findIdFirstEqualTuple"),
+                ("MEDCoupling_DataArrayAsciiChar_locateTuple", "MEDCoupling_DataArrayAsciiChar_findIdFirstEqualTuple"),
+                #("substr", "subArray"),                # conflicts with regular C++ substr, to be handled manually
+                #("search", "findIdSequence"),          # idem
                 ]   
 
 __myName = os.path.abspath(__file__)
@@ -53,15 +111,18 @@ def convert(root_dir, ext, quiet):
           print "!!! Skipping script %s !!!" % __myName
         continue
       ok = False
-      for e in ext:
-        if fileName[-len(e):] == e:
-          ok = True
-          break
+      if fileName[-28:] != "MEDCouplingNatureOfFieldEnum":
+        for e in ext:
+          if fileName[-len(e):] == e:
+            ok = True
+            break
+      else:
+        ok = True
       if not ok: continue # skip file
       if not quiet:  print "Handling %s ..." % fileName
       for line in fileinput.input(fileName, inplace=1, backup='.bak'):
         for before, after in REPLACEMENTS:
-          line = re.sub("(\W|^)(%s)(\W|$)" % before, r"\1%s\3" % after, line.rstrip())
+          line = re.sub("(\W|^)(%s)(\W|$)" % before, r"\1%s\3" % after, line.rstrip('\r\n'))
         print(line)  # print in file
 
 parser = OptionParser()

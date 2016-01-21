@@ -248,11 +248,11 @@ tuples uniques (non doublons) dans l'ensemble de départ.
 .. note:: Pour toutes les opérations de renumérotation en MEDCoupling (bijection), 
 	le format "old-2-new" est systématiquement utilisé.
 
-La méthode statique ``DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2()`` (nom un peu barbare, on vous l'accorde) 
+La méthode statique ``DataArrayInt.ConvertIndexArrayToO2N()`` (nom un peu barbare, on vous l'accorde) 
 permet de passer du mode de stockage de cette surjection ``c``, ``cI`` au format ``o2n``.
 On récupère au passage card(Y) c'est-à-dire le ``newNbOfTuples``. ::
 
-	o2n, newNbOfTuples = mc.DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfTuples,c,cI)
+	o2n, newNbOfTuples = mc.DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples,c,cI)
 	print "Have I got the right number of tuples?"
 	print "myNewNbOfTuples = %d, newNbOfTuples = %d" % (myNewNbOfTuples, newNbOfTuples)
 	assert(myNewNbOfTuples == newNbOfTuples)
@@ -315,7 +315,7 @@ des 7 hexagones utilisant les coordonnées ``d3``. ::
 
 Vérifier que ``m`` est correct et ne contient pas d'anomalie. ::
 
-	 m.checkCoherency()
+	 m.checkConsistencyLight()
 
 .. note:: Il est toujours une bonne idée d'appeler cette méthode après la construction "from scratch" d'un maillage.
    Cela assure qu'il n'y a pas de gros "couacs" dans la connectivité, etc ... 

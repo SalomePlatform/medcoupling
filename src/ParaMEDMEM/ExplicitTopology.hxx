@@ -27,7 +27,7 @@
 #include <utility>
 #include <iostream>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ParaMESH;
   class Topology;

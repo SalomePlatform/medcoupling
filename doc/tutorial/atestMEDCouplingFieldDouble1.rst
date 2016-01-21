@@ -26,13 +26,13 @@ Playing with fields
 	print "Are f and f2 equal?", f.isEqualWithoutConsideringStr(f2,1e-12,1e-12)
 	#
 	da1 = f.getArray()              # a DataArrayDouble, which is a direct reference (not a copy) of the field's values
-	ids1 = da1.getIdsInRange(0.,5.)
+	ids1 = da1.findIdsInRange(0.,5.)
 	fPart1 = f.buildSubPart(ids1)
 	fPart1.writeVTK("ExoField_fPart1.vtu")
-	ids2 = f.getArray().getIdsInRange(50.,1.e300)
+	ids2 = f.getArray().findIdsInRange(50.,1.e300)
 	fPart2 = f.buildSubPart(ids2)
 	# Renumbering cells to follow MED file rules
-	fPart1Cpy = fPart1.deepCpy()
+	fPart1Cpy = fPart1.deepCopy()
 	o2n = fPart1Cpy.getMesh().sortCellsInMEDFileFrmt()
 	fPart1Cpy.getArray().renumberInPlace(o2n)
 	# Check that fPart1Cpy and fPart1 are the same
@@ -43,13 +43,13 @@ Playing with fields
 	fPart12 = mc.MEDCouplingFieldDouble.MergeFields([fPart1,fPart2])
 	fPart12.writeVTK("ExoField_fPart12.vtu")
 	# Evaluation on points
-	bary = fPart12.getMesh().getBarycenterAndOwner()
+	bary = fPart12.getMesh().computeCellCenterOfMass()
 	arr1 = fPart12.getValueOnMulti(bary)
 	arr2 = f.getValueOnMulti(bary)
 	delta = arr1-arr2
 	delta.abs()
 	print "Is field evaluation matching?", (delta.accumulate()[0]<1e-12)
-	# Integral computations
+	# ExtensiveMaximum computations
 	integ1 = fPart12.integral(0,True)
 	integ1_bis = fPart12.getArray().accumulate()[0]
 	print "First integral matching ?", ( abs(integ1 - integ1_bis) < 1e-8 )

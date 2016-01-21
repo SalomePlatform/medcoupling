@@ -35,18 +35,18 @@
 
 using namespace std;
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingRemapper.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
-typedef  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> MUMesh;
-typedef  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> MFDouble;
-typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
+typedef  MCAuto<MEDCouplingUMesh> MUMesh;
+typedef  MCAuto<MEDCouplingFieldDouble> MFDouble;
+typedef  MCAuto<DataArrayDouble> DADouble;
 
 //void ParaMEDMEMTest::testOverlapDEC_LMEC_seq()
 //{
@@ -59,16 +59,16 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //  string tgt_mesh_nam(rep + string("T_SC_Trio_dst.med"));
 ////  string src_mesh_nam(rep + string("h_TH_Trio_src.med"));
 ////  string tgt_mesh_nam(rep + string("h_TH_Trio_dst.med"));
-//  MUMesh src_mesh=MEDLoader::ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
-//  MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
-////  MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
+//  MUMesh src_mesh=ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
+//  MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
+////  MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
 //
 //  MFDouble srcField = MEDCouplingFieldDouble::New(ON_CELLS, ONE_TIME);
 //  srcField->setMesh(src_mesh);
 //  DataArrayDouble * dad = DataArrayDouble::New(); dad->alloc(src_mesh->getNumberOfCells(),1);
 //  dad->fillWithValue(1.0);
 //  srcField->setArray(dad);
-//  srcField->setNature(ConservativeVolumic);
+//  srcField->setNature(IntensiveMaximum);
 //
 //  MEDCouplingRemapper remap;
 //  remap.setOrientation(2); // always consider surface intersections as absolute areas.
@@ -76,7 +76,7 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //  MFDouble tgtField = remap.transferField(srcField, 1.0e+300);
 //  tgtField->setName("result");
 //  string out_nam(rep + string("adrien.med"));
-//  MEDLoader::WriteField(out_nam,tgtField, true);
+//  WriteField(out_nam,tgtField, true);
 //  cout << "wrote: " << out_nam << "\n";
 //  double integ1 = 0.0, integ2 = 0.0;
 //  srcField->integral(true, &integ1);
@@ -89,7 +89,7 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //
 //void ParaMEDMEMTest::testOverlapDEC_LMEC_para()
 //{
-//  using namespace ParaMEDMEM;
+//  using namespace MEDCoupling;
 //
 //  int size;
 //  int rank;
@@ -128,9 +128,9 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //    {
 //    //  string src_mesh_nam(rep + string("h_TH_Trio_src.med"));
 //    //  string tgt_mesh_nam(rep + string("h_TH_Trio_dst.med"));
-//      MUMesh src_mesh=MEDLoader::ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
-//      MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
-//    //  MUMesh tgt_mesh=MEDLoader::ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
+//      MUMesh src_mesh=ReadUMeshFromFile(src_mesh_nam,"SupportOf_",0);
+//      MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_T_SC_Trio",0);
+//    //  MUMesh tgt_mesh=ReadUMeshFromFile(tgt_mesh_nam,"SupportOf_h_TH_Trio",0);
 //
 //      // **** SOURCE
 //      srcField = MEDCouplingFieldDouble::New(ON_CELLS, ONE_TIME);
@@ -138,18 +138,18 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //      DataArrayDouble * dad = DataArrayDouble::New(); dad->alloc(src_mesh->getNumberOfCells(),1);
 //      dad->fillWithValue(1.0);
 //      srcField->setArray(dad);
-//      srcField->setNature(ConservativeVolumic);
+//      srcField->setNature(IntensiveMaximum);
 //
 //      ComponentTopology comptopo;
 //      parameshS = new ParaMESH(src_mesh,*dec.getGroup(),"source mesh");
 //      parafieldS = new ParaFIELD(ON_CELLS,ONE_TIME,parameshS,comptopo);
-//      parafieldS->getField()->setNature(ConservativeVolumic);//IntegralGlobConstraint
+//      parafieldS->getField()->setNature(IntensiveMaximum);//ExtensiveConservation
 //      parafieldS->getField()->setArray(dad);
 //
 //      // **** TARGET
 //      parameshT=new ParaMESH(tgt_mesh,*dec.getGroup(),"target mesh");
 //      parafieldT=new ParaFIELD(ON_CELLS,ONE_TIME,parameshT,comptopo);
-//      parafieldT->getField()->setNature(ConservativeVolumic);//IntegralGlobConstraint
+//      parafieldT->getField()->setNature(IntensiveMaximum);//ExtensiveConservation
 //      parafieldT->getField()->getArray()->fillWithValue(1.0e300);
 ////      valsT[0]=7.;
 //    }
@@ -170,7 +170,7 @@ typedef  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> DADouble;
 //      tgtField->integral(true, &integ2);
 //      tgtField->setName("result");
 //      string out_nam(rep + string("adrien_para.med"));
-//      MEDLoader::WriteField(out_nam,tgtField, true);
+//      WriteField(out_nam,tgtField, true);
 //      cout << "wrote: " << out_nam << "\n";
 //      CPPUNIT_ASSERT_DOUBLES_EQUAL(integ1,integ2,1e-8);
 //    }
@@ -360,10 +360,10 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
   if(rank==0)
     {
       const double tr1[] = {1.5, 0.0};
-      MEDCouplingUMesh *meshS_1 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCpy());
+      MEDCouplingUMesh *meshS_1 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCopy());
       meshS_1->translate(tr1);
       const double tr2[] = {3.0, 0.0};
-      MEDCouplingUMesh *meshS_2 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCpy());
+      MEDCouplingUMesh *meshS_2 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCopy());
       meshS_2->translate(tr2);
 
       std::vector<const MEDCouplingUMesh*> vec;
@@ -390,7 +390,7 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
 
       //
       const double tr3[] = {0.0, -1.5};
-      MEDCouplingUMesh *meshT_3 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCpy());
+      MEDCouplingUMesh *meshT_3 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCopy());
       meshT_3->translate(tr3);
       vec.clear();
       vec.push_back(meshT_0);vec.push_back(meshT_3);
@@ -405,10 +405,10 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
   if(rank==1)
     {
       const double tr3[] = {0.0, -1.5};
-      MEDCouplingUMesh *meshS_3 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCpy());
+      MEDCouplingUMesh *meshS_3 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCopy());
       meshS_3->translate(tr3);
       const double tr4[] = {1.5, -1.5};
-      MEDCouplingUMesh *meshS_4 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCpy());
+      MEDCouplingUMesh *meshS_4 = static_cast<MEDCouplingUMesh*>(meshS_0->deepCopy());
       meshS_4->translate(tr4);
 
       std::vector<const MEDCouplingUMesh*> vec;
@@ -429,13 +429,13 @@ void prepareData2(int rank, ProcessorGroup * grp, NatureOfField nature,
 
       //
       const double tr5[] = {1.5, 0.0};
-      MEDCouplingUMesh *meshT_1 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCpy());
+      MEDCouplingUMesh *meshT_1 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCopy());
       meshT_1->translate(tr5);
       const double tr6[] = {3.0, 0.0};
-      MEDCouplingUMesh *meshT_2 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCpy());
+      MEDCouplingUMesh *meshT_2 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCopy());
       meshT_2->translate(tr6);
       const double tr7[] = {1.5, -1.5};
-      MEDCouplingUMesh *meshT_4 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCpy());
+      MEDCouplingUMesh *meshT_4 = static_cast<MEDCouplingUMesh*>(meshT_0->deepCopy());
       meshT_4->translate(tr7);
 
       vec.clear();
@@ -481,7 +481,7 @@ void testOverlapDEC_generic(int workSharingAlgo, double bbAdj)
   OverlapDEC dec(procs);
   MEDCouplingFieldDouble * mcfieldS=0, *mcfieldT=0;
 
-  prepareData1(rank, ConservativeVolumic, mcfieldS, mcfieldT);
+  prepareData1(rank, IntensiveMaximum, mcfieldS, mcfieldT);
 
   // See comment in the caller:
   dec.setBoundingBoxAdjustmentAbs(bbAdj);
@@ -580,7 +580,7 @@ void ParaMEDMEMTest::testOverlapDEC3()
   ParaMESH* parameshS=0, *parameshT=0;
   ParaFIELD* parafieldS=0, *parafieldT=0;
 
-  prepareData2(rank, grp, ConservativeVolumic, meshS, meshT, parameshS, parameshT, parafieldS, parafieldT);
+  prepareData2(rank, grp, IntensiveMaximum, meshS, meshT, parameshS, parameshT, parafieldS, parafieldT);
 
   dec.attachSourceLocalField(parafieldS);
   dec.attachTargetLocalField(parafieldT);
@@ -641,7 +641,7 @@ void ParaMEDMEMTest::testOverlapDEC4()
   ParaFIELD* parafieldS=0, *parafieldT=0;
 
   // As before, except than one of the source cell is removed, and that the field now has 2 components
-  prepareData2(rank, grp, ConservativeVolumic, meshS, meshT, parameshS, parameshT, parafieldS, parafieldT,
+  prepareData2(rank, grp, IntensiveMaximum, meshS, meshT, parameshS, parameshT, parafieldS, parafieldT,
                true, 2);
 //  if (rank == 1)
 //    {

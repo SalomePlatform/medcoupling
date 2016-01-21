@@ -1,0 +1,6 @@
+/* \page MEDLoader Static functions offering the "basic" API to read and write MED files
+ 
+  A set of static methods is available at the MEDCoupling namespace level and offers the 
+  high level API to access MED files. Take a look at \ref medloader for more details.
+ 
+ */

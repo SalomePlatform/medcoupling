@@ -73,17 +73,17 @@ Nous voudrions visualiser ces deux maillages dans PARAVIS/ParaView, mais nous re
   le maillage. Nous faisons donc une copie préalable. Nous passons en paramètre la finesse de découpage (0.1 est suffisant 
   -- angle en radian). Attention donc à ne pas modifer ni ``fixm`` ni ``mobm`` ! ::
 
-	fixm2 = fixm.deepCpy()        # tessellate2D() modifies the current mesh
+	fixm2 = fixm.deepCopy()        # tessellate2D() modifies the current mesh
 	fixm2.tessellate2D(0.1)
 	fixm2.writeVTK("fixm2.vtu")
-	mobm2 = mobm.deepCpy()
+	mobm2 = mobm.deepCopy()
 	mobm2.tessellate2D(0.1)
 	mobm2.writeVTK("mobm2.vtu")
 
 Faire une petite méthode ``displayVTK()``, faisant le travail qui nous servira souvent après. ::
 
 	def displayVTK(m,fname):
-		tmp = m.deepCpy()
+		tmp = m.deepCopy()
 		tmp.tessellate2D(0.1)
 		tmp.writeVTK(fname)
 		return
@@ -134,7 +134,7 @@ Sur ``partFixMob`` merger les noeuds à 1e-10 près. ::
 
 Récupérer et afficher la partie de ``partFixm`` qui n'est pas dans ``zone1Mobm``. Appeler ce maillage ``partFixmWithoutZone1Mobm``. ::
 
-	ids3 = iMob.getIdsEqual(-1)
+	ids3 = iMob.findIdsEqual(-1)
 	partFixmWithoutZone1Mobm = partFixMob[ids3]
 	displayVTK(partFixmWithoutZone1Mobm,"partFixmWithoutZone1Mobm.vtu")
 
@@ -174,7 +174,7 @@ On peut passer au **Check #1**. L'esprit est le même que le **Check #0**. ::
 	areaZone1Mobm = zone1Mobm.getMeasureField(ml.ON_CELLS).getArray()
 	areaZone1Mobm.abs()
 	val3 = areaZone1Mobm.accumulate()[0]
-	ids4 = iMob.getIdsNotEqual(-1)
+	ids4 = iMob.findIdsNotEqual(-1)
 	areaPartFixMob2 = areaPartFixMob[ids4]
 	val4 = areaPartFixMob2.accumulate()[0]
 	print "Check #1 %lf == %lf with precision 1e-8 ? %s" % (val3,val4,str(abs(val3-val4)<1e-8))
@@ -183,7 +183,7 @@ Puis le **Check #2**. ::
 
 	isCheck2OK = True
 	for icell in xrange(partFixm.getNumberOfCells()):
-	    ids5 = iPart.getIdsEqual(icell)
+	    ids5 = iPart.findIdsEqual(icell)
 	    areaOfCells = areaPartFixMob[ids5]
 	    areaOfCells.abs()
 	    if abs(areaOfCells.accumulate()[0] - areaPartFixm[icell]) > 1e-9:
@@ -202,14 +202,14 @@ exclusive ``partFixm`` et 1 sur la partie couverte. Nous créons donc un champ r
 Le visualiser en utilisant un fichier VTK (ne pas oublier l'option *Triangulate* de ParaView). ::
 
 	f = ml.MEDCouplingFieldDouble(ml.ON_CELLS,ml.ONE_TIME)
-	m = partFixMob.deepCpy()
+	m = partFixMob.deepCopy()
 	m.tessellate2D(0.1)
 	f.setMesh(m)
 	arr = ml.DataArrayDouble(partFixMob.getNumberOfCells(),1)
-	arr[iMob.getIdsEqual(-1)] = 0.
-	arr[iMob.getIdsNotEqual(-1)] = 1.
+	arr[iMob.findIdsEqual(-1)] = 0.
+	arr[iMob.findIdsNotEqual(-1)] = 1.
 	f.setArray(arr)
-	f.checkCoherency()
+	f.checkConsistencyLight()
 	f.setName("Zone")
 	ml.MEDCouplingFieldDouble.WriteVTK("Zone.vtu",[f])
 
@@ -224,22 +224,22 @@ Plus généralement prendre les zones 0, 1 et 5. Faire un champ aux cellules qui
 	partFixMob2,iPart2,iMob2 = ml.MEDCouplingUMesh.Intersect2DMeshes(partFixm,zonesMobm,1e-10)
 	partFixMob2.mergeNodes(1e-10)
 	f2 = ml.MEDCouplingFieldDouble(ml.ON_CELLS, ml.ONE_TIME)
-	m2 = partFixMob2.deepCpy()
+	m2 = partFixMob2.deepCopy()
 	m2.tessellate2D(0.1)
 	f2.setMesh(m2)
 	arr = ml.DataArrayDouble(partFixMob2.getNumberOfCells(),1)
-	arr[iMob2.getIdsEqual(-1)]=0.
+	arr[iMob2.findIdsEqual(-1)]=0.
 	st = 0
 	end = st + len(zonesInMobm[0])
-	arr[iMob2.getIdsInRange(st,end)] = 1.
+	arr[iMob2.findIdsInRange(st,end)] = 1.
 	st += len(zonesInMobm[0]) ; 
 	end = st + len(zonesInMobm[1])
-	arr[iMob2.getIdsInRange(st,end)] = 2.
+	arr[iMob2.findIdsInRange(st,end)] = 2.
 	st += len(zonesInMobm[1])
 	end = st + len(zonesInMobm[2])
-	arr[iMob2.getIdsInRange(st,end)] = 3.
+	arr[iMob2.findIdsInRange(st,end)] = 3.
 	f2.setArray(arr)
-	f2.checkCoherency()
+	f2.checkConsistencyLight()
 	f2.setName("Zone2")
 	ml.MEDCouplingFieldDouble.WriteVTK("Zone2.vtu",[f2])
 

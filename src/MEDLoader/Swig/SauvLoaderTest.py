@@ -247,7 +247,7 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove(sauvFile)
         pass
 
-    @unittest.skipUnless(MEDLoader.HasXDR(),"requires XDR")
+    @unittest.skipUnless(HasXDR(),"requires XDR")
     def testMissingGroups(self):
         """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
         sauvFile = os.path.join(self.__getResourcesDirectory(),"BDC-714.sauv")
@@ -290,7 +290,7 @@ class SauvLoaderTest(unittest.TestCase):
         wgt=[0.3,0.3,0.3,0.3,0.4,0.4,0.4,0.4,0.7]
         f.setGaussLocalizationOnType(NORM_QUAD8,refCoo,gpCoo,wgt)
         f.setName("SIGT")
-        f.checkCoherency()
+        f.checkConsistencyLight()
         #
         mm=MEDFileUMesh()
         mm.setMeshAtLevel(0,m)

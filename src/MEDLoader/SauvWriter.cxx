@@ -34,7 +34,7 @@
 #include <cstdlib>
 #include <iomanip>
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 using namespace SauvUtilities;
 using namespace std;
 
@@ -374,7 +374,7 @@ void SauvWriter::fillFamilySubMeshes()
   for ( size_t iDim = 0; iDim < dims.size(); ++iDim )
     {
       int dimRelExt = dims[ iDim ];
-      MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(dimRelExt);
+      MCAuto< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(dimRelExt);
       const DataArrayInt * famIds = _fileMesh->getFamilyFieldAtLevel(dimRelExt);
       if ( !famIds ) continue;
 
@@ -488,7 +488,7 @@ void SauvWriter::fillProfileSubMeshes()
   SubMesh* nilSm = (SubMesh*) 0;
   for ( int isOnNodes = 0; isOnNodes < 2; ++isOnNodes )
     {
-      vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTS > >
+      vector< MCAuto< MEDFileFieldMultiTS > >
         fields = isOnNodes ? _nodeFields : _cellFields;
       for ( size_t i = 0; i < fields.size(); ++i )
         {
@@ -563,7 +563,7 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
                                  INTERP_KERNEL::NormalizedCellType type,
                                  const DataArrayInt*               profile )
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh >
+  MCAuto< MEDCouplingMesh >
     mesh = _fileMesh->getMeshAtLevel(sm->_dimRelExt);
   const MEDCouplingUMesh* uMesh = dynamic_cast< const MEDCouplingUMesh* > ((const MEDCouplingMesh*) mesh );
 
@@ -600,7 +600,7 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
           code[2] = -1;
         }
       vector<const DataArrayInt *> idsPerType( 1, profile );
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt>
+      MCAuto<DataArrayInt>
         resIDs = uMesh->checkTypeConsistencyAndContig( code, idsPerType );
       if (( const DataArrayInt *) resIDs )
       {
@@ -661,7 +661,7 @@ void SauvWriter::write(const std::string& fileName)
 
 void SauvWriter::writeFileHead()
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(0);
+  MCAuto< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel(0);
 
   *_sauvFile
     << " ENREGISTREMENT DE TYPE   4" << endl
@@ -742,9 +742,9 @@ void SauvWriter::writeSubMeshes()
       else
         {
           // write each sub-type as a SAUV sub-mesh
-          MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh >
+          MCAuto< MEDCouplingMesh >
             mesh = _fileMesh->getMeshAtLevel( sm._dimRelExt );
-          MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh>
+          MCAuto< MEDCouplingUMesh>
             umesh = mesh->buildUnstructured();
 
           for ( int iType=0; iType < sm.cellIDsByTypeSize(); ++iType )
@@ -841,8 +841,8 @@ void SauvWriter::writeCompoundSubMesh(int iSub)
 
 void SauvWriter::writeNodes()
 {
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel( 1 );
-  MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > umesh = mesh->buildUnstructured();
+  MCAuto< MEDCouplingMesh > mesh = _fileMesh->getMeshAtLevel( 1 );
+  MCAuto< MEDCouplingUMesh > umesh = mesh->buildUnstructured();
 
   // write the index connecting nodes with their coodrinates
 
@@ -871,7 +871,7 @@ void SauvWriter::writeNodes()
   _sauvFile->precision(14);
   _sauvFile->setf( ios_base::scientific, ios_base::floatfield );
   _sauvFile->setf( ios_base::uppercase );
-  MEDCouplingAutoRefCountObjectPtr< DataArrayDouble> coordArray = umesh->getCoordinatesAndOwner();
+  MCAuto< DataArrayDouble> coordArray = umesh->getCoordinatesAndOwner();
   const double precision = 1.e-99; // PAL12077
   for ( int i = 0; i < nbNodes; ++i)
   {
@@ -996,7 +996,7 @@ void SauvWriter::writeLongNames()
 void SauvWriter::writeFieldNames( const bool                 isNodal,
                                   std::map<std::string,int>& fldNamePrefixMap)
 {
-  vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTS > >&
+  vector< MCAuto< MEDFileFieldMultiTS > >&
     flds = isNodal ? _nodeFields : _cellFields;
   map<string,int> nameNbMap;
 

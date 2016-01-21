@@ -28,7 +28,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class MEDCouplingMesh;
   class DataArrayDouble;
@@ -38,7 +38,7 @@ namespace ParaMEDMEM
   {
   protected:
     MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization();
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -48,7 +48,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
     MEDCOUPLING_EXPORT virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
-    MEDCOUPLING_EXPORT virtual void checkCoherency() const;
+    MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
@@ -57,7 +57,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
-    MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCpy) const;
+    MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCopy) const;
     MEDCOUPLING_EXPORT virtual std::string getStringRepr() const = 0;
     MEDCOUPLING_EXPORT virtual TypeOfTimeDiscretization getEnum() const = 0;
     MEDCOUPLING_EXPORT virtual void synchronizeTimeWith(const MEDCouplingMesh *mesh) = 0;
@@ -87,7 +87,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const = 0;
     MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const = 0;
     MEDCOUPLING_EXPORT virtual void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) = 0;
-    MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const = 0;
+    MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const = 0;
     MEDCOUPLING_EXPORT void setTimeTolerance(double val) { _time_tolerance=val; }
     MEDCOUPLING_EXPORT double getTimeTolerance() const { return _time_tolerance; }
     MEDCOUPLING_EXPORT virtual void checkNoTimePresence() const = 0;
@@ -142,15 +142,15 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT virtual void applyLin(double a, double b);
     MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT virtual void applyFunc(int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT virtual void applyFunc2(int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFuncCompo(int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void applyFuncNamedCompo(int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
     MEDCOUPLING_EXPORT virtual void applyFunc(const std::string& func);
     MEDCOUPLING_EXPORT virtual void applyFuncFast32(const std::string& func);
     MEDCOUPLING_EXPORT virtual void applyFuncFast64(const std::string& func);
     MEDCOUPLING_EXPORT virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, FunctionToEvaluate func);
     MEDCOUPLING_EXPORT virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT virtual void fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const std::string& func);
-    MEDCOUPLING_EXPORT virtual void fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void fillFromAnalyticCompo(const DataArrayDouble *loc, int nbOfComp, const std::string& func);
+    MEDCOUPLING_EXPORT virtual void fillFromAnalyticNamedCompo(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func);
     //
     MEDCOUPLING_EXPORT virtual ~MEDCouplingTimeDiscretization();
   protected:
@@ -165,7 +165,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel();
-    MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCopy);
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
@@ -193,7 +193,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
     MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT void checkNoTimePresence() const { }
     MEDCOUPLING_EXPORT void checkTimePresence(double time) const;
     MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const;
@@ -225,7 +225,7 @@ namespace ParaMEDMEM
   class MEDCouplingWithTimeStep : public MEDCouplingTimeDiscretization
   {
   protected:
-    MEDCOUPLING_EXPORT MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT MEDCouplingWithTimeStep();
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
@@ -262,7 +262,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT void checkNoTimePresence() const;
     MEDCOUPLING_EXPORT void checkTimePresence(double time) const;
     MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) { _time=time; _iteration=iteration; _order=order; }
@@ -293,7 +293,7 @@ namespace ParaMEDMEM
   class MEDCouplingConstOnTimeInterval : public MEDCouplingTimeDiscretization
   {
   protected:
-    MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval();
     MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
@@ -303,7 +303,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
     MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
@@ -364,7 +364,7 @@ namespace ParaMEDMEM
   class MEDCouplingTwoTimeSteps : public MEDCouplingTimeDiscretization
   {
   protected:
-    MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps(const MEDCouplingTwoTimeSteps& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps(const MEDCouplingTwoTimeSteps& other, bool deepCopy);
     MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps();
     MEDCOUPLING_EXPORT ~MEDCouplingTwoTimeSteps();
   public:
@@ -376,7 +376,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     MEDCOUPLING_EXPORT const DataArrayDouble *getEndArray() const;
     MEDCOUPLING_EXPORT DataArrayDouble *getEndArray();
-    MEDCOUPLING_EXPORT void checkCoherency() const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
     MEDCOUPLING_EXPORT void checkNoTimePresence() const;
@@ -419,13 +419,13 @@ namespace ParaMEDMEM
   class MEDCouplingLinearTime : public MEDCouplingTwoTimeSteps
   {
   protected:
-    MEDCOUPLING_EXPORT MEDCouplingLinearTime(const MEDCouplingLinearTime& other, bool deepCpy);
+    MEDCOUPLING_EXPORT MEDCouplingLinearTime(const MEDCouplingLinearTime& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT MEDCouplingLinearTime();
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
-    MEDCOUPLING_EXPORT void checkCoherency() const;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
     MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;

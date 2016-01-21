@@ -20,7 +20,7 @@
 
 #include "MEDCouplingPartDefinition.hxx"
 
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 PartDefinition *PartDefinition::New(int start, int stop, int step)
 {
@@ -32,17 +32,17 @@ PartDefinition *PartDefinition::New(DataArrayInt *listOfIds)
   return DataArrayPartDefinition::New(listOfIds);
 }
 
-PartDefinition *PartDefinition::Unserialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI)
+PartDefinition *PartDefinition::Unserialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI)
 {
   if(tinyInt.empty())
     {
-      MEDCouplingAutoRefCountObjectPtr<PartDefinition> ret(DataArrayPartDefinition::New(bigArraysI.back()));
+      MCAuto<PartDefinition> ret(DataArrayPartDefinition::New(bigArraysI.back()));
       bigArraysI.pop_back();
       return ret.retn();
     }
   else if(tinyInt.size()==3)
     {
-      MEDCouplingAutoRefCountObjectPtr<PartDefinition> ret(SlicePartDefinition::New(tinyInt[0],tinyInt[1],tinyInt[2]));
+      MCAuto<PartDefinition> ret(SlicePartDefinition::New(tinyInt[0],tinyInt[1],tinyInt[2]));
       tinyInt.erase(tinyInt.begin(),tinyInt.begin()+3);
       return ret.retn();
     }
@@ -90,11 +90,11 @@ bool DataArrayPartDefinition::isEqual(const PartDefinition *other, std::string& 
   return true;
 }
 
-DataArrayPartDefinition *DataArrayPartDefinition::deepCpy() const
+DataArrayPartDefinition *DataArrayPartDefinition::deepCopy() const
 {
   const DataArrayInt *arr(_arr);
   if(!arr)
-    throw INTERP_KERNEL::Exception("DataArrayPartDefinition::deepCpy : array is null !");
+    throw INTERP_KERNEL::Exception("DataArrayPartDefinition::deepCopy : array is null !");
   return DataArrayPartDefinition::New(const_cast<DataArrayInt *>(arr));
 }
 
@@ -137,8 +137,8 @@ PartDefinition *DataArrayPartDefinition::composeWith(const PartDefinition *other
 {
   if(!other)
     throw INTERP_KERNEL::Exception("DataArrayPartDefinition::composeWith : input PartDef must be not NULL !");
-  checkCoherency();
-  other->checkCoherency();
+  checkConsistencyLight();
+  other->checkConsistencyLight();
   const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(other));
   if(spd)
     {//special case for optim
@@ -146,19 +146,19 @@ PartDefinition *DataArrayPartDefinition::composeWith(const PartDefinition *other
       spd->getSlice(a,b,c);
       if(c==1)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(DataArrayInt::New());
+          MCAuto<DataArrayInt> arr(DataArrayInt::New());
           arr->alloc(_arr->getNumberOfTuples(),1);
           std::transform(_arr->begin(),_arr->end(),arr->getPointer(),std::bind2nd(std::plus<int>(),a));
           return DataArrayPartDefinition::New(arr);
         }
     }
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr1(other->toDAI());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr1->selectByTupleIdSafe(_arr->begin(),_arr->end()));
+  MCAuto<DataArrayInt> arr1(other->toDAI());
+  MCAuto<DataArrayInt> arr2(arr1->selectByTupleIdSafe(_arr->begin(),_arr->end()));
   return DataArrayPartDefinition::New(arr2);
 }
 
-void DataArrayPartDefinition::checkCoherency() const
+void DataArrayPartDefinition::checkConsistencyLight() const
 {
   CheckInternalArrayOK(_arr);
 }
@@ -170,7 +170,7 @@ void DataArrayPartDefinition::checkCoherency() const
  */
 PartDefinition *DataArrayPartDefinition::tryToSimplify() const
 {
-  checkCoherency();
+  checkConsistencyLight();
   int a(0),b(0),c(0);
   if(_arr->isRange(a,b,c))
     {
@@ -184,7 +184,7 @@ PartDefinition *DataArrayPartDefinition::tryToSimplify() const
     }
 }
 
-void DataArrayPartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const
+void DataArrayPartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const
 {
   bigArraysI.push_back(_arr);
 }
@@ -235,16 +235,16 @@ std::vector<const BigMemoryObject *> DataArrayPartDefinition::getDirectChildrenW
 
 DataArrayPartDefinition *DataArrayPartDefinition::add1(const DataArrayPartDefinition *other) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+  MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
+  MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
   a3->sort();
   return DataArrayPartDefinition::New(a3);
 }
 
 DataArrayPartDefinition *DataArrayPartDefinition::add2(const SlicePartDefinition *other) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+  MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
+  MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
   a3->sort();
   return DataArrayPartDefinition::New(a3);
 }
@@ -280,7 +280,7 @@ bool SlicePartDefinition::isEqual(const PartDefinition *other, std::string& what
   return true;
 }
 
-SlicePartDefinition *SlicePartDefinition::deepCpy() const
+SlicePartDefinition *SlicePartDefinition::deepCopy() const
 {
   return SlicePartDefinition::New(_start,_stop,_step);
 }
@@ -317,17 +317,17 @@ PartDefinition *SlicePartDefinition::composeWith(const PartDefinition *other) co
 {
   if(!other)
     throw INTERP_KERNEL::Exception("SlicePartDefinition::composeWith : input PartDef must be not NULL !");
-  checkCoherency();
-  other->checkCoherency();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr(other->toDAI());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr1(arr->selectByTupleId2(_start,_stop,_step));
+  checkConsistencyLight();
+  other->checkConsistencyLight();
+  MCAuto<DataArrayInt> arr(other->toDAI());
+  MCAuto<DataArrayInt> arr1(arr->selectByTupleIdSafeSlice(_start,_stop,_step));
   return DataArrayPartDefinition::New(arr1);
 }
 
 /*!
  * Do nothing it is not a bug.
  */
-void SlicePartDefinition::checkCoherency() const
+void SlicePartDefinition::checkConsistencyLight() const
 {
 }
 
@@ -343,7 +343,7 @@ PartDefinition *SlicePartDefinition::tryToSimplify() const
   return ret;
 }
 
-void SlicePartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >& bigArraysI) const
+void SlicePartDefinition::serialize(std::vector<int>& tinyInt, std::vector< MCAuto<DataArrayInt> >& bigArraysI) const
 {
   tinyInt.push_back(_start);
   tinyInt.push_back(_stop);
@@ -393,8 +393,8 @@ std::vector<const BigMemoryObject *> SlicePartDefinition::getDirectChildrenWithN
 
 DataArrayPartDefinition *SlicePartDefinition::add1(const DataArrayPartDefinition *other) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+  MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
+  MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
   a3->sort();
   return DataArrayPartDefinition::New(a3);
 }
@@ -407,8 +407,8 @@ PartDefinition *SlicePartDefinition::add2(const SlicePartDefinition *other) cons
     }
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a1(toDAI()),a2(other->toDAI());
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
+      MCAuto<DataArrayInt> a1(toDAI()),a2(other->toDAI());
+      MCAuto<DataArrayInt> a3(DataArrayInt::Aggregate(a1,a2,0));
       a3->sort();
       return DataArrayPartDefinition::New(a3);
     }

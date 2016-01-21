@@ -22,7 +22,7 @@
 // * groupping methods into "Basic API", "Advanced" and "Others..." sections
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*!
    * Sets the name of \a this mesh.
@@ -216,7 +216,7 @@ namespace ParaMEDMEM
 }
 
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   /*! \name Basic API   */
   ///@{

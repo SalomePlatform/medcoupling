@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
+namespace MEDCoupling
 {
   class ComponentTopology;
   class MEDCouplingCMesh;

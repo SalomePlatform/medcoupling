@@ -67,13 +67,13 @@ namespace INTERP_TEST
       LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
 
       LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
+      MCAuto<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
+      MCAuto<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
 
 
       LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-      MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
+      MCAuto<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
+    MCAuto<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
 
       MEDCouplingNormalizedUnstructuredMesh<3,3> sMesh_wrapper(sMesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> tMesh_wrapper(tMesh);

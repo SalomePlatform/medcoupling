@@ -34,7 +34,7 @@
 #include "MEDPARTITIONER_JointFinder.hxx"
 #endif
 
-#include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MCAuto.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
@@ -106,7 +106,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
     _joint_finder(0)
 {
   std::vector<std::vector<std::vector<int> > > new2oldIds(initialCollection.getTopology()->nbDomain());
-  std::vector<ParaMEDMEM::DataArrayInt*> o2nRenumber;
+  std::vector<MEDCoupling::DataArrayInt*> o2nRenumber;
 
   castCellMeshes(initialCollection, new2oldIds, o2nRenumber );
 
@@ -206,7 +206,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
 
 void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialCollection,
                                                     std::vector<std::vector<std::vector<int> > >& new2oldIds,
-                                                    std::vector<ParaMEDMEM::DataArrayInt*> & o2nRenumber)
+                                                    std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber)
 {
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : castCellMeshes" << std::endl;
@@ -220,11 +220,11 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
   o2nRenumber.resize(nbNewDomain,0);
   int rank=MyGlobals::_Rank;
   //splitting the initial domains into smaller bits
-  std::vector<std::vector<ParaMEDMEM::MEDCouplingUMesh*> > splitMeshes;
+  std::vector<std::vector<MEDCoupling::MEDCouplingUMesh*> > splitMeshes;
   splitMeshes.resize(nbNewDomain);
   for (int inew=0; inew<nbNewDomain; inew++)
     {
-      splitMeshes[inew].resize(nbOldDomain, (ParaMEDMEM::MEDCouplingUMesh*)0);
+      splitMeshes[inew].resize(nbOldDomain, (MEDCoupling::MEDCouplingUMesh*)0);
     }
 
   for (int iold=0; iold<nbOldDomain; iold++)
@@ -245,7 +245,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
             }
           for (int inew=0; inew<nbNewDomain; inew++)
             {
-              splitMeshes[inew][iold]=(ParaMEDMEM::MEDCouplingUMesh*)
+              splitMeshes[inew][iold]=(MEDCoupling::MEDCouplingUMesh*)
                 (initialCollection.getMesh())[iold]->buildPartOfMySelf(&new2oldIds[iold][inew][0],
                                                                        &new2oldIds[iold][inew][0]+new2oldIds[iold][inew].size(),
                                                                        true);
@@ -280,7 +280,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
     std::cout << "proc " << rank << " : castCellMeshes fusing" << std::endl;
   for (int inew=0; inew<nbNewDomain ;inew++)
     {
-      std::vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
+      std::vector<const MEDCoupling::MEDCouplingUMesh*> meshes;
 
       for (int i=0; i<(int)splitMeshes[inew].size(); i++)
         if (splitMeshes[inew][i]!=0)
@@ -296,13 +296,13 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
             }
           else
             {
-              _mesh[inew]=ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes(meshes);
+              _mesh[inew]=MEDCoupling::MEDCouplingUMesh::MergeUMeshes(meshes);
               o2nRenumber[inew]=_mesh[inew]->sortCellsInMEDFileFrmt();
               bool areNodesMerged;
               int nbNodesMerged;
               if (meshes.size()>1)
                 {
-                  ParaMEDMEM::DataArrayInt* array=_mesh[inew]->mergeNodes(1e-12,areNodesMerged,nbNodesMerged);
+                  MEDCoupling::DataArrayInt* array=_mesh[inew]->mergeNodes(1e-12,areNodesMerged,nbNodesMerged);
                   array->decrRef(); // array is not used in this case
                 }
               _mesh[inew]->zipCoords();
@@ -334,7 +334,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
       if (!isParallelMode() || (_domain_selector->isMyDomain(iold)))
         {
           //      std::map<pair<double,pair<double, double> >, int > nodeClassifier;
-          ParaMEDMEM::DataArrayDouble* coords = initialCollection.getMesh(iold)->getCoords();
+          MEDCoupling::DataArrayDouble* coords = initialCollection.getMesh(iold)->getCoords();
           double* coordsPtr=coords->getPointer();
           dim = coords->getNumberOfComponents();
           int nvertices=initialCollection.getMesh(iold)->getNumberOfNodes();
@@ -356,9 +356,9 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
             _domain_selector->sendMesh(*(getMesh(inew)), _domain_selector->getProcessorID(iold));
           else if (isParallelMode() && !_domain_selector->isMyDomain(inew)&& _domain_selector->isMyDomain(iold))
             {
-              ParaMEDMEM::MEDCouplingUMesh* mesh;
+              MEDCoupling::MEDCouplingUMesh* mesh;
               _domain_selector->recvMesh(mesh, _domain_selector->getProcessorID(inew));
-              ParaMEDMEM::DataArrayDouble* coords = mesh->getCoords();
+              MEDCoupling::DataArrayDouble* coords = mesh->getCoords();
               for (int inode=0; inode<mesh->getNumberOfNodes();inode++)
                 {
                   double* coordsPtr=coords->getPointer()+inode*dim;
@@ -374,7 +374,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
             if (!isParallelMode() || (_domain_selector->isMyDomain(inew) && _domain_selector->isMyDomain(iold)))
 #endif
               {
-                ParaMEDMEM::DataArrayDouble* coords = getMesh(inew)->getCoords();
+                MEDCoupling::DataArrayDouble* coords = getMesh(inew)->getCoords();
                 for (int inode=0; inode<_mesh[inew]->getNumberOfNodes();inode++)
                   {
                     double* coordsPtr=coords->getPointer()+inode*dim;
@@ -394,7 +394,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
 
 }
 
-void getNodeIds(ParaMEDMEM::MEDCouplingUMesh& meshOne, ParaMEDMEM::MEDCouplingUMesh& meshTwo, std::vector<int>& nodeIds)
+void getNodeIds(MEDCoupling::MEDCouplingUMesh& meshOne, MEDCoupling::MEDCouplingUMesh& meshTwo, std::vector<int>& nodeIds)
 {
   using std::vector;
   using MEDPARTITIONER::BBTreeOfDim;
@@ -402,7 +402,7 @@ void getNodeIds(ParaMEDMEM::MEDCouplingUMesh& meshOne, ParaMEDMEM::MEDCouplingUM
   double* bbox;
   BBTreeOfDim* tree = 0;
   int nv1=meshOne.getNumberOfNodes();
-  ParaMEDMEM::DataArrayDouble* coords=meshOne.getCoords();
+  MEDCoupling::DataArrayDouble* coords=meshOne.getCoords();
   int dim = coords->getNumberOfComponents();
 
   bbox=new double[nv1*2*dim];
@@ -456,15 +456,15 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
   int nbNewDomain=_topology->nbDomain();
   int nbOldDomain=initialCollection.getTopology()->nbDomain();
 
-  vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom=initialCollection.getFaceMesh();
-  vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo=this->getFaceMesh();
+  vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastFrom=initialCollection.getFaceMesh();
+  vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastTo=this->getFaceMesh();
 
-  vector< vector<ParaMEDMEM::MEDCouplingUMesh*> > splitMeshes;
+  vector< vector<MEDCoupling::MEDCouplingUMesh*> > splitMeshes;
 
   splitMeshes.resize(nbNewDomain);
   for (int inew=0; inew<nbNewDomain; inew++)
     {
-      splitMeshes[inew].resize(nbOldDomain, (ParaMEDMEM::MEDCouplingUMesh*)0);
+      splitMeshes[inew].resize(nbOldDomain, (MEDCoupling::MEDCouplingUMesh*)0);
     }
   new2oldIds.resize(nbOldDomain);
   for (int iold=0; iold<nbOldDomain; iold++) new2oldIds[iold].resize(nbNewDomain);
@@ -534,7 +534,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
               if (meshesCastFrom[iold]->getNumberOfCells() > 0)
                 {
                   splitMeshes[inew][iold]=
-                    (ParaMEDMEM::MEDCouplingUMesh*) 
+                    (MEDCoupling::MEDCouplingUMesh*) 
                     ( meshesCastFrom[iold]->buildPartOfMySelf(&new2oldIds[iold][inew][0],
                                                               &new2oldIds[iold][inew][0]+new2oldIds[iold][inew].size(),
                                                               true) 
@@ -557,7 +557,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
   //send/receive stuff
   if (isParallelMode())
     {
-      ParaMEDMEM::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
+      MEDCoupling::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
       for (int iold=0; iold<nbOldDomain; iold++)
         for (int inew=0; inew<nbNewDomain; inew++)
           {
@@ -591,34 +591,34 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
   meshesCastTo.resize(nbNewDomain);
   for (int inew=0; inew<nbNewDomain; inew++)
     {
-      vector<const ParaMEDMEM::MEDCouplingUMesh*> myMeshes;
+      vector<const MEDCoupling::MEDCouplingUMesh*> myMeshes;
       for (int iold=0; iold<nbOldDomain; iold++)
         {
-          ParaMEDMEM::MEDCouplingUMesh *umesh=splitMeshes[inew][iold];
+          MEDCoupling::MEDCouplingUMesh *umesh=splitMeshes[inew][iold];
           if (umesh!=0)
             if (umesh->getNumberOfCells()>0)
                 myMeshes.push_back(umesh);
         }
 
-      ParaMEDMEM::MEDCouplingUMesh *bndMesh = 0;
+      MEDCoupling::MEDCouplingUMesh *bndMesh = 0;
       if ( _subdomain_boundary_creates &&
            _mesh[inew] &&
            _mesh[inew]->getNumberOfCells()>0 )
         {
           bndMesh =
-            ((ParaMEDMEM::MEDCouplingUMesh *)_mesh[inew]->buildBoundaryMesh(/*keepCoords=*/true));
+            ((MEDCoupling::MEDCouplingUMesh *)_mesh[inew]->buildBoundaryMesh(/*keepCoords=*/true));
           if (bndMesh->getNumberOfCells()>0)
             myMeshes.push_back( bndMesh );
         }
 
       if (myMeshes.size()>0)
         {
-          meshesCastTo[inew]=ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes(myMeshes);
+          meshesCastTo[inew]=MEDCoupling::MEDCouplingUMesh::MergeUMeshes(myMeshes);
           meshesCastTo[inew]->sortCellsInMEDFileFrmt()->decrRef();
         }
       else
         {
-          ParaMEDMEM::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
+          MEDCoupling::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
           meshesCastTo[inew]=empty;
         }
       for (int iold=0; iold<nbOldDomain; iold++)
@@ -633,9 +633,9 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
 
 
 
-void MEDPARTITIONER::MeshCollection::castIntField(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
-                                                  std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo,
-                                                  std::vector<ParaMEDMEM::DataArrayInt*>& arrayFrom,
+void MEDPARTITIONER::MeshCollection::castIntField(std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastFrom,
+                                                  std::vector<MEDCoupling::MEDCouplingUMesh*>& meshesCastTo,
+                                                  std::vector<MEDCoupling::DataArrayInt*>& arrayFrom,
                                                   std::string nameArrayTo)
 {
   using std::vector;
@@ -648,11 +648,11 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<ParaMEDMEM::MEDCou
   if (MyGlobals::_Verbose>99)
     std::cout<<"making accelerating structures"<<std::endl;
   std::vector<BBTreeOfDim* > acceleratingStructures(ioldMax);
-  std::vector<ParaMEDMEM::DataArrayDouble*>bbox(ioldMax);
+  std::vector<MEDCoupling::DataArrayDouble*>bbox(ioldMax);
   for (int iold =0; iold< ioldMax; iold++)
     if (isParallelMode() && _domain_selector->isMyDomain(iold))
       {
-        ParaMEDMEM::DataArrayDouble* sourceCoords=meshesCastFrom[iold]->getBarycenterAndOwner();
+        MEDCoupling::DataArrayDouble* sourceCoords=meshesCastFrom[iold]->computeCellCenterOfMass();
         bbox[iold]=sourceCoords->computeBBoxPerTuple(1.e-6);
         acceleratingStructures[iold]=new BBTreeOfDim( sourceCoords->getNumberOfComponents(), bbox[iold]->getConstPointer(),0,0,bbox[iold]->getNumberOfTuples());
         sourceCoords->decrRef();
@@ -689,7 +689,7 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<ParaMEDMEM::MEDCou
             {
               //receive mesh
               vector<int> recvIds;
-              ParaMEDMEM::MEDCouplingUMesh* recvMesh;
+              MEDCoupling::MEDCouplingUMesh* recvMesh;
               _domain_selector->recvMesh(recvMesh,_domain_selector->getProcessorID(iold));
               //receive vector
               if (MyGlobals::_Verbose>400) std::cout<<"proc "<<_domain_selector->rank()<<" : castIntField recIntVec "<<std::endl;
@@ -719,15 +719,15 @@ void MEDPARTITIONER::MeshCollection::castIntField(std::vector<ParaMEDMEM::MEDCou
 }
 
 void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
-                                                    const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
-                                                    const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
+                                                    const MEDCoupling::MEDCouplingUMesh& sourceMesh,
+                                                    const MEDCoupling::MEDCouplingUMesh& targetMesh,
                                                     const int* fromArray,
                                                     std::string nameArrayTo,
                                                     const BBTreeOfDim* myTree)
 {
 
   if (sourceMesh.getNumberOfCells()<=0) return; //empty mesh could exist
-  ParaMEDMEM::DataArrayDouble* targetCoords=targetMesh.getBarycenterAndOwner();
+  MEDCoupling::DataArrayDouble* targetCoords=targetMesh.computeCellCenterOfMass();
   const double*  tc=targetCoords->getConstPointer();
   int targetSize=targetMesh.getNumberOfCells();
   int sourceSize=sourceMesh.getNumberOfCells();
@@ -741,11 +741,11 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
   
   const BBTreeOfDim* tree;
   bool cleantree=false;
-  ParaMEDMEM::DataArrayDouble* sourceBBox=0;
+  MEDCoupling::DataArrayDouble* sourceBBox=0;
   int dim = targetCoords->getNumberOfComponents();
   if (myTree==0)
     {
-      sourceBBox=sourceMesh.getBarycenterAndOwner()->computeBBoxPerTuple(1e-8);
+      sourceBBox=sourceMesh.computeCellCenterOfMass()->computeBBoxPerTuple(1e-8);
       tree=new BBTreeOfDim( dim, sourceBBox->getConstPointer(),0,0, sourceBBox->getNumberOfTuples(),1e-10);
       cleantree=true;
     }
@@ -755,7 +755,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
     {
       if (MyGlobals::_Is0verbose>100)
         std::cout << "create " << cle << " size " << targetSize << std::endl;
-      ParaMEDMEM::DataArrayInt* p=ParaMEDMEM::DataArrayInt::New();
+      MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
       p->alloc(targetSize,1);
       p->fillWithZero();
       toArray=p->getPointer();
@@ -830,7 +830,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
               if (isParallelMode() && _domain_selector->isMyDomain(iold) && !_domain_selector->isMyDomain(inew))
                 {
                   int target=_domain_selector->getProcessorID(inew);
-                  ParaMEDMEM::DataArrayDouble* field=initialCollection.getField(descriptionField,iold);
+                  MEDCoupling::DataArrayDouble* field=initialCollection.getField(descriptionField,iold);
                   if (MyGlobals::_Verbose>10) 
                     std::cout << "proc " << _domain_selector->rank() << " : castAllFields sendDouble" << std::endl;
                   SendDataArrayDouble(field, target);
@@ -842,7 +842,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
                   //receive vector
                   if (MyGlobals::_Verbose>10) 
                     std::cout << "proc " << _domain_selector->rank() << " : castAllFields recvDouble" << std::endl;
-                  ParaMEDMEM::DataArrayDouble* field=RecvDataArrayDouble(source);
+                  MEDCoupling::DataArrayDouble* field=RecvDataArrayDouble(source);
                   remapDoubleField(inew,iold,field,nameArrayTo,descriptionField);
                 }
             }
@@ -854,7 +854,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
           for (int iold=0; iold<ioldMax; iold++)
             if (!isParallelMode() || ( _domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew)))
               {
-                ParaMEDMEM::DataArrayDouble* field=initialCollection.getField(descriptionField,iold);
+                MEDCoupling::DataArrayDouble* field=initialCollection.getField(descriptionField,iold);
                 remapDoubleField(inew,iold,field,nameArrayTo,descriptionField);
               }
         }
@@ -862,7 +862,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
 }
 
 void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold, 
-                                                       ParaMEDMEM::DataArrayDouble* fromArray,
+                                                       MEDCoupling::DataArrayDouble* fromArray,
                                                        std::string nameArrayTo,
                                                        std::string descriptionField)
 //here we use 'cellFamily_ccI inew iold' set in remapIntField
@@ -871,7 +871,7 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
     throw INTERP_KERNEL::Exception("Error remapDoubleField only on cellFieldDouble");
   std::string key=Cle2ToStr("cellFamily_ccI",inew,iold);
   
-  std::map<std::string,ParaMEDMEM::DataArrayInt*>::iterator it1;
+  std::map<std::string,MEDCoupling::DataArrayInt*>::iterator it1;
   it1=_map_dataarray_int.find(key);
   if (it1==_map_dataarray_int.end())
     {
@@ -880,7 +880,7 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
       return;
     }
   //create ccI in remapIntField
-  ParaMEDMEM::DataArrayInt *ccI=it1->second;
+  MEDCoupling::DataArrayInt *ccI=it1->second;
   if (MyGlobals::_Verbose>300)
     std::cout << "proc " << MyGlobals::_Rank << " : remapDoubleField " << key << " size " << ccI->getNbOfElems() << std::endl;
   
@@ -903,14 +903,14 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
         " nbComponents " << fromArray->getNumberOfComponents() << std::endl;
     }
 
-  ParaMEDMEM::DataArrayDouble* field=0;
-  std::map<std::string,ParaMEDMEM::DataArrayDouble*>::iterator it2;
+  MEDCoupling::DataArrayDouble* field=0;
+  std::map<std::string,MEDCoupling::DataArrayDouble*>::iterator it2;
   it2=_map_dataarray_double.find(key);
   if (it2==_map_dataarray_double.end())
     {
       if (MyGlobals::_Verbose>300)
         std::cout << "proc "<< MyGlobals::_Rank << " : remapDoubleField key '" << key << "' not found and create it" << std::endl;
-      field=ParaMEDMEM::DataArrayDouble::New();
+      field=MEDCoupling::DataArrayDouble::New();
       _map_dataarray_double[key]=field;
       field->alloc(nbcell*nbPtGauss,nbcomp);
       field->fillWithZero();
@@ -953,7 +953,7 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold,
 
 namespace
 {
-  using namespace ParaMEDMEM;
+  using namespace MEDCoupling;
   //================================================================================
   /*!
    * \brief Sort correspondence ids of one domain and permute ids of the other accordingly
@@ -971,7 +971,7 @@ namespace
                                      bool removeEqual = false)
   {
     // sort
-    MEDCouplingAutoRefCountObjectPtr< DataArrayInt > renumN2O = ids1->buildPermArrPerLevel();
+    MCAuto< DataArrayInt > renumN2O = ids1->buildPermArrPerLevel();
     ids1->renumberInPlaceR( renumN2O->begin() );
     ids2->renumberInPlaceR( renumN2O->begin() );
 
@@ -1029,7 +1029,7 @@ namespace
 //================================================================================
 
 void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeMapping,
-                                                        const std::vector<ParaMEDMEM::DataArrayInt*> & o2nRenumber,
+                                                        const std::vector<MEDCoupling::DataArrayInt*> & o2nRenumber,
                                                         int                nbInitialDomains)
 {
   if ( !MyGlobals::_Create_Joints || _topology->nbDomain() < 2 )
@@ -1137,15 +1137,15 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
            cz->getLocalDomainNumber  () > (int)_mesh.size() ||
            cz->getDistantDomainNumber() > (int)_mesh.size() )
         continue;
-      ParaMEDMEM::MEDCouplingUMesh* mesh1 = _mesh[ cz->getLocalDomainNumber  () ];
-      ParaMEDMEM::MEDCouplingUMesh* mesh2 = _mesh[ cz->getDistantDomainNumber() ];
+      MEDCoupling::MEDCouplingUMesh* mesh1 = _mesh[ cz->getLocalDomainNumber  () ];
+      MEDCoupling::MEDCouplingUMesh* mesh2 = _mesh[ cz->getDistantDomainNumber() ];
 
       // separate ids of two domains
-      const ParaMEDMEM::MEDCouplingSkyLineArray *corrArray = cz->getEntityCorresp( 0, 0 );
+      const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getEntityCorresp( 0, 0 );
       const DataArrayInt* ids12 = corrArray->getValueArray();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids1, ids2, ids12Sorted;
-      ids1 = ids12->selectByTupleId2( 0, corrArray->getLength(), 2 );
-      ids2 = ids12->selectByTupleId2( 1, corrArray->getLength(), 2 );
+      MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
+      ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
+      ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
 
       // renumber cells according to mesh->sortCellsInMEDFileFrmt()
       renumber( ids1, o2nRenumber[ cz->getLocalDomainNumber() ]);
@@ -1251,11 +1251,11 @@ void MEDPARTITIONER::MeshCollection::buildConnectZones( const NodeMapping& nodeM
           cz21 = czVec[j];
 
       // separate ids of two domains
-      const ParaMEDMEM::MEDCouplingSkyLineArray *corrArray = cz->getNodeCorresp();
+      const MEDCoupling::MEDCouplingSkyLineArray *corrArray = cz->getNodeCorresp();
       const DataArrayInt *ids12 = corrArray->getValueArray();
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids1, ids2, ids12Sorted;
-      ids1 = ids12->selectByTupleId2( 0, corrArray->getLength(), 2 );
-      ids2 = ids12->selectByTupleId2( 1, corrArray->getLength(), 2 );
+      MCAuto<DataArrayInt> ids1, ids2, ids12Sorted;
+      ids1 = ids12->selectByTupleIdSafeSlice( 0, corrArray->getLength(), 2 );
+      ids2 = ids12->selectByTupleIdSafeSlice( 1, corrArray->getLength(), 2 );
 
       ids12Sorted = sortCorrespondences( ids1, ids2, /*delta=*/0, removeEqual );
       cz->setNodeCorresp( ids12Sorted->begin(), ids12Sorted->getNbOfElems() / 2 );
@@ -1283,9 +1283,9 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
   if ( getMeshDimension() < 2 )
     return;
 
-  using ParaMEDMEM::MEDCouplingUMesh;
-  using ParaMEDMEM::DataArrayDouble;
-  using ParaMEDMEM::DataArrayInt;
+  using MEDCoupling::MEDCouplingUMesh;
+  using MEDCoupling::DataArrayDouble;
+  using MEDCoupling::DataArrayInt;
 
   std::vector<MEDCouplingUMesh*>& faceMeshes = getFaceMesh();
   int nbMeshes = faceMeshes.size();
@@ -1296,7 +1296,7 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
   for (int inew = 0; inew < nbMeshes-1; inew++)
     if ( !isParallelMode() || _domain_selector->isMyDomain(inew) )
       {
-        DataArrayDouble* bcCoords = faceMeshes[inew]->getBarycenterAndOwner();
+        DataArrayDouble* bcCoords = faceMeshes[inew]->computeCellCenterOfMass();
         bbox   [inew] = bcCoords->computeBBoxPerTuple(1.e-6);
         bbTrees[inew] = new BBTreeOfDim( bcCoords->getNumberOfComponents(),
                                          bbox[inew]->getConstPointer(),0,0,
@@ -1341,7 +1341,7 @@ void MEDPARTITIONER::MeshCollection::buildBoundaryFaces()
           std::vector< int > faces1, faces2;
           if ( mesh1 && mesh2 )
             {
-              const DataArrayDouble* coords2 = mesh2->getBarycenterAndOwner();
+              const DataArrayDouble* coords2 = mesh2->computeCellCenterOfMass();
               const double*   c2 = coords2->getConstPointer();
               const int      dim = coords2->getNumberOfComponents();
               const int nbFaces2 = mesh2->getNumberOfCells();
@@ -1445,7 +1445,7 @@ void MEDPARTITIONER::MeshCollection::createJointGroup( const std::vector< int >&
     {
       if ( totalNbFaces > 0 )
         {
-          ParaMEDMEM::DataArrayInt* p=ParaMEDMEM::DataArrayInt::New();
+          MEDCoupling::DataArrayInt* p=MEDCoupling::DataArrayInt::New();
           p->alloc( totalNbFaces, 1 );
           p->fillWithZero();
           famIDs = p->getPointer();
@@ -1605,7 +1605,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
     </mesh>\n \
   </mapping>\n \
 </root>\n";
-          std::vector<std::string> meshNames=MEDLoader::GetMeshNames(myfile);
+          std::vector<std::string> meshNames=GetMeshNames(myfile);
           xml.replace(xml.find("$fileName"),9,myfile);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
@@ -1748,11 +1748,11 @@ MEDPARTITIONER::MeshCollection::~MeshCollection()
     if (_face_family_ids[i]!=0)
       _face_family_ids[i]->decrRef();
   
-  for (std::map<std::string, ParaMEDMEM::DataArrayInt*>::iterator it=_map_dataarray_int.begin() ; it!=_map_dataarray_int.end(); it++ )
+  for (std::map<std::string, MEDCoupling::DataArrayInt*>::iterator it=_map_dataarray_int.begin() ; it!=_map_dataarray_int.end(); it++ )
     if ((*it).second!=0)
       (*it).second->decrRef();
   
-  for (std::map<std::string, ParaMEDMEM::DataArrayDouble*>::iterator it=_map_dataarray_double.begin() ; it!=_map_dataarray_double.end(); it++ )
+  for (std::map<std::string, MEDCoupling::DataArrayDouble*>::iterator it=_map_dataarray_double.begin() ; it!=_map_dataarray_double.end(); it++ )
     if ((*it).second!=0)
       (*it).second->decrRef();
   
@@ -1850,22 +1850,22 @@ int MEDPARTITIONER::MeshCollection::getNbOfLocalFaces() const
   return nb;
 }
 
-std::vector<ParaMEDMEM::MEDCouplingUMesh*>& MEDPARTITIONER::MeshCollection::getMesh()
+std::vector<MEDCoupling::MEDCouplingUMesh*>& MEDPARTITIONER::MeshCollection::getMesh()
 {
   return _mesh;
 }
 
-std::vector<ParaMEDMEM::MEDCouplingUMesh*>& MEDPARTITIONER::MeshCollection::getFaceMesh()
+std::vector<MEDCoupling::MEDCouplingUMesh*>& MEDPARTITIONER::MeshCollection::getFaceMesh()
 {
   return _face_mesh;
 }
 
-ParaMEDMEM::MEDCouplingUMesh* MEDPARTITIONER::MeshCollection::getMesh(int idomain) const
+MEDCoupling::MEDCouplingUMesh* MEDPARTITIONER::MeshCollection::getMesh(int idomain) const
 {
   return _mesh[idomain];
 }
 
-ParaMEDMEM::MEDCouplingUMesh* MEDPARTITIONER::MeshCollection::getFaceMesh(int idomain)
+MEDCoupling::MEDCouplingUMesh* MEDPARTITIONER::MeshCollection::getFaceMesh(int idomain)
 {
   return _face_mesh[idomain];
 }
@@ -1903,7 +1903,7 @@ void MEDPARTITIONER::MeshCollection::setTopology(Topology* topo, bool takeOwnesh
  * \param edgeweight returns the pointer to the table that contains the edgeweights
  *        (only used if indivisible regions are required)
  */
-void MEDPARTITIONER::MeshCollection::buildCellGraph(ParaMEDMEM::MEDCouplingSkyLineArray* & array, int *& edgeweights )
+void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDCoupling::MEDCouplingSkyLineArray* & array, int *& edgeweights )
 {
 
   using std::map;
@@ -1912,7 +1912,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(ParaMEDMEM::MEDCouplingSkyLi
   using std::pair;
 
   if (_topology->nbDomain()>1) throw INTERP_KERNEL::Exception("buildCellGraph should be used for one domain only");
-  const ParaMEDMEM::MEDCouplingUMesh* mesh=_mesh[0];
+  const MEDCoupling::MEDCouplingUMesh* mesh=_mesh[0];
   if (MyGlobals::_Verbose>50)
     std::cout<<"getting nodal connectivity"<<std::endl;
   
@@ -1922,7 +1922,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(ParaMEDMEM::MEDCouplingSkyLi
         vector<int> value;
         vector<int> index(1,0);
         
-        array=new ParaMEDMEM::MEDCouplingSkyLineArray(index,value);
+        array=new MEDCoupling::MEDCouplingSkyLineArray(index,value);
         return;
      }
   array=mesh->generateGraph();
@@ -1933,7 +1933,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(ParaMEDMEM::MEDCouplingSkyLi
  * \param edgeweight returns the pointer to the table that contains the edgeweights
  *        (only used if indivisible regions are required)
  */
-void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(ParaMEDMEM::MEDCouplingSkyLineArray* & array, int *& edgeweights )
+void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(MEDCoupling::MEDCouplingSkyLineArray* & array, int *& edgeweights )
 {
   using std::multimap;
   using std::vector;
@@ -1968,8 +1968,8 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(ParaMEDMEM::MEDCoupl
         continue;
       meshDim = _mesh[idomain]->getMeshDimension();
     
-      ParaMEDMEM::DataArrayInt* index=ParaMEDMEM::DataArrayInt::New();
-      ParaMEDMEM::DataArrayInt* revConn=ParaMEDMEM::DataArrayInt::New();
+      MEDCoupling::DataArrayInt* index=MEDCoupling::DataArrayInt::New();
+      MEDCoupling::DataArrayInt* revConn=MEDCoupling::DataArrayInt::New();
       int nbNodes=_mesh[idomain]->getNumberOfNodes();
       _mesh[idomain]->getReverseNodalConnectivity(revConn,index);
       //problem saturation over 1 000 000 nodes for 1 proc
@@ -2101,7 +2101,7 @@ void MEDPARTITIONER::MeshCollection::buildParallelCellGraph(ParaMEDMEM::MEDCoupl
         }
     }
 
-  array=new ParaMEDMEM::MEDCouplingSkyLineArray(index,value);
+  array=new MEDCoupling::MEDCouplingSkyLineArray(index,value);
 
   if (MyGlobals::_Verbose>100)
     {
@@ -2140,7 +2140,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
 
   if (nbdomain <1)
     throw INTERP_KERNEL::Exception("Number of subdomains must be > 0");
-  ParaMEDMEM::MEDCouplingSkyLineArray* array=0;
+  MEDCoupling::MEDCouplingSkyLineArray* array=0;
   int* edgeweights=0;
 
   if (_topology->nbDomain()>1 || isParallelMode())
@@ -2214,7 +2214,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
  */
 MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(const int* partition)
 {
-  ParaMEDMEM::MEDCouplingSkyLineArray* array=0;
+  MEDCoupling::MEDCouplingSkyLineArray* array=0;
   int* edgeweights=0;
 
   if ( _topology->nbDomain()>1)
@@ -2250,9 +2250,9 @@ void MEDPARTITIONER::MeshCollection::setDomainNames(const std::string& name)
     }
 }
 
-ParaMEDMEM::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::string descriptionField, int iold)
+MEDCoupling::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::string descriptionField, int iold)
 //getField look for and read it if not done, and assume decrRef() in ~MeshCollection;
-//something like MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
+//something like MEDCouplingFieldDouble *f2=ReadFieldCell(name,f1->getMesh()->getName(),0,f1->getName(),0,1);
 {
   int rank=MyGlobals::_Rank;
   std::string tag="ioldFieldDouble="+IntToStr(iold);
@@ -2261,7 +2261,7 @@ ParaMEDMEM::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::strin
     {
       if (MyGlobals::_Verbose>300)
         std::cout << "proc " << rank << " : YET READ getField : " << descriptionIold << std::endl;
-      ParaMEDMEM::DataArrayDouble* res=_map_dataarray_double[descriptionIold];
+      MEDCoupling::DataArrayDouble* res=_map_dataarray_double[descriptionIold];
       return res;
     }
   if (MyGlobals::_Verbose>200)
@@ -2274,10 +2274,10 @@ ParaMEDMEM::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::strin
   FieldShortDescriptionToData(descriptionIold, fieldName, typeField, entity, DT, IT);
   meshName=MyGlobals::_Mesh_Names[iold];
   
-  ParaMEDMEM::MEDCouplingFieldDouble* f2=MEDLoader::ReadField((ParaMEDMEM::TypeOfField) typeField,
-                                                              fileName, meshName, 0, fieldName, DT, IT);
+  MEDCoupling::MEDCouplingFieldDouble* f2=ReadField((MEDCoupling::TypeOfField) typeField,
+                                                    fileName, meshName, 0, fieldName, DT, IT);
   
-  ParaMEDMEM::DataArrayDouble* res=f2->getArray();
+  MEDCoupling::DataArrayDouble* res=f2->getArray();
   //to know names of components
   std::vector<std::string> browse=BrowseFieldDouble(f2);
   std::string localFieldInformation=descriptionIold+SerializeFromVectorOfString(browse);
@@ -2364,8 +2364,8 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
         {
           if (MyGlobals::_Verbose>200) 
             std::cout << "proc " << MyGlobals::_Rank << " : filterFaceOnCell on inewDomain " << inew << " nbOfFaces " << _face_mesh[inew]->getNumberOfCells() << std::endl;
-          ParaMEDMEM::MEDCouplingUMesh* mcel=_mesh[inew];
-          ParaMEDMEM::MEDCouplingUMesh* mfac=_face_mesh[inew];
+          MEDCoupling::MEDCouplingUMesh* mcel=_mesh[inew];
+          MEDCoupling::MEDCouplingUMesh* mfac=_face_mesh[inew];
       
           //to have cellnode=f(facenode)... inodeCell=nodeIds[inodeFace]
           std::vector<int> nodeIds;
@@ -2373,8 +2373,8 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
           if (nodeIds.size()==0)
             continue;  //one empty mesh nothing to do
 
-          ParaMEDMEM::DataArrayInt *revNodalCel=ParaMEDMEM::DataArrayInt::New();
-          ParaMEDMEM::DataArrayInt *revNodalIndxCel=ParaMEDMEM::DataArrayInt::New();
+          MEDCoupling::DataArrayInt *revNodalCel=MEDCoupling::DataArrayInt::New();
+          MEDCoupling::DataArrayInt *revNodalIndxCel=MEDCoupling::DataArrayInt::New();
           mcel->getReverseNodalConnectivity(revNodalCel,revNodalIndxCel);
           int *revC=revNodalCel->getPointer();
           int *revIndxC=revNodalIndxCel->getPointer();
@@ -2436,7 +2436,7 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
           if ( faceOnCell.empty() )
             _face_mesh[inew] = CreateEmptyMEDCouplingUMesh();
           else
-            _face_mesh[inew] = (ParaMEDMEM::MEDCouplingUMesh *)
+            _face_mesh[inew] = (MEDCoupling::MEDCouplingUMesh *)
               mfac->buildPartOfMySelf( &faceOnCell[0], &faceOnCell[0] + faceOnCell.size(),true);
           mfac->decrRef();
 
@@ -2444,8 +2444,8 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
           std::string key = Cle1ToStr("faceFamily_toArray",inew);
           if ( getMapDataArrayInt().count( key ))
             {
-              ParaMEDMEM::DataArrayInt * &     fam = getMapDataArrayInt()[ key ];
-              ParaMEDMEM::DataArrayInt * famFilter = ParaMEDMEM::DataArrayInt::New();
+              MEDCoupling::DataArrayInt * &     fam = getMapDataArrayInt()[ key ];
+              MEDCoupling::DataArrayInt * famFilter = MEDCoupling::DataArrayInt::New();
               famFilter->alloc(faceOnCell.size(),1);
               int* pfamFilter = famFilter->getPointer();
               int* pfam       = fam->getPointer();

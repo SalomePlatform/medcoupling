@@ -40,7 +40,7 @@
 #define ENABLE_FORCED_FAILURES
 
 using namespace std;
-using namespace ParaMEDMEM;
+using namespace MEDCoupling;
 
 void MPIAccessDECTest::test_AllToAllvTimeDECSynchronousNative() {
   test_AllToAllvTimeDEC( false , true ) ;
@@ -52,7 +52,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDECAsynchronousPointToPoint() {
   test_AllToAllvTimeDEC( true , false ) ;
 }
 
-static void chksts( int sts , int myrank , ParaMEDMEM::MPIAccess * mpi_access ) {
+static void chksts( int sts , int myrank , MEDCoupling::MPIAccess * mpi_access ) {
   char msgerr[MPI_MAX_ERROR_STRING] ;
   int lenerr ;
   if ( sts != MPI_SUCCESS ) {
@@ -101,7 +101,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
   debugStream << "test_AllToAllvTimeDEC" << myrank << " Asynchronous " << Asynchronous
        << " UseMPI_Alltoallv " << UseMPI_Alltoallv << endl ;
 
-  ParaMEDMEM::CommInterface interface ;
+  MEDCoupling::CommInterface interface ;
   std::set<int> sourceprocs;
   std::set<int> targetprocs;
   int i ;
@@ -112,8 +112,8 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
     targetprocs.insert(i);
   }
 
-  ParaMEDMEM::MPIProcessorGroup* sourcegroup = new ParaMEDMEM::MPIProcessorGroup(interface,sourceprocs) ;
-  ParaMEDMEM::MPIProcessorGroup* targetgroup = new ParaMEDMEM::MPIProcessorGroup(interface,targetprocs) ;
+  MEDCoupling::MPIProcessorGroup* sourcegroup = new MEDCoupling::MPIProcessorGroup(interface,sourceprocs) ;
+  MEDCoupling::MPIProcessorGroup* targetgroup = new MEDCoupling::MPIProcessorGroup(interface,targetprocs) ;
 
   //  TimeInterpolator * aLinearInterpDEC = new LinearTimeInterpolator( 0.5 ) ;
   MPIAccessDEC * MyMPIAccessDEC = new MPIAccessDEC( *sourcegroup , *targetgroup ,

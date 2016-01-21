@@ -71,7 +71,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m=m.buildUnstructured()
         m.setName("mesh")
         m.getCoords().setInfoOnComponents(["aa","bbb","ddddd"])
-        m.checkCoherency()
+        m.checkConsistencyLight()
         st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
         m2=cPickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
@@ -85,7 +85,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         m=m.buildUnstructured()
         m.setName("mesh")
         m.getCoords().setInfoOnComponents(["aa","bbb","ddddd"])
-        m.checkCoherency()
+        m.checkConsistencyLight()
         #
         a0,a1,a2=m.getTinySerializationInformation()
         b0,b1=m.serialize()
@@ -103,7 +103,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         #
         m=MEDCouplingCMesh() ; m.setCoords(arrX,arrY,arrZ)
         m.setName("mesh")
-        m.checkCoherency()
+        m.checkConsistencyLight()
         st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
         m2=cPickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
@@ -137,7 +137,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test8(self):
-        """ Test of a MEDCouplingExtrudedMesh pickeling."""
+        """ Test of a MEDCouplingMappedExtrudedMesh pickeling."""
         arrX=DataArrayDouble(10) ; arrX.iota() ; arrX.setInfoOnComponents(["aa"])
         arrY=DataArrayDouble(5) ; arrY.iota() ; arrY.setInfoOnComponents(["bbb"])
         arrZ=DataArrayDouble(7) ; arrZ.iota() ; arrZ.setInfoOnComponents(["cccc"])
@@ -148,8 +148,8 @@ class MEDCouplingPickleTest(unittest.TestCase):
         mesh2D=m.buildUnstructured() ; del m
         #
         mesh2D.setCoords(mesh3D.getCoords())
-        mesh=MEDCouplingExtrudedMesh(mesh3D,mesh2D,0) ; del mesh3D,mesh2D
-        self.assertTrue(isinstance(mesh,MEDCouplingExtrudedMesh))
+        mesh=MEDCouplingMappedExtrudedMesh(mesh3D,mesh2D,0) ; del mesh3D,mesh2D
+        self.assertTrue(isinstance(mesh,MEDCouplingMappedExtrudedMesh))
         st=cPickle.dumps(mesh,cPickle.HIGHEST_PROTOCOL)
         m2=cPickle.loads(st)
         self.assertTrue(m2.isEqual(mesh,1e-16))
@@ -174,7 +174,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
     def test10(self):
         """ Test of a MEDCouplingIMesh pickeling."""
         m=MEDCouplingIMesh("mesh",3,DataArrayInt([3,1,4]),DataArrayDouble([1.5,2.5,3.5]),DataArrayDouble((0.5,1.,0.25))) ; m.setAxisUnit("km")
-        m.checkCoherency()
+        m.checkConsistencyLight()
         st=cPickle.dumps(m,cPickle.HIGHEST_PROTOCOL)
         m2=cPickle.loads(st)
         self.assertTrue(m2.isEqual(m,1e-16))
@@ -193,7 +193,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         b=a[:] ; b.iota(7000.)
         f.setArray(DataArrayDouble.Meld(a,b))
         f.getArray().setInfoOnComponents(["u1","vv2"])
-        f.checkCoherency();
+        f.checkConsistencyLight();
         #
         st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
         f2=cPickle.loads(st)
@@ -239,13 +239,13 @@ class MEDCouplingPickleTest(unittest.TestCase):
         ptr=array.getPointer();
         f.setArray(array);
         f.setName("MyFirstFieldOnGaussPoint");
-        f.checkCoherency();
+        f.checkConsistencyLight();
         self.assertAlmostEqual(27.,f.getIJK(2,5,0),14);
         self.assertAlmostEqual(16.,f.getIJK(1,5,1),14);
         #
         f.clearGaussLocalizations();
         self.assertEqual(0,f.getNbOfGaussLocalization());
-        self.assertRaises(InterpKernelException,f.checkCoherency);
+        self.assertRaises(InterpKernelException,f.checkConsistencyLight);
         ids1=[0,1,3,4]
         self.assertRaises(InterpKernelException,f.setGaussLocalizationOnCells,ids1,_refCoo2,_gsCoo1,_wg1);
         self.assertEqual(0,f.getNbOfGaussLocalization());
@@ -260,7 +260,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertEqual(0,f.getGaussLocalizationIdOfOneCell(0));
         self.assertEqual(1,f.getGaussLocalizationIdOfOneCell(1));
         self.assertEqual(1,f.getGaussLocalizationIdOfOneCell(2));
-        self.assertRaises(InterpKernelException,f.checkCoherency);#<- cell 3 has no localization
+        self.assertRaises(InterpKernelException,f.checkConsistencyLight);#<- cell 3 has no localization
         ids4=[3]
         _gsCoo2=_gsCoo1;
         _wg2=_wg1;
@@ -270,10 +270,10 @@ class MEDCouplingPickleTest(unittest.TestCase):
         self.assertEqual(3,f.getNbOfGaussLocalization());
         tmpIds=f.getCellIdsHavingGaussLocalization(0);
         self.assertEqual(ids2,list(tmpIds.getValues()));
-        self.assertRaises(InterpKernelException,f.checkCoherency);#<- it's always not ok because undelying array not with the good size.
-        array2=f.getArray().substr(0,10);
+        self.assertRaises(InterpKernelException,f.checkConsistencyLight);#<- it's always not ok because undelying array not with the good size.
+        array2=f.getArray().subArray(0,10);
         f.setArray(array2);
-        f.checkCoherency();
+        f.checkConsistencyLight();
         ####
         st=cPickle.dumps(f,cPickle.HIGHEST_PROTOCOL)
         f2=cPickle.loads(st)
